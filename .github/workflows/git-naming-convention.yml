@@ -1,0 +1,73 @@
+name: Git Convention Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, edited]
+    branches:
+      - main
+  workflow_call:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  git-naming-convention:
+    name: Git Convention Check
+    if: ${{ !endsWith(github.event.pull_request.user.login, '[bot]') }}
+    runs-on: ubuntu-latest
+    env:
+      PATTERN_MESSAGE: '(HXCS|HXTS|CCECM|CIN|CICGOV|CICVIEW)-[0-9]+'
+      PATTERN_BRANCH: '^(improvement|bug|feature|test|tmp)\/(HXCS|HXTS|CCECM|CIN|CICGOV|CICVIEW)-[0-9]+[_-][A-Za-z0-9._-]+$'
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Get commit message
+        id: get_commit_message
+        shell: bash
+        run: echo "result=$(git log --pretty=format:"%s" | head -1)" >> $GITHUB_OUTPUT
+
+      - uses: bluwy/substitute-string-action@70ff0b17357670ffd3fee68e95b6de9963b66bad # v3.0.0
+        id: sanitized_commit_message
+        with:
+          _input-text: ${{ steps.get_commit_message.outputs.result }}
+          '`': "'"
+
+      - name: Check commit message
+        shell: bash
+        run: |
+          COMMIT_MSG="${{ steps.sanitized_commit_message.outputs.result }}"
+          if [[ -n "$COMMIT_MSG" && ! "$COMMIT_MSG" =~ $PATTERN_MESSAGE ]]; then
+            echo "Invalid commit message: $COMMIT_MSG"
+            echo "Expected pattern: $PATTERN_MESSAGE"
+            echo "Examples: \"HXCS-123 add test\" or \"CCECM-456 fix bug\""
+            exit 1
+          fi
+
+      - name: Check branch name
+        shell: bash
+        run: |
+          BRANCH_NAME="${{ github.head_ref }}"
+          if [[ -n "$BRANCH_NAME" && ! "$BRANCH_NAME" =~ $PATTERN_BRANCH ]]; then
+            echo "Invalid branch name: $BRANCH_NAME"
+            echo "Expected pattern: $PATTERN_BRANCH"
+            echo "Examples: \"improvement/HXCS-123-add-test\" or \"bug/CCECM-456-fix-bug\""
+            exit 1
+          fi
+
+      - name: Check pull request title
+        run: |
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          if [[ ! $PR_TITLE =~ $PATTERN_MESSAGE ]]; then
+            echo "Invalid pull request title: $PR_TITLE"
+            echo "Expected pattern: $PATTERN_MESSAGE"
+            echo "Examples: \"HXCS-123 add test\" or \"CCECM-456 fix bug\""
+            exit 1
+          fi
+
+      - name: Ensure SHA pinned actions
+        uses: zgosalvez/github-actions-ensure-sha-pinned-actions@d5d20e15f2736816ee0e001ba8b24b54d9ffcff4 # v5.0.0
+        with:
+          allowlist: HylandSoftware # do not enforce when referencing actions that we control
+
+      - uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1

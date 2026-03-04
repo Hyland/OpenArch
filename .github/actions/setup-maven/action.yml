@@ -1,0 +1,20 @@
+name: Setup Maven (inc Nexus)
+description: 'Installs settings.xml file for Maven to use repositories and sets up environment variables'
+inputs:
+  nexus-username:
+    required: true
+    description: 'The username for Nexus'
+  nexus-password:
+    required: true
+    description: 'The password for Nexus'
+runs:
+  using: "composite"
+  steps:
+    - name: Install settings.xml
+      shell: bash
+      run: mkdir -p ~/.m2 && cp -rf ${GITHUB_WORKSPACE}/.github/settings.xml ~/.m2/
+    - name: Setup environment credentials
+      shell: bash
+      run: |
+        echo "NEXUS_USERNAME=${{ inputs.nexus-username }}" >> $GITHUB_ENV
+        echo "NEXUS_PASSWORD=${{ inputs.nexus-password }}" >> $GITHUB_ENV

@@ -1,0 +1,56 @@
+# system/backups
+*~
+*.bak
+.DS_Store
+*.orig
+*.rej
+
+# jenkins x
+.stignore
+*~gen
+
+# ide
+bin
+.classpath
+.metadata
+.project
+.settings/
+.checkstyle
+.mylar
+.idea
+*.iml
+*.ipr
+*.iws
+*.ids
+.pydevproject
+.factorypath
+.vscode
+
+# build artifacts
+target*/
+nashorn_code_cache/
+chromedriver.log
+*.log
+*.pyc
+
+#maven-release-plugin
+release.properties
+pom.xml.releaseBackup
+
+# Helm charts
+**/*.tgz
+**/*.lock
+
+# postman tests
+ftests/postman-tests/package-lock.json
+
+**/node_modules
+clients/hxcs-js-client/dist
+clients/hxcs-js-client/src
+
+# sonarcloud reports
+/jacoco/
+
+# local development servers (vscode)
+/nxserver/
+/nuxeo/

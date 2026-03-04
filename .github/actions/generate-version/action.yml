@@ -1,0 +1,87 @@
+name: 'Generate Version'
+description: 'Generate semantic version with automatic patch increment'
+inputs:
+  base-version:
+    description: 'Base version (major.minor) to use'
+    required: false
+    default: '2.1'
+outputs:
+  version:
+    description: 'Generated version string'
+    value: ${{ steps.version.outputs.version }}
+  semantic-version:
+    description: 'Semantic version (major.minor.patch)'
+    value: ${{ steps.version.outputs.semantic-version }}
+  full-version:
+    description: 'Full version with metadata'
+    value: ${{ steps.version.outputs.full-version }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Generate version
+      id: version
+      shell: bash
+      run: |
+        BASE_VERSION="${{ inputs.base-version }}"
+
+        # Get latest tag that matches our base version pattern
+        LATEST_TAG=$(git tag -l "${BASE_VERSION}.*" --sort=-version:refname | head -n1)
+
+        if [ -z "$LATEST_TAG" ]; then
+          # No existing tag found, start with patch version 0
+          PATCH_VERSION=0
+        else
+          # Extract patch version from latest tag and increment
+          PATCH_VERSION=$(echo "$LATEST_TAG" | cut -d. -f3 | head -c 10)
+          # Handle cases where patch version might have additional metadata
+          PATCH_VERSION=$(echo "$PATCH_VERSION" | grep -o '^[0-9]*')
+          PATCH_VERSION=$((PATCH_VERSION + 1))
+        fi
+
+        SEMANTIC_VERSION="${BASE_VERSION}.${PATCH_VERSION}"
+
+        # Get current branch name
+        if [ "${{ github.event_name }}" == "pull_request" ]; then
+          BRANCH_NAME="${{ github.event.pull_request.head.ref }}"
+          EVENT_TYPE="pull_request"
+        else
+          BRANCH_NAME="${{ github.ref_name }}"
+          EVENT_TYPE="push"
+        fi
+
+        # Get short SHA
+        SHORT_SHA=$(git rev-parse --short HEAD)
+
+        # Generate version based on context
+        if [ "$EVENT_TYPE" == "pull_request" ]; then
+          # For PR: semantic-version-PullRequestXXXX.Y-runid
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          PR_COMMITS="${{ github.event.pull_request.commits }}"
+          VERSION="${SEMANTIC_VERSION}-PullRequest${PR_NUMBER}.${PR_COMMITS}-${{ github.run_id }}"
+          FULL_VERSION="$VERSION"
+        elif [ "$BRANCH_NAME" == "master" ] || [ "$BRANCH_NAME" == "main" ]; then
+          # For master: clean semantic version
+          VERSION="$SEMANTIC_VERSION"
+          FULL_VERSION="$SEMANTIC_VERSION"
+        else
+          # For feature branches: semantic-version-branchname-runid
+          CLEAN_BRANCH=$(echo "$BRANCH_NAME" | sed -e 's/[^-_.[:alnum:]]/_/g')
+          VERSION="${SEMANTIC_VERSION}-${CLEAN_BRANCH}-${{ github.run_id }}"
+          FULL_VERSION="$VERSION"
+        fi
+
+        # Clean version for docker tags (replace invalid characters)
+        CLEAN_VERSION=$(echo "$VERSION" | sed -e 's/[^-_.[:alnum:]]/_/g')
+
+        echo "Base version: $BASE_VERSION"
+        echo "Patch version: $PATCH_VERSION"
+        echo "Semantic version: $SEMANTIC_VERSION"
+        echo "Generated version: $VERSION"
+        echo "Clean version: $CLEAN_VERSION"
+        echo "Full version: $FULL_VERSION"
+
+        # Set outputs
+        echo "version=$CLEAN_VERSION" >> $GITHUB_OUTPUT
+        echo "semantic-version=$SEMANTIC_VERSION" >> $GITHUB_OUTPUT
+        echo "full-version=$FULL_VERSION" >> $GITHUB_OUTPUT

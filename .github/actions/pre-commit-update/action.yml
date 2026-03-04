@@ -1,0 +1,31 @@
+name: Pre-commit update
+description: Create PR to keep versions of images on Docker compose updated
+
+# This action doesn't ude the pre-commit action directly, because it runs by default pre-commit itself and usually it fails
+# due to checks on branch name.
+# The code is copied from https://github.com/pre-commit/action
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+    - run: python -m pip install pre-commit
+      shell: bash
+    - run: python -m pip freeze --local
+      shell: bash
+    - uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+      with:
+        path: ~/.cache/pre-commit
+        key: pre-commit-3|${{ env.pythonLocation }}|${{ hashFiles('.pre-commit-config.yaml') }}
+
+    - name: Pre-commit update
+      run: pre-commit autoupdate --freeze --config .pre-commit-config.yaml
+      shell: bash
+
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0 # v8.1.0
+      with:
+        branch: update/pre-commit-version
+        labels: dependencies
+        sign-commits: true
+        body: "New version of pre-commit hooks are available"
+        title: "Bump pre-commit hooks versions"

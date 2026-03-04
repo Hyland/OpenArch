@@ -1,0 +1,45 @@
+default_stages: [pre-commit]
+
+repos:
+
+  - repo: local
+    hooks:
+      - id: git-commit-msg-convention
+        name: "Check for commit message convention"
+        language: pygrep
+        entry: '\A(?!(HXCS|HXTS|CCECM|CIN|CICGOV|CICVIEW)-[0-9]+ .+)'
+        args: [ --multiline ]
+        stages: [ commit-msg ]
+        verbose: true
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c  # frozen: v6.0.0
+    hooks:
+      - id: fix-byte-order-marker
+      - id: mixed-line-ending
+        args: [ '--fix=lf' ]
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+        exclude: (modules/runtime/hxpr-common/src/test/resources/test-xmap-saved.xml)
+      - id: check-yaml
+      - id: check-json
+        exclude: (query_re(q|s).*\.json$|devcontainer.json)
+      - id: check-xml
+        exclude: (empty-xml.xml|invalid-xml.xml)
+      - id: check-merge-conflict
+      - id: detect-aws-credentials
+        args:
+          - --allow-missing-credentials
+      - id: detect-private-key
+
+  - repo: https://github.com/sirwart/ripsecrets.git
+    rev: 7d94620933e79b8acaa0cd9e60e9864b07673d86  # frozen: v0.1.11
+    hooks:
+      - id: ripsecrets
+
+  - repo: https://github.com/sirosen/check-jsonschema
+    rev: b035497fb64e3f9faa91e833331688cc185891e6  # frozen: 0.36.0
+    hooks:
+      - id: check-dependabot
+      - id: check-github-actions
+      - id: check-github-workflows
