@@ -79,19 +79,20 @@ jobs:
             echo "BRANCH_NAME=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
             echo "GITHUB_PR=false" >> $GITHUB_ENV
           fi
-#      - name: Release to Maven
-#        if: github.ref == 'refs/heads/main'
-#        env:
-#          RELEASE_USERNAME: ${{ env.GH_ACTOR }}
-#          RELEASE_USER_PAT: ${{ secrets.GH_CI_CD_PAT }}
-#          RELEASE_USER_EMAIL: "noreply@hyland.com"
-#        run: _ci/release.sh
+      - name: Release to Maven
+        if: github.ref == 'refs/heads/main'
+        env:
+          RELEASE_USERNAME: ${{ env.GH_ACTOR }}
+          RELEASE_USER_PAT: ${{ secrets.GH_CI_CD_PAT }}
+          RELEASE_USER_EMAIL: "noreply@hyland.com"
+          PERFORM_RELEASE: false
+        run: _ci/release.sh
 
   notify:
     runs-on: ubuntu-slim
     needs:
       - build
-    if: always() && failure() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: always() && failure() && github.event_name == 'push'
     steps:
       - name: Teams Notification
         uses: Alfresco/alfresco-build-tools/.github/actions/send-teams-notification@6a31fc8a9e6ecf521d09eb05efbbe76541aed668 # v12.12.0

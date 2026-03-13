@@ -13,6 +13,13 @@
 
   <dependencies>
     <!-- Modules -->
+
+    <!-- Runtime -->
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-common</artifactId>
+      <version>${project.version}</version>
+    </dependency>
   </dependencies>
   <build>
     <plugins>

@@ -13,13 +13,18 @@ git checkout -B "${BRANCH_NAME}"
 git config user.name "${RELEASE_USERNAME}"
 git config user.email "<${RELEASE_USER_EMAIL}>"
 
+RELEASE=""
+if [ ${PERFORM_RELEASE} = true ]; then
+    RELEASE="release:perform"
+fi
+
 # Run the release plugin - with "[skip ci]" in the release commit message
 # We add the profiles build-all so that all modules are built and versions updated
 mvn -B \
     -Dhttp.keepAlive=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120 \
     -Prelease,build-all \
     "-Darguments=-Prelease -DskipTests -Dmaven.javadoc.skip -Dadditionalparam=-Xdoclint:none" \
-    release:clean release:prepare release:perform \
+    release:clean release:prepare ${RELEASE} \
     -DscmCommentPrefix="[maven-release-plugin][skip ci] " \
     -Dusername=${RELEASE_USERNAME} \
     -Dpassword=${RELEASE_USER_PAT}

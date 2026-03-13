@@ -12,6 +12,7 @@
   <name>HxPR Community Runtime Parent</name>
 
   <modules>
+    <module>hxpr-common</module>
   </modules>
 
     <dependencies>
