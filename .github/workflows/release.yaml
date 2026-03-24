@@ -1,0 +1,89 @@
+name: Release HxPR Community version
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'modules/**'
+      - 'server/**'
+      - 'sonarcloud/**'
+      - 'pom.xml'
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+permissions:
+  actions: read
+  contents: write
+  packages: write
+  id-token: write
+  security-events: write
+  pull-requests: write
+env:
+  GH_ACTOR: hxpcscicduser
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  build:
+    name: Build project and perform release
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ env.VERSION }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Set up JDK 25
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
+        with:
+          java-version: '25'
+          distribution: 'corretto'
+          server-id: hylandsoftware-github
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
+      - name: Maven Settings (inc Nexus)
+        uses: ./.github/actions/setup-maven
+        with:
+          nexus-username: ${{ secrets.NEXUS_USERNAME }}
+          nexus-password: ${{ secrets.NEXUS_PASSWORD }}
+      - name: Generate Version
+        id: version
+        uses: ./.github/actions/generate-version
+        with:
+          base-version: '2.1'
+      - name: Set VERSION in env (also used as docker tag)
+        run: echo "VERSION=${{ steps.version.outputs.version }}" >> $GITHUB_ENV
+      - name: Compile project
+        run: mvn clean install -DskipTests
+      - name: Set BRANCH_NAME
+        shell: bash
+        run: |
+          echo "BRANCH_NAME=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+      - name: Release new HxPR version tag
+        env:
+          RELEASE_USERNAME: ${{ env.GH_ACTOR }}
+          RELEASE_USER_PAT: ${{ secrets.GH_CI_CD_PAT }}
+          RELEASE_USER_EMAIL: "noreply@hyland.com"
+          RELEASE_PERFORM: false
+          # RELEASE_PERFORM: true
+          # DISTRIBUTION_REPO_URL: https://maven.pkg.github.com/HylandSoftware/hxpr-community
+          # CLASSIFIER_PARAM: "-Pclassifier -Dclassifier.name=someclassifier"
+        run: _ci/release.sh
+
+  notify:
+    runs-on: ubuntu-slim
+    needs:
+      - build
+    if: always() && failure() && github.event_name == 'push'
+    steps:
+      - name: Teams Notification
+        uses: Alfresco/alfresco-build-tools/.github/actions/send-teams-notification@6a31fc8a9e6ecf521d09eb05efbbe76541aed668 # v12.12.0
+        with:
+          webhook-url: ${{ secrets.TEAMS_GA_NOTIFS_WEBHOOK_URL }}

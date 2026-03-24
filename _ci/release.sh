@@ -14,8 +14,18 @@ git config user.name "${RELEASE_USERNAME}"
 git config user.email "<${RELEASE_USER_EMAIL}>"
 
 RELEASE=""
-if [ ${PERFORM_RELEASE} = true ]; then
+if [[ ${RELEASE_PERFORM} = true ]]; then
     RELEASE="release:perform"
+fi
+
+ARTIFACT_URL=""
+if [[ -n ${DISTRIBUTION_REPO_URL} ]]; then
+    ARTIFACT_URL="-Ddistribution-repository.url=${DISTRIBUTION_REPO_URL}"
+fi
+
+CLASSIFIERS=""
+if [[ -n ${CLASSIFIER_PARAM} ]]; then
+    CLASSIFIERS="${CLASSIFIER_PARAM}"
 fi
 
 # Run the release plugin - with "[skip ci]" in the release commit message
@@ -23,7 +33,7 @@ fi
 mvn -B \
     -Dhttp.keepAlive=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120 \
     -Prelease,build-all \
-    "-Darguments=-Prelease -DskipTests -Dmaven.javadoc.skip -Dadditionalparam=-Xdoclint:none" \
+    "-Darguments=-Prelease ${CLASSIFIERS} ${ARTIFACT_URL} -DskipTests -Dmaven.javadoc.skip -Dadditionalparam=-Xdoclint:none" \
     release:clean release:prepare ${RELEASE} \
     -DscmCommentPrefix="[maven-release-plugin][skip ci] " \
     -Dusername=${RELEASE_USERNAME} \

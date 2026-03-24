@@ -5,14 +5,14 @@ on:
     types: [opened, synchronize, reopened, labeled, edited]
     branches:
       - main
-  workflow_call:
+      - internal
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 jobs:
   git-naming-convention:
     name: Git Convention Check
-    if: ${{ !endsWith(github.event.pull_request.user.login, '[bot]') }}
+    if: ${{ !endsWith(github.event.pull_request.user.login, '[bot]') || github.ref != 'refs/heads/internal' }}
     runs-on: ubuntu-latest
     env:
       PATTERN_MESSAGE: '(HXCS|HXTS|CCECM|CIN|CICGOV|CICVIEW)-[0-9]+'
