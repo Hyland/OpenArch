@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.hyland.hxpr</groupId>
   <artifactId>hxpr-community-parent</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.0.1</version>
   <packaging>pom</packaging>
   <name>HxPR Community Parent</name>
 
@@ -30,7 +30,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-    <hyland.platform.version>0.0.1-SNAPSHOT</hyland.platform.version>
+    <hyland.platform.version>0.0.1</hyland.platform.version>
     <hyland.distribution.name>community</hyland.distribution.name>
 
     <compiler-plugin.version>3.13.0</compiler-plugin.version>
@@ -554,7 +554,7 @@
     <connection>scm:git:https://github.com/HylandSoftware/hxpr-community.git</connection>
     <developerConnection>scm:git:https://github.com/HylandSoftware/hxpr-community.git</developerConnection>
     <url>https://github.com/HylandSoftware/hxpr-community</url>
-    <tag>0.0.1-SNAPSHOT</tag>
+    <tag>0.0.1</tag>
   </scm>
 
   <distributionManagement>
