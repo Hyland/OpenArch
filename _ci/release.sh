@@ -13,6 +13,11 @@ git checkout -B "${BRANCH_NAME}"
 git config user.name "${RELEASE_USERNAME}"
 git config user.email "<${RELEASE_USER_EMAIL}>"
 
+PREPARE=""
+if [[ ${RELEASE_PREPARE} = true ]]; then
+    PREPARE="release:prepare"
+fi
+
 RELEASE=""
 if [[ ${RELEASE_PERFORM} = true ]]; then
     RELEASE="release:perform"
@@ -34,7 +39,7 @@ mvn -B \
     -Dhttp.keepAlive=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120 \
     -Prelease,build-all \
     "-Darguments=-Prelease ${CLASSIFIERS} ${ARTIFACT_URL} -DskipTests -Dmaven.javadoc.skip -Dadditionalparam=-Xdoclint:none" \
-    release:clean release:prepare ${RELEASE} \
+    release:clean ${PREPARE} ${RELEASE} \
     -DscmCommentPrefix="[maven-release-plugin][skip ci] " \
     -Dusername=${RELEASE_USERNAME} \
     -Dpassword=${RELEASE_USER_PAT}

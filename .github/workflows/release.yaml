@@ -66,11 +66,12 @@ jobs:
         shell: bash
         run: |
           echo "BRANCH_NAME=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
-      - name: Release new HxPR version tag
+      - name: Release new HxPR version
         env:
           RELEASE_USERNAME: ${{ env.GH_ACTOR }}
           RELEASE_USER_PAT: ${{ secrets.GH_CI_CD_PAT }}
           RELEASE_USER_EMAIL: "noreply@hyland.com"
+          RELEASE_PREPARE: true
           RELEASE_PERFORM: false
           # RELEASE_PERFORM: true
           # DISTRIBUTION_REPO_URL: https://maven.pkg.github.com/HylandSoftware/hxpr-community
