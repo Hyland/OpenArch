@@ -75,6 +75,7 @@ jobs:
           RELEASE_PERFORM: false
           # RELEASE_PERFORM: true
           # DISTRIBUTION_REPO_URL: https://maven.pkg.github.com/HylandSoftware/hxpr-community
+          # RELEASE_PERFORM_WITH_CLASSIFIER: true
           # CLASSIFIER_PARAM: "-Pclassifier -Dclassifier.name=someclassifier"
         run: _ci/release.sh
 

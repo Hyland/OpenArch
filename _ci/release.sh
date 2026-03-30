@@ -29,7 +29,7 @@ if [[ -n ${DISTRIBUTION_REPO_URL} ]]; then
 fi
 
 CLASSIFIERS=""
-if [[ -n ${CLASSIFIER_PARAM} ]]; then
+if [[ ${RELEASE_PERFORM_WITH_CLASSIFIER} = true && -n ${CLASSIFIER_PARAM} ]]; then
     CLASSIFIERS="${CLASSIFIER_PARAM}"
 fi
 
