@@ -54,3 +54,7 @@ clients/hxcs-js-client/src
 # local development servers (vscode)
 /nxserver/
 /nuxeo/
+
+# Claude AI
+.claude
+CLAUDE.md
