@@ -5,10 +5,11 @@
     <groupId>com.hyland.hxpr</groupId>
     <artifactId>hxpr-community-server</artifactId>
     <version>0.0.2-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
   </parent>
 
   <groupId>com.hyland.hxpr</groupId>
-  <artifactId>hxpr-community-app</artifactId>
+  <artifactId>hxpr-community-internal-app</artifactId>
   <name>HxPR Community App</name>
 
   <dependencies>
@@ -27,6 +28,14 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>io.github.git-commit-id</groupId>
+        <artifactId>git-commit-id-maven-plugin</artifactId>
+        <version>${git-commit-id-plugin.version}</version>
+        <configuration>
+          <verbose>false</verbose>
+        </configuration>
       </plugin>
     </plugins>
   </build>

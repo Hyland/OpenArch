@@ -2,13 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.hyland.hxpr</groupId>
-  <artifactId>hxpr-community-parent</artifactId>
+  <artifactId>hxpr-community-internal-parent</artifactId>
   <version>0.0.2-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <name>HxPR Community Parent</name>
+  <name>HxPR Community Internal Parent</name>
 
   <inceptionYear>2026</inceptionYear>
-  <url>https://github.com/HylandSoftware/hxpr-community</url>
+  <url>https://github.com/HylandSoftware/hxpr-community-internal</url>
   <organization>
     <name>Hyland Software Inc.</name>
     <url>https://www.hyland.com</url>
@@ -30,7 +30,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-    <hyland.platform.version>0.0.2-SNAPSHOT</hyland.platform.version>
+    <hyland.platform.version>${project.version}</hyland.platform.version>
     <hyland.distribution.name>community</hyland.distribution.name>
 
     <compiler-plugin.version>3.13.0</compiler-plugin.version>
@@ -72,6 +72,7 @@
     <xercesImpl.version>2.12.2</xercesImpl.version>
     <apache.httpcomponents.version>4.5.14</apache.httpcomponents.version>
     <opencensus.version>0.31.1</opencensus.version>
+    <git-commit-id-plugin.version>9.0.2</git-commit-id-plugin.version>
 
     <nuxeo.skip.enforcer>false</nuxeo.skip.enforcer>
     <nuxeo.skip.enforcer.convergence>false</nuxeo.skip.enforcer.convergence>
@@ -82,7 +83,7 @@
 
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
-        <artifactId>hxpr-community-parent</artifactId>
+        <artifactId>hxpr-community-internal-parent</artifactId>
         <type>zip</type>
         <classifier>tools</classifier>
         <version>${hyland.platform.version}</version>
@@ -551,9 +552,9 @@
   </profiles>
 
   <scm>
-    <connection>scm:git:https://github.com/HylandSoftware/hxpr-community.git</connection>
-    <developerConnection>scm:git:https://github.com/HylandSoftware/hxpr-community.git</developerConnection>
-    <url>https://github.com/HylandSoftware/hxpr-community</url>
+    <connection>scm:git:https://github.com/HylandSoftware/hxpr-community-internal.git</connection>
+    <developerConnection>scm:git:https://github.com/HylandSoftware/hxpr-community-internal.git</developerConnection>
+    <url>https://github.com/HylandSoftware/hxpr-community-internal</url>
     <tag>0.0.1-SNAPSHOT</tag>
   </scm>
 

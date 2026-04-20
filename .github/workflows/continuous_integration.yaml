@@ -31,6 +31,8 @@ permissions:
 env:
   GH_ACTOR: hxpcscicduser
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GHCR: ghcr.io/hylandsoftware/
+  IMAGE_NAME: hxpr-community-internal-app-jvm
 
 jobs:
   build:
@@ -74,9 +76,22 @@ jobs:
         id: version
         uses: ./.github/actions/generate-version
         with:
-          base-version: '2.1'
+          base-version: '0.1'
       - name: Set VERSION in env (also used as docker tag)
         run: echo "VERSION=${{ steps.version.outputs.version }}" >> $GITHUB_ENV
+      - name: Set Maven version to current build
+        run: mvn --no-transfer-progress versions:set -DnewVersion=${{ env.VERSION }} -DgenerateBackupPoms=false
+      - name: Set Product version to current build
+        run: sed -i 's/^org\.nuxeo\.ecm\.product\.version=.*$/org\.nuxeo\.ecm\.product\.version=${{ env.VERSION }}/g' ./server/hxpr-community-internal-app/src/main/resources/application.properties
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a # v4.0.0
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
+        with:
+          driver: docker-container
+          # apply fix from https://github.com/moby/buildkit/issues/3969
+          driver-opts: |
+            network=host
       - name: Compile project
         run: mvn clean install -DskipTests
       - name: Set BRANCH_NAME and GITHUB_PR
@@ -89,6 +104,65 @@ jobs:
             echo "BRANCH_NAME=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
             echo "GITHUB_PR=false" >> $GITHUB_ENV
           fi
+      - name: Docker Compose Up
+        id: compose
+        working-directory: ./server/hxpr-community-internal-app
+        run: docker compose up --quiet-pull -d
+      - name: Build HxPR Community Server with Maven
+        run: |
+          mvn --no-transfer-progress -nsu verify \
+          -f server/hxpr-community-internal-app -Plicense-check \
+          -Dnuxeo.mongodb.server=$MONGODB_HOST:$MONGODB_PORT \
+          -Dnuxeo.mongodb.dbname=unittests
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # use localhost for the host here because we are running the job on the VM.
+          MONGODB_HOST: localhost
+          MONGODB_PORT: 27017
+
+      - name: Create and push git tag
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          git config --global user.email "actions-user@users.noreply.github.com"
+          git config --global user.name "actions-user"
+          git tag -a ${{ env.VERSION }} -m "${{ env.VERSION }}"
+          git push origin ${{ env.VERSION }}
+
+      - name: Login to ghcr.io in read only mode
+        uses: docker/login-action@b45d80f862d83dbcd57f89517bcf500b2ab88fb2 # v4.0.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GH_PACKAGES_RO_PAT }}
+
+      - name: Build Docker Image
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
+        with:
+          context: ./server/hxpr-community-internal-app
+          file: ./server/hxpr-community-internal-app/src/main/docker/Dockerfile
+          tags: ghcr.io/hylandsoftware/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
+          platforms: linux/amd64,linux/arm64
+          push: false
+          build-args: |
+            BUILD_DATE=$(date -u "+%Y-%m-%dT%H:%M:%S")
+            COMMIT_SHA=${{ github.sha }}
+            BUILD_URL=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+      - name: Login to ghcr.io in write mode
+        uses: docker/login-action@b45d80f862d83dbcd57f89517bcf500b2ab88fb2 # v4.0.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push Docker Image
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
+        with:
+          context: ./server/hxpr-community-internal-app
+          file: ./server/hxpr-community-internal-app/src/main/docker/Dockerfile
+          tags: ghcr.io/hylandsoftware/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
+          platforms: linux/amd64,linux/arm64
+          push: true
 
   notify:
     runs-on: ubuntu-slim

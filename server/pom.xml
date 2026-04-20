@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.hyland.hxpr</groupId>
-    <artifactId>hxpr-community-parent</artifactId>
+    <artifactId>hxpr-community-internal-parent</artifactId>
     <version>0.0.2-SNAPSHOT</version>
   </parent>
 
@@ -12,7 +12,7 @@
   <name>HxPR Community Server</name>
 
   <modules>
-    <module>hxpr-community-app</module>
+    <module>hxpr-community-internal-app</module>
   </modules>
 
 </project>
