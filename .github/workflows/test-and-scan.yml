@@ -181,7 +181,7 @@ jobs:
         id: version
         uses: ./.github/actions/generate-version
         with:
-          base-version: '2.1'
+          base-version: '0.1'
       - name: Maven Settings (inc Nexus)
         uses: ./.github/actions/setup-maven
         with:

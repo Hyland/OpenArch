@@ -30,7 +30,6 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-    <hyland.platform.version>${project.version}</hyland.platform.version>
     <hyland.distribution.name>community</hyland.distribution.name>
 
     <compiler-plugin.version>3.13.0</compiler-plugin.version>
@@ -86,12 +85,12 @@
         <artifactId>hxpr-community-internal-parent</artifactId>
         <type>zip</type>
         <classifier>tools</classifier>
-        <version>${hyland.platform.version}</version>
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
         <artifactId>hxpr-common</artifactId>
-        <version>${hyland.platform.version}</version>
+        <version>${project.version}</version>
       </dependency>
 
       <!-- commons -->
@@ -555,7 +554,7 @@
     <connection>scm:git:https://github.com/HylandSoftware/hxpr-community-internal.git</connection>
     <developerConnection>scm:git:https://github.com/HylandSoftware/hxpr-community-internal.git</developerConnection>
     <url>https://github.com/HylandSoftware/hxpr-community-internal</url>
-    <tag>0.0.1-SNAPSHOT</tag>
+    <tag>0.0.2-SNAPSHOT</tag>
   </scm>
 
   <distributionManagement>

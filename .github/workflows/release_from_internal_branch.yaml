@@ -57,7 +57,7 @@ jobs:
         id: version
         uses: ./.github/actions/generate-version
         with:
-          base-version: '2.1'
+          base-version: '0.1'
       - name: Set VERSION in env (also used as docker tag)
         run: echo "VERSION=${{ steps.version.outputs.version }}" >> $GITHUB_ENV
       - name: Compile project

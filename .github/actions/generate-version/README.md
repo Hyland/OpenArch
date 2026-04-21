@@ -18,7 +18,7 @@ A simpler versioning strategy that automatically increments the patch version fo
   id: version
   uses: ./.github/actions/generate-version
   with:
-    base-version: '2.1'  # Optional, defaults to '2.1'
+    base-version: '0.1'  # Optional, defaults to '0.1'
 
 - name: Use generated version
   run: |
@@ -40,7 +40,7 @@ To manually increment the major or minor version, follow these steps:
    - name: Generate Version
      uses: ./.github/actions/generate-version
      with:
-       base-version: '2.2'  # Changed from '2.1'
+       base-version: '0.2'  # Changed from '0.1'
    ```
 
 2. **For Major Version Increment** (e.g., 2.1.x → 3.0.x):
@@ -49,7 +49,7 @@ To manually increment the major or minor version, follow these steps:
    - name: Generate Version
      uses: ./.github/actions/generate-version
      with:
-       base-version: '3.0'  # Changed from '2.1'
+       base-version: '1.0'  # Changed from '0.1'
    ```
 
 #### Option 2: Create a manual tag
@@ -62,7 +62,7 @@ To manually increment the major or minor version, follow these steps:
 
 2. **Update the base-version** in both workflows to match:
    ```yaml
-   base-version: '2.2'
+   base-version: '0.2'
    ```
 
 ### Best Practices
