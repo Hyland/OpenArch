@@ -72,6 +72,10 @@
     <apache.httpcomponents.version>4.5.14</apache.httpcomponents.version>
     <opencensus.version>0.31.1</opencensus.version>
     <git-commit-id-plugin.version>9.0.2</git-commit-id-plugin.version>
+    <classgraph.version>4.8.184</classgraph.version>
+    <metrics-bom.version>5.0.6</metrics-bom.version>
+    <osgi.version>4.3.1</osgi.version>
+    <jakarta.enterprise.cdi.version>4.1.0</jakarta.enterprise.cdi.version>
 
     <nuxeo.skip.enforcer>false</nuxeo.skip.enforcer>
     <nuxeo.skip.enforcer.convergence>false</nuxeo.skip.enforcer.convergence>
@@ -91,6 +95,11 @@
         <groupId>com.hyland.hxpr</groupId>
         <artifactId>hxpr-common</artifactId>
         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-runtime</artifactId>
+        <version>${hyland.platform.version}</version>
       </dependency>
 
       <!-- commons -->
@@ -127,6 +136,28 @@
         <groupId>io.opencensus</groupId>
         <artifactId>opencensus-api</artifactId>
         <version>${opencensus.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.github.classgraph</groupId>
+        <artifactId>classgraph</artifactId>
+        <version>${classgraph.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.dropwizard.metrics5</groupId>
+        <artifactId>metrics-bom</artifactId>
+        <version>${metrics-bom.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.osgi</groupId>
+        <artifactId>org.osgi.core</artifactId>
+        <version>${osgi.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>jakarta.enterprise</groupId>
+        <artifactId>jakarta.enterprise.cdi-api</artifactId>
+        <version>${jakarta.enterprise.cdi.version}</version>
       </dependency>
 
     </dependencies>

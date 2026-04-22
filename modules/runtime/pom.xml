@@ -13,6 +13,7 @@
 
   <modules>
     <module>hxpr-common</module>
+    <module>hxpr-runtime</module>
   </modules>
 
     <dependencies>
