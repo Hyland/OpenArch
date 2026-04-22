@@ -1,0 +1,3 @@
+Manifest-Version: 1.0
+Bundle-Name: HxPR Community Internal Application
+Bundle-SymbolicName: com.hyland.hxpr.app;singleton:=true
