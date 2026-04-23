@@ -40,7 +40,7 @@
 
     <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
     <classifier.name>none</classifier.name>
-    <hxpr.jar.skip>false</hxpr.jar.skip>
+    <manifest.file />
     <distribution-repository.url>https://example.com</distribution-repository.url>
     <buildnumber-maven-plugin.version>3.3.0</buildnumber-maven-plugin.version>
     <parent-core-deploy.skip>false</parent-core-deploy.skip>
@@ -289,9 +289,8 @@
           <artifactId>maven-jar-plugin</artifactId>
           <version>${maven-jar-plugin.version}</version>
           <configuration>
-            <skip>${hxpr.jar.skip}</skip>
             <archive>
-              <manifestFile>src/main/resources/META-INF/MANIFEST.MF</manifestFile>
+              <manifestFile>${manifest.file}</manifestFile>
               <manifestEntries>
                 <Bundle-Version>${project.version}-t${buildNumber}</Bundle-Version>
                 <Bundle-ManifestVersion>2</Bundle-ManifestVersion>

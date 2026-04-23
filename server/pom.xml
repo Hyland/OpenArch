@@ -11,10 +11,6 @@
   <packaging>pom</packaging>
   <name>HxPR Community Server</name>
 
-  <properties>
-    <hxpr.jar.skip>true</hxpr.jar.skip>
-  </properties>
-
   <modules>
     <module>hxpr-community-internal-app</module>
   </modules>

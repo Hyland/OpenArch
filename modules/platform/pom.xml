@@ -11,10 +11,6 @@
   <packaging>pom</packaging>
   <name>HxPR Community Platform Parent</name>
 
-  <properties>
-    <hxpr.jar.skip>true</hxpr.jar.skip>
-  </properties>
-
   <modules>
   </modules>
 

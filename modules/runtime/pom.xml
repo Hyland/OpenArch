@@ -16,10 +16,6 @@
     <module>hxpr-runtime</module>
   </modules>
 
-  <properties>
-    <hxpr.jar.skip>true</hxpr.jar.skip>
-  </properties>
-
   <dependencies>
   </dependencies>
 </project>

@@ -10,10 +10,6 @@
   <packaging>pom</packaging>
   <name>HxPR Community Modules</name>
 
-  <properties>
-    <hxpr.jar.skip>true</hxpr.jar.skip>
-  </properties>
-
   <modules>
     <module>core</module>
     <module>runtime</module>

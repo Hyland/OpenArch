@@ -12,8 +12,9 @@
   <name>HxPR Common</name>
 
   <properties>
-      <maven.compiler.source>25</maven.compiler.source>
-      <maven.compiler.target>25</maven.compiler.target>
+    <maven.compiler.source>25</maven.compiler.source>
+    <maven.compiler.target>25</maven.compiler.target>
+    <manifest.file>src/main/resources/META-INF/MANIFEST.MF</manifest.file>
   </properties>
 
   <dependencies>

@@ -12,6 +12,10 @@
   <artifactId>hxpr-community-internal-app</artifactId>
   <name>HxPR Community App</name>
 
+  <properties>
+    <manifest.file>src/main/resources/META-INF/MANIFEST.MF</manifest.file>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
