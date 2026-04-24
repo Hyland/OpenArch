@@ -69,6 +69,7 @@
     <springdoc.version>2.8.14</springdoc.version>
 
     <commons-io.version>2.21.0</commons-io.version>
+    <commons-codec.version>1.21.0</commons-codec.version>
     <xercesImpl.version>2.12.2</xercesImpl.version>
     <apache.httpcomponents.version>4.5.14</apache.httpcomponents.version>
     <opencensus.version>0.31.1</opencensus.version>
@@ -77,6 +78,8 @@
     <metrics-bom.version>5.0.6</metrics-bom.version>
     <osgi.version>4.3.1</osgi.version>
     <jakarta.enterprise.cdi.version>4.1.0</jakarta.enterprise.cdi.version>
+    <commons-lang3.version>3.20.0</commons-lang3.version>
+    <jackson-bom.version>2.21.2</jackson-bom.version>
 
     <nuxeo.skip.enforcer>false</nuxeo.skip.enforcer>
     <nuxeo.skip.enforcer.convergence>false</nuxeo.skip.enforcer.convergence>
@@ -100,7 +103,12 @@
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
         <artifactId>hxpr-runtime</artifactId>
-        <version>${hyland.platform.version}</version>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-runtime-management</artifactId>
+        <version>${project.version}</version>
       </dependency>
 
       <!-- commons -->
@@ -108,6 +116,21 @@
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
         <version>${commons-io.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-codec</groupId>
+        <artifactId>commons-codec</artifactId>
+        <version>${commons-codec.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+        <version>${commons-lang3.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>${jackson-bom.version}</version>
       </dependency>
 
       <dependency>
