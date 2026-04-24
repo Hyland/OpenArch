@@ -79,19 +79,8 @@ jobs:
           base-version: '0.1'
       - name: Set VERSION in env (also used as docker tag)
         run: echo "VERSION=${{ steps.version.outputs.version }}" >> $GITHUB_ENV
-      - name: Set Maven version to current build
-        run: mvn --no-transfer-progress versions:set -DnewVersion=${{ env.VERSION }} -DgenerateBackupPoms=false
       - name: Set Product version to current build
         run: sed -i 's/^org\.nuxeo\.ecm\.product\.version=.*$/org\.nuxeo\.ecm\.product\.version=${{ env.VERSION }}/g' ./server/hxpr-community-internal-app/src/main/resources/application.properties
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a # v4.0.0
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
-        with:
-          driver: docker-container
-          # apply fix from https://github.com/moby/buildkit/issues/3969
-          driver-opts: |
-            network=host
       - name: Compile project
         run: mvn clean install -DskipTests
       - name: Set BRANCH_NAME and GITHUB_PR
@@ -104,6 +93,29 @@ jobs:
             echo "BRANCH_NAME=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
             echo "GITHUB_PR=false" >> $GITHUB_ENV
           fi
+      - name: Release new HxPR version
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          RELEASE_USERNAME: ${{ env.GH_ACTOR }}
+          RELEASE_USER_PAT: ${{ secrets.GH_CI_CD_PAT }}
+          RELEASE_USER_EMAIL: "noreply@hyland.com"
+          RELEASE_PREPARE: true
+          RELEASE_PERFORM: false
+          # RELEASE_PERFORM: true
+          # DISTRIBUTION_REPO_URL: https://maven.pkg.github.com/HylandSoftware/hxpr-community-internal
+          # RELEASE_PERFORM_WITH_CLASSIFIER: true
+          # CLASSIFIER_PARAM: "-Pclassifier -Dclassifier.name=someclassifier"
+        run: _ci/release.sh
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a # v4.0.0
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
+        with:
+          driver: docker-container
+          # apply fix from https://github.com/moby/buildkit/issues/3969
+          driver-opts: |
+            network=host
       - name: Docker Compose Up
         id: compose
         working-directory: ./server/hxpr-community-internal-app
@@ -119,21 +131,6 @@ jobs:
           # use localhost for the host here because we are running the job on the VM.
           MONGODB_HOST: localhost
           MONGODB_PORT: 27017
-
-      - name: Release new HxPR version
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        env:
-          RELEASE_USERNAME: ${{ env.GH_ACTOR }}
-          RELEASE_USER_PAT: ${{ secrets.GH_CI_CD_PAT }}
-          RELEASE_USER_EMAIL: "noreply@hyland.com"
-          RELEASE_PREPARE: true
-          RELEASE_PERFORM: false
-          # RELEASE_PERFORM: true
-          # DISTRIBUTION_REPO_URL: https://maven.pkg.github.com/HylandSoftware/hxpr-community-internal
-          # RELEASE_PERFORM_WITH_CLASSIFIER: true
-          # CLASSIFIER_PARAM: "-Pclassifier -Dclassifier.name=someclassifier"
-        run: _ci/release.sh
-
       - name: Login to ghcr.io in read only mode
         uses: docker/login-action@b45d80f862d83dbcd57f89517bcf500b2ab88fb2 # v4.0.0
         with:
