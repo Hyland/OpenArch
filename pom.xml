@@ -80,6 +80,7 @@
     <jakarta.enterprise.cdi.version>4.1.0</jakarta.enterprise.cdi.version>
     <commons-lang3.version>3.20.0</commons-lang3.version>
     <jackson-bom.version>2.21.2</jackson-bom.version>
+    <hamcrest.version>3.0</hamcrest.version>
 
     <nuxeo.skip.enforcer>false</nuxeo.skip.enforcer>
     <nuxeo.skip.enforcer.convergence>false</nuxeo.skip.enforcer.convergence>
@@ -110,6 +111,11 @@
         <artifactId>hxpr-runtime-management</artifactId>
         <version>${project.version}</version>
       </dependency>
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-runtime-osgi</artifactId>
+        <version>${project.version}</version>
+      </dependency>
 
       <!-- commons -->
       <dependency>
@@ -131,6 +137,19 @@
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
         <version>${jackson-bom.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.hamcrest</groupId>
+        <artifactId>hamcrest-core</artifactId>
+        <version>${hamcrest.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.hamcrest</groupId>
+        <artifactId>hamcrest-library</artifactId>
+        <version>${hamcrest.version}</version>
+        <scope>test</scope>
       </dependency>
 
       <dependency>

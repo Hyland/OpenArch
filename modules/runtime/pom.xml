@@ -15,6 +15,7 @@
     <module>hxpr-common</module>
     <module>hxpr-runtime</module>
     <module>hxpr-runtime-management</module>
+    <module>hxpr-runtime-osgi</module>
   </modules>
 
   <dependencies>
