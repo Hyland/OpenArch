@@ -120,13 +120,19 @@ jobs:
           MONGODB_HOST: localhost
           MONGODB_PORT: 27017
 
-      - name: Create and push git tag
+      - name: Release new HxPR version
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: |
-          git config --global user.email "actions-user@users.noreply.github.com"
-          git config --global user.name "actions-user"
-          git tag -a ${{ env.VERSION }} -m "${{ env.VERSION }}"
-          git push origin ${{ env.VERSION }}
+        env:
+          RELEASE_USERNAME: ${{ env.GH_ACTOR }}
+          RELEASE_USER_PAT: ${{ secrets.GH_CI_CD_PAT }}
+          RELEASE_USER_EMAIL: "noreply@hyland.com"
+          RELEASE_PREPARE: true
+          RELEASE_PERFORM: false
+          # RELEASE_PERFORM: true
+          # DISTRIBUTION_REPO_URL: https://maven.pkg.github.com/HylandSoftware/hxpr-community-internal
+          # RELEASE_PERFORM_WITH_CLASSIFIER: true
+          # CLASSIFIER_PARAM: "-Pclassifier -Dclassifier.name=someclassifier"
+        run: _ci/release.sh
 
       - name: Login to ghcr.io in read only mode
         uses: docker/login-action@b45d80f862d83dbcd57f89517bcf500b2ab88fb2 # v4.0.0
