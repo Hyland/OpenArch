@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.runtime.metrics.MetricsService">
+
+  <documentation>
+    Filter and Report Dropwizzard Metrics and Tracing.
+  </documentation>
+
+  <service>
+    <provide interface="org.nuxeo.runtime.metrics.MetricsService" />
+  </service>
+
+  <implementation class="org.nuxeo.runtime.metrics.MetricsServiceImpl" />
+
+  <extension-point name="configuration">
+    <object class="org.nuxeo.runtime.metrics.MetricsConfigurationDescriptor" />
+  </extension-point>
+
+  <extension-point name="reporter">
+    <object class="org.nuxeo.runtime.metrics.MetricsReporterDescriptor" />
+  </extension-point>
+
+</component>

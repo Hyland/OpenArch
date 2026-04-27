@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 1
+Bundle-Name: Nuxeo Runtime Metrics
+Bundle-SymbolicName: org.nuxeo.runtime.metrics;singleton:=true
+Bundle-Vendor: Nuxeo
+Nuxeo-Component: OSGI-INF/runtime-metrics-service.xml

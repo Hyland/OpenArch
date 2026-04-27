@@ -116,6 +116,11 @@
         <artifactId>hxpr-runtime-osgi</artifactId>
         <version>${project.version}</version>
       </dependency>
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-runtime-metrics</artifactId>
+        <version>${project.version}</version>
+      </dependency>
 
       <!-- commons -->
       <dependency>
@@ -178,6 +183,16 @@
       <dependency>
         <groupId>io.opencensus</groupId>
         <artifactId>opencensus-api</artifactId>
+        <version>${opencensus.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.opencensus</groupId>
+        <artifactId>opencensus-impl</artifactId>
+        <version>${opencensus.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.opencensus</groupId>
+        <artifactId>opencensus-contrib-dropwizard5</artifactId>
         <version>${opencensus.version}</version>
       </dependency>
       <dependency>

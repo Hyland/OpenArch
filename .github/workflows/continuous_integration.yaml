@@ -105,6 +105,10 @@ jobs:
           # CLASSIFIER_PARAM: "-Pclassifier -Dclassifier.name=someclassifier"
         run: _ci/release.sh
 
+      - name: Rebuild modules after release version bump
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: mvn clean install -DskipTests -f modules
+
       - name: Set Product version to current build
         run: sed -i 's/^org\.nuxeo\.ecm\.product\.version=.*$/org\.nuxeo\.ecm\.product\.version=${{ env.VERSION }}/g' ./server/hxpr-community-internal-app/src/main/resources/application.properties
       - name: Set up QEMU
