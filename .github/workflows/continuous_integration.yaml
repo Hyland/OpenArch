@@ -79,8 +79,6 @@ jobs:
           base-version: '0.1'
       - name: Set VERSION in env (also used as docker tag)
         run: echo "VERSION=${{ steps.version.outputs.version }}" >> $GITHUB_ENV
-      - name: Set Product version to current build
-        run: sed -i 's/^org\.nuxeo\.ecm\.product\.version=.*$/org\.nuxeo\.ecm\.product\.version=${{ env.VERSION }}/g' ./server/hxpr-community-internal-app/src/main/resources/application.properties
       - name: Compile project
         run: mvn clean install -DskipTests
       - name: Set BRANCH_NAME and GITHUB_PR
@@ -107,6 +105,8 @@ jobs:
           # CLASSIFIER_PARAM: "-Pclassifier -Dclassifier.name=someclassifier"
         run: _ci/release.sh
 
+      - name: Set Product version to current build
+        run: sed -i 's/^org\.nuxeo\.ecm\.product\.version=.*$/org\.nuxeo\.ecm\.product\.version=${{ env.VERSION }}/g' ./server/hxpr-community-internal-app/src/main/resources/application.properties
       - name: Set up QEMU
         uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a # v4.0.0
       - name: Set up Docker Buildx
