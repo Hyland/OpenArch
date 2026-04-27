@@ -45,7 +45,7 @@
     <buildnumber-maven-plugin.version>3.3.0</buildnumber-maven-plugin.version>
     <parent-core-deploy.skip>false</parent-core-deploy.skip>
     <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
-    <plexus-utils.version>4.0.2</plexus-utils.version>
+    <plexus-utils.version>4.0.3</plexus-utils.version>
     <versions-maven-plugin.version>2.20.1</versions-maven-plugin.version>
 
     <maven.surefire.version>3.5.4</maven.surefire.version>
