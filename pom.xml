@@ -81,6 +81,7 @@
     <commons-lang3.version>3.20.0</commons-lang3.version>
     <jackson-bom.version>2.21.2</jackson-bom.version>
     <hamcrest.version>3.0</hamcrest.version>
+    <geronimo-transaction.version>4.0.0</geronimo-transaction.version>
 
     <nuxeo.skip.enforcer>false</nuxeo.skip.enforcer>
     <nuxeo.skip.enforcer.convergence>false</nuxeo.skip.enforcer.convergence>
@@ -104,6 +105,11 @@
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
         <artifactId>hxpr-runtime</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-runtime-jtajca</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -216,6 +222,21 @@
         <groupId>jakarta.enterprise</groupId>
         <artifactId>jakarta.enterprise.cdi-api</artifactId>
         <version>${jakarta.enterprise.cdi.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.geronimo.components</groupId>
+        <artifactId>geronimo-transaction</artifactId>
+        <version>${geronimo-transaction.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jta_1.1_spec</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-j2ee-connector_1.6_spec</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
     </dependencies>

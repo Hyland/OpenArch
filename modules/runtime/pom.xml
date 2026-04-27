@@ -14,6 +14,7 @@
   <modules>
     <module>hxpr-common</module>
     <module>hxpr-runtime</module>
+    <module>hxpr-runtime-jtajca</module>
     <module>hxpr-runtime-management</module>
     <module>hxpr-runtime-osgi</module>
     <module>hxpr-runtime-metrics</module>
