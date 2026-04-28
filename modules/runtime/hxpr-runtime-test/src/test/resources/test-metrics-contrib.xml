@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.runtime.metrics.test.contrib">
+
+  <extension target="org.nuxeo.runtime.metrics.MetricsService" point="configuration">
+    <configuration enabled="true">
+      <instrument name="jvm" enabled="${metrics.jvm.enabled}" />
+      <filter>
+        <allow>
+          <prefix>nuxeo.cache.default-cache.</prefix>
+          <prefix>nuxeo.opensearch.service</prefix>
+        </allow>
+        <deny>
+          <prefix>nuxeo.cache</prefix>
+          <prefix>nuxeo.directories</prefix>
+          <prefix>nuxeo.ActionService</prefix>
+          <!-- Timer expansion to remove -->
+          <expansion>sum</expansion>
+          <expansion>p999</expansion>
+          <expansion>p99</expansion>
+          <expansion>p95</expansion>
+          <expansion>m15_rate</expansion>
+          <expansion>m5_rate</expansion>
+          <expansion>mean_rate</expansion>
+        </deny>
+      </filter>
+    </configuration>
+  </extension>
+
+  <extension target="org.nuxeo.runtime.metrics.MetricsService" point="reporter">
+    <reporter enabled="true" name="mock" pollInterval="42"
+      class="org.nuxeo.runtime.metrics.MockReporter">
+      <option name="foo">bar</option>
+    </reporter>
+  </extension>
+
+</component>

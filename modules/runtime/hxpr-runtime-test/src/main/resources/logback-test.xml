@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>
+        %d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n
+      </pattern>
+    </encoder>
+  </appender>
+
+  <logger level="warn" name="org.mongodb.driver.client" />
+  <logger level="warn" name="org.mongodb.driver.cluster" />
+  <logger level="warn" name="org.quartz" />
+  <logger level="warn" name="org.springframework.boot.test.mock.web.SpringBootMockServletContext" />
+  <logger level="warn" name="org.springframework.test.web.servlet.TestDispatcherServlet" />
+
+  <logger level="warn" name="org.testcontainers.images.PullPolicy" />
+  <logger level="warn" name="org.testcontainers.utility.ImageNameSubstitutor" />
+  <logger level="warn" name="org.testcontainers.utility.RyukResourceReaper" />
+  <logger level="warn" name="tc" /> <!-- comment out to get localstack docker pull progress report -->
+
+  <logger level="warn" name="com.hyland.transform.client.api.impl.ClientTransformServiceRegistry" />
+  <logger level="warn" name="com.hyland.transform.clients.sns.SnsHelperImpl" />
+  <logger level="warn" name="com.hyland.transform.clients.sqs.SqsHelperImpl" />
+
+  <logger level="warn" name="com.hyland.hxpr.config.ConfigurationServiceImpl" />
+  <logger level="warn" name="com.hyland.hxpr.runtime.insight.event.InsightEventServiceImpl" />
+  <logger level="warn" name="com.hyland.hxpr.transform.TransformComponent" />
+  <logger level="warn" name="org.nuxeo.ecm.blob.s3.S3BlobStore" />
+  <logger level="warn" name="org.nuxeo.ecm.core.cache.CacheServiceImpl" />
+  <logger level="warn" name="org.nuxeo.ecm.core.schema.XSDLoader" />
+  <logger level="warn" name="org.nuxeo.opensearch.client.OpenSearchRestClient" />
+  <logger level="warn" name="org.nuxeo.opensearch.OpenSearchServiceImpl" />
+  <logger level="warn" name="org.nuxeo.runtime.cluster.ClusterServiceImpl" />
+  <logger level="warn" name="org.nuxeo.renditions.listeners.CreateRenditionListener" />
+  <logger level="warn" name="org.nuxeo.rest.exception.NuxeoExceptionController" />
+  <logger level="warn" name="org.nuxeo.rest.security.SecurityPolicyManager" />
+
+  <logger level="error" name="com.amazonaws.util.EC2MetadataUtils" />
+  <logger level="error" name="com.amazonaws.util.VersionInfoUtils" />
+
+  <root level="info">
+    <appender-ref ref="CONSOLE" />
+  </root>
+</configuration>
