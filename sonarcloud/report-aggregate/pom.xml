@@ -42,6 +42,11 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-runtime-mongodb</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
       <artifactId>hxpr-runtime-jtajca</artifactId>
       <version>${project.version}</version>
     </dependency>

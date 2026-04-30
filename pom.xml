@@ -87,8 +87,16 @@
     <asm.version>9.9.1</asm.version>
     <concurrent.version>1.3.4</concurrent.version>
     <guava.version>33.6.0-jre</guava.version>
-    <mockito-core.version>3.12.4</mockito-core.version>
     <expiringmap.version>0.5.11</expiringmap.version>
+    <bouncycastle.version>1.84</bouncycastle.version>
+
+    <!-- MongoDB -->
+    <mongo.java.driver.version>5.6.5</mongo.java.driver.version>
+    <quartz.mongodb.version>2.2.0-rc2</quartz.mongodb.version>
+
+    <!-- Test dependencies -->
+    <mockito-inline.version>5.2.0</mockito-inline.version>
+    <mockito-core.version>3.12.4</mockito-core.version>
 
     <nuxeo.skip.enforcer>false</nuxeo.skip.enforcer>
     <nuxeo.skip.enforcer.convergence>false</nuxeo.skip.enforcer.convergence>
@@ -109,6 +117,7 @@
         <artifactId>hxpr-common</artifactId>
         <version>${project.version}</version>
       </dependency>
+      <!-- HxPR Runtime -->
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
         <artifactId>hxpr-runtime</artifactId>
@@ -155,6 +164,18 @@
       </dependency>
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-runtime-mongodb</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-runtime-mongodb</artifactId>
+        <type>test-jar</type>
+        <scope>test</scope>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
         <artifactId>hxpr-runtime-test</artifactId>
         <version>${project.version}</version>
         <scope>test</scope>
@@ -181,23 +202,46 @@
         <artifactId>commons-collections4</artifactId>
         <version>${commons-collections4.version}</version>
       </dependency>
+
+      <dependency>
+        <groupId>org.bouncycastle</groupId>
+        <artifactId>bc-jdk18on-bom</artifactId>
+        <version>${bouncycastle.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.mongodb</groupId>
+        <artifactId>mongodb-driver-sync</artifactId>
+        <version>${mongo.java.driver.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mongodb</groupId>
+        <artifactId>mongodb-driver-core</artifactId>
+        <version>${mongo.java.driver.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mongodb</groupId>
+        <artifactId>bson</artifactId>
+        <version>${mongo.java.driver.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.fluidsonic.mirror</groupId>
+        <artifactId>quartz-mongodb</artifactId>
+        <version>${quartz.mongodb.version}</version>
+        <exclusions>
+          <!-- exclude unneeded Clojure -->
+          <exclusion>
+            <groupId>org.clojure</groupId>
+            <artifactId>clojure</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
         <version>${jackson-bom.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.hamcrest</groupId>
-        <artifactId>hamcrest-core</artifactId>
-        <version>${hamcrest.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.hamcrest</groupId>
-        <artifactId>hamcrest-library</artifactId>
-        <version>${hamcrest.version}</version>
-        <scope>test</scope>
       </dependency>
 
       <dependency>
@@ -300,13 +344,32 @@
         <artifactId>expiringmap</artifactId>
         <version>${expiringmap.version}</version>
       </dependency>
+
+      <!-- Test Scope -->
       <dependency>
         <groupId>org.mockito</groupId>
         <artifactId>mockito-core</artifactId>
         <version>${mockito-core.version}</version>
         <scope>test</scope>
       </dependency>
-
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-inline</artifactId>
+        <version>${mockito-inline.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.hamcrest</groupId>
+        <artifactId>hamcrest-core</artifactId>
+        <version>${hamcrest.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.hamcrest</groupId>
+        <artifactId>hamcrest-library</artifactId>
+        <version>${hamcrest.version}</version>
+        <scope>test</scope>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -733,6 +796,14 @@
           </plugin>
         </plugins>
       </build>
+    </profile>
+
+    <profile>
+      <id>mongodb</id>
+      <properties>
+        <nuxeo.test.core>mongodb</nuxeo.test.core>
+        <nuxeo.mongodb.server.default>localhost:27017</nuxeo.mongodb.server.default>
+      </properties>
     </profile>
 
   </profiles>

@@ -58,3 +58,4 @@ clients/hxcs-js-client/src
 # Claude AI
 .claude
 CLAUDE.md
+AGENTS.md

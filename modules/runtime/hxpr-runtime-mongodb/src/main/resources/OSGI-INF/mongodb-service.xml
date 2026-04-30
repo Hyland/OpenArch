@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.runtime.mongodb.MongoDBComponent">
+
+  <implementation class="org.nuxeo.runtime.mongodb.MongoDBComponent" />
+
+  <service>
+    <provide interface="org.nuxeo.runtime.mongodb.MongoDBConnectionService" />
+  </service>
+
+  <extension-point name="connection">
+    <documentation>
+      Extension point used to configure access to a MongoDB server or cluster. The service will return the 'default'
+      access if the asked one hasn't been contributed.
+
+      This sets up a MongoClient; server is mandatory.
+      <code>
+        <connection>
+          <server>mongodb://bob:pass@localhost:27017,otherhost:27018/mydb?replicaSet=test;connectTimeoutMS=300000</server>
+          <dbname>mydb</dbname>
+          <ssl>true</ssl>
+          <trustStorePath>/path/to/cacerts.jks</trustStorePath>
+          <trustStorePassword>changeit</trustStorePassword>
+          <trustStoreType>jks</trustStoreType>
+          <keyStorePath>/path/to/keystore.jks</keyStorePath>
+          <keyStorePassword>changeit</keyStorePassword>
+          <keyStoreType>jks</keyStoreType>
+        </connection>
+      </code>
+      See http://docs.mongodb.org/manual/reference/connection-string/ for the mongodb:// URI syntax.
+    </documentation>
+
+    <object class="org.nuxeo.runtime.mongodb.MongoDBConnectionConfig" />
+  </extension-point>
+
+</component>

@@ -1,0 +1,108 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.hyland.hxpr</groupId>
+    <artifactId>hxpr-community-runtime-parent</artifactId>
+    <version>0.0.12-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>hxpr-runtime-mongodb</artifactId>
+  <name>HxPR Runtime MongoDB</name>
+
+  <properties>
+    <manifest.file>src/main/resources/META-INF/MANIFEST.MF</manifest.file>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-common</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-runtime</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-runtime-osgi</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.mongodb</groupId>
+      <artifactId>mongodb-driver-sync</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.quartz-scheduler</groupId>
+      <artifactId>quartz</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.fluidsonic.mirror</groupId>
+      <artifactId>quartz-mongodb</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.google.inject</groupId>
+      <artifactId>guice</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.inject</groupId>
+      <artifactId>jakarta.inject-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpcore</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.bouncycastle</groupId>
+      <artifactId>bcpkix-jdk18on</artifactId>
+    </dependency>
+
+    <!-- test -->
+
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-runtime-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-inline</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <executions>
+          <execution>
+            <configuration>
+              <archive>
+                <manifestFile>src/test/resources/META-INF/MANIFEST.MF</manifestFile>
+              </archive>
+            </configuration>
+            <goals>
+              <goal>test-jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>
