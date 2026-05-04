@@ -20,6 +20,7 @@
     <module>hxpr-runtime-osgi</module>
     <module>hxpr-runtime-metrics</module>
     <module>hxpr-runtime-mongodb</module>
+    <module>hxpr-runtime-pubsub</module>
     <module>hxpr-runtime-test</module>
   </modules>
 
