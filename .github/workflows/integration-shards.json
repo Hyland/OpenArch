@@ -1,0 +1,11 @@
+{
+  "include": [
+    {
+      "shard": "shard-1",
+      "modules": "hxpr-runtime-pubsub",
+      "expected_time": "~120s",
+      "test_count": 7,
+      "description": "Runtime: hxpr-runtime-pubsub"
+    }
+  ]
+}
