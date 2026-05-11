@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<component name="com.hyland.hxpr.config.test.DummyService">
+
+  <require>com.hyland.hxpr.config.ConfigurationService</require>
+
+  <implementation class="com.hyland.hxpr.config.DummyServiceImpl" />
+
+  <service>
+    <provide interface="com.hyland.hxpr.config.DummyService" />
+  </service>
+
+</component>
