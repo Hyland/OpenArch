@@ -58,6 +58,10 @@
       <artifactId>hxpr-runtime-pubsub</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-core-schema</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
     </dependency>

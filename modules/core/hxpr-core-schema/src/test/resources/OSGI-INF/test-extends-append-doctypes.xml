@@ -1,0 +1,32 @@
+<component name="org.nuxeo.ecm.core.test">
+
+  <extension target="org.nuxeo.ecm.core.schema.TypeService" point="doctype">
+    <mixin name="specdoc" />
+    <mixin name="specdoc2" />
+    <mixin name="specdoc3" />
+    <mixin name="specdoc4" />
+
+    <doctype name="SpecialDocument" extends="SysContent">
+      <mixin name="specdoc" />
+    </doctype>
+    <doctype name="MyMergeableFolder" append="true">
+      <mixin name="specdoc2" />
+      <subtypes>
+        <type>myDoc2</type>
+      </subtypes>
+    </doctype>
+    <doctype name="MyMergeableFolder" extends="SpecialDocument" append="true">
+      <mixin name="specdoc3" />
+      <subtypes>
+        <type>myDoc3</type>
+      </subtypes>
+    </doctype>
+    <doctype name="MyMergeableFolder" append="true">
+      <mixin name="specdoc4" />
+      <subtypes>
+        <type>myDoc4</type>
+      </subtypes>
+    </doctype>
+  </extension>
+
+</component>

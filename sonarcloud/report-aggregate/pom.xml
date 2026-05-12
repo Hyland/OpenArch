@@ -70,6 +70,13 @@
       <artifactId>hxpr-runtime-test</artifactId>
       <version>${project.version}</version>
     </dependency>
+
+    <!-- Core -->
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-core-schema</artifactId>
+      <version>${project.version}</version>
+    </dependency>
   </dependencies>
   <build>
     <plugins>

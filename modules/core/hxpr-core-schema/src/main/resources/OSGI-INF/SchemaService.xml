@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.ecm.core.schema.TypeService">
+  <documentation>
+    Manage document types and schemas.
+    Allows registrering new types defined using XSD schemas
+    @author Bogdan Stefanescu (bs@nuxeo.com)
+  </documentation>
+
+  <require>org.nuxeo.ecm.core.schema.ObjectResolverService</require>
+
+  <service>
+    <provide interface="org.nuxeo.ecm.core.schema.TypeService" />
+  </service>
+
+  <implementation class="org.nuxeo.ecm.core.schema.TypeServiceImpl" />
+
+  <extension-point name="doctype">
+
+    <documentation>
+      Extension Point to register new document types and mixins.
+      <p />
+      Document types may implement several schemas and extends other
+      document types. You can compare document types with java
+      classes and schemas with java interfaces. Document types may
+      also contains several mixins that define a behavior.
+      <p />
+      A doctype XML extension may contain several 'doctype' elements.
+      A doctype element may look like this:
+
+      <code>
+        <doctype name="SomeFile" extends="SysFile">
+          <schema name="myschema" />
+          <schema name="otherschema" />
+          <mixin name="Downloadable" />
+          <mixin name="SysVersionable" />
+        </doctype>
+      </code>
+
+      Document types may also specify subtypes, which are sets of other
+      document types that can be created inside the this document type
+      being defined.
+      <p />
+      This configuration only applies in the UI and will not affect
+      documents created through APIs (e.g. REST, Java)
+      This can be achieved as follows:
+
+      <code>
+        <doctype name="SomeFolder" extends="SysContent">
+          <subtypes>
+            <type>SysFile</type>
+          </subtypes>
+        </doctype>
+      </code>
+
+      Mixins are also defined by this extension point.
+      They can have zero or more schemas:
+
+      <code>
+        <mixin name="MyMixin" perDocumentQuery="false" />
+        <mixin name="MyMixinWithData">
+          <schema name="myschema" />
+          <schema name="otherschema" />
+        </mixin>
+        <mixin name="MyOldMixin" enabled="false" />
+      </code>
+
+      Queries using sys_mixinTypes on mixins marked with
+      perDocumentQuery="false" will not match any document where
+      this mixin has been added using DocumentModel.addMixin() and does
+      not belong to the document type (this is done for performance reasons).
+
+      Mixins with enabled=false will be ignored in all document types
+      still referencing them, and will not be returned when listing available mixins.
+    </documentation>
+
+    <object class="org.nuxeo.ecm.core.schema.DocumentTypeDescriptor" />
+    <object class="org.nuxeo.ecm.core.schema.MixinDescriptor" />
+    <registry class="org.nuxeo.ecm.core.schema.DocTypeRegistry" />
+
+  </extension-point>
+
+  <extension-point name="schema">
+
+    <documentation>
+      Extension Point to register new schemas.
+      <p />
+      Schemas are defined using XSD files.
+      The schema extension XML may containg several 'schema' objects as
+      the following ones:
+      <code>
+        <schema name="myschema" prefix="my" src="schema/myschema.xsd" />
+      </code>
+      The <i>name</i> attribute uniquely identify the schema, the <i>src</i> attribute specify
+      the path to that schema (relative to the bundle root) and the <i>prefix</i> is used as
+      a prefix (short name) of the schema namespace.
+      The schema namespace is the targetNamespace defined inside the XSD file
+      <p />
+      Note that multiple schemas can share the same target namespace and prefix
+      <p />
+      A schema can be completely disabled with:
+      <code>
+        <schema name="myOldSchema" enabled="false" />
+      </code>
+      Schemas with enabled=false will be ignored in all document types and mixins
+      still referencing them, and will not be returned when listing available schemas.
+    </documentation>
+
+    <object class="org.nuxeo.ecm.core.schema.SchemaBindingDescriptor" />
+    <registry class="org.nuxeo.ecm.core.schema.SchemaRegistry" />
+
+  </extension-point>
+
+</component>

@@ -89,6 +89,7 @@
     <guava.version>33.6.0-jre</guava.version>
     <expiringmap.version>0.5.11</expiringmap.version>
     <bouncycastle.version>1.84</bouncycastle.version>
+    <xsom.version>20140925</xsom.version>
 
     <!-- MongoDB -->
     <mongo.java.driver.version>5.6.5</mongo.java.driver.version>
@@ -195,6 +196,20 @@
         <groupId>com.hyland.hxpr</groupId>
         <artifactId>hxpr-runtime-test</artifactId>
         <version>${project.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <!-- HxPR Core -->
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-core-schema</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-core-schema</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
         <scope>test</scope>
       </dependency>
 
@@ -360,6 +375,11 @@
         <groupId>net.jodah</groupId>
         <artifactId>expiringmap</artifactId>
         <version>${expiringmap.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.sun.xsom</groupId>
+        <artifactId>xsom</artifactId>
+        <version>${xsom.version}</version>
       </dependency>
 
       <!-- Test Scope -->
