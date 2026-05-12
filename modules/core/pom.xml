@@ -13,6 +13,7 @@
 
   <modules>
     <module>hxpr-core-schema</module>
+    <module>hxpr-core-api</module>
   </modules>
 
   <dependencies>

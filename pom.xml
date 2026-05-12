@@ -71,6 +71,7 @@
     <commons-io.version>2.21.0</commons-io.version>
     <commons-codec.version>1.21.0</commons-codec.version>
     <commons-collections4.version>4.5.0</commons-collections4.version>
+    <commons-text.version>1.15.0</commons-text.version>
     <xercesImpl.version>2.12.2</xercesImpl.version>
     <apache.httpcomponents.version>4.5.14</apache.httpcomponents.version>
     <opencensus.version>0.31.1</opencensus.version>
@@ -198,7 +199,6 @@
         <version>${project.version}</version>
         <scope>test</scope>
       </dependency>
-
       <!-- HxPR Core -->
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
@@ -208,6 +208,18 @@
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
         <artifactId>hxpr-core-schema</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-core-api</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-core-api</artifactId>
         <version>${project.version}</version>
         <type>test-jar</type>
         <scope>test</scope>
@@ -233,6 +245,11 @@
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-collections4</artifactId>
         <version>${commons-collections4.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-text</artifactId>
+        <version>${commons-text.version}</version>
       </dependency>
 
       <dependency>
