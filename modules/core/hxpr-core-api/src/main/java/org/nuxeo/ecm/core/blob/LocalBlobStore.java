@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2019 Nuxeo (http://nuxeo.com/) and others.
+ * (C) Copyright 2019-2026 Hyland (http://www.hyland.com/) and others.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,8 +31,8 @@ import java.util.Set;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.blob.binary.BinaryGarbageCollector;
 import org.nuxeo.ecm.core.blob.binary.BinaryManagerStatus;
@@ -45,7 +45,7 @@ import org.nuxeo.ecm.core.blob.binary.BinaryManagerStatus;
  */
 public class LocalBlobStore extends AbstractBlobStore {
 
-    private static final Logger log = LogManager.getLogger(LocalBlobStore.class);
+    private static final Logger log = LoggerFactory.getLogger(LocalBlobStore.class);
 
     protected final PathStrategy pathStrategy;
 
@@ -75,7 +75,7 @@ public class LocalBlobStore extends AbstractBlobStore {
             try {
                 Files.deleteIfExists(tmp);
             } catch (IOException e) {
-                log.warn(e, e);
+                log.warn(e.getMessage(), e);
             }
         }
     }
@@ -170,7 +170,7 @@ public class LocalBlobStore extends AbstractBlobStore {
                 try {
                     Files.deleteIfExists(tmp);
                 } catch (IOException e) {
-                    log.warn(e, e);
+                    log.warn(e.getMessage(), e);
                 }
             }
         }
@@ -219,7 +219,7 @@ public class LocalBlobStore extends AbstractBlobStore {
             logTrace("hnote right: " + key);
             Files.deleteIfExists(file);
         } catch (IOException e) {
-            log.warn(e, e);
+            log.warn(e.getMessage(), e);
         }
     }
 
@@ -228,7 +228,7 @@ public class LocalBlobStore extends AbstractBlobStore {
         try {
             FileUtils.cleanDirectory(pathStrategy.dir.toFile());
         } catch (IOException e) {
-            log.warn(e, e);
+            log.warn(e.getMessage(), e);
         }
     }
 
@@ -343,7 +343,7 @@ public class LocalBlobStore extends AbstractBlobStore {
                 try {
                     length = Files.size(path);
                 } catch (IOException e) {
-                    log.error(key, e);
+                    log.error("Binary garbage collector failed to read file size for key: {}", key, e);
                     continue;
                 }
                 status.setSizeBinariesGC(status.getSizeBinariesGC() + length);
@@ -354,7 +354,7 @@ public class LocalBlobStore extends AbstractBlobStore {
                     try {
                         Files.delete(path);
                     } catch (IOException e) {
-                        log.error(key, e);
+                        log.error("Binary garbage collector failed to delete file for key: {}", key, e);
                     }
                 }
             }
