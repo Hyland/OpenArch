@@ -91,6 +91,7 @@
     <expiringmap.version>0.5.11</expiringmap.version>
     <bouncycastle.version>1.84</bouncycastle.version>
     <xsom.version>20140925</xsom.version>
+    <swagger-annotations-jakarta.version>2.2.49</swagger-annotations-jakarta.version>
 
     <!-- MongoDB -->
     <mongo.java.driver.version>5.6.5</mongo.java.driver.version>
@@ -191,6 +192,18 @@
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
         <artifactId>hxpr-runtime-pubsub</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-runtime-springboot</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-runtime-springboot</artifactId>
+        <type>test-jar</type>
+        <scope>test</scope>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -397,6 +410,12 @@
         <groupId>com.sun.xsom</groupId>
         <artifactId>xsom</artifactId>
         <version>${xsom.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.swagger.core.v3</groupId>
+        <artifactId>swagger-annotations-jakarta</artifactId>
+        <version>${swagger-annotations-jakarta.version}</version>
+        <scope>compile</scope>
       </dependency>
 
       <!-- Test Scope -->

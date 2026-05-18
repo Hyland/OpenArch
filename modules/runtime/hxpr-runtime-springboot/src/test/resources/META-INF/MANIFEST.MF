@@ -1,0 +1,3 @@
+Bundle-SymbolicName: org.nuxeo.runtime.springboot.tests;
+Nuxeo-Component: OSGI-INF/test-component.xml,
+  OSGI-INF/login-as-contrib.xml

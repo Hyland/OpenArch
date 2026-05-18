@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.runtime.springboot.MockComponent" enabled="${mock.component.enabled}">
+  <property name="myProperty" value="${component.property.value:=Default Prop value}" />
+  <property name="myReferenceProperty" value="${component.property.reference.value}" />
+  <property name="myReferenceProperty2" value="${component.property.value} Reference" />
+  <property name="mySysProperty" value="${java.specification.version}" />
+  <implementation class="org.nuxeo.runtime.springboot.mock.MockComponent" />
+  <service>
+    <provide interface="org.nuxeo.runtime.springboot.mock.IMockComponent" />
+  </service>
+</component>
