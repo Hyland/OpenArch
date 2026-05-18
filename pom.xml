@@ -208,6 +208,11 @@
       </dependency>
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-runtime-springboot-test</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
         <artifactId>hxpr-runtime-test</artifactId>
         <version>${project.version}</version>
         <scope>test</scope>
