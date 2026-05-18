@@ -3,7 +3,7 @@
   <parent>
     <groupId>com.hyland.hxpr</groupId>
     <artifactId>hxpr-community-modules</artifactId>
-    <version>0.0.19</version>
+    <version>0.0.20-SNAPSHOT</version>
   </parent>
 
   <groupId>com.hyland.hxpr</groupId>
