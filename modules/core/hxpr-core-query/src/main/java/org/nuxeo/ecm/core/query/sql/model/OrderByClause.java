@@ -1,0 +1,62 @@
+/*
+ * (C) Copyright 2006-2011 Nuxeo SA (http://nuxeo.com/) and others.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Contributors:
+ *     Bogdan Stefanescu
+ *     Florent Guillaume
+ */
+
+package org.nuxeo.ecm.core.query.sql.model;
+
+/**
+ * @author Bogdan Stefanescu
+ * @author Florent Guillaume
+ */
+public class OrderByClause extends Clause {
+
+    public final OrderByList elements;
+
+    public OrderByClause(OrderByList orderBy) {
+        super("ORDER BY");
+        elements = orderBy;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof OrderByClause orderByClause) {
+            return elements.equals(orderByClause.elements);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return elements.hashCode();
+    }
+
+    @Override
+    public void accept(IVisitor visitor) {
+        visitor.visitOrderByClause(this);
+    }
+
+    @Override
+    public String toString() {
+        return elements.toString();
+    }
+
+}

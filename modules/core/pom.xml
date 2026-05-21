@@ -12,8 +12,9 @@
   <name>HxPR Community Core Parent</name>
 
   <modules>
-    <module>hxpr-core-schema</module>
     <module>hxpr-core-api</module>
+    <module>hxpr-core-query</module>
+    <module>hxpr-core-schema</module>
   </modules>
 
   <dependencies>
