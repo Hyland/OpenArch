@@ -1,0 +1,50 @@
+name: Cleanup stale PR-tagged artifacts
+
+on:
+  schedule:
+    - cron: '0 0 * * 0' # Sundays at 00:00 UTC
+
+permissions:
+  packages: write
+
+jobs:
+  sweep:
+    name: Cleanup stale PR-tagged artifacts
+    runs-on: ubuntu-slim
+    env:
+      GH_TOKEN: ${{ secrets.GH_TEST_PAT_SYNC }}
+      ORG: HylandSoftware
+      REPO: hxpr-community-internal
+      RETENTION_DAYS: '7'
+    steps:
+      - name: Cleanup stale PR-tagged artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          CUTOFF=$(date -u -d "${RETENTION_DAYS} days ago" +%Y-%m-%dT%H:%M:%SZ)
+          echo "Cutoff: ${CUTOFF}"
+
+          # filter for packages from this repository
+          PACKAGES=$(gh api --paginate \
+            "/orgs/${ORG}/packages?package_type=maven" \
+            --jq ".[] | select(.repository.name == \"${REPO}\") | .name")
+
+          for pkg in $PACKAGES; do
+            ENCODED_PKG=$(jq -rn --arg s "$pkg" '$s|@uri')
+
+            ROWS=$(gh api --paginate \
+              "/orgs/${ORG}/packages/maven/${ENCODED_PKG}/versions" \
+              --jq ".[] | select(.name | test(\"-PR[0-9]+$\")) | select(.updated_at < \"${CUTOFF}\") | [.id, .name] | @tsv" \
+              || true)
+
+            while IFS=$'\t' read -r vid vname; do
+              [ -z "${vid:-}" ] && continue
+              if gh api -X DELETE \
+                  "/orgs/${ORG}/packages/maven/${ENCODED_PKG}/versions/${vid}"; then
+                echo "Deleted ${pkg} ${vname} (id=${vid})"
+              else
+                echo "Failed to delete ${pkg} ${vname} (id=${vid})"
+              fi
+            done <<< "$ROWS"
+          done

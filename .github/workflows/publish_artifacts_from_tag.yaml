@@ -63,7 +63,7 @@ jobs:
         run: |
           mvn --batch-mode deploy \
             -DskipTests \
-            -Prelease,classifier -Dclassifier.name=internal \
+            -Prelease \
             -DrepositoryId=ghcr.io \
             -Ddistribution-repository.url=https://maven.pkg.github.com/HylandSoftware/hxpr-community-internal
 
