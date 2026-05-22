@@ -129,6 +129,13 @@
       </dependency>
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-async-tasks</artifactId>
+        <version>${project.version</version>
+        <type>test-jar</type>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
         <artifactId>hxpr-config</artifactId>
         <version>${project.version}</version>
       </dependency>
