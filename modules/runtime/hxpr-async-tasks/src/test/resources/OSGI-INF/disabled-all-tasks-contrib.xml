@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<component name="com.hyland.hxpr.async.tasks.test.disabled.alltasks">
+
+  <required>com.hyland.hxpr.async.tasks.bulkasyncactions</required>
+  <required>com.hyland.hxpr.async.tasks</required>
+  <required>org.nuxeo.ecm.core.retention.contrib</required>
+  <required>org.nuxeo.ecm.core.transient.store.config</required>
+
+  <extension target="com.hyland.hxpr.async.tasks.AsyncTasksService" point="asyncTasks">
+    <asyncTask name="deletion" enabled="false"/>
+    <asyncTask name="retentionExpired" enabled="false"/>
+    <asyncTask name="trash" enabled="false"/>
+    <asyncTask name="setProperties" enabled="false"/>
+    <asyncTask name="setSystemProperties" enabled="false"/>
+    <asyncTask name="updateReadAcls" enabled="false"/>
+    <asyncTask name="computeDigest" enabled="false"/>
+    <asyncTask name="updateAceStatus" enabled="false"/>
+    <asyncTask name="fulltextExtractor" enabled="false"/>
+    <asyncTask name="indexing" enabled="false"/>
+    <asyncTask name="scollerIndexing" enabled="false"/>
+    <asyncTask name="bucketIndexing" enabled="false"/>
+    <asyncTask name="transientStorageGC" enabled="false"/>
+    <asyncTask name="listener" enabled="false"/>
+    <asyncTask name="scroller" enabled="false"/>
+  </extension>
+
+</component>

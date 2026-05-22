@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<component name="com.hyland.hxpr.async.tasks.AsyncTasksService">
+
+  <documentation>
+    The Bulk Action Service allows to execute a Bulk Action Command. This consists of two steps:
+    <ul>
+      <li>Creation of a document set by scrolling the database</li>
+      <li>Execution of a bulk on document set</li>
+    </ul>
+  </documentation>
+
+  <service>
+    <provide interface="com.hyland.hxpr.async.tasks.TaskService" />
+  </service>
+
+  <implementation class="com.hyland.hxpr.async.tasks.TaskServiceImpl" />
+
+  <extension-point name="asyncTasks">
+    <documentation>
+      Allows to define the asynchronous tasks.
+
+      The bucket size determines the number of document ids per record at the scroller level, default is 100.
+
+      The batch size determines the number of document ids handled per transactions at the action level, default is 25.
+    </documentation>
+    <object class="com.hyland.hxpr.async.tasks.TaskProcessorDescriptor" />
+  </extension-point>
+
+  <extension-point name="runner">
+    <object class="com.hyland.hxpr.async.tasks.TaskRunnerDescriptor" />
+  </extension-point>
+
+  <extension target="com.hyland.hxpr.async.tasks.AsyncTasksService" point="asyncTasks">
+    <asyncTask name="scroller" class="com.hyland.hxpr.async.tasks.scroller.BatchingScrollerTaskProcessor"/>
+  </extension>
+
+</component>

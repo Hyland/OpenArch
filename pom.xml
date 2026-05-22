@@ -124,6 +124,11 @@
       <!-- HxPR Runtime -->
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-async-tasks</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
         <artifactId>hxpr-config</artifactId>
         <version>${project.version}</version>
       </dependency>
