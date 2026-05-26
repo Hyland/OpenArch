@@ -56,4 +56,8 @@ public class RenditionsConstants {
     public static final String RENDITION_PROPERTY_BLOB = RENDITION_PREFIX + PREFIX_SEPARATOR + "blob";
 
     public static final String RENDITION_PROPERTY_SOURCE_DOC = RENDITION_PREFIX + PREFIX_SEPARATOR + "sourceDoc";
+
+    public static final String RENDITION_PROPERTY_IS_EXTERNAL = RENDITION_PREFIX + PREFIX_SEPARATOR + "isExternal";
+
+    public static final String RENDITION_PROPERTY_BLOB_PATH = RENDITION_PREFIX + PREFIX_SEPARATOR + "blobPath";
 }
