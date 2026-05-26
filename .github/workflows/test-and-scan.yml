@@ -70,14 +70,14 @@ jobs:
           echo "Generated cache key: $CACHE_KEY"
       - name: Check for existing artifacts cache
         id: cache-check
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: ~/.m2/repository
           key: ${{ steps.cache-key.outputs.key }}
           lookup-only: true
       - name: Restore base Maven cache
         if: steps.cache-check.outputs.cache-hit != 'true'
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -98,7 +98,7 @@ jobs:
             -Dnuxeo.skip.enforcer.convergence=true
       - name: Save artifacts cache
         if: steps.cache-check.outputs.cache-hit != 'true'
-        uses: actions/cache/save@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: ~/.m2/repository
           key: ${{ steps.cache-key.outputs.key }}
@@ -109,7 +109,7 @@ jobs:
     steps:
     - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
     - name: Restore workflow artifacts cache
-      uses: actions/cache/restore@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+      uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
       with:
         path: ~/.m2/repository
         key: ${{ needs.build-artifacts.outputs.cache-key }}
@@ -137,7 +137,7 @@ jobs:
     steps:
     - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
     - name: Restore workflow artifacts cache
-      uses: actions/cache/restore@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+      uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
       with:
         path: ~/.m2/repository
         key: ${{ needs.build-artifacts.outputs.cache-key }}
@@ -253,7 +253,7 @@ jobs:
         with:
           fetch-depth: 0 # full history required for scan
       - name: Restore workflow artifacts cache
-        uses: actions/cache/restore@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: ~/.m2/repository
           key: ${{ needs.build-artifacts.outputs.cache-key }}

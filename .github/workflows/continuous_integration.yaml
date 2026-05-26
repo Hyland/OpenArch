@@ -45,7 +45,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Ensure SHA pinned actions
-        uses: zgosalvez/github-actions-ensure-sha-pinned-actions@d5d20e15f2736816ee0e001ba8b24b54d9ffcff4 # v5.0.0
+        uses: zgosalvez/github-actions-ensure-sha-pinned-actions@ca46236c6ce584ae24bc6283ba8dcf4b3ec8a066 # v5.0.4
       - name: Login to ghcr.io in read only mode
         uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
         with:
@@ -53,7 +53,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GH_PACKAGES_RO_PAT }}
 
-      - uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+      - uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -114,7 +114,7 @@ jobs:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a # v4.0.0
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
+        uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
         with:
           driver: docker-container
           # apply fix from https://github.com/moby/buildkit/issues/3969
