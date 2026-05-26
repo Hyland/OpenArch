@@ -1,0 +1,113 @@
+version: 2
+registries:
+  hylandsoftware-releases:
+    type: maven-repository
+    url: https://artifacts.alfresco.com/nexus/content/repositories/hylandsoftware-releases
+    username: ${{secrets.NEXUS_USERNAME}}
+    password: ${{secrets.NEXUS_PASSWORD}}
+updates:
+  - package-ecosystem: "maven"
+    directories:
+    - "/"
+    registries: "*"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+    groups:
+      maven-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+    open-pull-requests-limit: 500
+    ignore:
+      # Nuxeo stuff
+      - dependency-name: "org.nuxeo*:*"
+
+      # Stupid version numbers we don't want
+      - dependency-name: "javax.inject:javax.inject"
+        versions: [ "1.0-PFD-1" ]
+      - dependency-name: "concurrent:concurrent"
+        versions: [ "1.3.4-jahia6" ]
+      - dependency-name: "commons-httpclient:commons-httpclient"
+        versions: [ "3.1-jbossorg-1", "3.1-jenkins-1", "3.1-jenkins-2" ]
+      - dependency-name: "org.apache.maven.plugins:maven-compiler-plugin"
+        versions: [ "3.8.1-jboss-1", "3.8.1-jboss-2" ]
+      - dependency-name: "org.apache.maven.plugins:maven-release-plugin"
+        versions: [ "2.5.3-jahia1" ]
+      - dependency-name: "org.apache.maven.plugins:maven-enforcer-plugin"
+        versions: [ "1.4.2.jenkins-1" ]
+      - dependency-name: "net.openhft:chronicle-bom"
+        versions: [ ">=2.20.230" ]
+      - dependency-name: "net.openhft:chronicle-threads"
+        versions: [ ">=2.20.111" ]
+
+      # Versions we don't want because they're actually older
+      - dependency-name: "io.dropwizard.metrics5:metrics-bom"
+        versions: [ "5.0.0" ]
+
+      # Major version bumps that probably require code changes
+      - dependency-name: "org.apache.kafka:*"
+        versions: [ "[3.0,)" ]
+      - dependency-name: "org.osgi:org.osgi.*"
+        versions: [ "[5.0,)" ]
+      - dependency-name: "org.apache.tomcat:*"
+        versions: [ "[10.0,)" ]
+      - dependency-name: "org.springframework.boot:*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "org.springframework.cloud:*"
+        update-types: ["version-update:semver-minor"] # because 2025.0.x is for Boot 3 and 2025.1.x is for Boot 4
+      - dependency-name: "org.springdoc:*"
+        update-types: [ "version-update:semver-major" ]
+
+      # Block springdoc updates temporarily (to be removed in HXCS-8082)
+      - dependency-name: "org.springdoc:*"
+      # Block Quartz updates incompatible with quartz-mongodb library (to be removed in HXCS-8091)
+      - dependency-name: "org.quartz-scheduler:quartz"
+  - package-ecosystem: "docker"
+    directory: "/server/hxpr-community-internal-app/src/main/docker"
+    registries: "*"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+  - package-ecosystem: "docker-compose"
+    registries: "*"
+    directories:
+      - "/server/hxpr-community-internal-app"
+      - "/modules/runtime/hxpr-runtime-metrics/docker/graphite-grafana"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+    ignore:
+      # Block MongoDB major version updates (keep on 7.x)
+      - dependency-name: "mongo"
+        update-types: ["version-update:semver-major"]
+      # Block OpenSearch major version updates (keep on 2.x)
+      - dependency-name: "opensearchproject/opensearch"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "opensearchproject/opensearch-dashboards"
+        update-types: ["version-update:semver-major"]
+    groups:
+      docker-compose-files:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+  - package-ecosystem: "github-actions"
+    directories:
+      - "/"
+      - "/.github/actions/generate-version/"
+      - "/.github/actions/pre-commit-update/"
+      - "/.github/actions/setup-maven/"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
