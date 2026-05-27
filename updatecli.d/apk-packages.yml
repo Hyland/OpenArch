@@ -1,0 +1,19 @@
+name: Update pinned apk package versions in hxpr-app Dockerfile
+
+sources:
+  curl_version:
+    kind: shell
+    spec:
+      command: |
+        ALPINE_VERSION=$(sed -nE "s|^FROM [^:]+:[^ ]*-alpine([0-9]+\.[0-9]+)[^ ]*$|\1|p" server/hxpr-community-internal-app/src/main/docker/Dockerfile | head -n1)
+        docker run --rm "alpine:${ALPINE_VERSION}" sh -lc "apk update >/dev/null && apk search -v curl | grep '^curl-' | head -n1 | sed -E 's/^curl-([^ ]+).*/\\1/'"
+
+targets:
+  update_curl_arg:
+    name: Update CURL_VERSION Docker ARG
+    kind: file
+    sourceid: curl_version
+    spec:
+      file: server/hxpr-community-internal-app/src/main/docker/Dockerfile
+      matchpattern: 'ARG CURL_VERSION=(.*)'
+      replacepattern: 'ARG CURL_VERSION={{ source "curl_version" }}'
