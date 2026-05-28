@@ -23,10 +23,9 @@
 # For current base image, see also: https://hub.docker.com/_/alpine/tags
 #
 ###
-FROM dhi.io/amazoncorretto:25-alpine3.23-dev@sha256:ab0246caf083e03ce40751718d54368588cbcfd0b21ff34a340944332baeb6d3
+FROM ghcr.io/hylandsoftware/corretto-sambuca-25:20260216@sha256:2c21b99b7ab961c40ef1b6d0e0c633190b39ba4fca74acdbc32f5badaeca766d
 
 ARG RUN_JAVA_VERSION=1.3.8
-ARG CURL_VERSION=8.19.0-r0
 ARG BUILD_DATE
 ARG COMMIT_SHA
 ARG BUILD_URL
@@ -46,8 +45,7 @@ ARG USER_NAME=hxpr-app-user
 ARG USER_ID=33010
 
 # Install run-java script
-RUN apk add --no-cache curl=${CURL_VERSION} \
-    && mkdir /deployments \
+RUN mkdir /deployments \
     && curl https://repo1.maven.org/maven2/io/fabric8/run-java-sh/${RUN_JAVA_VERSION}/run-java-sh-${RUN_JAVA_VERSION}-sh.sh -o /deployments/run-java.sh \
     && apk del curl
 
