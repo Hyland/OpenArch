@@ -75,7 +75,7 @@
     <xercesImpl.version>2.12.2</xercesImpl.version>
     <apache.httpcomponents.version>4.5.14</apache.httpcomponents.version>
     <opencensus.version>0.31.1</opencensus.version>
-    <git-commit-id-plugin.version>9.0.2</git-commit-id-plugin.version>
+    <git-commit-id-plugin.version>10.0.0</git-commit-id-plugin.version>
     <classgraph.version>4.8.184</classgraph.version>
     <metrics-bom.version>5.0.7</metrics-bom.version>
     <osgi.version>4.3.1</osgi.version>
