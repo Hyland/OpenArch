@@ -48,7 +48,7 @@
     <plexus-utils.version>4.0.3</plexus-utils.version>
     <versions-maven-plugin.version>2.21.0</versions-maven-plugin.version>
 
-    <maven.surefire.version>3.5.5</maven.surefire.version>
+    <maven.surefire.version>3.5.6</maven.surefire.version>
 
     <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
     <sonar-maven-plugin.version>5.5.0.6356</sonar-maven-plugin.version>
@@ -81,7 +81,7 @@
     <osgi.version>4.3.1</osgi.version>
     <jakarta.enterprise.cdi.version>4.1.0</jakarta.enterprise.cdi.version>
     <commons-lang3.version>3.20.0</commons-lang3.version>
-    <jackson-bom.version>2.21.3</jackson-bom.version>
+    <jackson-bom.version>2.21.4</jackson-bom.version>
     <hamcrest.version>3.0</hamcrest.version>
     <geronimo-transaction.version>4.0.0</geronimo-transaction.version>
     <guice.version>7.0.0</guice.version>
@@ -95,7 +95,7 @@
     <antlr4.version>4.13.2</antlr4.version>
 
     <!-- MongoDB -->
-    <mongo.java.driver.version>5.7.0</mongo.java.driver.version>
+    <mongo.java.driver.version>5.8.0</mongo.java.driver.version>
     <quartz.mongodb.version>2.2.0-rc2</quartz.mongodb.version>
 
     <!-- Test dependencies -->
