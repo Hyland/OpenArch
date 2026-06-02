@@ -27,6 +27,8 @@
   </modules>
 
   <properties>
+    <org.junit.version>5.14.4</org.junit.version>
+
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
@@ -110,6 +112,14 @@
 
   <dependencyManagement>
     <dependencies>
+      <!-- junit bom first so that it takes precedence over springboot -->
+      <dependency>
+        <groupId>org.junit</groupId>
+        <artifactId>junit-bom</artifactId>
+        <version>${org.junit.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
 
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
