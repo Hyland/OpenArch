@@ -16,6 +16,7 @@
     <module>hxpr-common</module>
     <module>hxpr-config</module>
     <module>hxpr-runtime</module>
+    <module>hxpr-runtime-cluster-api</module>
     <module>hxpr-runtime-jtajca</module>
     <module>hxpr-runtime-kv</module>
     <module>hxpr-runtime-management</module>

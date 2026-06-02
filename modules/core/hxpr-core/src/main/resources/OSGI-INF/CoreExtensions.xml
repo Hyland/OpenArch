@@ -1,0 +1,171 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.ecm.core.CoreExtensions">
+
+  <documentation>
+    This component is contributing the core types and schemas and other core extensions.
+
+    @author <a href="mailto:bs@nuxeo.com">Bogdan Stefanescu</a>
+  </documentation>
+
+  <extension target="org.nuxeo.ecm.core.schema.TypeService"
+      point="schema">
+    <documentation>The core schemas</documentation>
+    <!-- XXX AT: prefixes should be set, see NXP-1152 -->
+    <schema name="core-types" src="schema/core-types.xsd"/>
+    <schema name="base" src="schema/base.xsd"/>
+    <schema name="sysrelation" src="schema/relation.xsd"/>
+    <schema name="system" prefix="sys" src="schema/system.xsd"/>
+    <schema name="sysfile" src="schema/file.xsd"/>
+    <schema name="sysfiles" src="schema/files.xsd"/>
+    <schema name="sysvocab" src="schema/vocab.xsd"/>
+    <schema name="sysrendition" src="schema/rendition.xsd"/>
+    <schema name="sysgovernable" prefix="sysgov" src="schema/governable.xsd"/>
+    <schema name="sysversionable" prefix="sysver" src="schema/versionable.xsd"/>
+
+    <!-- Embeddings schema -->
+    <schema name="sysembeddings" prefix="sysemb" src="schema/sysembeddings.xsd"/>
+
+    <!-- Additional schemas for storing document metadata -->
+    <schema name="sysmdannotatable" prefix="sysmdannotatable" src="schema/metadata-annotatable.xsd"/>
+    <schema name="sysmdredactable" prefix="sysmdredactable" src="schema/metadata-redactable.xsd"/>
+    <schema name="sysmdbm" prefix="sysmdbm" src="schema/metadata-bookmark.xsd"/>
+    <schema name="sysmdanno" prefix="sysmdanno" src="schema/metadata-annotation.xsd"/>
+    <schema name="sysmdcomment" prefix="sysmdcomment" src="schema/metadata-comment.xsd"/>
+    <schema name="sysmdhl" prefix="sysmdhl" src="schema/metadata-highlight.xsd"/>
+    <schema name="sysmdimage" prefix="sysmdimage" src="schema/metadata-image.xsd"/>
+    <schema name="sysmdline" prefix="sysmdline" src="schema/metadata-line.xsd"/>
+    <schema name="sysmdpath" prefix="sysmdpath" src="schema/metadata-path.xsd"/>
+    <schema name="sysmdtext" prefix="sysmdtext" src="schema/metadata-text.xsd"/>
+  </extension>
+
+  <extension target="org.nuxeo.ecm.core.schema.TypeService"
+      point="doctype">
+    <documentation>The core document types</documentation>
+
+    <mixin name="SysFilish">
+      <!-- used by system -->
+      <schema name="sysfile"/>
+    </mixin>
+
+    <!-- standard mixins with no schema -->
+    <mixin name="SysFolderish" perDocumentQuery="false"/> <!-- used by system -->
+    <mixin name="SysOrderable" /> <!-- used by system -->
+    <mixin name="SysVersionable">  <!-- used by system -->
+      <schema name="sysversionable"/>
+    </mixin>
+    <mixin name="SysVersionedWithParent" /> <!-- used by system -->
+    <mixin name="SysFullTextIndexable" />
+    <mixin name="SysGovernable">  <!-- used by system -->
+      <schema name="sysgovernable"/>
+    </mixin>
+    <mixin name="SysTestDocument"/> <!-- used to tag SLO documents and skip external integrations like Audit or Insight -->
+
+  <!-- Additional mixins for storing document metadata -->
+    <mixin name="SysMDHL">
+      <schema name="sysmdhl"/>
+    </mixin>
+    <mixin name="SysMDImage">
+      <schema name="sysmdimage"/>
+    </mixin>
+    <mixin name="SysMDLine">
+      <schema name="sysmdline"/>
+    </mixin>
+    <mixin name="SysMDPath">
+      <schema name="sysmdpath"/>
+    </mixin>
+    <mixin name="SysMDText">
+      <schema name="sysmdtext"/>
+    </mixin>
+    <mixin name="SysMDAnnotatable">
+      <schema name="sysmdannotatable"/>
+    </mixin>
+    <mixin name="SysMDRedactable">
+      <schema name="sysmdredactable"/>
+    </mixin>
+
+    <doctype name="SysFolder" extends="SysContent">
+      <schema name="system"/>
+      <mixin name="SysFolderish"/>
+      <subtypes>
+        <type>SysFolder</type>
+        <type>SysOrderedFolder</type>
+        <type>SysFile</type>
+      </subtypes>
+    </doctype>
+
+    <doctype name="SysOrderedFolder" extends="SysFolder">
+      <mixin name="SysOrderable"/>
+      <subtypes>
+        <type>SysFolder</type>
+        <type>SysOrderedFolder</type>
+        <type>SysFile</type>
+      </subtypes>
+    </doctype>
+
+    <doctype name="SysRoot" extends="SysFolder">
+    </doctype>
+
+    <doctype name="SysRelation"> <!-- no extends -->
+      <schema name="sysrelation"/>
+      <schema name="system"/>
+    </doctype>
+
+    <doctype name="SysFile" extends="SysContent">
+      <schema name="system"/>
+      <schema name="sysfiles"/>
+      <mixin name="SysFilish"/>
+    </doctype>
+
+    <doctype name="SysVocabulary" extends="SysContent">
+      <schema name="system"/>
+      <schema name="sysvocab"/>
+      <mixin name="SysFolderish"/>
+      <subtypes>
+        <type>SysVocabularyEntry</type>
+      </subtypes>
+    </doctype>
+    <doctype name="SysVocabularyEntry" extends="SysContent">
+      <schema name="system"/>
+      <schema name="sysvocab"/>
+    </doctype>
+
+    <doctype name="SysRenditionsContainer" extends="SysFolder">
+      <mixin name="SysVersionedWithParent"/>
+      <subtypes>
+        <type>SysRendition</type>
+      </subtypes>
+    </doctype>
+
+    <doctype name="SysRendition" extends="SysContent">
+      <schema name="system" />
+      <schema name="sysrendition" />
+    </doctype>
+
+    <!-- Embeddings doctype and its marker mixin -->
+
+    <mixin name="SysHasEmbeddings" />
+
+    <doctype name="SysEmbeddings" extends="SysContent">
+        <schema name="system"/>
+        <schema name="sysembeddings"/>
+    </doctype>
+
+    <!-- Additional document types for storing document metadata -->
+    <doctype name="SysMDBookmark" extends="SysContent">
+      <schema name="system" />
+      <schema name="sysmdbm" />
+    </doctype>
+
+    <doctype name="SysMDAnnotation" extends="SysContent">
+      <schema name="system" />
+      <schema name="sysmdanno" />
+    </doctype>
+
+    <doctype name="SysMDComment" extends="SysContent">
+      <schema name="system" />
+      <schema name="sysmdcomment" />
+    </doctype>
+
+  </extension>
+
+</component>

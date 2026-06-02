@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<xs:schema targetNamespace="http://www.nuxeo.org/ecm/schemas/text/"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:nxs="http://www.nuxeo.org/ecm/schemas/text/">
+
+  <xs:include schemaLocation="core-types.xsd" />
+
+  <xs:element name="text" type="xs:string" />
+  <xs:element name="fontFamily" type="xs:string" />
+  <xs:element name="fontSize" type="xs:string" />
+  <xs:element name="fontColor" type="xs:string" />
+  <xs:element name="textAlignment" type="xs:string" />
+  <xs:element name="verticallyCenterText" type="xs:boolean" />
+  <xs:element name="horizontallyCenterTextBox" type="xs:boolean" />
+  <xs:element name="italic" type="xs:boolean" />
+  <xs:element name="bold" type="xs:boolean" />
+  <xs:element name="underline" type="xs:boolean" />
+  <xs:element name="strikeThrough" type="xs:boolean" />
+  <xs:element name="overflow" type="xs:boolean" />
+  <xs:element name="padding" type="xs:double" />
+  <xs:element name="radius" type="xs:double" />
+  <xs:element name="lineHeight" type="xs:double" />
+  <xs:element name="lineHeightMultiplier" type="xs:double" />
+
+</xs:schema>

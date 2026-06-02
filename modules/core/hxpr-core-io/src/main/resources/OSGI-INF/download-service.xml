@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.ecm.core.io.download.DownloadService">
+
+  <documentation>
+    Manages repositories.
+  </documentation>
+
+  <require>org.nuxeo.ecm.core.transientstore.TransientStorageComponent</require>
+
+  <implementation class="org.nuxeo.ecm.core.io.download.DownloadServiceImpl" />
+
+  <service>
+    <provide interface="org.nuxeo.ecm.core.io.download.DownloadService" />
+  </service>
+
+  <extension-point name="redirectResolver">
+
+    <documentation>
+      Defines the redirect resolver associated to blob download. Contributions are of the form:
+      <code>
+        <redirectResolver class="org.nuxeo.ecm.core.io.download.DefaultRedirectResolver"></redirectResolver>
+      </code>
+      This allows you to redirect to a specific cache server or by default the blobManager redirect mechanism
+    </documentation>
+
+    <object class="org.nuxeo.ecm.core.io.download.RedirectResolverDescriptor"/>
+
+  </extension-point>
+
+</component>

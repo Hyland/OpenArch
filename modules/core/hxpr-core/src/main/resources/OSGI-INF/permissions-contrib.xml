@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.ecm.core.security.defaultPermissions">
+  <documentation>
+    Default permissions (atomic and compound) used by the core.
+  </documentation>
+
+  <extension target="org.nuxeo.ecm.core.security.SecurityService"
+    point="permissions">
+
+    <permission name="Everything">
+      <documentation>
+        Special permission given to administrators: allows everything
+      </documentation>
+    </permission>
+
+    <permission name="CreateChild" />
+    <permission name="CreateVersion" />
+    <permission name="Delete" />
+    <permission name="DeleteChild" />
+    <permission name="ManageLock" />
+    <permission name="ManageRetention" />
+    <permission name="Read"/>
+    <permission name="ReadVersion" />
+    <permission name="Write" />
+    <permission name="WriteVersion" />
+    <permission name="ManageSecurity" />
+
+    <permission name="ReadWrite">
+      <include>CreateChild</include>
+      <include>CreateVersion</include>
+      <include>Delete</include>
+      <include>DeleteChild</include>
+      <include>Read</include>
+      <include>ReadVersion</include>
+      <include>Write</include>
+      <include>WriteVersion</include>
+    </permission>
+
+  </extension>
+
+</component>

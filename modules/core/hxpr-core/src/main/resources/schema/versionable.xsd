@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<xs:schema targetNamespace="http://www.nuxeo.org/ecm/schemas/versionable/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:nxs="http://www.nuxeo.org/ecm/schemas/versionable/"
+           xmlns:ref="http://www.nuxeo.org/ecm/schemas/core/external-references/">
+
+  <xs:element name="created" type="xs:date" />
+  <xs:element name="creator" type="xs:string" />
+  <xs:element name="description" type="xs:string" />
+  <xs:element name="isCheckedIn" type="xs:boolean" />
+  <xs:element name="isTemp" type="xs:boolean" />
+  <xs:element name="isVersion" type="xs:boolean" />
+  <xs:element name="minorVersion" type="xs:long" />
+  <xs:element name="title" type="xs:string" />
+  <xs:element name="version" type="xs:long" />
+
+</xs:schema>

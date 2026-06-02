@@ -1,0 +1,110 @@
+/*
+ * (C) Copyright 2017 Nuxeo (http://nuxeo.com/) and others.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Contributors:
+ *     Florent Guillaume
+ */
+package org.nuxeo.ecm.core.cache;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.nuxeo.ecm.core.cache.CacheDescriptor.DEFAULT_MAX_SIZE;
+import static org.nuxeo.ecm.core.cache.CacheDescriptor.DEFAULT_TTL;
+import static org.nuxeo.ecm.core.cache.CacheDescriptor.OPTION_MAX_SIZE;
+
+import java.util.Map;
+
+import jakarta.inject.Inject;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.nuxeo.runtime.cluster.BasicClusterFeature;
+import org.nuxeo.runtime.test.runner.Deploy;
+import org.nuxeo.runtime.test.runner.Features;
+import org.nuxeo.runtime.test.runner.FeaturesExtension;
+import org.nuxeo.runtime.test.runner.RuntimeFeature;
+
+@ExtendWith(FeaturesExtension.class)
+@Features({ RuntimeFeature.class, BasicClusterFeature.class })
+@Deploy("org.nuxeo.ecm.core.cache:OSGI-INF/CacheService.xml")
+public class TestCacheDescriptor {
+
+    protected static final String NAME = "myid";
+
+    @Inject
+    protected CacheService service;
+
+    protected CacheServiceImpl getService() {
+        return (CacheServiceImpl) service;
+    }
+
+    @Test
+    @Deploy("org.nuxeo.ecm.core.cache.test:test-cache-config.xml")
+    public void testConfig() throws Exception {
+        CacheDescriptor desc = getService().getCacheDescriptor(NAME);
+        assertNotNull(desc);
+        assertEquals(NAME, desc.getName());
+        assertEquals(123, desc.getTTL());
+        assertEquals(Map.of("foo", "foovalue", "bar", "barvalue"), desc.getOptions());
+        assertNotNull(getService().getCache(NAME));
+    }
+
+    @Test
+    @Deploy("org.nuxeo.ecm.core.cache.test:test-cache-config.xml")
+    @Deploy("org.nuxeo.ecm.core.cache.test:test-cache-config-merge.xml")
+    public void testMerge() throws Exception {
+        CacheDescriptor desc = getService().getCacheDescriptor(NAME);
+        assertNotNull(desc);
+        assertEquals(456, desc.getTTL());
+        assertEquals(Map.of("foo", "foovalue2", "bar", "barvalue"), desc.getOptions());
+        assertNotNull(getService().getCache(NAME));
+    }
+
+    @Test
+    @Deploy("org.nuxeo.ecm.core.cache.test:test-cache-config.xml")
+    @Deploy("org.nuxeo.ecm.core.cache.test:test-cache-config-remove.xml")
+    public void testRemove() throws Exception {
+        assertNull(getService().getCacheDescriptor(NAME));
+        assertNull(getService().getCache(NAME));
+    }
+
+    @Test
+    @Deploy("org.nuxeo.ecm.core.cache.test:test-cache-config.xml")
+    @Deploy("org.nuxeo.ecm.core.cache.test:test-cache-config-remove.xml")
+    @Deploy("org.nuxeo.ecm.core.cache.test:test-cache-config-merge.xml")
+    public void testRemoveAndRemerge() throws Exception {
+        CacheDescriptor desc = getService().getCacheDescriptor(NAME);
+        assertNotNull(desc);
+        assertEquals(456, desc.getTTL());
+        assertEquals(Map.of("foo", "foovalue2"), desc.getOptions());
+        assertNotNull(getService().getCache(NAME));
+    }
+
+    @Test
+    public void testRegisterCache() {
+        assertNull(getService().getCacheDescriptor(NAME));
+        assertNull(getService().getCache(NAME));
+
+        getService().registerCache(NAME);
+
+        CacheDescriptor desc = getService().getCacheDescriptor(NAME);
+        assertNotNull(desc);
+        assertEquals(DEFAULT_TTL, desc.getTTL());
+        assertEquals(Map.of(OPTION_MAX_SIZE, String.valueOf(DEFAULT_MAX_SIZE)), desc.getOptions());
+        assertNotNull(getService().getCache(NAME));
+    }
+
+}

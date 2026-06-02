@@ -37,6 +37,11 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-runtime-cluster-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
       <artifactId>hxpr-runtime-management</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -89,12 +94,32 @@
     <!-- Core -->
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-core</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
       <artifactId>hxpr-core-schema</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
       <artifactId>hxpr-core-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-core-cache</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-core-event</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-core-io</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

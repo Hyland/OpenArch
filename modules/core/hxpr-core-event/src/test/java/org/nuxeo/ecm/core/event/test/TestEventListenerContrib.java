@@ -1,0 +1,67 @@
+/*
+ * (C) Copyright 2006-2017 Nuxeo (http://nuxeo.com/) and others.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Contributors:
+ *     Nuxeo - initial API and implementation
+ */
+package org.nuxeo.ecm.core.event.test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.util.List;
+
+import com.hyland.hxpr.async.tasks.AsyncTasksFeature;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.nuxeo.ecm.core.event.EventService;
+import org.nuxeo.runtime.RuntimeMessage.Level;
+import org.nuxeo.runtime.api.Framework;
+import org.nuxeo.runtime.cluster.BasicClusterFeature;
+import org.nuxeo.runtime.test.runner.Deploy;
+import org.nuxeo.runtime.test.runner.Features;
+import org.nuxeo.runtime.test.runner.FeaturesExtension;
+
+@ExtendWith(FeaturesExtension.class)
+@Features({ BasicClusterFeature.class, AsyncTasksFeature.class })
+@Deploy("org.nuxeo.ecm.core.event")
+public class TestEventListenerContrib {
+
+    @Test
+    @Deploy("org.nuxeo.ecm.core.event.test:test-InvalidListeners.xml")
+    public void testInvalidListeners() throws Exception {
+        List<String> errors = Framework.getRuntime().getMessageHandler().getMessages(Level.ERROR);
+        assertNotNull(errors);
+        assertEquals(3, errors.size());
+
+        assertEquals("Failed to register event listener in component 'test-invalid-listeners#listener': "
+                + "error initializing event listener 'invalidListenerUnknown' (org.nuxeo.ecm.core.api.NuxeoException: "
+                + "java.lang.ClassNotFoundException: org.nuxeo.invalid.listener.UnknownClass)", errors.get(0));
+        assertEquals("Failed to register event listener in component 'test-invalid-listeners#listener': "
+                + "error initializing event listener 'invalidListenerNotEventListener' "
+                + "(java.lang.IllegalArgumentException: Listener extension must define a class extending "
+                + "EventListener or PostCommitEventListener: 'org.nuxeo.ecm.core.event.test.InvalidEventListener'.)",
+                errors.get(1));
+        assertEquals("Failed to register event listener in component 'test-invalid-listeners#listener': "
+                + "error initializing event listener 'invalidListenerNoRef' (java.lang.IllegalArgumentException: "
+                + "Listener extension must define either a class or a script)", errors.get(2));
+    }
+
+    protected EventService getService() {
+        return Framework.getService(EventService.class);
+    }
+
+}

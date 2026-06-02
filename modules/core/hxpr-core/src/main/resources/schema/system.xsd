@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<xs:schema targetNamespace="http://www.nuxeo.org/ecm/schemas/system/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:nxs="http://www.nuxeo.org/ecm/schemas/system/"
+           xmlns:ref="http://www.nuxeo.org/ecm/schemas/core/external-references/">
+
+  <xs:simpleType name="contributorList">
+    <xs:list>
+      <xs:simpleType>
+        <xs:restriction base="xs:string" ref:resolver="userManagerResolver" ref:type="user" ref:validation="false" />
+      </xs:simpleType>
+    </xs:list>
+  </xs:simpleType>
+
+  <xs:element name="title" type="xs:string" />
+  <xs:element name="description" type="xs:string" />
+  <xs:element name="created" type="xs:date" />
+  <xs:element name="modified" type="xs:date" />
+  <xs:element name="creator">
+    <xs:simpleType>
+      <xs:restriction base="xs:string" ref:resolver="userManagerResolver" ref:type="user" ref:validation="false" />
+    </xs:simpleType>
+  </xs:element>
+  <xs:element name="contributors" type="nxs:contributorList" />
+  <xs:element name="lastContributor">
+    <xs:simpleType>
+      <xs:restriction base="xs:string" ref:resolver="userManagerResolver" ref:type="user" ref:validation="false" />
+    </xs:simpleType>
+  </xs:element>
+
+</xs:schema>

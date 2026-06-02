@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.ecm.core.cache.config">
+
+  <extension target="org.nuxeo.ecm.core.cache.CacheService"
+    point="caches">
+    <cache name="default-cache">
+      <ttl>${nuxeo.cache.ttl:=20}</ttl><!-- minutes -->
+      <option name="maxSize">${nuxeo.cache.maxsize:=10000}</option>
+      <option name="concurrencyLevel">${nuxeo.cache.concurrencylevel:=500}</option>
+    </cache>
+    <cache name="principalCache">
+      <ttl>${nuxeo.cache.idp.ttl:=10}</ttl><!-- minutes -->
+      <option name="maxSize">${nuxeo.cache.idp.maxsize:=10000}</option>
+      <option name="concurrencyLevel">${nuxeo.cache.idp.concurrencylevel:=500}</option>
+    </cache>
+    <cache name="idp-user-cache">
+      <ttl>${nuxeo.cache.idp.ttl:=10}</ttl><!-- minutes -->
+      <option name="maxSize">${nuxeo.cache.idp.maxsize:=10000}</option>
+      <option name="concurrencyLevel">${nuxeo.cache.idp.concurrencylevel:=500}</option>
+    </cache>
+    <cache name="idp-group-cache">
+      <ttl>${nuxeo.cache.idp.ttl:=10}</ttl><!-- minutes -->
+      <option name="maxSize">${nuxeo.cache.idp.maxsize:=10000}</option>
+      <option name="concurrencyLevel">${nuxeo.cache.idp.concurrencylevel:=500}</option>
+    </cache>
+  </extension>
+
+</component>

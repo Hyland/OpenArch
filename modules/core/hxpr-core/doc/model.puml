@@ -1,0 +1,148 @@
+@startuml
+
+hide empty members
+' skinparam linetype ortho
+skinparam ClassBackgroundColor<<Resource>> LightBlue
+hide <<Resource>> stereotype
+
+package Instance {
+class Document <<Resource>> {
+  String id
+  String path
+  isProxy()
+  isVersion()
+  getChildren()
+}
+
+Document "1" -- Document : parent
+
+' instance of document schema field
+class Property {
+  String name
+  Serializable value
+  isReadOnly()
+}
+Property -- Property : parent
+Property *-u- Document
+
+
+abstract class ComplexProperty extends Property
+Property *-- ComplexProperty : children
+
+class ListProperty extends Property
+Property *-- ListProperty : children
+
+class ScalarProperty extends Property
+class BooleanProperty extends ScalarProperty
+class DateProperty extends ScalarProperty
+class DoubleProperty extends ScalarProperty
+class LongProperty extends ScalarProperty
+class StringProperty extends ScalarProperty
+
+class BlobProperty extends ComplexProperty
+
+' Blobs
+
+interface Blob {
+  getStream()
+}
+class FileBlob extends Blob
+class ManagedBlob extends Blob {
+   getProviderId()
+   getKey()
+}
+
+}
+
+package BlobManager {
+ManagedBlob *-- BlobProvider
+
+interface BlobProvider {
+  readBlob()
+  writeBlob()
+  updateBlob()
+  deleteBlob()
+  getStream(blob)
+}
+class S3BlobProvider implements BlobProvider
+
+' class BlobManager
+' BlobManager --* BlobProvider
+}
+
+package Definition {
+
+Property .. Field
+
+Document .. "1" DocumentType
+
+BlobProperty .. "1" Blob : value
+
+class Mixin <<Resource>> implements CompositeType
+Mixin *-- DocumentType
+
+class DocumentType <<Resource>> implements CompositeType {
+  Set<String> mixins
+  Set<String> subtypes
+}
+
+interface Type
+interface SimpleType extends Type
+
+'class BinaryType implements SimpleType
+class BooleanType implements SimpleType
+class DateType implements SimpleType
+class DoubleType implements SimpleType
+class LongType implements SimpleType
+class StringType implements SimpleType
+
+interface ObjectResolver
+' missing UserResolver and DirectoryEntryResolver
+class DocumentModelResolver implements ObjectResolver
+
+ObjectResolver "1" -- SimpleType
+Document "*" .. DocumentModelResolver : resolves
+
+' tree-like structure of named elements
+interface ComplexType extends Type
+class Schema <<Resource>> implements ComplexType
+
+' an aggregation of several schemas
+interface CompositeType extends ComplexType
+Schema *-- CompositeType
+
+' not a real class but a ComplexType with name = "content"
+class ContentType extends ComplexType
+
+class Field {
+  String name
+  Object defaultValue
+}
+Field -- Type
+Field *- ComplexType : has
+
+interface Constraint
+' class DateIntervalConstraint implements Constraint
+' class EnumConstraint implements Constraint
+' class LengthConstraint implements Constraint
+' class NotNullConstraint implements Constraint
+' class NumericIntervalConstraint implements Constraint
+' class PatternConstraint implements Constraint
+' class TypeConstraint implements Constraint
+' class ObjectResolverConstraint implements Constraint
+note bottom of Constraint
+  DateInterval
+  Enum
+  Length
+  NotNull
+  NumericInterval
+  Pattern
+  Type
+  ObjectResolver
+end note
+
+Constraint *- Field
+
+}
+
+@enduml

@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.ecm.core.security.test.override2">
+
+  <extension target="org.nuxeo.ecm.core.security.SecurityService"
+    point="permissions">
+
+    <permission name="CustomAtomicPerm" />
+
+    <!-- show write in the UI at the beginning of the list and -->
+    <permission name="Write">
+      <include>CustomAtomicPerm</include>
+      <remove>Delete</remove>
+    </permission>
+
+    <!-- hide ReadWrite -->
+    <permission name="ReadWrite" userVisible="false" />
+
+  </extension>
+
+</component>

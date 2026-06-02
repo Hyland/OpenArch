@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<component name="com.hyland.hxpr.async.tasks">
+
+  <extension target="com.hyland.hxpr.async.tasks.AsyncTasksService" point="asyncTasks">
+    <asyncTask name="deletion" class="org.nuxeo.ecm.core.async.tasks.DeleteBatchTaskProcessor"/>
+    <asyncTask name="computeDigest" class="org.nuxeo.ecm.core.async.tasks.ComputeDigestTaskProcessor"/>
+    <asyncTask name="updateAceStatus" class="org.nuxeo.ecm.core.async.tasks.UpdateACEStatusTaskProcessor"/>
+    <asyncTask name="cleanupOrphans" class="org.nuxeo.ecm.core.async.tasks.CleanupOrphansTaskProcessor"/>
+  </extension>
+
+</component>

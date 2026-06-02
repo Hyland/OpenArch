@@ -1,0 +1,359 @@
+/*
+ * (C) Copyright 2015-2017 Nuxeo (http://nuxeo.com/) and others.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Contributors:
+ *     <a href="mailto:tdelprat@nuxeo.com">Tiry</a>
+ */
+package org.nuxeo.transientstore.test;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.io.File;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import com.hyland.hxpr.async.tasks.AsyncTasksFeature;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.IOUtils;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.nuxeo.common.Environment;
+import org.nuxeo.ecm.core.api.Blob;
+import org.nuxeo.ecm.core.api.impl.blob.StringBlob;
+import org.nuxeo.ecm.core.transientstore.AbstractTransientStore;
+import org.nuxeo.ecm.core.transientstore.SimpleTransientStore;
+import org.nuxeo.ecm.core.transientstore.api.MaximumTransientSpaceExceeded;
+import org.nuxeo.ecm.core.transientstore.api.TransientStore;
+import org.nuxeo.ecm.core.transientstore.api.TransientStoreProvider;
+import org.nuxeo.ecm.core.transientstore.api.TransientStoreService;
+import org.nuxeo.runtime.api.Framework;
+import org.nuxeo.runtime.test.runner.Deploy;
+import org.nuxeo.runtime.test.runner.Features;
+import org.nuxeo.runtime.test.runner.FeaturesExtension;
+
+@ExtendWith(FeaturesExtension.class)
+@Features({TransientStoreFeature.class, AsyncTasksFeature.class, InMemoryTransientStoreFeature.class })
+@Deploy("org.nuxeo.ecm.core.event")
+@Deploy("org.nuxeo.ecm.core.cache.test:test-in-memory-transientstore-contrib.xml")
+public class TestInMemoryTransientStorage {
+
+    @Test
+    public void verifyServiceDeclared() throws Exception {
+
+        TransientStoreService tss = Framework.getService(TransientStoreService.class);
+        assertNotNull(tss);
+
+        TransientStore ts = tss.getStore("testStore");
+        assertNotNull(ts);
+
+        TransientStore ts2 = tss.getStore("microStore");
+        assertNotNull(ts2);
+
+        TransientStore ts3 = tss.getStore("miniStore");
+        assertNotNull(ts3);
+
+    }
+
+    protected void putEntry(TransientStore ts, String id) {
+        ts.putParameter(id, "A", String.valueOf(1));
+        ts.putParameter(id, "B", "b");
+        String content = "FakeContent";
+        Blob blob = new StringBlob(content);
+        blob.setFilename("fake.txt");
+        blob.setMimeType("text/plain");
+        blob.setDigest(DigestUtils.md5Hex(content));
+        ts.putBlobs(id, Collections.singletonList(blob));
+    }
+
+    @Test
+    public void verifyDefaultAndFallback() {
+        TransientStoreService tss = Framework.getService(TransientStoreService.class);
+        TransientStore def = tss.getStore("default");
+        TransientStore other1 = tss.getStore("storeNotRegisteredInXML");
+        TransientStore other2 = tss.getStore("otherStoreNotRegisteredInXML");
+        assertEquals(def.getClass(), other1.getClass());
+        assertEquals(def.getClass(), other2.getClass());
+        // put a key in the default one
+        def.putParameter("foo", "A", "bar");
+        assertEquals("bar", def.getParameter("foo", "A"));
+        // make sure there's no key collision
+        assertNull(other1.getParameter("foo", "A"));
+        // put a key in the first derived one
+        other1.putParameter("gee", "B", "moo");
+        // make sure there's no key collision
+        assertNull(def.getParameter("gee", "B"));
+        assertNull(other2.getParameter("gee", "B"));
+    }
+
+    @Test
+    public void verifyStorage() throws Exception {
+
+        TransientStoreService tss = Framework.getService(TransientStoreService.class);
+        TransientStore ts = tss.getStore("testStore");
+        TransientStoreProvider tsm = (TransientStoreProvider) ts;
+
+        long size = ((AbstractTransientStore) ts).getStorageSize();
+        assertEquals(0, size);
+
+        putEntry(ts, "1");
+
+        // check FS
+        File cacheDir = ((AbstractTransientStore) ts).getCachingDirectory("1");
+        assertTrue(cacheDir.exists());
+        File[] cacheEntries = cacheDir.listFiles();
+        assertTrue(cacheEntries.length > 0);
+
+        // check that entry is stored
+        assertTrue(ts.exists("1"));
+        assertFalse(ts.isCompleted("1"));
+        assertEquals(1, tsm.keySet().size());
+        assertTrue(tsm.keySet().contains("1"));
+        assertEquals(11, ts.getSize("1"));
+        assertEquals("1", ts.getParameter("1", "A"));
+        assertEquals("b", ts.getParameter("1", "B"));
+        List<Blob> blobs = ts.getBlobs("1");
+        assertEquals(1, blobs.size());
+        Blob blob = blobs.get(0);
+        assertEquals("fake.txt", blob.getFilename());
+        assertEquals("text/plain", blob.getMimeType());
+        assertEquals(DigestUtils.md5Hex("FakeContent"), blob.getDigest());
+        assertEquals("FakeContent", IOUtils.toString(blob.getStream(), UTF_8));
+
+        size = ((AbstractTransientStore) ts).getStorageSize();
+        assertEquals(11, size);
+
+        // update the entry
+        Blob otherBlob = new StringBlob("FakeContent2");
+        otherBlob.setFilename("fake2.txt");
+        otherBlob.setMimeType("text/plain");
+        blobs.add(otherBlob);
+        ts.putBlobs("1", blobs);
+
+        // check update
+        assertTrue(ts.exists("1"));
+        assertEquals(1, tsm.keySet().size());
+        assertTrue(tsm.keySet().contains("1"));
+        assertEquals(23, ts.getSize("1"));
+        blobs = ts.getBlobs("1");
+        assertEquals(2, blobs.size());
+        assertEquals("fake.txt", blobs.get(0).getFilename());
+        assertEquals("fake2.txt", blobs.get(1).getFilename());
+        size = ((AbstractTransientStore) ts).getStorageSize();
+        assertEquals(23, size);
+
+        // move to deletable entries
+        // check that still here
+        ts.release("1");
+        assertTrue(ts.exists("1"));
+        assertEquals(1, tsm.keySet().size());
+        assertTrue(tsm.keySet().contains("1"));
+
+        // check Remove
+        ts.remove("1");
+        assertFalse(ts.exists("1"));
+        assertEquals(0, tsm.keySet().size());
+
+        size = ((AbstractTransientStore) ts).getStorageSize();
+        assertEquals(0, size);
+    }
+
+    @Test
+    public void verifyNullCases() throws Exception {
+
+        TransientStoreService tss = Framework.getService(TransientStoreService.class);
+        TransientStore ts = tss.getStore("testStore");
+
+        // Non existing entry
+        assertFalse(ts.exists("fakeEntry"));
+        assertNull(ts.getParameters("fakeEntry"));
+        assertNull(ts.getParameter("fakeEntry", "fakeParameter"));
+        assertNull(ts.getBlobs("fakeEntry"));
+        assertEquals(-1, ts.getSize("fakeEntry"));
+        assertFalse(ts.isCompleted("fakeEntry"));
+
+        // Entry with parameters only
+        ts.putParameter("testEntry", "param1", "value");
+        assertTrue(ts.exists("testEntry"));
+        Map<String, Object> params = ts.getParameters("testEntry");
+        assertNotNull(params);
+        assertEquals(1, params.size());
+        assertNotNull(ts.getParameter("testEntry", "param1"));
+        assertNull(ts.getParameter("testEntry", "param2"));
+        List<Blob> blobs = ts.getBlobs("testEntry");
+        assertNotNull(blobs);
+        assertTrue(blobs.isEmpty());
+
+        // Entry with blobs only
+        ts.putBlobs("otherEntry", Collections.singletonList(new StringBlob("joe")));
+        assertTrue(ts.exists("otherEntry"));
+        params = ts.getParameters("otherEntry");
+        assertNotNull(params);
+        assertTrue(params.isEmpty());
+        blobs = ts.getBlobs("otherEntry");
+        assertNotNull(blobs);
+        assertEquals(1, blobs.size());
+    }
+
+    @Test
+    public void verifyMaxSizeException() throws Exception {
+        TransientStoreService tss = Framework.getService(TransientStoreService.class);
+        TransientStore ts = tss.getStore("microStore");
+        assertThrows(MaximumTransientSpaceExceeded.class, () -> putEntry(ts, "A"));
+    }
+
+    @Test
+    public void verifyDeleteAfterUse() throws Exception {
+
+        TransientStoreService tss = Framework.getService(TransientStoreService.class);
+        TransientStore ts = tss.getStore("miniStore");
+        putEntry(ts, "1");
+
+        // check that entry is stored
+        assertTrue(ts.exists("1"));
+        assertEquals("1", ts.getParameter("1", "A"));
+        assertEquals("b", ts.getParameter("1", "B"));
+        List<Blob> blobs = ts.getBlobs("1");
+        assertEquals(1, blobs.size());
+        Blob blob = blobs.get(0);
+        assertEquals("fake.txt", blob.getFilename());
+        assertEquals("text/plain", blob.getMimeType());
+        assertEquals("FakeContent", IOUtils.toString(blob.getStream(), UTF_8));
+
+        // move to deletable entries
+        // check that deleted
+        ts.release("1");
+
+        assertFalse(ts.exists("1"));
+    }
+
+    @Test
+    public void verifyDeleteOnGC() throws Exception {
+
+        TransientStoreService tss = Framework.getService(TransientStoreService.class);
+        TransientStore ts = tss.getStore("testStore");
+        TransientStoreProvider tsm = (TransientStoreProvider) ts;
+        putEntry(ts, "X");
+
+        // check that entry is stored
+        assertTrue(ts.exists("X"));
+
+        // check FS
+        File cacheDir = ((AbstractTransientStore) ts).getCachingDirectory("X");
+        assertTrue(cacheDir.exists());
+        File[] cacheEntries = cacheDir.listFiles();
+        assertTrue(cacheEntries.length > 0);
+
+        // do GC for no reason
+        tsm.doGC();
+
+        // entry is still here
+        assertTrue(ts.exists("X"));
+
+        // file is still here
+        cacheEntries = cacheDir.listFiles();
+        assertTrue(cacheEntries.length > 0);
+
+        // no remove the entry
+        ts.remove("X");
+
+        // do GC
+        tsm.doGC();
+
+        // entry is gone
+        assertFalse(ts.exists("X"));
+
+        // cache dir is gone
+        assertFalse(cacheDir.exists());
+    }
+
+    @Test
+    public void verifyDeleteAfterUseGC() throws Exception {
+
+        TransientStoreService tss = Framework.getService(TransientStoreService.class);
+        TransientStore ts = tss.getStore("testStore");
+        TransientStoreProvider tsm = (TransientStoreProvider) ts;
+        putEntry(ts, "foobar");
+
+        // check that entry is stored
+        assertTrue(ts.exists("foobar"));
+        if (ts instanceof SimpleTransientStore) {
+            assertNotNull(((SimpleTransientStore) ts).getL1Cache().getIfPresent("foobar"));
+        }
+
+        // move to deletable entries
+        // check that still here
+        ts.release("foobar");
+
+        assertTrue(ts.exists("foobar"));
+        if (ts instanceof SimpleTransientStore) {
+            assertNull(((SimpleTransientStore) ts).getL1Cache().getIfPresent("foobar"));
+            assertNotNull(((SimpleTransientStore) ts).getL2Cache().getIfPresent("foobar"));
+        }
+
+        // do GC
+        tsm.doGC();
+
+        // check still here
+        assertTrue(ts.exists("foobar"));
+
+        // empty the L2 cache for the in-memory implementation or remove entry for the Redis one
+        if (ts instanceof SimpleTransientStore) {
+            ((SimpleTransientStore) ts).getL2Cache().invalidate("foobar");
+        } else {
+            ts.remove("foobar");
+        }
+
+        // do GC
+        tsm.doGC();
+
+        // check no longer there
+        assertFalse(ts.exists("foobar"));
+    }
+
+    @Test
+    public void verifyStorePathDefault() throws Exception {
+        Framework.getProperties().setProperty("nuxeo.data.dir", Environment.getDefault().getData().getAbsolutePath());
+
+        TransientStoreService tss = Framework.getService(TransientStoreService.class);
+
+        // Verify default behavior (store cache dir is in ${nuxeo.data.dir}/transientstores/{name}
+        AbstractTransientStore ts = (AbstractTransientStore) tss.getStore("microStore");
+        String sep = File.separator;
+        assertEquals(Framework.expandVars("${nuxeo.data.dir}" + sep + "transientstores" + sep + "microStore"),
+                ts.getCacheDir().getAbsolutePath());
+    }
+
+    @Test
+    @Deploy("org.nuxeo.ecm.core.cache.test:testpath-store.xml")
+    public void verifyStorePathCanBeSpecified() throws Exception {
+        Framework.getProperties().setProperty("nuxeo.data.dir", Environment.getDefault().getData().getAbsolutePath());
+
+        TransientStoreService tss = Framework.getService(TransientStoreService.class);
+
+        // Verify when a path is given
+        SimpleTransientStore ts = (SimpleTransientStore) tss.getStore("testPath");
+        String sep = File.separator;
+        assertEquals(Framework.expandVars("${nuxeo.data.dir}" + sep + "test"), ts.getCacheDir().getAbsolutePath());
+
+    }
+
+}

@@ -1,0 +1,268 @@
+/*
+ * (C) Copyright 2014-2017 Nuxeo (http://nuxeo.com/) and others.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Contributors:
+ *     Maxime Hilaire
+ *     Thierry Martins
+ */
+package org.nuxeo.ecm.core.cache;
+
+import static org.nuxeo.ecm.core.cache.CacheDescriptor.DEFAULT_MAX_SIZE;
+import static org.nuxeo.ecm.core.cache.CacheDescriptor.DEFAULT_TTL;
+import static org.nuxeo.ecm.core.cache.CacheDescriptor.OPTION_MAX_SIZE;
+
+import java.io.IOException;
+import java.io.Writer;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import com.hyland.hxpr.runtime.pubsub.AbstractPubSubBroker;
+import com.hyland.hxpr.runtime.pubsub.SerializableMessage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.nuxeo.ecm.core.api.NuxeoException;
+import org.nuxeo.ecm.core.api.repository.RepositoryManager;
+import org.nuxeo.runtime.api.Framework;
+import org.nuxeo.runtime.cluster.ClusterService;
+import org.nuxeo.runtime.model.Component;
+import org.nuxeo.runtime.model.DefaultComponent;
+
+/**
+ * Cache service implementation to manage nuxeo cache
+ *
+ * @since 6.0
+ */
+public class CacheServiceImpl extends DefaultComponent implements CacheService {
+
+    private static final Logger log = LogManager.getLogger(CacheServiceImpl.class);
+
+    /** @since 10.3 */
+    public static final String XP_CACHES = "caches";
+
+    /** @since 8.2 */
+    public static final String DEFAULT_CACHE_ID = "default-cache";
+
+    /** @since 9.3 */
+    public static final String CACHE_INVAL_PUBSUB_TOPIC = "cacheinval";
+
+    /** @since 11.5 */
+    protected static final CacheDescriptor DEFAULT_CACHE_DESCRIPTOR = new CacheDescriptor(DEFAULT_CACHE_ID, null,
+            DEFAULT_TTL, Map.of(OPTION_MAX_SIZE, String.valueOf(DEFAULT_MAX_SIZE)));
+
+    // allows us to start caches registered programmatically through registerCache(name)
+    protected boolean started;
+
+    /** Currently registered caches. */
+    protected final Map<String, CacheManagement> caches = new ConcurrentHashMap<>();
+
+    /** Descriptors for caches registered programmatically . */
+    protected final Map<String, CacheDescriptor> programmaticCaches = new ConcurrentHashMap<>();
+
+    protected CachePubSubInvalidator invalidator;
+
+    public static class CacheInvalidation implements SerializableMessage {
+
+        protected static final String SEP = "/";
+
+        public final String cacheName;
+
+        public final String key;
+
+        public CacheInvalidation(String name, String key) {
+            this.cacheName = name;
+            this.key = key;
+        }
+
+        @Override
+        public void serialize(Writer writer) throws IOException {
+            writer.write(cacheName);
+            writer.write(SEP);
+            writer.write(key);
+        }
+
+        public static CacheInvalidation deserialize(String string) throws IOException {
+            String[] parts = string.split(SEP, 2);
+            if (parts.length != 2) {
+                throw new IOException("Invalid invalidation: " + string);
+            }
+            String cacheName = parts[0];
+            String key = parts[1];
+            return new CacheInvalidation(cacheName, key);
+        }
+
+        @Override
+        public String toString() {
+            return getClass().getSimpleName() + "(" + cacheName + "," + key + ")";
+        }
+    }
+
+    public abstract static class AbstractCachePubSubInvalidator extends AbstractPubSubBroker<CacheInvalidation> {
+
+        public static final String ALL_KEYS = "__ALL__";
+
+        @Override
+        public CacheInvalidation deserialize(String message) throws IOException {
+            return CacheInvalidation.deserialize(message);
+        }
+
+        public void sendInvalidation(String cacheName, String key) {
+            log.debug("sendInvalidation {} {}", cacheName, key);
+            sendMessage(new CacheInvalidation(cacheName, key));
+        }
+
+        public void sendInvalidationsAll(String cacheName) {
+            sendMessage(new CacheInvalidation(cacheName, ALL_KEYS));
+        }
+
+        @Override
+        public void receivedMessage(CacheInvalidation invalidation) {
+            CacheManagement cache = (CacheManagement) getCache(invalidation.cacheName);
+            log.debug("receivedMessage {} {}", invalidation.cacheName, invalidation.key);
+            if (cache != null) {
+                String key = invalidation.key;
+                if (ALL_KEYS.equals(key)) {
+                    cache.invalidateLocalAll();
+                } else {
+                    cache.invalidateLocal(key);
+                }
+            }
+        }
+
+        // for testability, we want an alternative implementation to return a test cache
+        protected abstract Cache getCache(String name);
+    }
+
+    protected class CachePubSubInvalidator extends AbstractCachePubSubInvalidator {
+        @Override
+        protected Cache getCache(String name) {
+            return CacheServiceImpl.this.getCache(name);
+        }
+    }
+
+    @Override
+    public void registerCache(String name) {
+        log.debug("registerCache {}", name);
+        if (name == null || getCacheDescriptor(name) != null) {
+            // cache already registered
+            return;
+        }
+        CacheDescriptor defaultDescriptor = this.<CacheDescriptor> getRegistryContribution(XP_CACHES, DEFAULT_CACHE_ID)
+                                                .orElse(DEFAULT_CACHE_DESCRIPTOR);
+        CacheDescriptor descriptor = new CacheDescriptor(name, defaultDescriptor.getKlass(), defaultDescriptor.getTTL(),
+                defaultDescriptor.getOptions());
+        programmaticCaches.put(name, descriptor);
+        // start if needed
+        maybeStart(name, descriptor);
+    }
+
+    @Override
+    public int getApplicationStartedOrder() {
+        Component component = Framework.getRuntime().getComponent(RepositoryManager.REPOSITORY_COMPONENT_NAME);
+        if (component == null) {
+            return super.getApplicationStartedOrder();
+        }
+        return component.getApplicationStartedOrder() - 5;
+    }
+
+    @Override
+    public void start() {
+        ClusterService clusterService = Framework.getService(ClusterService.class);
+        if (clusterService.isEnabled()) {
+            // register cache invalidator
+            String nodeId = clusterService.getNodeId();
+            invalidator = new CachePubSubInvalidator();
+            invalidator.initialize(CACHE_INVAL_PUBSUB_TOPIC, nodeId);
+            log.info("Registered cache invalidator for node: {}", nodeId);
+        } else {
+            log.info("Not registering a cache invalidator because clustering is not enabled");
+        }
+        // create and starts caches
+        this.<CacheDescriptor> getRegistryContributions(XP_CACHES)
+            .stream()
+            .filter(c -> !programmaticCaches.containsKey(c.getName()))
+            .forEach(this::startCacheDescriptor);
+        programmaticCaches.values().forEach(this::startCacheDescriptor);
+        started = true;
+    }
+
+    /** Creates and starts the cache. */
+    protected void startCacheDescriptor(CacheDescriptor desc) {
+        CacheManagement cache;
+        if (desc.klass == null) {
+            cache = new InMemoryCacheImpl(desc); // default cache implementation
+        } else {
+            try {
+                cache = desc.klass.getConstructor(CacheDescriptor.class).newInstance(desc);
+            } catch (ReflectiveOperationException e) {
+                throw new NuxeoException("Failed to instantiate class: " + desc.klass + " for cache: " + desc.name, e);
+            }
+        }
+        // wrap with checker, metrics and invalidator
+        cache = new CacheAttributesChecker(cache);
+        cache = new CacheMetrics(cache);
+        if (invalidator != null && desc.isClusterInvalidationEnabled()) {
+            cache = new CacheInvalidator(cache, invalidator);
+        }
+        cache.start();
+        caches.put(desc.name, cache);
+    }
+
+    @Override
+    public void stop() throws InterruptedException {
+        if (invalidator != null) {
+            invalidator.close();
+            invalidator = null;
+        }
+        for (CacheManagement cache : caches.values()) {
+            cache.stop();
+        }
+        caches.clear();
+        programmaticCaches.clear();
+        started = false;
+    }
+
+    protected void maybeStart(String name, CacheDescriptor descriptor) {
+        if (!started) {
+            // cache will be started by start()
+            return;
+        }
+        // stop previous
+        CacheManagement cache = caches.get(name);
+        if (cache != null) {
+            cache.stop();
+        }
+        // start new one
+        startCacheDescriptor(descriptor);
+    }
+
+    // --------------- API ---------------
+
+    @Override
+    public Cache getCache(String name) {
+        return caches.get(name);
+    }
+
+    /**
+     * @since 9.3
+     */
+    public CacheDescriptor getCacheDescriptor(String name) {
+        CacheDescriptor desc = programmaticCaches.get(name);
+        if (desc != null) {
+            return desc;
+        }
+        return this.<CacheDescriptor> getRegistryContribution(XP_CACHES, name).orElse(null);
+    }
+
+}

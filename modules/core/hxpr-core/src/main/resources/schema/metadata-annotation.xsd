@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<xs:schema targetNamespace="http://www.nuxeo.org/ecm/schemas/annotation/"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:nxs="http://www.nuxeo.org/ecm/schemas/annotation/">
+
+  <xs:include schemaLocation="core-types.xsd" />
+
+  <xs:element name="name" type="xs:string" />
+  <xs:element name="pageId" type="xs:long" />
+  <xs:element name="type" type="xs:string" />
+  <xs:element name="contentItemId" type="xs:string" />
+  <xs:element name="id" type="xs:string" />
+  <xs:element name="x" type="xs:double" />
+  <xs:element name="y" type="xs:double" />
+  <xs:element name="height" type="xs:double" />
+  <xs:element name="width" type="xs:double" />
+  <xs:element name="fillColor" type="xs:string" />
+  <xs:element name="fillable" type="xs:boolean" />
+  <xs:element name="stroke" type="xs:string" />
+  <xs:element name="opacity" type="xs:double" />
+  <xs:element name="resizable" type="xs:boolean" />
+  <xs:element name="movable" type="xs:boolean" />
+  <xs:element name="data" type="xs:string" />
+  <xs:element name="scale" type="xs:double" />
+  <xs:element name="fixRotation" type="xs:boolean" />
+  <xs:element name="additionalData" type="xs:string" />
+</xs:schema>

@@ -1,0 +1,110 @@
+/*
+ * (C) Copyright 2014 Nuxeo SA (http://nuxeo.com/) and others.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Contributors:
+ *     Maxime Hilaire
+ *
+ */
+package org.nuxeo.ecm.core.cache;
+
+import java.util.Set;
+import java.util.function.Supplier;
+
+/**
+ * The nuxeo cache interface that define generic methods to use cache technologies
+ *
+ * @since 6.0
+ */
+public interface Cache {
+
+    /**
+     * Get cache name as specified in the descriptor
+     *
+     * @return the cache name
+     * @since 6.0
+     */
+    String getName();
+
+    /**
+     * Get method to retrieve value from cache Must not raise exception if the key is null, but return null
+     *
+     * @param key the string key
+     * @return the value, return null if the key does not exist or if the key is null
+     * @since 6.0
+     */
+    Object get(String key);
+
+    /**
+     * Retrieves the value from the cache and returns it. If the associated value is null, retrieves it from the
+     * {@code supplier} and put it into the cache.
+     *
+     * @implNote The key must not be null
+     * @since 11.5
+     */
+    @SuppressWarnings("unchecked")
+    default <V> V computeIfAbsent(String key, Supplier<V> supplier) {
+        var value = (V) get(key);
+        if (value == null) {
+            value = supplier.get();
+            put(key, value);
+        }
+        return value;
+    }
+
+    /**
+     * Returns the set of all keys stored in the cache.
+     *
+     * @return the {@link Set} of all keys
+     * @since 8.3
+     */
+    Set<String> keySet();
+
+    /**
+     * Invalidate the given key
+     *
+     * @param key, the key to remove from the cache, if null will do nothing
+     * @since 6.0
+     */
+    void invalidate(String key);
+
+    /**
+     * Invalidate all key-value stored in the cache
+     *
+     * @since 6.0
+     */
+    void invalidateAll();
+
+    /**
+     * Put method to store a value
+     *
+     * @param key the string key, if null, the value will not be stored
+     * @param value the value to store, if null, the value will not be stored
+     * @since 6.0
+     */
+    void put(String key, Object value);
+
+    /**
+     * Check if a given key is present inside the cache. Compared to the get() method, this method must not update
+     * internal cache state and change TTL
+     *
+     * @param key the string key
+     * @return true if a corresponding entry exists, false otherwise
+     * @since 7.2
+     */
+    default boolean hasEntry(String key) {
+        return get(key) != null;
+    }
+
+}

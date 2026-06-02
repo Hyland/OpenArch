@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.ecm.core.storage.dbs.test.dbsdocument">
+
+    <extension target="org.nuxeo.ecm.core.schema.TypeService" point="doctype">
+        <doctype name="SysFolder" extends="SysContent">
+            <schema name="system"/>
+            <mixin name="SysFolderish"/>
+        </doctype>
+        <doctype name="SysFile" extends="SysContent">
+            <schema name="sysfile"/>
+            <schema name="system"/>
+            <schema name="sysfiles"/>
+        </doctype>
+    </extension>
+</component>

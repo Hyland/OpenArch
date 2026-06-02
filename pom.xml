@@ -72,6 +72,7 @@
     <commons-codec.version>1.22.0</commons-codec.version>
     <commons-collections4.version>4.5.0</commons-collections4.version>
     <commons-text.version>1.15.0</commons-text.version>
+    <commons-csv.version>1.14.1</commons-csv.version>
     <xercesImpl.version>2.12.2</xercesImpl.version>
     <apache.httpcomponents.version>4.5.14</apache.httpcomponents.version>
     <opencensus.version>0.31.1</opencensus.version>
@@ -93,6 +94,7 @@
     <xsom.version>20140925</xsom.version>
     <swagger-annotations-jakarta.version>2.2.50</swagger-annotations-jakarta.version>
     <antlr4.version>4.13.2</antlr4.version>
+    <jericho-html.version>3.4</jericho-html.version>
 
     <!-- MongoDB -->
     <mongo.java.driver.version>5.8.0</mongo.java.driver.version>
@@ -130,7 +132,7 @@
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
         <artifactId>hxpr-async-tasks</artifactId>
-        <version>${project.version</version>
+        <version>${project.version}</version>
         <type>test-jar</type>
         <scope>test</scope>
       </dependency>
@@ -150,6 +152,18 @@
         <groupId>com.hyland.hxpr</groupId>
         <artifactId>hxpr-runtime</artifactId>
         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-runtime-cluster-api</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-runtime-cluster-api</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
+        <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
@@ -233,12 +247,46 @@
       <!-- HxPR Core -->
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-core</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
         <artifactId>hxpr-core-api</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
         <artifactId>hxpr-core-api</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-core-cache</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-core-cache</artifactId>
+        <type>test-jar</type>
+        <scope>test</scope>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-core-event</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-core-io</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-core-io</artifactId>
         <version>${project.version}</version>
         <type>test-jar</type>
         <scope>test</scope>
@@ -286,6 +334,11 @@
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-text</artifactId>
         <version>${commons-text.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-csv</artifactId>
+        <version>${commons-csv.version}</version>
       </dependency>
 
       <dependency>
@@ -444,6 +497,11 @@
         <groupId>org.antlr</groupId>
         <artifactId>antlr4-runtime</artifactId>
         <version>${antlr4.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>net.htmlparser.jericho</groupId>
+        <artifactId>jericho-html</artifactId>
+        <version>${jericho-html.version}</version>
       </dependency>
 
       <!-- Test Scope -->

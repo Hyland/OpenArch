@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.ecm.core.cache.ts.keyvalueblob.test">
+
+  <!-- a default key/value store is already provided by another contrib -->
+
+  <extension target="org.nuxeo.ecm.core.blob.BlobService" point="configuration">
+    <blobprovider name="default">
+      <class>org.nuxeo.ecm.core.blob.LocalBlobProvider</class>
+    </blobprovider>
+    <blobprovider name="mytransient">
+      <class>org.nuxeo.ecm.core.blob.LocalBlobProvider</class>
+      <property name="path">mytransientbinaries</property>
+    </blobprovider>
+  </extension>
+
+  <extension target="org.nuxeo.ecm.core.transientstore.TransientStorageComponent" point="store">
+    <store name="default" class="org.nuxeo.ecm.core.transientstore.keyvalueblob.KeyValueBlobTransientStore">
+      <targetMaxSizeMB>1</targetMaxSizeMB>
+      <absoluteMaxSizeMB>1</absoluteMaxSizeMB>
+      <property name="defaultBlobProvider">mytransient</property>
+    </store>
+  </extension>
+
+</component>

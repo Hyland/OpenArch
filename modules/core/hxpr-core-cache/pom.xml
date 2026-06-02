@@ -1,0 +1,107 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.hyland.hxpr</groupId>
+    <artifactId>hxpr-community-core-parent</artifactId>
+    <version>0.0.31-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>hxpr-core-cache</artifactId>
+  <name>HxPR Core Cache</name>
+
+  <properties>
+    <manifest.file>src/main/resources/META-INF/MANIFEST.MF</manifest.file>
+  </properties>
+
+  <dependencies>
+
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-common</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-runtime</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-runtime-cluster-api</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.inject</groupId>
+      <artifactId>guice</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.inject</groupId>
+      <artifactId>jakarta.inject-api</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-core-api</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-core-event</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-runtime-pubsub</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-async-tasks</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-async-tasks</artifactId>
+      <scope>test</scope>
+      <type>test-jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-runtime-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-runtime-cluster-api</artifactId>
+      <scope>test</scope>
+      <type>test-jar</type>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <executions>
+          <execution>
+            <configuration>
+              <archive>
+                <manifestFile>src/test/resources/META-INF/MANIFEST.MF</manifestFile>
+              </archive>
+            </configuration>
+            <goals>
+              <goal>test-jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

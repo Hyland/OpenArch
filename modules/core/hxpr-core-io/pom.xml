@@ -1,0 +1,121 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.hyland.hxpr</groupId>
+    <artifactId>hxpr-community-core-parent</artifactId>
+    <version>0.0.31-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>hxpr-core-io</artifactId>
+  <name>HxPR Core IO</name>
+
+  <properties>
+    <manifest.file>src/main/resources/META-INF/MANIFEST.MF</manifest.file>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-common</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-runtime</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-runtime-jtajca</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-core-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-core-schema</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-core-event</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-core-cache</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-core-query</artifactId>
+    </dependency>
+
+    <!-- TODO remove this dependency if we don't use xpath -->
+    <dependency>
+      <groupId>jaxen</groupId>
+      <artifactId>jaxen</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-csv</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-jsr310</artifactId>
+    </dependency>
+
+    <!-- test scope -->
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-runtime-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <executions>
+          <execution>
+            <configuration>
+              <archive>
+                <manifestFile>src/test/resources/META-INF/MANIFEST.MF</manifestFile>
+              </archive>
+            </configuration>
+            <goals>
+              <goal>test-jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

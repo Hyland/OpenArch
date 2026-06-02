@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<xs:schema targetNamespace="http://www.nuxeo.org/ecm/schemas/rendition/"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:nxs="http://www.nuxeo.org/ecm/schemas/rendition/">
+
+  <xs:include schemaLocation="core-types.xsd" />
+
+  <xs:element name="id" type="xs:string" />
+  <xs:element name="status" type="xs:string" />
+  <xs:element name="blob" type="nxs:blob" />
+  <xs:element name="sourceDoc" type="xs:string" />
+  <xs:element name="isExternal" type="xs:boolean" default="false"/>
+  <xs:element name="blobPath" type="xs:string" />
+</xs:schema>

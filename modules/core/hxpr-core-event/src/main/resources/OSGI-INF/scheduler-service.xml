@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.ecm.core.scheduler.SchedulerService">
+
+  <require>org.nuxeo.runtime.cluster.ClusterService</require>
+
+  <documentation>
+     Core scheduler registry service.
+  </documentation>
+
+  <service>
+    <provide interface="org.nuxeo.ecm.core.scheduler.SchedulerService" />
+  </service>
+
+  <implementation class="org.nuxeo.ecm.core.scheduler.SchedulerServiceImpl" />
+
+  <extension-point name="schedule">
+
+    <documentation>
+      Extension allowing the registration of schedules.
+      This is similar to a cron job. Note that
+      contrary to UNIX cron there is an additional "seconds" field
+      in the cron expression.
+      <p/>
+      A scheduler definition contains information about what job is run,
+      when, and under what identity.
+      <p/>
+      For instance :
+      <code>
+        <schedule id="mySchedule">
+          <userid>Administrator</userid>
+          <class>com.example.MyScheduledJob</class>
+          <!-- Every first of the month at 3am -->
+          <cronExpression>0 0 3 1 * ?</cronExpression>
+          <timezone>UTC</timezone>
+        </schedule>
+      </code>
+      The class must be an instance of org.nuxeo.ecm.core.scheduler.ScheduledJob,
+      having a run() method.
+
+      @see org.quartz.CronTrigger
+      @see org.nuxeo.ecm.core.scheduler.ScheduledJob
+      @see http://www.quartz-scheduler.org/docs/api/1.8.1/org/quartz/CronExpression.html
+      @see http://www.quartz-scheduler.org/docs/tutorials/crontrigger.html
+    </documentation>
+
+    <object class="org.nuxeo.ecm.core.scheduler.ScheduleDescriptor"/>
+
+  </extension-point>
+
+
+</component>

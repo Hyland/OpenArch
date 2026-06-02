@@ -35,6 +35,10 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-runtime-cluster-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
       <artifactId>hxpr-runtime-jtajca</artifactId>
     </dependency>
     <dependency>
@@ -72,11 +76,27 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
       <artifactId>hxpr-core-schema</artifactId>
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
       <artifactId>hxpr-core-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-core-cache</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-core-event</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-core-io</artifactId>
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
