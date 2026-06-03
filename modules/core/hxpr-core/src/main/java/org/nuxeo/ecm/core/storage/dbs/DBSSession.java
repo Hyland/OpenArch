@@ -129,6 +129,7 @@ import org.nuxeo.ecm.core.api.ScrollResult;
 import org.nuxeo.ecm.core.api.lock.LockManager;
 import org.nuxeo.ecm.core.api.query.QueryParameters;
 import org.nuxeo.ecm.core.api.repository.FulltextConfiguration;
+import org.nuxeo.ecm.core.async.tasks.DeleteBatchTaskProcessor;
 import org.nuxeo.ecm.core.blob.BlobInfo;
 import org.nuxeo.ecm.core.blob.DocumentBlobService;
 import org.nuxeo.ecm.core.event.Event;
@@ -215,6 +216,8 @@ public class DBSSession implements InternalSession {
     public static final String GOVERNANCE_CHILD_DELETION_NOTIFY_FEATURE_FLAG = "gov-child-delete-notify";
 
     private static final int BATCH_SIZE = 500;
+
+    private static final int DELETE_ASYNC_THRESHOLD = 20;
 
     public DBSSession(DBSRepository repository) {
         this.repository = repository;
@@ -915,6 +918,7 @@ public class DBSSession implements InternalSession {
      * <ul>
      * <li>parent-child relations: delete all subchildren recursively,
      * </ul>
+     * Threshold for number of documents to delete in a batch before switching to async deletion is defined by {@link #DELETE_ASYNC_THRESHOLD}.
      */
     protected void remove(String rootId, NuxeoPrincipal principal) {
         transaction.save(principal);
@@ -965,8 +969,8 @@ public class DBSSession implements InternalSession {
             }
         }
 
-            //notify first level ids removal
-            sendDocumentEvents(firstLevelIds, principal);
+        //notify first level ids removal
+        sendDocumentEvents(firstLevelIds, principal);
 
         // remove root and first level synchronously
         firstLevelIds.add(rootId);
@@ -974,13 +978,17 @@ public class DBSSession implements InternalSession {
 
         // if we have more than one level, remove asynchronously
         if (removedIds.size() > firstLevelIds.size()) {
-                //notify other level documents removal
-                sendDocumentEvents(removedIds, principal);
+            //notify other level documents removal
+            sendDocumentEvents(removedIds, principal);
 
-
-            String nxql = String.format("SELECT * FROM SysContent, SysRelation WHERE sys_ancestorIds = '%s'", rootId);
-            ScrollerTask command = new ScrollerTask.Builder(BATCH_DELETE_TASK_NAME, nxql, getRepositoryName(), SYSTEM_USERNAME).build();
-            Framework.getService(TaskService.class).submitTask(command);
+            if (removedIds.size() < DELETE_ASYNC_THRESHOLD) {
+                DeleteBatchTaskProcessor processor = new DeleteBatchTaskProcessor();
+                processor.process(null, List.copyOf(removedIds), CoreInstance.getCoreSessionSystem(repository.getName()));
+            } else {
+                String nxql = String.format("SELECT * FROM SysContent, SysRelation WHERE sys_ancestorIds = '%s'", rootId);
+                ScrollerTask command = new ScrollerTask.Builder(BATCH_DELETE_TASK_NAME, nxql, getRepositoryName(), SYSTEM_USERNAME).build();
+                Framework.getService(TaskService.class).submitTask(command);
+            }
         }
     }
 
