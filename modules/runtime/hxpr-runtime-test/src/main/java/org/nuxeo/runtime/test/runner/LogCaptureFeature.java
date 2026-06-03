@@ -19,7 +19,7 @@
 package org.nuxeo.runtime.test.runner;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.slf4j.Logger.ROOT_LOGGER_NAME;
 
 import java.lang.annotation.ElementType;
@@ -147,7 +147,7 @@ public class LogCaptureFeature implements RunnerFeature {
             if (noFilterFlag) {
                 throw new LogCaptureFeature.NoLogCaptureFilterException();
             }
-            assertFalse("No log result found", messages.isEmpty());
+            assertFalse(messages.isEmpty(), "No log result found");
         }
 
         public void clear() {

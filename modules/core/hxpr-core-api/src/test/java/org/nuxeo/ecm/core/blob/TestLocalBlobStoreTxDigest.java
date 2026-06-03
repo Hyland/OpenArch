@@ -18,7 +18,7 @@
  */
 package org.nuxeo.ecm.core.blob;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 import org.nuxeo.runtime.test.runner.Deploy;

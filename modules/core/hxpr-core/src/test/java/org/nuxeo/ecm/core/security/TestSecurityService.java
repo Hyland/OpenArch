@@ -21,7 +21,7 @@
  */
 package org.nuxeo.ecm.core.security;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.CREATE_CHILD;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.CREATE_VERSION;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.DELETE;

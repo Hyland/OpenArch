@@ -18,8 +18,8 @@
  */
 package org.nuxeo.ecm.core.scheduler;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.format.DateTimeFormatter;
 
@@ -70,7 +70,7 @@ public class TestSchedulerService {
 
         waitUntilDummyEventListenerIsCalled(10); // so that job is called at least once
         long count = DummyScheduledJob.getCount();
-        assertTrue("count " + count, count >= 1);
+        assertTrue(count >= 1, "count " + count);
     }
 
     @Test

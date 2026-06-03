@@ -20,9 +20,10 @@
 
 package org.nuxeo.ecm.core.cache;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.lang.reflect.Method;
 
-import org.junit.Assert;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.cluster.BasicClusterFeature;
 import org.nuxeo.runtime.test.runner.Deploy;
@@ -70,14 +71,14 @@ public class CacheFeature implements RunnerFeature {
 
     public static <T extends Cache> T unwrapImpl(Class<T> type, Cache cache) {
         if (!(cache instanceof CacheWrapper)) {
-            Assert.fail("Not a wrapper " + cache.getClass());
+            fail("Not a wrapper " + cache.getClass());
         }
         cache = ((CacheWrapper) cache).cache;
         if (cache instanceof CacheWrapper) {
             return unwrapImpl(type, cache);
         }
         if (!type.isAssignableFrom(cache.getClass())) {
-            Assert.fail("Not of requested type  " + type);
+            fail("Not of requested type  " + type);
         }
         return type.cast(cache);
     }

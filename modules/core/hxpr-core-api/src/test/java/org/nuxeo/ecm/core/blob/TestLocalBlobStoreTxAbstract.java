@@ -19,9 +19,9 @@
 package org.nuxeo.ecm.core.blob;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -345,7 +345,7 @@ public abstract class TestLocalBlobStoreTxAbstract extends TestAbstractBlobStore
 
     @Test
     public void testTransactionConcurrencyCreateCreate() throws IOException, InterruptedException {
-        assumeFalse("Concurrency test does not make sense with deduplication", useDeDuplication());
+        assumeFalse(useDeDuplication(), "Concurrency test does not make sense with deduplication");
         assertEquals(0, countStorageFiles());
         assertEquals(0, countTmpFiles());
 
@@ -366,7 +366,7 @@ public abstract class TestLocalBlobStoreTxAbstract extends TestAbstractBlobStore
             exc.get(0).addSuppressed(exc.get(1));
             throw new NuxeoException(exc.get(0));
         }
-        assertEquals("One thread should throw ConcurrentUpdateException", 1, exc.size());
+        assertEquals(1, exc.size(), "One thread should throw ConcurrentUpdateException");
         Throwable t = exc.get(0);
         if (t instanceof ConcurrentUpdateException) {
             assertEquals(ID1, t.getMessage());
@@ -380,12 +380,12 @@ public abstract class TestLocalBlobStoreTxAbstract extends TestAbstractBlobStore
         // blob can be read
         assertTrue(bs.readBlob(ID1, tmpFile));
         String value = new String(Files.readAllBytes(tmpFile), UTF_8);
-        assertTrue(value, value.startsWith(FOO));
+        assertTrue(value.startsWith(FOO), value);
     }
 
     @Test
     public void testTransactionConcurrencyUpdateUpdate() throws IOException, InterruptedException {
-        assumeFalse("Concurrency test does not make sense with deduplication", useDeDuplication());
+        assumeFalse(useDeDuplication(), "Concurrency test does not make sense with deduplication");
         assertEquals(0, countStorageFiles());
         assertEquals(0, countTmpFiles());
 
@@ -413,7 +413,7 @@ public abstract class TestLocalBlobStoreTxAbstract extends TestAbstractBlobStore
             exc.get(0).addSuppressed(exc.get(1));
             throw new NuxeoException(exc.get(0));
         }
-        assertEquals("One thread should throw ConcurrentUpdateException", 1, exc.size());
+        assertEquals(1, exc.size(), "One thread should throw ConcurrentUpdateException");
         Throwable t = exc.get(0);
         if (t instanceof ConcurrentUpdateException) {
             assertEquals(ID1, t.getMessage());
@@ -427,12 +427,12 @@ public abstract class TestLocalBlobStoreTxAbstract extends TestAbstractBlobStore
         // blob can be read
         assertTrue(bs.readBlob(ID1, tmpFile));
         String value = new String(Files.readAllBytes(tmpFile), UTF_8);
-        assertTrue(value, value.startsWith(FOO));
+        assertTrue(value.startsWith(FOO), value);
     }
 
     @Test
     public void testTransactionConcurrencyDeleteDelete() throws IOException, InterruptedException {
-        assumeFalse("Concurrency test does not make sense with deduplication", useDeDuplication());
+        assumeFalse(useDeDuplication(), "Concurrency test does not make sense with deduplication");
         assertEquals(0, countStorageFiles());
         assertEquals(0, countTmpFiles());
 
@@ -460,7 +460,7 @@ public abstract class TestLocalBlobStoreTxAbstract extends TestAbstractBlobStore
             exc.get(0).addSuppressed(exc.get(1));
             throw new NuxeoException(exc.get(0));
         }
-        assertEquals("One thread should throw ConcurrentUpdateException", 1, exc.size());
+        assertEquals(1, exc.size(), "One thread should throw ConcurrentUpdateException");
         Throwable t = exc.get(0);
         if (t instanceof ConcurrentUpdateException) {
             assertEquals(ID1, t.getMessage());
@@ -477,7 +477,7 @@ public abstract class TestLocalBlobStoreTxAbstract extends TestAbstractBlobStore
 
     @Test
     public void testTransactionConcurrencyUpdateWinsOverDelete() throws IOException, InterruptedException {
-        assumeFalse("Concurrency test does not make sense with deduplication", useDeDuplication());
+        assumeFalse(useDeDuplication(), "Concurrency test does not make sense with deduplication");
         assertEquals(0, countStorageFiles());
         assertEquals(0, countTmpFiles());
 
@@ -539,7 +539,7 @@ public abstract class TestLocalBlobStoreTxAbstract extends TestAbstractBlobStore
             exc.get(0).addSuppressed(exc.get(1));
             throw new NuxeoException(exc.get(0));
         }
-        assertEquals("One thread should throw ConcurrentUpdateException", 1, exc.size());
+        assertEquals(1, exc.size(), "One thread should throw ConcurrentUpdateException");
         Throwable t = exc.get(0);
         if (t instanceof ConcurrentUpdateException) {
             assertEquals(ID1, t.getMessage());
@@ -557,7 +557,7 @@ public abstract class TestLocalBlobStoreTxAbstract extends TestAbstractBlobStore
 
     @Test
     public void testTransactionConcurrencyDeleteWinsOverUpdate() throws IOException, InterruptedException {
-        assumeFalse("Concurrency test does not make sense with deduplication", useDeDuplication());
+        assumeFalse(useDeDuplication(), "Concurrency test does not make sense with deduplication");
         assertEquals(0, countStorageFiles());
         assertEquals(0, countTmpFiles());
 
@@ -618,7 +618,7 @@ public abstract class TestLocalBlobStoreTxAbstract extends TestAbstractBlobStore
             exc.get(0).addSuppressed(exc.get(1));
             throw new NuxeoException(exc.get(0));
         }
-        assertEquals("One thread should throw ConcurrentUpdateException", 1, exc.size());
+        assertEquals(1, exc.size(), "One thread should throw ConcurrentUpdateException");
         Throwable t = exc.get(0);
         if (t instanceof ConcurrentUpdateException) {
             assertEquals(ID1, t.getMessage());

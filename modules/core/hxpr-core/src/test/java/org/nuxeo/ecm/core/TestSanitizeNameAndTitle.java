@@ -15,8 +15,8 @@
  */
 package org.nuxeo.ecm.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
@@ -115,7 +115,7 @@ public class TestSanitizeNameAndTitle {
 
         String actualName = nameCapture.getValue();
         if (expectedName == NUMERIC) {
-            assertTrue(actualName, StringUtils.isNumeric(actualName));
+            assertTrue(StringUtils.isNumeric(actualName), actualName);
         } else {
             assertEquals(expectedName, actualName);
         }
@@ -126,7 +126,7 @@ public class TestSanitizeNameAndTitle {
             actualTitle = title;
         }
         if (expectedTitle == NUMERIC) {
-            assertTrue(actualTitle, StringUtils.isNumeric(actualTitle));
+            assertTrue(StringUtils.isNumeric(actualTitle), actualTitle);
         } else {
             assertEquals(expectedTitle, actualTitle);
         }

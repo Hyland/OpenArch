@@ -18,7 +18,7 @@
  */
 package org.nuxeo.ecm.core.blob;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;

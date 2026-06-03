@@ -17,7 +17,7 @@
  */
 package org.nuxeo.ecm.core.security;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.READ;
 import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FILE;

@@ -18,8 +18,8 @@
  */
 package org.nuxeo.ecm.core.utils;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.nuxeo.ecm.core.api.impl.blob.AbstractBlob.TEXT_PLAIN;
 import static org.nuxeo.ecm.core.api.impl.blob.AbstractBlob.UTF_8;
 

@@ -18,9 +18,9 @@
  */
 package org.nuxeo.ecm.core.cache;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.nuxeo.ecm.core.cache.CacheDescriptor.DEFAULT_MAX_SIZE;
 import static org.nuxeo.ecm.core.cache.CacheDescriptor.DEFAULT_TTL;
 import static org.nuxeo.ecm.core.cache.CacheDescriptor.OPTION_MAX_SIZE;

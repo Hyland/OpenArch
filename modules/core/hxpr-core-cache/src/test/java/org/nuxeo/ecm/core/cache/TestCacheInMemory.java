@@ -20,11 +20,12 @@
 
 package org.nuxeo.ecm.core.cache;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.util.List;
@@ -34,7 +35,6 @@ import java.util.stream.Stream;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
-import org.junit.Assert;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -69,7 +69,7 @@ public class TestCacheInMemory {
 
     @Test
     public void keySet() {
-        Assert.assertNotNull(defaultCache.get(CacheFeature.KEY));
+        assertNotNull(defaultCache.get(CacheFeature.KEY));
         defaultCache.put("key2", "val2");
         Set<String> keys = defaultCache.keySet();
         assertTrue(keys.contains("key2"));
@@ -110,16 +110,16 @@ public class TestCacheInMemory {
 
     @Test
     public void invalidateKey() throws IOException {
-        Assert.assertNotNull(defaultCache.get(CacheFeature.KEY));
+        assertNotNull(defaultCache.get(CacheFeature.KEY));
         defaultCache.invalidate(CacheFeature.KEY);
         assertNull(defaultCache.get(CacheFeature.KEY));
     }
 
     @Test
     public void invalidateAll() {
-        Assert.assertNotNull(defaultCache.get(CacheFeature.KEY));
+        assertNotNull(defaultCache.get(CacheFeature.KEY));
         defaultCache.put("key2", "val2");
-        Assert.assertNotNull(defaultCache.get("key2"));
+        assertNotNull(defaultCache.get("key2"));
         defaultCache.invalidateAll();
         assertNull(defaultCache.get(CacheFeature.KEY));
         assertNull(defaultCache.get("key2"));

@@ -18,9 +18,9 @@
  */
 package org.nuxeo.ecm.core.storage.dbs;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ACL;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ID;
 

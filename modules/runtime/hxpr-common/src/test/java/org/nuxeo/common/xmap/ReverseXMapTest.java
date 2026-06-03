@@ -18,9 +18,9 @@
  */
 package org.nuxeo.common.xmap;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.net.URL;
@@ -42,7 +42,7 @@ public class ReverseXMapTest {
             fail("should throw IllegalArgumentException");
         } catch (IllegalArgumentException e) {
             String msg = e.getMessage();
-            assertTrue(msg, msg.contains("java.lang.String is NOT registered in xmap"));
+            assertTrue(msg.contains("java.lang.String is NOT registered in xmap"));
         }
 
         String content = xmap.toXML(author);

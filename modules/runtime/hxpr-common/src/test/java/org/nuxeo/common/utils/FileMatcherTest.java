@@ -20,10 +20,10 @@
 
 package org.nuxeo.common.utils;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.io.File;
 import java.util.regex.Pattern;
@@ -48,47 +48,47 @@ public class FileMatcherTest {
     public void testMatchFilenameWithPatternOnVersion() {
         FileMatcher fm = FileMatcher.getMatcher("nuxeo-automation-{v:.+}.jar");
         assertTrue(fm.match("nuxeo-automation-1.2.jar"));
-        assertEquals("Key not extracted", "v", fm.getKey());
-        assertEquals("Value not extracted", "1.2", fm.getValue());
+        assertEquals("v", fm.getKey(), "Key not extracted");
+        assertEquals("1.2", fm.getValue(), "Value not extracted");
     }
 
     @Test
     public void testMatchFilenameWithPatternOnVersionAndExtension() {
         FileMatcher fm = FileMatcher.getMatcher("nuxeo-automation-{v:.+}");
         assertTrue(fm.match("nuxeo-automation-1.2.jar"));
-        assertEquals("Value not extracted", "1.2.jar", fm.getValue());
+        assertEquals("1.2.jar", fm.getValue(), "Value not extracted");
     }
 
     @Test
     public void testMatchFilenameWithPatternOnNameAndFixedExtension() {
         FileMatcher fm = FileMatcher.getMatcher("{v:.+}.jar");
         assertTrue(fm.match("nuxeo-automation-1.2.jar"));
-        assertEquals("Value not extracted", "nuxeo-automation-1.2", fm.getValue());
+        assertEquals("nuxeo-automation-1.2", fm.getValue(), "Value not extracted");
     }
 
     @Test
     public void testMatchFilenameWithWholePattern() {
         FileMatcher fm = FileMatcher.getMatcher("{v:.+}");
         assertTrue(fm.match("nuxeo-automation-1.2.jar"));
-        assertEquals("Value not extracted", "nuxeo-automation-1.2.jar", fm.getValue());
+        assertEquals( "nuxeo-automation-1.2.jar", fm.getValue(), "Value not extracted");
     }
 
     @Test
     public void testMatchFilenameWithNameAndVersion() {
         FileMatcher fm = FileMatcher.getMatcher("{n:.*-}[0-9]+.*\\.jar");
         assertTrue(fm.match("nuxeo-automation-5.5-SNAPSHOT.jar"));
-        assertEquals("Value not extracted", "nuxeo-automation-", fm.getValue());
+        assertEquals("nuxeo-automation-", fm.getValue(), "Value not extracted");
         assertTrue(fm.match("nuxeo-automation-5.5.jar"));
-        assertEquals("Value not extracted", "nuxeo-automation-", fm.getValue());
+        assertEquals("nuxeo-automation-", fm.getValue(), "Value not extracted");
     }
 
     @Test
     public void testMatchWithFilenameAndVersionPattern() {
         FileMatcher fm = FileMatcher.getMatcher("nuxeo-automation-" + "{v:[0-9]+.*}\\.jar");
         assertTrue(fm.match("nuxeo-automation-5.5-SNAPSHOT.jar"));
-        assertEquals("Value not extracted", "5.5-SNAPSHOT", fm.getValue());
+        assertEquals("5.5-SNAPSHOT", fm.getValue(), "Value not extracted");
         assertTrue(fm.match("nuxeo-automation-5.5.jar"));
-        assertEquals("Value not extracted", "5.5", fm.getValue());
+        assertEquals("5.5", fm.getValue(), "Value not extracted");
     }
 
     @Test

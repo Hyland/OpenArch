@@ -19,11 +19,11 @@
  */
 package org.nuxeo.ecm.core.schema;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -341,8 +341,8 @@ public class TestXSDLoader {
         Field valueField = complexType.getFields().iterator().next();
         assertNotNull(valueField);
         Type valueType = valueField.getType();
-        assertTrue(typeName + " inner value is a " + valueType.getSuperType().getClass(),
-                expectedInnerType.isInstance(valueType.getSuperType()));
+        assertTrue(expectedInnerType.isInstance(valueType.getSuperType()),
+                typeName + " inner value is a " + valueType.getSuperType().getClass());
     }
 
     /**
@@ -376,8 +376,8 @@ public class TestXSDLoader {
         Field valueField = listType.getField();
         assertNotNull(valueField);
         Type valueType = valueField.getType();
-        assertTrue(typeName + " inner value is a " + valueType.getSuperType().getClass(),
-                expectedInnerType.isInstance(valueType.getSuperType()));
+        assertTrue(expectedInnerType.isInstance(valueType.getSuperType()),
+                typeName + " inner value is a " + valueType.getSuperType().getClass());
     }
 
     /**
@@ -419,14 +419,14 @@ public class TestXSDLoader {
         Type listType = listField.getType();
         assertTrue(listType instanceof ListType);
         Type listItemType = ((ListType) listType).getFieldType();
-        assertTrue(typeName + " inner value is a " + listItemType.getSuperType().getClass(),
-                expectedInnerType.isInstance(listItemType.getSuperType()));
+        assertTrue(expectedInnerType.isInstance(listItemType.getSuperType()),
+                typeName + " inner value is a " + listItemType.getSuperType().getClass());
 
         Field valueField = fields.get(1);
         assertNotNull(valueField);
         Type valueType = valueField.getType();
-        assertTrue(typeName + " inner value is a " + valueType.getSuperType().getClass(),
-                expectedInnerType.isInstance(valueType.getSuperType()));
+        assertTrue(expectedInnerType.isInstance(valueType.getSuperType()),
+                typeName + " inner value is a " + valueType.getSuperType().getClass());
     }
 
     @Test

@@ -18,7 +18,7 @@
  */
 package org.nuxeo.runtime.management;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import javax.management.MBeanAttributeInfo;
 import javax.management.modelmbean.ModelMBeanInfo;

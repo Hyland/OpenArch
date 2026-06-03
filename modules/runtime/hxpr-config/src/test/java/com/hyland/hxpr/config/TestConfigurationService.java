@@ -21,7 +21,7 @@ package com.hyland.hxpr.config;
 import static com.hyland.hxpr.config.DummyServiceImpl.CONFIG_DUMMY;
 import static com.hyland.hxpr.config.DummyServiceImpl.DUMMY_REPO;
 import static com.hyland.hxpr.config.DummyServiceImpl.SETTINGS;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.HashMap;
 import java.util.Map;

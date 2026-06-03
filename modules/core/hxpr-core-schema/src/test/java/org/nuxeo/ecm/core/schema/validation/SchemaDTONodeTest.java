@@ -18,13 +18,13 @@
  */
 package org.nuxeo.ecm.core.schema.validation;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.ANONYMOUS_TYPE;
 
 import java.lang.reflect.Field;
@@ -247,8 +247,8 @@ public class SchemaDTONodeTest {
 
         assertNotEquals(new SchemaDTONode((Map<String, Object>) testData().get("rootNode1"), "rootNode1Node1"),
                 rootNode1.get("rootNode1Node1"));
-        assertNotEquals(rootNode1, "rootNode2");
-        assertNotEquals(rootNode1, null);
+        assertNotEquals("rootNode2", rootNode1);
+        assertNotEquals(null, rootNode1);
     }
 
     private Map<String, Object> testData() {

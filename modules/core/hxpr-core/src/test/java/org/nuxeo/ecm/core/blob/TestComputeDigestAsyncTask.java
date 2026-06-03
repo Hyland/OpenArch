@@ -22,9 +22,9 @@ package org.nuxeo.ecm.core.blob;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.nuxeo.ecm.core.async.tasks.ComputeDigestTask;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Test;
 import org.nuxeo.runtime.test.runner.Features;

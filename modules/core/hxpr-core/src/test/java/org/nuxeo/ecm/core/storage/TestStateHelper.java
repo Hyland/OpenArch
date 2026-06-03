@@ -18,9 +18,9 @@
  */
 package org.nuxeo.ecm.core.storage;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.nuxeo.ecm.core.storage.State.NOP;
 
 import java.math.BigDecimal;
@@ -77,7 +77,7 @@ public class TestStateHelper {
     }
 
     private static void assertEqualsStrict(String message, Object a, Object b) {
-        assertTrue(message, StateHelper.equalsStrict(a, b));
+        assertTrue(StateHelper.equalsStrict(a, b), message);
     }
 
     private static void assertNotEqualsStrict(Object a, Object b) {
@@ -85,7 +85,7 @@ public class TestStateHelper {
     }
 
     private static void assertEqualsLoose(Object a, Object b) {
-        assertTrue(a + "!=" + b, StateHelper.equalsLoose(a, b));
+        assertTrue(StateHelper.equalsLoose(a, b), a + "!=" + b);
     }
 
     /**

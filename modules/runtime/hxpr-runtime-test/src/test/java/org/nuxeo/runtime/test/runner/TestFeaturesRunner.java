@@ -18,8 +18,8 @@
  */
 package org.nuxeo.runtime.test.runner;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.lang.reflect.Method;
 import java.util.concurrent.atomic.AtomicInteger;

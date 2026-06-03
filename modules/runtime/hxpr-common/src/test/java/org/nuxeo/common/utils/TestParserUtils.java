@@ -22,8 +22,8 @@ import static javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING;
 import static javax.xml.XMLConstants.ACCESS_EXTERNAL_DTD;
 import static javax.xml.XMLConstants.ACCESS_EXTERNAL_STYLESHEET;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;

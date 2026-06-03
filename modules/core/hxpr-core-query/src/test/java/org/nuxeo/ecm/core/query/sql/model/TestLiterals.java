@@ -19,14 +19,15 @@
  */
 package org.nuxeo.ecm.core.query.sql.model;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
 import org.junit.jupiter.api.Test;
-
-import static org.junit.Assert.*;
 
 /**
  * @author <a href="mailto:fg@nuxeo.com">Florent Guillaume</a>

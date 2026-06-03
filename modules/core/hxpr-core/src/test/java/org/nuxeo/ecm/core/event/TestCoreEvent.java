@@ -21,14 +21,16 @@
 
 package org.nuxeo.ecm.core.event;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.mock;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-
 import org.nuxeo.ecm.core.api.event.CoreEvent;
 import org.nuxeo.ecm.core.api.event.impl.CoreEventImpl;
 import org.nuxeo.ecm.core.model.InternalDocument;

@@ -18,10 +18,10 @@
  */
 package org.nuxeo.ecm.core.blob;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -96,11 +96,11 @@ public class TestPathStrategies {
 
         // valid key
         String path = stringify(ps.getPathForKey("123456789"));
-        assertTrue(path, path.endsWith("/123456789"));
+        assertTrue(path.endsWith("/123456789"), path);
 
         // encoded key
         path = stringify(ps.getPathForKey("../foo"));
-        assertTrue(path, path.endsWith("/%..%2ffoo"));
+        assertTrue(path.endsWith("/%..%2ffoo"), path);
     }
 
     @Test
@@ -110,15 +110,15 @@ public class TestPathStrategies {
 
         // valid key
         String path = stringify(ps.getPathForKey("123456789"));
-        assertTrue(path, path.endsWith("/12/34/123456789"));
+        assertTrue(path.endsWith("/12/34/123456789"), path);
 
         // short key
         path = stringify(ps.getPathForKey("abc"));
-        assertTrue(path, path.endsWith("/000/abc"));
+        assertTrue(path.endsWith("/000/abc"), path);
 
         // encoded key
         path = stringify(ps.getPathForKey("bad/key"));
-        assertTrue(path, path.endsWith("/%b/ad/%bad%2fkey"));
+        assertTrue(path.endsWith("/%b/ad/%bad%2fkey"), path);
     }
 
     @Test

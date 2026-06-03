@@ -20,7 +20,9 @@
 
 package org.nuxeo.common.utils;
 
-import org.junit.Assert;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.junit.jupiter.api.Test;
 
 public class TestPattern {
@@ -31,122 +33,122 @@ public class TestPattern {
         FileNamePattern pattern;
 
         pattern = new FileNamePattern("");
-        Assert.assertTrue(pattern.match(""));
-        Assert.assertFalse(pattern.match("a"));
+        assertTrue(pattern.match(""));
+        assertFalse(pattern.match("a"));
 
         pattern = new FileNamePattern("abc.txt");
-        Assert.assertTrue(pattern.match("abc.txt"));
-        Assert.assertFalse(pattern.match("ac.txt"));
+        assertTrue(pattern.match("abc.txt"));
+        assertFalse(pattern.match("ac.txt"));
 
         pattern = new FileNamePattern("?");
-        Assert.assertTrue(pattern.match("a"));
-        Assert.assertFalse(pattern.match("ab"));
+        assertTrue(pattern.match("a"));
+        assertFalse(pattern.match("ab"));
 
         pattern = new FileNamePattern("*");
-        Assert.assertTrue(pattern.match("abababa"));
-        Assert.assertTrue(pattern.match(""));
+        assertTrue(pattern.match("abababa"));
+        assertTrue(pattern.match(""));
 
         pattern = new FileNamePattern("*.txt");
-        Assert.assertTrue(pattern.match("a.txt"));
-        Assert.assertTrue(pattern.match("a.b.txt"));
-        Assert.assertFalse(pattern.match("a:txt"));
-        Assert.assertFalse(pattern.match("a.txtz"));
+        assertTrue(pattern.match("a.txt"));
+        assertTrue(pattern.match("a.b.txt"));
+        assertFalse(pattern.match("a:txt"));
+        assertFalse(pattern.match("a.txtz"));
 
         pattern = new FileNamePattern("*abc.txt");
-        Assert.assertTrue(pattern.match("abc.txt"));
-        Assert.assertTrue(pattern.match("xabc.txt"));
-        Assert.assertTrue(pattern.match("xyzabc.txt"));
-        Assert.assertFalse(pattern.match("ac.txt"));
+        assertTrue(pattern.match("abc.txt"));
+        assertTrue(pattern.match("xabc.txt"));
+        assertTrue(pattern.match("xyzabc.txt"));
+        assertFalse(pattern.match("ac.txt"));
 
         pattern = new FileNamePattern("a*bc.txt");
-        Assert.assertTrue(pattern.match("abc.txt"));
-        Assert.assertTrue(pattern.match("axbc.txt"));
-        Assert.assertTrue(pattern.match("axyzbc.txt"));
-        Assert.assertFalse(pattern.match("ac.txt"));
+        assertTrue(pattern.match("abc.txt"));
+        assertTrue(pattern.match("axbc.txt"));
+        assertTrue(pattern.match("axyzbc.txt"));
+        assertFalse(pattern.match("ac.txt"));
 
         pattern = new FileNamePattern("abc*txt");
-        Assert.assertTrue(pattern.match("abc.txt"));
-        Assert.assertTrue(pattern.match("abctxt"));
-        Assert.assertTrue(pattern.match("abcxyztxt"));
-        Assert.assertFalse(pattern.match("ac.txt"));
+        assertTrue(pattern.match("abc.txt"));
+        assertTrue(pattern.match("abctxt"));
+        assertTrue(pattern.match("abcxyztxt"));
+        assertFalse(pattern.match("ac.txt"));
 
         pattern = new FileNamePattern("abc.t*t");
-        Assert.assertTrue(pattern.match("abc.txt"));
-        Assert.assertTrue(pattern.match("abc.tt"));
-        Assert.assertTrue(pattern.match("abc.txyzt"));
-        Assert.assertFalse(pattern.match("abc.t"));
+        assertTrue(pattern.match("abc.txt"));
+        assertTrue(pattern.match("abc.tt"));
+        assertTrue(pattern.match("abc.txyzt"));
+        assertFalse(pattern.match("abc.t"));
 
         pattern = new FileNamePattern("abc.*");
-        Assert.assertTrue(pattern.match("abc.txt"));
-        Assert.assertTrue(pattern.match("abc."));
-        Assert.assertTrue(pattern.match("abc.t"));
-        Assert.assertFalse(pattern.match("ab.txt"));
+        assertTrue(pattern.match("abc.txt"));
+        assertTrue(pattern.match("abc."));
+        assertTrue(pattern.match("abc.t"));
+        assertFalse(pattern.match("ab.txt"));
 
         pattern = new FileNamePattern("?bc.txt");
-        Assert.assertTrue(pattern.match("abc.txt"));
-        Assert.assertFalse(pattern.match("zabc.txt"));
-        Assert.assertFalse(pattern.match("abc.txy"));
-        Assert.assertFalse(pattern.match("abc.t"));
+        assertTrue(pattern.match("abc.txt"));
+        assertFalse(pattern.match("zabc.txt"));
+        assertFalse(pattern.match("abc.txy"));
+        assertFalse(pattern.match("abc.t"));
 
         pattern = new FileNamePattern("abc.???");
-        Assert.assertTrue(pattern.match("abc.txt"));
-        Assert.assertFalse(pattern.match("zabc.txt"));
-        Assert.assertTrue(pattern.match("abc.txy"));
-        Assert.assertFalse(pattern.match("abc.t"));
+        assertTrue(pattern.match("abc.txt"));
+        assertFalse(pattern.match("zabc.txt"));
+        assertTrue(pattern.match("abc.txy"));
+        assertFalse(pattern.match("abc.t"));
 
         pattern = new FileNamePattern("*.jar");
-        Assert.assertTrue(pattern.match("abc.jar"));
-        Assert.assertTrue(pattern.match("a.b.c.jar"));
-        Assert.assertFalse(pattern.match("jar.j.ja."));
-        Assert.assertFalse(pattern.match("jar.j.jar."));
-        Assert.assertTrue(pattern.match("jar.j.ja.jar"));
-        Assert.assertTrue(pattern.match(".jar"));
-        Assert.assertFalse(pattern.match("abc-jar"));
+        assertTrue(pattern.match("abc.jar"));
+        assertTrue(pattern.match("a.b.c.jar"));
+        assertFalse(pattern.match("jar.j.ja."));
+        assertFalse(pattern.match("jar.j.jar."));
+        assertTrue(pattern.match("jar.j.ja.jar"));
+        assertTrue(pattern.match(".jar"));
+        assertFalse(pattern.match("abc-jar"));
 
         pattern = new FileNamePattern("nuxeo?*common*.jar");
-        Assert.assertTrue(pattern.match("nuxeo-common.jar"));
-        Assert.assertTrue(pattern.match("nuxeo--common.jar"));
-        Assert.assertTrue(pattern.match("nuxeo-common-SNAPSHOT-1.0.jar"));
-        Assert.assertFalse(pattern.match("nuxeocommon.jar"));
+        assertTrue(pattern.match("nuxeo-common.jar"));
+        assertTrue(pattern.match("nuxeo--common.jar"));
+        assertTrue(pattern.match("nuxeo-common-SNAPSHOT-1.0.jar"));
+        assertFalse(pattern.match("nuxeocommon.jar"));
 
         pattern = new FileNamePattern("???*");
-        Assert.assertTrue(pattern.match("abcdef"));
-        Assert.assertTrue(pattern.match("xyz"));
-        Assert.assertFalse(pattern.match("ab"));
-        Assert.assertFalse(pattern.match("x"));
+        assertTrue(pattern.match("abcdef"));
+        assertTrue(pattern.match("xyz"));
+        assertFalse(pattern.match("ab"));
+        assertFalse(pattern.match("x"));
 
         pattern = new FileNamePattern("??*?**");
-        Assert.assertTrue(pattern.match("abcdef"));
-        Assert.assertTrue(pattern.match("xyz"));
-        Assert.assertFalse(pattern.match("ab"));
-        Assert.assertFalse(pattern.match("x"));
+        assertTrue(pattern.match("abcdef"));
+        assertTrue(pattern.match("xyz"));
+        assertFalse(pattern.match("ab"));
+        assertFalse(pattern.match("x"));
     }
 
     @Test
     public void testFilePathPattern() {
         FilePathPattern pattern = new FilePathPattern("a/b/c/d");
-        Assert.assertTrue(pattern.match("a/b/c/d"));
-        Assert.assertTrue(pattern.match("a/b//c/d"));
-        Assert.assertFalse(pattern.match("a/b/c"));
+        assertTrue(pattern.match("a/b/c/d"));
+        assertTrue(pattern.match("a/b//c/d"));
+        assertFalse(pattern.match("a/b/c"));
 
         pattern = new FilePathPattern("**/b/c");
-        Assert.assertTrue(pattern.match("b/c"));
-        Assert.assertTrue(pattern.match("a/b/c"));
-        Assert.assertTrue(pattern.match("x/a/b/c"));
-        Assert.assertFalse(pattern.match("b/c/d"));
+        assertTrue(pattern.match("b/c"));
+        assertTrue(pattern.match("a/b/c"));
+        assertTrue(pattern.match("x/a/b/c"));
+        assertFalse(pattern.match("b/c/d"));
 
         pattern = new FilePathPattern("b/c/**");
-        Assert.assertTrue(pattern.match("b/c"));
-        Assert.assertTrue(pattern.match("b/c/d"));
-        Assert.assertTrue(pattern.match("b/c/d/e"));
-        Assert.assertFalse(pattern.match("a/b/c"));
+        assertTrue(pattern.match("b/c"));
+        assertTrue(pattern.match("b/c/d"));
+        assertTrue(pattern.match("b/c/d/e"));
+        assertFalse(pattern.match("a/b/c"));
 
         pattern = new FilePathPattern("a/**/c");
-        Assert.assertTrue(pattern.match("a/c"));
-        Assert.assertTrue(pattern.match("a/b/c"));
-        Assert.assertTrue(pattern.match("a/b/x/c"));
-        Assert.assertFalse(pattern.match("b/c/d"));
-        Assert.assertFalse(pattern.match("a/b/c/d"));
+        assertTrue(pattern.match("a/c"));
+        assertTrue(pattern.match("a/b/c"));
+        assertTrue(pattern.match("a/b/x/c"));
+        assertFalse(pattern.match("b/c/d"));
+        assertFalse(pattern.match("a/b/c/d"));
     }
 
 }

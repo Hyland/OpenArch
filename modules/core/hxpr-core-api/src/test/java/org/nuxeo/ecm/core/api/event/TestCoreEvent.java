@@ -20,12 +20,13 @@
 
 package org.nuxeo.ecm.core.api.event;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Test;
 import org.nuxeo.ecm.core.api.event.impl.CoreEventImpl;
 
-import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 

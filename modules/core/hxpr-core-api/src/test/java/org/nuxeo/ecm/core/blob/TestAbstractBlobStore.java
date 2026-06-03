@@ -19,13 +19,13 @@
 package org.nuxeo.ecm.core.blob;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeFalse;
-import static org.junit.Assume.assumeTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSFILE_BLOB;
 
 import java.io.IOException;
@@ -225,7 +225,7 @@ public abstract class TestAbstractBlobStore {
 
     @Test
     public void testFixupDigestOnWrite() throws IOException {
-        assumeTrue("digest is not fixed up in record mode", useDeDuplication());
+        assumeTrue(useDeDuplication(), "digest is not fixed up in record mode");
 
         // write blob with no digest
         Blob blob = new StringBlob(FOO);
@@ -257,7 +257,7 @@ public abstract class TestAbstractBlobStore {
 
     @Test
     public void testFixupDigestOnRead() throws IOException {
-        assumeTrue("digest is not fixed up in record mode", useDeDuplication());
+        assumeTrue(useDeDuplication(), "digest is not fixed up in record mode");
 
         // write blob
         String key = bp.writeBlob(new StringBlob(FOO));
@@ -315,7 +315,7 @@ public abstract class TestAbstractBlobStore {
 
     @Test
     public void testBlobGetFile() throws IOException {
-        assumeFalse("InMemoryBlobStore has no File", bs.unwrap() instanceof InMemoryBlobStore);
+        assumeFalse(bs.unwrap() instanceof InMemoryBlobStore, "InMemoryBlobStore has no File");
 
         // store blob
         String key1 = bs.writeBlob(blobContext(ID1, FOO));
@@ -342,7 +342,7 @@ public abstract class TestAbstractBlobStore {
 
     protected void testCopyOrMove(boolean atomicMove) throws IOException {
         // we don't test the unimplemented copyBlob API, as it's only called from commit or during caching
-        assumeFalse("low-level copy/move not tested in transactional blob store", bp.isTransactional());
+        assumeFalse(bp.isTransactional(), "low-level copy/move not tested in transactional blob store");
 
         // stream available for source
         BlobStore bs2 = new InMemoryBlobStore("mem", new KeyStrategyDigest(SHA_256));
@@ -384,7 +384,7 @@ public abstract class TestAbstractBlobStore {
     @Test
     public void testGC() throws IOException {
         // doesn't bring anything over the LocalBlobStore GC test;  avoid additional setup for this
-        assumeFalse("GC not tested in transactional blob store", bp.isTransactional());
+        assumeFalse(bp.isTransactional(), "GC not tested in transactional blob store");
 
         // store blob
         String key1 = bs.writeBlob(blobContext(ID1, FOO));
@@ -474,7 +474,7 @@ public abstract class TestAbstractBlobStore {
     @Test
     public void testGCWithConcurrentCreation() throws IOException {
         // doesn't bring anything over the LocalBlobStore GC test;  avoid additional setup for this
-        assumeFalse("GC not tested in transactional blob store", bp.isTransactional());
+        assumeFalse(bp.isTransactional(), "GC not tested in transactional blob store");
 
         // store blob
         String key1 = bs.writeBlob(blobContext(ID1, FOO));

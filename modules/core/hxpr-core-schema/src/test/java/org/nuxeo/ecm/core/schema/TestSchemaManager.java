@@ -19,10 +19,10 @@
 package org.nuxeo.ecm.core.schema;
 
 import static java.util.stream.Collectors.toSet;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_CONTENT;
 
 import java.util.List;
@@ -291,7 +291,7 @@ public class TestSchemaManager {
     @Deploy("org.nuxeo.ecm.core.schema.tests:OSGI-INF/CoreTestExtensions.xml")
     public void testGetFacet() {
         CompositeType component = schemaManager.getMixin("fakeFacet1");
-        assertNotNull(String.format("Facet %s should exist", "fakeFacet1"), component);
+        assertNotNull(component, String.format("Facet %s should exist", "fakeFacet1"));
         assertEquals(1, component.getSchemas().size());
         assertEquals(Set.of("facetSchema1"), component.getSchemaNames());
     }

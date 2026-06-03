@@ -19,14 +19,14 @@
 package org.nuxeo.runtime.kv;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.junit.Assume.assumeFalse;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
@@ -472,7 +472,7 @@ public abstract class AbstractKeyValueStoreTest {
 
     @Test
     public void testTTL() throws Exception {
-        assumeFalse("Ignored because of slow TTL expiration", hasSlowTTLExpiration());
+        assumeFalse(hasSlowTTLExpiration(), "Ignored because of slow TTL expiration");
         int longTTL = 30; // 30s
         int shortTTL = 1; // 1s
 

@@ -18,7 +18,7 @@
  */
 package org.nuxeo.runtime.test.runner;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import jakarta.inject.Inject;
 

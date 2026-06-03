@@ -18,7 +18,7 @@
  */
 package org.nuxeo.ecm.core.blob;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,7 +43,7 @@ public class TestLocalBlobConfiguration {
         Map<String, String> properties = Collections.emptyMap();
         LocalBlobStoreConfiguration config = new LocalBlobStoreConfiguration(properties);
         String path = config.storageDir.toString().replace(File.separatorChar, '/');
-        assertTrue(path, path.endsWith("/binaries/data"));
+        assertTrue(path.endsWith("/binaries/data"), path);
     }
 
     @Test
@@ -51,7 +51,7 @@ public class TestLocalBlobConfiguration {
         Map<String, String> properties = Collections.singletonMap("path", "foo");
         LocalBlobStoreConfiguration config = new LocalBlobStoreConfiguration(properties);
         String path = config.storageDir.toString().replace(File.separatorChar, '/');
-        assertTrue(path, path.endsWith("/foo/data"));
+        assertTrue(path.endsWith("/foo/data"), path);
     }
 
     @Test
@@ -60,7 +60,7 @@ public class TestLocalBlobConfiguration {
         Map<String, String> properties = Collections.singletonMap("path", dir.resolve("foo").toString());
         LocalBlobStoreConfiguration config = new LocalBlobStoreConfiguration(properties);
         String path = config.storageDir.toString().replace(File.separatorChar, '/');
-        assertTrue(path, path.endsWith("/foo/data"));
+        assertTrue(path.endsWith("/foo/data"), path);
     }
 
     @Test
@@ -72,7 +72,7 @@ public class TestLocalBlobConfiguration {
         Map<String, String> properties = Collections.singletonMap("path", "binaries/../newbinaries");
         LocalBlobStoreConfiguration config = new LocalBlobStoreConfiguration(properties);
         String path = config.storageDir.toString().replace(File.separatorChar, '/');
-        assertTrue(path, path.endsWith("/newbinaries/data"));
+        assertTrue(path.endsWith("/newbinaries/data"), path);
     }
 
     @Test
@@ -80,7 +80,7 @@ public class TestLocalBlobConfiguration {
         Map<String, String> properties = Collections.singletonMap("namespace", "myns");
         LocalBlobStoreConfiguration config = new LocalBlobStoreConfiguration(properties);
         String path = config.storageDir.toString().replace(File.separatorChar, '/');
-        assertTrue(path, path.endsWith("/binaries_myns/data"));
+        assertTrue(path.endsWith("/binaries_myns/data"), path);
     }
 
 }

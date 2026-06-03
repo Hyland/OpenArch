@@ -27,7 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Assert;
+import static org.junit.jupiter.api.Assertions.fail;
 import org.nuxeo.common.xmap.annotation.XContent;
 import org.nuxeo.common.xmap.annotation.XNode;
 import org.nuxeo.common.xmap.annotation.XNodeList;
@@ -118,10 +118,10 @@ public class Author {
     @XNode("item2")
     void setField2(String val) {
         if (!item1) {
-            Assert.fail("Field item1 was not set before me");
+            fail("Field item1 was not set before me");
         }
         if (item3) {
-            Assert.fail("Field item3 was set before me");
+            fail("Field item3 was set before me");
         }
         item2 = true;
     }
@@ -129,10 +129,10 @@ public class Author {
     @XNode("item1")
     void setField1(String val) {
         if (item2) {
-            Assert.fail("Field item2 was set before item1");
+            fail("Field item2 was set before item1");
         }
         if (item3) {
-            Assert.fail("Field item3 was set before item1");
+            fail("Field item3 was set before item1");
         }
         item1 = true;
     }
@@ -140,10 +140,10 @@ public class Author {
     @XNode("item3")
     void setField3(String val) {
         if (!item1) {
-            Assert.fail("Field item1 was not set before item3");
+            fail("Field item1 was not set before item3");
         }
         if (!item2) {
-            Assert.fail("Field item2 was not set before item3");
+            fail("Field item2 was not set before item3");
         }
         item3 = true;
     }

@@ -18,7 +18,7 @@
 package org.nuxeo.ecm.core.security;
 
 import static java.util.stream.Collectors.toSet;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.READ;
 

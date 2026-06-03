@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.AssumptionViolatedException;
+import org.opentest4j.TestAbortedException;
 import org.nuxeo.common.function.ThrowableConsumer;
 import org.nuxeo.runtime.RuntimeServiceException;
 
@@ -166,7 +166,7 @@ public class FeaturesLoader {
         for (RunnerFeature feature : features) {
             try {
                 consumer.accept(feature);
-            } catch (AssumptionViolatedException cause) {
+            } catch (TestAbortedException cause) {
                 log.debug("Test ignored by the feature: {}", feature.getClass());
                 throw cause;
             } catch (InterruptedException cause) {

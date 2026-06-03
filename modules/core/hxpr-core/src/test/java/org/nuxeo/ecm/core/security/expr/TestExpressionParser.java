@@ -18,8 +18,8 @@
  */
 package org.nuxeo.ecm.core.security.expr;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.Test;
 import org.nuxeo.ecm.core.security.expr.ast.Expr;

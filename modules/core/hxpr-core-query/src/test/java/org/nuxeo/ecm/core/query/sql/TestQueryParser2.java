@@ -20,9 +20,9 @@
 
 package org.nuxeo.ecm.core.query.sql;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PATH;
 
 import org.junit.jupiter.api.Test;
@@ -224,7 +224,7 @@ public class TestQueryParser2 {
         for (String s : GOOD_QUERIES) {
             SQLQuery query1 = SQLQueryParser.parse(s);
             SQLQuery query2 = SQLQueryParser.parse(s);
-            assertEquals("Self equality test on " + s + ": ", query1, query2);
+            assertEquals(query1, query2, "Self equality test on " + s + ": ");
             assertEquals(query1.hashCode(), query2.hashCode());
             assertEquals(query1.toString(), query2.toString());
         }

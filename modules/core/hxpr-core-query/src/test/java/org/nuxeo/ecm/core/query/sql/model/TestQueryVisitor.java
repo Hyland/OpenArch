@@ -19,7 +19,7 @@
 
 package org.nuxeo.ecm.core.query.sql.model;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Iterator;
 import java.util.LinkedList;

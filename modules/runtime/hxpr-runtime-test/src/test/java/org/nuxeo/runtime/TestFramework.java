@@ -18,8 +18,8 @@
  */
 package org.nuxeo.runtime;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.Test;
 import org.nuxeo.runtime.api.Framework;

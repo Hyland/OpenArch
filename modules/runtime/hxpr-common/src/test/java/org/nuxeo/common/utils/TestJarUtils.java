@@ -18,8 +18,8 @@
  */
 package org.nuxeo.common.utils;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
