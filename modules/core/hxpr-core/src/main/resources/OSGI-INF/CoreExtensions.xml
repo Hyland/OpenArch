@@ -25,6 +25,9 @@
     <!-- Embeddings schema -->
     <schema name="sysembeddings" prefix="sysemb" src="schema/sysembeddings.xsd"/>
 
+    <!-- Knowledge Graph schema -->
+    <schema name="sysgraph" prefix="sysgraph" src="schema/sysgraph.xsd"/>
+
     <!-- Additional schemas for storing document metadata -->
     <schema name="sysmdannotatable" prefix="sysmdannotatable" src="schema/metadata-annotatable.xsd"/>
     <schema name="sysmdredactable" prefix="sysmdredactable" src="schema/metadata-redactable.xsd"/>
@@ -81,6 +84,11 @@
     </mixin>
     <mixin name="SysMDRedactable">
       <schema name="sysmdredactable"/>
+    </mixin>
+
+  <!-- Knowledge Graph mixin -->
+    <mixin name="SysGraphable">
+      <schema name="sysgraph"/>
     </mixin>
 
     <doctype name="SysFolder" extends="SysContent">

@@ -247,6 +247,12 @@ public class DocumentConstants {
     public static final String SYSEMB_PREFIX = "sysemb";
     public static final String SYSEMB_EMBEDDINGS = "sysemb_embeddings";
 
+    // SysGraphable (ontology routing)
+    public static final String SCHEMA_SYSGRAPH = "sysgraph";
+    public static final String SYSGRAPH_PREFIX = "sysgraph";
+    public static final String SYSGRAPH_GRAPH_DB_IDS = "sysgraph_graphDBIds";
+    public static final String SYSGRAPH_ONTOLOGY_REFS = "sysgraph_ontologyRefs";
+
     //Fulltext
     public static final String FULLTEXT_EXTRACTOR_TASK_NAME = "fulltextExtractor";
     public static final String FULLTEXT_EXTRACTOR_SCROLLER_TASK_NAME = "scrollerDocument";

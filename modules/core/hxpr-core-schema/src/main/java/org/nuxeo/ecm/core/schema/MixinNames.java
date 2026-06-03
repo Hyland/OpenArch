@@ -57,6 +57,11 @@ public final class MixinNames {
     public static final String SYS_HAS_EMBEDDINGS = "SysHasEmbeddings";
 
     /**
+     * Mixin indicating a document participates in the Knowledge Graph with ontology routing.
+     */
+    public static final String SYS_GRAPHABLE = "SysGraphable";
+
+    /**
      * If your Nuxeo target version is 5.3.2 or higher, you'll be able to manage the order of this document children
      */
     public static final String SYS_ORDERABLE = "SysOrderable";
