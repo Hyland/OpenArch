@@ -80,10 +80,6 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-core-schema</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.hyland.hxpr</groupId>
       <artifactId>hxpr-core-api</artifactId>
     </dependency>
     <dependency>
@@ -100,7 +96,23 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-core-mongodb</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
       <artifactId>hxpr-core-query</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-core-schema</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-core-storage-mem</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-core-storage-mongodb</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>

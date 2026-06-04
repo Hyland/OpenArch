@@ -40,7 +40,7 @@ mvn -B \
     -Prelease,build-all \
     "-Darguments=-Prelease ${CLASSIFIERS} ${ARTIFACT_URL} -DskipTests -Dmaven.javadoc.skip -Dadditionalparam=-Xdoclint:none" \
     release:clean ${PREPARE} ${RELEASE} \
-    -DscmCommentPrefix="[maven-release-plugin][skip ci] " \
+    -DscmCommentPrefix="[skip ci] " \
     -Dusername=${RELEASE_USERNAME} \
     -Dpassword=${RELEASE_USER_PAT}
 

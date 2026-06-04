@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.ecm.core.storage.mongodb.repository.fulltextblob.config" enable="${nuxeo.vcs.fulltext.storedInBlob:=false}">
+
+  <extension target="org.nuxeo.ecm.core.blob.BlobService" point="configuration">
+    <blobprovider name="fulltext">
+      <class>${nuxeo.core.binarymanager:=org.nuxeo.ecm.core.blob.LocalBlobProvider}</class>
+      <property name="path">${nuxeo.binarystores.root:=/tmp}/fulltext</property>
+      <property name="key">${nuxeo.core.binarymanager_key:=}</property>
+    </blobprovider>
+  </extension>
+
+  <extension target="org.nuxeo.ecm.core.blob.DocumentBlobService" point="configuration">
+    <blobdispatcher>
+      <class>org.nuxeo.ecm.core.blob.DefaultBlobDispatcher</class>
+      <property name="blob:xpath=sys_fulltextBinary">fulltext</property>
+      <property name="default">default</property>
+    </blobdispatcher>
+  </extension>
+
+</component>

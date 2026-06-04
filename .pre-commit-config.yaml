@@ -37,7 +37,7 @@ repos:
     rev: 7d94620933e79b8acaa0cd9e60e9864b07673d86  # frozen: v0.1.11
     hooks:
       - id: ripsecrets
-        exclude: (modules/runtime/hxpr-runtime-mongodb/src/test/resources/test-certs/client-combined.pem|modules/runtime/hxpr-runtime-mongodb/src/test/java/org/nuxeo/runtime/mongodb/MongoDBComponentTest.java)
+        exclude: (modules/runtime/hxpr-runtime-mongodb/src/test/resources/test-certs/client-combined.pem|modules/runtime/hxpr-runtime-mongodb/src/test/java/org/nuxeo/runtime/mongodb/MongoDBComponentTest.java|modules/core/hxpr-core-test/src/test/java/org/nuxeo/ecm/core/TestBlobDispatcher2.java)
 
   - repo: https://github.com/sirosen/check-jsonschema
     rev: b035497fb64e3f9faa91e833331688cc185891e6  # frozen: 0.36.0

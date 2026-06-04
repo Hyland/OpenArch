@@ -1,0 +1,84 @@
+{
+  "types": {
+    "foo": {
+      "fields": {
+        "foo": "string"
+      }
+    },
+    "stringList": {
+      "list": "string"
+    },
+    "blob": {
+      "fields": {
+        "mimeType": "string",
+        "key": "binary",
+        "filename": "string",
+        "length": "long",
+        "digest": "string"
+      }
+    },
+    "system#contributorList": {
+      "list": "string"
+    }
+  },
+  "schemas": {
+    "bar": {
+      "prefix": "bar",
+      "fields": {
+        "bar_bar": "string"
+      }
+    },
+    "system": {
+      "prefix": "sys",
+      "fields": {
+        "sys_contributors": "system#contributorList",
+        "sys_created": "date",
+        "sys_creator": "string",
+        "sys_description": "string",
+        "sys_lastContributor": "string",
+        "sys_modified": "date",
+        "sys_title": "string"
+      }
+    },
+    "sysrelation": {
+      "prefix": "sysrelation",
+      "fields": {
+        "sysrelation_predicate": "string",
+        "sysrelation_source": "string",
+        "sysrelation_target": "string"
+      }
+    }
+  },
+  "mixinTypes": {
+    "WithBar": {
+      "schemas": [
+        "bar"
+      ]
+    },
+    "SysFolderish": {}
+  },
+  "primaryTypes": {
+    "SysContent": {},
+    "SysRoot": {},
+    "SysFile": {
+      "mixins": [
+        "WithBar"
+      ]
+    },
+    "SysFolder": {
+      "extends": "SysContent",
+      "schemas": [
+        "system"
+      ],
+      "mixins": [
+        "SysFolderish"
+      ]
+    },
+    "SysRelation": {
+      "schemas": [
+        "sysrelation",
+        "system"
+      ]
+    }
+  }
+}

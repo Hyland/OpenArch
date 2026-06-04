@@ -6,6 +6,21 @@
       "expected_time": "~120s",
       "test_count": 31,
       "description": "Runtime: hxpr-runtime-pubsub, hxpr-runtime-springboot-test"
+    },
+    {
+      "shard": "shard-2",
+      "type": "community",
+      "modules": "hxpr-core-test",
+      "expected_time": "115.5s",
+      "test_count": 671,
+      "description": "Common: hxpr-core-test"
+    },
+    {
+      "shard": "shard-3",
+      "modules": "hxpr-core-mongodb,hxpr-core-storage-mongodb",
+      "expected_time": "~120s",
+      "test_count": 47,
+      "description": "Core: hxpr-core-mongodb, hxpr-core-storage-mongodb"
     }
   ]
 }

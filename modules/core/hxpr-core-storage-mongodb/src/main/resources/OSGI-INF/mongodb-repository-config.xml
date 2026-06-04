@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.ecm.core.storage.mongodb.repository.default.config">
+
+  <extension target="org.nuxeo.ecm.core.storage.mongodb.MongoDBRepositoryService" point="repository">
+
+    <repository name="default" label="label.default.repository">
+      <pool minPoolSize="${nuxeo.dbs.min-pool-size:=0}" maxPoolSize="${nuxeo.dbs.max-pool-size:=20}"
+        blockingTimeoutMillis="${nuxeo.dbs.blocking-timeout-millis:=100}" />
+      <fulltext disabled="${nuxeo.dbs.fulltext.disabled:=false}"
+                storedInBlob="${nuxeo.dbs.fulltext.storedInBlob:=false}"
+                fieldSizeLimit="${nuxeo.dbs.fulltext.fieldSizeLimit:=15728640}" />
+      <cache enabled="true" maxSize="${nuxeo.dbs.cache.maxSize:=1000}"
+             concurrencyLevel="${nuxeo.dbs.cache.concurrencyLevel:=10}" ttl="${nuxeo.dbs.cache.ttl:=10}" />
+      <clustering>
+        <invalidatorClass>org.nuxeo.ecm.core.storage.dbs.DBSPubSubInvalidator</invalidatorClass>
+      </clustering>
+    </repository>
+
+    <repository name="default_vocabularies" label="label.default_vocabularies.repository">
+      <pool minPoolSize="${nuxeo.dbs.min-pool-size:=0}" maxPoolSize="${nuxeo.dbs.max-pool-size:=20}"
+        blockingTimeoutMillis="${nuxeo.dbs.blocking-timeout-millis:=100}" />
+      <fulltext disabled="${nuxeo.dbs.fulltext.disabled:=false}"
+                storedInBlob="${nuxeo.dbs.fulltext.storedInBlob:=false}"
+                fieldSizeLimit="${nuxeo.dbs.fulltext.fieldSizeLimit:=131072}" />
+      <cache enabled="true" maxSize="${nuxeo.dbs.cache.maxSize:=1000}"
+             concurrencyLevel="${nuxeo.dbs.cache.concurrencyLevel:=10}" ttl="${nuxeo.dbs.cache.ttl:=10}" />
+      <clustering>
+        <invalidatorClass>org.nuxeo.ecm.core.storage.dbs.DBSPubSubInvalidator</invalidatorClass>
+      </clustering>
+    </repository>
+
+    <repository name="default_configuration" label="label.default_configuration.repository">
+      <pool minPoolSize="${nuxeo.dbs.min-pool-size:=0}" maxPoolSize="${nuxeo.dbs.max-pool-size:=20}"
+        blockingTimeoutMillis="${nuxeo.dbs.blocking-timeout-millis:=100}" />
+      <fulltext disabled="${nuxeo.dbs.fulltext.disabled:=false}"
+                storedInBlob="${nuxeo.dbs.fulltext.storedInBlob:=false}"
+                fieldSizeLimit="${nuxeo.dbs.fulltext.fieldSizeLimit:=131072}" />
+      <cache enabled="true" maxSize="${nuxeo.dbs.cache.maxSize:=1000}"
+             concurrencyLevel="${nuxeo.dbs.cache.concurrencyLevel:=10}" ttl="${nuxeo.dbs.cache.ttl:=10}" />
+      <clustering>
+        <invalidatorClass>org.nuxeo.ecm.core.storage.dbs.DBSPubSubInvalidator</invalidatorClass>
+      </clustering>
+    </repository>
+
+  </extension>
+
+</component>

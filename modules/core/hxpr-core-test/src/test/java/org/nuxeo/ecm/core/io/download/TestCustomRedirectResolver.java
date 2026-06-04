@@ -1,0 +1,112 @@
+/*
+ * (C) Copyright 2015-2021 Nuxeo (http://nuxeo.com/) and others.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Contributors:
+ *     Remi Cattiau
+ */
+package org.nuxeo.ecm.core.io.download;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.nuxeo.ecm.core.io.download.DownloadServiceImpl.DOWNLOAD_URL_FOLLOW_REDIRECT;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import jakarta.inject.Inject;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import com.hyland.hxpr.async.tasks.AsyncTasksFeature;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.nuxeo.ecm.core.api.Blob;
+import org.nuxeo.ecm.core.api.Blobs;
+import org.nuxeo.ecm.core.api.DocumentModel;
+import org.nuxeo.ecm.core.io.download.DownloadService.DownloadContext;
+import org.nuxeo.runtime.cluster.BasicClusterFeature;
+import org.nuxeo.runtime.test.runner.Deploy;
+import org.nuxeo.runtime.test.runner.Features;
+import org.nuxeo.runtime.test.runner.FeaturesExtension;
+import org.nuxeo.runtime.test.runner.WithFrameworkProperty;
+
+/**
+ * @author loopingz
+ */
+@ExtendWith(FeaturesExtension.class)
+@Features({ BasicClusterFeature.class, AsyncTasksFeature.class })
+@Deploy("org.nuxeo.ecm.core.io")
+@Deploy("org.nuxeo.ecm.core.cache")
+@Deploy("org.nuxeo.ecm.core.test.tests:OSGI-INF/test-download-service-with-resolver.xml")
+public class TestCustomRedirectResolver {
+
+    @Inject
+    protected DownloadService downloadService;
+
+    @Test
+    public void testRedirectResolver() throws IOException {
+        Blob blob = Blobs.createBlob("Whatever");
+        // prepare mocks
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getMethod()).thenReturn("GET");
+
+        HttpServletResponse response = mock(HttpServletResponse.class);
+        ServletOutputStream sos = new DummyServletOutputStream(out);
+        @SuppressWarnings("resource")
+        PrintWriter printWriter = new PrintWriter(sos);
+        when(response.getOutputStream()).thenReturn(sos);
+        when(response.getWriter()).thenReturn(printWriter);
+        // send download request
+        DownloadContext context = DownloadContext.builder(request, response) //
+                                                 .blob(blob)
+                                                 .build();
+        downloadService.downloadBlob(context);
+        // Verify we are redirect to Nuxeo website
+        verify(response).sendRedirect("http://www.nuxeo.org");
+        // Verify there is no output
+        assertEquals("", out.toString());
+    }
+
+    @Test
+    public void testFullDownloadUrlWithoutRedirect() throws IOException {
+        doTestFullDownloadUrl("http://example.com/nuxeo/nxfile/myrepo/myid/my_xpath?changeToken=mytoken");
+    }
+
+    @Test
+    @WithFrameworkProperty(name = DOWNLOAD_URL_FOLLOW_REDIRECT, value = "true")
+    public void testFullDownloadUrlWithRedirect() throws IOException {
+        doTestFullDownloadUrl("http://www.nuxeo.org");
+    }
+
+    protected void doTestFullDownloadUrl(String expectedUrl) throws IOException {
+        DocumentModel doc = mock(DocumentModel.class);
+        when(doc.getRepositoryName()).thenReturn("myrepo");
+        when(doc.getId()).thenReturn("myid");
+        when(doc.getChangeToken()).thenReturn("mytoken");
+        String xpath = "my_xpath";
+        Blob blob = Blobs.createBlob("foo");
+        String baseUrl = "http://example.com/nuxeo/";
+        // prepare mocks
+        String url = downloadService.getFullDownloadUrl(doc, xpath, blob, baseUrl);
+        assertEquals(expectedUrl, url);
+    }
+
+}

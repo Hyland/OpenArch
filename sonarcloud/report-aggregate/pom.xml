@@ -124,7 +124,27 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-core-mongodb</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
       <artifactId>hxpr-core-query</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-core-storage-mem</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-core-storage-mongodb</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-core-test</artifactId>
       <version>${project.version}</version>
     </dependency>
   </dependencies>

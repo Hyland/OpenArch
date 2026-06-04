@@ -1,0 +1,21 @@
+{
+  "acl": {
+    "engine": "acl",
+    "permissions": [
+      "Everything"
+    ]
+  },
+  "lock": {
+    "engine": "lock",
+    "permissions": [
+      "Write"
+    ]
+  },
+  "retention": {
+    "engine": "retention",
+    "permissions": [
+      "Delete",
+      "Write"
+    ]
+  }
+}

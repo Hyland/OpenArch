@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.ecm.core.security.extrel.tests">
+  <extension target="org.nuxeo.ecm.core.schema.TypeService" point="schema">
+    <schema name="wdemployee" src="schemas/wdemployee.xsd" />
+  </extension>
+  <extension target="org.nuxeo.ecm.core.schema.TypeService" point="doctype">
+    <mixin name="WDEmployee">
+      <schema name="wdemployee" />
+    </mixin>
+    <doctype name="Resume" extends="SysContent">
+      <schema name="system" />
+    </doctype>
+  </extension>
+</component>

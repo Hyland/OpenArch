@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.ecm.core.storage.mongodb.MongoDBRepositoryService">
+
+  <require>org.nuxeo.ecm.core.storage.dbs.DBSRepositoryService</require>
+  <require>com.hyland.hxpr.config.ConfigurationService</require>
+
+  <documentation>
+    Manages MongoDB repositories.
+  </documentation>
+
+  <implementation class="org.nuxeo.ecm.core.storage.mongodb.MongoDBRepositoryService" />
+
+  <service>
+    <provide interface="org.nuxeo.ecm.core.storage.mongodb.MongoDBRepositoryService" />
+  </service>
+
+  <extension-point name="repository">
+    <documentation>
+      Extension points to register MongoDB repositories. The repository will ask for a MongoDB access to
+      MongoDBConnectionService with id 'repository/[repositoryName]'.
+
+      Example:
+      <code>
+        <repository name="default" label="MongoDB Repository" isDefault="true">
+          <fulltext disabled="false" />
+        </repository>
+      </code>
+    </documentation>
+    <object class="org.nuxeo.ecm.core.storage.mongodb.MongoDBRepositoryDescriptor" />
+    <registry class="org.nuxeo.ecm.core.storage.mongodb.MongoDBRepositoryService$Registry" />
+  </extension-point>
+
+</component>

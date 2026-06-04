@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.ecm.core.test.repository">
+
+  <extension target="org.nuxeo.ecm.core.storage.mongodb.MongoDBRepositoryService" point="repository">
+    <repository name="test" label="MongoDB Repository">
+      <fulltext disabled="${nuxeo.test.fulltext.disabled}"
+                storedInBlob="${nuxeo.test.fulltext.storedInBlob}">
+      </fulltext>
+    </repository>
+    <repository name="test_vocabularies" label="MongoDB Vocabularies Repository">
+      <fulltext disabled="${nuxeo.test.fulltext.disabled}"
+                storedInBlob="${nuxeo.test.fulltext.storedInBlob}">
+      </fulltext>
+    </repository>
+    <repository name="test_configuration" label="MongoDB Configuration Repository">
+      <fulltext disabled="${nuxeo.test.fulltext.disabled}"
+                storedInBlob="${nuxeo.test.fulltext.storedInBlob}">
+      </fulltext>
+    </repository>
+  </extension>
+
+</component>

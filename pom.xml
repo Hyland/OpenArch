@@ -97,6 +97,9 @@
     <swagger-annotations-jakarta.version>2.2.50</swagger-annotations-jakarta.version>
     <antlr4.version>4.13.2</antlr4.version>
     <jericho-html.version>3.4</jericho-html.version>
+    <dumbster.version>1.7.1</dumbster.version>
+    <zjsonpatch.version>0.4.16</zjsonpatch.version>
+    <archunit.version>1.4.2</archunit.version>
 
     <!-- MongoDB -->
     <mongo.java.driver.version>5.8.0</mongo.java.driver.version>
@@ -262,6 +265,13 @@
       </dependency>
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-core</artifactId>
+        <type>test-jar</type>
+        <scope>test</scope>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
         <artifactId>hxpr-core-api</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -291,6 +301,13 @@
       </dependency>
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-core-event</artifactId>
+        <type>test-jar</type>
+        <scope>test</scope>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
         <artifactId>hxpr-core-io</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -300,6 +317,18 @@
         <version>${project.version}</version>
         <type>test-jar</type>
         <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-core-mongodb</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-core-mongodb</artifactId>
+        <type>test-jar</type>
+        <scope>test</scope>
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
@@ -314,6 +343,29 @@
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
         <artifactId>hxpr-core-schema</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-core-storage-mem</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-core-storage-mongodb</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-core-test</artifactId>
+        <version>${project.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-core-test</artifactId>
         <version>${project.version}</version>
         <type>test-jar</type>
         <scope>test</scope>
@@ -513,6 +565,23 @@
         <artifactId>jericho-html</artifactId>
         <version>${jericho-html.version}</version>
       </dependency>
+      <dependency>
+        <groupId>com.github.kirviq</groupId>
+        <artifactId>dumbster</artifactId>
+        <version>${dumbster.version}</version>
+        <exclusions>
+          <exclusion>
+            <!-- use com.sun.activation:javax.activation instead -->
+            <groupId>javax.activation</groupId>
+            <artifactId>activation</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>com.flipkart.zjsonpatch</groupId>
+        <artifactId>zjsonpatch</artifactId>
+        <version>${zjsonpatch.version}</version>
+      </dependency>
 
       <!-- Test Scope -->
       <dependency>
@@ -537,6 +606,12 @@
         <groupId>org.hamcrest</groupId>
         <artifactId>hamcrest-library</artifactId>
         <version>${hamcrest.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.tngtech.archunit</groupId>
+        <artifactId>archunit-junit5</artifactId>
+        <version>${archunit.version}</version>
         <scope>test</scope>
       </dependency>
     </dependencies>
@@ -974,6 +1049,32 @@
         <nuxeo.test.core>mongodb</nuxeo.test.core>
         <nuxeo.mongodb.server.default>localhost:27017</nuxeo.mongodb.server.default>
       </properties>
+    </profile>
+
+    <profile>
+      <id>lightweight-test-suite</id>
+      <activation>
+        <property>
+          <name>lightweight-test-suite</name>
+        </property>
+        <file>
+          <!-- profile is activated when the file marker is missing in a module                -->
+          <!-- these modules without a marker file will not run the tests                      -->
+          <!-- because those modules will have them deactivated by having this profile applied -->
+          <missing>.lightweight-test-suite</missing>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <skipTests>true</skipTests>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
 
   </profiles>

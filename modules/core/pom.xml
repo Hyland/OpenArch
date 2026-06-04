@@ -17,8 +17,12 @@
     <module>hxpr-core-cache</module>
     <module>hxpr-core-event</module>
     <module>hxpr-core-io</module>
+    <module>hxpr-core-mongodb</module>
     <module>hxpr-core-query</module>
     <module>hxpr-core-schema</module>
+    <module>hxpr-core-storage-mem</module>
+    <module>hxpr-core-storage-mongodb</module>
+    <module>hxpr-core-test</module>
   </modules>
 
   <dependencies>

@@ -1,0 +1,396 @@
+{
+  "types": {
+    "blob": {
+      "fields": {
+        "digest": "string",
+        "encoding": "string",
+        "filename": "string",
+        "key": "binary",
+        "length": "long",
+        "mimeType": "string"
+      }
+    },
+    "sysfiles#blobitem": {
+      "fields": {
+        "blob": "blob"
+      }
+    },
+    "sysfiles#blobs": {
+      "list": "sysfiles#blobitem"
+    },
+    "sysgraph#stringList": {
+      "list": "string"
+    },
+    "system#contributorList": {
+      "list": "string"
+    }
+  },
+  "schemas": {
+    "sysfile": {
+      "prefix": "sysfile",
+      "fields": {
+        "sysfile_blob": "blob"
+      }
+    },
+    "sysfiles": {
+      "prefix": "sysfiles",
+      "fields": {
+        "sysfiles_blobs": "sysfiles#blobs"
+      }
+    },
+    "sysrelation": {
+      "prefix": "sysrelation",
+      "fields": {
+        "sysrelation_predicate": "string",
+        "sysrelation_source": "string",
+        "sysrelation_target": "string"
+      }
+    },
+    "sysrendition": {
+      "prefix": "sysrendition",
+      "fields": {
+        "sysrendition_blob": "blob",
+        "sysrendition_blobPath": "string",
+        "sysrendition_id": "string",
+        "sysrendition_isExternal": {"extends": "boolean", "default": "false"},
+        "sysrendition_sourceDoc": "string",
+        "sysrendition_status": "string"
+      }
+    },
+    "system": {
+      "prefix": "sys",
+      "fields": {
+        "sys_contributors": "system#contributorList",
+        "sys_created": "date",
+        "sys_creator": "string",
+        "sys_description": "string",
+        "sys_lastContributor": "string",
+        "sys_modified": "date",
+        "sys_title": "string"
+      }
+    },
+    "sysversionable": {
+      "prefix": "sysver",
+      "fields": {
+        "sysver_created": "date",
+        "sysver_creator": "string",
+        "sysver_description": "string",
+        "sysver_isCheckedIn": "boolean",
+        "sysver_isTemp": "boolean",
+        "sysver_isVersion": "boolean",
+        "sysver_minorVersion": "long",
+        "sysver_title": "string",
+        "sysver_version": "long"
+      }
+    },
+    "sysmdanno": {
+      "prefix": "sysmdanno",
+      "fields": {
+        "sysmdanno_name": "string",
+        "sysmdanno_pageId": "long",
+        "sysmdanno_type": "string",
+        "sysmdanno_contentItemId": "string",
+        "sysmdanno_id": "string",
+        "sysmdanno_x": "double",
+        "sysmdanno_y": "double",
+        "sysmdanno_height": "double",
+        "sysmdanno_width": "double",
+        "sysmdanno_fillColor": "string",
+        "sysmdanno_fillable": "boolean",
+        "sysmdanno_stroke": "string",
+        "sysmdanno_opacity": "double",
+        "sysmdanno_resizable": "boolean",
+        "sysmdanno_movable": "boolean",
+        "sysmdanno_data": "string",
+        "sysmdanno_scale": "double",
+        "sysmdanno_fixRotation": "boolean",
+        "sysmdanno_additionalData": "string"
+      }
+    },
+    "sysmdannotatable": {
+      "prefix": "sysmdannotatable",
+      "fields": {
+        "sysmdannotatable_state": "string"
+      }
+    },
+    "sysmdbm": {
+      "prefix": "sysmdbm",
+      "fields": {
+        "sysmdbm_name": "string",
+        "sysmdbm_pageId": "long",
+        "sysmdbm_additionalData": "string"
+      }
+    },
+    "sysmdcomment": {
+      "prefix": "sysmdcomment",
+      "fields": {
+        "sysmdcomment_content": "string"
+      }
+    },
+    "sysmdhl": {
+      "prefix": "sysmdhl",
+      "fields": {
+        "sysmdhl_highlights": "string"
+      }
+    },
+    "sysmdimage": {
+      "prefix": "sysmdimage",
+      "fields": {
+        "sysmdimage_href": "string",
+        "sysmdimage_padding": "double",
+        "sysmdimage_radius": "double"
+      }
+    },
+    "sysmdline": {
+      "prefix": "sysmdline",
+      "fields": {
+        "sysmdline_lineCap": "string",
+        "sysmdline_markerEnd": "string",
+        "sysmdline_markerStart": "string",
+        "sysmdline_reverseX": "boolean",
+        "sysmdline_reverseY": "boolean"
+      }
+    },
+    "sysmdpath": {
+      "prefix": "sysmdpath",
+      "fields": {
+        "sysmdpath_path": "string"
+      }
+    },
+    "sysmdredactable": {
+      "prefix": "sysmdredactable",
+      "fields": {
+        "sysmdredactable_sourceDocumentId": "string",
+        "sysmdredactable_state": "string"
+      }
+    },
+    "sysmdtext": {
+      "prefix": "sysmdtext",
+      "fields": {
+        "sysmdtext_bold": "boolean",
+        "sysmdtext_fontColor": "string",
+        "sysmdtext_fontFamily": "string",
+        "sysmdtext_fontSize": "string",
+        "sysmdtext_horizontallyCenterTextBox": "boolean",
+        "sysmdtext_italic": "boolean",
+        "sysmdtext_lineHeight": "double",
+        "sysmdtext_lineHeightMultiplier": "double",
+        "sysmdtext_overflow": "boolean",
+        "sysmdtext_padding": "double",
+        "sysmdtext_radius": "double",
+        "sysmdtext_strikeThrough": "boolean",
+        "sysmdtext_text": "string",
+        "sysmdtext_textAlignment": "string",
+        "sysmdtext_underline": "boolean",
+        "sysmdtext_verticallyCenterText": "boolean"
+      }
+    },
+    "sysgovernable" : {
+      "fields" : {
+        "sysgov_hasLegalHold" : "boolean",
+        "sysgov_isRecord" : "boolean",
+        "sysgov_retainUntil" : "date"
+      },
+      "prefix" : "sysgov"
+    },
+    "sysgraph": {
+      "prefix": "sysgraph",
+      "fields": {
+        "sysgraph_graphDBIds": "sysgraph#stringList",
+        "sysgraph_ontologyRefs": "sysgraph#stringList"
+      }
+    },
+    "sysvocab": {
+      "prefix": "sysvocab",
+      "fields": {
+        "sysvocab_id": "string",
+        "sysvocab_key": "string",
+        "sysvocab_label": "string"
+      }
+    },
+    "sysembeddings": {
+      "prefix": "sysemb",
+      "fields": {
+        "sysemb_embeddings": {
+          "extends": "blob",
+          "constraints": {
+            "nullable": false
+          }
+        }
+      }
+    }
+  },
+  "mixinTypes": {
+    "SysFilish": {
+      "schemas": [
+        "sysfile"
+      ]
+    },
+    "SysFolderish": {
+      "noPerDocumentQuery": true
+    },
+    "SysFullTextIndexable": {},
+    "SysGovernable" : {
+      "schemas" : [
+        "sysgovernable"
+      ]
+    },
+    "SysGraphable": {
+      "schemas": [
+        "sysgraph"
+      ]
+    },
+    "SysMDHL": {
+      "schemas": [
+        "sysmdhl"
+      ]
+    },
+    "SysMDImage": {
+      "schemas": [
+        "sysmdimage"
+      ]
+    },
+    "SysMDLine": {
+      "schemas": [
+        "sysmdline"
+      ]
+    },
+    "SysMDPath": {
+      "schemas": [
+        "sysmdpath"
+      ]
+    },
+    "SysMDText": {
+      "schemas": [
+        "sysmdtext"
+      ]
+    },
+    "SysMDAnnotatable": {
+      "schemas": [
+        "sysmdannotatable"
+      ]
+    },
+    "SysMDRedactable": {
+      "schemas": [
+        "sysmdredactable"
+      ]
+    },
+    "SysOrderable": {},
+    "SysVersionable": {
+      "schemas": [
+        "sysversionable"
+      ]
+    },
+    "SysVersionedWithParent": {},
+    "SysTestDocument": {},
+    "SysHasEmbeddings": {}
+  },
+  "primaryTypes": {
+    "SysContent": {},
+    "SysFile": {
+      "extends": "SysContent",
+      "schemas": [
+        "sysfiles",
+        "system"
+      ],
+      "mixins": [
+        "SysFilish"
+      ]
+    },
+    "SysFolder": {
+      "extends": "SysContent",
+      "schemas": [
+        "system"
+      ],
+      "mixins": [
+        "SysFolderish"
+      ],
+      "subtypes": [
+        "SysFile",
+        "SysFolder",
+        "SysOrderedFolder"
+      ]
+    },
+    "SysMDAnnotation": {
+      "extends": "SysContent",
+      "schemas": [
+        "sysmdanno",
+        "system"
+      ]
+    },
+    "SysMDBookmark": {
+      "extends": "SysContent",
+      "schemas": [
+        "sysmdbm",
+        "system"
+      ]
+    },
+    "SysMDComment": {
+      "extends": "SysContent",
+      "schemas": [
+        "sysmdcomment",
+        "system"
+      ]
+    },
+    "SysOrderedFolder": {
+      "extends": "SysFolder",
+      "mixins": [
+        "SysOrderable"
+      ],
+      "subtypes": [
+        "SysFile",
+        "SysFolder",
+        "SysOrderedFolder"
+      ]
+    },
+    "SysRelation": {
+      "schemas": [
+        "sysrelation",
+        "system"
+      ]
+    },
+    "SysRendition": {
+      "extends": "SysContent",
+      "schemas": [
+        "sysrendition",
+        "system"
+      ]
+    },
+    "SysRenditionsContainer": {
+      "extends": "SysFolder",
+      "mixins": [
+        "SysVersionedWithParent"
+      ],
+      "subtypes": [
+        "SysRendition"
+      ]
+    },
+    "SysRoot": {
+      "extends": "SysFolder"
+    },
+    "SysVocabulary": {
+      "extends": "SysContent",
+      "mixins": [
+        "SysFolderish"
+      ],
+      "schemas": [
+        "system",
+        "sysvocab"
+      ],
+      "subtypes": [
+        "SysVocabularyEntry"
+      ]
+    },
+    "SysVocabularyEntry": {
+      "extends": "SysContent",
+      "schemas": [
+        "system",
+        "sysvocab"
+      ]
+    },
+    "SysEmbeddings": {
+      "extends": "SysContent",
+      "schemas": ["sysembeddings", "system"]
+    }
+  }
+}
