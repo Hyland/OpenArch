@@ -150,11 +150,8 @@ public class DBSCachingConnection implements DBSConnection {
 
     @Override
     public void commit() {
-        // CIN-12299: Send HTTP invalidations BEFORE commit to give HTTP a head start over SQS tasks
-        // This ensures HTTP invalidation timestamps arrive at other nodes before SQS tasks,
-        // preventing 60-second delays. Trade-off: adds ~50-100ms to write API calls.
-        sendInvalidationsToOthers();
         connection.commit();
+        sendInvalidationsToOthers();
         processReceivedInvalidations();
     }
 
