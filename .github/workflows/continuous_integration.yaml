@@ -51,7 +51,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GH_PACKAGES_RO_PAT }}
+          password: ${{ secrets.GH_HS_HX_RO_CLASSIC_TOKEN }}
 
       - uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
@@ -140,7 +140,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GH_PACKAGES_RO_PAT }}
+          password: ${{ secrets.GH_HS_HX_RO_CLASSIC_TOKEN }}
 
       - name: Build Docker Image
         uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7.2.0

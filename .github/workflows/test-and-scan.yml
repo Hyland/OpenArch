@@ -27,7 +27,7 @@ env:
   LIGHTWEIGHT_TEST_COVERAGE_UPLOAD: lightweight-coverage-execs
   COVERAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}/jacoco
   MAVEN_USERNAME: ${{ github.actor }}
-  MAVEN_PASSWORD: ${{ secrets.GH_PACKAGES_RO_PAT }}
+  MAVEN_PASSWORD: ${{ secrets.GH_HS_HX_RO_CLASSIC_TOKEN }}
 jobs:
   setup-test-matrices:
     name: Setup test matrices from JSON files
@@ -192,7 +192,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GH_PACKAGES_RO_PAT }}
+          password: ${{ secrets.GH_HS_HX_RO_CLASSIC_TOKEN }}
       - name: For localstack emulation of SNS/SQS (see docker-compose.yml)
         run: sudo echo "127.0.0.1 localstack" | sudo tee -a /etc/hosts
       - name: Docker Compose Up
