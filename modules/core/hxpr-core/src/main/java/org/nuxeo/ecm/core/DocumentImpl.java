@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2023 Hyland (http://nuxeo.com/) and others.
+ * (C) Copyright 2023-2026 Hyland (http://www.hyland.com/) and others.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,6 +63,7 @@ import org.nuxeo.common.utils.IdUtils;
 import org.nuxeo.common.utils.Path;
 import org.nuxeo.ecm.core.api.ConcurrentUpdateException;
 import org.nuxeo.ecm.core.api.CoreSession;
+import org.nuxeo.ecm.core.api.DocumentEnrichmentService;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentRef;
 import org.nuxeo.ecm.core.api.DocumentSecurityException;
@@ -149,6 +150,7 @@ public class DocumentImpl implements DocumentModel {
         // sys_created, sys_creator, sys_modified, sys_lastContributor
         if (!isVersion()) {
             addSysCreatedProperties();
+            enrichOnCreate();
         }
         // security policies
         Framework.getService(SecurityService.class)
@@ -244,6 +246,13 @@ public class DocumentImpl implements DocumentModel {
         doc.setPropertyValue(SYS_MODIFIED, now);
         doc.setPropertyValue(SYS_LAST_CONTRIBUTOR, principalId);
         addContributor(principalId);
+    }
+
+    private void enrichOnCreate() {
+        DocumentEnrichmentService service = Framework.getService(DocumentEnrichmentService.class);
+        if (service != null) {
+            service.enrichOnCreate(doc::getPropertyValue, doc::setPropertyValue);
+        }
     }
 
     private void addContributor(String principalId) {

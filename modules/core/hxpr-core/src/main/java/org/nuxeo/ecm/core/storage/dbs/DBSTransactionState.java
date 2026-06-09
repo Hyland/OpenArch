@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2014-2026 Nuxeo (http://nuxeo.com/) and others.
+ * (C) Copyright 2014-2026 Hyland (http://www.hyland.com/) and others.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,6 +74,7 @@ import org.apache.logging.log4j.Logger;
 import org.nuxeo.ecm.core.api.ConcurrentUpdateException;
 import org.nuxeo.ecm.core.api.CoreInstance;
 import org.nuxeo.ecm.core.api.CoreSession;
+import org.nuxeo.ecm.core.api.DocumentEnrichmentService;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentNotFoundException;
 import org.nuxeo.ecm.core.api.IdRef;
@@ -951,6 +952,7 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
                 continue;
             }
             updateSysModified(docState, now, principalId);
+            enrichOnUpdate(docState);
         }
     }
 
@@ -958,6 +960,13 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
         docState.put(SYS_MODIFIED, now);
         docState.put(SYS_LAST_CONTRIBUTOR, principalId);
         addContributor(docState, principalId);
+    }
+
+    private void enrichOnUpdate(DBSDocumentState docState) {
+        DocumentEnrichmentService service = Framework.getService(DocumentEnrichmentService.class);
+        if (service != null) {
+            service.enrichOnUpdate(docState::get, docState::put);
+        }
     }
 
     private void addContributor(DBSDocumentState docState, String principalId) {
