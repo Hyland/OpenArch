@@ -136,7 +136,6 @@ import org.nuxeo.ecm.core.event.Event;
 import org.nuxeo.ecm.core.event.EventService;
 import org.nuxeo.ecm.core.event.impl.EventImpl;
 import org.nuxeo.ecm.core.event.impl.GovernanceEventContext;
-import org.nuxeo.ecm.core.event.impl.OpenSearchDeleteDocumentEventContext;
 import org.nuxeo.ecm.core.model.InternalDocument;
 import org.nuxeo.ecm.core.model.InternalSession;
 import org.nuxeo.ecm.core.model.Repository;
@@ -1072,9 +1071,6 @@ public class DBSSession implements InternalSession {
             // ignore blob manager notification
         }
 
-        // notify document removal
-        sendOpenSearchDeleteDocumentEvent(id, getRepositoryName(), principal);
-
         // remove doc
         transaction.removeStates(Collections.singleton(id));
 
@@ -1686,19 +1682,4 @@ public class DBSSession implements InternalSession {
             }
         }
     }
-
-    private void sendOpenSearchDeleteDocumentEvent(String docId, String repositoryName, NuxeoPrincipal principal) {
-        if (docId.isEmpty()) {
-            return;
-        }
-        // send an event for a single document removal in the opensearch
-        // to guard against ghost documents in the index
-        EventService eventService = Framework.getService(EventService.class);
-        OpenSearchDeleteDocumentEventContext context = new OpenSearchDeleteDocumentEventContext(principal);
-        context.setDocId(docId);
-        context.setRepositoryName(repositoryName);
-        Event event = context.newEvent(DOCUMENT_REMOVED, Event.FLAG_NONE);
-        eventService.fireEvent(event);
-    }
-
 }
