@@ -67,7 +67,7 @@ jobs:
       - name: Build and publish
         env:
           GH_ACTOR: hxpcscicduser
-          GITHUB_TOKEN: ${{ secrets.GH_TEST_PAT_SYNC }}
+          GITHUB_TOKEN: ${{ secrets.GH_CI_CD_PAT }}
         run: |
           mvn --batch-mode clean deploy \
             -DskipTests \

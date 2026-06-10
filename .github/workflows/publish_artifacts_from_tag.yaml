@@ -59,7 +59,7 @@ jobs:
       - name: Publish to GH Packages
         env:
           GH_ACTOR: ${{ env.GH_ACTOR }}
-          GITHUB_TOKEN: ${{ secrets.GH_TEST_PAT_SYNC }}
+          GITHUB_TOKEN: ${{ secrets.GH_CI_CD_PAT }}
         run: |
           mvn --batch-mode deploy \
             -DskipTests \
