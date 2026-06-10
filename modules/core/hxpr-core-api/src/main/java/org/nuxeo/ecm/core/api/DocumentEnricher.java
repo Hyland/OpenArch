@@ -15,38 +15,32 @@
  */
 package org.nuxeo.ecm.core.api;
 
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-
 /**
  * Pluggable hook invoked when a document is created or updated, immediately alongside the
  * {@code sys_modified} stamping and within the same transaction.
  * <p>
- * The {@code reader}/{@code writer} target the in-flight, not-yet-persisted document, so anything
- * written is persisted in the same transaction. Downstream distributions (e.g. the enterprise
- * distribution) contribute implementations to the {@code enrichers} extension point of the
- * {@code org.nuxeo.ecm.core.DocumentEnrichmentService} component. Community runs zero enrichers by
- * default.
+ * Community itself ships the {@code SystemPropertiesEnricher} against this hook to stamp the
+ * {@code sys_*} system fields; downstream distributions (e.g. the enterprise distribution) contribute
+ * further implementations to the {@code enrichers} extension point of the
+ * {@code org.nuxeo.ecm.core.DocumentEnrichmentService} component.
  */
 public interface DocumentEnricher {
 
     /**
-     * Called when a document is being created, after the system fields have been stamped.
+     * Called when a document is being created, before it is persisted.
      *
-     * @param reader reads a property (system or schema) off the in-flight document
-     * @param writer sets a property on the in-flight document
+     * @param context the in-flight document being created
      */
-    default void onCreate(Function<String, Object> reader, BiConsumer<String, Object> writer) {
+    default void onCreate(DocumentEnrichmentContext context) {
         // no-op by default
     }
 
     /**
-     * Called when an existing document is being updated, after the system fields have been stamped.
+     * Called when an existing document is being updated, before it is persisted.
      *
-     * @param reader reads a property (system or schema) off the in-flight document
-     * @param writer sets a property on the in-flight document
+     * @param context the in-flight document being updated
      */
-    default void onUpdate(Function<String, Object> reader, BiConsumer<String, Object> writer) {
+    default void onUpdate(DocumentEnrichmentContext context) {
         // no-op by default
     }
 }

@@ -16,12 +16,11 @@
 package org.nuxeo.ecm.core;
 
 import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.nuxeo.ecm.core.api.DocumentEnricher;
+import org.nuxeo.ecm.core.api.DocumentEnrichmentContext;
 import org.nuxeo.ecm.core.api.DocumentEnrichmentService;
 import org.nuxeo.runtime.model.DefaultComponent;
 
@@ -36,6 +35,7 @@ public class DocumentEnrichmentComponent extends DefaultComponent implements Doc
 
     protected static final String XP_ENRICHERS = "enrichers";
 
+    @SuppressWarnings("java:S3077") // Using volatile to guard the reference; the list is always immutable.
     private volatile List<DocumentEnricher> enrichers = List.of();
 
     @Override
@@ -53,16 +53,12 @@ public class DocumentEnrichmentComponent extends DefaultComponent implements Doc
     }
 
     @Override
-    public void enrichOnCreate(Function<String, Object> reader, BiConsumer<String, Object> writer) {
-        for (DocumentEnricher enricher : enrichers) {
-            enricher.onCreate(reader, writer);
-        }
+    public void enrichOnCreate(DocumentEnrichmentContext context) {
+        enrichers.forEach(enricher -> enricher.onCreate(context));
     }
 
     @Override
-    public void enrichOnUpdate(Function<String, Object> reader, BiConsumer<String, Object> writer) {
-        for (DocumentEnricher enricher : enrichers) {
-            enricher.onUpdate(reader, writer);
-        }
+    public void enrichOnUpdate(DocumentEnrichmentContext context) {
+        enrichers.forEach(enricher -> enricher.onUpdate(context));
     }
 }

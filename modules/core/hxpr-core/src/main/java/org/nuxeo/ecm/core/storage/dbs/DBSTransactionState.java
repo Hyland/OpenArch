@@ -23,13 +23,11 @@ import static org.nuxeo.ecm.core.api.DocumentConstants.FULLTEXT_EXTRACTOR_TASK_N
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ANCESTOR_IDS;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_BLOB_KEYS;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_CHANGE_TOKEN;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_CONTRIBUTORS;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_FULLTEXT_BINARY;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_FULLTEXT_JOB_ID;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ID;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_IS_FOLDERISH;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_IS_VERSION;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_LAST_CONTRIBUTOR;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_MODIFIED;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_NAME;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PARENT_ID;
@@ -74,6 +72,7 @@ import org.apache.logging.log4j.Logger;
 import org.nuxeo.ecm.core.api.ConcurrentUpdateException;
 import org.nuxeo.ecm.core.api.CoreInstance;
 import org.nuxeo.ecm.core.api.CoreSession;
+import org.nuxeo.ecm.core.api.DocumentEnrichmentContext;
 import org.nuxeo.ecm.core.api.DocumentEnrichmentService;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentNotFoundException;
@@ -674,7 +673,7 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
      * An undo log is kept in order to rollback the transaction later if needed.
      */
     public void save(NuxeoPrincipal principal) {
-        updateSysModified(principal);
+        enrichUpdatedDocuments(principal);
         updateDenormalizedState();
         validation();
 
@@ -926,13 +925,13 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
     }
 
     /**
-     * Update system fields tied to modification principal/date.
+     * Runs the document enrichers (including the system-field stamping) on every genuinely modified,
+     * non-version document. Created documents are enriched on the create path instead.
      */
-    private void updateSysModified(NuxeoPrincipal principal) {
+    private void enrichUpdatedDocuments(NuxeoPrincipal principal) {
         if (principal == null) {
             return;
         }
-        String principalId = principal.getActingId();
         Instant now = Instant.now();
         // modification
         for (DBSDocumentState docState : transientStates.values()) {
@@ -951,41 +950,16 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
                 // no real change
                 continue;
             }
-            updateSysModified(docState, now, principalId);
-            enrichOnUpdate(docState);
+            enrichOnUpdate(docState, principal, now);
         }
     }
 
-    private void updateSysModified(DBSDocumentState docState, Instant now, String principalId) {
-        docState.put(SYS_MODIFIED, now);
-        docState.put(SYS_LAST_CONTRIBUTOR, principalId);
-        addContributor(docState, principalId);
-    }
-
-    private void enrichOnUpdate(DBSDocumentState docState) {
+    private void enrichOnUpdate(DBSDocumentState docState, NuxeoPrincipal principal, Instant now) {
         DocumentEnrichmentService service = Framework.getService(DocumentEnrichmentService.class);
         if (service != null) {
-            service.enrichOnUpdate(docState::get, docState::put);
+            var context = new DocumentEnrichmentContext(principal, now, docState::get, docState::put);
+            service.enrichOnUpdate(context);
         }
-    }
-
-    private void addContributor(DBSDocumentState docState, String principalId) {
-        @SuppressWarnings("unchecked")
-        List<String> list = (List<String>) docState.get(SYS_CONTRIBUTORS);
-        if (list == null) {
-            // no contributors yet, create it
-            docState.put(SYS_CONTRIBUTORS, List.of(principalId));
-            return;
-        }
-        if (list.contains(principalId)) {
-            // already present
-            return;
-        }
-        // add to existing contributors
-        List<Object> newList = new ArrayList<>(list.size() + 1);
-        newList.addAll(list);
-        newList.add(principalId);
-        docState.put(SYS_CONTRIBUTORS, newList);
     }
 
     private boolean isVersion(DBSDocumentState docState) {

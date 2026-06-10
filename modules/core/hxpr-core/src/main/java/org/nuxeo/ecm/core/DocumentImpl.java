@@ -24,13 +24,8 @@ import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_IS_RECORD;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_DESCRIPTION;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_PREFIX;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_TITLE;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_CONTRIBUTORS;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_CREATED;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_CREATOR;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_DESCRIPTION;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_IS_TRASHED;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_LAST_CONTRIBUTOR;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_MODIFIED;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PREFIX;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_SECURITY_POLICIES;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
@@ -43,7 +38,6 @@ import static org.nuxeo.ecm.core.api.security.SecurityConstants.WRITE_VERSION;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -63,6 +57,7 @@ import org.nuxeo.common.utils.IdUtils;
 import org.nuxeo.common.utils.Path;
 import org.nuxeo.ecm.core.api.ConcurrentUpdateException;
 import org.nuxeo.ecm.core.api.CoreSession;
+import org.nuxeo.ecm.core.api.DocumentEnrichmentContext;
 import org.nuxeo.ecm.core.api.DocumentEnrichmentService;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentRef;
@@ -147,9 +142,8 @@ public class DocumentImpl implements DocumentModel {
         SysEmbeddingsPolicies.enforceEmbeddingsParentMixinOrThrow(doc);
 
         sanitizeNameAndTitle();
-        // sys_created, sys_creator, sys_modified, sys_lastContributor
+        // stamp sys_* fields and run any registered document enrichers, before persistence
         if (!isVersion()) {
-            addSysCreatedProperties();
             enrichOnCreate();
         }
         // security policies
@@ -238,40 +232,13 @@ public class DocumentImpl implements DocumentModel {
         return name;
     }
 
-    private void addSysCreatedProperties() {
-        var now = Instant.now();
-        var principalId = getPrincipal().getActingId();
-        doc.setPropertyValue(SYS_CREATED, now);
-        doc.setPropertyValue(SYS_CREATOR, principalId);
-        doc.setPropertyValue(SYS_MODIFIED, now);
-        doc.setPropertyValue(SYS_LAST_CONTRIBUTOR, principalId);
-        addContributor(principalId);
-    }
-
     private void enrichOnCreate() {
         DocumentEnrichmentService service = Framework.getService(DocumentEnrichmentService.class);
         if (service != null) {
-            service.enrichOnCreate(doc::getPropertyValue, doc::setPropertyValue);
+            var context = new DocumentEnrichmentContext(getPrincipal(), Instant.now(), doc::getPropertyValue,
+                    doc::setPropertyValue);
+            service.enrichOnCreate(context);
         }
-    }
-
-    private void addContributor(String principalId) {
-        @SuppressWarnings("unchecked")
-        List<Object> list = (List<Object>) doc.getPropertyValue(SYS_CONTRIBUTORS);
-        if (list == null) {
-            // no contributors yet, create it
-            doc.setPropertyValue(SYS_CONTRIBUTORS, List.of(principalId));
-            return;
-        }
-        if (list.contains(principalId)) {
-            // already present
-            return;
-        }
-        // add to existing contributors
-        List<Object> newList = new ArrayList<>(list.size() + 1);
-        newList.addAll(list);
-        newList.add(principalId);
-        doc.setPropertyValue(SYS_CONTRIBUTORS, newList);
     }
 
     private void checkPermission(String permission) {

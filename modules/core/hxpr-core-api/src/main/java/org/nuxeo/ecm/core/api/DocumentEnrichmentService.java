@@ -15,25 +15,21 @@
  */
 package org.nuxeo.ecm.core.api;
 
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-
 /**
  * Fans out document create/update events to the registered {@link DocumentEnricher} contributions.
  * <p>
  * Looked up from the core create/update code path via {@code Framework.getService}. When no
- * enrichers are registered the calls are cheap no-ops. The {@code reader}/{@code writer} target the
- * in-flight document being created or updated.
+ * enrichers are registered the calls are cheap no-ops.
  */
 public interface DocumentEnrichmentService {
 
     /**
      * Invokes {@link DocumentEnricher#onCreate} on every registered enricher.
      */
-    void enrichOnCreate(Function<String, Object> reader, BiConsumer<String, Object> writer);
+    void enrichOnCreate(DocumentEnrichmentContext context);
 
     /**
      * Invokes {@link DocumentEnricher#onUpdate} on every registered enricher.
      */
-    void enrichOnUpdate(Function<String, Object> reader, BiConsumer<String, Object> writer);
+    void enrichOnUpdate(DocumentEnrichmentContext context);
 }
