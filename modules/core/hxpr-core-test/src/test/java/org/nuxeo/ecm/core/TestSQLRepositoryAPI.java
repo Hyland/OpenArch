@@ -4114,4 +4114,30 @@ public class TestSQLRepositoryAPI {
         TransactionHelper.setTransactionRollbackOnly();
     }
 
+    @Test
+    public void testCreateDocumentThrowsDocumentNotFoundExceptionWhenAnyOfTheAncestorDontExists() {
+        DocumentModel parentFolder = session.createDocumentModel("/", "parentFolder", SYS_FOLDER);
+        parentFolder.create();
+        session.save();
+
+        String parentPath = parentFolder.getPathAsString();
+        String firstFolderId = null;
+        for (int i = 1; i <= 4; i++) {
+            DocumentModel folder = session.createDocumentModel(parentPath, "folder" + i, SYS_FOLDER);
+            folder.create();
+            assertTrue(folder.getPathAsString().startsWith("/"));
+            if (i == 1) {
+                firstFolderId = folder.getId();
+            }
+            parentPath = folder.getPathAsString();
+        }
+        session.save();
+
+        session.removeDocument(new IdRef(firstFolderId));
+        session.save();
+
+        String path = parentPath;
+        assertThrows(DocumentNotFoundException.class, () ->
+                session.createDocumentModel(path, "file", SYS_FILE));
+    }
 }

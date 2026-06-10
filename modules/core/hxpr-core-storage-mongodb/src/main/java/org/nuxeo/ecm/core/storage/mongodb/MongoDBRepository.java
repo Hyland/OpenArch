@@ -19,8 +19,12 @@
 package org.nuxeo.ecm.core.storage.mongodb;
 
 import static org.nuxeo.ecm.core.api.DocumentConstants.SCHEMA_SYSEMB;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SCHEMA_SYSGRAPH;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_EMBEDDINGS;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_PREFIX;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGRAPH_GRAPH_DB_IDS;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGRAPH_ONTOLOGY_REFS;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGRAPH_PREFIX;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSMD_ANNOTATION_ADDITIONAL_DATA;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSMD_ANNOTATION_CONTENT_ITEM_ID;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSMD_ANNOTATION_DATA;
@@ -95,6 +99,7 @@ import static org.nuxeo.ecm.core.api.DocumentConstants.SCHEMA_SYSMD_REDACTABLE;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SCHEMA_SYSMD_TEXT;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SCHEMA_SYSTEM;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.WRITE;
+import static org.nuxeo.ecm.core.schema.MixinNames.SYS_GRAPHABLE;
 import static org.nuxeo.ecm.core.schema.MixinNames.SYS_HAS_EMBEDDINGS;
 import static org.nuxeo.ecm.core.schema.MixinNames.SYS_VERSIONED_WITH_PARENT;
 import static org.nuxeo.ecm.core.schema.MixinNames.SYS_MD_ANNOTATABLE;
@@ -114,6 +119,7 @@ import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_MD_BOOKMARK;
 import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_MD_COMMENT;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_BLOB_KEYS;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.FIELDS;
+import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.LIST;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.MIXIN_TYPES;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.PREFIX;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.PRIMARY_TYPES;
@@ -195,6 +201,8 @@ public class MongoDBRepository extends DBSRepositoryBase implements Configuratio
     public static final String FULLTEXT_INDEX_NAME = "fulltext";
 
     public static final String LANGUAGE_FIELD = "__language";
+
+    public static final String SYSGRAPH_STRING_LIST_TYPE = "sysgraph#stringList";
 
     /**
      * Default maximum execution time for a query.
@@ -344,6 +352,11 @@ public class MongoDBRepository extends DBSRepositoryBase implements Configuratio
          needsMigration = migrateMetadataTypes(config);
          needsMigration |= migrateRenditionSchema(schemas);
 
+        // Knowledge Graph stringList type
+        if (types.putIfAbsent(SYSGRAPH_STRING_LIST_TYPE, Map.of(LIST, StringType.ID)) == null) {
+            needsMigration = true;
+        }
+
         return needsMigration;
     }
 
@@ -475,6 +488,13 @@ public class MongoDBRepository extends DBSRepositoryBase implements Configuratio
                         SYSEMB_EMBEDDINGS, Map.of(
                                 EXTENDS, BLOB_TYPE,
                                 CONSTRAINTS, Map.of("nullable", false)))));
+
+        // Knowledge Graph
+        schemas.computeIfAbsent(SCHEMA_SYSGRAPH, k -> Map.of(
+                PREFIX, SYSGRAPH_PREFIX,
+                FIELDS, Map.of(
+                        SYSGRAPH_GRAPH_DB_IDS, SYSGRAPH_STRING_LIST_TYPE,
+                        SYSGRAPH_ONTOLOGY_REFS, SYSGRAPH_STRING_LIST_TYPE)));
     }
 
     /**
@@ -501,6 +521,9 @@ public class MongoDBRepository extends DBSRepositoryBase implements Configuratio
 
         // Embeddings
         mixins.computeIfAbsent(SYS_HAS_EMBEDDINGS, k -> Map.of());
+
+        // Knowledge Graph
+        mixins.computeIfAbsent(SYS_GRAPHABLE, k -> Map.of(SCHEMAS, List.of(SCHEMA_SYSGRAPH)));
     }
 
     /**

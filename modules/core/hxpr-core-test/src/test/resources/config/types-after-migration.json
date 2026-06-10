@@ -19,6 +19,9 @@
     },
     "system#contributorList": {
       "list": "string"
+    },
+    "sysgraph#stringList": {
+      "list": "string"
     }
   },
   "schemas": {
@@ -160,6 +163,13 @@
           }
         }
       }
+    },
+    "sysgraph": {
+      "prefix": "sysgraph",
+      "fields": {
+        "sysgraph_graphDBIds": "sysgraph#stringList",
+        "sysgraph_ontologyRefs": "sysgraph#stringList"
+      }
     }
   },
   "mixinTypes": {
@@ -205,7 +215,12 @@
         "sysmdredactable"
       ]
     },
-    "SysHasEmbeddings": {}
+    "SysHasEmbeddings": {},
+    "SysGraphable": {
+      "schemas": [
+        "sysgraph"
+      ]
+    }
   },
   "primaryTypes": {
     "SysContent": {},
