@@ -52,7 +52,7 @@
 
     <maven.surefire.version>3.5.6</maven.surefire.version>
 
-    <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
+    <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
     <sonar-maven-plugin.version>5.5.0.6356</sonar-maven-plugin.version>
     <license-maven-plugin.version>2.7.1</license-maven-plugin.version>
     <!-- Sonar & JaCoCo (related profile: sonar)-->
@@ -84,7 +84,7 @@
     <osgi.version>4.3.1</osgi.version>
     <jakarta.enterprise.cdi.version>4.1.0</jakarta.enterprise.cdi.version>
     <commons-lang3.version>3.20.0</commons-lang3.version>
-    <jackson-bom.version>2.21.4</jackson-bom.version>
+    <jackson-bom.version>2.22.0</jackson-bom.version>
     <hamcrest.version>3.0</hamcrest.version>
     <geronimo-transaction.version>4.0.0</geronimo-transaction.version>
     <guice.version>7.0.0</guice.version>
