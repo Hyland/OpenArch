@@ -173,8 +173,18 @@ public class TaskServiceImpl extends DefaultComponent implements TaskService, Co
         }
         // else ScrollerTask subtasks will already have a (shared) status
 
-        // Submit the task to the runner
-        getRunner(taskName).submitTask(taskId, serializeTask(task), throwOnError);
+        try {
+            // Submit the task to the runner
+            getRunner(taskName).submitTask(taskId, serializeTask(task), throwOnError);
+            status.setPublishedToTopic(true);
+            setStatus(status);
+        } catch (Exception e) {
+            log.error("Failed to submit task {} to runner {}: {}", taskId, taskName, e.getMessage(), e);
+            status.setErrorMessage(e.getMessage());
+            status.setState(ABORTED);
+            setStatus(status);
+            throw new NuxeoException(e);
+        }
         return taskId;
     }
 

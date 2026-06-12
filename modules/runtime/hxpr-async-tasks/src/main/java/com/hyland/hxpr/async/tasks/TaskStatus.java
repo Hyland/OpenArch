@@ -53,6 +53,8 @@ public class TaskStatus {
 
     private Long lastExecutionTime;
 
+    private boolean publishedToTopic;
+
     public TaskStatus() {
 
     }
@@ -203,6 +205,14 @@ public class TaskStatus {
 
     public void setErrorCode(Integer errorCode) {
         this.errorCode = errorCode;
+    }
+
+    public boolean isPublishedToTopic() {
+        return publishedToTopic;
+    }
+
+    public void setPublishedToTopic(boolean publishedToTopic) {
+        this.publishedToTopic = publishedToTopic;
     }
 
     /**
