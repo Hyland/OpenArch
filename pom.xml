@@ -27,7 +27,7 @@
   </modules>
 
   <properties>
-    <org.junit.version>5.14.4</org.junit.version>
+    <org.junit.version>6.1.0</org.junit.version>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
