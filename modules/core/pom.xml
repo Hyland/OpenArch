@@ -14,9 +14,11 @@
   <modules>
     <module>hxpr-core</module>
     <module>hxpr-core-api</module>
+    <module>hxpr-core-binarymanager-common</module>
     <module>hxpr-core-cache</module>
     <module>hxpr-core-event</module>
     <module>hxpr-core-io</module>
+    <module>hxpr-core-management-jtajca</module>
     <module>hxpr-core-mongodb</module>
     <module>hxpr-core-query</module>
     <module>hxpr-core-schema</module>

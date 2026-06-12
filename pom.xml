@@ -284,6 +284,17 @@
       </dependency>
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-core-binarymanager-common</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-core-binarymanager-common</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
+      </dependency>
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
         <artifactId>hxpr-core-cache</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -314,6 +325,18 @@
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
         <artifactId>hxpr-core-io</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-core-management-jtajca</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-core-management-jtajca</artifactId>
         <version>${project.version}</version>
         <type>test-jar</type>
         <scope>test</scope>
