@@ -1,0 +1,19 @@
+name: Update pinned apk package versions in hxpr-app Dockerfile
+
+sources:
+  curl_version:
+    kind: shell
+    spec:
+      command: |
+        BUILDER_IMAGE=$(sed -nE "s|^FROM ([^ ]+) AS builder$|\1|p" server/hxpr-community-internal-app/src/main/docker/Dockerfile | head -n1)
+        docker run --rm "${BUILDER_IMAGE}" sh -lc "apk update >/dev/null && apk search -v curl | grep '^curl-' | head -n1 | sed -E 's/^curl-([^ ]+).*/\\1/'"
+
+targets:
+  update_curl_arg:
+    name: Update curl version in Dockerfile apk add
+    kind: file
+    sourceid: curl_version
+    spec:
+      file: server/hxpr-community-internal-app/src/main/docker/Dockerfile
+      matchpattern: 'apk add --no-cache curl=([^ \\]+)'
+      replacepattern: 'apk add --no-cache curl={{ source "curl_version" }}'
