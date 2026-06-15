@@ -4,7 +4,7 @@
   <parent>
     <groupId>com.hyland.hxpr</groupId>
     <artifactId>hxpr-community-platform-parent</artifactId>
-    <version>0.0.45-SNAPSHOT</version>
+    <version>0.0.45</version>
   </parent>
   <artifactId>hxpr-login-filestore</artifactId>
   <name>HxPR FileStore Login Manager</name>
