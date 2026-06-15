@@ -59,7 +59,7 @@
     <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
     <sonar.organization>hylandsoftware</sonar.organization>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-    <sonar.coverage.exclusions>**/RuntimeSpringBootTest.java,**/RuntimeTestState.java,**/RuntimeSpringBootTestConfiguration.java,**/IdpUtil.java</sonar.coverage.exclusions>
+    <sonar.coverage.exclusions>**/RuntimeSpringBootTest.java,**/RuntimeTestState.java,**/RuntimeSpringBootTestConfiguration.java,**/IdpUtil.java,**/MockAuthenticationSupport</sonar.coverage.exclusions>
     <it.jacoco.destFile>${session.executionRootDirectory}/target/jacoco-it.exec</it.jacoco.destFile>
     <!-- Sonar & JaCoCo (related profile: coverage)-->
     <coverage.reporting.outputDirectory>${project.reporting.outputDirectory}</coverage.reporting.outputDirectory>
@@ -604,6 +604,32 @@
         <groupId>com.flipkart.zjsonpatch</groupId>
         <artifactId>zjsonpatch</artifactId>
         <version>${zjsonpatch.version}</version>
+      </dependency>
+
+      <!-- Platform -->
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-usermanager</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-usermanager</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-login-filestore</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-login-filestore</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
+        <scope>test</scope>
       </dependency>
 
       <!-- Test Scope -->

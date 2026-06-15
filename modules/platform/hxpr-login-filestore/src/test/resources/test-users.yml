@@ -1,0 +1,70 @@
+administratorsGroups:
+  - administrators
+
+groups:
+  - id: "aaaaaaaa-0000-0000-0000-000000000001"
+    name: administrators
+  - id: "aaaaaaaa-0000-0000-0000-000000000002"
+    name: members
+  - id: "aaaaaaaa-0000-0000-0000-000000000003"
+    name: developers
+
+users:
+  - id: "bbbbbbbb-0000-0000-0000-000000000001"
+    username: alice
+    password: "{noop}secret"
+    firstName: Alice
+    lastName: Admin
+    email: alice@example.com
+    groups:
+      - administrators
+      - members
+    attributes:
+      department: Engineering
+      badge: "42"
+
+  - id: "bbbbbbbb-0000-0000-0000-000000000002"
+    username: bob
+    password: "{noop}pass"
+    firstName: Bob
+    lastName: Builder
+    email: bob@example.com
+    groups:
+      - members
+      - developers
+
+  - id: "bbbbbbbb-0000-0000-0000-000000000003"
+    firstName: Charlie
+    lastName: Nousername
+    email: charlie@example.com
+    groups:
+      - developers
+
+  # Has a username but no password — must be excluded from Spring Security user details (triggers a warn log).
+  - id: "bbbbbbbb-0000-0000-0000-000000000004"
+    username: dave
+    firstName: Dave
+    lastName: Nopassword
+    email: dave@example.com
+    groups:
+      - developers
+
+  # Has no username - cannot login, but all document references can be resolved
+  - id: "bbbbbbbb-0000-0000-0000-000000000005"
+    username:
+    password: "{noop}pass"
+    firstName: No
+    lastName: Username
+    email: nousername@example.com
+    groups:
+      - developers
+
+  # Has a username but no password — must be excluded from Spring Security user details (triggers a warn log).
+  - id:
+    username: nouserid
+    password: "{noop}pass"
+    firstName: No
+    lastName: Nouserid
+    email: nouserid@example.com
+    groups:
+      - developers

@@ -13,27 +13,6 @@
       <option name="maxSize">0</option>
     </cache>
 
-    <cache name="principalCache" class="org.nuxeo.ecm.core.cache.InMemoryCacheImpl">
-      <ttl>${nuxeo.cache.idp.ttl:=10}</ttl><!-- minutes -->
-      <clusterInvalidation>false</clusterInvalidation>
-      <option name="maxSize">${nuxeo.cache.idp.maxsize:=10000}</option>
-      <option name="concurrencyLevel">${nuxeo.cache.idp.concurrencylevel:=500}</option>
-    </cache>
-
-    <cache name="idp-user-cache" class="org.nuxeo.ecm.core.cache.InMemoryCacheImpl">
-      <ttl>${nuxeo.cache.idp.ttl:=10}</ttl><!-- minutes -->
-      <clusterInvalidation>false</clusterInvalidation>
-      <option name="maxSize">${nuxeo.cache.idp.maxsize:=10000}</option>
-      <option name="concurrencyLevel">${nuxeo.cache.idp.concurrencylevel:=500}</option>
-    </cache>
-
-    <cache name="idp-group-cache" class="org.nuxeo.ecm.core.cache.InMemoryCacheImpl">
-      <ttl>${nuxeo.cache.idp.ttl:=10}</ttl><!-- minutes -->
-      <clusterInvalidation>false</clusterInvalidation>
-      <option name="maxSize">${nuxeo.cache.idp.maxsize:=10000}</option>
-      <option name="concurrencyLevel">${nuxeo.cache.idp.concurrencylevel:=500}</option>
-    </cache>
-
   </extension>
 
 </component>

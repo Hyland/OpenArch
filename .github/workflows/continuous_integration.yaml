@@ -126,10 +126,12 @@ jobs:
         run: docker compose up --quiet-pull -d
       - name: Build HxPR Community Server with Maven
         run: |
+          # Skip enforcer on PRs to allow SNAPSHOT dependencies from in-flight upstream PRs.
           mvn --no-transfer-progress -nsu verify \
           -f server/hxpr-community-internal-app -Plicense-check \
           -Dnuxeo.mongodb.server=$MONGODB_HOST:$MONGODB_PORT \
-          -Dnuxeo.mongodb.dbname=unittests
+          -Dnuxeo.mongodb.dbname=unittests \
+          ${{ github.event_name == 'pull_request' && '-Dnuxeo.skip.enforcer=true' || '' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # use localhost for the host here because we are running the job on the VM.

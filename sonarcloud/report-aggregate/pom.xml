@@ -157,6 +157,18 @@
       <artifactId>hxpr-core-test</artifactId>
       <version>${project.version}</version>
     </dependency>
+
+    <!-- Platform -->
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-usermanager</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-login-filestore</artifactId>
+      <version>${project.version}</version>
+    </dependency>
   </dependencies>
   <build>
     <plugins>

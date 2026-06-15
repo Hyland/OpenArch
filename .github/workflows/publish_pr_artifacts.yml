@@ -53,7 +53,7 @@ jobs:
           BASE_VERSION=$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' \
             --non-recursive exec:exec | sed 's/-SNAPSHOT$//')
           PR_NUMBER="${{ github.event.pull_request.number }}"
-          VERSION="${BASE_VERSION}-PR${PR_NUMBER}"
+          VERSION="${BASE_VERSION}-PR${PR_NUMBER}-SNAPSHOT"
           echo "Computed PR version: ${VERSION}"
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
 

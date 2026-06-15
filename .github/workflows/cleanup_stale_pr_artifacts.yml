@@ -35,7 +35,7 @@ jobs:
 
             ROWS=$(gh api --paginate \
               "/orgs/${ORG}/packages/maven/${ENCODED_PKG}/versions" \
-              --jq ".[] | select(.name | test(\"-PR[0-9]+$\")) | select(.updated_at < \"${CUTOFF}\") | [.id, .name] | @tsv" \
+              --jq ".[] | select(.name | test(\"-PR[0-9]+(-SNAPSHOT)?$\")) | select(.updated_at < \"${CUTOFF}\") | [.id, .name] | @tsv" \
               || true)
 
             while IFS=$'\t' read -r vid vname; do

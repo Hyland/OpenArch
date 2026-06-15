@@ -12,6 +12,8 @@
   <name>HxPR Community Platform Parent</name>
 
   <modules>
+    <module>hxpr-usermanager</module>
+    <module>hxpr-login-filestore</module>
   </modules>
 
   <dependencies>
