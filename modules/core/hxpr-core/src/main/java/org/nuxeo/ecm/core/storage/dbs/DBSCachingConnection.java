@@ -150,8 +150,13 @@ public class DBSCachingConnection implements DBSConnection {
 
     @Override
     public void commit() {
-        connection.commit();
+        // CIN-12299: Fix race condition where SQS task arrives before HTTP invalidation
+        // Send invalidations BEFORE commit to give HTTP a head start over SQS
+        // Note: If commit fails after sending invalidations, this is acceptable because
+        // cache invalidation is idempotent and pessimistic. Other nodes will have
+        // unnecessary cache misses but will read correct data from the database.
         sendInvalidationsToOthers();
+        connection.commit();
         processReceivedInvalidations();
     }
 

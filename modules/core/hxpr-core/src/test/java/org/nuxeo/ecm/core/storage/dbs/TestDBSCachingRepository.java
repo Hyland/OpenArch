@@ -197,6 +197,47 @@ public class TestDBSCachingRepository {
         assertTrue(invals.getInvalidations().get(0).all);
     }
 
+    @Test
+    public void testCommitInvalidatesAndCommits() {
+        // CIN-12299: Test that commit() invalidates cache and commits
+        String id = "ID";
+
+        // First read a state to cache it
+        connection.readState(id);
+        verify(subConnection, times(1)).readState(id);
+
+        // Update the state to generate invalidations
+        connection.updateState(id, mock(StateDiff.class), null);
+
+        // Commit
+        connection.commit();
+
+        // Verify that commit was called on the underlying connection
+        verify(subConnection, times(1)).commit();
+
+        // After commit, the state should no longer be in cache
+        connection.readState(id);
+        verify(subConnection, times(2)).readState(id);
+    }
+
+    @Test
+    public void testCommitCallsUnderlyingCommit() {
+        // CIN-12299: Test that commit delegates to underlying connection
+        connection.commit();
+
+        // Verify that commit was called on the underlying connection
+        verify(subConnection, times(1)).commit();
+    }
+
+    @Test
+    public void testBeginCallsUnderlyingBegin() {
+        // CIN-12299: Test that begin() delegates to underlying connection
+        connection.begin();
+
+        // Verify that begin was called on the underlying connection
+        verify(subConnection, times(1)).begin();
+    }
+
     private State newState(String id) {
         State state = new State();
         state.put(SYS_ID, id);
