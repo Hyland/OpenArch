@@ -204,6 +204,32 @@ public class MongoDBRepository extends DBSRepositoryBase implements Configuratio
 
     public static final String SYSGRAPH_STRING_LIST_TYPE = "sysgraph#stringList";
 
+    // KG-config migration constants — see migrateKgConfig() below.
+
+    static final String KGCONFIG_STORE_NAME = "kgconfig";
+
+    static final String KG_DOMAINS_LEGACY = "domains";
+
+    static final String KG_GRAPH_DBS = "graphDBs";
+
+    static final String KG_ONTOLOGIES = "ontologies";
+
+    static final String KG_DOMAIN_ID_LEGACY = "domainId";
+
+    static final String KG_DOMAIN_NAME_LEGACY = "domain";
+
+    static final String KG_GRAPH_DB_ID = "graphDBId";
+
+    static final String KG_GRAPH_DB_NAME = "graphDBName";
+
+    static final String KG_VERSION = "version";
+
+    static final String KG_VERSION_DEFAULT_LEGACY = "v1";
+
+    static final String KG_CONNECTION_CONFIG = "connectionConfig";
+
+    static final String KG_ONTOLOGY_ROUTES = "ontologyRoutes";
+
     /**
      * Default maximum execution time for a query.
      *
@@ -331,8 +357,102 @@ public class MongoDBRepository extends DBSRepositoryBase implements Configuratio
         return switch (configName) {
         case CONFIG_TYPES -> migrateTypes(config);
         case CONFIG_SECURITY -> migrateSecurity(config);
+        case KGCONFIG_STORE_NAME -> migrateKgConfig(config);
         default -> false;
         };
+    }
+
+    // KG-config migration
+
+    /**
+     * Migrates the {@code kgconfig} document from the legacy {@code domains[]} shape:
+     * <pre>{ domains: [{ domainId, domain, version?, connectionConfig,
+     *     active_ontology, namespaceId?, namespaceUserId? }] }</pre>
+     * to the target shape:
+     * <pre>{ graphDBs: [{ graphDBId, graphDBName, version, connectionConfig,
+     *     ontologyRoutes }], ontologies: [...] }</pre>
+     *
+     * <p>Field mapping is straightforward; a few non-obvious choices:
+     * <ul>
+     * <li>{@code connectionConfig} is passed through unchanged — the consumer accepts both the
+     *     legacy JSON-string form and a nested object.</li>
+     * <li>{@code ontologyRoutes} is set to {@code null}, matching what a freshly-created
+     *     graphDB stores (not {@code []}).</li>
+     * <li>{@code active_ontology} is dropped — the new model keeps ontologies in a separate
+     *     top-level array keyed by {@code ontologyId} which can't be reconstructed from the
+     *     legacy URL alone.</li>
+     * </ul>
+     *
+     * <p>Returns {@code true} iff the map was modified. Refuses to touch a document carrying
+     * both shapes simultaneously, or whose {@code domains} value is non-null but not a
+     * {@code List} — those cases are logged and require manual cleanup.
+     */
+    @SuppressWarnings("unchecked")
+    static boolean migrateKgConfig(Map<String, Object> config) {
+        boolean hasLegacy = config.containsKey(KG_DOMAINS_LEGACY);
+        boolean hasGraphDBs = config.containsKey(KG_GRAPH_DBS);
+
+        if (hasLegacy && hasGraphDBs) {
+            log.error("kgconfig has both legacy '{}' and new '{}' keys — refusing to migrate. "
+                    + "Manual cleanup required.", KG_DOMAINS_LEGACY, KG_GRAPH_DBS);
+            return false;
+        }
+
+        Object legacyDomains = hasLegacy ? config.get(KG_DOMAINS_LEGACY) : null;
+        if (legacyDomains != null && !(legacyDomains instanceof List)) {
+            log.error("kgconfig '{}' is not a list (got {}) — refusing to migrate. "
+                    + "Manual cleanup required.", KG_DOMAINS_LEGACY,
+                    legacyDomains.getClass().getSimpleName());
+            return false;
+        }
+
+        boolean changed = false;
+
+        if (hasLegacy) {
+            List<?> domains = legacyDomains instanceof List ? (List<?>) legacyDomains : List.of();
+            List<Map<String, Object>> graphDBs = new ArrayList<>();
+            int skipped = 0;
+            for (Object element : domains) {
+                if (!(element instanceof Map)) {
+                    if (element != null) {
+                        log.warn("Skipping malformed kgconfig domain entry of type {}",
+                                element.getClass().getSimpleName());
+                        skipped++;
+                    }
+                    continue;
+                }
+                Map<String, Object> domain = (Map<String, Object>) element;
+                Map<String, Object> graphDB = new HashMap<>();
+                graphDB.put(KG_GRAPH_DB_ID, domain.get(KG_DOMAIN_ID_LEGACY));
+                graphDB.put(KG_GRAPH_DB_NAME, domain.get(KG_DOMAIN_NAME_LEGACY));
+                Object version = domain.get(KG_VERSION);
+                graphDB.put(KG_VERSION, version != null ? version : KG_VERSION_DEFAULT_LEGACY);
+                graphDB.put(KG_CONNECTION_CONFIG, domain.get(KG_CONNECTION_CONFIG));
+                graphDB.put(KG_ONTOLOGY_ROUTES, null);
+                graphDBs.add(graphDB);
+            }
+
+            config.put(KG_GRAPH_DBS, graphDBs);
+            config.remove(KG_DOMAINS_LEGACY);
+            log.info("Migrated kgconfig document: {} legacy domain entries → graphDBs[] ({} skipped)",
+                    graphDBs.size(), skipped);
+            changed = true;
+        } else {
+            changed |= ensureMutableList(config, KG_GRAPH_DBS);
+        }
+        changed |= ensureMutableList(config, KG_ONTOLOGIES);
+
+        return changed;
+    }
+
+    /** Replaces {@code config[key]} with a fresh empty list when it's absent, null, or not a List. */
+    private static boolean ensureMutableList(Map<String, Object> config, String key) {
+        Object value = config.get(key);
+        if (value instanceof List) {
+            return false;
+        }
+        config.put(key, new ArrayList<>());
+        return true;
     }
 
     /**

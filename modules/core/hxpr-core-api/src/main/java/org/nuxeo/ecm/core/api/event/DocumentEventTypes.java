@@ -160,6 +160,12 @@ public final class DocumentEventTypes {
      */
     public static final String DOCUMENT_BLOB_MODIFIED = "documentBlobModified";
 
+    /**
+     * Event triggered when a graph has been updated.
+     *
+     */
+    public static final String GRAPH_UPDATED = "graphUpdated";
+
     // Constant utility class
     private DocumentEventTypes() {
     }
