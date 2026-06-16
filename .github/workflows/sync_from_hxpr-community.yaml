@@ -2,8 +2,8 @@ name: Sync from hyland-community project
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '00 10 * * MON-FRI'
+#  schedule:
+#    - cron: '00 10 * * MON-FRI'
 
 env:
   GH_ACTOR: hxpcscicduser
