@@ -3,7 +3,7 @@
   <parent>
     <groupId>com.hyland.hxpr</groupId>
     <artifactId>hxpr-community-core-parent</artifactId>
-    <version>0.0.51-SNAPSHOT</version>
+    <version>0.0.51</version>
   </parent>
   <artifactId>hxpr-core-event</artifactId>
   <name>HxPR Core Event</name>
