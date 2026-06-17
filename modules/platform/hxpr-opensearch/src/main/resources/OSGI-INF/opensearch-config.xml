@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.opensearch.defaultConfig">
+
+  <extension target="org.nuxeo.opensearch.OpenSearchService" point="openSearchIndex">
+    <openSearchIndex name="${opensearch.indexName:=nuxeo}" type="doc" repository="default" manageAlias="${opensearch.manageAlias.enabled:=false}">
+      <fetchFromSource>
+        <include>sys_*</include>
+        <exclude>sys_fulltextBinary</exclude>
+      </fetchFromSource>
+      <settings file="opensearch-doc-settings.json" />
+      <dynamicSettings file="opensearch-doc-dynamic-settings.json" />
+      <mapping file="opensearch-doc-mapping.json" />
+    </openSearchIndex>
+
+    <openSearchIndex name="${opensearch.vocabularies.indexName:=nuxeo_vocabularies}" type="doc" repository="default_vocabularies" manageAlias="${opensearch.manageAlias.enabled:=false}">
+      <fetchFromSource>
+        <include>sys_*</include>
+        <exclude>sys_fulltextBinary</exclude>
+      </fetchFromSource>
+      <settings file="opensearch-doc-settings.json" />
+      <dynamicSettings file="opensearch-doc-dynamic-settings.json" />
+      <mapping file="opensearch-doc-mapping.json" />
+    </openSearchIndex>
+
+    <openSearchIndex name="${opensearch.configuration.indexName:=nuxeo_configuration}" type="doc" repository="default_configuration" manageAlias="${opensearch.manageAlias.enabled:=false}">
+      <fetchFromSource>
+        <include>sys_*</include>
+        <exclude>sys_fulltextBinary</exclude>
+      </fetchFromSource>
+      <settings file="opensearch-doc-settings.json" />
+      <dynamicSettings file="opensearch-doc-dynamic-settings.json" />
+      <mapping file="opensearch-doc-mapping.json" />
+    </openSearchIndex>
+
+    <openSearchIndex name="${opensearch.embeddings.indexName:=nuxeo_embeddings}" type="embeddings" repository="default" manageAlias="${opensearch.manageAlias.enabled:=false}">
+      <fetchFromSource>
+        <include>sys_*</include>
+        <exclude>sys_fulltextBinary</exclude>
+      </fetchFromSource>
+      <settings file="opensearch-embeddings-settings.json" />
+      <dynamicSettings file="opensearch-embeddings-dynamic-settings.json" />
+      <mapping file="opensearch-embeddings-mapping.json" />
+    </openSearchIndex>
+  </extension>
+
+</component>

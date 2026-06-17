@@ -3,7 +3,7 @@
 Dynamic Integration Test Shard Generator
 
 Analyzes test execution times and generates balanced shard configurations
-for GitHub Actions workflows, combining all integration tests into 7 shards.
+for GitHub Actions workflows, combining all integration tests into 4 shards.
 """
 
 import json
@@ -19,7 +19,7 @@ if script_dir not in sys.path:
 
 from surefire_analysis import SurefireAnalyzer
 
-def generate_balanced_integration_shards(analyzer, target_shards=7, max_time_per_shard=600):
+def generate_balanced_integration_shards(analyzer, target_shards=4, max_time_per_shard=600):
     """Generate balanced shard configuration based on execution times"""
 
     # Get all integration test modules (includes legacy middleweight/heavyweight for compatibility)
@@ -104,7 +104,7 @@ def main():
     parser = argparse.ArgumentParser(description='Generate balanced integration test shards')
     parser.add_argument('--root-path', '-r', default='.',
                        help='Root path for analysis')
-    parser.add_argument('--target-shards', '-s', type=int, default=7,
+    parser.add_argument('--target-shards', '-s', type=int, default=4,
                        help='Target number of shards (1 community)')
     parser.add_argument('--max-time', '-t', type=float, default=600.0,
                        help='Maximum time per shard in seconds')

@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.opensearch.core.listener.disable">
+
+  <extension point="listener" target="org.nuxeo.ecm.core.event.EventService">
+
+    <listener name="elasticSearchInlineListener" enabled="false" />
+
+  </extension>
+</component>

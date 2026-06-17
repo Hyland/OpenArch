@@ -1,0 +1,230 @@
+{
+  "date_detection": false,
+  "dynamic_templates": [
+    {
+      "no_thumbnail_template": {
+        "mapping": {
+          "index": false
+        },
+        "path_match": "thumb_thumbnail.*"
+      }
+    },
+    {
+      "no_picture_template": {
+        "mapping": {
+          "index": false
+        },
+        "path_match": "picture_views.*"
+      }
+    },
+    {
+      "strings": {
+        "mapping": {
+          "type": "keyword",
+          "copy_to": "all_field",
+          "ignore_above": 256
+        },
+        "match_mapping_type": "string"
+      }
+    },
+    {
+      "paths": {
+        "mapping": {
+          "type": "keyword",
+          "ignore_above": 32
+        },
+        "path_match": "sys_pathLevel*"
+      }
+    }
+  ],
+  "properties": {
+    "all_field": {
+      "type": "text",
+      "analyzer": "fulltext"
+    },
+    "sys_name": {
+      "type": "keyword",
+      "ignore_above": 256,
+      "copy_to": "all_field"
+    },
+    "sys_acl": {
+      "type": "keyword"
+    },
+    "sys_fulltextBinary": {
+      "type": "text",
+      "analyzer": "fulltext",
+      "copy_to": "all_field"
+    },
+    "sys_path": {
+      "fields": {
+        "children": {
+          "type": "text",
+          "search_analyzer": "keyword",
+          "analyzer": "path_analyzer"
+        }
+      },
+      "type": "keyword"
+    },
+    "sys_pathDepth": {
+      "type": "integer"
+    },
+    "sys_pos": {
+      "type": "integer"
+    },
+    "sysver_created": {
+      "type": "date"
+    },
+    "sysver_isCheckedIn": {
+      "type": "boolean"
+    },
+    "sysver_isTemp": {
+      "type": "boolean"
+    },
+    "sysver_isVersion": {
+      "type": "boolean"
+    },
+    "sysver_minorVersion": {
+      "type": "long"
+    },
+    "sysver_version": {
+      "type": "long"
+    },
+    "sysgov_isRecord": {
+      "type": "boolean"
+    },
+    "sysgov_retainUntil": {
+      "type": "date"
+    },
+    "sysgov_hasLegalHold": {
+      "type": "boolean"
+    },
+    "sys_title": {
+      "type": "text",
+      "copy_to": "all_field",
+      "fielddata": true,
+      "fields": {
+        "fulltext": {
+          "analyzer": "fulltext",
+          "type": "text",
+          "boost": 2
+        }
+      }
+    },
+    "sys_description": {
+      "type": "keyword",
+      "copy_to": "all_field",
+      "ignore_above": 32765,
+      "fields": {
+        "fulltext": {
+          "analyzer": "fulltext",
+          "type": "text",
+          "boost": 1.5
+        }
+      }
+    },
+    "sys_created": {
+      "type": "date"
+    },
+    "mydc_expired": {
+      "type": "date"
+    },
+    "sys_modified": {
+      "type": "date"
+    },
+    "sys_creator": {
+      "type": "keyword",
+      "ignore_above": 256
+    },
+    "sys_lastContributor": {
+      "type": "keyword",
+      "ignore_above": 256
+    },
+    "sys_id": {
+      "type": "keyword",
+      "ignore_above": 256
+    },
+    "sys_mixinTypes": {
+      "type": "keyword",
+      "ignore_above": 256
+    },
+    "sys_currentLifeCycleState": {
+      "type": "keyword",
+      "ignore_above": 256
+    },
+    "sys_primaryType": {
+      "type": "keyword",
+      "ignore_above": 256
+    },
+    "note_note": {
+      "type": "keyword",
+      "copy_to": "all_field",
+      "ignore_above": 256,
+      "fields": {
+        "fulltext": {
+          "analyzer": "fulltext",
+          "type": "text"
+        }
+      }
+    },
+    "sysembed_id": {
+      "type": "keyword",
+      "ignore_above": 256
+    },
+    "sysembed_type": {
+      "type": "keyword",
+      "ignore_above": 256
+    },
+    "sysembed_vector": {
+      "type": "knn_vector",
+      "dimension": 1024,
+      "method": {
+        "name": "hnsw",
+        "engine": "lucene"
+      }
+    },
+    "sysembed_text": {
+      "type": "text",
+      "analyzer": "fulltext"
+    },
+    "sysembed_blobref": {
+      "type": "keyword",
+      "ignore_above": 256
+    },
+    "sysembed_location": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "object",
+          "properties": {
+            "page": { "type": "integer" },
+            "paragraph": { "type": "integer" }
+          }
+        },
+        "position": {
+          "type": "object",
+          "properties": {
+            "left": { "type": "integer" },
+            "top": { "type": "integer" },
+            "right": { "type": "integer" },
+            "bottom": { "type": "integer" }
+          }
+        },
+        "timestamp": {
+          "type": "object",
+          "properties": {
+            "start": { "type": "double" },
+            "end": { "type": "double" }
+          }
+        },
+        "spreadsheet": {
+          "type": "object",
+          "properties": {
+            "sheet": { "type": "keyword", "ignore_above": 256 },
+            "row": { "type": "integer" },
+            "column": { "type": "integer" }
+          }
+        }
+      }
+    }
+  }
+}

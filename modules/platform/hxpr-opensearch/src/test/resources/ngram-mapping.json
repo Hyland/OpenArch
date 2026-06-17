@@ -1,0 +1,148 @@
+{
+  "dynamic_templates": [
+    {
+      "no_thumbnail_template": {
+        "mapping": {
+          "index": false
+        },
+        "path_match": "thumb_thumbnail.*"
+      }
+    },
+    {
+      "no_picture_template": {
+        "mapping": {
+          "index": false
+        },
+        "path_match": "picture_views.*"
+      }
+    },
+    {
+      "strings": {
+        "mapping": {
+          "type": "keyword",
+          "copy_to": "all_field",
+          "ignore_above": 256
+        },
+        "match_mapping_type": "string"
+      }
+    }
+  ],
+  "properties": {
+    "all_field": {
+      "type": "text",
+      "analyzer": "fulltext"
+    },
+    "sys_name": {
+      "type": "keyword",
+      "ignore_above": 256,
+      "copy_to": "all_field"
+    },
+    "sys_acl": {
+      "type": "keyword"
+    },
+    "sys_fulltextBinary": {
+      "type": "text",
+      "analyzer": "fulltext",
+      "copy_to": "all_field"
+    },
+    "sys_path": {
+      "fields": {
+        "children": {
+          "type": "text",
+          "search_analyzer": "keyword",
+          "analyzer": "path_analyzer"
+        }
+      },
+      "type": "keyword"
+    },
+    "sys_pos": {
+      "type": "integer"
+    },
+    "sysver_isCheckedIn": {
+      "type": "boolean"
+    },
+    "sysver_isVersion": {
+      "type": "boolean"
+    },
+    "sys_title": {
+      "type": "text",
+      "copy_to": "all_field",
+      "fielddata": true,
+      "fields": {
+        "fulltext": {
+          "analyzer": "fulltext",
+          "type": "text",
+          "boost": 2
+        },
+        "lowercase": {
+          "analyzer": "lowercase_analyzer",
+          "type": "text"
+        },
+        "ngram": {
+          "type": "text",
+          "analyzer": "ngram_analyzer"
+        }
+      }
+    },
+    "sys_description": {
+      "type": "keyword",
+      "copy_to": "all_field",
+      "ignore_above": 32765,
+      "fields": {
+        "fulltext": {
+          "analyzer": "fulltext",
+          "type": "text",
+          "boost": 1.5
+        },
+        "lowercase": {
+          "analyzer": "lowercase_analyzer",
+          "type": "text"
+        }
+      }
+    },
+    "sys_created": {
+      "type": "date"
+    },
+    "mydc_expired": {
+      "type": "date"
+    },
+    "sys_modified": {
+      "type": "date"
+    },
+    "sys_creator": {
+      "type": "keyword",
+      "ignore_above": 256
+    },
+    "sys_lastContributor": {
+      "type": "keyword",
+      "ignore_above": 256
+    },
+    "sys_id": {
+      "type": "keyword",
+      "ignore_above": 256
+    },
+    "sys_mixinTypes": {
+      "type": "keyword",
+      "ignore_above": 256
+    },
+    "sys_currentLifeCycleState": {
+      "type": "keyword",
+      "ignore_above": 256
+    },
+    "sys_primaryType": {
+      "type": "keyword",
+      "ignore_above": 256
+    },
+    "note_note": {
+      "type": "keyword",
+      "copy_to": "all_field",
+      "ignore_above": 256,
+      "fields": {
+        "fulltext": {
+          "analyzer": "fulltext",
+          "type": "text"
+        }
+      }
+    }
+  }
+}

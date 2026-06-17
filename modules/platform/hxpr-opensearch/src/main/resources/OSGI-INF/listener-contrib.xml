@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.opensearch.core.listener">
+
+  <extension point="listener" target="org.nuxeo.ecm.core.event.EventService">
+
+    <listener name="openSearchInlineListener" class="org.nuxeo.opensearch.listener.OpenSearchInlineListener" priority="500">
+      <event>documentModified</event>
+      <event>documentCreated</event>
+      <event>documentCreatedByCopy</event>
+      <event>documentMoved</event>
+      <event>documentRestored</event>
+      <event>documentSecurityUpdated</event>
+      <event>documentRemoved</event>
+      <event>aboutToCheckIn</event>
+      <event>documentCheckedOut</event>
+      <event>documentCheckedIn</event>
+      <event>binaryTextUpdated</event>
+      <event>childrenOrderChanged</event>
+      <event>documentTrashed</event>
+      <event>documentUntrashed</event>
+      <event>afterMakeRecord</event>
+      <event>afterSetRetention</event>
+      <event>afterExtendRetention</event>
+      <event>afterSetLegalHold</event>
+      <event>afterRemoveLegalHold</event>
+    </listener>
+
+  </extension>
+</component>

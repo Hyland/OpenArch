@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<xs:schema
+  targetNamespace="http://www.nuxeo.org/ecm/schemas/any"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:nxs="http://www.nuxeo.org/ecm/schemas/any"
+  >
+
+  <xs:element name="obj" type="xs:anyType" />
+
+</xs:schema>

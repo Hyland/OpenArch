@@ -6,14 +6,16 @@
     <version>0.0.49-SNAPSHOT</version>
   </parent>
 
-  <groupId>com.hyland.hxpr</groupId>
   <artifactId>hxpr-community-platform-parent</artifactId>
   <packaging>pom</packaging>
   <name>HxPR Community Platform Parent</name>
 
   <modules>
-    <module>hxpr-usermanager</module>
     <module>hxpr-login-filestore</module>
+    <module>hxpr-login</module>
+    <module>hxpr-opensearch</module>
+    <module>hxpr-platform-test</module>
+    <module>hxpr-usermanager</module>
   </modules>
 
   <dependencies>

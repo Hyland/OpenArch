@@ -158,7 +158,7 @@
       <version>${project.version}</version>
     </dependency>
 
-    <!-- Platform -->
+    <!-- HxPR Platform -->
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
       <artifactId>hxpr-usermanager</artifactId>
@@ -167,6 +167,21 @@
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
       <artifactId>hxpr-login-filestore</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-login</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-opensearch</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-platform-test</artifactId>
       <version>${project.version}</version>
     </dependency>
   </dependencies>

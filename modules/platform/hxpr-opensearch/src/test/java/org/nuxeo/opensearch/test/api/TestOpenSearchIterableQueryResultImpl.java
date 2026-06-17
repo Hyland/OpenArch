@@ -1,0 +1,187 @@
+/*
+ * (C) Copyright 2016 Nuxeo SA (http://nuxeo.com/) and others.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Contributors:
+ *     Kevin Leturc
+ */
+package org.nuxeo.opensearch.test.api;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
+import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FOLDER;
+
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import jakarta.inject.Inject;
+
+import com.hyland.hxpr.async.tasks.TaskService;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.nuxeo.ecm.core.api.CoreSession;
+import org.nuxeo.ecm.core.api.DocumentModel;
+import org.nuxeo.ecm.core.schema.types.Type;
+import org.nuxeo.opensearch.api.OpenSearchScrollResult;
+import org.nuxeo.opensearch.api.OpenSearchService;
+import org.nuxeo.opensearch.api.OpenSearchIterableQueryResultImpl;
+import org.nuxeo.opensearch.query.NxQueryBuilder;
+import org.nuxeo.opensearch.test.RepositoryOpenSearchFeature;
+import org.nuxeo.runtime.test.runner.Deploy;
+import org.nuxeo.runtime.test.runner.Features;
+import org.nuxeo.runtime.test.runner.FeaturesExtension;
+import org.nuxeo.runtime.transaction.TransactionHelper;
+
+@ExtendWith(FeaturesExtension.class)
+@Features(RepositoryOpenSearchFeature.class)
+@Deploy("org.nuxeo.opensearch.core:schemas-test-contrib.xml")
+public class TestOpenSearchIterableQueryResultImpl {
+
+    @Inject
+    protected CoreSession session;
+
+    @Inject
+    protected OpenSearchService oss;
+
+    @Inject
+    protected TaskService asyncTasksService;
+
+    @BeforeEach
+    public void setupIndex() throws Exception {
+        oss.initIndexes(true);
+    }
+
+    @Test
+    public void testIterableScroll() throws Exception {
+
+        buildAndIndexTree(100);
+
+        String nxql = "select sys_id, sys_path FROM SysContent";
+        // Request the first batch
+        NxQueryBuilder queryBuilder = new NxQueryBuilder(session).nxql(nxql).limit(20).onlyOpenSearchResponse();
+        OpenSearchScrollResult res = oss.scroll(queryBuilder, 10000);
+
+        // Init wrapper
+        OpenSearchService spiedEss = spy(oss);
+        OpenSearchIterableQueryResultImpl iterable = new OpenSearchIterableQueryResultImpl(spiedEss, res);
+        assertEquals(100, iterable.size());
+        assertEquals(0, iterable.pos());
+        assertTrue(iterable.mustBeClosed());
+        assertTrue(iterable.hasNext());
+
+        List<Map<String, Object>> rows = new ArrayList<>(100);
+        while (iterable.hasNext()) {
+            rows.add(iterable.next());
+        }
+        assertEquals(100, rows.size());
+        // Each 20 items, a request is made to ES, check that
+        // So a request is made at 20, 40, 60, 80
+        verify(spiedEss, times(4)).scroll(any());
+        assertEquals(1, oss.getClient().getOpenScrollContexts());
+
+        iterable.close();
+        verify(spiedEss, times(1)).clearScroll(any());
+        assertEquals(0, oss.getClient().getOpenScrollContexts());
+
+    }
+
+    @Test
+    public void testIterableSkipTo() throws Exception {
+
+        buildAndIndexTree(100);
+
+        String nxql = "select sys_id, sys_path FROM SysContent";
+        // Request the first batch
+        NxQueryBuilder queryBuilder = new NxQueryBuilder(session).nxql(nxql).limit(20).onlyOpenSearchResponse();
+        OpenSearchScrollResult res = oss.scroll(queryBuilder, 10000);
+
+        // Init wrapper
+        OpenSearchService spiedEss = spy(oss);
+        OpenSearchIterableQueryResultImpl iterable = new OpenSearchIterableQueryResultImpl(spiedEss, res);
+        iterable.skipTo(70);
+        // Each 20 items, a request is made to ES, check that
+        // So a request is made at 20, 40, 60
+        verify(spiedEss, times(3)).scroll(any());
+
+        List<Map<String, Object>> rows = new ArrayList<>(30);
+        while (iterable.hasNext()) {
+            rows.add(iterable.next());
+        }
+        assertEquals(30, rows.size());
+
+        // A request is made at 80
+        verify(spiedEss, times(4)).scroll(any());
+
+        iterable.close();
+        verify(spiedEss, times(1)).clearScroll(any());
+
+    }
+
+    @Test
+    public void testConstructor() {
+        Map<String, Type> map = new HashMap<>();
+        String nxql = "select sys_id, sys_path FROM SysContent";
+        NxQueryBuilder queryBuilder = new NxQueryBuilder(session).nxql(nxql).limit(20).onlyOpenSearchResponse();
+        OpenSearchScrollResult res = oss.scroll(queryBuilder, 10000);
+        res.getQueryBuilder().setSelectFieldsAndTypes(map);
+        assertThrows(IllegalArgumentException.class, () -> new OpenSearchIterableQueryResultImpl(oss, res));
+    }
+
+    protected void buildAndIndexTree(int docCount) throws Exception {
+        startTransaction();
+        buildTree(docCount);
+        TransactionHelper.commitOrRollbackTransaction();
+        waitForCompletion();
+        startTransaction();
+    }
+
+    protected void buildTree(int docCount) {
+        String root = "/";
+        for (int i = 0; i < docCount; i++) {
+            String name = "folder" + i;
+            DocumentModel doc = session.createDocumentModel(root, name, SYS_FOLDER);
+            doc.setPropertyValue(SYS_TITLE, "Folder" + i);
+            doc.create();
+        }
+        session.save();
+    }
+
+    protected void startTransaction() {
+        if (!TransactionHelper.isTransactionActive()) {
+            TransactionHelper.startTransaction();
+        }
+    }
+
+    /**
+     * Wait for async worker completion then wait for indexing completion
+     */
+    public void waitForCompletion() throws Exception {
+        asyncTasksService.awaitCompletion(Duration.ofSeconds(20));
+        oss.prepareWaitForIndexing().get(20, TimeUnit.SECONDS);
+        oss.refresh();
+    }
+
+}

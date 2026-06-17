@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.opensearch.OpenSearchService">
+  <require>org.nuxeo.ecm.core.repository.RepositoryServiceComponent</require>
+  <implementation class="org.nuxeo.opensearch.OpenSearchServiceImpl" />
+
+  <service>
+    <provide interface="org.nuxeo.opensearch.api.OpenSearchService" />
+  </service>
+
+  <extension-point name="openSearchIndex">
+    <documentation>
+      Extension point used to setup an OpenSearch index.
+
+      The one used to index Nuxeo documents must be of type "doc".
+
+      <code>
+        <openSearchIndex name="nuxeo" create="true" type="doc">
+          <settings></settings>
+          <mapping></mapping>
+          <fetchFromSources>
+            <include>sys_*</include>
+            <exclude>sys_binaryFulltext</exclude>
+          </fetchFromSources>
+        </openSearchIndex>
+      </code>
+
+      @Since 5.9.3
+      name is the OpenSearch index name.
+
+      type is the OpenSearch type that hold a mapping, "doc" is the mapping
+      for Nuxeo documents
+
+      create can be set to false if you don't want Nuxeo to initialize the index
+      and mapping.
+
+      settings the OpenSearch settings
+      @see http://www.opensearch.org/guide/en/opensearch/reference/current/index-modules.html
+
+      mapping the OpenSearch mapping for the type
+      @see http://www.opensearch.org/guide/en/opensearch/reference/current/mapping.html
+
+      @Since 5.9.5
+      fetchFromSources, include a list of field name pattern that will be included
+      when fetching document from OpenSearch (@see NxQueryBuilder.fetchFromOpenSearch)
+      use the exclude list to prevent returning fulltext or long fields.
+
+    </documentation>
+
+    <object class="org.nuxeo.opensearch.config.OpenSearchIndexConfig" />
+  </extension-point>
+
+  <extension-point name="embeddingsParser">
+    <documentation>
+      Extension point to contribute ONE EmbeddingsParser implementation.
+
+      Current rules (simplified):
+        - 0 active contributions -> internal NOOP fallback (no embeddings indexed, no error).
+        - 1 active contribution  -> used.
+        - >1 active contributions -> startup error (ambiguity not supported yet).
+
+      Attributes:
+        - class (required): implementation class
+        - enabled (optional, default=true): enable/disable the contribution
+
+      Example:
+      <code>
+        <embeddingsParser class="com.example.CustomEmbeddingsParser" enabled="true" />
+      </code>
+      Tests may disable a default contribution (enabled="false") and add another to inject a mock.
+
+      @Since 2025.0
+    </documentation>
+    <object class="org.nuxeo.opensearch.config.EmbeddingsParserDescriptor" />
+  </extension-point>
+
+</component>

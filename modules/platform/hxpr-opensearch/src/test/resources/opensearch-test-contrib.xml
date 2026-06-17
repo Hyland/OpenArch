@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.opensearch.test.contrib">
+
+  <require>org.nuxeo.ecm.core.CoreExtensions</require>
+
+  <extension point="openSearchIndex" target="org.nuxeo.opensearch.OpenSearchService">
+    <openSearchIndex name="nuxeo" remove="true" />
+    <openSearchIndex name="nuxeo_vocabularies" remove="true" />
+    <openSearchIndex name="nuxeo_configuration" remove="true" />
+    <openSearchIndex name="nuxeo_embeddings" remove="true" />
+    <openSearchIndex name="nxutest" repository="test" type="doc" />
+    <openSearchIndex name="nxuvoctest" repository="test_vocabularies" type="doc" />
+    <openSearchIndex name="nxuconfigtest" repository="test_configuration" type="doc" />
+    <openSearchIndex name="nxuembtest" repository="test" type="embeddings">
+      <settings file="opensearch-embeddings-settings.json" />
+      <mapping file="opensearch-embeddings-mapping.json" />
+    </openSearchIndex>
+  </extension>
+
+  <extension target="org.nuxeo.ecm.core.schema.TypeService" point="schema">
+    <schema name="mydublincore" prefix="mydc" src="schemas/mydublincore.xsd"/>
+    <schema name="note" src="schemas/note.xsd"/>
+    <schema name="any" prefix="any" src="schemas/any.xsd"/>
+  </extension>
+
+  <extension target="org.nuxeo.ecm.core.schema.TypeService" point="doctype">
+
+    <!-- add mydublincore to standard doctypes -->
+    <doctype name="SysFolder" extends="SysContent">
+      <schema name="system"/>
+      <schema name="mydublincore"/>
+      <mixin name="SysFolderish"/>
+      <subtypes>
+        <type>SysFolder</type>
+        <type>SysOrderedFolder</type>
+        <type>SysFile</type>
+      </subtypes>
+    </doctype>
+    <doctype name="SysFile" extends="SysContent">
+      <schema name="system"/>
+      <schema name="mydublincore"/>
+      <schema name="sysfiles"/>
+      <mixin name="SysFilish"/>
+    </doctype>
+
+    <doctype name="Note" extends="SysContent">
+      <schema name="note"/>
+      <schema name="sysfiles"/>
+      <schema name="system"/>
+      <schema name="mydublincore"/>
+      <mixin name="SysVersionable"/>
+    </doctype>
+
+    <doctype name="MyFile" extends="SysFile">
+      <schema name="any" />
+      <mixin name="SysVersionable"/>
+      <mixin name="SysGovernable" />
+    </doctype>
+
+  </extension>
+
+</component>

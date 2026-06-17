@@ -25,6 +25,7 @@ concurrency:
   cancel-in-progress: true
 env:
   LIGHTWEIGHT_TEST_COVERAGE_UPLOAD: lightweight-coverage-execs
+  INTEGRATION_COMMON_TEST_COVERAGE_UPLOAD: integration-common-coverage-execs
   COVERAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}/jacoco
   MAVEN_USERNAME: ${{ github.actor }}
   MAVEN_PASSWORD: ${{ secrets.GH_HS_HX_RO_CLASSIC_TOKEN }}
@@ -248,6 +249,7 @@ jobs:
       - build-artifacts
       - test-maven-enforcer
       - lightweight-test-suite
+      - integration-test-suite-common
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
