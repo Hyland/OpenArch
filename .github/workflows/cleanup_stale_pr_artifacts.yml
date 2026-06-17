@@ -12,7 +12,7 @@ jobs:
     name: Cleanup stale PR-tagged artifacts
     runs-on: ubuntu-slim
     env:
-      GH_TOKEN: ${{ secrets.GH_TEST_PAT_SYNC }}
+      GH_TOKEN: ${{ secrets.GH_CI_CD_PAT }}
       ORG: HylandSoftware
       REPO: hxpr-community-internal
       RETENTION_DAYS: '7'
