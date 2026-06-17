@@ -13,6 +13,11 @@ updates:
     schedule:
       interval: "weekly"
       day: "sunday"
+    cooldown:
+      default-days: 7
+      exclude:
+        # Hyland produced artifacts are trusted; no grace period needed
+        - "com.hyland*:*"
     groups:
       maven-minor-patch:
         patterns:
@@ -71,6 +76,11 @@ updates:
     schedule:
       interval: "weekly"
       day: "sunday"
+    cooldown:
+      default-days: 7
+      exclude:
+        # HylandSoftware produced images are trusted; no grace period needed
+        - "hylandsoftware/*"
   - package-ecosystem: "docker-compose"
     registries: "*"
     directories:
@@ -88,6 +98,8 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: "opensearchproject/opensearch-dashboards"
         update-types: ["version-update:semver-major"]
+    cooldown:
+      default-days: 7
     groups:
       docker-compose-files:
         patterns:
@@ -104,6 +116,11 @@ updates:
     schedule:
       interval: "weekly"
       day: "sunday"
+    cooldown:
+      default-days: 7
+      exclude:
+        # Alfresco produced actions are trusted; no grace period needed
+        - "Alfresco/*"
     groups:
       github-actions:
         patterns:
