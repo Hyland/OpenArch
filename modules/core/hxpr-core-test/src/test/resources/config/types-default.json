@@ -124,7 +124,14 @@
     "sysmdcomment": {
       "prefix": "sysmdcomment",
       "fields": {
-        "sysmdcomment_content": "string"
+        "sysmdcomment_content": "string",
+        "sysmdcomment_externalAuthor": "string",
+        "sysmdcomment_state": "string",
+        "sysmdcomment_additionalData": "string",
+        "sysmdcomment_date": "date",
+        "sysmdcomment_updatedAt": "date",
+        "sysmdcomment_isExternalComment": "boolean",
+        "sysmdcomment_externalId": "string"
       }
     },
     "sysmdhl": {
@@ -316,6 +323,9 @@
       "schemas": [
         "sysmdanno",
         "system"
+      ],
+      "mixins": [
+        "SysVersionedWithParent"
       ]
     },
     "SysMDBookmark": {
@@ -323,6 +333,9 @@
       "schemas": [
         "sysmdbm",
         "system"
+      ],
+      "mixins": [
+        "SysVersionedWithParent"
       ]
     },
     "SysMDComment": {
@@ -330,6 +343,9 @@
       "schemas": [
         "sysmdcomment",
         "system"
+      ],
+      "mixins": [
+        "SysVersionedWithParent"
       ]
     },
     "SysOrderedFolder": {

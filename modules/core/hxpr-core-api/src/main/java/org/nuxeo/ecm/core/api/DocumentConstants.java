@@ -164,6 +164,13 @@ public class DocumentConstants {
 
     public static final String SYSMD_COMMENT_PREFIX = "sysmdcomment";
     public static final String SYSMD_COMMENT_CONTENT = "sysmdcomment_content";
+    public static final String SYSMD_COMMENT_EXTERNAL_AUTHOR = "sysmdcomment_externalAuthor";
+    public static final String SYSMD_COMMENT_STATE = "sysmdcomment_state";
+    public static final String SYSMD_COMMENT_ADDITIONAL_DATA = "sysmdcomment_additionalData";
+    public static final String SYSMD_COMMENT_DATE = "sysmdcomment_date";
+    public static final String SYSMD_COMMENT_UPDATED_AT = "sysmdcomment_updatedAt";
+    public static final String SYSMD_COMMENT_IS_EXTERNAL_COMMENT = "sysmdcomment_isExternalComment";
+    public static final String SYSMD_COMMENT_EXTERNAL_ID = "sysmdcomment_externalId";
 
     public static final String SYSMD_ANNOTATION_PREFIX = "sysmdanno";
     public static final String SYSMD_ANNOTATION_NAME = "sysmdanno_name";

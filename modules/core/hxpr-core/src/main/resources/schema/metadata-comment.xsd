@@ -6,4 +6,11 @@
   <xs:include schemaLocation="core-types.xsd" />
 
   <xs:element name="content" type="xs:string" />
+  <xs:element name="externalAuthor" type="xs:string" />
+  <xs:element name="state" type="xs:string" />
+  <xs:element name="additionalData" type="xs:string" />
+  <xs:element name="date" type="xs:date" />
+  <xs:element name="updatedAt" type="xs:date" />
+  <xs:element name="isExternalComment" type="xs:boolean" />
+  <xs:element name="externalId" type="xs:string" />
 </xs:schema>

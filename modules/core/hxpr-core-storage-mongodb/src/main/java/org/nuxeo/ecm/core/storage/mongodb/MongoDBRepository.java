@@ -43,8 +43,15 @@ import static org.nuxeo.ecm.core.api.DocumentConstants.SYSMD_ANNOTATION_WIDTH;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSMD_ANNOTATION_X;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSMD_ANNOTATION_Y;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSMD_BOOKMARK_PREFIX;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSMD_COMMENT_ADDITIONAL_DATA;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSMD_COMMENT_CONTENT;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSMD_COMMENT_DATE;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSMD_COMMENT_EXTERNAL_AUTHOR;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSMD_COMMENT_EXTERNAL_ID;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSMD_COMMENT_IS_EXTERNAL_COMMENT;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSMD_COMMENT_PREFIX;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSMD_COMMENT_STATE;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSMD_COMMENT_UPDATED_AT;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSMD_HIGHLIGHT_HIGHLIGHTS;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSMD_HIGHLIGHT_PREFIX;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSMD_IMAGE_HREF;
@@ -120,6 +127,7 @@ import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_MD_COMMENT;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_BLOB_KEYS;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.FIELDS;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.LIST;
+import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.MIXINS;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.MIXIN_TYPES;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.PREFIX;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.PRIMARY_TYPES;
@@ -145,6 +153,7 @@ import org.nuxeo.ecm.core.model.Repository;
 import org.nuxeo.ecm.core.schema.types.primitives.BooleanType;
 import org.nuxeo.ecm.core.schema.types.primitives.DoubleType;
 import org.nuxeo.ecm.core.schema.types.primitives.LongType;
+import org.nuxeo.ecm.core.schema.types.primitives.DateType;
 import org.nuxeo.ecm.core.schema.types.primitives.StringType;
 import org.nuxeo.ecm.core.storage.dbs.DBSRepositoryBase;
 import org.nuxeo.ecm.core.storage.dbs.DBSSession;
@@ -491,18 +500,21 @@ public class MongoDBRepository extends DBSRepositoryBase implements Configuratio
 
         int configSizeBeforeMigration = schemas.size() + mixins.size() + primaryTypes.size();
 
-        migrateMetadataSchemas(schemas);
+        boolean migrated = migrateMetadataSchemas(schemas);
         migrateMetadataMixins(mixins);
-        migrateMetadataPrimaryTypes(primaryTypes);
+        migrated |= migrateMetadataPrimaryTypes(primaryTypes);
 
         int configSizeAfterMigration = schemas.size() + mixins.size() + primaryTypes.size();
-        return configSizeAfterMigration > configSizeBeforeMigration;
+        return configSizeAfterMigration > configSizeBeforeMigration || migrated;
     }
 
     /**
-     * Adds document metadata schemas if they don't exist.
+     * Adds document metadata schemas if they don't exist. Extends existing schemas with new fields if needed.
      */
-    private void migrateMetadataSchemas(Map<String, Object> schemas) {
+    @SuppressWarnings("unchecked")
+    private boolean migrateMetadataSchemas(Map<String, Object> schemas) {
+        boolean migrated = false;
+
         // Add document metadata schemas:
         schemas.computeIfAbsent(SCHEMA_SYSMD_BOOKMARK, k -> Map.of(
                 PREFIX, SYSMD_BOOKMARK_PREFIX,
@@ -537,9 +549,45 @@ public class MongoDBRepository extends DBSRepositoryBase implements Configuratio
                     FIELDS, annotationFields);
         });
 
-        schemas.computeIfAbsent(SCHEMA_SYSMD_COMMENT, k -> Map.of(
-                PREFIX, SYSMD_COMMENT_PREFIX,
-                FIELDS, Map.of(SYSMD_COMMENT_CONTENT, StringType.ID)));
+        Object commentSchema = schemas.get(SCHEMA_SYSMD_COMMENT);
+        if (commentSchema == null) {
+            Map<String, Object> newCommentFields = new HashMap<>();
+            newCommentFields.put(SYSMD_COMMENT_CONTENT, StringType.ID);
+            newCommentFields.put(SYSMD_COMMENT_EXTERNAL_AUTHOR, StringType.ID);
+            newCommentFields.put(SYSMD_COMMENT_STATE, StringType.ID);
+            newCommentFields.put(SYSMD_COMMENT_ADDITIONAL_DATA, StringType.ID);
+            newCommentFields.put(SYSMD_COMMENT_DATE, DateType.ID);
+            newCommentFields.put(SYSMD_COMMENT_UPDATED_AT, DateType.ID);
+            newCommentFields.put(SYSMD_COMMENT_IS_EXTERNAL_COMMENT, BooleanType.ID);
+            newCommentFields.put(SYSMD_COMMENT_EXTERNAL_ID, StringType.ID);
+            schemas.put(SCHEMA_SYSMD_COMMENT, Map.of(
+                    PREFIX, SYSMD_COMMENT_PREFIX,
+                    FIELDS, newCommentFields));
+        } else {
+            Map<String, Object> commentSchemaMap = (Map<String, Object>) commentSchema;
+            if (!(commentSchemaMap instanceof HashMap)) {
+                commentSchemaMap = new HashMap<>(commentSchemaMap);
+                schemas.put(SCHEMA_SYSMD_COMMENT, commentSchemaMap);
+            }
+            Map<String, Object> fields = (Map<String, Object>) commentSchemaMap.get(FIELDS);
+            if (fields == null) {
+                fields = new HashMap<>();
+                commentSchemaMap.put(FIELDS, fields);
+            } else if (!(fields instanceof HashMap)) {
+                fields = new HashMap<>(fields);
+                commentSchemaMap.put(FIELDS, fields);
+            }
+            int sizeBefore = fields.size();
+            fields.computeIfAbsent(SYSMD_COMMENT_CONTENT, k -> StringType.ID);
+            fields.computeIfAbsent(SYSMD_COMMENT_EXTERNAL_AUTHOR, k -> StringType.ID);
+            fields.computeIfAbsent(SYSMD_COMMENT_STATE, k -> StringType.ID);
+            fields.computeIfAbsent(SYSMD_COMMENT_ADDITIONAL_DATA, k -> StringType.ID);
+            fields.computeIfAbsent(SYSMD_COMMENT_DATE, k -> DateType.ID);
+            fields.computeIfAbsent(SYSMD_COMMENT_UPDATED_AT, k -> DateType.ID);
+            fields.computeIfAbsent(SYSMD_COMMENT_IS_EXTERNAL_COMMENT, k -> BooleanType.ID);
+            fields.computeIfAbsent(SYSMD_COMMENT_EXTERNAL_ID, k -> StringType.ID);
+            migrated = fields.size() > sizeBefore;
+        }
 
         schemas.computeIfAbsent(SCHEMA_SYSMD_TEXT, k -> {
             Map<String, String> textFields = new HashMap<>();
@@ -615,6 +663,8 @@ public class MongoDBRepository extends DBSRepositoryBase implements Configuratio
                 FIELDS, Map.of(
                         SYSGRAPH_GRAPH_DB_IDS, SYSGRAPH_STRING_LIST_TYPE,
                         SYSGRAPH_ONTOLOGY_REFS, SYSGRAPH_STRING_LIST_TYPE)));
+
+        return migrated;
     }
 
     /**
@@ -647,26 +697,65 @@ public class MongoDBRepository extends DBSRepositoryBase implements Configuratio
     }
 
     /**
-     * Adds document metadata primary types if they don't exist.
+     * Adds document metadata primary types if they don't exist. Adds SysVersionedWithParent mixin if missing.
      */
-    private void migrateMetadataPrimaryTypes(Map<String, Object> primaryTypes) {
-        // Add metadata primary types
+    @SuppressWarnings("unchecked")
+    private boolean migrateMetadataPrimaryTypes(Map<String, Object> primaryTypes) {
+        // Add metadata primary types (with SysVersionedWithParent mixin for new installations)
         primaryTypes.computeIfAbsent(SYS_MD_BOOKMARK, k -> Map.of(
                 "extends", SYS_CONTENT,
-                SCHEMAS, List.of(SCHEMA_SYSTEM, SCHEMA_SYSMD_BOOKMARK)));
+                SCHEMAS, List.of(SCHEMA_SYSTEM, SCHEMA_SYSMD_BOOKMARK),
+                MIXINS, List.of(SYS_VERSIONED_WITH_PARENT)));
 
         primaryTypes.computeIfAbsent(SYS_MD_ANNOTATION, k -> Map.of(
                 "extends", SYS_CONTENT,
-                SCHEMAS, List.of(SCHEMA_SYSTEM, SCHEMA_SYSMD_ANNOTATION)));
+                SCHEMAS, List.of(SCHEMA_SYSTEM, SCHEMA_SYSMD_ANNOTATION),
+                MIXINS, List.of(SYS_VERSIONED_WITH_PARENT)));
 
         primaryTypes.computeIfAbsent(SYS_MD_COMMENT, k -> Map.of(
                 "extends", SYS_CONTENT,
-                SCHEMAS, List.of(SCHEMA_SYSTEM, SCHEMA_SYSMD_COMMENT)));
+                SCHEMAS, List.of(SCHEMA_SYSTEM, SCHEMA_SYSMD_COMMENT),
+                MIXINS, List.of(SYS_VERSIONED_WITH_PARENT)));
 
         // Embeddings
         primaryTypes.computeIfAbsent(SYS_EMBEDDINGS, k -> Map.of(
                         "extends", SYS_CONTENT,
                         SCHEMAS, List.of(SCHEMA_SYSTEM, SCHEMA_SYSEMB)));
+
+        boolean migrated = false;
+        migrated |= addMixinToPrimaryType(primaryTypes, SYS_MD_BOOKMARK, SYS_VERSIONED_WITH_PARENT);
+        migrated |= addMixinToPrimaryType(primaryTypes, SYS_MD_ANNOTATION, SYS_VERSIONED_WITH_PARENT);
+        migrated |= addMixinToPrimaryType(primaryTypes, SYS_MD_COMMENT, SYS_VERSIONED_WITH_PARENT);
+        return migrated;
+    }
+
+    /**
+     * Adds a mixin to an existing primary type if it's not already present.
+     */
+    @SuppressWarnings("unchecked")
+    private boolean addMixinToPrimaryType(Map<String, Object> primaryTypes, String typeName, String mixinName) {
+        Map<String, Object> type = (Map<String, Object>) primaryTypes.get(typeName);
+        if (type == null) {
+            return false;
+        }
+        if (!(type instanceof HashMap)) {
+            type = new HashMap<>(type);
+            primaryTypes.put(typeName, type);
+        }
+        List<String> mixins = (List<String>) type.get(MIXINS);
+        if (mixins == null) {
+            type.put(MIXINS, new ArrayList<>(List.of(mixinName)));
+            return true;
+        }
+        if (!(mixins instanceof ArrayList)) {
+            mixins = new ArrayList<>(mixins);
+            type.put(MIXINS, mixins);
+        }
+        if (!mixins.contains(mixinName)) {
+            mixins.add(mixinName);
+            return true;
+        }
+        return false;
     }
 
     /**

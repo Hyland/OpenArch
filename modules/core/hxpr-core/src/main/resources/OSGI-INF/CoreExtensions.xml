@@ -162,16 +162,19 @@
     <doctype name="SysMDBookmark" extends="SysContent">
       <schema name="system" />
       <schema name="sysmdbm" />
+      <mixin name="SysVersionedWithParent"/>
     </doctype>
 
     <doctype name="SysMDAnnotation" extends="SysContent">
       <schema name="system" />
       <schema name="sysmdanno" />
+      <mixin name="SysVersionedWithParent"/>
     </doctype>
 
     <doctype name="SysMDComment" extends="SysContent">
       <schema name="system" />
       <schema name="sysmdcomment" />
+      <mixin name="SysVersionedWithParent"/>
     </doctype>
 
   </extension>
