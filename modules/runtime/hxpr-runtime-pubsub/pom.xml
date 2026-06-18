@@ -4,7 +4,7 @@
   <parent>
     <groupId>com.hyland.hxpr</groupId>
     <artifactId>hxpr-community-runtime-parent</artifactId>
-    <version>0.0.53</version>
+    <version>0.0.54-SNAPSHOT</version>
   </parent>
 
   <artifactId>hxpr-runtime-pubsub</artifactId>
