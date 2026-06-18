@@ -35,6 +35,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.nuxeo.ecm.core.api.DocumentEnrichmentContext;
 import org.nuxeo.ecm.core.api.NuxeoPrincipal;
+import org.nuxeo.ecm.core.model.InternalDocument;
 
 /**
  * Mock-based unit tests for {@link SystemPropertiesEnricher}.
@@ -51,6 +52,9 @@ public class SystemPropertiesEnricherTest {
     @Mock
     private NuxeoPrincipal principal;
 
+    @Mock
+    private InternalDocument document;
+
     private SystemPropertiesEnricher enricher;
 
     @BeforeEach
@@ -59,50 +63,51 @@ public class SystemPropertiesEnricherTest {
         enricher = new SystemPropertiesEnricher();
         when(context.getPrincipal()).thenReturn(principal);
         when(context.getTimestamp()).thenReturn(NOW);
+        when(context.getDocument()).thenReturn(document);
         when(principal.getActingId()).thenReturn(PRINCIPAL_ID);
     }
 
     @Test
     void onCreate_stampsAllSystemFields() {
-        when(context.getProperty(SYS_CONTRIBUTORS)).thenReturn(null);
+        when(document.getPropertyValue(SYS_CONTRIBUTORS)).thenReturn(null);
 
         enricher.onCreate(context);
 
-        verify(context).setProperty(SYS_CREATED, NOW);
-        verify(context).setProperty(SYS_CREATOR, PRINCIPAL_ID);
-        verify(context).setProperty(SYS_MODIFIED, NOW);
-        verify(context).setProperty(SYS_LAST_CONTRIBUTOR, PRINCIPAL_ID);
-        verify(context).setProperty(SYS_CONTRIBUTORS, List.of(PRINCIPAL_ID));
+        verify(document).setPropertyValue(SYS_CREATED, NOW);
+        verify(document).setPropertyValue(SYS_CREATOR, PRINCIPAL_ID);
+        verify(document).setPropertyValue(SYS_MODIFIED, NOW);
+        verify(document).setPropertyValue(SYS_LAST_CONTRIBUTOR, PRINCIPAL_ID);
+        verify(document).setPropertyValue(SYS_CONTRIBUTORS, List.of(PRINCIPAL_ID));
     }
 
     @Test
     void onUpdate_stampsModificationFieldsButNotCreationFields() {
-        when(context.getProperty(SYS_CONTRIBUTORS)).thenReturn(null);
+        when(document.getPropertyValue(SYS_CONTRIBUTORS)).thenReturn(null);
 
         enricher.onUpdate(context);
 
-        verify(context).setProperty(SYS_MODIFIED, NOW);
-        verify(context).setProperty(SYS_LAST_CONTRIBUTOR, PRINCIPAL_ID);
-        verify(context).setProperty(SYS_CONTRIBUTORS, List.of(PRINCIPAL_ID));
-        verify(context, never()).setProperty(eq(SYS_CREATED), any());
-        verify(context, never()).setProperty(eq(SYS_CREATOR), any());
+        verify(document).setPropertyValue(SYS_MODIFIED, NOW);
+        verify(document).setPropertyValue(SYS_LAST_CONTRIBUTOR, PRINCIPAL_ID);
+        verify(document).setPropertyValue(SYS_CONTRIBUTORS, List.of(PRINCIPAL_ID));
+        verify(document, never()).setPropertyValue(eq(SYS_CREATED), any());
+        verify(document, never()).setPropertyValue(eq(SYS_CREATOR), any());
     }
 
     @Test
     void onUpdate_appendsNewContributorPreservingExisting() {
-        when(context.getProperty(SYS_CONTRIBUTORS)).thenReturn(List.of("bob"));
+        when(document.getPropertyValue(SYS_CONTRIBUTORS)).thenReturn(List.of("bob"));
 
         enricher.onUpdate(context);
 
-        verify(context).setProperty(SYS_CONTRIBUTORS, List.of("bob", PRINCIPAL_ID));
+        verify(document).setPropertyValue(SYS_CONTRIBUTORS, List.of("bob", PRINCIPAL_ID));
     }
 
     @Test
     void onUpdate_doesNotDuplicateExistingContributor() {
-        when(context.getProperty(SYS_CONTRIBUTORS)).thenReturn(List.of(PRINCIPAL_ID));
+        when(document.getPropertyValue(SYS_CONTRIBUTORS)).thenReturn(List.of(PRINCIPAL_ID));
 
         enricher.onUpdate(context);
 
-        verify(context, never()).setProperty(eq(SYS_CONTRIBUTORS), any());
+        verify(document, never()).setPropertyValue(eq(SYS_CONTRIBUTORS), any());
     }
 }

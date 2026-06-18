@@ -16,14 +16,16 @@
 package org.nuxeo.ecm.core.api;
 
 import java.time.Instant;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
+
+import org.nuxeo.ecm.core.model.InternalDocument;
 
 /**
- * State passed to a {@link DocumentEnricher} on create or update: the acting principal, the
- * operation timestamp, and property accessors for the in-flight (not-yet-persisted) document.
- * Property writes are persisted in the same transaction, and the timestamp is shared across all
- * documents of a single save, so enrichers should prefer it over {@code Instant.now()}.
+ * State passed to a {@link DocumentEnricher} on create or update: the acting principal, the operation timestamp, and
+ * the in-flight (not-yet-persisted) document itself.
+ * <p>
+ * Enrichers can read and update the document through {@link #getDocument()} and the changes will be persisted in the
+ * same transaction. The timestamp is shared across all documents of a single save, so enrichers should prefer it over
+ * {@code Instant.now()}.
  */
 public class DocumentEnrichmentContext {
 
@@ -31,16 +33,12 @@ public class DocumentEnrichmentContext {
 
     private final Instant timestamp;
 
-    private final Function<String, Object> reader;
+    private final InternalDocument document;
 
-    private final BiConsumer<String, Object> writer;
-
-    public DocumentEnrichmentContext(NuxeoPrincipal principal, Instant timestamp, Function<String, Object> reader,
-            BiConsumer<String, Object> writer) {
+    public DocumentEnrichmentContext(NuxeoPrincipal principal, Instant timestamp, InternalDocument document) {
         this.principal = principal;
         this.timestamp = timestamp;
-        this.reader = reader;
-        this.writer = writer;
+        this.document = document;
     }
 
     /** @return the principal performing the create/update, may be {@code null} */
@@ -53,13 +51,8 @@ public class DocumentEnrichmentContext {
         return timestamp;
     }
 
-    /** Reads a property (system or schema, e.g. {@code sys_primaryType}) off the in-flight document. */
-    public Object getProperty(String name) {
-        return reader.apply(name);
-    }
-
-    /** Sets a property on the in-flight document; persisted in the current transaction. */
-    public void setProperty(String name, Object value) {
-        writer.accept(name, value);
+    /** @return the in-flight document being created or updated; mutations are persisted in the current transaction */
+    public InternalDocument getDocument() {
+        return document;
     }
 }

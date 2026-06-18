@@ -957,7 +957,7 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
     private void enrichOnUpdate(DBSDocumentState docState, NuxeoPrincipal principal, Instant now) {
         DocumentEnrichmentService service = Framework.getService(DocumentEnrichmentService.class);
         if (service != null) {
-            var context = new DocumentEnrichmentContext(principal, now, docState::get, docState::put);
+            var context = new DocumentEnrichmentContext(principal, now, session.getDocument(docState, false, true));
             service.enrichOnUpdate(context);
         }
     }

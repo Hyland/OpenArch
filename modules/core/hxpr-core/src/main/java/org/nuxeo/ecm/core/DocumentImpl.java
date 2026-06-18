@@ -235,8 +235,7 @@ public class DocumentImpl implements DocumentModel {
     private void enrichOnCreate() {
         DocumentEnrichmentService service = Framework.getService(DocumentEnrichmentService.class);
         if (service != null) {
-            var context = new DocumentEnrichmentContext(getPrincipal(), Instant.now(), doc::getPropertyValue,
-                    doc::setPropertyValue);
+            var context = new DocumentEnrichmentContext(getPrincipal(), Instant.now(), doc);
             service.enrichOnCreate(context);
         }
     }

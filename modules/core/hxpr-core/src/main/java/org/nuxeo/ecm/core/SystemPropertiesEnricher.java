@@ -26,6 +26,7 @@ import java.util.List;
 
 import org.nuxeo.ecm.core.api.DocumentEnricher;
 import org.nuxeo.ecm.core.api.DocumentEnrichmentContext;
+import org.nuxeo.ecm.core.model.InternalDocument;
 
 /**
  * Community-provided enricher that stamps the document system fields ({@code sys_created},
@@ -37,29 +38,31 @@ public class SystemPropertiesEnricher implements DocumentEnricher {
 
     @Override
     public void onCreate(DocumentEnrichmentContext context) {
+        InternalDocument document = context.getDocument();
         var now = context.getTimestamp();
         var principalId = context.getPrincipal().getActingId();
-        context.setProperty(SYS_CREATED, now);
-        context.setProperty(SYS_CREATOR, principalId);
-        context.setProperty(SYS_MODIFIED, now);
-        context.setProperty(SYS_LAST_CONTRIBUTOR, principalId);
-        addContributor(context, principalId);
+        document.setPropertyValue(SYS_CREATED, now);
+        document.setPropertyValue(SYS_CREATOR, principalId);
+        document.setPropertyValue(SYS_MODIFIED, now);
+        document.setPropertyValue(SYS_LAST_CONTRIBUTOR, principalId);
+        addContributor(document, principalId);
     }
 
     @Override
     public void onUpdate(DocumentEnrichmentContext context) {
+        InternalDocument document = context.getDocument();
         var principalId = context.getPrincipal().getActingId();
-        context.setProperty(SYS_MODIFIED, context.getTimestamp());
-        context.setProperty(SYS_LAST_CONTRIBUTOR, principalId);
-        addContributor(context, principalId);
+        document.setPropertyValue(SYS_MODIFIED, context.getTimestamp());
+        document.setPropertyValue(SYS_LAST_CONTRIBUTOR, principalId);
+        addContributor(document, principalId);
     }
 
-    private void addContributor(DocumentEnrichmentContext context, String principalId) {
+    private void addContributor(InternalDocument document, String principalId) {
         @SuppressWarnings("unchecked")
-        List<Object> list = (List<Object>) context.getProperty(SYS_CONTRIBUTORS);
+        List<Object> list = (List<Object>) document.getPropertyValue(SYS_CONTRIBUTORS);
         if (list == null) {
             // no contributors yet, create it
-            context.setProperty(SYS_CONTRIBUTORS, List.of(principalId));
+            document.setPropertyValue(SYS_CONTRIBUTORS, List.of(principalId));
             return;
         }
         if (list.contains(principalId)) {
@@ -70,6 +73,6 @@ public class SystemPropertiesEnricher implements DocumentEnricher {
         List<Object> newList = new ArrayList<>(list.size() + 1);
         newList.addAll(list);
         newList.add(principalId);
-        context.setProperty(SYS_CONTRIBUTORS, newList);
+        document.setPropertyValue(SYS_CONTRIBUTORS, newList);
     }
 }
