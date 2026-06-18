@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PREFIX;
 import static org.nuxeo.ecm.core.security.expr.ExpressionSecurityPolicy.CONTEXT_CONTENT;
 import static org.nuxeo.ecm.core.security.expr.ExpressionSecurityPolicy.CONTEXT_USER;
 
@@ -50,7 +51,12 @@ public class TestExprEvaluator {
     private static Object evaluateValue(String string, NuxeoPrincipal principal, Map<String, Object> content) {
         InternalDocument idoc = mock(InternalDocument.class);
         content.forEach((key, value) -> {
-            when(idoc.getValue(key)).thenReturn(value);
+            // Mock sys properties via getPropertyValue, schema properties via getValue
+            if (key.startsWith(SYS_PREFIX)) {
+                when(idoc.getPropertyValue(key)).thenReturn(value);
+            } else {
+                when(idoc.getValue(key)).thenReturn(value);
+            }
         });
         Map<String, Object> context = Map.of( //
                 CONTEXT_CONTENT, idoc, //
@@ -394,6 +400,23 @@ public class TestExprEvaluator {
         // Nested map access
         check(content, "content.complexProperty.nested.innerKey == \"innerValue\"",
                 "(complexProperty/nested/innerKey = 'innerValue')", true);
+    }
+
+    @Test
+    public void testSysProperties() {
+        UserPrincipal user = new UserPrincipal("", null, false);
+
+        // Test sys_primaryType evaluation
+        Map<String, Object> content1 = Map.of("sys_primaryType", "SysFile");
+        check(user, content1, "content.sys_primaryType == \"SysFile\"", "(sys_primaryType = 'SysFile')", true);
+
+        // Test sys_isFolderish evaluation
+        Map<String, Object> content2 = Map.of("sys_isFolderish", true);
+        check(user, content2, "content.sys_isFolderish == true", "(sys_isFolderish = true)", true);
+
+        // Test sys_isFolderish with null (not folderish)
+        Map<String, Object> content3 = Map.of("sys_primaryType", "SysFile");
+        check(user, content3, "content.sys_isFolderish == null", "sys_isFolderish IS NULL", true);
     }
 
 }

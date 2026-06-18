@@ -18,6 +18,7 @@
  */
 package org.nuxeo.ecm.core.security.expr;
 
+import static java.lang.Boolean.FALSE;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_HAS_LEGAL_HOLD;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_IS_RECORD;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_PREFIX;
@@ -44,7 +45,14 @@ import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_NAME;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PREFIX;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PRIMARY_TYPE;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
+import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_DIGEST;
+import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_ENCODING;
+import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_FILENAME;
+import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_KEY;
+import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_LENGTH;
+import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_MIME_TYPE;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -52,6 +60,7 @@ import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.nuxeo.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.ecm.core.api.PropertyException;
+import org.nuxeo.ecm.core.blob.ManagedBlob;
 import org.nuxeo.ecm.core.model.InternalDocument;
 import org.nuxeo.ecm.core.query.sql.model.BooleanLiteral;
 import org.nuxeo.ecm.core.query.sql.model.DoubleLiteral;
@@ -238,7 +247,9 @@ public class ExprEvaluator {
                 throw new IllegalArgumentException(
                         "Disallowed system property: " + name + " in: " + expr.toStringPretty());
             }
-            return idoc.getValue(name);
+            return name.startsWith(SYS_PREFIX)
+                    ? idoc.getPropertyValue(name)
+                    : idoc.getValue(name);
         } catch (PropertyException e) {
             return null;
         }
@@ -269,6 +280,15 @@ public class ExprEvaluator {
             value = Long.valueOf(i);
         } else if (value instanceof Float f) {
             value = Double.valueOf(f);
+        } else if (value instanceof ManagedBlob blob) {
+            Map<String, Object> map = new HashMap<>();
+            map.put(KEY_BLOB_KEY, blob.getKey());
+            map.put(KEY_BLOB_DIGEST, blob.getDigest());
+            map.put(KEY_BLOB_ENCODING, blob.getEncoding());
+            map.put(KEY_BLOB_FILENAME, blob.getFilename());
+            map.put(KEY_BLOB_LENGTH, blob.getLength());
+            map.put(KEY_BLOB_MIME_TYPE, blob.getMimeType());
+            value = map;
         }
         return value;
     }
