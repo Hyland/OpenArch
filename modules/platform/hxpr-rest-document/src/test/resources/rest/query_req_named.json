@@ -1,0 +1,9 @@
+{
+  "queryName": "folder_listing",
+  "repositoryId": "test",
+  "limit": -1,
+  "offset": 0,
+  "parameters": {
+    "parentId": "00000000-0000-0000-0000-000000000000"
+  }
+}

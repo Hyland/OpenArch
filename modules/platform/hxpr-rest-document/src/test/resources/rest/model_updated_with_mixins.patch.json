@@ -1,0 +1,10 @@
+[
+  {
+    "op": "add",
+    "path": "/mixinTypes/Test",
+    "value": {
+      "noPerDocumentQuery": true,
+      "schemas": ["sysfile", "sysfiles"]
+    }
+  }
+]

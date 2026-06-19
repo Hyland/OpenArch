@@ -1,0 +1,13 @@
+{
+  "queryName": "advanced_search",
+  "repositoryId": "test",
+  "limit": -1,
+  "offset": 0,
+  "parameters": {
+    "fulltext": "File*"
+  },
+  "selectedQuickFilters": [
+    "noFolder",
+    "mostRecent"
+  ]
+}

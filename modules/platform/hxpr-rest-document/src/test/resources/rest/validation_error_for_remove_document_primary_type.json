@@ -1,0 +1,24 @@
+{
+  "errors": [
+    {
+      "invalidValue": {
+        "extends": null,
+        "mixins": null,
+        "schemas": null,
+        "subtypes": null
+      },
+      "message": "The value \"'{'mixins=null, extends=null, schemas=null, subtypes=null'}'\" already exists at \"primaryTypes/SysContent\" and cannot be removed as primary types are not allowed to be removed.",
+      "messageKey": "label.schema.application.violation.PrimaryTypeValidationViolation.removed",
+      "parameters": [
+        {
+          "extends": null,
+          "mixins": null,
+          "schemas": null,
+          "subtypes": null
+        },
+        "primaryTypes/SysContent"
+      ],
+      "path": "primaryTypes/SysContent"
+    }
+  ]
+}

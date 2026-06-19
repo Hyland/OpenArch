@@ -1,0 +1,68 @@
+{
+  "name": "advanced_search",
+  "quickFilters": [
+    {
+      "clause": "sys_mixinTypes!='SysFolderish'",
+      "name": "noFolder"
+    },
+    {
+      "name": "mostRecent",
+      "sort": [
+        "sys_modified desc"
+      ]
+    }
+  ],
+  "whereClauseDefinition": {
+    "predicates": [
+      {
+        "operator": "FULLTEXT",
+        "parameters": [
+          {
+            "defaultValue": null,
+            "name": "fulltext"
+          }
+        ],
+        "searchParameter": "sys_fulltext"
+      },
+      {
+        "operator": "BETWEEN",
+        "parameters": [
+          {
+            "defaultValue": null,
+            "name": "created_min"
+          },
+          {
+            "defaultValue": null,
+            "name": "created_max"
+          }
+        ],
+        "searchParameter": "sys_created"
+      },
+      {
+        "operator": "BETWEEN",
+        "parameters": [
+          {
+            "defaultValue": null,
+            "name": "modified_min"
+          },
+          {
+            "defaultValue": null,
+            "name": "modified_max"
+          }
+        ],
+        "searchParameter": "sys_modified"
+      },
+      {
+        "operator": "STARTSWITH",
+        "parameters": [
+          {
+            "defaultValue": null,
+            "name": "path"
+          }
+        ],
+        "searchParameter": "sys_path"
+      }
+    ],
+    "query": "SELECT * FROM SysContent WHERE sys_parentId IS NOT NULL AND SORTED_COLUMN IS NOT NULL AND sysver_isVersion=0"
+  }
+}

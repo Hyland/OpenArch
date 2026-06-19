@@ -57,8 +57,8 @@ def generate_balanced_integration_shards(analyzer, target_shards=4, max_time_per
 
     return shards, shard_times
 
-# Shards 1 are reserved for common modules.
-COMMON_SHARD_COUNT = 1
+# Shards 1-4 are reserved for common modules.
+COMMON_SHARD_COUNT = 4
 
 def generate_github_matrix(shards, root_path="."):
     """Generate GitHub Actions matrix configuration."""
@@ -105,7 +105,7 @@ def main():
     parser.add_argument('--root-path', '-r', default='.',
                        help='Root path for analysis')
     parser.add_argument('--target-shards', '-s', type=int, default=4,
-                       help='Target number of shards (1 community)')
+                       help='Target number of shards (4 community)')
     parser.add_argument('--max-time', '-t', type=float, default=600.0,
                        help='Maximum time per shard in seconds')
     parser.add_argument('--output', '-o', default='integration-shards.json',

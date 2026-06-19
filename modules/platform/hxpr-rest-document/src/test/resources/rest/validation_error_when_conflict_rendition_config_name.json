@@ -1,0 +1,12 @@
+{
+  "errors": [
+    {
+      "invalidValue": "testPdf",
+      "message": "Rendition configuration item testPdf already exists for projectId HxP001",
+      "messageKey": "Rendition configuration item testPdf already exists for projectId HxP001",
+      "parameters": [
+        "testPdf"
+      ]
+    }
+  ]
+}

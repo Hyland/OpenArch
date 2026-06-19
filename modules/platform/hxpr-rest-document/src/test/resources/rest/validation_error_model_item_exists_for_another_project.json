@@ -1,0 +1,28 @@
+{
+  "errors": [
+    {
+      "invalidValue": "MixinType",
+      "message": "Content model item MixinType = [testMTX] already exists for projectId PF00000",
+      "messageKey": "Content model item MixinType = [testMTX] already exists for projectId PF00000",
+      "parameters": [
+        "MixinType"
+      ]
+    },
+    {
+      "invalidValue": "PrimaryType",
+      "message": "Content model item PrimaryType = [FileX] already exists for projectId PF00000",
+      "messageKey": "Content model item PrimaryType = [FileX] already exists for projectId PF00000",
+      "parameters": [
+        "PrimaryType"
+      ]
+    },
+    {
+      "invalidValue": "Schema",
+      "message": "Content model item Schema = [testX] already exists for projectId PF00000",
+      "messageKey": "Content model item Schema = [testX] already exists for projectId PF00000",
+      "parameters": [
+        "Schema"
+      ]
+    }
+  ]
+}

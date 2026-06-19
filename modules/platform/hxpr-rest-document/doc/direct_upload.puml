@@ -1,0 +1,90 @@
+@startuml
+
+!include <aws/Storage/AmazonS3/bucket/bucket>
+!include <cloudinsight/mongodb>
+
+title Direct Upload
+
+actor User
+
+box "Application"
+participant "Upload API" as UploadAPI
+participant "Document API" as DocumentAPI
+participant "Mongo TTL or GC Scheduler" as GC
+end box
+
+box "Persistence"
+participant "<color:red><$bucket>\nS3 Direct" as S3Direct
+participant "<color:green><$mongodb>\nMongo DB Transient" as MongoDBTransient
+participant "<color:red><$bucket>\nS3 Transient" as S3Transient
+participant "<color:green><$mongodb>\nMongo DB Repo" as MongoDBRepo
+participant "<color:red><$bucket>\nS3 Repo" as S3Repo
+end box
+
+group Upload
+User -> UploadAPI: create empty upload
+                                hnote right: uploadId
+activate UploadAPI
+UploadAPI -> MongoDBTransient: store upload parameters
+                                hnote right: with TTL
+UploadAPI -> S3Direct: assume direct upload role
+UploadAPI <-- S3Direct: generate temporary credentials
+User <-- UploadAPI: uploadId and temporary credentials created
+                                hnote left: uploadId & credentials
+deactivate UploadAPI
+end
+
+group Direct Upload
+alt upload binary
+User -[#0000FF]> S3Direct
+                                hnote left: uploadId & credentials
+else loop upload binary using multipart
+User -[#0000FF]> S3Direct
+                                hnote left: uploadId & credentials
+end
+end
+
+group Complete Upload
+User -> UploadAPI: complete upload
+                                hnote left: uploadId
+activate UploadAPI
+UploadAPI <-- MongoDBTransient: retrieve upload parameters
+UploadAPI -> UploadAPI: check uploadId matches User identifier
+UploadAPI <-- S3Direct: check blob identifier existence
+
+UploadAPI -> S3Direct: copy or move blob
+S3Direct -[#0000FF]> S3Transient: copy or move blob
+User <-- UploadAPI: upload completed
+                                hnote left: uploadId
+deactivate UploadAPI
+end
+
+group Upload Use
+User -> DocumentAPI: create/update document
+                                hnote left: uploadId
+== TX start ==
+activate DocumentAPI
+UploadAPI <- DocumentAPI: retrieve blob identifier and upload parameters
+activate UploadAPI
+UploadAPI <-- MongoDBTransient: retrieve upload parameters
+UploadAPI -> UploadAPI: check uploadId matches User identifier
+UploadAPI <-- S3Transient: check blob identifier existence
+UploadAPI --> DocumentAPI: retrieve blob identifier and upload parameters
+DocumentAPI -> MongoDBRepo: store document blob property information
+DocumentAPI -> S3Transient: store blob
+S3Transient -[#0000FF]> S3Repo: copy or move blob
+== TX commit ==
+UploadAPI -> MongoDBTransient: cleanup upload parameters
+GC -> S3Transient: cleanup blob (after GC)
+deactivate UploadAPI
+== TX end ==
+User <-- DocumentAPI: document created/updated
+deactivate DocumentAPI
+end
+
+group No Upload Use
+GC -> MongoDBTransient: cleanup upload parameters (after TTL)
+GC -> S3Transient: cleanup blob (after GC)
+end
+
+@enduml

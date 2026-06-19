@@ -1,0 +1,105 @@
+{
+  "sys_acl": [
+    {
+      "granted": true,
+      "permission": "Everything",
+      "status": "EFFECTIVE",
+      "user": {
+        "id": "myOtherUser"
+      }
+    },
+    {
+      "granted": true,
+      "group": {
+        "id": "myGroup"
+      },
+      "permission": "ReadWrite",
+      "status": "EFFECTIVE"
+    }
+  ],
+  "sys_changeToken": "1-0",
+  "sys_effectiveAcl": [
+    {
+      "granted": true,
+      "permission": "Everything",
+      "status": "EFFECTIVE",
+      "user": {
+        "id": "myOtherUser"
+      }
+    },
+    {
+      "granted": true,
+      "group": {
+        "id": "myGroup"
+      },
+      "permission": "ReadWrite",
+      "status": "EFFECTIVE"
+    }
+  ],
+  "sys_effectivePermissions": [
+    "CreateChild",
+    "CreateVersion",
+    "Delete",
+    "DeleteChild",
+    "ManageLock",
+    "ManageRetention",
+    "ManageSecurity",
+    "Read",
+    "ReadVersion",
+    "ReadWrite",
+    "Write",
+    "WriteVersion"
+  ],
+  "sys_id": "%s",
+  "sys_isFolderish": true,
+  "sys_mixinTypes": [
+    "SysFolderish"
+  ],
+  "sys_name": "My Folder",
+  "sys_parentId": "00000000-0000-0000-0000-000000000000",
+  "sys_ancestorIds": ["00000000-0000-0000-0000-000000000000"],
+  "sys_parentPath": "/",
+  "sys_path": "/My Folder",
+  "sys_pathDepth": 2,
+  "sys_primaryType": "SysFolder",
+  "sys_repository": "test",
+  "sys_title": "My Folder",
+  "sys_description": "Test Folder for Document API",
+  "sys_contributors": [
+    {
+      "email": "test.user@hyland.com",
+      "firstName": "Test",
+      "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
+      "lastName": "User",
+      "properties": {
+        "YOJ": "2013",
+        "empId": "E443336-3675",
+        "favouriteColor": "beige"
+      }
+    }
+  ],
+  "sys_created": "2021-10-24T00:00:00Z",
+  "sys_creator": {
+    "email": "test.user@hyland.com",
+    "firstName": "Test",
+    "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
+    "lastName": "User",
+    "properties": {
+      "YOJ": "2013",
+      "empId": "E443336-3675",
+      "favouriteColor": "beige"
+    }
+  },
+  "sys_lastContributor": {
+    "email": "test.user@hyland.com",
+    "firstName": "Test",
+    "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
+    "lastName": "User",
+    "properties": {
+      "YOJ": "2013",
+      "empId": "E443336-3675",
+      "favouriteColor": "beige"
+    }
+  },
+  "sys_modified": "2021-10-24T00:00:00Z"
+}

@@ -1,0 +1,44 @@
+[
+  {
+    "sys_primaryType": "SysFile",
+    "sys_title": "My Abcd document",
+    "the_unique_key": "12344456667",
+    "jobId": "123456",
+    "sysfile_blob": {
+      "digest": "7509e5bda0c762d2bac7f90d758b5b2263fa01ccbc542ab5e3df163be08e6ca9",
+      "encoding": "UTF-8",
+      "filename": "test1.txt",
+      "length": 12,
+      "mimeType": "text/plain",
+      "import_key": "test1.txt"
+    }
+  },
+  {
+    "sys_primaryType": "SysFile",
+    "sys_title": "My Abcd 2 document",
+    "the_unique_key": "12344456667",
+    "jobId": "123456",
+    "sysfile_blob": {
+      "digest": "7509e5bda0c762d2bac7f90d758b5b2263fa01ccbc542ab5e3df163be08e6ca9",
+      "encoding": "UTF-8",
+      "filename": "test2.txt",
+      "length": 12,
+      "mimeType": "text/plain",
+      "import_key": "test2.txt"
+    }
+  },
+  {
+    "sys_primaryType": "SysFile",
+    "sys_title": "My Abcd 2 document12345",
+    "the_unique_key": "12344456667",
+    "jobId": "123456",
+    "sysfile_blob": {
+      "digest": "7509e5bda0c762d2bac7f90d758b5b2263fa01ccbc542ab5e3df163be08e6ca9",
+      "encoding": "UTF-8",
+      "filename": "test3.txt",
+      "length": 12,
+      "mimeType": "text/plain",
+      "import_key": "test3.txt"
+    }
+  }
+]

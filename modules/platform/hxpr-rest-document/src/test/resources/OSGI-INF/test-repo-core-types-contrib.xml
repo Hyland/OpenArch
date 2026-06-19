@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.test.types">
+
+  <require>org.nuxeo.ecm.core.CoreExtensions</require>
+
+  <extension target="org.nuxeo.ecm.core.schema.TypeService" point="schema">
+    <schema name="mydublincore" prefix="mydc" src="schema/mydublincore.xsd"/>
+    <schema name="sysgovernable" prefix="sysgov" src="schema/governable.xsd"/>
+    <schema name="test-properties" src="schema/test-properties.xsd" prefix="tp" />
+  </extension>
+
+  <extension target="org.nuxeo.ecm.core.schema.TypeService" point="doctype">
+
+    <mixin name="SysGovernable">  <!-- used by system -->
+      <schema name="sysgovernable"/>
+    </mixin>
+
+    <!-- add mydublincore to standard doctypes -->
+    <doctype name="SysFolder" extends="SysContent">
+      <schema name="system"/>
+      <schema name="mydublincore"/>
+      <mixin name="SysFolderish"/>
+      <subtypes>
+        <type>SysFolder</type>
+        <type>SysOrderedFolder</type>
+        <type>SysFile</type>
+      </subtypes>
+    </doctype>
+    <doctype name="SysFile" extends="SysContent">
+      <schema name="system"/>
+      <schema name="mydublincore"/>
+      <schema name="sysfiles"/>
+      <mixin name="SysFilish"/>
+    </doctype>
+
+    <doctype name="TestDocument" extends="SysContent">
+      <schema name="system" />
+      <schema name="mydublincore"/>
+      <schema name="sysfile" />
+      <schema name="test-properties" />
+    </doctype>
+  </extension>
+
+</component>

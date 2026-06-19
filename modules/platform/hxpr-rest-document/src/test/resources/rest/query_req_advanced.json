@@ -1,0 +1,40 @@
+{
+  "repositoryId": "test",
+  "query": "SELECT * FROM SysContent",
+  "limit": -1,
+  "offset": 0,
+  "sort": [
+    "sys_title"
+  ],
+  "parameters": {
+    "searchCoverages": [
+      "Coverage0"
+    ]
+  },
+  "whereClauseDefinition": {
+    "predicates": [
+      {
+        "searchParameter": "sys_title",
+        "operator": "LIKE",
+        "parameters": [
+          {
+            "name": "foo"
+          }
+        ]
+      },
+      {
+        "searchParameter": "mydc_coverage",
+        "operator": "IN",
+        "parameters": [
+          {
+            "name": "searchCoverages"
+          }
+        ]
+      }
+    ]
+  },
+  "quickFilterClauses": [
+    "mydc_nature != 'Nature0'",
+    "mydc_coverage != 'Coverage1'"
+  ]
+}

@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Bundle-Name: Vocabularies Feature
+Bundle-SymbolicName: org.nuxeo.ecm.platform.vocabularies;singleton:=true
+Nuxeo-Component: OSGI-INF/vocabulary-resolver-contrib.xml

@@ -1,0 +1,77 @@
+/*
+ * (C) Copyright 2024 Hyland (https://hyland.com/) and others.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.nuxeo.rest.filter;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+
+import org.apache.http.HttpStatus;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.util.ContentCachingRequestWrapper;
+
+@Component
+@ConditionalOnProperty(name = ErroredResponseFilter.LOG_ERRORED_RESPONSE_ENABLED, havingValue = "true")
+public class ErroredResponseFilter extends OncePerRequestFilter {
+
+    public static final String LOG_ERRORED_RESPONSE_ENABLED = "hxpr.log.errored.response.enabled";
+
+    public static final String LOG_ERRORED_RESPONSE_PAYLOAD_LIMIT = "hxpr.log.errored.response.payload.limit";
+
+    public static final int DEFAULT_PAYLOAD_LIMIT = 1024;
+
+    private static final Logger log = LogManager.getLogger(ErroredResponseFilter.class);
+
+    private static final List<Integer> FILTERED_SC = Arrays.asList(HttpStatus.SC_BAD_REQUEST,
+            HttpStatus.SC_INTERNAL_SERVER_ERROR);
+
+    @Value("${" + LOG_ERRORED_RESPONSE_PAYLOAD_LIMIT + ":" + DEFAULT_PAYLOAD_LIMIT + "}")
+    private int payloadLimit;
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
+        boolean hasRequestPayload = request.getInputStream() != null && request.getInputStream().available() > 0;
+        ContentCachingRequestWrapper cachedRequest = new ContentCachingRequestWrapper(request, payloadLimit);
+        filterChain.doFilter(cachedRequest, response);
+        int statusCode = response.getStatus();
+        if (!FILTERED_SC.contains(statusCode) || !hasRequestPayload) {
+            // not the status code we are looking for OR no payload
+            return;
+        }
+        String capturedPayload = cachedRequest.getContentAsString();
+        if (capturedPayload.isEmpty()) {
+            // the request payload has length > 0 but the captured payload is empty -> should not happen
+            log.warn("Could not get payload for request that resulted in response with status code {}: {} {}",
+                    statusCode, request.getMethod(), request.getRequestURI());
+            return;
+        }
+        capturedPayload = capturedPayload.replaceAll("[\n\r]", "_");
+        log.warn("Request failed with status code {}: {} {} {}", statusCode, request.getMethod(),
+                request.getRequestURI(), capturedPayload);
+    }
+
+}

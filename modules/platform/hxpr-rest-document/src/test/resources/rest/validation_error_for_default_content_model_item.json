@@ -1,0 +1,20 @@
+{
+  "errors": [
+    {
+      "invalidValue": "MixinType",
+      "message": "Content model item MixinType = [SysFolderish] already exists in default content model",
+      "messageKey": "Content model item MixinType = [SysFolderish] already exists in default content model",
+      "parameters": [
+        "MixinType"
+      ]
+    },
+    {
+      "invalidValue": "PrimaryType",
+      "message": "Content model item PrimaryType = [SysContent] already exists in default content model",
+      "messageKey": "Content model item PrimaryType = [SysContent] already exists in default content model",
+      "parameters": [
+        "PrimaryType"
+      ]
+    }
+  ]
+}

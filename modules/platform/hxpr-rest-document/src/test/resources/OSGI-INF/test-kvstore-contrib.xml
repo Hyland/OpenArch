@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<component name="rest.upload.handler.store.test">
+
+  <require>rest.upload.handler.store</require>
+
+  <extension target="org.nuxeo.ecm.core.transientstore.TransientStorageComponent" point="store">
+    <store name="default" class="org.nuxeo.ecm.core.transientstore.keyvalueblob.KeyValueBlobTransientStore">
+    </store>
+  </extension>
+
+</component>

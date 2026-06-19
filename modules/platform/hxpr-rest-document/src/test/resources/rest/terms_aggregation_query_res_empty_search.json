@@ -1,0 +1,47 @@
+{
+  "repositoryId": "test",
+  "query": "SELECT * FROM SysContent",
+  "limit": 0,
+  "offset": 0,
+  "documents": [],
+  "totalCount": 0,
+  "aggregationsBuckets": [
+    {
+      "key": "objectId",
+      "docCount": 6
+    },
+    {
+      "key": "sourceId",
+      "docCount": 5
+    },
+    {
+      "key": "ALLOW_ACCESS",
+      "docCount": 4
+    },
+    {
+      "key": "modifiedAt",
+      "docCount": 4
+    },
+    {
+      "key": "modifiedBy",
+      "docCount": 4
+    },
+    {
+      "key": "cm:description",
+      "docCount": 3
+    },
+    {
+      "key": "createdAt",
+      "docCount": 3
+    },
+    {
+      "key": "createdBy",
+      "docCount": 3
+    },
+    {
+      "key": "sourceTimestamp",
+      "docCount": 3
+    }
+  ],
+  "count": 0
+}

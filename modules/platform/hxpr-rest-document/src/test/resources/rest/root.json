@@ -1,0 +1,27 @@
+{
+  "sys_id": "00000000-0000-0000-0000-000000000000",
+  "sys_effectivePermissions": [
+    "CreateChild",
+    "CreateVersion",
+    "Delete",
+    "DeleteChild",
+    "ManageLock",
+    "ManageRetention",
+    "Read",
+    "ReadVersion",
+    "ReadWrite",
+    "Write",
+    "WriteVersion",
+    "ManageSecurity"
+  ],
+  "sys_isFolderish": true,
+  "sys_mixinTypes": [
+     "SysFolderish"
+   ],
+  "sys_name": "",
+  "sys_path": "/",
+  "sys_pathDepth": 0,
+  "sys_primaryType": "SysRoot",
+  "sys_repository": "test",
+  "sys_title": ""
+}

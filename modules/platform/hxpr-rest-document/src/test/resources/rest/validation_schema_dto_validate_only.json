@@ -1,0 +1,146 @@
+{
+    "errors": [
+        {
+            "invalidValue": [
+                "files-foobar"
+            ],
+            "message": "The value \"[files-foobar]\" is an invalid complex type in the field \"schemas/sysfiles/fields\".",
+            "messageKey": "label.schema.application.violation.InvalidObjectViolation.fields.complex",
+            "parameters": [
+                [
+                    "files-foobar"
+                ],
+                "schemas/sysfiles/fields"
+            ],
+            "path": "schemas/sysfiles/fields"
+        },
+        {
+            "invalidValue": [
+                "mydc_coverage-foobar"
+            ],
+            "message": "The value \"[mydc_coverage-foobar]\" is invalid.",
+            "messageKey": "label.schema.application.violation.InvalidObjectViolation",
+            "parameters": [
+                [
+                    "mydc_coverage-foobar"
+                ],
+                "schemas/mydublincore/fields/mydc_coverage"
+            ],
+            "path": "schemas/mydublincore/fields/mydc_coverage"
+        },
+        {
+            "invalidValue": [
+                "relation-foobar"
+            ],
+            "message": "The value \"[relation-foobar]\" is an invalid schema.",
+            "messageKey": "label.schema.application.violation.InvalidObjectViolation.schemas",
+            "parameters": [
+                [
+                    "relation-foobar"
+                ],
+                "schemas/sysrelation"
+            ],
+            "path": "schemas/sysrelation"
+        },
+        {
+            "invalidValue": [
+                "sysrelation",
+                "system"
+            ],
+            "message": "The schema \"[sysrelation, system]\" is not known.",
+            "messageKey": "label.schema.application.violation.UnknownObjectViolation.schemas",
+            "parameters": [
+                [
+                    "sysrelation",
+                    "system"
+                ],
+                "primaryTypes/SysRelation/schemas"
+            ],
+            "path": "primaryTypes/SysRelation/schemas"
+        },
+        {
+            "invalidValue": [
+                "mydublincore",
+                "sysfiles",
+                "system"
+            ],
+            "message": "The schema \"[mydublincore, sysfiles, system]\" is not known.",
+            "messageKey": "label.schema.application.violation.UnknownObjectViolation.schemas",
+            "parameters": [
+                [
+                    "mydublincore",
+                    "sysfiles",
+                    "system"
+                ],
+                "primaryTypes/SysFile/schemas"
+            ],
+            "path": "primaryTypes/SysFile/schemas"
+        }
+    ],
+    "warnings": [
+        {
+            "invalidValue": [
+                "files-foobar"
+            ],
+            "message": "The value \"[files-foobar]\" cannot be applied as \"schemas/sysfiles/fields\" already exists with value \"'{'sysfiles_blobs='{'type=sysfiles#blobs'}''}'\".",
+            "messageKey": "label.schema.application.violation.AlreadyExistsViolation.modified",
+            "parameters": [
+                [
+                    "files-foobar"
+                ],
+                {
+                    "sysfiles_blobs": {
+                        "type": "sysfiles#blobs"
+                    }
+                },
+                "schemas/sysfiles/fields"
+            ],
+            "path": "schemas/sysfiles/fields"
+        },
+        {
+            "invalidValue": [
+                "mydc_coverage-foobar"
+            ],
+            "message": "The value \"[mydc_coverage-foobar]\" cannot be applied as \"schemas/mydublincore/fields/mydc_coverage\" already exists with value \"'{'type=string'}'\".",
+            "messageKey": "label.schema.application.violation.AlreadyExistsViolation.modified",
+            "parameters": [
+                [
+                    "mydc_coverage-foobar"
+                ],
+                {
+                    "type": "string"
+                },
+                "schemas/mydublincore/fields/mydc_coverage"
+            ],
+            "path": "schemas/mydublincore/fields/mydc_coverage"
+        },
+        {
+            "invalidValue": [
+                "relation-foobar"
+            ],
+            "message": "The value \"[relation-foobar]\" cannot be applied as \"schemas/sysrelation\" already exists with value \"'{'prefix=sysrelation, fields='{'sysrelation_source='{'type=string'}', sysrelation_target='{'type=string'}', sysrelation_predicate='{'type=string'}''}''}'\".",
+            "messageKey": "label.schema.application.violation.AlreadyExistsViolation.modified",
+            "parameters": [
+                [
+                    "relation-foobar"
+                ],
+                {
+                    "fields": {
+                        "sysrelation_predicate": {
+                            "type": "string"
+                        },
+                        "sysrelation_source": {
+                            "type": "string"
+                        },
+                        "sysrelation_target": {
+                            "type": "string"
+                        }
+                    },
+                    "prefix": "sysrelation"
+                },
+                "schemas/sysrelation"
+            ],
+            "path": "schemas/sysrelation"
+        }
+    ]
+}

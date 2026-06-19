@@ -1,0 +1,24 @@
+{
+  "errors": [
+    {
+      "invalidValue": "bar",
+      "message": "\"bar\" is not a valid coverage id.",
+      "messageKey": "label.schema.constraint.violation.resolver.vocabularyResolver.coverage",
+      "parameters": [
+        "bar",
+        "coverage"
+      ],
+      "path": "cs_coverage"
+    },
+    {
+      "invalidValue": "foo",
+      "message": "\"foo\" is not a valid nature id.",
+      "messageKey": "label.schema.constraint.violation.resolver.vocabularyResolver.nature",
+      "parameters": [
+        "foo",
+        "nature"
+      ],
+      "path": "cs_nature"
+    }
+  ]
+}

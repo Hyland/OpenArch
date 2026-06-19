@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Bundle-Name: ReST Document
+Bundle-SymbolicName: org.nuxeo.springboot.rest.document.test;singleton:=true
+Nuxeo-Component: OSGI-INF/login-as-contrib.xml

@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+
+<xs:schema targetNamespace="http://www.nuxeo.org/ecm/schemas/constraintschema/"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:ref="http://www.nuxeo.org/ecm/schemas/core/external-references/">
+
+  <xs:element name="coverage">
+    <xs:simpleType>
+      <xs:restriction base="xs:string" ref:resolver="vocabularyResolver" ref:vocabulary="coverage"
+                      ref:repository="test"/>
+    </xs:simpleType>
+  </xs:element>
+
+  <xs:element name="nature" type="xs:string">
+    <xs:simpleType>
+      <xs:restriction base="xs:string" ref:resolver="vocabularyResolver" ref:vocabulary="nature" ref:repository="test"/>
+    </xs:simpleType>
+  </xs:element>
+</xs:schema>

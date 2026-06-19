@@ -1,0 +1,14 @@
+{
+  "errors": [
+    {
+      "invalidValue": true,
+      "message": "Property Conversion failed from class java.lang.Boolean to class java.lang.String: mydc_source",
+      "path": "mydc_source"
+    },
+    {
+      "invalidValue": "foo",
+      "message": "Property Conversion failed from class java.lang.String to interface java.util.List: mydc_subjects",
+      "path": "mydc_subjects"
+    }
+  ]
+}

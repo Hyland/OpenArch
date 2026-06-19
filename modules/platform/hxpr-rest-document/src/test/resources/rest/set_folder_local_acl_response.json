@@ -1,0 +1,106 @@
+{
+  "sys_acl": [
+    {
+      "creator": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
+      "granted": true,
+      "permission": "Read",
+      "user": {
+        "email": "test.user@hyland.com",
+        "firstName": "Test",
+        "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
+        "lastName": "User",
+        "properties": {
+          "YOJ": "2013",
+          "empId": "E443336-3675",
+          "favouriteColor": "beige"
+        }
+      },
+      "status": "EFFECTIVE"
+    }
+  ],
+  "sys_changeToken": "1-0",
+  "sys_effectiveAcl": [
+    {
+      "creator": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
+      "granted": true,
+      "permission": "Read",
+      "user": {
+        "email": "test.user@hyland.com",
+        "firstName": "Test",
+        "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
+        "lastName": "User",
+        "properties": {
+          "YOJ": "2013",
+          "empId": "E443336-3675",
+          "favouriteColor": "beige"
+        }
+      },
+      "status": "EFFECTIVE"
+    }
+  ],
+  "sys_effectivePermissions": [
+    "CreateChild",
+    "CreateVersion",
+    "Delete",
+    "DeleteChild",
+    "ManageLock",
+    "ManageRetention",
+    "Read",
+    "ReadVersion",
+    "ReadWrite",
+    "Write",
+    "WriteVersion",
+    "ManageSecurity"
+  ],
+  "sys_id": "%s",
+  "sys_isFolderish": true,
+  "sys_mixinTypes": [
+     "SysFolderish"
+   ],
+  "sys_name": "My ACL Folder Name",
+  "sys_parentId": "00000000-0000-0000-0000-000000000000",
+  "sys_ancestorIds": ["00000000-0000-0000-0000-000000000000"],
+  "sys_parentPath": "/",
+  "sys_path": "/My ACL Folder Name",
+  "sys_pathDepth": 2,
+  "sys_primaryType": "SysFolder",
+  "sys_repository": "test",
+  "sys_title": "My ACL Folder",
+  "sys_contributors": [
+    {
+      "email": "test.user@hyland.com",
+      "firstName": "Test",
+      "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
+      "lastName": "User",
+      "properties": {
+        "YOJ": "2013",
+        "empId": "E443336-3675",
+        "favouriteColor": "beige"
+      }
+    }
+  ],
+  "sys_created": "2021-10-24T00:00:00Z",
+  "sys_creator": {
+    "email": "test.user@hyland.com",
+    "firstName": "Test",
+    "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
+    "lastName": "User",
+    "properties": {
+      "YOJ": "2013",
+      "empId": "E443336-3675",
+      "favouriteColor": "beige"
+    }
+  },
+  "sys_lastContributor": {
+    "email": "test.user@hyland.com",
+    "firstName": "Test",
+    "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
+    "lastName": "User",
+    "properties": {
+      "YOJ": "2013",
+      "empId": "E443336-3675",
+      "favouriteColor": "beige"
+    }
+  },
+  "sys_modified": "2021-10-24T00:00:00Z"
+}

@@ -75,6 +75,8 @@
     <commons-collections4.version>4.5.0</commons-collections4.version>
     <commons-text.version>1.15.0</commons-text.version>
     <commons-csv.version>1.14.1</commons-csv.version>
+    <commons-fileupload2.version>2.0.0-M5</commons-fileupload2.version>
+    <commons-lang3.version>3.20.0</commons-lang3.version>
     <xercesImpl.version>2.12.2</xercesImpl.version>
     <apache.httpcomponents.version>4.5.14</apache.httpcomponents.version>
     <opencensus.version>0.31.1</opencensus.version>
@@ -84,7 +86,6 @@
     <jackson-bom.version>2.22.0</jackson-bom.version>
     <osgi.version>4.3.1</osgi.version>
     <jakarta.enterprise.cdi.version>4.1.0</jakarta.enterprise.cdi.version>
-    <commons-lang3.version>3.20.0</commons-lang3.version>
     <hamcrest.version>3.0</hamcrest.version>
     <geronimo-transaction.version>4.0.0</geronimo-transaction.version>
     <guice.version>7.0.0</guice.version>
@@ -100,11 +101,13 @@
     <dumbster.version>1.7.1</dumbster.version>
     <zjsonpatch.version>0.4.16</zjsonpatch.version>
     <archunit.version>1.4.2</archunit.version>
+    <jupiter-pioneer.version>2.3.0</jupiter-pioneer.version>
     <woodstox.version>7.2.1</woodstox.version>
     <hadoop.version>3.5.0</hadoop.version>
     <snappy.version>1.1.10.8</snappy.version>
     <org.apache.log4j.version>2.26.0</org.apache.log4j.version>
     <org.slf4j.version>2.0.16</org.slf4j.version>
+    <jna.version>5.19.1</jna.version>
 
     <!-- MongoDB -->
     <mongo.java.driver.version>5.8.0</mongo.java.driver.version>
@@ -462,6 +465,41 @@
         <version>${project.version}</version>
         <scope>test</scope>
       </dependency>
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-rest-common</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-rest-common</artifactId>
+        <version>${project.version}</version>
+        <scope>test</scope>
+        <type>test-jar</type>
+      </dependency>
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-rest-document</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-rest-document</artifactId>
+        <version>${project.version}</version>
+        <scope>test</scope>
+        <type>test-jar</type>
+      </dependency>
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-usermanager-test</artifactId>
+        <version>${project.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-vocabularies</artifactId>
+        <version>${project.version}</version>
+      </dependency>
 
       <!-- commons -->
       <dependency>
@@ -493,6 +531,11 @@
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-csv</artifactId>
         <version>${commons-csv.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-fileupload2-core</artifactId>
+        <version>${commons-fileupload2.version}</version>
       </dependency>
 
       <!-- opensearch -->
@@ -887,6 +930,13 @@
         </exclusions>
       </dependency>
 
+      <!-- JNA, required by opensearch -->
+      <dependency>
+        <groupId>net.java.dev.jna</groupId>
+        <artifactId>jna</artifactId>
+        <version>${jna.version}</version>
+      </dependency>
+
       <dependency>
         <groupId>xerces</groupId>
         <artifactId>xercesImpl</artifactId>
@@ -974,6 +1024,11 @@
         <version>${xsom.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.springdoc</groupId>
+        <artifactId>springdoc-openapi-starter-common</artifactId>
+        <version>${springdoc.version}</version>
+      </dependency>
+      <dependency>
         <groupId>io.swagger.core.v3</groupId>
         <artifactId>swagger-annotations-jakarta</artifactId>
         <version>${swagger-annotations-jakarta.version}</version>
@@ -1051,6 +1106,12 @@
         <groupId>com.tngtech.archunit</groupId>
         <artifactId>archunit-junit5</artifactId>
         <version>${archunit.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.junit-pioneer</groupId>
+        <artifactId>junit-pioneer</artifactId>
+        <version>${jupiter-pioneer.version}</version>
         <scope>test</scope>
       </dependency>
     </dependencies>

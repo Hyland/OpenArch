@@ -1,0 +1,42 @@
+[
+  {
+    "op": "add",
+    "path": "/schemas/testX",
+    "value": {
+      "fields": {
+        "test_desc": {
+          "type": "string"
+        }
+      },
+      "prefix": "test",
+      "projectId": "PF00000"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/mixinTypes/testMTX",
+    "value": {
+      "noPerDocumentQuery": true,
+      "projectId": "PF00000"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/primaryTypes/FileX",
+    "value": {
+      "extends": "SysContent",
+      "mixins": [
+        "SysVersionable"
+      ],
+      "projectId": "PF00000",
+      "schemas": [
+        "system",
+        "sysfile",
+        "mydublincore"
+      ],
+      "subtypes": [
+        "SysFile"
+      ]
+    }
+  }
+]

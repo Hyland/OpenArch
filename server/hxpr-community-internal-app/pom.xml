@@ -139,6 +139,14 @@
       <artifactId>hxpr-opensearch</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-rest-common</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-vocabularies</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
     </dependency>

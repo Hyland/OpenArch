@@ -1,0 +1,12 @@
+{
+  "errors": [
+    {
+      "invalidValue": "testPdf",
+      "message": "Rendition configuration item testPdf already exists in default configuration",
+      "messageKey": "Rendition configuration item testPdf already exists in default configuration",
+      "parameters": [
+        "testPdf"
+      ]
+    }
+  ]
+}

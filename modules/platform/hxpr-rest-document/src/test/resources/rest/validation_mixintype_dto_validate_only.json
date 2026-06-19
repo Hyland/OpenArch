@@ -1,0 +1,39 @@
+{
+  "errors": [
+    {
+      "invalidValue": [
+        "Versionable-foobar"
+      ],
+      "message": "The value \"[Versionable-foobar]\" is an invalid mixin type.",
+      "messageKey": "label.schema.application.violation.InvalidObjectViolation.mixins.types",
+      "parameters": [
+        [
+          "Versionable-foobar"
+        ],
+        "mixinTypes/SysVersionable"
+      ],
+      "path": "mixinTypes/SysVersionable"
+    }
+  ],
+  "warnings": [
+    {
+      "invalidValue": [
+        "Versionable-foobar"
+      ],
+      "message": "The value \"[Versionable-foobar]\" cannot be applied as \"mixinTypes/SysVersionable\" already exists with value \"'{'schemas=[sysversionable]'}'\".",
+      "messageKey": "label.schema.application.violation.AlreadyExistsViolation.modified",
+      "parameters": [
+        [
+          "Versionable-foobar"
+        ],
+        {
+          "schemas": [
+            "sysversionable"
+          ]
+        },
+        "mixinTypes/SysVersionable"
+      ],
+      "path": "mixinTypes/SysVersionable"
+    }
+  ]
+}

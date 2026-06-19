@@ -1,0 +1,24 @@
+<component name="org.nuxeo.rest.facetsandtypes.test">
+
+  <extension target="org.nuxeo.ecm.core.schema.TypeService" point="schema">
+    <schema name="mycustomschema" prefix="mcs" src="schema/customschema.xsd" />
+    <schema name="mycustomschema2" prefix="mcs2" src="schema/customschema2.xsd" />
+  </extension>
+
+  <extension target="org.nuxeo.ecm.core.schema.TypeService" point="doctype">
+    <doctype name="File2" extends="SysContent">
+      <schema name="system"/>
+      <schema name="mycustomschema" />
+      <mixin name="File2Facet" />
+    </doctype>
+    <doctype name="GovernableFile" extends="SysContent">
+      <schema name="system"/>
+      <mixin name="SysFilish" />
+      <mixin name="SysGovernable" />
+    </doctype>
+    <mixin name="File2Facet">
+      <schema name="mycustomschema2" />
+    </mixin>
+  </extension>
+
+</component>

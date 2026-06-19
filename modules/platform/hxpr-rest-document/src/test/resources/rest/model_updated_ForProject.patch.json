@@ -1,0 +1,71 @@
+[
+  {
+    "op": "add",
+    "path": "/types/testT",
+    "value": {
+      "list": { "type" : "string" },
+      "projectId": "PF00000"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/schemas/test",
+    "value": {
+      "fields": {
+        "test_desc": {
+          "type": "string"
+        },
+        "test_desc2": {
+          "fields": {
+            "first": {
+              "type": "string"
+            }
+          }
+        },
+        "test_desc3": {
+          "list": {
+            "type": "string"
+          }
+        },
+        "test_desc4": {
+          "extends": "string",
+          "constraints": {
+            "minLength": 10,
+            "maxLength": 40,
+            "nullable": false
+          }
+        }
+      },
+      "prefix": "test",
+      "projectId": "PF00000"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/mixinTypes/testMT",
+    "value": {
+      "noPerDocumentQuery": true,
+      "projectId": "PF00000"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/primaryTypes/File1",
+    "value": {
+      "extends": "SysContent",
+      "mixins": [
+        "SysVersionable"
+      ],
+      "projectId": "PF00000",
+      "schemas": [
+        "system",
+        "sysfile",
+        "mydublincore"
+      ],
+      "subtypes": [
+        "SysFile",
+        "SysFolder"
+      ]
+    }
+  }
+]

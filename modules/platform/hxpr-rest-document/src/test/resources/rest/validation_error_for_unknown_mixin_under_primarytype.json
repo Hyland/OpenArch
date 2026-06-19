@@ -1,0 +1,18 @@
+{
+  "errors": [
+    {
+      "invalidValue": [
+        "fakeMixin"
+      ],
+      "message": "The value \"[fakeMixin]\" is unknown.",
+      "messageKey": "label.schema.application.violation.UnknownObjectViolation.mixins",
+      "parameters": [
+        [
+          "fakeMixin"
+        ],
+        "primaryTypes/MixinTest/mixins"
+      ],
+      "path": "primaryTypes/MixinTest/mixins"
+    }
+  ]
+}

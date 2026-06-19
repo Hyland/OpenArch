@@ -1,0 +1,93 @@
+{
+  "sys_id": "***ID_MARKER***",
+  "sys_contributors": [
+    {
+      "email": "test.user@hyland.com",
+      "firstName": "Test",
+      "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
+      "lastName": "User",
+      "properties": {
+        "YOJ": "2013",
+        "empId": "E443336-3675",
+        "favouriteColor": "beige"
+      }
+    }
+  ],
+  "sys_created": "2021-10-11T00:00:00Z",
+  "sys_creator": {
+    "email": "test.user@hyland.com",
+    "firstName": "Test",
+    "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
+    "lastName": "User",
+    "properties": {
+      "YOJ": "2013",
+      "empId": "E443336-3675",
+      "favouriteColor": "beige"
+    }
+  },
+  "sys_lastContributor": {
+    "email": "test.user@hyland.com",
+    "firstName": "Test",
+    "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
+    "lastName": "User",
+    "properties": {
+      "YOJ": "2013",
+      "empId": "E443336-3675",
+      "favouriteColor": "beige"
+    }
+  },
+  "sys_modified": "2021-10-11T00:00:00Z",
+  "sysfile_blob": {
+    "key": "6ae8a75555209fd6c44157c0aed8016e763ff435a19cf186f76863140143ff72",
+    "digest": "6ae8a75555209fd6c44157c0aed8016e763ff435a19cf186f76863140143ff72",
+    "filename": "test.txt",
+    "length": 12,
+    "mimeType": "text/plain"
+  },
+  "tp_fileComplexList": [
+    {
+      "blobItem": {
+        "key": "26fdc315fadc05db9f8f3236fc30b9f0ca044e56ec1e9450ccd5fdab900e9e46",
+        "digest": "26fdc315fadc05db9f8f3236fc30b9f0ca044e56ec1e9450ccd5fdab900e9e46",
+        "filename": "test2.txt",
+        "length": 14,
+        "mimeType": "text/plain"
+      },
+      "filenameItem": "bar"
+    }
+  ],
+  "tp_fileList": [
+    {
+      "key": "cbc3578784d4537eb76d8fb4b6d73978f672104e7c3295b46af805fa032ef9f5",
+      "digest": "cbc3578784d4537eb76d8fb4b6d73978f672104e7c3295b46af805fa032ef9f5",
+      "filename": "test3.txt",
+      "length": 14,
+      "mimeType": "text/plain"
+    }
+  ],
+  "sys_changeToken": "1-0",
+  "sys_effectivePermissions": [
+    "CreateChild",
+    "CreateVersion",
+    "Delete",
+    "DeleteChild",
+    "ManageLock",
+    "ManageRetention",
+    "Read",
+    "ReadVersion",
+    "ReadWrite",
+    "Write",
+    "WriteVersion",
+    "ManageSecurity"
+  ],
+  "sys_isFolderish": false,
+  "sys_name": "***NAME_MARKER***",
+  "sys_parentId": "00000000-0000-0000-0000-000000000000",
+  "sys_ancestorIds": ["00000000-0000-0000-0000-000000000000"],
+  "sys_parentPath": "/",
+  "sys_path": "/***NAME_MARKER***",
+  "sys_pathDepth": 2,
+  "sys_primaryType": "TestDocument",
+  "sys_repository": "test",
+  "sys_title": "My File"
+}

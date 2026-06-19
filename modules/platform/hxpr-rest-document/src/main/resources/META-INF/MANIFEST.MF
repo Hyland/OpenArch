@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Bundle-Name: ReST Document
+Bundle-SymbolicName: org.nuxeo.springboot.rest.document;singleton:=true
+Nuxeo-Component: OSGI-INF/upload-contrib.xml

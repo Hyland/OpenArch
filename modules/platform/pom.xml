@@ -15,7 +15,11 @@
     <module>hxpr-login</module>
     <module>hxpr-opensearch</module>
     <module>hxpr-platform-test</module>
+    <module>hxpr-rest-common</module>
+    <module>hxpr-rest-document</module>
     <module>hxpr-usermanager</module>
+    <module>hxpr-usermanager-test</module>
+    <module>hxpr-vocabularies</module>
   </modules>
 
   <dependencies>

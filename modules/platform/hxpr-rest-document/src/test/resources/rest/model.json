@@ -1,0 +1,540 @@
+{
+  "types": {
+    "blob": {
+      "fields": {
+        "digest": { "type" : "string" },
+        "encoding": { "type" : "string" },
+        "filename": { "type" : "string" },
+        "key": { "type" : "binary" },
+        "length": { "type" : "long" },
+        "mimeType": { "type" : "string" }
+      }
+    },
+    "system#contributorList": {
+      "list": {
+        "extends": "string",
+        "constraints": {
+          "nullable": true,
+          "resolver": {
+            "name": "userManagerResolver",
+            "type": "user",
+            "validation": false
+          }
+        }
+      }
+    },
+    "sysfiles#blobitem": {
+      "fields": {
+        "blob": { "type": "blob" }
+      }
+    },
+    "sysfiles#blobs": {
+      "list": { "type": "sysfiles#blobitem" }
+    },
+    "mydublincore#stringList": {
+      "list": { "type" : "string" }
+    },
+    "sysgraph#stringList": {
+      "list": { "type" : "string" }
+    },
+    "test-properties#complexChain": {
+      "fields": {
+        "chainStringItem": { "type" : "string" },
+        "complexItem": { "type" : "test-properties#complexType" }
+      }
+    },
+    "test-properties#complexListType": {
+      "list": { "type" : "test-properties#complexType" }
+    },
+    "test-properties#complexType": {
+      "fields": {
+        "dateItem": { "type" : "date" },
+        "intItem": { "type" : "long" },
+        "stringItem": { "type" : "string" }
+      }
+    },
+    "test-properties#dateArrayType": {
+      "list": { "type" : "date" }
+    },
+    "test-properties#fileComplexListType": {
+      "list": { "type" : "test-properties#fileComplexType" }
+    },
+    "test-properties#fileComplexType": {
+      "fields": {
+        "blobItem": { "type" : "blob" },
+        "filenameItem": { "type" : "string" }
+      }
+    },
+    "test-properties#fileListType": {
+      "list": { "type" : "blob" }
+    },
+    "test-properties#intArrayType": {
+      "list": { "type" : "long" }
+    },
+    "test-properties#listOfListsItemType": {
+      "fields": {
+        "stringItem": { "type" : "string" },
+        "stringListItem": { "type" : "test-properties#stringList" }
+      }
+    },
+    "test-properties#listOfListsType": {
+      "list": { "type" : "test-properties#listOfListsItemType" }
+    },
+    "test-properties#stringArrayType": {
+      "list": { "type" : "string" }
+    },
+    "test-properties#stringList": {
+      "list": { "type" : "string" }
+    }
+  },
+  "schemas": {
+    "system": {
+      "prefix": "sys",
+      "fields": {
+        "sys_contributors": { "type" : "system#contributorList" },
+        "sys_created": { "type" : "date" },
+        "sys_creator": {
+          "extends": "string",
+          "constraints": {
+            "nullable": true,
+            "resolver": {
+              "name": "userManagerResolver",
+              "type": "user",
+              "validation": false
+            }
+          }
+        },
+        "sys_description": { "type" : "string" },
+        "sys_lastContributor": {
+          "extends": "string",
+          "constraints": {
+            "nullable": true,
+            "resolver": {
+              "name": "userManagerResolver",
+              "type": "user",
+              "validation": false
+            }
+          }
+        },
+        "sys_modified": { "type" : "date" },
+        "sys_title": { "type" : "string" }
+      }
+    },
+    "sysfile": {
+      "prefix": "sysfile",
+      "fields": {
+        "sysfile_blob": { "type":"blob" }
+      }
+    },
+    "sysfiles": {
+      "prefix": "sysfiles",
+      "fields": {
+        "sysfiles_blobs": { "type" : "sysfiles#blobs" }
+      }
+    },
+    "sysembeddings": {
+      "prefix": "sysemb",
+      "fields": {
+        "sysemb_embeddings": {
+          "extends": "blob",
+          "constraints": {
+            "nullable": false
+          }
+        }
+      }
+    },
+    "sysgraph": {
+      "prefix": "sysgraph",
+      "fields": {
+        "sysgraph_graphDBIds": { "type" : "sysgraph#stringList" },
+        "sysgraph_ontologyRefs": { "type" : "sysgraph#stringList" }
+      }
+    },
+    "sysversionable": {
+      "prefix": "sysver",
+      "fields": {
+        "sysver_created": { "type" : "date" },
+        "sysver_creator": { "type" : "string" },
+        "sysver_description": { "type" : "string" },
+        "sysver_isCheckedIn": { "type" : "boolean" },
+        "sysver_isTemp": { "type" : "boolean" },
+        "sysver_isVersion": { "type" : "boolean" },
+        "sysver_minorVersion": { "type" : "long" },
+        "sysver_title": { "type" : "string" },
+        "sysver_version": { "type" : "long" }
+      }
+    },
+    "mydublincore": {
+      "prefix": "mydc",
+      "fields": {
+        "mydc_coverage": { "type" : "string" },
+        "mydc_decimal": { "type" : "decimal" },
+        "mydc_expired": { "type" : "date" },
+        "mydc_format": { "type" : "string" },
+        "mydc_issued": { "type" : "date" },
+        "mydc_language": { "type" : "string" },
+        "mydc_nature": { "type" : "string" },
+        "mydc_publisher": { "type" : "string" },
+        "mydc_rights": { "type" : "string" },
+        "mydc_source": { "type" : "string" },
+        "mydc_subjects": { "type" :"mydublincore#stringList"},
+        "mydc_valid": { "type" : "date" }
+      }
+    },
+    "sysgovernable" : {
+      "fields" : {
+        "sysgov_hasLegalHold" : { "type" : "boolean" },
+        "sysgov_isRecord" : { "type" : "boolean" },
+        "sysgov_retainUntil" : { "type" : "date" }
+      },
+      "prefix" : "sysgov"
+    },
+    "sysrelation": {
+      "prefix": "sysrelation",
+      "fields": {
+        "sysrelation_predicate": { "type" : "string" },
+        "sysrelation_source": { "type" : "string" },
+        "sysrelation_target": { "type" : "string" }
+      }
+    },
+    "sysrendition": {
+      "prefix": "sysrendition",
+      "fields": {
+        "sysrendition_id": { "type" : "string" },
+        "sysrendition_status": { "type" : "string" },
+        "sysrendition_blob": { "type" : "blob" },
+        "sysrendition_blobPath": { "type" : "string" },
+        "sysrendition_isExternal": { "extends" : "boolean", "default": "false" },
+        "sysrendition_sourceDoc": { "type" : "string" }
+      }
+    },
+    "test-properties": {
+      "prefix": "tp",
+      "fields": {
+        "tp_complex": { "type" : "test-properties#complexType" },
+        "tp_complexChain": { "type" : "test-properties#complexChain" },
+        "tp_complexList": { "type" : "test-properties#complexListType" },
+        "tp_dateArray": { "type" : "test-properties#dateArrayType" },
+        "tp_decimal": { "type" : "decimal" },
+        "tp_fileComplexList": { "type" : "test-properties#fileComplexListType" },
+        "tp_fileList": { "type" : "test-properties#fileListType" },
+        "tp_intArray": { "type" : "test-properties#intArrayType" },
+        "tp_listOfLists": { "type" : "test-properties#listOfListsType" },
+        "tp_stringArray": { "type" : "test-properties#stringArrayType" }
+      }
+    },
+    "sysmdanno": {
+      "prefix": "sysmdanno",
+      "fields": {
+        "sysmdanno_name": { "type": "string" },
+        "sysmdanno_pageId": { "type": "long" },
+        "sysmdanno_type": { "type": "string" },
+        "sysmdanno_contentItemId": { "type": "string" },
+        "sysmdanno_id": { "type": "string" },
+        "sysmdanno_x": { "type": "double" },
+        "sysmdanno_y": { "type": "double" },
+        "sysmdanno_height": { "type": "double" },
+        "sysmdanno_width": { "type": "double" },
+        "sysmdanno_fillColor": { "type": "string" },
+        "sysmdanno_fillable": { "type": "boolean" },
+        "sysmdanno_stroke": { "type": "string" },
+        "sysmdanno_opacity": { "type": "double" },
+        "sysmdanno_resizable": { "type": "boolean" },
+        "sysmdanno_movable": { "type": "boolean" },
+        "sysmdanno_data": { "type": "string" },
+        "sysmdanno_scale": { "type": "double" },
+        "sysmdanno_fixRotation": { "type": "boolean" },
+        "sysmdanno_additionalData": { "type": "string" }
+      }
+    },
+    "sysmdannotatable": {
+      "prefix": "sysmdannotatable",
+      "fields": {
+        "sysmdannotatable_state": { "type": "string" }
+      }
+    },
+    "sysmdbm": {
+      "prefix": "sysmdbm",
+      "fields": {
+        "sysmdbm_name": { "type": "string" },
+        "sysmdbm_pageId": { "type": "long" },
+        "sysmdbm_additionalData": { "type": "string" }
+      }
+    },
+    "sysmdcomment": {
+      "prefix": "sysmdcomment",
+      "fields": {
+        "sysmdcomment_content": { "type": "string" },
+        "sysmdcomment_externalAuthor": { "type": "string" },
+        "sysmdcomment_state": { "type": "string" },
+        "sysmdcomment_additionalData": { "type": "string" },
+        "sysmdcomment_date": { "type": "date" },
+        "sysmdcomment_updatedAt": { "type": "date" },
+        "sysmdcomment_isExternalComment": { "type": "boolean" },
+        "sysmdcomment_externalId": { "type": "string" }
+      }
+    },
+    "sysmdhl": {
+      "prefix": "sysmdhl",
+      "fields": {
+        "sysmdhl_highlights": { "type": "string" }
+      }
+    },
+    "sysmdimage": {
+      "prefix": "sysmdimage",
+      "fields": {
+        "sysmdimage_href": { "type": "string" },
+        "sysmdimage_padding": { "type": "double" },
+        "sysmdimage_radius": { "type": "double" }
+      }
+    },
+    "sysmdline": {
+      "prefix": "sysmdline",
+      "fields": {
+        "sysmdline_lineCap": { "type": "string" },
+        "sysmdline_markerEnd": { "type": "string" },
+        "sysmdline_markerStart": { "type": "string" },
+        "sysmdline_reverseX": { "type": "boolean" },
+        "sysmdline_reverseY": { "type": "boolean" }
+      }
+    },
+    "sysmdpath": {
+      "prefix": "sysmdpath",
+      "fields": {
+        "sysmdpath_path": { "type": "string" }
+      }
+    },
+    "sysmdredactable": {
+      "prefix": "sysmdredactable",
+      "fields": {
+        "sysmdredactable_sourceDocumentId": { "type": "string" },
+        "sysmdredactable_state": { "type": "string" }
+      }
+    },
+    "sysmdtext": {
+      "prefix": "sysmdtext",
+      "fields": {
+        "sysmdtext_bold": { "type": "boolean" },
+        "sysmdtext_fontColor": { "type": "string" },
+        "sysmdtext_fontFamily": { "type": "string" },
+        "sysmdtext_fontSize": { "type": "string" },
+        "sysmdtext_horizontallyCenterTextBox": { "type": "boolean" },
+        "sysmdtext_italic": { "type": "boolean" },
+        "sysmdtext_lineHeight": { "type": "double" },
+        "sysmdtext_lineHeightMultiplier": { "type": "double" },
+        "sysmdtext_overflow": { "type": "boolean" },
+        "sysmdtext_padding": { "type": "double" },
+        "sysmdtext_radius": { "type": "double" },
+        "sysmdtext_strikeThrough": { "type": "boolean" },
+        "sysmdtext_text": { "type": "string" },
+        "sysmdtext_textAlignment": { "type": "string" },
+        "sysmdtext_underline": { "type": "boolean" },
+        "sysmdtext_verticallyCenterText": { "type": "boolean" }
+      }
+    },
+    "sysvocab": {
+      "fields": {
+        "sysvocab_id": { "type" : "string" },
+        "sysvocab_key": { "type" : "string" },
+        "sysvocab_label": { "type" : "string" }
+      },
+      "prefix": "sysvocab"
+    }
+  },
+  "mixinTypes": {
+    "SysFilish": {
+      "schemas": [
+        "sysfile"
+      ]
+    },
+    "SysFolderish": {
+      "noPerDocumentQuery": true
+    },
+    "SysFullTextIndexable": {},
+    "SysGovernable" : {
+      "schemas" : [
+        "sysgovernable"
+      ]
+    },
+    "SysMDHL": {
+      "schemas": [
+        "sysmdhl"
+      ]
+    },
+    "SysMDImage": {
+      "schemas": [
+        "sysmdimage"
+      ]
+    },
+    "SysMDLine": {
+      "schemas": [
+        "sysmdline"
+      ]
+    },
+    "SysMDPath": {
+      "schemas": [
+        "sysmdpath"
+      ]
+    },
+    "SysMDText": {
+      "schemas": [
+        "sysmdtext"
+      ]
+    },
+    "SysMDAnnotatable": {
+      "schemas": [
+        "sysmdannotatable"
+      ]
+    },
+    "SysMDRedactable": {
+      "schemas": [
+        "sysmdredactable"
+      ]
+    },
+    "SysOrderable": {},
+    "SysVersionable": {
+      "schemas": [
+        "sysversionable"
+      ]
+    },
+    "SysVersionedWithParent": {},
+    "SysTestDocument": {},
+    "SysHasEmbeddings": {},
+    "SysGraphable": {
+      "schemas": [
+        "sysgraph"
+      ]
+    }
+  },
+  "primaryTypes": {
+    "SysContent": {},
+    "SysFile": {
+      "extends": "SysContent",
+      "schemas": [
+        "system",
+        "sysfiles",
+        "mydublincore"
+      ],
+      "mixins": [
+        "SysFilish"
+      ]
+    },
+    "SysFolder": {
+      "extends": "SysContent",
+      "schemas": [
+        "system",
+        "mydublincore"
+      ],
+      "mixins": [
+        "SysFolderish"
+      ],
+      "subtypes": [
+        "SysFile",
+        "SysFolder",
+        "SysOrderedFolder"
+      ]
+    },
+    "SysMDAnnotation": {
+      "extends": "SysContent",
+      "schemas": [
+        "sysmdanno",
+        "system"
+      ],
+      "mixins": [
+        "SysVersionedWithParent"
+      ]
+    },
+    "SysMDComment": {
+      "extends": "SysContent",
+      "schemas": [
+        "sysmdcomment",
+        "system"
+      ],
+      "mixins": [
+        "SysVersionedWithParent"
+      ]
+    },
+    "SysMDBookmark": {
+      "extends": "SysContent",
+      "schemas": [
+        "sysmdbm",
+        "system"
+      ],
+      "mixins": [
+        "SysVersionedWithParent"
+      ]
+    },
+    "SysOrderedFolder": {
+      "extends": "SysFolder",
+      "mixins": [
+        "SysOrderable"
+      ],
+      "subtypes": [
+        "SysFile",
+        "SysFolder",
+        "SysOrderedFolder"
+      ]
+    },
+    "SysRelation": {
+      "schemas": [
+        "system",
+        "sysrelation"
+      ]
+    },
+    "SysRendition": {
+      "extends": "SysContent",
+      "schemas": [
+        "system",
+        "sysrendition"
+      ]
+    },
+    "SysRenditionsContainer": {
+      "extends": "SysFolder",
+      "mixins": [
+        "SysVersionedWithParent"
+      ],
+      "subtypes": [
+        "SysRendition"
+      ]
+    },
+    "SysRoot": {
+      "extends": "SysFolder"
+    },
+    "SysEmbeddings": {
+      "extends": "SysContent",
+      "schemas": [
+        "system",
+        "sysembeddings"
+      ]
+    },
+    "TestDocument": {
+      "extends": "SysContent",
+      "schemas": [
+        "system",
+        "sysfile",
+        "mydublincore",
+        "test-properties"
+      ]
+    },
+    "SysVocabulary": {
+      "extends": "SysContent",
+      "mixins": [
+        "SysFolderish"
+      ],
+      "schemas": [
+        "system",
+        "sysvocab"
+      ],
+      "subtypes": [
+        "SysVocabularyEntry"
+      ]
+    },
+    "SysVocabularyEntry": {
+      "extends": "SysContent",
+      "schemas": [
+        "system",
+        "sysvocab"
+      ]
+    }
+  }
+}

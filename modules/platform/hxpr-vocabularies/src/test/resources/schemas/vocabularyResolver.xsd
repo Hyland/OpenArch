@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://nuxeo.com/schemas/externalReferenceSample"
+           xmlns:ref="http://www.nuxeo.org/ecm/schemas/core/external-references/">
+
+  <xs:element name="vocabulary1Ref">
+    <xs:simpleType>
+      <xs:restriction base="xs:string" ref:resolver="vocabularyResolver" ref:vocabulary="referencedDirectory1"
+                      ref:repository="test"/>
+    </xs:simpleType>
+  </xs:element>
+
+  <xs:element name="vocabulary2Ref">
+    <xs:simpleType>
+      <xs:restriction base="xs:string" ref:resolver="vocabularyResolver" ref:vocabulary="referencedDirectory2"
+                      ref:repository="test"/>
+    </xs:simpleType>
+  </xs:element>
+
+  <xs:element name="vocabulary3Refs">
+    <xs:simpleType>
+      <xs:list>
+        <xs:simpleType>
+          <xs:restriction base="xs:string" ref:resolver="vocabularyResolver" ref:vocabulary="referencedDirectory1"
+                          ref:repository="test"/>
+        </xs:simpleType>
+      </xs:list>
+    </xs:simpleType>
+  </xs:element>
+
+</xs:schema>

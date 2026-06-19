@@ -1,0 +1,42 @@
+{
+  "errors": [
+    {
+      "invalidValue": "sysfiles#blob-foobar",
+      "message": "The value \"sysfiles#blob-foobar\" is an invalid type.",
+      "messageKey": "label.schema.application.violation.InvalidObjectViolation.types",
+      "parameters": [
+        "sysfiles#blob-foobar",
+        "types/sysfiles#blobitem"
+      ],
+      "path": "types/sysfiles#blobitem"
+    },
+    {
+      "invalidValue": {
+        "type": "sysfiles#blobitem"
+      },
+      "message": "The value \"'{'type=sysfiles#blobitem'}'\" is and invalid element for the list type \"types/sysfiles#blobs/list\".",
+      "messageKey": "label.schema.application.violation.InvalidObjectViolation.types.list",
+      "parameters": [
+        {
+          "type": "sysfiles#blobitem"
+        },
+        "types/sysfiles#blobs/list"
+      ],
+      "path": "types/sysfiles#blobs/list"
+    },
+    {
+      "invalidValue": {
+        "type": "sysfiles#blobs"
+      },
+      "message": "The value \"'{'type=sysfiles#blobs'}'\" is an invalid type in the field \"schemas/sysfiles/fields/sysfiles_blobs\".",
+      "messageKey": "label.schema.application.violation.InvalidObjectViolation.fields",
+      "parameters": [
+        {
+          "type": "sysfiles#blobs"
+        },
+        "schemas/sysfiles/fields/sysfiles_blobs"
+      ],
+      "path": "schemas/sysfiles/fields/sysfiles_blobs"
+    }
+  ]
+}

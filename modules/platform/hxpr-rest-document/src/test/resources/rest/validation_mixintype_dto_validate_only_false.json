@@ -1,0 +1,18 @@
+{
+  "errors": [
+    {
+      "invalidValue": [
+        "Versionable-foobar"
+      ],
+      "message": "The value \"[Versionable-foobar]\" is an invalid mixin type.",
+      "messageKey": "label.schema.application.violation.InvalidObjectViolation.mixins.types",
+      "parameters": [
+        [
+          "Versionable-foobar"
+        ],
+        "mixinTypes/SysVersionable"
+      ],
+      "path": "mixinTypes/SysVersionable"
+    }
+  ]
+}

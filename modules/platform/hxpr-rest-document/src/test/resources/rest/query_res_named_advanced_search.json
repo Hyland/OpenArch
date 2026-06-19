@@ -1,0 +1,801 @@
+{
+  "count": 10,
+  "documents": [
+    {
+      "sys_changeToken": "0-0",
+      "sys_effectivePermissions": [
+        "CreateChild",
+        "CreateVersion",
+        "Delete",
+        "DeleteChild",
+        "ManageLock",
+        "ManageRetention",
+        "Read",
+        "ReadVersion",
+        "ReadWrite",
+        "Write",
+        "WriteVersion",
+        "ManageSecurity"
+      ],
+      "sys_id": "252ef0e4-0c53-4b73-a1e1-2aa0bbb60b3b",
+      "sys_isFolderish": false,
+      "sys_mixinTypes": [
+        "SysFilish"
+      ],
+      "sys_name": "doc0",
+      "sys_parentId": "00000000-0000-0000-0000-000000000000",
+      "sys_ancestorIds": ["00000000-0000-0000-0000-000000000000"],
+      "sys_parentPath": "/",
+      "sys_path": "/doc0",
+      "sys_pathDepth": 2,
+      "sys_primaryType": "SysFile",
+      "mydc_coverage": "Coverage0",
+      "sys_contributors": [
+        {
+          "email": "test.user@hyland.com",
+          "firstName": "Test",
+          "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
+          "lastName": "User",
+          "properties": {
+            "YOJ": "2013",
+            "empId": "E443336-3675",
+            "favouriteColor": "beige"
+          }
+        }
+      ],
+      "sys_created": "2021-10-24T00:00:00Z",
+      "sys_creator": {
+        "email": "test.user@hyland.com",
+        "firstName": "Test",
+        "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
+        "lastName": "User",
+        "properties": {
+          "YOJ": "2013",
+          "empId": "E443336-3675",
+          "favouriteColor": "beige"
+        }
+      },
+      "sys_lastContributor": {
+        "email": "test.user@hyland.com",
+        "firstName": "Test",
+        "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
+        "lastName": "User",
+        "properties": {
+          "YOJ": "2013",
+          "empId": "E443336-3675",
+          "favouriteColor": "beige"
+        }
+      },
+      "sys_modified": "2021-10-24T00:00:00Z",
+      "mydc_nature": "Nature0",
+      "mydc_source": "Source 0",
+      "sysfile_blob": {
+        "key": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "mimeType": "text/plain",
+        "encoding": "UTF-8",
+        "filename": "file0.txt",
+        "length": 0
+      },
+      "sys_repository": "test",
+      "sys_title": "File0"
+    },
+    {
+      "sys_changeToken": "0-0",
+      "sys_effectivePermissions": [
+        "CreateChild",
+        "CreateVersion",
+        "Delete",
+        "DeleteChild",
+        "ManageLock",
+        "ManageRetention",
+        "Read",
+        "ReadVersion",
+        "ReadWrite",
+        "Write",
+        "WriteVersion",
+        "ManageSecurity"
+      ],
+      "sys_id": "bf3770e3-5ead-48d8-b547-481a9d3a28fc",
+      "sys_isFolderish": false,
+      "sys_mixinTypes": [
+        "SysFilish"
+      ],
+      "sys_name": "doc1",
+      "sys_parentId": "00000000-0000-0000-0000-000000000000",
+      "sys_ancestorIds": ["00000000-0000-0000-0000-000000000000"],
+      "sys_parentPath": "/",
+      "sys_path": "/doc1",
+      "sys_pathDepth": 2,
+      "sys_primaryType": "SysFile",
+      "mydc_coverage": "Coverage1",
+      "sys_contributors": [
+        {
+          "email": "test.user@hyland.com",
+          "firstName": "Test",
+          "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
+          "lastName": "User",
+          "properties": {
+            "YOJ": "2013",
+            "empId": "E443336-3675",
+            "favouriteColor": "beige"
+          }
+        }
+      ],
+      "sys_created": "2021-10-18T00:00:00Z",
+      "sys_creator": {
+        "email": "test.user@hyland.com",
+        "firstName": "Test",
+        "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
+        "lastName": "User",
+        "properties": {
+          "YOJ": "2013",
+          "empId": "E443336-3675",
+          "favouriteColor": "beige"
+        }
+      },
+      "sys_lastContributor": {
+        "email": "test.user@hyland.com",
+        "firstName": "Test",
+        "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
+        "lastName": "User",
+        "properties": {
+          "YOJ": "2013",
+          "empId": "E443336-3675",
+          "favouriteColor": "beige"
+        }
+      },
+      "sys_modified": "2021-10-18T00:00:00Z",
+      "mydc_nature": "Nature1",
+      "mydc_source": "Source 1",
+      "sysfile_blob": {
+        "key": "49abd65bbf7f7e40c7055093ed2e3fd75f2f602f2c5fcf955c213e3135eb03f7",
+        "digest": "49abd65bbf7f7e40c7055093ed2e3fd75f2f602f2c5fcf955c213e3135eb03f7",
+        "mimeType": "text/plain",
+        "encoding": "UTF-8",
+        "filename": "file1.txt",
+        "length": 1024
+      },
+      "sys_repository": "test",
+      "sys_title": "File1"
+    },
+    {
+      "sys_changeToken": "0-0",
+      "sys_effectivePermissions": [
+        "CreateChild",
+        "CreateVersion",
+        "Delete",
+        "DeleteChild",
+        "ManageLock",
+        "ManageRetention",
+        "Read",
+        "ReadVersion",
+        "ReadWrite",
+        "Write",
+        "WriteVersion",
+        "ManageSecurity"
+      ],
+      "sys_id": "9c112e4c-daec-425f-88c7-97156e3dd11f",
+      "sys_isFolderish": false,
+      "sys_mixinTypes": [
+        "SysFilish"
+      ],
+      "sys_name": "doc2",
+      "sys_parentId": "00000000-0000-0000-0000-000000000000",
+      "sys_ancestorIds": ["00000000-0000-0000-0000-000000000000"],
+      "sys_parentPath": "/",
+      "sys_path": "/doc2",
+      "sys_pathDepth": 2,
+      "sys_primaryType": "SysFile",
+      "mydc_coverage": "Coverage2",
+      "sys_contributors": [
+        {
+          "email": "test.user@hyland.com",
+          "firstName": "Test",
+          "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
+          "lastName": "User",
+          "properties": {
+            "YOJ": "2013",
+            "empId": "E443336-3675",
+            "favouriteColor": "beige"
+          }
+        }
+      ],
+      "sys_created": "2021-10-11T00:00:00Z",
+      "sys_creator": {
+        "email": "test.user@hyland.com",
+        "firstName": "Test",
+        "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
+        "lastName": "User",
+        "properties": {
+          "YOJ": "2013",
+          "empId": "E443336-3675",
+          "favouriteColor": "beige"
+        }
+      },
+      "sys_lastContributor": {
+        "email": "test.user@hyland.com",
+        "firstName": "Test",
+        "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
+        "lastName": "User",
+        "properties": {
+          "YOJ": "2013",
+          "empId": "E443336-3675",
+          "favouriteColor": "beige"
+        }
+      },
+      "sys_modified": "2021-10-11T00:00:00Z",
+      "mydc_nature": "Nature0",
+      "mydc_source": "Source 2",
+      "sysfile_blob": {
+        "key": "1d1801f753ccd9fa57966c46f360585caf83337a394a5f238d4e4e7d6005788d",
+        "digest": "1d1801f753ccd9fa57966c46f360585caf83337a394a5f238d4e4e7d6005788d",
+        "mimeType": "text/plain",
+        "encoding": "UTF-8",
+        "filename": "file2.txt",
+        "length": 2048
+      },
+      "sys_repository": "test",
+      "sys_title": "File2"
+    },
+    {
+      "sys_changeToken": "0-0",
+      "sys_effectivePermissions": [
+        "CreateChild",
+        "CreateVersion",
+        "Delete",
+        "DeleteChild",
+        "ManageLock",
+        "ManageRetention",
+        "Read",
+        "ReadVersion",
+        "ReadWrite",
+        "Write",
+        "WriteVersion",
+        "ManageSecurity"
+      ],
+      "sys_id": "9c112e4c-daec-425f-88c7-97156e3dd11f",
+      "sys_isFolderish": false,
+      "sys_mixinTypes": [
+        "SysFilish"
+      ],
+      "sys_name": "doc3",
+      "sys_parentId": "00000000-0000-0000-0000-000000000000",
+      "sys_ancestorIds": ["00000000-0000-0000-0000-000000000000"],
+      "sys_parentPath": "/",
+      "sys_path": "/doc3",
+      "sys_pathDepth": 2,
+      "sys_primaryType": "SysFile",
+      "mydc_coverage": "Coverage0",
+      "sys_contributors": [
+        {
+          "email": "test.user@hyland.com",
+          "firstName": "Test",
+          "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
+          "lastName": "User",
+          "properties": {
+            "YOJ": "2013",
+            "empId": "E443336-3675",
+            "favouriteColor": "beige"
+          }
+        }
+      ],
+      "sys_created": "2021-10-11T00:00:00Z",
+      "sys_creator": {
+        "email": "test.user@hyland.com",
+        "firstName": "Test",
+        "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
+        "lastName": "User",
+        "properties": {
+          "YOJ": "2013",
+          "empId": "E443336-3675",
+          "favouriteColor": "beige"
+        }
+      },
+      "sys_lastContributor": {
+        "email": "test.user@hyland.com",
+        "firstName": "Test",
+        "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
+        "lastName": "User",
+        "properties": {
+          "YOJ": "2013",
+          "empId": "E443336-3675",
+          "favouriteColor": "beige"
+        }
+      },
+      "sys_modified": "2021-10-11T00:00:00Z",
+      "mydc_nature": "Nature1",
+      "mydc_source": "Source 3",
+      "sysfile_blob": {
+        "key": "6ae2dd899de6c6f44d60302c256dafc3059278a5d7f18f46bad463ccfdb3acfe",
+        "digest": "6ae2dd899de6c6f44d60302c256dafc3059278a5d7f18f46bad463ccfdb3acfe",
+        "mimeType": "text/plain",
+        "encoding": "UTF-8",
+        "filename": "file3.txt",
+        "length": 3072
+      },
+      "sys_repository": "test",
+      "sys_title": "File3"
+    },
+    {
+      "sys_changeToken": "0-0",
+      "sys_effectivePermissions": [
+        "CreateChild",
+        "CreateVersion",
+        "Delete",
+        "DeleteChild",
+        "ManageLock",
+        "ManageRetention",
+        "Read",
+        "ReadVersion",
+        "ReadWrite",
+        "Write",
+        "WriteVersion",
+        "ManageSecurity"
+      ],
+      "sys_id": "9c112e4c-daec-425f-88c7-97156e3dd11f",
+      "sys_isFolderish": false,
+      "sys_mixinTypes": [
+        "SysFilish"
+      ],
+      "sys_name": "doc4",
+      "sys_parentId": "00000000-0000-0000-0000-000000000000",
+      "sys_ancestorIds": ["00000000-0000-0000-0000-000000000000"],
+      "sys_parentPath": "/",
+      "sys_path": "/doc4",
+      "sys_pathDepth": 2,
+      "sys_primaryType": "SysFile",
+      "mydc_coverage": "Coverage1",
+      "sys_contributors": [
+        {
+          "email": "test.user@hyland.com",
+          "firstName": "Test",
+          "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
+          "lastName": "User",
+          "properties": {
+            "YOJ": "2013",
+            "empId": "E443336-3675",
+            "favouriteColor": "beige"
+          }
+        }
+      ],
+      "sys_created": "2021-10-11T00:00:00Z",
+      "sys_creator": {
+        "email": "test.user@hyland.com",
+        "firstName": "Test",
+        "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
+        "lastName": "User",
+        "properties": {
+          "YOJ": "2013",
+          "empId": "E443336-3675",
+          "favouriteColor": "beige"
+        }
+      },
+      "sys_lastContributor": {
+        "email": "test.user@hyland.com",
+        "firstName": "Test",
+        "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
+        "lastName": "User",
+        "properties": {
+          "YOJ": "2013",
+          "empId": "E443336-3675",
+          "favouriteColor": "beige"
+        }
+      },
+      "sys_modified": "2021-10-11T00:00:00Z",
+      "mydc_nature": "Nature0",
+      "mydc_source": "Source 4",
+      "sysfile_blob": {
+        "key": "a2e659dacb4691e887ac0139f8893d04764ee197d70fb73d3190d56113d18e3e",
+        "digest": "a2e659dacb4691e887ac0139f8893d04764ee197d70fb73d3190d56113d18e3e",
+        "mimeType": "text/plain",
+        "encoding": "UTF-8",
+        "filename": "file4.txt",
+        "length": 4096
+      },
+      "sys_repository": "test",
+      "sys_title": "File4"
+    },
+    {
+      "sys_changeToken": "0-0",
+      "sys_effectivePermissions": [
+        "CreateChild",
+        "CreateVersion",
+        "Delete",
+        "DeleteChild",
+        "ManageLock",
+        "ManageRetention",
+        "Read",
+        "ReadVersion",
+        "ReadWrite",
+        "Write",
+        "WriteVersion",
+        "ManageSecurity"
+      ],
+      "sys_id": "9c112e4c-daec-425f-88c7-97156e3dd11f",
+      "sys_isFolderish": false,
+      "sys_mixinTypes": [
+        "SysFilish"
+      ],
+      "sys_name": "doc5",
+      "sys_parentId": "00000000-0000-0000-0000-000000000000",
+      "sys_ancestorIds": ["00000000-0000-0000-0000-000000000000"],
+      "sys_parentPath": "/",
+      "sys_path": "/doc5",
+      "sys_pathDepth": 2,
+      "sys_primaryType": "SysFile",
+      "mydc_coverage": "Coverage2",
+      "sys_contributors": [
+        {
+          "email": "test.user@hyland.com",
+          "firstName": "Test",
+          "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
+          "lastName": "User",
+          "properties": {
+            "YOJ": "2013",
+            "empId": "E443336-3675",
+            "favouriteColor": "beige"
+          }
+        }
+      ],
+      "sys_created": "2021-10-11T00:00:00Z",
+      "sys_creator": {
+        "email": "test.user@hyland.com",
+        "firstName": "Test",
+        "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
+        "lastName": "User",
+        "properties": {
+          "YOJ": "2013",
+          "empId": "E443336-3675",
+          "favouriteColor": "beige"
+        }
+      },
+      "sys_lastContributor": {
+        "email": "test.user@hyland.com",
+        "firstName": "Test",
+        "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
+        "lastName": "User",
+        "properties": {
+          "YOJ": "2013",
+          "empId": "E443336-3675",
+          "favouriteColor": "beige"
+        }
+      },
+      "sys_modified": "2021-10-11T00:00:00Z",
+      "mydc_nature": "Nature1",
+      "mydc_source": "Source 5",
+      "sysfile_blob": {
+        "key": "4d64e2c45bd1ec955bf3295362d1614af3d7ce6d99e8cfd41d13a9d45efe1109",
+        "digest": "4d64e2c45bd1ec955bf3295362d1614af3d7ce6d99e8cfd41d13a9d45efe1109",
+        "mimeType": "text/plain",
+        "encoding": "UTF-8",
+        "filename": "file5.txt",
+        "length": 5120
+      },
+      "sys_repository": "test",
+      "sys_title": "File5"
+    },
+    {
+      "sys_changeToken": "0-0",
+      "sys_effectivePermissions": [
+        "CreateChild",
+        "CreateVersion",
+        "Delete",
+        "DeleteChild",
+        "ManageLock",
+        "ManageRetention",
+        "Read",
+        "ReadVersion",
+        "ReadWrite",
+        "Write",
+        "WriteVersion",
+        "ManageSecurity"
+      ],
+      "sys_id": "9c112e4c-daec-425f-88c7-97156e3dd11f",
+      "sys_isFolderish": false,
+      "sys_mixinTypes": [
+        "SysFilish"
+      ],
+      "sys_name": "doc6",
+      "sys_parentId": "00000000-0000-0000-0000-000000000000",
+      "sys_ancestorIds": ["00000000-0000-0000-0000-000000000000"],
+      "sys_parentPath": "/",
+      "sys_path": "/doc6",
+      "sys_pathDepth": 2,
+      "sys_primaryType": "SysFile",
+      "mydc_coverage": "Coverage0",
+      "sys_contributors": [
+        {
+          "email": "test.user@hyland.com",
+          "firstName": "Test",
+          "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
+          "lastName": "User",
+          "properties": {
+            "YOJ": "2013",
+            "empId": "E443336-3675",
+            "favouriteColor": "beige"
+          }
+        }
+      ],
+      "sys_created": "2021-10-11T00:00:00Z",
+      "sys_creator": {
+        "email": "test.user@hyland.com",
+        "firstName": "Test",
+        "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
+        "lastName": "User",
+        "properties": {
+          "YOJ": "2013",
+          "empId": "E443336-3675",
+          "favouriteColor": "beige"
+        }
+      },
+      "sys_lastContributor": {
+        "email": "test.user@hyland.com",
+        "firstName": "Test",
+        "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
+        "lastName": "User",
+        "properties": {
+          "YOJ": "2013",
+          "empId": "E443336-3675",
+          "favouriteColor": "beige"
+        }
+      },
+      "sys_modified": "2021-10-11T00:00:00Z",
+      "mydc_nature": "Nature0",
+      "mydc_source": "Source 6",
+      "sysfile_blob": {
+        "key": "99965159481c9d56c4ce56534a984f0f97607d44197fbc1c7d9c4f499566999b",
+        "digest": "99965159481c9d56c4ce56534a984f0f97607d44197fbc1c7d9c4f499566999b",
+        "mimeType": "text/plain",
+        "encoding": "UTF-8",
+        "filename": "file6.txt",
+        "length": 6144
+      },
+      "sys_repository": "test",
+      "sys_title": "File6"
+    },
+    {
+      "sys_changeToken": "0-0",
+      "sys_effectivePermissions": [
+        "CreateChild",
+        "CreateVersion",
+        "Delete",
+        "DeleteChild",
+        "ManageLock",
+        "ManageRetention",
+        "Read",
+        "ReadVersion",
+        "ReadWrite",
+        "Write",
+        "WriteVersion",
+        "ManageSecurity"
+      ],
+      "sys_id": "9c112e4c-daec-425f-88c7-97156e3dd11f",
+      "sys_isFolderish": false,
+      "sys_mixinTypes": [
+        "SysFilish"
+      ],
+      "sys_name": "doc7",
+      "sys_parentId": "00000000-0000-0000-0000-000000000000",
+      "sys_ancestorIds": ["00000000-0000-0000-0000-000000000000"],
+      "sys_parentPath": "/",
+      "sys_path": "/doc7",
+      "sys_pathDepth": 2,
+      "sys_primaryType": "SysFile",
+      "mydc_coverage": "Coverage1",
+      "sys_contributors": [
+        {
+          "email": "test.user@hyland.com",
+          "firstName": "Test",
+          "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
+          "lastName": "User",
+          "properties": {
+            "YOJ": "2013",
+            "empId": "E443336-3675",
+            "favouriteColor": "beige"
+          }
+        }
+      ],
+      "sys_created": "2021-10-11T00:00:00Z",
+      "sys_creator": {
+        "email": "test.user@hyland.com",
+        "firstName": "Test",
+        "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
+        "lastName": "User",
+        "properties": {
+          "YOJ": "2013",
+          "empId": "E443336-3675",
+          "favouriteColor": "beige"
+        }
+      },
+      "sys_lastContributor": {
+        "email": "test.user@hyland.com",
+        "firstName": "Test",
+        "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
+        "lastName": "User",
+        "properties": {
+          "YOJ": "2013",
+          "empId": "E443336-3675",
+          "favouriteColor": "beige"
+        }
+      },
+      "sys_modified": "2021-10-11T00:00:00Z",
+      "mydc_nature": "Nature1",
+      "mydc_source": "Source 7",
+      "sysfile_blob": {
+        "key": "b98090f5ca8a2174c4b9ac136035029dcddc7c8bfd47cbb36975ff7a27dcd027",
+        "digest": "b98090f5ca8a2174c4b9ac136035029dcddc7c8bfd47cbb36975ff7a27dcd027",
+        "mimeType": "text/plain",
+        "encoding": "UTF-8",
+        "filename": "file7.txt",
+        "length": 7168
+      },
+      "sys_repository": "test",
+      "sys_title": "File7"
+    },
+    {
+      "sys_changeToken": "0-0",
+      "sys_effectivePermissions": [
+        "CreateChild",
+        "CreateVersion",
+        "Delete",
+        "DeleteChild",
+        "ManageLock",
+        "ManageRetention",
+        "Read",
+        "ReadVersion",
+        "ReadWrite",
+        "Write",
+        "WriteVersion",
+        "ManageSecurity"
+      ],
+      "sys_id": "9c112e4c-daec-425f-88c7-97156e3dd11f",
+      "sys_isFolderish": false,
+      "sys_mixinTypes": [
+        "SysFilish"
+      ],
+      "sys_name": "doc8",
+      "sys_parentId": "00000000-0000-0000-0000-000000000000",
+      "sys_ancestorIds": ["00000000-0000-0000-0000-000000000000"],
+      "sys_parentPath": "/",
+      "sys_path": "/doc8",
+      "sys_pathDepth": 2,
+      "sys_primaryType": "SysFile",
+      "mydc_coverage": "Coverage2",
+      "sys_contributors": [
+        {
+          "email": "test.user@hyland.com",
+          "firstName": "Test",
+          "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
+          "lastName": "User",
+          "properties": {
+            "YOJ": "2013",
+            "empId": "E443336-3675",
+            "favouriteColor": "beige"
+          }
+        }
+      ],
+      "sys_created": "2021-10-11T00:00:00Z",
+      "sys_creator": {
+        "email": "test.user@hyland.com",
+        "firstName": "Test",
+        "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
+        "lastName": "User",
+        "properties": {
+          "YOJ": "2013",
+          "empId": "E443336-3675",
+          "favouriteColor": "beige"
+        }
+      },
+      "sys_lastContributor": {
+        "email": "test.user@hyland.com",
+        "firstName": "Test",
+        "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
+        "lastName": "User",
+        "properties": {
+          "YOJ": "2013",
+          "empId": "E443336-3675",
+          "favouriteColor": "beige"
+        }
+      },
+      "sys_modified": "2021-10-11T00:00:00Z",
+      "mydc_nature": "Nature0",
+      "mydc_source": "Source 8",
+      "sysfile_blob": {
+        "key": "18f8d2eb4a387bbc1e37ec099a7326805739bc9c99ecf0f14b808a5bcb65bf49",
+        "digest": "18f8d2eb4a387bbc1e37ec099a7326805739bc9c99ecf0f14b808a5bcb65bf49",
+        "mimeType": "text/plain",
+        "encoding": "UTF-8",
+        "filename": "file8.txt",
+        "length": 8192
+      },
+      "sys_repository": "test",
+      "sys_title": "File8"
+    },
+    {
+      "sys_changeToken": "0-0",
+      "sys_effectivePermissions": [
+        "CreateChild",
+        "CreateVersion",
+        "Delete",
+        "DeleteChild",
+        "ManageLock",
+        "ManageRetention",
+        "Read",
+        "ReadVersion",
+        "ReadWrite",
+        "Write",
+        "WriteVersion",
+        "ManageSecurity"
+      ],
+      "sys_id": "9c112e4c-daec-425f-88c7-97156e3dd11f",
+      "sys_isFolderish": false,
+      "sys_mixinTypes": [
+        "SysFilish"
+      ],
+      "sys_name": "doc9",
+      "sys_parentId": "00000000-0000-0000-0000-000000000000",
+      "sys_ancestorIds": ["00000000-0000-0000-0000-000000000000"],
+      "sys_parentPath": "/",
+      "sys_path": "/doc9",
+      "sys_pathDepth": 2,
+      "sys_primaryType": "SysFile",
+      "mydc_coverage": "Coverage0",
+      "sys_contributors": [
+        {
+          "email": "test.user@hyland.com",
+          "firstName": "Test",
+          "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
+          "lastName": "User",
+          "properties": {
+            "YOJ": "2013",
+            "empId": "E443336-3675",
+            "favouriteColor": "beige"
+          }
+        }
+      ],
+      "sys_created": "2021-10-11T00:00:00Z",
+      "sys_creator": {
+        "email": "test.user@hyland.com",
+        "firstName": "Test",
+        "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
+        "lastName": "User",
+        "properties": {
+          "YOJ": "2013",
+          "empId": "E443336-3675",
+          "favouriteColor": "beige"
+        }
+      },
+      "sys_lastContributor": {
+        "email": "test.user@hyland.com",
+        "firstName": "Test",
+        "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
+        "lastName": "User",
+        "properties": {
+          "YOJ": "2013",
+          "empId": "E443336-3675",
+          "favouriteColor": "beige"
+        }
+      },
+      "sys_modified": "2021-10-11T00:00:00Z",
+      "mydc_nature": "Nature1",
+      "mydc_source": "Source 9",
+      "sysfile_blob": {
+        "key": "8c587a35bf63126e52f2f1fe6f0e289ea9c8399f23b47896d4b58f0d732705a4",
+        "digest": "8c587a35bf63126e52f2f1fe6f0e289ea9c8399f23b47896d4b58f0d732705a4",
+        "mimeType": "text/plain",
+        "encoding": "UTF-8",
+        "filename": "file9.txt",
+        "length": 9216
+      },
+      "sys_repository": "test",
+      "sys_title": "File9"
+    }
+  ],
+  "limit": -1,
+  "nextSearchAfter": "ignored-by-test-comparator",
+  "offset": 0,
+  "query": "SELECT * FROM SysContent WHERE sys_fulltext = 'File*' AND (sys_parentId IS NOT NULL AND sys_id IS NOT NULL AND sysver_isVersion=0) ORDER BY sys_title",
+  "repositoryId": "test",
+  "totalCount": 10
+}

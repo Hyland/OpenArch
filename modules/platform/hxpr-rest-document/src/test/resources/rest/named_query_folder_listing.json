@@ -1,0 +1,24 @@
+{
+  "aliases": [
+    "document_content"
+  ],
+  "name": "folder_listing",
+  "sort": [
+    "sys_title"
+  ],
+  "whereClauseDefinition": {
+    "predicates": [
+      {
+        "operator": "FULLTEXT",
+        "parameters": [
+          {
+            "defaultValue": null,
+            "name": "fulltext"
+          }
+        ],
+        "searchParameter": "sys_fulltext"
+      }
+    ],
+    "query": "SELECT * FROM SysContent WHERE sys_parentId=:parentId AND sysver_isVersion=0"
+  }
+}

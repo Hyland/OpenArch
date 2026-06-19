@@ -1,0 +1,100 @@
+# HxPR Community User Store — Test Fixture
+#
+# This file is bundled in the hxpr-login-filestore test-jar and serves as the
+# default user store for tests that use UserManagerCommunityFeature.
+#
+# It is a copy of server/hxpr-app-config/src/main/resources/hxpr-users.yml.
+# The UUIDs match UserManagerMock constants used across the test suite.
+# Do not change the UUIDs — they are stored in test documents and fixtures.
+
+administratorsGroups:
+  - administrators
+
+# ── Groups ──────────────────────────────────────────────────────────────────────
+groups:
+
+  - id: "5324ec90-ba1e-4030-8e6a-d815c6f3d4b1"
+    name: administrators
+
+  - id: "8d6542c9-50e9-4027-aa10-2cfb2179413f"
+    name: members
+
+  # Test groups — UUIDs match the reference data in UserManagerMock used by integration tests
+  - id: "e41b8531-41ec-42c2-bd4d-91e5bcbf5e49"
+    name: myGroupName
+
+  - id: "983c5bf9-5c98-4118-a289-af562fa36d5a"
+    name: myGroupNameTwo
+
+  - id: "7a3b1c2d-9e8f-4a5b-b6c7-d8e9f0a1b2c3"
+    name: members-test
+
+# ── Users ────────────────────────────────────────────────────────────────────────
+users:
+
+  # Production admin user.
+  - id: "00000000-0000-0000-0000-000000000001"
+    username: admin
+    password: "{noop}password"
+    firstName: Admin
+    lastName: User
+    email: admin@example.com
+    groups:
+      - administrators
+      - members
+
+  # Primary test user; authenticated via HTTP Basic Auth as "testuser" / "password"
+  # DummyLoginFeature.TEST_ADMIN_USER_NAME = "testuser"
+  # DummyLoginFeature.TEST_ADMIN_USER      = "ff7b0360-3594-416c-b587-2fa4dd0839ce"
+  - id: "ff7b0360-3594-416c-b587-2fa4dd0839ce"
+    username: testuser
+    password: "{noop}password"
+    firstName: Test
+    lastName: User
+    email: test.user@hyland.com
+    groups:
+      - administrators
+      - members
+    attributes:
+      YOJ: "2013"
+      empId: E443336-3675
+      favouriteColor: beige
+
+  # UserManagerMock.TEST_USER_2_ID
+  - id: "850edbd1-33c3-4653-b7c9-15e594570f28"
+    username: myUserNameOne
+    password: "{noop}password"
+    firstName: MyFirstOne
+    lastName: MyFamilyOne
+    email: firstOne.lastnameOne@hyland.com
+    groups:
+      - members
+
+  # UserManagerMock.TEST_USER_3_ID
+  - id: "850edbd1-33c3-4653-b7c9-15e594570f29"
+    username: myUserNameTwo
+    password: "{noop}password"
+    firstName: MyFirstTwo
+    lastName: MyFamilyTwo
+    email: firstTwo.lastnameTwo@hyland.com
+    groups:
+      - members
+
+  - id: "6a5a0abb-6092-489c-842b-777a74b6ad6a"
+    username: delprat
+    firstName: Tiry
+    lastName: Tiry
+    email: tiry.delprat@hyland.com
+    groups:
+      - administrators
+      - members
+
+  # UserManagerMock.ALT_USER_ID (AbstractAPITest.ALT_USER / jchan)
+  - id: "ced9ee59-c4d5-4b58-866a-b84cd6cc6fae"
+    username: jchan
+    password: "{noop}password"
+    firstName: Jacky
+    lastName: Chan
+    email: jacky.chan@hyland.com
+    groups:
+      - members

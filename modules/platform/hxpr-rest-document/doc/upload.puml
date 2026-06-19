@@ -1,0 +1,64 @@
+@startuml
+
+!include <aws/Storage/AmazonS3/bucket/bucket>
+!include <cloudinsight/mongodb>
+
+title Upload
+
+actor User
+
+box "Application"
+participant "Upload API" as UploadAPI
+participant "Document API" as DocumentAPI
+participant "Mongo TTL or GC Scheduler" as GC
+end box
+
+box "Persistence"
+participant "<color:green><$mongodb>\nMongo DB Transient" as MongoDBTransient
+participant "<color:red><$bucket>\nS3 Transient" as S3Transient
+participant "<color:green><$mongodb>\nMongo DB Repo" as MongoDBRepo
+participant "<color:red><$bucket>\nS3 Repo" as S3Repo
+end box
+
+group Upload
+User -> UploadAPI: create upload
+                                hnote right: uploadId
+activate UploadAPI
+UploadAPI -> MongoDBTransient: store upload parameters
+                                hnote right: with TTL
+UploadAPI -[#0000FF]> S3Transient: store blob
+                                hnote right: with TTL
+User <-- UploadAPI
+                                hnote left: uploadId
+deactivate UploadAPI
+end
+
+group Upload Use
+User -> DocumentAPI: create/update document
+                                hnote left: uploadId
+== TX start ==
+activate DocumentAPI
+UploadAPI <- DocumentAPI: retrieve blob identifier and upload parameters
+activate UploadAPI
+UploadAPI <-- MongoDBTransient: retrieve upload parameters
+UploadAPI -> UploadAPI: check uploadId matches User identifier
+UploadAPI <-- S3Transient: check blob identifier existence
+UploadAPI --> DocumentAPI: retrieve blob identifier and upload parameters
+DocumentAPI -> MongoDBRepo: store document blob property information
+DocumentAPI -> S3Transient: store blob
+S3Transient -[#0000FF]> S3Repo: copy or move blob
+== TX commit ==
+UploadAPI -> MongoDBTransient: cleanup upload parameters
+GC -> S3Transient: cleanup blob (after GC)
+deactivate UploadAPI
+== TX end ==
+User <-- DocumentAPI: document created/updated
+deactivate DocumentAPI
+end
+
+group No Upload Use
+GC -> MongoDBTransient: cleanup upload parameters (after TTL)
+GC -> S3Transient: cleanup blob (after GC)
+end
+
+@enduml

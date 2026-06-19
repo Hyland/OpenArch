@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.rest.acl.test.dummy.login">
+  <extension target="org.nuxeo.runtime.LoginService" point="principalFactory">
+    <implementation class="org.nuxeo.ecm.platform.login.UserManagerPrincipalFactory" />
+  </extension>
+</component>

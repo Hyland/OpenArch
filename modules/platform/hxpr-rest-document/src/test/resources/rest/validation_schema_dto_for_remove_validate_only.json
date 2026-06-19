@@ -1,0 +1,199 @@
+{
+  "errors": [
+    {
+      "invalidValue": "sysfiles#blobs",
+      "message": "The value \"sysfiles#blobs\" is a type recursion.",
+      "messageKey": "label.schema.application.violation.TypeRecursionViolation",
+      "parameters": [
+        "sysfiles#blobs"
+      ],
+      "path": "types/sysfiles#blobs"
+    },
+    {
+      "invalidValue": {
+        "type": "blob"
+      },
+      "message": "The value \"'{'type=blob'}'\" is an invalid type in the field \"types/test-properties#fileComplexType/fields/blobItem\".",
+      "messageKey": "label.schema.application.violation.InvalidObjectViolation.fields",
+      "parameters": [
+        {
+          "type": "blob"
+        },
+        "types/test-properties#fileComplexType/fields/blobItem"
+      ],
+      "path": "types/test-properties#fileComplexType/fields/blobItem"
+    },
+    {
+      "invalidValue": {
+        "type": "blob"
+      },
+      "message": "The value \"'{'type=blob'}'\" is an invalid type in the field \"types/sysfiles#blobitem/fields/blob\".",
+      "messageKey": "label.schema.application.violation.InvalidObjectViolation.fields",
+      "parameters": [
+        {
+          "type": "blob"
+        },
+        "types/sysfiles#blobitem/fields/blob"
+      ],
+      "path": "types/sysfiles#blobitem/fields/blob"
+    },
+    {
+      "invalidValue": {
+        "type": "blob"
+      },
+      "message": "The value \"'{'type=blob'}'\" is and invalid element for the list type \"types/test-properties#fileListType/list\".",
+      "messageKey": "label.schema.application.violation.InvalidObjectViolation.types.list",
+      "parameters": [
+        {
+          "type": "blob"
+        },
+        "types/test-properties#fileListType/list"
+      ],
+      "path": "types/test-properties#fileListType/list"
+    },
+    {
+      "invalidValue": {
+        "type": "blob"
+      },
+      "message": "The value \"'{'type=blob'}'\" is an invalid type in the field \"schemas/sysfile/fields/sysfile_blob\".",
+      "messageKey": "label.schema.application.violation.InvalidObjectViolation.fields",
+      "parameters": [
+        {
+          "type": "blob"
+        },
+        "schemas/sysfile/fields/sysfile_blob"
+      ],
+      "path": "schemas/sysfile/fields/sysfile_blob"
+    },
+    {
+      "invalidValue": {
+        "type": "blob"
+      },
+      "message": "The value \"'{'type=blob'}'\" is an invalid type in the field \"schemas/sysrendition/fields/sysrendition_blob\".",
+      "messageKey": "label.schema.application.violation.InvalidObjectViolation.fields",
+      "parameters": [
+        {
+          "type": "blob"
+        },
+        "schemas/sysrendition/fields/sysrendition_blob"
+      ],
+      "path": "schemas/sysrendition/fields/sysrendition_blob"
+    },
+    {
+      "invalidValue": {
+        "type": "test-properties#fileListType"
+      },
+      "message": "The value \"'{'type=test-properties#fileListType'}'\" is an invalid type in the field \"schemas/test-properties/fields/tp_fileList\".",
+      "messageKey": "label.schema.application.violation.InvalidObjectViolation.fields",
+      "parameters": [
+        {
+          "type": "test-properties#fileListType"
+        },
+        "schemas/test-properties/fields/tp_fileList"
+      ],
+      "path": "schemas/test-properties/fields/tp_fileList"
+    },
+    {
+      "invalidValue": {
+        "type": "sysfiles#blobs"
+      },
+      "message": "The value \"'{'type=sysfiles#blobs'}'\" is an invalid type in the field \"schemas/sysfiles/fields/sysfiles_blobs\".",
+      "messageKey": "label.schema.application.violation.InvalidObjectViolation.fields",
+      "parameters": [
+        {
+          "type": "sysfiles#blobs"
+        },
+        "schemas/sysfiles/fields/sysfiles_blobs"
+      ],
+      "path": "schemas/sysfiles/fields/sysfiles_blobs"
+    },
+    {
+      "invalidValue": {
+        "extends": "blob",
+        "constraints": {
+          "nullable": false
+        }
+      },
+      "message": "The value \"'{'extends=blob, constraints='{'nullable=false'}''}'\" is an invalid type in the field \"schemas/sysembeddings/fields/sysemb_embeddings\".",
+      "messageKey": "label.schema.application.violation.InvalidObjectViolation.fields",
+      "parameters": [
+        {
+          "extends": "blob",
+          "constraints": {
+            "nullable": false
+          }
+        },
+        "schemas/sysembeddings/fields/sysemb_embeddings"
+      ],
+      "path": "schemas/sysembeddings/fields/sysemb_embeddings"
+    }
+  ],
+  "warnings": [
+    {
+      "invalidValue": {
+        "type": "sysfiles#blobitem"
+      },
+      "message": "The value \"'{'type=sysfiles#blobitem'}'\" already exists at \"types/sysfiles#blobs/list\" and cannot be removed.",
+      "messageKey": "label.schema.application.violation.AlreadyExistsViolation.removed",
+      "parameters": [
+        {
+          "type": "sysfiles#blobitem"
+        },
+        "types/sysfiles#blobs/list"
+      ],
+      "path": "types/sysfiles#blobs/list"
+    },
+    {
+      "invalidValue": {
+        "fields": {
+          "digest": {
+            "type": "string"
+          },
+          "encoding": {
+            "type": "string"
+          },
+          "filename": {
+            "type": "string"
+          },
+          "key": {
+            "type": "binary"
+          },
+          "length": {
+            "type": "long"
+          },
+          "mimeType": {
+            "type": "string"
+          }
+        }
+      },
+      "message": "The value \"'{'fields='{'filename='{'type=string'}', digest='{'type=string'}', length='{'type=long'}', mimeType='{'type=string'}', encoding='{'type=string'}', key='{'type=binary'}''}''}'\" already exists at \"types/blob\" and cannot be removed.",
+      "messageKey": "label.schema.application.violation.AlreadyExistsViolation.removed",
+      "parameters": [
+        {
+          "fields": {
+            "digest": {
+              "type": "string"
+            },
+            "encoding": {
+              "type": "string"
+            },
+            "filename": {
+              "type": "string"
+            },
+            "key": {
+              "type": "binary"
+            },
+            "length": {
+              "type": "long"
+            },
+            "mimeType": {
+              "type": "string"
+            }
+          }
+        },
+        "types/blob"
+      ],
+      "path": "types/blob"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "namedQueries": [
+    "advanced_document_content",
+    "advanced_folder_listing",
+    "advanced_search",
+    "default_document_suggestion",
+    "document_content",
+    "folder_listing",
+    "folder_listing_test",
+    "folder_listing_test2",
+    "simple_search",
+    "tree_children"
+  ]
+}

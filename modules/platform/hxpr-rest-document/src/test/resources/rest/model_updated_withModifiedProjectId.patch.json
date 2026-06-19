@@ -1,0 +1,17 @@
+[
+  {
+    "op": "add",
+    "path": "/schemas/mydublincore/projectId",
+    "value": "P321"
+  },
+  {
+    "op": "add",
+    "path": "/mixinTypes/SysFolderish/projectId",
+    "value": "P321"
+  },
+  {
+    "op": "add",
+    "path": "/primaryTypes/SysFile/projectId",
+    "value": "P321"
+  }
+]

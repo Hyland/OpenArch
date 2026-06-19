@@ -1,0 +1,12 @@
+{
+  "queryName": "advanced_search",
+  "repositoryId": "test",
+  "limit": -1,
+  "offset": 0,
+  "parameters": {
+    "fulltext": "File*"
+  },
+  "sort": [
+    "sys_title"
+  ]
+}

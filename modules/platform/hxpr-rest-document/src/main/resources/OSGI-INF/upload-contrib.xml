@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+
+<component name="rest.upload.handler.store">
+
+  <extension target="org.nuxeo.ecm.core.transientstore.TransientStorageComponent" point="store">
+
+    <store name="uploadTransientStore"
+      class="org.nuxeo.ecm.core.transientstore.keyvalueblob.KeyValueBlobTransientStore">
+      <property name="keyValueStore">uploadTransientKV</property> <!-- not defined here: fallback on default -->
+      <property name="blobProvider">uploadTransientBlobProvider</property>
+      <targetMaxSizeMB>${nuxeo.upload.handler.store.targetMaxSizeMB:=100}</targetMaxSizeMB>
+      <absoluteMaxSizeMB>-1</absoluteMaxSizeMB>
+      <firstLevelTTL>${nuxeo.upload.handler.store.ttl:=4320}</firstLevelTTL>
+      <secondLevelTTL>${nuxeo.upload.handler.store.ttl2:=10}</secondLevelTTL>
+    </store>
+
+  </extension>
+
+  <extension target="org.nuxeo.ecm.core.blob.BlobService" point="configuration">
+    <blobprovider name="uploadTransientBlobProvider">
+      <class>${nuxeo.core.binarymanager:=org.nuxeo.ecm.core.blob.LocalBlobProvider}</class>
+      <property name="path">${nuxeo.binarystores.root:=/tmp}/binaries/uploadTransient</property>
+      <!-- this blob provider is used for transient storage -->
+      <property name="transient">true</property>
+      <property name="keyStrategy">managed</property>
+      <!-- s3-related configuration in case S3BlobProvider is used -->
+      <property name="bucket.prefix">uploadTransient/</property>
+    </blobprovider>
+  </extension>
+
+</component>

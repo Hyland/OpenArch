@@ -1,0 +1,35 @@
+[
+  {
+    "op": "add",
+    "path": "/schemas/mydublincore/fields/mydc_foobar",
+    "value": {
+      "type": "string"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/schemas/mydublincore/fields/mydc_foobr",
+    "value": {
+      "extends": "string",
+      "constraints": {
+        "pattern": "[^@]+@[^\\.]+\\..+",
+        "nullable": true
+      }
+    }
+  },
+  {
+    "op": "add",
+    "path": "/schemas/mydublincore/fields/mydc_foobr3",
+    "value": {
+      "extends": "string",
+      "constraints": {
+        "nullable": true,
+        "resolver": {
+          "name": "documentResolver",
+          "store": "id",
+          "validation": false
+        }
+      }
+    }
+  }
+]

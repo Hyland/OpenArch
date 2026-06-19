@@ -1,0 +1,13 @@
+{
+  "repositoryId": "test",
+  "query": "SELECT * FROM SysContent WHERE sys_description='source-1'",
+  "limit": 0,
+  "offset": 0,
+  "count": 0,
+  "totalCount": 0,
+  "aggregationsBuckets": [
+    {"key": "sourceTimestamp", "docCount": 3},
+    {"key": "sourceId", "docCount": 1}
+  ],
+  "documents": []
+}

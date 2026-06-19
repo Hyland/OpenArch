@@ -1,0 +1,42 @@
+{
+  "errors": [
+    {
+      "invalidValue": "schemas-foobar",
+      "message": "The value \"schemas-foobar\" is an invalid mixin type.",
+      "messageKey": "label.schema.application.violation.InvalidObjectViolation.mixins.types",
+      "parameters": [
+        "schemas-foobar",
+        "mixinTypes/SysFolderish/schemas"
+      ],
+      "path": "mixinTypes/SysFolderish/schemas"
+    },
+    {
+      "invalidValue": [
+        "SysFolderish"
+      ],
+      "message": "The value \"[SysFolderish]\" is unknown.",
+      "messageKey": "label.schema.application.violation.UnknownObjectViolation.mixins",
+      "parameters": [
+        [
+          "SysFolderish"
+        ],
+        "primaryTypes/SysFolder/mixins"
+      ],
+      "path": "primaryTypes/SysFolder/mixins"
+    },
+    {
+      "invalidValue": [
+        "SysFolderish"
+      ],
+      "message": "The value \"[SysFolderish]\" is unknown.",
+      "messageKey": "label.schema.application.violation.UnknownObjectViolation.mixins",
+      "parameters": [
+        [
+          "SysFolderish"
+        ],
+        "primaryTypes/SysVocabulary/mixins"
+      ],
+      "path": "primaryTypes/SysVocabulary/mixins"
+    }
+  ]
+}
