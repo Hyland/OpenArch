@@ -108,6 +108,7 @@
 
     <!-- MongoDB -->
     <mongo.java.driver.version>5.8.0</mongo.java.driver.version>
+    <quartz.version>2.3.2</quartz.version>
     <quartz.mongodb.version>2.2.0-rc2</quartz.mongodb.version>
 
     <!-- OpenSearch -->
