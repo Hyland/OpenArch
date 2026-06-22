@@ -52,6 +52,8 @@ public class UserPrincipal implements NuxeoPrincipal, Serializable {
 
     protected String email;
 
+    protected String username;
+
     protected transient String password;
 
     protected Map<String, Serializable> userAttributes;
@@ -78,6 +80,16 @@ public class UserPrincipal implements NuxeoPrincipal, Serializable {
     @Override
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    @Override
+    public String getUsername() {
+        return username;
+    }
+
+    @Override
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     @Override
@@ -207,6 +219,7 @@ public class UserPrincipal implements NuxeoPrincipal, Serializable {
                                     .append(firstName)
                                     .append(lastName)
                                     .append(email)
+                                    .append(username)
                                     .append(password)
                                     .toHashCode();
     }
@@ -225,6 +238,7 @@ public class UserPrincipal implements NuxeoPrincipal, Serializable {
                                   .append(firstName, that.firstName)
                                   .append(lastName, that.lastName)
                                   .append(email, that.email)
+                                  .append(username, that.username)
                                   .append(password, that.password)
                                   .isEquals();
     }

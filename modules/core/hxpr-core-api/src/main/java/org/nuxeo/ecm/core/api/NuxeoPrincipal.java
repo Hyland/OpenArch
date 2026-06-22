@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.nuxeo.runtime.api.login.LoginServiceImpl.SystemID;
 import org.nuxeo.runtime.api.login.LoginContext;
+import org.nuxeo.runtime.api.login.LoginServiceImpl.SystemID;
 
 /**
  * Class to represent a principal in Nuxeo. This class holds the list of roles and groups for this principal.
@@ -142,6 +142,23 @@ public interface NuxeoPrincipal extends Principal, Serializable {
     void setPassword(String password);
 
     void setEmail(String email);
+
+    /**
+     * Gets the login username of this principal (human-readable identifier,
+     * distinct from the opaque UUID returned by {@link #getId()}).
+     * May be {@code null} if not available.
+     */
+    default String getUsername() {
+        return null;
+    }
+
+    /**
+     * Sets the login username of this principal (human-readable identifier,
+     * distinct from the opaque UUID returned by {@link #getId()}).
+     */
+    default void setUsername(String username) {
+        throw new UnsupportedOperationException();
+    }
 
     void setUserAttributes(Map<String, Serializable> userAttributes);
 

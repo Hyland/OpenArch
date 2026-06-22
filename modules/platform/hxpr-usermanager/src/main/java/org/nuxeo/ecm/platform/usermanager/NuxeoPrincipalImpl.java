@@ -63,17 +63,17 @@ public class NuxeoPrincipalImpl implements NuxeoPrincipal {
     /**
      * Constructor that sets principal to not anonymous, not administrator, and updates all the principal groups.
      */
-    public NuxeoPrincipalImpl(String name) {
-        this(name, false);
+    public NuxeoPrincipalImpl(String principalId) {
+        this(principalId, false);
     }
 
     /**
      * Constructor that updates all the principal groups.
      */
-    public NuxeoPrincipalImpl(String name, boolean isAdministrator) {
+    public NuxeoPrincipalImpl(String principalId, boolean isAdministrator) {
         properties = new HashMap<>();
         userAttributes = new HashMap<>();
-        properties.put(config.idKey, name);
+        properties.put(config.idKey, principalId);
         this.isAdministrator = isAdministrator;
     }
 
@@ -165,6 +165,16 @@ public class NuxeoPrincipalImpl implements NuxeoPrincipal {
     @Override
     public void setEmail(String email) {
         properties.put(config.emailKey, email);
+    }
+
+    @Override
+    public String getUsername() {
+        return (String) properties.get(config.usernameKey);
+    }
+
+    @Override
+    public void setUsername(String username) {
+        properties.put(config.usernameKey, username);
     }
 
     @Override

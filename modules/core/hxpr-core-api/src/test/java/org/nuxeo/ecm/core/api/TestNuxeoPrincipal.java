@@ -22,6 +22,8 @@ package org.nuxeo.ecm.core.api;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 import org.nuxeo.ecm.core.api.impl.UserPrincipal;
@@ -52,5 +54,32 @@ public class TestNuxeoPrincipal {
         NuxeoPrincipal jim = new UserPrincipal("jim", null, false);
         assertNotEquals(john1, jim);
         assertNotEquals(jim, john1);
+
+        UserPrincipal johnWithUsername = new UserPrincipal("john", null, false);
+        johnWithUsername.setUsername("john.doe");
+        assertNotEquals(john1, johnWithUsername);
+        assertNotEquals(john1.hashCode(), johnWithUsername.hashCode());
+
+        UserPrincipal johnWithUsernameCopy = new UserPrincipal("john", null, false);
+        johnWithUsernameCopy.setUsername("john.doe");
+        assertEquals(johnWithUsername, johnWithUsernameCopy);
+        assertEquals(johnWithUsername.hashCode(), johnWithUsernameCopy.hashCode());
+    }
+
+    @Test
+    public void testUsername() {
+        NuxeoPrincipal principal = new UserPrincipal("john", null, false);
+        assertNull(principal.getUsername());
+
+        principal.setUsername("john.doe");
+        assertEquals("john.doe", principal.getUsername());
+    }
+
+    @Test
+    public void testSystemPrincipalUsername() {
+        NuxeoPrincipal system = new SystemPrincipal("system");
+        assertNull(system.getUsername());
+
+        assertThrows(UnsupportedOperationException.class, () -> system.setUsername("anything"));
     }
 }

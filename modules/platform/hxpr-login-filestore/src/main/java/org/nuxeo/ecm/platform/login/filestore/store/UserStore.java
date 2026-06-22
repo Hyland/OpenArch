@@ -95,6 +95,7 @@ public class UserStore {
             principal.setFirstName(ue.getFirstName());
             principal.setLastName(ue.getLastName());
             principal.setEmail(ue.getEmail());
+            principal.setUsername(ue.getUsername());
 
             // Resolve group names to IDs for storage on the principal
             List<String> groupIds = ue.getGroups()

@@ -37,8 +37,6 @@ public class UserConfig implements Serializable {
 
     /**
      * The key name for user id.
-     *
-     * @since TODO
      */
     public static final String USERID_COLUMN = "userid";
 
@@ -64,9 +62,10 @@ public class UserConfig implements Serializable {
     /** @since 8.1 */
     public static final String TENANT_ID_COLUMN = "tenantId";
 
+    public static final String USERNAME_COLUMN = "username";
+
     public String passwordKey = PASSWORD_COLUMN;
 
-    /** @since TODO **/
     public String idKey = USERID_COLUMN;
 
     public String firstNameKey = FIRSTNAME_COLUMN;
@@ -79,5 +78,7 @@ public class UserConfig implements Serializable {
 
     /** @since 8.1 */
     public String tenantIdKey = TENANT_ID_COLUMN;
+
+    public String usernameKey = USERNAME_COLUMN;
 
 }

@@ -6,7 +6,6 @@
  */
 package org.nuxeo.ecm.platform.test;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -53,8 +52,6 @@ public class UserManagerMock implements UserManager {
     public static final String ALT_USER_ID = "ced9ee59-c4d5-4b58-866a-b84cd6cc6fae";
     public static final String ALT_USER_NAME = "jchan";
 
-    private static final String USER_NAME_ATTR = "userName";
-
     // LinkedHashMap: insertion order is stable so any test that iterates values gets a predictable sequence
     private final Map<String, NuxeoPrincipalImpl> users = new LinkedHashMap<>();
     private final Map<String, NuxeoGroupImpl> groups = new LinkedHashMap<>();
@@ -79,13 +76,13 @@ public class UserManagerMock implements UserManager {
         }
     }
 
-    private void addUser(String id, String firstName, String lastName, String email, String searchUserName) {
+    private void addUser(String id, String firstName, String lastName, String email, String username) {
         NuxeoPrincipalImpl p = new NuxeoPrincipalImpl(id);
         p.setFirstName(firstName);
         p.setLastName(lastName);
         p.setEmail(email);
-        if (searchUserName != null) {
-            setUserNameAttr(p, searchUserName);
+        if (username != null) {
+            p.setUsername(username);
         }
         users.put(id, p);
     }
@@ -108,9 +105,9 @@ public class UserManagerMock implements UserManager {
     }
 
     /**
-     * Returns principals whose firstName, lastName, or stored {@code userName} attribute
-     * contains the given name part (case-insensitive). Deduplicates results so a user whose
-     * firstName and lastName both match still appears only once.
+     * Returns principals whose firstName, lastName, or username contains the given name part
+     * (case-insensitive). Deduplicates results so a user whose firstName and lastName both
+     * match still appears only once.
      */
     @Override
     public List<NuxeoPrincipal> searchPrincipalsByName(String name) {
@@ -120,7 +117,7 @@ public class UserManagerMock implements UserManager {
         return users.values().stream()
                     .filter(p -> Strings.CI.contains(p.getFirstName(), name)
                               || Strings.CI.contains(p.getLastName(), name)
-                              || Strings.CI.contains(getUserNameAttr(p), name))
+                              || Strings.CI.contains(p.getUsername(), name))
                     .distinct()
                     .collect(Collectors.toList());
     }
@@ -158,12 +155,4 @@ public class UserManagerMock implements UserManager {
         return List.of("administrators");
     }
 
-    private static void setUserNameAttr(NuxeoPrincipalImpl p, String userName) {
-        p.setUserAttributes(Map.of(USER_NAME_ATTR, userName));
-    }
-
-    private static String getUserNameAttr(NuxeoPrincipalImpl p) {
-        Serializable val = p.getUserAttributes().get(USER_NAME_ATTR);
-        return val != null ? val.toString() : null;
-    }
 }

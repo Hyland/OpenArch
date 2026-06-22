@@ -78,6 +78,14 @@ public class TestNuxeoPrincipalImpl {
     }
 
     @Test
+    public void testGetUsername() {
+        NuxeoPrincipalImpl principal = new NuxeoPrincipalImpl("foo");
+        assertThat(principal.getUsername()).isNull();
+        principal.setUsername("john.doe");
+        assertThat(principal.getUsername()).isEqualTo("john.doe");
+    }
+
+    @Test
     public void userAttributesCannotOverwriteInternalFields() {
         NuxeoPrincipalImpl principal = new NuxeoPrincipalImpl("foo");
         principal.setEmail("foo@hyland.com");

@@ -59,7 +59,7 @@
     <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
     <sonar.organization>hylandsoftware</sonar.organization>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-    <sonar.coverage.exclusions>**/RuntimeSpringBootTest.java,**/RuntimeTestState.java,**/RuntimeSpringBootTestConfiguration.java,**/IdpUtil.java,**/MockAuthenticationSupport</sonar.coverage.exclusions>
+    <sonar.coverage.exclusions>**/RuntimeSpringBootTest.java,**/RuntimeTestState.java,**/RuntimeSpringBootTestConfiguration.java,**/IdpUtil.java,**/MockAuthenticationSupport.java,**/UserManagerMock.java</sonar.coverage.exclusions>
     <it.jacoco.destFile>${session.executionRootDirectory}/target/jacoco-it.exec</it.jacoco.destFile>
     <!-- Sonar & JaCoCo (related profile: coverage)-->
     <coverage.reporting.outputDirectory>${project.reporting.outputDirectory}</coverage.reporting.outputDirectory>
