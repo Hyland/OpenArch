@@ -8,7 +8,7 @@ services:
       - mongodb-data:/data/db
 
   opensearch:
-    image: opensearchproject/opensearch:2.19.5@sha256:e225ca1a828ef054e0335a0c234198a7b8f80abcc90f1159273ca7be5d8bbdff
+    image: opensearchproject/opensearch:2.19.5@sha256:4ee82ecb35d837a6186c81aaa64c8a5bce71aa956edbd87f1f684ab56af52c44
     hostname: opensearch
     environment:
       - "discovery.type=single-node"
