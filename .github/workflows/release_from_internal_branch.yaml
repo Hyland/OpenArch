@@ -29,6 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ env.VERSION }}
+      released-tag: ${{ steps.capture-tag.outputs.released-tag }}
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
@@ -77,11 +78,31 @@ jobs:
           RELEASE_PERFORM_WITH_CLASSIFIER: true
           CLASSIFIER_PARAM: "-Pclassifier -Dclassifier.name=internal"
         run: _ci/release.sh
+      - name: Capture released tag
+        id: capture-tag
+        shell: bash
+        run: |
+          RELEASED_TAG=$(git tag --sort=-creatordate | head -n 1)
+          echo "Released tag: ${RELEASED_TAG}"
+          echo "released-tag=${RELEASED_TAG}" >> $GITHUB_OUTPUT
+
+  publish:
+    name: Publish artifacts to GH Packages
+    needs:
+      - build
+    uses: ./.github/workflows/publish_maven_artifacts_to_gh_packages.yaml
+    with:
+      released-tag: ${{ needs.build.outputs.released-tag }}
+    secrets:
+      NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+      NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+      GH_CI_CD_PAT: ${{ secrets.GH_CI_CD_PAT }}
 
   notify:
     runs-on: ubuntu-slim
     needs:
       - build
+      - publish
     if: always() && failure() && github.event_name == 'push'
     steps:
       - name: Teams Notification

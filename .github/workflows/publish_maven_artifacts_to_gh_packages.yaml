@@ -1,38 +1,32 @@
-name: Publish HxPR artifacts to GH packages from a provided tag
+name: Publish maven artifacts to GH Packages (reusable)
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
-      hxpr-tag-version:
-        type: string
-        description: hxpr tag version to publish artifacts from
+      released-tag:
+        description: 'Git tag to check out and publish artifacts from'
         required: true
-concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
-  cancel-in-progress: true
-permissions:
-  actions: read
-  contents: write
-  packages: write
-  id-token: write
-  security-events: write
-  pull-requests: write
+        type: string
+    secrets:
+      NEXUS_USERNAME:
+        required: true
+      NEXUS_PASSWORD:
+        required: true
+      GH_CI_CD_PAT:
+        required: true
+
 env:
   GH_ACTOR: hxpcscicduser
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
-  build:
-    name: Build project and publish artifacts to GH packages
-    if: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/internal' }}
+  publish:
+    name: Publish artifacts to GH Packages
     runs-on: ubuntu-latest
-    outputs:
-      version: ${{ env.VERSION }}
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           fetch-depth: 0
-          ref: ${{ inputs.hxpr-tag-version }}
+          ref: ${{ inputs.released-tag }}
 
       - uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
@@ -55,7 +49,6 @@ jobs:
           nexus-password: ${{ secrets.NEXUS_PASSWORD }}
       - name: Compile project
         run: mvn clean install -DskipTests
-
       - name: Publish to GH Packages
         env:
           GH_ACTOR: ${{ env.GH_ACTOR }}
@@ -66,14 +59,3 @@ jobs:
             -Prelease \
             -DrepositoryId=ghcr.io \
             -Ddistribution-repository.url=https://maven.pkg.github.com/HylandSoftware/hxpr-community-internal
-
-  notify:
-    runs-on: ubuntu-slim
-    needs:
-      - build
-    if: always() && failure()
-    steps:
-      - name: Teams Notification
-        uses: Alfresco/alfresco-build-tools/.github/actions/send-teams-notification@4e61fa01622e3f3a1898eb059d9a3af208897515 # v18.9.0
-        with:
-          webhook-url: ${{ secrets.TEAMS_GA_NOTIFS_WEBHOOK_URL }}
