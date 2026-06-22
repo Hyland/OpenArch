@@ -28,7 +28,7 @@ services:
       start_period: 30s
 
   opensearch-dashboards:
-    image: opensearchproject/opensearch-dashboards:2.19.5@sha256:5d0b949a4ebe8d40e1b0ecf7f0125ec64afc80f9bff77bf7cb9e897bd8552c16
+    image: opensearchproject/opensearch-dashboards:2.19.5@sha256:20652662499b7d9cc9f583a4fa602064a6d0eccdc978c5dc14c816dc3350da5e
     container_name: opensearch-community-dashboards
     ports:
       - 5601:5601
