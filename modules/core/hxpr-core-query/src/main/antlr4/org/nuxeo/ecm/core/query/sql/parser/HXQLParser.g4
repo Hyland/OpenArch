@@ -108,6 +108,7 @@ operand: v=literal
        ;
 
 literal: v=string                                                   # literalString
+       | v=(TRUE | FALSE)                                           # literalBoolean
        | v=INTEGER                                                  # literalInteger
        | v=DOUBLE                                                   # literalDouble
        | DATE v=string                                              # literalDate

@@ -347,7 +347,9 @@ public final class NxqlQueryConverter {
         if (value == null) {
             return FieldValue.NULL;
         }
-        if (!"0".equals(value) && !"1".equals(value)) {
+        // accept 0/1 (legacy NXQL int form) and true/false (BooleanLiteral.asString)
+        Boolean bool = parseBoolValue(value);
+        if (bool == null) {
             return FieldValue.of(value);
         }
         switch (nxqlName) {
@@ -364,22 +366,34 @@ public final class NxqlQueryConverter {
                 return FieldValue.of(value);
             }
         }
-        return "0".equals(value) ? FieldValue.FALSE : FieldValue.TRUE;
+        return bool ? FieldValue.TRUE : FieldValue.FALSE;
+    }
+
+    /**
+     * Parses a string representation of a boolean literal as it appears in an NXQL query: {@code "0"}/{@code "1"}
+     * (legacy integer form) or {@code "true"}/{@code "false"} (case-insensitive). Returns {@code null} if the value
+     * is none of these.
+     */
+    protected static Boolean parseBoolValue(String value) {
+        if ("0".equals(value) || "false".equalsIgnoreCase(value)) {
+            return Boolean.FALSE;
+        } else if ("1".equals(value) || "true".equalsIgnoreCase(value)) {
+            return Boolean.TRUE;
+        } else {
+            return null;
+        }
     }
 
     protected static ObjectBuilder<? extends QueryVariant> makeTrashedFilter(String op, String name, String value) {
+        Boolean trashedRequested = parseBoolValue(value);
+        if (trashedRequested == null) {
+            throw new IllegalArgumentException(SYS_IS_TRASHED + " requires literal TRUE/FALSE (or 0/1) as right argument");
+        }
         boolean equalsDeleted = switch (op) {
-        case "=" -> true;
-        case "<>", "!=" -> false;
+        case "=" -> trashedRequested;
+        case "<>", "!=" -> !trashedRequested;
         default -> throw new IllegalArgumentException(SYS_IS_TRASHED + " requires = or <> operator");
         };
-        if ("0".equals(value)) {
-            equalsDeleted = !equalsDeleted;
-        } else if ("1".equals(value)) {
-            // equalsDeleted unchanged
-        } else {
-            throw new IllegalArgumentException(SYS_IS_TRASHED + " requires literal 0 or 1 as right argument");
-        }
         ObjectBuilder<? extends QueryVariant> filter = QueryBuilders.term().field(name).value(FieldValue.of(true));
         if (!equalsDeleted) {
             filter = QueryBuilders.bool().mustNot(filter.build().toQuery());

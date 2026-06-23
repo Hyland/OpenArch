@@ -154,7 +154,7 @@ public class TestCompareQueryAndFetch {
     @Test
     public void testSimpleSearchWithSort() throws Exception {
         compareOpenSearchAndCore("select sys_id, sys_title, mydc_nature from SysContent order by sys_id");
-        compareOpenSearchAndCore("select sys_id, sys_title from SysContent where sys_isFolderish = 0 order by sys_id");
+        compareOpenSearchAndCore("select sys_id, sys_title from SysContent where sys_isFolderish = FALSE order by sys_id");
         compareOpenSearchAndCore("select sys_id, mydc_nature from SysFile order by mydc_nature, sys_id");
         // TODO some timezone issues here...
         // compareOpenSearchAndCore("select sys_id, mydc_issued from SysFile order by sys_id");

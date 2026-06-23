@@ -76,7 +76,7 @@ public abstract class AbstractFullTextConfigurationTest extends RuntimeSpringBoo
 
     @AfterEach
     public void tearDown() {
-        session.query("SELECT * FROM SysContent WHERE sys_primaryType != 'SysFolder' AND sysver_isVersion = 0")
+        session.query("SELECT * FROM SysContent WHERE sys_primaryType != 'SysFolder' AND sysver_isVersion = FALSE")
                .stream()
                .map(DocumentModel::getRef)
                .forEach(session::removeDocument);

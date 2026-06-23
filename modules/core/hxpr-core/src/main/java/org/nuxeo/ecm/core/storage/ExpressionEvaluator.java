@@ -35,6 +35,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.CharUtils;
 import org.nuxeo.ecm.core.query.QueryParseException;
+import org.nuxeo.ecm.core.query.sql.model.BooleanLiteral;
 import org.nuxeo.ecm.core.query.sql.model.DateLiteral;
 import org.nuxeo.ecm.core.query.sql.model.Expression;
 import org.nuxeo.ecm.core.query.sql.model.Function;
@@ -202,16 +203,19 @@ public abstract class ExpressionEvaluator {
         if (op != Operator.EQ && op != Operator.NOTEQ) {
             throw new QueryParseException(SYS_IS_TRASHED + " requires = or <> operator");
         }
-        return walkIsTrashed(new Reference(SYS_IS_TRASHED), op, rvalue, new IntegerLiteral(1L));
+        return walkIsTrashed(new Reference(SYS_IS_TRASHED), op, rvalue, BooleanLiteral.LIT_TRUE);
     }
 
     protected Boolean walkIsTrashed(Reference ref, Operator op, Operand initialRvalue, Literal deletedRvalue) {
-        long v;
-        if (!(initialRvalue instanceof IntegerLiteral intLit)
-                || ((v = (intLit).value()) != 0 && v != 1)) {
-            throw new QueryParseException(SYS_IS_TRASHED + " requires literal 0 or 1 as right argument");
+        boolean trashedRequested;
+        if (initialRvalue instanceof BooleanLiteral boolLit) {
+            trashedRequested = boolLit.value();
+        } else if (initialRvalue instanceof IntegerLiteral intLit && (intLit.value() == 0 || intLit.value() == 1)) {
+            trashedRequested = intLit.value() == 1;
+        } else {
+            throw new QueryParseException(SYS_IS_TRASHED + " requires literal TRUE/FALSE (or 0/1) as right argument");
         }
-        boolean equalsDeleted = op == Operator.EQ ^ v == 0;
+        boolean equalsDeleted = op == Operator.EQ ? trashedRequested : !trashedRequested;
         if (equalsDeleted) {
             return walkEq(ref, deletedRvalue);
         } else {

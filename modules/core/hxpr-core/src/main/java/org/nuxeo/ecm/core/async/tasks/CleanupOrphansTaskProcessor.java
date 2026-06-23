@@ -45,7 +45,7 @@ public class CleanupOrphansTaskProcessor implements TaskProcessor<CleanupOrphans
 
     public static final String CLEANUP_ORPHANS_TASK_NAME = "cleanupOrphans";
 
-    public static final String SEARCH_QUERY = "SELECT sys_id, sys_parentId FROM SysContent WHERE sys_isTrashed = 0 AND sysver_isVersion = 0";
+    public static final String SEARCH_QUERY = "SELECT sys_id, sys_parentId FROM SysContent WHERE sys_isTrashed = FALSE AND sysver_isVersion = FALSE";
 
     @Override
     public String getName() {

@@ -274,14 +274,14 @@ public class TestExprEvaluator {
     public void testContent() {
         check("content.sys_title == \"secret\" || content.sys_description == \"\"",
                 "((sys_title = 'secret') OR (sys_description = ''))", false);
-        check("!content.sys_isFolderish", "NOT sys_isFolderish", null);
+        check("!content.sys_isFolderish", "NOT sys_isFolderish", true);
         check("content.sys_isFolderish || true", "true", true);
-        check("content.sys_isFolderish || false", "sys_isFolderish", null);
+        check("content.sys_isFolderish || false", "sys_isFolderish", false);
         check("true || content.sys_isFolderish", "true", true);
-        check("false || content.sys_isFolderish", "sys_isFolderish", null);
-        check("content.sys_isFolderish && true", "sys_isFolderish", null);
+        check("false || content.sys_isFolderish", "sys_isFolderish", false);
+        check("content.sys_isFolderish && true", "sys_isFolderish", false);
         check("content.sys_isFolderish && false", "false", false);
-        check("true && content.sys_isFolderish", "sys_isFolderish", null);
+        check("true && content.sys_isFolderish", "sys_isFolderish", false);
         check("false && content.sys_isFolderish", "false", false);
         check("content.sys_title == \"foo\"", "(sys_title = 'foo')", false);
         check("content.sys_title + \"foo\"", "(sys_title + 'foo')", "nullfoo");
@@ -414,9 +414,9 @@ public class TestExprEvaluator {
         Map<String, Object> content2 = Map.of("sys_isFolderish", true);
         check(user, content2, "content.sys_isFolderish == true", "(sys_isFolderish = true)", true);
 
-        // Test sys_isFolderish with null (not folderish)
-        Map<String, Object> content3 = Map.of("sys_primaryType", "SysFile");
-        check(user, content3, "content.sys_isFolderish == null", "sys_isFolderish IS NULL", true);
+        // Test sys_isFolderish with null (not folderish) (this is a true-or-null boolean property)
+        Map<String, Object> content3 = Map.of();
+        check(user, content3, "content.sys_isFolderish == false", "(sys_isFolderish = false)", true);
     }
 
 }

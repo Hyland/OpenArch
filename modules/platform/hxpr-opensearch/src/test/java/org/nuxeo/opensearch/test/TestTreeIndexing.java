@@ -336,7 +336,7 @@ public class TestTreeIndexing {
         nextTransactionWithWaitAssertNumberOfCommandProcessed(syncMode ? 16 : 15);
 
         DocumentModelList docs = oss.query(
-                new NxQueryBuilder(session).nxql("select * FROM SysContent where sys_isTrashed = 0"));
+                new NxQueryBuilder(session).nxql("select * FROM SysContent where sys_isTrashed = FALSE"));
         assertEquals(2, docs.totalSize());
     }
 

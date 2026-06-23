@@ -1607,8 +1607,7 @@ public class TestNxqlConversion {
 
     @Test
     public void testConverterIsVersionTrue() {
-        String es = toESQueryBuilder("select * FROM SysContent where sysver_isVersion = 1");
-        assertEqualsEvenUnderWindows("""
+        String expected = """
                 {
                   "bool" : {
                     "must" : [
@@ -1649,56 +1648,22 @@ public class TestNxqlConversion {
                     ]
                   }
                 }
-                """, es);
-        es = toESQueryBuilder("select * FROM SysContent where sysver_isVersion <> 0");
-        assertEqualsEvenUnderWindows("""
-                {
-                  "bool" : {
-                    "must" : [
-                      {
-                        "constant_score" : {
-                          "filter" : {
-                            "term" : {
-                              "sysver_isVersion" : {
-                                "value" : true
-                              }
-                            }
-                          }
-                        }
-                      }
-                    ],
-                    "filter" : [
-                      {
-                        "terms" : {
-                          "sys_primaryType" : [
-                            "SysVocabulary",
-                            "SysRendition",
-                            "MyFile",
-                            "SysMDComment",
-                            "SysMDBookmark",
-                            "SysMDAnnotation",
-                            "SysContent",
-                            "SysOrderedFolder",
-                            "SysRoot",
-                            "SysEmbeddings",
-                            "SysFolder",
-                            "Note",
-                            "SysVocabularyEntry",
-                            "SysRenditionsContainer",
-                            "SysFile"
-                          ]
-                        }
-                      }
-                    ]
-                  }
-                }
-                """, es);
+                """;
+        // legacy int form
+        assertEqualsEvenUnderWindows(expected,
+                toESQueryBuilder("select * FROM SysContent where sysver_isVersion = 1"));
+        assertEqualsEvenUnderWindows(expected,
+                toESQueryBuilder("select * FROM SysContent where sysver_isVersion <> 0"));
+        // boolean literal form
+        assertEqualsEvenUnderWindows(expected,
+                toESQueryBuilder("select * FROM SysContent where sysver_isVersion = TRUE"));
+        assertEqualsEvenUnderWindows(expected,
+                toESQueryBuilder("select * FROM SysContent where sysver_isVersion <> FALSE"));
     }
 
     @Test
     public void testConverterIsVersionFalse() {
-        String es = toESQueryBuilder("select * FROM SysContent where sysver_isVersion = 0");
-        assertEqualsEvenUnderWindows("""
+        String expected = """
                 {
                   "bool" : {
                     "must" : [
@@ -1743,60 +1708,22 @@ public class TestNxqlConversion {
                     ]
                   }
                 }
-                """, es);
-        es = toESQueryBuilder("select * FROM SysContent where sysver_isVersion <> 1");
-        assertEqualsEvenUnderWindows("""
-                {
-                  "bool" : {
-                    "must" : [
-                      {
-                        "constant_score" : {
-                          "filter" : {
-                            "bool" : {
-                              "must_not" : [
-                                {
-                                  "exists" : {
-                                    "field" : "sysver_isVersion"
-                                  }
-                                }
-                              ]
-                            }
-                          }
-                        }
-                      }
-                    ],
-                    "filter" : [
-                      {
-                        "terms" : {
-                          "sys_primaryType" : [
-                            "SysVocabulary",
-                            "SysRendition",
-                            "MyFile",
-                            "SysMDComment",
-                            "SysMDBookmark",
-                            "SysMDAnnotation",
-                            "SysContent",
-                            "SysOrderedFolder",
-                            "SysRoot",
-                            "SysEmbeddings",
-                            "SysFolder",
-                            "Note",
-                            "SysVocabularyEntry",
-                            "SysRenditionsContainer",
-                            "SysFile"
-                          ]
-                        }
-                      }
-                    ]
-                  }
-                }
-                """, es);
+                """;
+        // legacy int form
+        assertEqualsEvenUnderWindows(expected,
+                toESQueryBuilder("select * FROM SysContent where sysver_isVersion = 0"));
+        assertEqualsEvenUnderWindows(expected,
+                toESQueryBuilder("select * FROM SysContent where sysver_isVersion <> 1"));
+        // boolean literal form
+        assertEqualsEvenUnderWindows(expected,
+                toESQueryBuilder("select * FROM SysContent where sysver_isVersion = FALSE"));
+        assertEqualsEvenUnderWindows(expected,
+                toESQueryBuilder("select * FROM SysContent where sysver_isVersion <> TRUE"));
     }
 
     @Test
     public void testConverterIsCheckedInTrue() {
-        String es = toESQueryBuilder("select * FROM SysContent where sysver_isCheckedIn = 1");
-        assertEqualsEvenUnderWindows("""
+        String expected = """
                 {
                   "bool" : {
                     "must" : [
@@ -1837,56 +1764,22 @@ public class TestNxqlConversion {
                     ]
                   }
                 }
-                """, es);
-        es = toESQueryBuilder("select * FROM SysContent where sysver_isCheckedIn <> 0");
-        assertEqualsEvenUnderWindows("""
-                {
-                  "bool" : {
-                    "must" : [
-                      {
-                        "constant_score" : {
-                          "filter" : {
-                            "term" : {
-                              "sysver_isCheckedIn" : {
-                                "value" : true
-                              }
-                            }
-                          }
-                        }
-                      }
-                    ],
-                    "filter" : [
-                      {
-                        "terms" : {
-                          "sys_primaryType" : [
-                            "SysVocabulary",
-                            "SysRendition",
-                            "MyFile",
-                            "SysMDComment",
-                            "SysMDBookmark",
-                            "SysMDAnnotation",
-                            "SysContent",
-                            "SysOrderedFolder",
-                            "SysRoot",
-                            "SysEmbeddings",
-                            "SysFolder",
-                            "Note",
-                            "SysVocabularyEntry",
-                            "SysRenditionsContainer",
-                            "SysFile"
-                          ]
-                        }
-                      }
-                    ]
-                  }
-                }
-                """, es);
+                """;
+        // legacy int form
+        assertEqualsEvenUnderWindows(expected,
+                toESQueryBuilder("select * FROM SysContent where sysver_isCheckedIn = 1"));
+        assertEqualsEvenUnderWindows(expected,
+                toESQueryBuilder("select * FROM SysContent where sysver_isCheckedIn <> 0"));
+        // boolean literal form
+        assertEqualsEvenUnderWindows(expected,
+                toESQueryBuilder("select * FROM SysContent where sysver_isCheckedIn = TRUE"));
+        assertEqualsEvenUnderWindows(expected,
+                toESQueryBuilder("select * FROM SysContent where sysver_isCheckedIn <> FALSE"));
     }
 
     @Test
     public void testConverterIsCheckedInFalse() {
-        String es = toESQueryBuilder("select * FROM SysContent where sysver_isCheckedIn = 0");
-        assertEqualsEvenUnderWindows("""
+        String expected = """
                 {
                   "bool" : {
                     "must" : [
@@ -1931,54 +1824,17 @@ public class TestNxqlConversion {
                     ]
                   }
                 }
-                """, es);
-        es = toESQueryBuilder("select * FROM SysContent where sysver_isCheckedIn <> 1");
-        assertEqualsEvenUnderWindows("""
-                {
-                  "bool" : {
-                    "must" : [
-                      {
-                        "constant_score" : {
-                          "filter" : {
-                            "bool" : {
-                              "must_not" : [
-                                {
-                                  "exists" : {
-                                    "field" : "sysver_isCheckedIn"
-                                  }
-                                }
-                              ]
-                            }
-                          }
-                        }
-                      }
-                    ],
-                    "filter" : [
-                      {
-                        "terms" : {
-                          "sys_primaryType" : [
-                            "SysVocabulary",
-                            "SysRendition",
-                            "MyFile",
-                            "SysMDComment",
-                            "SysMDBookmark",
-                            "SysMDAnnotation",
-                            "SysContent",
-                            "SysOrderedFolder",
-                            "SysRoot",
-                            "SysEmbeddings",
-                            "SysFolder",
-                            "Note",
-                            "SysVocabularyEntry",
-                            "SysRenditionsContainer",
-                            "SysFile"
-                          ]
-                        }
-                      }
-                    ]
-                  }
-                }
-                """, es);
+                """;
+        // legacy int form
+        assertEqualsEvenUnderWindows(expected,
+                toESQueryBuilder("select * FROM SysContent where sysver_isCheckedIn = 0"));
+        assertEqualsEvenUnderWindows(expected,
+                toESQueryBuilder("select * FROM SysContent where sysver_isCheckedIn <> 1"));
+        // boolean literal form
+        assertEqualsEvenUnderWindows(expected,
+                toESQueryBuilder("select * FROM SysContent where sysver_isCheckedIn = FALSE"));
+        assertEqualsEvenUnderWindows(expected,
+                toESQueryBuilder("select * FROM SysContent where sysver_isCheckedIn <> TRUE"));
     }
 
     @Test
@@ -2182,11 +2038,7 @@ public class TestNxqlConversion {
     @Disabled("trash not implemented for now")
     @Test
     public void testConverterIsTrashedWithProperty() {
-        String sqlNotTrashed = "SELECT * FROM SysContent WHERE sys_isTrashed = 0";
-        String sqlTrashed = "SELECT * FROM SysContent WHERE sys_isTrashed = 1";
-
-        String es = toESQueryBuilder(sqlTrashed);
-        assertEqualsEvenUnderWindows("""
+        String expectedTrashed = """
                 {
                   "bool" : {
                     "must" : [
@@ -2227,10 +2079,8 @@ public class TestNxqlConversion {
                     ]
                   }
                 }
-                """, es);
-
-        es = toESQueryBuilder(sqlNotTrashed);
-        assertEqualsEvenUnderWindows("""
+                """;
+        String expectedNotTrashed = """
                 {
                   "bool" : {
                     "must" : [
@@ -2277,7 +2127,17 @@ public class TestNxqlConversion {
                     ]
                   }
                 }
-                """, es);
+                """;
+        // legacy int form
+        assertEqualsEvenUnderWindows(expectedTrashed,
+                toESQueryBuilder("SELECT * FROM SysContent WHERE sys_isTrashed = 1"));
+        assertEqualsEvenUnderWindows(expectedNotTrashed,
+                toESQueryBuilder("SELECT * FROM SysContent WHERE sys_isTrashed = 0"));
+        // boolean literal form
+        assertEqualsEvenUnderWindows(expectedTrashed,
+                toESQueryBuilder("SELECT * FROM SysContent WHERE sys_isTrashed = TRUE"));
+        assertEqualsEvenUnderWindows(expectedNotTrashed,
+                toESQueryBuilder("SELECT * FROM SysContent WHERE sys_isTrashed = FALSE"));
     }
 
     @Test

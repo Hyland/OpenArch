@@ -20,12 +20,14 @@ package org.nuxeo.ecm.core.query.sql;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_FULLTEXT;
 
 import org.junit.jupiter.api.Test;
 import org.nuxeo.ecm.core.query.QueryParseException;
+import org.nuxeo.ecm.core.query.sql.model.BooleanLiteral;
 import org.nuxeo.ecm.core.query.sql.model.DateLiteral;
 import org.nuxeo.ecm.core.query.sql.model.DoubleLiteral;
 import org.nuxeo.ecm.core.query.sql.model.FtHint;
@@ -113,6 +115,26 @@ public class TestQueryParser {
         query = SQLQueryParser.parse("SELECT p FROM t WHERE title = TIMESTAMP '2007-01-30 01:02:03+04:00'");
         datel = (DateLiteral) query.getWhereClause().predicate.rvalue;
         assertEquals("TIMESTAMP '2007-01-29T21:02:03.000Z'", datel.toString());
+
+        // booleans
+        query = SQLQueryParser.parse("SELECT p FROM t WHERE active = TRUE");
+        BooleanLiteral bl = (BooleanLiteral) query.getWhereClause().predicate.rvalue;
+        assertEquals(true, bl.value());
+        assertSame(BooleanLiteral.LIT_TRUE, bl);
+
+        query = SQLQueryParser.parse("SELECT p FROM t WHERE active = FALSE");
+        bl = (BooleanLiteral) query.getWhereClause().predicate.rvalue;
+        assertEquals(false, bl.value());
+        assertSame(BooleanLiteral.LIT_FALSE, bl);
+
+        // case-insensitive
+        query = SQLQueryParser.parse("SELECT p FROM t WHERE active = true");
+        bl = (BooleanLiteral) query.getWhereClause().predicate.rvalue;
+        assertEquals(true, bl.value());
+
+        query = SQLQueryParser.parse("SELECT p FROM t WHERE active = False");
+        bl = (BooleanLiteral) query.getWhereClause().predicate.rvalue;
+        assertEquals(false, bl.value());
     }
 
     @Test

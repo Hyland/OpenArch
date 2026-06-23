@@ -9,13 +9,16 @@ import static org.mockito.Mockito.mock;
 
 import org.bson.Document;
 import org.junit.jupiter.api.Test;
+import org.nuxeo.ecm.core.query.sql.model.BooleanLiteral;
 import org.nuxeo.ecm.core.query.sql.model.Expression;
+import org.nuxeo.ecm.core.query.sql.model.IntegerLiteral;
 import org.nuxeo.ecm.core.query.sql.model.Operator;
 import org.nuxeo.ecm.core.query.sql.model.Reference;
 import org.nuxeo.ecm.core.query.sql.model.StringLiteral;
 import org.nuxeo.ecm.core.schema.SchemaManager;
 import org.nuxeo.ecm.core.schema.types.Field;
 import org.nuxeo.ecm.core.schema.types.primitives.AnyType;
+import org.nuxeo.ecm.core.schema.types.primitives.BooleanType;
 import org.nuxeo.ecm.core.storage.ExpressionEvaluator.PathResolver;
 
 /**
@@ -53,5 +56,52 @@ public class TestMongoDBRepositoryQueryBuilder {
         // Expected MongoDB field: "anyTypeProperty.Key1"
         assertEquals(1, doc.size());
         assertEquals("val1", doc.get("anyTypeProperty.Key1"));
+    }
+
+    @Test
+    public void testWalkBooleanLiteral_OnBooleanField() {
+        // Given a repository query builder with a Boolean-typed schema field
+        MongoDBRepository repository = mock(MongoDBRepository.class);
+        doReturn(new MongoDBConverter()).when(repository).getConverter();
+
+        SchemaManager schemaManager = mock(SchemaManager.class);
+        PathResolver pathResolver = mock(PathResolver.class);
+
+        Field field = mock(Field.class);
+        doReturn("active").when(field).getName();
+        doReturn(BooleanType.INSTANCE).when(field).getType();
+        doReturn(field).when(schemaManager).getField("active");
+
+        Reference left = new Reference("active");
+
+        // Predicate: active = TRUE
+        Expression exprTrue = new Expression(left, Operator.EQ, BooleanLiteral.LIT_TRUE);
+        MongoDBRepositoryQueryBuilder qbTrue = new MongoDBRepositoryQueryBuilder(repository, exprTrue, null, null,
+                pathResolver, schemaManager);
+        Document docTrue = qbTrue.walkEq(left, BooleanLiteral.LIT_TRUE);
+
+        // Predicate: active = 1 (legacy form, must produce same query)
+        Expression exprOne = new Expression(left, Operator.EQ, new IntegerLiteral(1L));
+        MongoDBRepositoryQueryBuilder qbOne = new MongoDBRepositoryQueryBuilder(repository, exprOne, null, null,
+                pathResolver, schemaManager);
+        Document docOne = qbOne.walkEq(left, new IntegerLiteral(1L));
+
+        assertEquals(docOne, docTrue);
+        assertEquals(Boolean.TRUE, docTrue.get("active"));
+
+        // Predicate: active = FALSE
+        Expression exprFalse = new Expression(left, Operator.EQ, BooleanLiteral.LIT_FALSE);
+        MongoDBRepositoryQueryBuilder qbFalse = new MongoDBRepositoryQueryBuilder(repository, exprFalse, null, null,
+                pathResolver, schemaManager);
+        Document docFalse = qbFalse.walkEq(left, BooleanLiteral.LIT_FALSE);
+
+        // Predicate: active = 0
+        Expression exprZero = new Expression(left, Operator.EQ, new IntegerLiteral(0L));
+        MongoDBRepositoryQueryBuilder qbZero = new MongoDBRepositoryQueryBuilder(repository, exprZero, null, null,
+                pathResolver, schemaManager);
+        Document docZero = qbZero.walkEq(left, new IntegerLiteral(0L));
+
+        assertEquals(docZero, docFalse);
+        assertEquals(Boolean.FALSE, docFalse.get("active"));
     }
 }

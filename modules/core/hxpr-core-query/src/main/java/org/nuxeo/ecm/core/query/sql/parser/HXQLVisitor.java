@@ -36,6 +36,7 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.nuxeo.ecm.core.query.QueryParseException;
 import org.nuxeo.ecm.core.query.sql.model.ASTNode;
+import org.nuxeo.ecm.core.query.sql.model.BooleanLiteral;
 import org.nuxeo.ecm.core.query.sql.model.DateLiteral;
 import org.nuxeo.ecm.core.query.sql.model.DoubleLiteral;
 import org.nuxeo.ecm.core.query.sql.model.Expression;
@@ -71,6 +72,7 @@ import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.Ft_identifier_listContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.Ft_indexContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.FunctionContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.Function_argsContext;
+import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.LiteralBooleanContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.LiteralDateContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.LiteralDoubleContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.LiteralIntegerContext;
@@ -429,6 +431,11 @@ public class HXQLVisitor extends HXQLParserBaseVisitor<ASTNode> {
     @Override
     public ASTNode visitLiteralString(LiteralStringContext ctx) {
         return ctx.v.accept(this);
+    }
+
+    @Override
+    public ASTNode visitLiteralBoolean(LiteralBooleanContext ctx) {
+        return ctx.v.getType() == HXQLParser.TRUE ? BooleanLiteral.LIT_TRUE : BooleanLiteral.LIT_FALSE;
     }
 
     @Override

@@ -257,7 +257,7 @@ public class TestSQLRepositoryQuery {
             assertEquals(MY_DOC_TYPE, dm.getType());
         }
 
-        dml = session.query("SELECT * FROM Note WHERE sysver_isVersion = 0");
+        dml = session.query("SELECT * FROM Note WHERE sysver_isVersion = FALSE");
         assertEquals(1, dml.size());
         for (DocumentModel dm : dml) {
             assertEquals("Note", dm.getType());
@@ -269,7 +269,7 @@ public class TestSQLRepositoryQuery {
             assertEquals(SYS_FOLDER, dm.getType());
         }
 
-        dml = session.query("SELECT * FROM SysContent WHERE sysver_isVersion = 0");
+        dml = session.query("SELECT * FROM SysContent WHERE sysver_isVersion = FALSE");
         assertEquals(7, dml.size());
 
         dml = session.query("SELECT * FROM MyDocType WHERE sys_title = 'testfile1_Title'");
@@ -294,21 +294,21 @@ public class TestSQLRepositoryQuery {
         dml = session.query("SELECT * FROM MyDocType WHERE sysfile_blob/filename = 'testfile.txt'");
         assertEquals(1, dml.size());
 
-        dml = session.query("SELECT * FROM Note WHERE sys_title = 'testfile3_Title' AND sysver_isVersion = 0");
+        dml = session.query("SELECT * FROM Note WHERE sys_title = 'testfile3_Title' AND sysver_isVersion = FALSE");
         assertEquals(1, dml.size());
 
         // two uses of the same schema
         dml = session.query(
-                "SELECT * FROM Note WHERE (sys_title = 'testfile3_Title' OR sys_description = 'hmmm') AND sysver_isVersion = 0");
+                "SELECT * FROM Note WHERE (sys_title = 'testfile3_Title' OR sys_description = 'hmmm') AND sysver_isVersion = FALSE");
         assertEquals(1, dml.size());
 
         // this needs an actual LEFT OUTER JOIN
         dml = session.query(
-                "SELECT * FROM SysContent WHERE (sysfile_blob/filename = 'testfile.txt' OR sys_title = 'testfile3_Title') AND sysver_isVersion = 0");
+                "SELECT * FROM SysContent WHERE (sysfile_blob/filename = 'testfile.txt' OR sys_title = 'testfile3_Title') AND sysver_isVersion = FALSE");
         assertEquals(2, dml.size());
 
         dml = session.query(
-                "SELECT * FROM SysContent WHERE (sysfile_blob/filename = 'testfile.txt' OR mydc_contributors = 'bob') AND sysver_isVersion = 0");
+                "SELECT * FROM SysContent WHERE (sysfile_blob/filename = 'testfile.txt' OR mydc_contributors = 'bob') AND sysver_isVersion = FALSE");
         assertEquals(3, dml.size());
 
         // early detection of conflicting types for VCS
@@ -327,22 +327,22 @@ public class TestSQLRepositoryQuery {
         createDocs();
         DocumentModelList dml;
 
-        dml = session.query("SELECT * FROM SysContent WHERE sys_title ILIKE 'test%' AND sysver_isVersion = 0");
+        dml = session.query("SELECT * FROM SysContent WHERE sys_title ILIKE 'test%' AND sysver_isVersion = FALSE");
         assertEquals(7, dml.size());
 
-        dml = session.query("SELECT * FROM SysContent WHERE sys_title ILIKE 'Test%' AND sysver_isVersion = 0");
+        dml = session.query("SELECT * FROM SysContent WHERE sys_title ILIKE 'Test%' AND sysver_isVersion = FALSE");
         assertEquals(7, dml.size());
 
-        dml = session.query("SELECT * FROM SysContent WHERE sys_title NOT ILIKE 'foo%' AND sysver_isVersion = 0");
+        dml = session.query("SELECT * FROM SysContent WHERE sys_title NOT ILIKE 'foo%' AND sysver_isVersion = FALSE");
         assertEquals(notMatchesNull() ? 7 : 5, dml.size());
 
-        dml = session.query("SELECT * FROM SysContent WHERE sys_title NOT ILIKE 'Foo%' AND sysver_isVersion = 0");
+        dml = session.query("SELECT * FROM SysContent WHERE sys_title NOT ILIKE 'Foo%' AND sysver_isVersion = FALSE");
         assertEquals(notMatchesNull() ? 7 : 5, dml.size());
 
-        dml = session.query("SELECT * FROM SysContent WHERE mydc_subjects ILIKE '%oo' AND sysver_isVersion = 0");
+        dml = session.query("SELECT * FROM SysContent WHERE mydc_subjects ILIKE '%oo' AND sysver_isVersion = FALSE");
         assertEquals(1, dml.size());
 
-        dml = session.query("SELECT * FROM SysContent WHERE mydc_subjects NOT ILIKE '%oo' AND sysver_isVersion = 0");
+        dml = session.query("SELECT * FROM SysContent WHERE mydc_subjects NOT ILIKE '%oo' AND sysver_isVersion = FALSE");
         assertEquals(6, dml.size());
     }
 
@@ -351,41 +351,41 @@ public class TestSQLRepositoryQuery {
         DocumentModelList dml;
         createDocs();
 
-        dml = session.query("SELECT * FROM MyDocType WHERE mydc_contributors = 'pete' AND sysver_isVersion = 0");
+        dml = session.query("SELECT * FROM MyDocType WHERE mydc_contributors = 'pete' AND sysver_isVersion = FALSE");
         assertEquals(1, dml.size());
 
-        dml = session.query("SELECT * FROM MyDocType WHERE mydc_contributors = 'bob' AND sysver_isVersion = 0");
+        dml = session.query("SELECT * FROM MyDocType WHERE mydc_contributors = 'bob' AND sysver_isVersion = FALSE");
         assertEquals(1, dml.size());
 
-        dml = session.query("SELECT * FROM SysContent WHERE mydc_contributors = 'bob' AND sysver_isVersion = 0");
+        dml = session.query("SELECT * FROM SysContent WHERE mydc_contributors = 'bob' AND sysver_isVersion = FALSE");
         assertEquals(2, dml.size());
 
         dml = session.query(
-                "SELECT * FROM SysContent WHERE mydc_contributors IN ('bob', 'pete') AND sysver_isVersion = 0");
+                "SELECT * FROM SysContent WHERE mydc_contributors IN ('bob', 'pete') AND sysver_isVersion = FALSE");
         assertEquals(2, dml.size());
 
         dml = session.query(
-                "SELECT * FROM SysContent WHERE mydc_contributors IN ('bob', 'john') AND sysver_isVersion = 0");
+                "SELECT * FROM SysContent WHERE mydc_contributors IN ('bob', 'john') AND sysver_isVersion = FALSE");
         assertEquals(2, dml.size());
 
         dml = session.query(
-                "SELECT * FROM SysContent WHERE mydc_contributors NOT IN ('bob', 'pete') AND sysver_isVersion = 0");
+                "SELECT * FROM SysContent WHERE mydc_contributors NOT IN ('bob', 'pete') AND sysver_isVersion = FALSE");
         assertEquals(5, dml.size());
 
         dml = session.query(
-                "SELECT * FROM SysContent WHERE mydc_contributors NOT IN ('bob', 'john') AND sysver_isVersion = 0");
+                "SELECT * FROM SysContent WHERE mydc_contributors NOT IN ('bob', 'john') AND sysver_isVersion = FALSE");
         assertEquals(5, dml.size());
 
-        dml = session.query("SELECT * FROM SysContent WHERE mydc_contributors LIKE 'pe%' AND sysver_isVersion = 0");
+        dml = session.query("SELECT * FROM SysContent WHERE mydc_contributors LIKE 'pe%' AND sysver_isVersion = FALSE");
         assertEquals(1, dml.size());
 
-        dml = session.query("SELECT * FROM SysContent WHERE mydc_contributors LIKE 'bo%' AND sysver_isVersion = 0");
+        dml = session.query("SELECT * FROM SysContent WHERE mydc_contributors LIKE 'bo%' AND sysver_isVersion = FALSE");
         assertEquals(2, dml.size());
 
-        dml = session.query("SELECT * FROM SysContent WHERE mydc_subjects LIKE '%oo%' AND sysver_isVersion = 0");
+        dml = session.query("SELECT * FROM SysContent WHERE mydc_subjects LIKE '%oo%' AND sysver_isVersion = FALSE");
         assertEquals(1, dml.size());
 
-        dml = session.query("SELECT * FROM MyDocType WHERE mydc_subjects NOT LIKE '%oo%' AND sysver_isVersion = 0");
+        dml = session.query("SELECT * FROM MyDocType WHERE mydc_subjects NOT LIKE '%oo%' AND sysver_isVersion = FALSE");
         assertEquals(2, dml.size());
     }
 
@@ -394,45 +394,45 @@ public class TestSQLRepositoryQuery {
         DocumentModelList dml;
         createDocs();
 
-        dml = session.query("SELECT * FROM MyDocType WHERE mydc_contributors/* = 'pete' AND sysver_isVersion = 0");
+        dml = session.query("SELECT * FROM MyDocType WHERE mydc_contributors/* = 'pete' AND sysver_isVersion = FALSE");
         assertEquals(1, dml.size());
 
-        dml = session.query("SELECT * FROM MyDocType WHERE mydc_contributors/* = 'bob' AND sysver_isVersion = 0");
+        dml = session.query("SELECT * FROM MyDocType WHERE mydc_contributors/* = 'bob' AND sysver_isVersion = FALSE");
         assertEquals(1, dml.size());
 
-        dml = session.query("SELECT * FROM SysContent WHERE mydc_contributors/* = 'bob' AND sysver_isVersion = 0");
+        dml = session.query("SELECT * FROM SysContent WHERE mydc_contributors/* = 'bob' AND sysver_isVersion = FALSE");
         assertEquals(2, dml.size());
 
         dml = session.query(
-                "SELECT * FROM SysContent WHERE mydc_contributors/* IN ('bob', 'pete') AND sysver_isVersion = 0");
+                "SELECT * FROM SysContent WHERE mydc_contributors/* IN ('bob', 'pete') AND sysver_isVersion = FALSE");
         assertEquals(2, dml.size());
 
         dml = session.query(
-                "SELECT * FROM SysContent WHERE mydc_contributors/* IN ('bob', 'john') AND sysver_isVersion = 0");
+                "SELECT * FROM SysContent WHERE mydc_contributors/* IN ('bob', 'john') AND sysver_isVersion = FALSE");
         assertEquals(2, dml.size());
 
         dml = session.query(
-                "SELECT * FROM SysContent WHERE mydc_contributors/* NOT IN ('bob', 'pete') AND sysver_isVersion = 0");
+                "SELECT * FROM SysContent WHERE mydc_contributors/* NOT IN ('bob', 'pete') AND sysver_isVersion = FALSE");
         assertEquals(notMatchesNull() ? 5 : 1, dml.size());
 
         dml = session.query(
-                "SELECT * FROM SysContent WHERE mydc_contributors/* NOT IN ('bob', 'john') AND sysver_isVersion = 0");
+                "SELECT * FROM SysContent WHERE mydc_contributors/* NOT IN ('bob', 'john') AND sysver_isVersion = FALSE");
         assertEquals(notMatchesNull() ? 5 : 1, dml.size());
 
-        dml = session.query("SELECT * FROM SysContent WHERE mydc_contributors/* LIKE 'pe%' AND sysver_isVersion = 0");
+        dml = session.query("SELECT * FROM SysContent WHERE mydc_contributors/* LIKE 'pe%' AND sysver_isVersion = FALSE");
         assertEquals(1, dml.size());
 
-        dml = session.query("SELECT * FROM SysContent WHERE mydc_contributors/* LIKE 'bo%' AND sysver_isVersion = 0");
+        dml = session.query("SELECT * FROM SysContent WHERE mydc_contributors/* LIKE 'bo%' AND sysver_isVersion = FALSE");
         assertEquals(2, dml.size());
 
         dml = session.query(
-                "SELECT * FROM SysContent WHERE mydc_contributors/* NOT LIKE 'bo%' AND sysver_isVersion = 0");
+                "SELECT * FROM SysContent WHERE mydc_contributors/* NOT LIKE 'bo%' AND sysver_isVersion = FALSE");
         assertEquals(notMatchesNull() ? 5 : 1, dml.size());
 
-        dml = session.query("SELECT * FROM SysContent WHERE mydc_subjects/* LIKE '%oo%' AND sysver_isVersion = 0");
+        dml = session.query("SELECT * FROM SysContent WHERE mydc_subjects/* LIKE '%oo%' AND sysver_isVersion = FALSE");
         assertEquals(1, dml.size());
 
-        dml = session.query("SELECT * FROM MyDocType WHERE mydc_subjects/* NOT LIKE '%oo%' AND sysver_isVersion = 0");
+        dml = session.query("SELECT * FROM MyDocType WHERE mydc_subjects/* NOT LIKE '%oo%' AND sysver_isVersion = FALSE");
         assertEquals(notMatchesNull() ? 2 : 0, dml.size());
 
         // with a scalar list defined by a xs:complexType (and not a xs:simpleType)
@@ -448,18 +448,18 @@ public class TestSQLRepositoryQuery {
     public void testQueryNegativeMultiple() {
         DocumentModelList dml;
         createDocs();
-        dml = session.query("SELECT * FROM SysContent WHERE mydc_contributors <> 'pete' AND sysver_isVersion = 0");
+        dml = session.query("SELECT * FROM SysContent WHERE mydc_contributors <> 'pete' AND sysver_isVersion = FALSE");
         assertEquals(6, dml.size());
 
-        dml = session.query("SELECT * FROM SysContent WHERE mydc_contributors <> 'blah' AND sysver_isVersion = 0");
+        dml = session.query("SELECT * FROM SysContent WHERE mydc_contributors <> 'blah' AND sysver_isVersion = FALSE");
         assertEquals(7, dml.size());
 
         dml = session.query(
-                "SELECT * FROM MyDocType WHERE mydc_contributors <> 'blah' AND sysver_isVersion = 0");
+                "SELECT * FROM MyDocType WHERE mydc_contributors <> 'blah' AND sysver_isVersion = FALSE");
         assertEquals(3, dml.size());
 
         dml = session.query(
-                "SELECT * FROM SysContent WHERE sys_mixinTypes = 'SysVersionable' AND sys_mixinTypes <> 'Downloadable' AND sysver_isVersion = 0");
+                "SELECT * FROM SysContent WHERE sys_mixinTypes = 'SysVersionable' AND sys_mixinTypes <> 'Downloadable' AND sysver_isVersion = FALSE");
         assertEquals(4, dml.size());
     }
 
@@ -511,13 +511,13 @@ public class TestSQLRepositoryQuery {
         DocumentModelList dml;
         createDocs();
 
-        sql = "SELECT * FROM SysContent WHERE sys_title LIKE 'testfile%' AND sysver_isVersion = 0 ORDER BY sys_description";
+        sql = "SELECT * FROM SysContent WHERE sys_title LIKE 'testfile%' AND sysver_isVersion = FALSE ORDER BY sys_description";
         dml = session.query(sql);
         assertEquals(4, dml.size());
         assertEquals("testfile1_description", dml.get(0).getPropertyValue(SYS_DESCRIPTION));
 
         // desc
-        sql = "SELECT * FROM SysContent WHERE sys_title LIKE 'testfile%' AND sysver_isVersion = 0 ORDER BY sys_description DESC";
+        sql = "SELECT * FROM SysContent WHERE sys_title LIKE 'testfile%' AND sysver_isVersion = FALSE ORDER BY sys_description DESC";
         dml = session.query(sql);
         assertEquals(4, dml.size());
         assertEquals("testfile4_DESCRIPTION4", dml.get(0).getPropertyValue(SYS_DESCRIPTION));
@@ -573,7 +573,7 @@ public class TestSQLRepositoryQuery {
         DocumentModelList dml;
         createDocs();
 
-        sql = "SELECT * FROM SysContent WHERE sysver_isVersion = 0 ORDER BY sys_path";
+        sql = "SELECT * FROM SysContent WHERE sysver_isVersion = FALSE ORDER BY sys_path";
         dml = session.query(sql);
         assertEquals(7, dml.size());
         assertEquals("/testfolder1", dml.get(0).getPathAsString());
@@ -584,7 +584,7 @@ public class TestSQLRepositoryQuery {
         assertEquals("/testfolder2/testfolder3", dml.get(5).getPathAsString());
         assertEquals("/testfolder2/testfolder3/testfile4", dml.get(6).getPathAsString());
 
-        sql = "SELECT * FROM SysContent WHERE sysver_isVersion = 0 ORDER BY sys_path DESC";
+        sql = "SELECT * FROM SysContent WHERE sysver_isVersion = FALSE ORDER BY sys_path DESC";
         dml = session.query(sql);
         assertEquals(7, dml.size());
         assertEquals("/testfolder2/testfolder3/testfile4", dml.get(0).getPathAsString());
@@ -592,7 +592,7 @@ public class TestSQLRepositoryQuery {
 
         // then with batching
 
-        sql = "SELECT * FROM SysContent WHERE sysver_isVersion = 0 ORDER BY sys_path";
+        sql = "SELECT * FROM SysContent WHERE sysver_isVersion = FALSE ORDER BY sys_path";
         dml = session.query(sql, 2, 3, 0);
         assertEquals(2, dml.size());
         assertEquals("/testfolder1/testfile3", dml.get(0).getPathAsString());
@@ -657,7 +657,7 @@ public class TestSQLRepositoryQuery {
         DocumentModelList dml;
         createDocs();
 
-        String sql = "SELECT * FROM SysContent WHERE sysver_isVersion = 0 ORDER BY sys_name";
+        String sql = "SELECT * FROM SysContent WHERE sysver_isVersion = FALSE ORDER BY sys_name";
 
         dml = session.query(sql);
         assertEquals(7, dml.size());
@@ -722,7 +722,7 @@ public class TestSQLRepositoryQuery {
         DocumentModelList dml;
         createDocs();
 
-        String sql = "SELECT * FROM SysContent WHERE sysver_isVersion = 0 ORDER BY sys_name";
+        String sql = "SELECT * FROM SysContent WHERE sysver_isVersion = FALSE ORDER BY sys_name";
 
         dml = session.query(sql);
         assertEquals(7, dml.size());
@@ -847,16 +847,16 @@ public class TestSQLRepositoryQuery {
         DocumentModelList dml;
         createDocs();
 
-        sql = "SELECT * FROM SysContent WHERE sys_path = '/testfolder1' AND sysver_isVersion = 0";
+        sql = "SELECT * FROM SysContent WHERE sys_path = '/testfolder1' AND sysver_isVersion = FALSE";
         dml = session.query(sql);
         assertEquals(1, dml.size());
 
         // trailing slash accepted
-        sql = "SELECT * FROM SysContent WHERE sys_path = '/testfolder1/' AND sysver_isVersion = 0";
+        sql = "SELECT * FROM SysContent WHERE sys_path = '/testfolder1/' AND sysver_isVersion = FALSE";
         dml = session.query(sql);
         assertEquals(1, dml.size());
 
-        sql = "SELECT * FROM SysContent WHERE sys_path <> '/testfolder1' AND sysver_isVersion = 0";
+        sql = "SELECT * FROM SysContent WHERE sys_path <> '/testfolder1' AND sysver_isVersion = FALSE";
         dml = session.query(sql);
         assertEquals(6, dml.size());
     }
@@ -871,7 +871,7 @@ public class TestSQLRepositoryQuery {
         dml = session.query(sql);
         assertEquals(8, dml.size());
 
-        sql = "SELECT * FROM SysContent WHERE sys_path STARTSWITH '/' AND sysver_isVersion = 0";
+        sql = "SELECT * FROM SysContent WHERE sys_path STARTSWITH '/' AND sysver_isVersion = FALSE";
         dml = session.query(sql);
         assertEquals(7, dml.size());
 
@@ -879,7 +879,7 @@ public class TestSQLRepositoryQuery {
         dml = session.query(sql);
         assertEquals(0, dml.size());
 
-        sql = "SELECT * FROM SysContent WHERE sys_path STARTSWITH '/testfolder1/' AND sysver_isVersion = 0";
+        sql = "SELECT * FROM SysContent WHERE sys_path STARTSWITH '/testfolder1/' AND sysver_isVersion = FALSE";
         dml = session.query(sql);
         assertEquals(3, dml.size());
 
@@ -887,11 +887,11 @@ public class TestSQLRepositoryQuery {
         dml = session.query(sql);
         assertEquals(2, dml.size());
 
-        sql = "SELECT * FROM SysContent WHERE sys_title='testfile1_Title' AND sys_path STARTSWITH '/' AND sysver_isVersion = 0";
+        sql = "SELECT * FROM SysContent WHERE sys_title='testfile1_Title' AND sys_path STARTSWITH '/' AND sysver_isVersion = FALSE";
         dml = session.query(sql);
         assertEquals(1, dml.size());
 
-        sql = "SELECT * FROM SysContent WHERE sys_title LIKE 'testfile%' AND sys_path STARTSWITH '/' AND sysver_isVersion = 0";
+        sql = "SELECT * FROM SysContent WHERE sys_title LIKE 'testfile%' AND sys_path STARTSWITH '/' AND sysver_isVersion = FALSE";
         dml = session.query(sql);
         assertEquals(4, dml.size());
 
@@ -907,11 +907,11 @@ public class TestSQLRepositoryQuery {
         session.move(new PathRef("/testfolder2/"), new PathRef("/testfolder1/"), null);
         session.save();
 
-        sql = "SELECT * FROM SysContent WHERE sys_path STARTSWITH '/testfolder1/' AND sysver_isVersion = 0";
+        sql = "SELECT * FROM SysContent WHERE sys_path STARTSWITH '/testfolder1/' AND sysver_isVersion = FALSE";
         dml = session.query(sql);
         assertEquals(6, dml.size());
 
-        sql = "SELECT * FROM SysContent WHERE sys_path STARTSWITH '/testfolder1/testfolder2/' AND sysver_isVersion = 0";
+        sql = "SELECT * FROM SysContent WHERE sys_path STARTSWITH '/testfolder1/testfolder2/' AND sysver_isVersion = FALSE";
         dml = session.query(sql);
         assertEquals(2, dml.size());
 
@@ -930,11 +930,11 @@ public class TestSQLRepositoryQuery {
         session.copy(new PathRef("/testfolder2"), new PathRef("/testfolder1"), null);
         // session.save() not needed, implicit in DBS to follow VCS behavior
 
-        sql = "SELECT * FROM SysContent WHERE sys_path STARTSWITH '/testfolder1' AND sysver_isVersion = 0";
+        sql = "SELECT * FROM SysContent WHERE sys_path STARTSWITH '/testfolder1' AND sysver_isVersion = FALSE";
         dml = session.query(sql);
         assertEquals(6, dml.size());
 
-        sql = "SELECT * FROM SysContent WHERE sys_path STARTSWITH '/testfolder1/testfolder2' AND sysver_isVersion = 0";
+        sql = "SELECT * FROM SysContent WHERE sys_path STARTSWITH '/testfolder1/testfolder2' AND sysver_isVersion = FALSE";
         dml = session.query(sql);
         assertEquals(2, dml.size());
 
@@ -952,7 +952,7 @@ public class TestSQLRepositoryQuery {
         dml = session.query(String.format(query, session.getRootDocument().getId()));
         assertEquals(8, dml.size());
 
-        query = "SELECT * FROM SysContent WHERE sys_ancestorIds = '%s' AND sysver_isVersion = 0";
+        query = "SELECT * FROM SysContent WHERE sys_ancestorIds = '%s' AND sysver_isVersion = FALSE";
         dml = session.query(String.format(query, session.getRootDocument().getId()));
         assertEquals(7, dml.size());
 
@@ -967,17 +967,17 @@ public class TestSQLRepositoryQuery {
 
         // negative query
         dml = session.query(
-                String.format("SELECT * FROM SysContent WHERE sys_ancestorIds <> '%s' AND sysver_isVersion = 0",
+                String.format("SELECT * FROM SysContent WHERE sys_ancestorIds <> '%s' AND sysver_isVersion = FALSE",
                         session.getDocument(new PathRef("/testfolder1")).getId()));
         assertEquals(4, dml.size());
 
         dml = session.query(String.format(
-                "SELECT * FROM SysContent WHERE sys_title='testfile1_Title' AND sys_ancestorIds = '%s' AND sysver_isVersion = 0",
+                "SELECT * FROM SysContent WHERE sys_title='testfile1_Title' AND sys_ancestorIds = '%s' AND sysver_isVersion = FALSE",
                 session.getRootDocument().getId()));
         assertEquals(1, dml.size());
 
         dml = session.query(String.format(
-                "SELECT * FROM SysContent WHERE sys_title LIKE 'testfile%%' AND sys_ancestorIds = '%s' AND sysver_isVersion = 0",
+                "SELECT * FROM SysContent WHERE sys_title LIKE 'testfile%%' AND sys_ancestorIds = '%s' AND sysver_isVersion = FALSE",
                 session.getRootDocument().getId()));
         assertEquals(4, dml.size());
     }
@@ -1305,16 +1305,16 @@ public class TestSQLRepositoryQuery {
         createDocs();
         DocumentModelList dml;
 
-        dml = session.query("SELECT * FROM SysContent WHERE sysver_isVersion = 0");
+        dml = session.query("SELECT * FROM SysContent WHERE sysver_isVersion = FALSE");
         assertEquals(7, dml.size());
         assertEquals(7, dml.totalSize());
-        dml = session.query("SELECT * FROM SysContent WHERE sysver_isVersion = 0", 2, 0, -1);
+        dml = session.query("SELECT * FROM SysContent WHERE sysver_isVersion = FALSE", 2, 0, -1);
         assertEquals(2, dml.size());
         assertEquals(7, dml.totalSize());
-        dml = session.query("SELECT * FROM SysContent WHERE sysver_isVersion = 0", 2, 5, -1);
+        dml = session.query("SELECT * FROM SysContent WHERE sysver_isVersion = FALSE", 2, 5, -1);
         assertEquals(2, dml.size());
         assertEquals(7, dml.totalSize());
-        dml = session.query("SELECT * FROM SysContent WHERE sysver_isVersion = 0", 2, 6, -1);
+        dml = session.query("SELECT * FROM SysContent WHERE sysver_isVersion = FALSE", 2, 6, -1);
         assertEquals(1, dml.size());
         assertEquals(7, dml.totalSize());
     }
@@ -1535,14 +1535,14 @@ public class TestSQLRepositoryQuery {
         dml = session.query("SELECT * FROM SysContent");
         assertEquals(9, dml.size()); // 7 folder/docs, 2 versions
 
-        dml = session.query("SELECT * FROM SysContent WHERE sysver_isVersion = 1");
+        dml = session.query("SELECT * FROM SysContent WHERE sysver_isVersion = TRUE");
         assertIdSet(dml, versionId, noteVersionId);
 
-        dml = session.query("SELECT * FROM SysContent WHERE sysver_isVersion = 0");
+        dml = session.query("SELECT * FROM SysContent WHERE sysver_isVersion = FALSE");
         assertEquals(7, dml.size()); // 7 folder/docs
 
         // only keep versions
-        dml = session.query("SELECT * FROM SysContent WHERE sys_title = 'testfile4Title' AND sysver_isVersion = 1");
+        dml = session.query("SELECT * FROM SysContent WHERE sys_title = 'testfile4Title' AND sysver_isVersion = TRUE");
         assertIdSet(dml, versionId);
 
         // query with order by
@@ -1603,7 +1603,7 @@ public class TestSQLRepositoryQuery {
         // no folderish
         session.query("SELECT * FROM SysContent WHERE sys_mixinTypes <> 'SysFolderish'");
         // sys_isfolderish
-        session.query("SELECT * FROM SysContent WHERE sys_isFolderish = 1");
+        session.query("SELECT * FROM SysContent WHERE sys_isFolderish = TRUE");
 
         // empty
         session.query("SELECT * FROM Note WHERE sys_mixinTypes = 'SysFolderish'");
@@ -1734,24 +1734,24 @@ public class TestSQLRepositoryQuery {
         /*
          * sysver_isCheckedIn
          */
-        dml = session.query("SELECT * FROM SysContent WHERE sysver_isCheckedIn = 1");
+        dml = session.query("SELECT * FROM SysContent WHERE sysver_isCheckedIn = TRUE");
         assertIdSet(dml, note.getId(), doc.getId(), file1.getId());
-        dml = session.query("SELECT * FROM SysContent WHERE sysver_isCheckedIn = 0");
+        dml = session.query("SELECT * FROM SysContent WHERE sysver_isCheckedIn = FALSE");
         assertEquals(8, dml.size());
         // checkout and make sure we find it in correct state
         session.checkOut(file1.getRef());
         session.save();
-        dml = session.query("SELECT * FROM SysContent WHERE sysver_isCheckedIn = 1");
+        dml = session.query("SELECT * FROM SysContent WHERE sysver_isCheckedIn = TRUE");
         assertIdSet(dml, doc.getId(), note.getId());
-        dml = session.query("SELECT * FROM SysContent WHERE sysver_isCheckedIn = 0");
+        dml = session.query("SELECT * FROM SysContent WHERE sysver_isCheckedIn = FALSE");
         assertEquals(9, dml.size());
 
         /*
          * sysver_isVersion
          */
-        dml = session.query("SELECT * FROM SysContent WHERE sysver_isVersion = 1");
+        dml = session.query("SELECT * FROM SysContent WHERE sysver_isVersion = TRUE");
         assertIdSet(dml, version.getId(), noteVersionId, v1.toString(), v2.toString());
-        dml = session.query("SELECT * FROM SysContent WHERE sysver_isVersion = 0");
+        dml = session.query("SELECT * FROM SysContent WHERE sysver_isVersion = FALSE");
         assertEquals(7, dml.size()); // 7 folder/docs
 
         /*
@@ -1769,8 +1769,8 @@ public class TestSQLRepositoryQuery {
 
     @Test
     public void testIsTrashedWithProperty() {
-        String sqlNotTrashed = "SELECT * FROM SysContent WHERE sys_isTrashed = 0";
-        String sqlTrashed = "SELECT * FROM SysContent WHERE sys_isTrashed = 1";
+        String sqlNotTrashed = "SELECT * FROM SysContent WHERE sys_isTrashed = FALSE";
+        String sqlTrashed = "SELECT * FROM SysContent WHERE sys_isTrashed = TRUE";
         doTestTrashed(sqlNotTrashed, sqlTrashed);
     }
 
@@ -1970,21 +1970,21 @@ public class TestSQLRepositoryQuery {
         file.checkIn();
         session.save();
 
-        query = "SELECT sys_title FROM MyDocType WHERE sys_title = 'special1' AND sysver_isVersion = 1";
+        query = "SELECT sys_title FROM MyDocType WHERE sys_title = 'special1' AND sysver_isVersion = TRUE";
         try (IterableQueryResult res = session.queryAndFetch(query, "NXQL")) {
             assertEquals(1, res.size());
             Map<String, Object> map = res.iterator().next();
             assertEquals("special1", map.get(SYS_TITLE));
         }
 
-        query = "SELECT sysver_version FROM MyDocType WHERE sys_title = 'special1' AND sysver_isVersion = 1";
+        query = "SELECT sysver_version FROM MyDocType WHERE sys_title = 'special1' AND sysver_isVersion = TRUE";
         try (IterableQueryResult res = session.queryAndFetch(query, "NXQL")) {
             assertEquals(1, res.size());
             Map<String, Object> map = res.iterator().next();
             assertEquals(1L, map.get(SYSVER_VERSION));
         }
 
-        query = "SELECT sysfile_blob/filename, sysfile_blob/length FROM MyDocType WHERE sys_title = 'special1' AND sysver_isVersion = 1";
+        query = "SELECT sysfile_blob/filename, sysfile_blob/length FROM MyDocType WHERE sys_title = 'special1' AND sysver_isVersion = TRUE";
         try (IterableQueryResult res = session.queryAndFetch(query, "NXQL")) {
             assertEquals(1, res.size());
             Map<String, Object> map = res.iterator().next();
@@ -3302,8 +3302,8 @@ public class TestSQLRepositoryQuery {
 
     @Test
     public void testIsRecord() {
-        String queryRecords = "SELECT * FROM GovernableFile WHERE sysgov_isRecord = 1";
-        String queryNotRecord = "SELECT * FROM GovernableFile WHERE sysgov_isRecord = 0";
+        String queryRecords = "SELECT * FROM GovernableFile WHERE sysgov_isRecord = TRUE";
+        String queryNotRecord = "SELECT * FROM GovernableFile WHERE sysgov_isRecord = FALSE";
         DocumentModelList dml;
 
         // no record present initially
@@ -3359,8 +3359,8 @@ public class TestSQLRepositoryQuery {
 
     @Test
     public void testHasLegalHold() {
-        String queryHolds = "SELECT * FROM GovernableFile WHERE sysgov_hasLegalHold = 1";
-        String queryNoHold = "SELECT * FROM GovernableFile WHERE sysgov_hasLegalHold = 0";
+        String queryHolds = "SELECT * FROM GovernableFile WHERE sysgov_hasLegalHold = TRUE";
+        String queryNoHold = "SELECT * FROM GovernableFile WHERE sysgov_hasLegalHold = FALSE";
         DocumentModelList dml;
 
         // no hold present initially

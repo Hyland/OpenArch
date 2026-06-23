@@ -373,14 +373,14 @@ public class TestAutomaticIndexing {
         nextTransactionWithWaitAssertNumberOfCommandProcessed(1); // 1 update
 
         DocumentModelList ret = oss.query(
-                new NxQueryBuilder(session).nxql("SELECT * FROM SysContent WHERE sys_isTrashed = 0"));
+                new NxQueryBuilder(session).nxql("SELECT * FROM SysContent WHERE sys_isTrashed = FALSE"));
         assertEquals(1, ret.totalSize());
         doc = session.getDocument(doc.getRef());
         trashService.untrashDocument(doc);
 
         nextTransactionWithWaitAssertNumberOfCommandProcessed(1);
 
-        ret = oss.query(new NxQueryBuilder(session).nxql("SELECT * FROM SysContent WHERE sys_isTrashed = 0"));
+        ret = oss.query(new NxQueryBuilder(session).nxql("SELECT * FROM SysContent WHERE sys_isTrashed = FALSE"));
         assertEquals(2, ret.totalSize());
 
         SearchResponse<DocumentDTO> searchResponse = searchAll();
@@ -538,7 +538,7 @@ public class TestAutomaticIndexing {
         createADocumentWith3Versions();
 
         DocumentModelList ret = oss.query(
-                new NxQueryBuilder(session).nxql("SELECT * FROM SysContent WHERE sysver_isVersion = 0 AND sys_title='v3'"));
+                new NxQueryBuilder(session).nxql("SELECT * FROM SysContent WHERE sysver_isVersion = FALSE AND sys_title='v3'"));
         assertEquals(1, ret.totalSize());
         DocumentModel doc = ret.get(0);
         assertEquals("v3", doc.getTitle());
@@ -549,7 +549,7 @@ public class TestAutomaticIndexing {
         nextTransactionWithWait();
 
         ret = oss.query(
-                new NxQueryBuilder(session).nxql("SELECT * FROM SysContent WHERE sysver_isVersion = 0 AND sys_title='v2'"));
+                new NxQueryBuilder(session).nxql("SELECT * FROM SysContent WHERE sysver_isVersion = FALSE AND sys_title='v2'"));
         assertEquals(1, ret.totalSize());
         assertEquals("v2", ret.get(0).getTitle());
     }
@@ -586,7 +586,7 @@ public class TestAutomaticIndexing {
 
         // check ES
         DocumentModelList ret = oss.query(new NxQueryBuilder(session).nxql(
-                "SELECT * FROM SysContent WHERE sys_path = '/file' and sysver_isVersion = 0 AND sys_title='v2'"));
+                "SELECT * FROM SysContent WHERE sys_path = '/file' and sysver_isVersion = FALSE AND sys_title='v2'"));
         assertEquals(1, ret.totalSize());
         assertEquals("v2", ret.get(0).getTitle());
 
@@ -597,7 +597,7 @@ public class TestAutomaticIndexing {
 
         // check ES
         ret = oss.query(new NxQueryBuilder(session).nxql(
-                "SELECT * FROM SysContent WHERE sys_path = '/file' and sysver_isVersion = 0 AND sys_title='v1'"));
+                "SELECT * FROM SysContent WHERE sys_path = '/file' and sysver_isVersion = FALSE AND sys_title='v1'"));
         assertEquals(1, ret.totalSize());
         assertEquals("v1", ret.get(0).getTitle());
     }
@@ -668,7 +668,7 @@ public class TestAutomaticIndexing {
         nextTransactionWithWait();
 
         // no record found in index
-        String nxql = "SELECT * FROM SysContent WHERE sysgov_isRecord = 1";
+        String nxql = "SELECT * FROM SysContent WHERE sysgov_isRecord = TRUE";
         DocumentModelList ret = oss.query(new NxQueryBuilder(session).nxql(nxql));
         assertEquals(0, ret.totalSize());
 
@@ -730,7 +730,7 @@ public class TestAutomaticIndexing {
         session.save();
 
         // no retention found in index
-        String nxql = "SELECT * FROM SysContent WHERE sysgov_hasLegalHold = 1";
+        String nxql = "SELECT * FROM SysContent WHERE sysgov_hasLegalHold = TRUE";
         DocumentModelList ret = oss.query(new NxQueryBuilder(session).nxql(nxql));
         assertEquals(0, ret.totalSize());
 

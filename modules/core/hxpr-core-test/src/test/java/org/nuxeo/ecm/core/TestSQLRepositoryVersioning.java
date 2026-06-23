@@ -113,7 +113,7 @@ public class TestSQLRepositoryVersioning {
 
     private DocumentModelList getVersions(DocumentModel doc) {
         return session.query(
-                "SELECT * FROM SysContent WHERE sys_parentId = '%s' AND sysver_isVersion = 1 ORDER BY sysver_version".formatted(
+                "SELECT * FROM SysContent WHERE sys_parentId = '%s' AND sysver_isVersion = TRUE ORDER BY sysver_version".formatted(
                         doc.getId()));
     }
 

@@ -28,7 +28,7 @@ import org.nuxeo.ecm.core.api.DocumentModelList;
 public class TestVersioningRemovalPolicy extends AbstractTestVersioning {
 
     protected DocumentModelList getVersion() {
-        return session.query("select * FROM SysContent where sysver_isVersion = 1");
+        return session.query("select * FROM SysContent where sysver_isVersion = TRUE");
     }
 
     @Test

@@ -243,7 +243,7 @@ public class NXQLQueryBuilder {
                 } else if (params[i] instanceof List<?>) {
                     appendStringList(queryBuilder, (List<?>) params[i], quoteParameters);
                 } else if (params[i] instanceof Boolean booleanParam) {
-                    queryBuilder.append(booleanParam.booleanValue() ? 1 : 0);
+                    queryBuilder.append(booleanParam.booleanValue() ? "TRUE" : "FALSE");
                 } else if (params[i] instanceof Number) {
                     queryBuilder.append(params[i]);
                 } else if (params[i] instanceof Literal literalParam) {

@@ -54,7 +54,8 @@ public class TestQueryParser2 {
             "SELECT p FROM t WHERE p = 2 OR s = 3 AND NOT q = 4", "SELECT p FROM t WHERE title = DATE '2007-01-30'",
             "SELECT p FROM t WHERE title = TIMESTAMP '2007-01-30T01:02:03.000+04:00'",
             "SELECT p FROM t WHERE title = '%test'", "SELECT p FROM t WHERE title IS NULL",
-            "SELECT p FROM t WHERE title IS NOT NULL", "SELECT p FROM t WHERE DATE(title) = DATE '2007-01-30'", };
+            "SELECT p FROM t WHERE title IS NOT NULL", "SELECT p FROM t WHERE DATE(title) = DATE '2007-01-30'",
+            "SELECT p FROM t WHERE active = true", "SELECT p FROM t WHERE active = false", };
 
     static final String[] GOOD_QUERIES = { "SELECT * FROM SysContent", "SELECT title FROM SysContent",
             "SELECT title, author FROM SysContent", "SELECT title FROM SysContent WHERE created > \"20060523\"",
@@ -113,7 +114,11 @@ public class TestQueryParser2 {
             "SELECT * FROM SysContent WHERE sys_id = sysrelation.subject " + " AND sys_title='foo'",
 
             // Reported bogus
-            "SELECT * FROM SysContent WHERE NOT sys_path STARTSWITH '/some/path'", };
+            "SELECT * FROM SysContent WHERE NOT sys_path STARTSWITH '/some/path'",
+
+            // Boolean literals
+            "SELECT p FROM t WHERE active = TRUE", "SELECT p FROM t WHERE active = FALSE",
+            "SELECT p FROM t WHERE active IN (TRUE, FALSE)", };
 
     static final String[] CASE_INDEPENDENCY_GOOD_QUERIES = {
             "Select title from SysContent",

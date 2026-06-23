@@ -67,7 +67,7 @@ public class TrashServiceImpl extends DefaultComponent implements TrashService {
 
     private static final Logger log = LogManager.getLogger(TrashServiceImpl.class);
 
-    private static final String TRASHED_QUERY = "SELECT * FROM SysContent WHERE sysver_isVersion = 0 AND sys_isTrashed = 1 AND sys_parentId = '%s'";
+    private static final String TRASHED_QUERY = "SELECT * FROM SysContent WHERE sysver_isVersion = FALSE AND sys_isTrashed = TRUE AND sys_parentId = '%s'";
 
     private static final String PATH_SEPARATOR = "/";
 

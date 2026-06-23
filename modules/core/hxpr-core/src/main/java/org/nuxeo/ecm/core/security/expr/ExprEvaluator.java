@@ -51,6 +51,7 @@ import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_FILENAME;
 import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_KEY;
 import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_LENGTH;
 import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_MIME_TYPE;
+import static org.nuxeo.ecm.core.storage.dbs.DBSSession.TRUE_OR_NULL_BOOLEAN_KEYS;
 
 import java.util.HashMap;
 import java.util.List;
@@ -228,7 +229,7 @@ public class ExprEvaluator {
                     throw new IllegalArgumentException("Cannot dereference: " + expr.toStringPretty());
                 }
                 // normalization
-                yield normalizeValue(value);
+                yield normalizeValue(name, value);
             }
             case ValCall(var name, var args) -> {
                 List<Object> values = args.stream().map(this::visitArg).toList();
@@ -275,11 +276,13 @@ public class ExprEvaluator {
         };
     }
 
-    private Object normalizeValue(Object value) {
+    private Object normalizeValue(String name, Object value) {
         if (value instanceof Integer i) {
             value = Long.valueOf(i);
         } else if (value instanceof Float f) {
             value = Double.valueOf(f);
+        } else if (value == null && TRUE_OR_NULL_BOOLEAN_KEYS.contains(name)) {
+            value = false;
         } else if (value instanceof ManagedBlob blob) {
             Map<String, Object> map = new HashMap<>();
             map.put(KEY_BLOB_KEY, blob.getKey());

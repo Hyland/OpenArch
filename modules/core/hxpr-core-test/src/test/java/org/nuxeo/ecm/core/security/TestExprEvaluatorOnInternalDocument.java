@@ -106,4 +106,13 @@ public class TestExprEvaluatorOnInternalDocument {
         check("content.sysfile_blob.mimeType == \"text/plain\"", true);
     }
 
+    @Test
+    public void testTrueOrNullBoolean() {
+        // sys_isFolderish is a true-or-null boolean property: when unset on storage (here a SysFile),
+        // reading it must yield false (not null)
+        check("content.sys_isFolderish", false);
+        check("content.sys_isFolderish == false", true);
+        check("!content.sys_isFolderish", true);
+    }
+
 }

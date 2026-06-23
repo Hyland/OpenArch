@@ -70,6 +70,8 @@ LIMIT:      'LIMIT';
 OFFSET:     'OFFSET';
 STARTSWITH: 'STARTSWITH';
 AS:         'AS';
+TRUE:       'TRUE';
+FALSE:      'FALSE';
 
 SUM:    '+';
 SUB:    '-';

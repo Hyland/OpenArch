@@ -238,16 +238,19 @@ public class MongoDBRepositoryQueryBuilder extends MongoDBAbstractQueryBuilder {
         if (op != Operator.EQ && op != Operator.NOTEQ) {
             throw new QueryParseException(SYS_IS_TRASHED + " requires = or <> operator");
         }
-        return walkIsTrashed(new Reference(SYS_IS_TRASHED), op, rvalue, new BooleanLiteral(true));
+        return walkIsTrashed(new Reference(SYS_IS_TRASHED), op, rvalue, BooleanLiteral.LIT_TRUE);
     }
 
     protected Document walkIsTrashed(Reference ref, Operator op, Operand initialRvalue, Literal deletedRvalue) {
-        long v;
-        if (!(initialRvalue instanceof IntegerLiteral integerLiteral)
-                || ((v = integerLiteral.value()) != 0 && v != 1)) {
-            throw new QueryParseException(SYS_IS_TRASHED + " requires literal 0 or 1 as right argument");
+        boolean trashedRequested;
+        if (initialRvalue instanceof BooleanLiteral boolLit) {
+            trashedRequested = boolLit.value();
+        } else if (initialRvalue instanceof IntegerLiteral intLit && (intLit.value() == 0 || intLit.value() == 1)) {
+            trashedRequested = intLit.value() == 1;
+        } else {
+            throw new QueryParseException(SYS_IS_TRASHED + " requires literal TRUE/FALSE (or 0/1) as right argument");
         }
-        boolean equalsDeleted = op == Operator.EQ ^ v == 0;
+        boolean equalsDeleted = op == Operator.EQ ? trashedRequested : !trashedRequested;
         if (equalsDeleted) {
             return walkEq(ref, deletedRvalue);
         } else {

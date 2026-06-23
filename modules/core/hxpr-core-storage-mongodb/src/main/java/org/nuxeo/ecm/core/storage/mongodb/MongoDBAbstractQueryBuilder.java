@@ -18,9 +18,6 @@
  */
 package org.nuxeo.ecm.core.storage.mongodb;
 
-import static java.lang.Boolean.FALSE;
-import static java.lang.Boolean.TRUE;
-
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -410,6 +407,8 @@ public abstract class MongoDBAbstractQueryBuilder {
             return walkIntegerLiteral(fieldInfo, intLit);
         } else if (lit instanceof StringLiteral strLit) {
             return walkStringLiteral(fieldInfo, strLit);
+        } else if (lit instanceof BooleanLiteral boolLit) {
+            return walkBooleanLiteral(fieldInfo, boolLit);
         } else  {
             return Literals.valueOf(lit);
         }
@@ -418,18 +417,23 @@ public abstract class MongoDBAbstractQueryBuilder {
     public Object walkIntegerLiteral(FieldInfo fieldInfo, IntegerLiteral lit) {
         long value = lit.value();
         if (fieldInfo != null && fieldInfo.isBoolean()) {
-            // convert 0 / 1 to actual booleans
-            Boolean b;
-            if (value == 0) {
-                b = FALSE;
-            } else if (value == 1) {
-                b = TRUE;
-            } else {
-                throw new QueryParseException("Invalid boolean: " + value);
-            }
-            return converter.valueToBson(fieldInfo.key, b);
+            // convert 0 / 1 to actual booleans; cast to int is fine, we don't care about pathological long values
+            BooleanLiteral bl = switch ((int) value) {
+                case 0 -> BooleanLiteral.LIT_FALSE;
+                case 1 -> BooleanLiteral.LIT_TRUE;
+                default -> throw new QueryParseException("Invalid boolean: " + value);
+            };
+            return walkBooleanLiteral(fieldInfo, bl);
         }
         return Long.valueOf(value);
+    }
+
+    public Object walkBooleanLiteral(FieldInfo fieldInfo, BooleanLiteral lit) {
+        Boolean value = lit.value();
+        if (fieldInfo != null && fieldInfo.isBoolean()) {
+            return converter.valueToBson(fieldInfo.key, value);
+        }
+        return value;
     }
 
     public Object walkStringLiteral(FieldInfo fieldInfo, StringLiteral lit) {
