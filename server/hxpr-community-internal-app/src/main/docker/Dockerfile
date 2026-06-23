@@ -51,6 +51,8 @@ ARG USER_NAME=hxpr-app-user
 ARG USER_ID=33010
 
 COPY target/hxpr-community-internal-app-*.jar /deployments/app.jar
+COPY target/licenses /deployments/licenses
+COPY target/*-3rd-Party-libraries.csv /deployments/licenses/
 
 RUN addgroup -g ${GROUP_ID} ${GROUP_NAME} && \
     adduser -D -u ${USER_ID} -G ${GROUP_NAME} ${USER_NAME} && \

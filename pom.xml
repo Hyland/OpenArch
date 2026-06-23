@@ -1297,6 +1297,7 @@
               <id>third-party-licenses</id>
               <goals>
                 <goal>add-third-party</goal>
+                <goal>download-licenses</goal>
               </goals>
               <phase>generate-resources</phase>
               <configuration>
@@ -1307,6 +1308,104 @@
                 <includedLicenses>https://raw.githubusercontent.com/Alfresco/third-party-license-overrides/master/includedLicenses.txt</includedLicenses>
                 <licenseMergesUrl>https://raw.githubusercontent.com/Alfresco/third-party-license-overrides/master/licenseMerges.txt</licenseMergesUrl>
                 <overrideUrl>https://raw.githubusercontent.com/Alfresco/third-party-license-overrides/master/override-THIRD-PARTY.properties</overrideUrl>
+                <licenseUrlReplacements>
+                  <licenseUrlReplacement>
+                    <regexp>\Qhttps://www.apache.org/licenses/LICENSE-2.0.txt\E</regexp>
+                    <replacement>file://${maven.multiModuleProjectDirectory}/license/apache-2.0.txt</replacement>
+                  </licenseUrlReplacement>
+                  <licenseUrlReplacement>
+                    <regexp>\Qhttp://www.apache.org/licenses/LICENSE-2.0.txt\E</regexp>
+                    <replacement>file://${maven.multiModuleProjectDirectory}/license/apache-2.0.txt</replacement>
+                  </licenseUrlReplacement>
+                  <licenseUrlReplacement>
+                    <regexp>\Qhttps://www.apache.org/licenses/LICENSE-2.0\E</regexp>
+                    <replacement>file://${maven.multiModuleProjectDirectory}/license/apache-2.0.txt</replacement>
+                  </licenseUrlReplacement>
+                  <licenseUrlReplacement>
+                    <regexp>\Qhttps://repository.jboss.org/licenses/apache-2.0.txt\E</regexp>
+                    <replacement>file://${maven.multiModuleProjectDirectory}/license/apache-2.0.txt</replacement>
+                  </licenseUrlReplacement>
+                  <licenseUrlReplacement>
+                    <regexp>\Qhttps://opensource.org/licenses/BSD-2-Clause\E</regexp>
+                    <replacement>file://${maven.multiModuleProjectDirectory}/license/bsd-2-clause.txt</replacement>
+                  </licenseUrlReplacement>
+                  <licenseUrlReplacement>
+                    <regexp>\Qhttps://raw.githubusercontent.com/hamcrest/JavaHamcrest/master/LICENSE\E</regexp>
+                    <replacement>file://${maven.multiModuleProjectDirectory}/license/bsd-3-clause.txt</replacement>
+                  </licenseUrlReplacement>
+                  <licenseUrlReplacement>
+                    <regexp>\Qhttp://creativecommons.org/publicdomain/zero/1.0/\E</regexp>
+                    <replacement>file://${maven.multiModuleProjectDirectory}/license/cc0-1.0.txt</replacement>
+                  </licenseUrlReplacement>
+                  <licenseUrlReplacement>
+                    <regexp>\Qhttp://www.eclipse.org/org/documents/edl-v10.php\E</regexp>
+                    <replacement>file://${maven.multiModuleProjectDirectory}/license/edl-1.0.txt</replacement>
+                  </licenseUrlReplacement>
+                  <licenseUrlReplacement>
+                    <regexp>\Qhttp://www.eclipse.org/legal/epl-v10.html\E</regexp>
+                    <replacement>file://${maven.multiModuleProjectDirectory}/license/epl-1.0.txt</replacement>
+                  </licenseUrlReplacement>
+                  <licenseUrlReplacement>
+                    <regexp>\Qhttp://www.eclipse.org/org/documents/epl-v10.html\E</regexp>
+                    <replacement>file://${maven.multiModuleProjectDirectory}/license/epl-1.0.txt</replacement>
+                  </licenseUrlReplacement>
+                  <licenseUrlReplacement>
+                    <regexp>\Qhttps://spdx.org/licenses/EPL-1.0.html\E</regexp>
+                    <replacement>file://${maven.multiModuleProjectDirectory}/license/epl-1.0.txt</replacement>
+                  </licenseUrlReplacement>
+                  <licenseUrlReplacement>
+                    <regexp>\Qhttp://www.eclipse.org/legal/epl-2.0\E</regexp>
+                    <replacement>file://${maven.multiModuleProjectDirectory}/license/epl-2.0.txt</replacement>
+                  </licenseUrlReplacement>
+                  <licenseUrlReplacement>
+                    <regexp>\Qhttps://projects.eclipse.org/license/epl-2.0\E</regexp>
+                    <replacement>file://${maven.multiModuleProjectDirectory}/license/epl-2.0.txt</replacement>
+                  </licenseUrlReplacement>
+                  <licenseUrlReplacement>
+                    <regexp>\Qhttps://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.txt\E</regexp>
+                    <replacement>file://${maven.multiModuleProjectDirectory}/license/epl-2.0.txt</replacement>
+                  </licenseUrlReplacement>
+                  <licenseUrlReplacement>
+                    <regexp>\Qhttps://www.gnu.org/software/classpath/license.html\E</regexp>
+                    <replacement>file://${maven.multiModuleProjectDirectory}/license/gpl-2.0-ce.txt</replacement>
+                  </licenseUrlReplacement>
+                  <licenseUrlReplacement>
+                    <regexp>\Qhttps://projects.eclipse.org/license/secondary-gpl-2.0-cp\E</regexp>
+                    <replacement>file://${maven.multiModuleProjectDirectory}/license/gpl-2.0-ce.txt</replacement>
+                  </licenseUrlReplacement>
+                  <licenseUrlReplacement>
+                    <regexp>\Qhttp://www.gnu.org/licenses/old-licenses/lgpl-2.1.html\E</regexp>
+                    <replacement>file://${maven.multiModuleProjectDirectory}/license/lgpl-2.1.txt</replacement>
+                  </licenseUrlReplacement>
+                  <licenseUrlReplacement>
+                    <regexp>\Qhttps://www.gnu.org/licenses/old-licenses/lgpl-2.1\E</regexp>
+                    <replacement>file://${maven.multiModuleProjectDirectory}/license/lgpl-2.1.txt</replacement>
+                  </licenseUrlReplacement>
+                  <licenseUrlReplacement>
+                    <regexp>\Qhttp://www.gnu.org/licenses/lgpl-2.1.html\E</regexp>
+                    <replacement>file://${maven.multiModuleProjectDirectory}/license/lgpl-2.1.txt</replacement>
+                  </licenseUrlReplacement>
+                  <licenseUrlReplacement>
+                    <regexp>\Qhttps://spdx.org/licenses/LGPL-2.1-or-later.html\E</regexp>
+                    <replacement>file://${maven.multiModuleProjectDirectory}/license/lgpl-2.1.txt</replacement>
+                  </licenseUrlReplacement>
+                  <licenseUrlReplacement>
+                    <regexp>\Qhttps://opensource.org/license/mit\E</regexp>
+                    <replacement>file://${maven.multiModuleProjectDirectory}/license/mit.txt</replacement>
+                  </licenseUrlReplacement>
+                  <licenseUrlReplacement>
+                    <regexp>\Qhttp://opensource.org/licenses/MIT\E</regexp>
+                    <replacement>file://${maven.multiModuleProjectDirectory}/license/mit.txt</replacement>
+                  </licenseUrlReplacement>
+                  <licenseUrlReplacement>
+                    <regexp>\Qhttps://spdx.org/licenses/MIT-0.html\E</regexp>
+                    <replacement>file://${maven.multiModuleProjectDirectory}/license/mit-0.txt</replacement>
+                  </licenseUrlReplacement>
+                  <licenseUrlReplacement>
+                    <regexp>\Qhttps://jdbc.postgresql.org/about/license.html\E</regexp>
+                    <replacement>file://${maven.multiModuleProjectDirectory}/license/postgresql.txt</replacement>
+                  </licenseUrlReplacement>
+                </licenseUrlReplacements>
               </configuration>
             </execution>
           </executions>
