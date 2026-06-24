@@ -25,6 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.Test;
+import org.nuxeo.ecm.platform.usermanager.UserManager;
 import org.nuxeo.runtime.springboot.junit.RuntimeSpringBootTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.MockMvc;
@@ -56,10 +57,12 @@ public abstract class AbstractUserAPITest extends RuntimeSpringBootTest {
     @Test
     void shouldFindUserByUserNamePart(@Autowired MockMvc mockMvc) throws Exception {
         mockMvc.perform(get(UserAPI.PATH + "?name=myUserNameTwo"))
+               .andExpect(jsonPath("$.size()", is(1)))
                .andExpect(jsonPath("$[0].id", is(TEST_USER_3_ID)))
                .andExpect(jsonPath("$[0].email", is("firstTwo.lastnameTwo@hyland.com")))
                .andExpect(jsonPath("$[0].firstName", is("MyFirstTwo")))
-               .andExpect(jsonPath("$[0].lastName", is("MyFamilyTwo")));
+               .andExpect(jsonPath("$[0].lastName", is("MyFamilyTwo")))
+               .andExpect(jsonPath("$[0].username", is("myUserNameTwo")));
     }
 
     @Test

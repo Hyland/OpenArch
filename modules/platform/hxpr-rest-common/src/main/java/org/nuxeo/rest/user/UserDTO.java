@@ -44,6 +44,9 @@ public record UserDTO( //
         @Schema(description = "Last name of the user.")
         String lastName, //
         @JsonInclude(Include.NON_NULL)
+        @Schema(description = "Login username of the user.")
+        String username, //
+        @JsonInclude(Include.NON_NULL)
         @Schema(description = "Email address of the user.")
         String email,
         @JsonInclude(Include.NON_EMPTY)
@@ -54,10 +57,11 @@ public record UserDTO( //
     }
 
     public UserDTO(NuxeoPrincipal user) {
-        this(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getUserAttributes());
+        this(user.getId(), user.getFirstName(), user.getLastName(),
+             user.getUsername(), user.getEmail(), user.getUserAttributes());
     }
 
     public UserDTO(String id) {
-        this(id, null, null, null,  Map.of());
+        this(id, null, null, null, null, Map.of());
     }
 }
