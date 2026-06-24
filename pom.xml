@@ -95,7 +95,7 @@
     <expiringmap.version>0.5.11</expiringmap.version>
     <bouncycastle.version>1.84</bouncycastle.version>
     <xsom.version>20140925</xsom.version>
-    <swagger-annotations-jakarta.version>2.2.51</swagger-annotations-jakarta.version>
+    <swagger-annotations-jakarta.version>2.2.52</swagger-annotations-jakarta.version>
     <antlr4.version>4.13.2</antlr4.version>
     <jericho-html.version>3.4</jericho-html.version>
     <dumbster.version>1.7.1</dumbster.version>
