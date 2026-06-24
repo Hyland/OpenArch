@@ -72,13 +72,10 @@ jobs:
         with:
           nexus-username: ${{ secrets.NEXUS_USERNAME }}
           nexus-password: ${{ secrets.NEXUS_PASSWORD }}
-      - name: Generate Version
-        id: version
-        uses: ./.github/actions/generate-version
-        with:
-          base-version: '0.1'
-      - name: Set VERSION in env (also used as docker tag)
-        run: echo "VERSION=${{ steps.version.outputs.version }}" >> $GITHUB_ENV
+      - name: Read current pom version
+        # Captures the SNAPSHOT version from pom.xml; release.sh (when run on main)
+        # will strip the -SNAPSHOT suffix to produce the released version.
+        run: echo "POM_VERSION=$(mvn -B -q -DforceStdout -Dexpression=project.version help:evaluate)" >> $GITHUB_ENV
       - name: Compile project
         run: mvn clean install -DskipTests
       - name: Set BRANCH_NAME and GITHUB_PR
@@ -105,6 +102,18 @@ jobs:
       - name: Rebuild modules after release version bump
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: mvn clean install -DskipTests
+
+      - name: Resolve VERSION from release.sh / pom
+        # On push to main, release.sh strips -SNAPSHOT to compute the released version
+        # and bumps the pom to the next SNAPSHOT. On PRs / other events, fall back to
+        # the SNAPSHOT version read from the pom (release.sh did not run).
+        run: |
+          if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            VERSION="${POM_VERSION%-SNAPSHOT}"
+          else
+            VERSION="${POM_VERSION}"
+          fi
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
 
       - name: Set Product version to current build
         run: sed -i 's/^org\.nuxeo\.ecm\.product\.version=.*$/org\.nuxeo\.ecm\.product\.version=${{ env.VERSION }}/g' ./server/hxpr-community-internal-app/src/main/resources/application.properties
