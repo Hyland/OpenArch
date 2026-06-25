@@ -20,7 +20,6 @@ permissions:
   pull-requests: write
 env:
   GH_ACTOR: hxpcscicduser
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   GHCR: ghcr.io/hylandsoftware/
   IMAGE_NAME: hxpr-community-internal-app-jvm
 
