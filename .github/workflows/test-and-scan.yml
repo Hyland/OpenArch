@@ -5,21 +5,11 @@ on:
     branches:
       - main
       - internal
-    paths:
-      - 'modules/**'
-      - 'server/**'
-      - 'sonarcloud/**'
-      - 'pom.xml'
   pull_request:
     types: [opened, synchronize, ready_for_review]
     branches:
       - main
       - internal
-    paths:
-      - 'modules/**'
-      - 'server/**'
-      - 'sonarcloud/**'
-      - 'pom.xml'
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
