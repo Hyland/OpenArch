@@ -86,6 +86,7 @@ jobs:
           RELEASE_PREPARE: true
           RELEASE_PERFORM: true
           DISTRIBUTION_REPO_URL: https://maven.pkg.github.com/HylandSoftware/hxpr-community-internal
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: _ci/release.sh
 
       - name: Rebuild modules after release version bump
