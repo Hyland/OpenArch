@@ -1,0 +1,6 @@
+#Additional openAPI definitions that would be merged with the auto generated part
+#example: add additionalProperties (not yet supported by microprofile) to Document
+#components:
+#  schemas:
+#    Document:
+#      additionalProperties: true

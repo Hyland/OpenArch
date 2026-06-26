@@ -1,0 +1,10 @@
+# dev configuration
+.env
+config/application.properties
+
+# hxpr dev mode data
+/nuxeo/
+/nxserver/
+
+# docker compose data
+data/
