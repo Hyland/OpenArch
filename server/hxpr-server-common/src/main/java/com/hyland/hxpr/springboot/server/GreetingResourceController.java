@@ -25,8 +25,6 @@ import org.nuxeo.rest.swagger.annotation.Authenticated;
 import org.nuxeo.runtime.springboot.NuxeoApplication;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

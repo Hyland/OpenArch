@@ -12,6 +12,7 @@
   <name>HxPR Community Server</name>
 
   <modules>
+    <module>hxpr-server-common</module>
     <module>hxpr-community-internal-app</module>
   </modules>
 

@@ -410,6 +410,12 @@
         <type>test-jar</type>
         <scope>test</scope>
       </dependency>
+      <!-- HxPR Server -->
+      <dependency>
+        <groupId>com.hyland.hxpr</groupId>
+        <artifactId>hxpr-server-common</artifactId>
+        <version>${project.version}</version>
+      </dependency>
       <!-- HxPR Platform -->
       <dependency>
         <groupId>com.hyland.hxpr</groupId>

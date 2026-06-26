@@ -204,6 +204,13 @@
       <artifactId>hxpr-vocabularies</artifactId>
       <version>${project.version}</version>
     </dependency>
+
+    <!-- HxPR Server -->
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-server-common</artifactId>
+      <version>${project.version}</version>
+    </dependency>
   </dependencies>
   <build>
     <plugins>
