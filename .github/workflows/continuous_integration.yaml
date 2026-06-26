@@ -147,7 +147,7 @@ jobs:
         run: mvn -nsu license:aggregate-download-licenses -DlicensesOutputDirectory=./server/hxpr-community-internal-app/target/licenses
       - name: "Clone Alfresco/third-party-license-overrides"
         run: git clone --depth=1 https://github.com/Alfresco/third-party-license-overrides.git
-      - uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
       - name: "Create third party license csv file and add it to the docker compose root directory"
         run: |
           python3 ./third-party-license-overrides/thirdPartyLicenseCSVCreator.py --project "${{ github.workspace }}" \
