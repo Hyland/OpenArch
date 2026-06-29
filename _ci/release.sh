@@ -10,6 +10,11 @@ echo "BRANCH_NAME=${BRANCH_NAME}"
 # Travis CI runner work on DETACHED HEAD, so we need to checkout the release branch
 git checkout -B "${BRANCH_NAME}"
 
+# Fetch and rebase onto the latest remote state to avoid non-fast-forward push
+# rejections when another commit lands on main between CI checkout and release push.
+git fetch origin "${BRANCH_NAME}"
+git rebase "origin/${BRANCH_NAME}"
+
 git config user.name "${RELEASE_USERNAME}"
 git config user.email "<${RELEASE_USER_EMAIL}>"
 
