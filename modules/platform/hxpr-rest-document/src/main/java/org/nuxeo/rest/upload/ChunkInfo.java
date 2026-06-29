@@ -56,7 +56,8 @@ public class ChunkInfo {
     protected long partialFileSize;
 
     public ChunkInfo(Map<String, Object> parameters) {
-        chunkCount = (Integer) parameters.get(CHUNK_COUNT_PARAM_NAME);
+        Long chunkCountLong = (Long) parameters.get(CHUNK_COUNT_PARAM_NAME);
+        chunkCount = chunkCountLong == null ? null : chunkCountLong.intValue();
         fileName = (String) parameters.get(FILE_NAME_PARAM_NAME);
         mimeType = (String) parameters.get(MIME_TYPE_PARAM_NAME);
         encoding = (String) parameters.get(ENCODING_PARAM_NAME);
@@ -66,7 +67,7 @@ public class ChunkInfo {
                 chunks.put(Integer.valueOf(key), (String) value);
             }
         });
-        partialFileSize = (long) parameters.getOrDefault(PARTIAL_FILESIZE, 0L);
+        partialFileSize = (Long) parameters.getOrDefault(PARTIAL_FILESIZE, 0L);
     }
 
     public Integer getChunkCount() {

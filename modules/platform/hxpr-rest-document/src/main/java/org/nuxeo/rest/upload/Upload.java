@@ -231,34 +231,40 @@ public class Upload {
                     String.format("Cannot add chunk with index %d to file entry %s as chunk count is %d.", chunkIndex,
                             id, chunkCount), BAD_REQUEST.value());
         }
-        // mark entry as chunked
-        if (chunkBoolean == null) {
-            transientStore.putParameter(id, ChunkInfo.CHUNKED_PARAM_NAME, true);
-        }
         hasContent = true;
+        // The chunk's blob entry lives at its own KV key (no conflict with the
+        // params doc), so stage it first and then merge every param update into a
+        // single putParameters call to avoid serialising on the per-upload params
+        // doc CAS. The PARTIAL_FILESIZE read-modify-write must stay sequential.
+        String chunkEntryKey = id + "_" + chunkIndex;
+        transientStore.putBlobs(chunkEntryKey, List.of(blob));
+
+        Map<String, Object> params = new HashMap<>();
+        // mark entry as chunked on first chunk
+        if (chunkBoolean == null) {
+            params.put(ChunkInfo.CHUNKED_PARAM_NAME, true);
+        }
         if (fileName != null) {
-            transientStore.putParameter(id, ChunkInfo.FILE_NAME_PARAM_NAME, fileName);
+            params.put(ChunkInfo.FILE_NAME_PARAM_NAME, fileName);
         }
         if (mimeType != null) {
-            transientStore.putParameter(id, ChunkInfo.MIME_TYPE_PARAM_NAME, mimeType);
+            params.put(ChunkInfo.MIME_TYPE_PARAM_NAME, mimeType);
         }
         if (encoding != null) {
-            transientStore.putParameter(id, ChunkInfo.ENCODING_PARAM_NAME, encoding);
+            params.put(ChunkInfo.ENCODING_PARAM_NAME, encoding);
         }
-        transientStore.putParameter(id, ChunkInfo.CHUNK_COUNT_PARAM_NAME, chunkCount);
-
+        params.put(ChunkInfo.CHUNK_COUNT_PARAM_NAME, (long) chunkCount);
         if (blob.getLength() >= 0) {
             long partialSize = 0;
-            Object sizeObj = transientStore.getParameter(id, ChunkInfo.PARTIAL_FILESIZE);
+            Long sizeObj = (Long) transientStore.getParameter(id, ChunkInfo.PARTIAL_FILESIZE);
             if (sizeObj != null) {
-                partialSize = (long) sizeObj;
+                partialSize = sizeObj;
             }
             partialSize += blob.getLength();
-            transientStore.putParameter(id, ChunkInfo.PARTIAL_FILESIZE, partialSize);
+            params.put(ChunkInfo.PARTIAL_FILESIZE, partialSize);
         }
-        String chunkEntryKey = id + "_" + chunkIndex;
-        transientStore.putBlobs(chunkEntryKey, Collections.singletonList(blob));
-        transientStore.putParameter(id, String.valueOf(chunkIndex), chunkEntryKey);
+        params.put(String.valueOf(chunkIndex), chunkEntryKey);
+        transientStore.putParameters(id, params);
 
         // sync local chunk info
         chunkInfo = new ChunkInfo(transientStore.getParameters(id));

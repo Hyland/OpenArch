@@ -30,7 +30,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectInputStream;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -42,7 +41,6 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.nuxeo.ecm.core.api.Blob;
@@ -53,6 +51,7 @@ import org.nuxeo.ecm.core.blob.BlobServiceImpl;
 import org.nuxeo.ecm.core.blob.BlobProvider;
 import org.nuxeo.ecm.core.blob.binary.BinaryGarbageCollector;
 import org.nuxeo.ecm.core.transientstore.api.MaximumTransientSpaceExceeded;
+import org.nuxeo.ecm.core.transientstore.api.TransientStore;
 import org.nuxeo.ecm.core.transientstore.api.TransientStoreConfig;
 import org.nuxeo.ecm.core.transientstore.api.TransientStoreProvider;
 import org.nuxeo.runtime.api.Framework;
@@ -61,7 +60,9 @@ import org.nuxeo.runtime.kv.KeyValueStore;
 import org.nuxeo.runtime.kv.KeyValueStoreProvider;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Transient Store storing properties in a Key/Value store, and storing blobs using a Blob Provider.
@@ -84,13 +85,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  *
  *   entryKey.completed: "true" if completed, "false" if not; presence of this key marks entry existence
  *
- *   entryKey.paraminfo: ["foo", "bar"]
- *
- *   entryKey.param.foo: value for param foo
- *   entryKey.param.foo__format: "java" for java serializable format, otherwise string
- *
- *   entryKey.param.bar: value for param bar
- *   etc.
+ *   entryKey.params:    {"foo": "bar", "chunked": true, "partialFileSize": 1048576}
+ *                       single JSON object holding all parameters as native JSON
+ *                       values. Supported value types are String, Boolean, Integer,
+ *                       and Long; see {@link #setNodeValue} for the contract.
+ *                       Read and written via Jackson's tree model (ObjectNode) to
+ *                       keep the codec non-polymorphic; see {@link #readParamsTree}
+ *                       for why. Entries created on pre-{@code DOT_PARAMS} code
+ *                       are read via a fallback path (see {@link #getParameter}
+ *                       and {@link #getParameters}); the fallback can be removed
+ *                       after one {@link TransientStoreConfig#getFirstLevelTTL}
+ *                       window has passed since the deploy.
  *
  *   entryKey.bloblock:  "true" if there is a blob read/write in progress, null otherwise
  *   entryKey.blobinfo:  {"count": number of blobs,
@@ -116,12 +121,19 @@ public class KeyValueBlobTransientStore implements TransientStoreProvider {
 
     public static final String DOT_COMPLETED = SEP + "completed";
 
+    /** Per-upload params bag holding all parameters as native JSON values, see class Javadoc for the layout. @since 0.0.68 */
+    public static final String DOT_PARAMS = SEP + "params";
+
+    /** Legacy per-upload params index list ({@code ["foo", "bar"]}). Read-only fallback for entries created before {@link #DOT_PARAMS}; never written by current code. */
     public static final String DOT_PARAMINFO = SEP + "paraminfo";
 
+    /** Legacy per-parameter key prefix ({@code <id>.param.<name>}). Read-only fallback for entries created before {@link #DOT_PARAMS}; never written by current code. */
     public static final String DOT_PARAM_DOT = SEP + "param" + SEP;
 
+    /** Legacy per-parameter format suffix; only {@link #FORMAT_JAVA} appears in practice. Read-only fallback. */
     public static final String FORMAT = "__format";
 
+    /** Legacy format marker used by the pre-{@link #DOT_PARAMS} layout for non-String values stored as a Java-serialised {@code byte[]}. Read-only fallback. */
     public static final String FORMAT_JAVA = "java";
 
     /** @since 11.1 */
@@ -236,11 +248,15 @@ public class KeyValueBlobTransientStore implements TransientStoreProvider {
         return sizeStr == null ? 0 : Long.parseLong(sizeStr);
     }
 
+    /**
+     * Atomically adjusts the {@code __blobsize__} accumulator by {@code delta}.
+     * <p>
+     * Uses {@link KeyValueStore#addAndGet} (native MongoDB / DocumentDB {@code $inc})
+     * rather than a read-then-CAS loop, which would otherwise contend on this
+     * single key under concurrent {@link #putBlobs} / {@link #removeBlobs} load.
+     */
     protected void addStorageSize(long delta, KeyValueStore kvs) {
-        atomicUpdate(STORAGE_SIZE, size -> {
-            long s = size == null ? 0 : Long.parseLong(size);
-            return String.valueOf(s + delta);
-        }, 0, kvs);
+        kvs.addAndGet(STORAGE_SIZE, delta);
     }
 
     /**
@@ -260,7 +276,6 @@ public class KeyValueBlobTransientStore implements TransientStoreProvider {
         kvs.put(STORAGE_SIZE, String.valueOf(size));
     }
 
-    // also recomputes the exact storage size
     @Override
     public void doGC() {
         BlobProvider bp = getBlobProvider();
@@ -295,6 +310,91 @@ public class KeyValueBlobTransientStore implements TransientStoreProvider {
 
     protected static final TypeReference<Map<String, String>> MAP_STRING_STRING = new TypeReference<Map<String, String>>() {
     };
+
+    /**
+     * Reads the per-upload params bag as a Jackson tree.
+     * <p>
+     * Uses {@link ObjectNode} rather than {@code Map<String, Object>} to keep the
+     * read/write codec non-polymorphic: the latter routes through Jackson's
+     * {@code UntypedObjectSerializer} / {@code UntypedObjectDeserializer}, which
+     * dispatches on the runtime type of every value and compounds badly with the
+     * {@link #atomicUpdate} CAS retry loop under concurrent uploads.
+     * <p>
+     * Returns {@code null} when the entry is absent or holds malformed JSON;
+     * callers handle that as a missing entry.
+     *
+     * @since 0.0.68
+     */
+    @SuppressWarnings("java:S1168")
+    protected ObjectNode readParamsTree(String json) {
+        if (json == null) {
+            return null;
+        }
+        try {
+            JsonNode node = mapper.readTree(json);
+            if (node.isObject()) {
+                return (ObjectNode) node;
+            }
+            log.warn("Expected JSON object for params, got {}: {}", node.getNodeType(), json);
+            return null;
+        } catch (IOException e) {
+            log.error("Invalid params JSON: {}", json);
+            return null;
+        }
+    }
+
+    /**
+     * Converts a Jackson value node back to the {@code Object} shape callers of
+     * {@link TransientStore#getParameter} expect. Mirrors the value types
+     * {@link #setNodeValue} accepts; numeric nodes are always returned as
+     * {@code Long} so callers can cast to {@code Long} without first checking
+     * whether Jackson chose {@code IntNode} for values that fit in 32 bits.
+     *
+     * @since 0.0.68
+     */
+    protected Object nodeToObject(JsonNode node) {
+        if (node == null || node.isNull()) {
+            return null;
+        }
+        if (node.isTextual()) {
+            return node.textValue();
+        }
+        if (node.isBoolean()) {
+            return node.booleanValue();
+        }
+        if (node.isNumber()) {
+            return node.longValue();
+        }
+        return node.toString();
+    }
+
+    /**
+     * Writes a parameter value into the per-upload {@link ObjectNode}.
+     * <p>
+     * Supported value types are {@code String}, {@code Boolean}, {@code Integer},
+     * and {@code Long} — these are the four types production writers pass and
+     * the four with unambiguous JSON encodings. {@code Integer} is widened to
+     * {@code Long} on read (see {@link #nodeToObject}). {@code null} is stored
+     * as a JSON null. Any other type throws {@link IllegalArgumentException}
+     * at write time: complex objects (Maps, Lists, byte arrays, POJOs) are not
+     * supported because round-tripping them via Jackson's polymorphic codec
+     * re-introduces the runtime-type-dispatch cost {@link #readParamsTree}
+     * avoids. A future caller that needs an additional type should add it
+     * explicitly here rather than route through a polymorphic codec.
+     *
+     * @since 0.0.68
+     */
+    protected void setNodeValue(ObjectNode params, String name, Object value) {
+        switch (value) {
+            case null -> params.putNull(name);
+            case String s -> params.put(name, s);
+            case Boolean b -> params.put(name, b);
+            case Integer i -> params.put(name, i);
+            case Long l -> params.put(name, l);
+            default -> throw new IllegalArgumentException("Unsupported parameter type for '" + name + "': "
+                    + value.getClass().getName() + ". Supported: String, Boolean, Integer, Long.");
+        }
+    }
 
     protected List<String> jsonToList(String json) {
         if (json == null) {
@@ -350,26 +450,30 @@ public class KeyValueBlobTransientStore implements TransientStoreProvider {
 
     @Override
     public void putParameter(String key, String parameter, Object value) {
-        KeyValueStore kvs = getKeyValueStore();
-        String k = key + DOT_PARAM_DOT + parameter;
-        if (value instanceof String valueStr) {
-            kvs.put(k, valueStr, ttl);
-            kvs.put(k + FORMAT, (String) null);
-        } else {
-            byte[] bytes = SerializationUtils.serialize((Serializable) value);
-            kvs.put(k, bytes, ttl);
-            kvs.put(k + FORMAT, FORMAT_JAVA, ttl);
+        // singletonMap (not Map.of) because null values are valid here:
+        // setNodeValue stores them as JSON null. Map.of(k, null) throws NPE.
+        putParameters(key, Collections.singletonMap(parameter, value));
+    }
+
+    @Override
+    public void putParameters(String key, Map<String, Object> parameters) {
+        if (parameters.isEmpty()) {
+            return;
         }
-        // atomically add key to param info
-        atomicUpdate(key + DOT_PARAMINFO, json -> {
-            List<String> parameters = jsonToList(json);
-            if (parameters == null) {
-                parameters = new ArrayList<>();
+        KeyValueStore kvs = getKeyValueStore();
+        // All entries land in DOT_PARAMS via a single atomicUpdate: a caller passing
+        // N entries pays one CAS round-trip, not N. Callers that update multiple
+        // params in one logical step (Upload.addChunk, DefaultUploadHandler.newUpload)
+        // batch through here to avoid serialising on the per-upload params doc.
+        atomicUpdate(key + DOT_PARAMS, json -> {
+            ObjectNode params = readParamsTree(json);
+            if (params == null) {
+                params = mapper.createObjectNode();
             }
-            if (!parameters.contains(parameter)) {
-                parameters.add(parameter);
+            for (Map.Entry<String, Object> e : parameters.entrySet()) {
+                setNodeValue(params, e.getKey(), e.getValue());
             }
-            return toJson(parameters);
+            return toJson(params);
         }, ttl, kvs);
         markEntryExists(key, kvs);
     }
@@ -377,43 +481,57 @@ public class KeyValueBlobTransientStore implements TransientStoreProvider {
     @Override
     public Object getParameter(String key, String parameter) {
         KeyValueStore kvs = getKeyValueStore();
-        String k = key + DOT_PARAM_DOT + parameter;
-        String format = kvs.getString(k + FORMAT);
-        if (format == null) {
-            return kvs.getString(k);
-        } else {
-            byte[] bytes = kvs.get(k);
-            try (ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
-                    ObjectInput in = new ObjectInputStream(bis)) {
-                return in.readObject();
-            } catch (IOException | ClassNotFoundException e) {
-                throw new NuxeoException(e);
-            }
+        ObjectNode params = readParamsTree(kvs.getString(key + DOT_PARAMS));
+        if (params != null) {
+            return nodeToObject(params.get(parameter));
         }
+        // Fallback: legacy per-key layout. Used for entries created on
+        // pre-DOT_PARAMS code; phased out as TTL expires after the deploy.
+        String legacyKey = key + DOT_PARAM_DOT + parameter;
+        String legacyFormat = kvs.getString(legacyKey + FORMAT);
+        if (legacyFormat == null) {
+            return kvs.getString(legacyKey);
+        }
+        byte[] bytes = kvs.get(legacyKey);
+        return deserializeJava(bytes);
     }
 
-    @Override
-    public void putParameters(String key, Map<String, Object> parameters) {
-        parameters.forEach((param, value) -> putParameter(key, param, value));
+    /** @since 0.0.68 */
+    protected Object deserializeJava(byte[] bytes) {
+        if (bytes == null) {
+            return null;
+        }
+        try (ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
+                ObjectInput in = new ObjectInputStream(bis)) {
+            return in.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            throw new NuxeoException(e);
+        }
     }
 
     @Override
     public Map<String, Object> getParameters(String key) {
         KeyValueStore kvs = getKeyValueStore();
-        // get the list of keys
-        String json = kvs.getString(key + DOT_PARAMINFO);
-        List<String> parameters = jsonToList(json);
-        if (parameters == null) {
-            // if the entry doesn't exist at all return null, otherwise empty
-            if (kvs.getString(key + DOT_COMPLETED) == null) {
-                return null;
-            } else {
-                return Collections.emptyMap();
+        ObjectNode params = readParamsTree(kvs.getString(key + DOT_PARAMS));
+        if (params != null) {
+            Map<String, Object> map = new HashMap<>(params.size());
+            for (Map.Entry<String, JsonNode> e : params.properties()) {
+                Object v = nodeToObject(e.getValue());
+                if (v != null) {
+                    map.put(e.getKey(), v);
+                }
             }
+            return map;
         }
-        // get values
-        Map<String, Object> map = new HashMap<>();
-        for (String p : parameters) {
+        // Fallback: legacy paraminfo + per-key reads. Used for entries created
+        // on pre-DOT_PARAMS code; phased out as TTL expires after the deploy.
+        List<String> legacyNames = jsonToList(kvs.getString(key + DOT_PARAMINFO));
+        if (legacyNames == null) {
+            // Entry doesn't exist at all -> null; entry exists but has no params -> empty map.
+            return kvs.getString(key + DOT_COMPLETED) == null ? null : Collections.emptyMap();
+        }
+        Map<String, Object> map = new HashMap<>(legacyNames.size());
+        for (String p : legacyNames) {
             Object value = getParameter(key, p);
             if (value != null) {
                 map.put(p, value);
@@ -423,16 +541,22 @@ public class KeyValueBlobTransientStore implements TransientStoreProvider {
     }
 
     protected void removeParameters(String key, KeyValueStore kvs) {
-        String json = kvs.getString(key + DOT_PARAMINFO);
-        List<String> parameters = jsonToList(json);
-        if (parameters != null) {
-            for (String parameter : parameters) {
-                String k = key + DOT_PARAM_DOT + parameter;
-                kvs.put(k, (String) null);
-                kvs.put(k + FORMAT, (String) null);
+        kvs.put(key + DOT_PARAMS, (String) null);
+        // Also clean up legacy per-key entries if present. Skip the lookup
+        // when no legacy paraminfo key exists to keep the common-case cost
+        // at one read.
+        String legacyJson = kvs.getString(key + DOT_PARAMINFO);
+        if (legacyJson != null) {
+            List<String> parameters = jsonToList(legacyJson);
+            if (parameters != null) {
+                for (String parameter : parameters) {
+                    String k = key + DOT_PARAM_DOT + parameter;
+                    kvs.put(k, (String) null);
+                    kvs.put(k + FORMAT, (String) null);
+                }
             }
+            kvs.put(key + DOT_PARAMINFO, (String) null);
         }
-        kvs.put(key + DOT_PARAMINFO, (String) null);
     }
 
     @Override
@@ -710,18 +834,23 @@ public class KeyValueBlobTransientStore implements TransientStoreProvider {
     protected void setReleaseTTL(String key) {
         KeyValueStore kvs = getKeyValueStore();
         kvs.setTTL(key + DOT_COMPLETED, releaseTTL);
-        String json = kvs.getString(key + DOT_PARAMINFO);
-        List<String> parameters = jsonToList(json);
-        if (parameters != null) {
-            parameters.stream().forEach(parameter -> {
-                String k = key + DOT_PARAM_DOT + parameter;
-                kvs.setTTL(k, releaseTTL);
-                kvs.setTTL(k + FORMAT, releaseTTL);
-            });
+        kvs.setTTL(key + DOT_PARAMS, releaseTTL);
+        // Legacy paraminfo + per-parameter keys + their format keys.
+        // No-op for entries already using the consolidated layout.
+        String legacyJson = kvs.getString(key + DOT_PARAMINFO);
+        if (legacyJson != null) {
+            List<String> parameters = jsonToList(legacyJson);
+            if (parameters != null) {
+                parameters.forEach(parameter -> {
+                    String k = key + DOT_PARAM_DOT + parameter;
+                    kvs.setTTL(k, releaseTTL);
+                    kvs.setTTL(k + FORMAT, releaseTTL);
+                });
+            }
+            kvs.setTTL(key + DOT_PARAMINFO, releaseTTL);
         }
-        kvs.setTTL(key + DOT_PARAMINFO, releaseTTL);
-        json = kvs.getString(key + DOT_BLOBINFO);
-        Map<String, String> map = jsonToMap(json);
+        String blobInfoJson = kvs.getString(key + DOT_BLOBINFO);
+        Map<String, String> map = jsonToMap(blobInfoJson);
         if (map != null) {
             String countStr = map.get(COUNT);
             int count = countStr == null ? 0 : Integer.parseInt(countStr);

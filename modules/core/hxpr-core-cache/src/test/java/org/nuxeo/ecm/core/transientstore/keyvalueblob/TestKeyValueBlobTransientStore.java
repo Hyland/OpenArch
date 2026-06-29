@@ -19,6 +19,8 @@
 package org.nuxeo.ecm.core.transientstore.keyvalueblob;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -26,6 +28,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.nuxeo.ecm.core.transientstore.keyvalueblob.KeyValueBlobTransientStore.DOT_COMPLETED;
+import static org.nuxeo.ecm.core.transientstore.keyvalueblob.KeyValueBlobTransientStore.DOT_PARAMINFO;
+import static org.nuxeo.ecm.core.transientstore.keyvalueblob.KeyValueBlobTransientStore.DOT_PARAMS;
+import static org.nuxeo.ecm.core.transientstore.keyvalueblob.KeyValueBlobTransientStore.DOT_PARAM_DOT;
+import static org.nuxeo.ecm.core.transientstore.keyvalueblob.KeyValueBlobTransientStore.FORMAT;
+import static org.nuxeo.ecm.core.transientstore.keyvalueblob.KeyValueBlobTransientStore.FORMAT_JAVA;
 
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -43,6 +51,7 @@ import jakarta.inject.Inject;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -59,6 +68,9 @@ import org.nuxeo.ecm.core.transientstore.api.MaximumTransientSpaceExceeded;
 import org.nuxeo.ecm.core.transientstore.api.TransientStore;
 import org.nuxeo.ecm.core.transientstore.api.TransientStoreProvider;
 import org.nuxeo.ecm.core.transientstore.api.TransientStoreService;
+import org.nuxeo.runtime.api.Framework;
+import org.nuxeo.runtime.kv.KeyValueService;
+import org.nuxeo.runtime.kv.KeyValueStore;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesExtension;
 
@@ -454,4 +466,239 @@ public class TestKeyValueBlobTransientStore {
         }
     }
 
+    /**
+     * Returns the underlying {@link KeyValueStore} so tests can either inspect
+     * the on-disk shape directly or seed legacy-shaped keys to exercise the
+     * pre-{@code DOT_PARAMS} fallback path. Store name {@code transient_<NAME>}
+     * matches the wiring in {@link KeyValueBlobTransientStore#init} (defaults
+     * to {@code TRANSIENT_ID_PREFIX + "_" + name}).
+     */
+    protected KeyValueStore getRawKeyValueStore() {
+        return Framework.getService(KeyValueService.class).getKeyValueStore("transient_" + NAME);
+    }
+
+    /**
+     * Reading a String parameter from a legacy-layout entry (paraminfo + per-key
+     * value, no {@code DOT_PARAMS}) must fall back to the legacy keys via both
+     * {@link TransientStore#getParameter} and {@link TransientStore#getParameters}.
+     * The fallback exists for entries created on pre-Phase-19 code that are
+     * still within their TTL window at deploy time; it can be removed after one
+     * {@code firstLevelTTL} window has elapsed since the deploy.
+     */
+    @Test
+    public void verifyLegacyStringParamFallback() {
+        // given a legacy-layout entry seeded directly into the KV store
+        KeyValueStore kvs = getRawKeyValueStore();
+        String key = "legacyEntry";
+        kvs.put(key + DOT_COMPLETED, "false");
+        kvs.put(key + DOT_PARAMINFO, "[\"name\"]");
+        kvs.put(key + DOT_PARAM_DOT + "name", "value-on-old-code");
+
+        // when the consolidated-layout readers run against it
+        Object singleParam = ts.getParameter(key, "name");
+        Map<String, Object> allParams = ts.getParameters(key);
+
+        // then both fall through to the legacy keys
+        assertThat(singleParam).isEqualTo("value-on-old-code");
+        assertThat(allParams).containsEntry("name", "value-on-old-code");
+    }
+
+    /**
+     * Reading a Java-serialised parameter from a legacy-layout entry must fall
+     * back to the legacy keys, deserialise the bytes, and return the original
+     * object.
+     */
+    @Test
+    public void verifyLegacyJavaSerializedParamFallback() {
+        // given a legacy-layout entry whose parameter is Java-serialised
+        KeyValueStore kvs = getRawKeyValueStore();
+        String key = "legacyJavaEntry";
+        Long original = 42L;
+        kvs.put(key + DOT_COMPLETED, "false");
+        kvs.put(key + DOT_PARAMINFO, "[\"obj\"]");
+        kvs.put(key + DOT_PARAM_DOT + "obj", SerializationUtils.serialize(original));
+        kvs.put(key + DOT_PARAM_DOT + "obj" + FORMAT, FORMAT_JAVA);
+
+        // when reading the parameter
+        Object value = ts.getParameter(key, "obj");
+
+        // then the bytes are deserialised back to the original object
+        assertThat(value).isEqualTo(original);
+    }
+
+    /**
+     * {@link TransientStore#release} and {@link TransientStore#remove} on a
+     * legacy-layout entry must touch the legacy paraminfo + per-key + format
+     * keys (TTL refresh on release, delete on remove), via the legacy branches
+     * in {@link KeyValueBlobTransientStore#setReleaseTTL} and
+     * {@link KeyValueBlobTransientStore#removeParameters}.
+     */
+    @Test
+    public void verifyLegacyRemoveAndRelease() {
+        // given a legacy-layout entry with two params plus a blob
+        KeyValueStore kvs = getRawKeyValueStore();
+        String key = "legacyMixed";
+        kvs.put(key + DOT_COMPLETED, "false");
+        kvs.put(key + DOT_PARAMINFO, "[\"x\",\"y\"]");
+        kvs.put(key + DOT_PARAM_DOT + "x", "1");
+        kvs.put(key + DOT_PARAM_DOT + "y", "2");
+        createBlob(key, "legacy-content");
+
+        // when the entry is released, then removed
+        ts.release(key);
+        assertThat(ts.exists(key)).as("entry survives release").isTrue();
+        ts.remove(key);
+
+        // then the entry is gone and so are all legacy keys
+        assertThat(ts.exists(key)).as("entry removed").isFalse();
+        assertThat(kvs.getString(key + DOT_PARAMINFO)).isNull();
+        assertThat(kvs.getString(key + DOT_PARAM_DOT + "x")).isNull();
+        assertThat(kvs.getString(key + DOT_PARAM_DOT + "y")).isNull();
+    }
+
+    /**
+     * Defensive: if a {@code DOT_PARAMS} entry holds malformed JSON,
+     * {@link KeyValueBlobTransientStore#readParamsTree} returns null and readers
+     * must not throw. {@link TransientStore#getParameter} returns null and
+     * {@link TransientStore#getParameters} returns an empty map (entry exists
+     * since {@code DOT_COMPLETED} is set).
+     */
+    @Test
+    public void verifyMalformedConsolidatedParamsJson() {
+        // given an entry whose params bag is unparseable JSON
+        KeyValueStore kvs = getRawKeyValueStore();
+        String key = "malformedEntry";
+        kvs.put(key + DOT_COMPLETED, "false");
+        kvs.put(key + DOT_PARAMS, "not-json{");
+
+        // when reading parameters from it
+        Object singleParam = ts.getParameter(key, "anything");
+        Map<String, Object> allParams = ts.getParameters(key);
+
+        // then the malformed JSON is treated as missing data, no crash
+        assertThat(singleParam).isNull();
+        assertThat(allParams).isNotNull().isEmpty();
+    }
+
+    /**
+     * Defensive: if a {@code DOT_PARAMS} entry holds valid JSON but the root is
+     * not an object (e.g. an array or scalar written by a hand-edit or a
+     * future caller bypassing {@link KeyValueBlobTransientStore#setNodeValue}),
+     * {@link KeyValueBlobTransientStore#readParamsTree} returns null with a
+     * warn-level log; readers behave as for the malformed-JSON case.
+     */
+    @Test
+    public void verifyNonObjectConsolidatedParamsJson() {
+        // given an entry whose params bag parses to a JSON array
+        KeyValueStore kvs = getRawKeyValueStore();
+        String key = "nonObjectEntry";
+        kvs.put(key + DOT_COMPLETED, "false");
+        kvs.put(key + DOT_PARAMS, "[1,2,3]");
+
+        // when reading parameters from it
+        Object singleParam = ts.getParameter(key, "anything");
+        Map<String, Object> allParams = ts.getParameters(key);
+
+        // then the non-object root is treated as missing data, no crash
+        assertThat(singleParam).isNull();
+        assertThat(allParams).isNotNull().isEmpty();
+    }
+
+    /**
+     * Round-trip the value types production callers pass to
+     * {@link TransientStore#putParameter}: {@code String}, {@code Boolean},
+     * {@code Integer}, and {@code Long}. Numeric values come back as
+     * {@code Long} regardless of whether they were written as Integer or Long
+     * (see {@link KeyValueBlobTransientStore#nodeToObject}).
+     */
+    @Test
+    public void verifyConsolidatedNativeTypeRoundTrip() {
+        // given parameters of the four supported types
+        String key = "nativeTypeRoundTrip";
+
+        // when written individually
+        ts.putParameter(key, "name", "embeddings.parquet");
+        ts.putParameter(key, "chunked", true);
+        ts.putParameter(key, "chunkCount", 10);
+        ts.putParameter(key, "partialFileSize", 1048576L);
+
+        // then each comes back as its native Java type, with numerics normalised to Long
+        assertThat(ts.getParameter(key, "name")).isEqualTo("embeddings.parquet");
+        assertThat(ts.getParameter(key, "chunked")).isEqualTo(true);
+        assertThat(ts.getParameter(key, "chunkCount")).isEqualTo(10L);
+        assertThat(ts.getParameter(key, "partialFileSize")).isEqualTo(1048576L);
+        assertThat(ts.getParameters(key))
+                .containsEntry("name", "embeddings.parquet")
+                .containsEntry("chunked", true)
+                .containsEntry("chunkCount", 10L)
+                .containsEntry("partialFileSize", 1048576L);
+    }
+
+    /**
+     * Locks in the strict-typing contract on {@link KeyValueBlobTransientStore#setNodeValue}:
+     * any value type outside String / Boolean / Integer / Long is rejected at write
+     * time. A future caller that needs another type must extend the dispatch
+     * explicitly there rather than have it silently encoded into JSON.
+     */
+    @Test
+    public void verifyUnsupportedParameterTypeIsRejected() {
+        // given an upload key and a value type the codec doesn't support
+        String key = "unsupportedType";
+        java.util.Date unsupported = new java.util.Date();
+
+        // when written via putParameter
+        Throwable thrown = catchThrowable(() -> ts.putParameter(key, "ts", unsupported));
+
+        // then it fails fast with a message naming the offending type
+        assertThat(thrown)
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Unsupported parameter type")
+                .hasMessageContaining("java.util.Date");
+    }
+
+    /**
+     * {@link TransientStore#putParameters} merges all entries in a single
+     * {@code atomicUpdate} round-trip on the consolidated params doc. Callers
+     * (Upload.addChunk, DefaultUploadHandler.newUpload) rely on this to batch
+     * multi-field writes; a regression to a per-entry loop would silently
+     * multiply CAS contention on the per-upload params doc.
+     */
+    @Test
+    public void verifyPutParametersWritesInOneAtomicUpdate() {
+        // given several params of mixed types in one batch
+        String key = "batchedPut";
+        Map<String, Object> batch = Map.of(
+                "name", "embeddings.parquet",
+                "chunked", true,
+                "chunkCount", 10,
+                "partialFileSize", 1048576L);
+
+        // when written via putParameters
+        ts.putParameters(key, batch);
+
+        // then all entries land in the single DOT_PARAMS doc
+        assertThat(getRawKeyValueStore().getString(key + DOT_PARAMS)).isNotNull();
+        assertThat(ts.getParameters(key))
+                .containsEntry("name", "embeddings.parquet")
+                .containsEntry("chunked", true)
+                .containsEntry("chunkCount", 10L)
+                .containsEntry("partialFileSize", 1048576L);
+    }
+
+    /**
+     * {@link TransientStore#putParameters} with an empty map is a no-op:
+     * it does not create the params doc or mark the entry as existing.
+     */
+    @Test
+    public void verifyPutParametersWithEmptyMapIsNoop() {
+        // given a key that doesn't exist yet
+        String key = "emptyBatch";
+
+        // when putParameters is called with an empty map
+        ts.putParameters(key, Map.of());
+
+        // then no params doc is created and the entry doesn't exist
+        assertThat(getRawKeyValueStore().getString(key + DOT_PARAMS)).isNull();
+        assertThat(ts.exists(key)).isFalse();
+    }
 }

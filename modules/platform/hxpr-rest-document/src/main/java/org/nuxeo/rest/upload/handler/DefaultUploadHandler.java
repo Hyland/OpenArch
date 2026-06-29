@@ -67,10 +67,12 @@ public class DefaultUploadHandler implements UploadHandler {
         TransientStore transientStore = getTransientStore();
         String id = generateUploadId();
         log.debug("Initializing upload with id: {}", id);
-        // store entry and username as parameter
+        // Batch the initial param writes through putParameters so they share a
+        // single atomicUpdate on the per-upload params doc.
         transientStore.setCompleted(id, false);
-        transientStore.putParameter(id, USER_PARAM_NAME, user);
-        transientStore.putParameter(id, Upload.UPLOAD_STATUS_FIELD_NAME, UploadStatus.INCOMPLETE.toString());
+        transientStore.putParameters(id, Map.of(
+                USER_PARAM_NAME, user,
+                Upload.UPLOAD_STATUS_FIELD_NAME, UploadStatus.INCOMPLETE.toString()));
         // fetch again after creation (and fetch s3 properties)
         return getUpload(id, getUploadProperties(id));
     }
