@@ -202,6 +202,25 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
 
+  trigger_hxpr_version_update:
+    name: Trigger hxpr-community-internal version update on HxPR
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-slim
+    needs:
+      - build
+    steps:
+      - name: Trigger version update on HxPR
+        uses: benc-uk/workflow-dispatch@31e2b3319479a63f0ab15bf800eff9e913504e26 # v1.3.2
+        with:
+          repo: 'HylandSoftware/hxpr'
+          ref: 'master'
+          workflow: 'update-community-internal-version.yml'
+          token: ${{ secrets.GH_CI_CD_FINEGRAIN_PAT_HYLANDSOFTWARE }}
+          wait-for-completion: false
+          sync-status: true
+          inputs: >
+            { "actor": "${{ env.GH_ACTOR }}", "communityInternalVersion": "${{ needs.build.outputs.version }}" }
+
   notify:
     runs-on: ubuntu-slim
     needs:
