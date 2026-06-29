@@ -10,6 +10,12 @@ echo "BRANCH_NAME=${BRANCH_NAME}"
 # Travis CI runner work on DETACHED HEAD, so we need to checkout the release branch
 git checkout -B "${BRANCH_NAME}"
 
+# Inject credentials into the remote HTTPS URL so that fetch/push work in CI
+# without an interactive credential prompt.
+REMOTE_URL=$(git remote get-url origin)
+AUTHED_URL=$(echo "${REMOTE_URL}" | sed "s|https://|https://${RELEASE_USERNAME}:${RELEASE_USER_PAT}@|")
+git remote set-url origin "${AUTHED_URL}"
+
 # Fetch and rebase onto the latest remote state to avoid non-fast-forward push
 # rejections when another commit lands on main between CI checkout and release push.
 git fetch origin "${BRANCH_NAME}"
