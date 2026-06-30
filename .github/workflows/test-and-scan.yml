@@ -17,6 +17,7 @@ env:
   LIGHTWEIGHT_TEST_COVERAGE_UPLOAD: lightweight-coverage-execs
   INTEGRATION_COMMON_TEST_COVERAGE_UPLOAD: integration-common-coverage-execs
   COVERAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}/jacoco
+  SERVER_TEST_COVERAGE_UPLOAD: test-server-coverage-execs
   MAVEN_USERNAME: ${{ github.actor }}
   MAVEN_PASSWORD: ${{ secrets.GH_HS_HX_RO_CLASSIC_TOKEN }}
 jobs:
@@ -184,8 +185,6 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GH_HS_HX_RO_CLASSIC_TOKEN }}
-      - name: For localstack emulation of SNS/SQS (see docker-compose.yml)
-        run: sudo echo "127.0.0.1 localstack" | sudo tee -a /etc/hosts
       - name: Docker Compose Up
         id: compose
         working-directory: ./server/hxpr-community-internal-app
@@ -203,8 +202,6 @@ jobs:
           MONGODB_HOST: localhost
           MONGODB_PORT: 27017
           MONGODB_DBNAME: "unittests_integration_common_${{ matrix.shard }}"
-          AWS_SQS_ENDPOINT: "http://localstack:4566"
-          AWS_SNS_ENDPOINT: "http://localstack:4566"
         run: |
           # Convert comma-separated module list to Maven -pl format with : prefix
           MODULE_LIST=$(echo "${{ matrix.modules }}" | sed 's/,/,:/g' | sed 's/^/:/')
@@ -230,6 +227,83 @@ jobs:
         with:
           name: "${{ env.INTEGRATION_COMMON_TEST_COVERAGE_UPLOAD }}-shard-${{ matrix.shard }}"
           path: ${{ env.COVERAGE_OUTPUT_DIRECTORY }}/common-shard-${{ matrix.shard }}
+  test-hxpr-community-internal-server:
+    name: Run tests in server/hxpr-community-internal-app
+    runs-on: ubuntu-latest
+    needs: [ build-artifacts ]
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - name: Restore workflow artifacts cache
+        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ~/.m2/repository
+          key: ${{ needs.build-artifacts.outputs.cache-key }}
+          fail-on-cache-miss: true
+      - name: Set up JDK 25
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
+        with:
+          java-version: '25'
+          distribution: 'corretto'
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GH_HS_HX_RO_CLASSIC_TOKEN }}
+      - name: Docker Compose Up
+        id: compose
+        working-directory: ./server/hxpr-community-internal-app
+        run: |
+          echo "Starting services with cached images for server tests..."
+          # Images are already loaded from cache, so this should be fast
+          docker compose -f docker-compose.yml up --quiet-pull -d
+      - name: Maven Settings (inc Nexus)
+        uses: ./.github/actions/setup-maven
+        with:
+          nexus-username: ${{ secrets.NEXUS_USERNAME }}
+          nexus-password: ${{ secrets.NEXUS_PASSWORD }}
+      - name: Build HxPR Server with Maven
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # use localhost for the host here because we are running the job on the VM.
+          MONGODB_HOST: localhost
+          MONGODB_PORT: 27017
+        run: |
+          # Skip clean install since artifacts are already built and cached
+          # Skip enforcer on PRs to allow SNAPSHOT dependencies from in-flight upstream PRs.
+          mvn --no-transfer-progress -nsu verify \
+          -f server/hxpr-community-internal-app \
+          -Dnuxeo.mongodb.server=$MONGODB_HOST:$MONGODB_PORT \
+          -Dnuxeo.mongodb.dbname=unittests \
+          -Pcoverage,enterprise \
+          -Dcoverage.reporting.outputDirectory=${COVERAGE_OUTPUT_DIRECTORY} \
+          ${{ github.event_name == 'pull_request' && '-Dnuxeo.skip.enforcer=true' || '' }}
+      - name: Dump docker logs on failure
+        if: failure()
+        uses: jwalton/gh-docker-logs@2741064ab9d7af54b0b1ffb6076cf64c16f0220e # v2.2.2
+      - name: Upload reports
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: ${{ env.SERVER_TEST_COVERAGE_UPLOAD }}
+          path: ${{ env.COVERAGE_OUTPUT_DIRECTORY }}
+  all-integration-tests-finished:
+    name: All integration tests finished
+    runs-on: ubuntu-slim
+    needs: [ integration-test-suite-common ]
+    if: always()
+    steps:
+      - name: Check integration test results
+        run: |
+          # This job succeeds only if all enterprise integration shards succeeded
+          # It provides a single status check that branch protection can depend on
+          if [[ "${{ needs.integration-test-suite-common.result }}" == "success" ]]; then
+            echo "✅ All enterprise integration test shards completed successfully"
+            exit 0
+          else
+            echo "❌ One or more integration test shards failed"
+            echo "Enterprise integration result: ${{ needs.integration-test-suite-common.result }}"
+            exit 1
+          fi
 
   sonar-scan:
     name: "Scan project with sonar"
@@ -239,7 +313,8 @@ jobs:
       - build-artifacts
       - test-maven-enforcer
       - lightweight-test-suite
-      - integration-test-suite-common
+      - all-integration-tests-finished
+      - test-hxpr-community-internal-server
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
