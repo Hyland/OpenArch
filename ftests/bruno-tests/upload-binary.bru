@@ -1,0 +1,22 @@
+meta {
+  name: Upload Binary
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{base_url}}/api/upload?fileName=bird.png&mimeType=image/png
+  body: file
+}
+
+body:file {
+  file: @file(files/bird.png) @contentType(image/png)
+}
+
+script:post-response {
+  test("Status code is 201", () => {
+    expect(res.getStatus()).to.equal(201);
+  });
+  const jsonData = res.getBody();
+  bru.setVar("upload_id", jsonData.id);
+}

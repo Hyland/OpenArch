@@ -1,0 +1,15 @@
+meta {
+  name: Download binary file
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{base_url}}/api/download/{{file_id}}/sysfile_blob
+}
+
+script:post-response {
+  test("Status code is 200", () => {
+    expect(res.getStatus()).to.equal(200);
+  });
+}

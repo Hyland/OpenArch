@@ -1,0 +1,24 @@
+meta {
+  name: Update File
+  type: http
+  seq: 8
+}
+
+put {
+  url: {{base_url}}/api/documents/{{file_id}}
+  body: json
+}
+
+body:json {
+  {
+    "sysfile_blob": {
+      "uploadId": "{{upload_id}}"
+    }
+  }
+}
+
+script:post-response {
+  test("Status code is 200", () => {
+    expect(res.getStatus()).to.equal(200);
+  });
+}

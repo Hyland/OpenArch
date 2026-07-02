@@ -1,0 +1,19 @@
+meta {
+  name: Wait for Opensearch Indexing
+  type: http
+  seq: 12
+}
+
+get {
+  url: {{base_url}}/api/query/waitForFullTextSearchIndexing?timeout=5
+}
+
+script:post-response {
+  test("Status code is 200", () => {
+    expect(res.getStatus()).to.equal(200);
+  });
+  test('Check Indexing done', () => {
+    const responseJson = res.getBody();
+    expect(responseJson.indexing).to.eql("done");
+  });
+}

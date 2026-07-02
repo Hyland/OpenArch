@@ -1,0 +1,15 @@
+meta {
+  name: Get File
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{base_url}}/api/documents/{{file_id}}
+}
+
+script:post-response {
+  test("Status code is 200", () => {
+    expect(res.getStatus()).to.equal(200);
+  });
+}

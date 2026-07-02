@@ -1,0 +1,19 @@
+name: Wait for availability
+description: 'Waits for the provided url to '
+inputs:
+  timeout:
+    required: false
+    description: 'The timeout in seconds to wait for the url to be available'
+    default: '60'
+  url:
+    required: true
+    description: 'The url you want to wait until available.'
+runs:
+  using: "composite"
+  steps:
+    - name: Wait for availability
+      shell: bash
+      env:
+        TIMEOUT: ${{ inputs.timeout }}
+        URL: ${{ inputs.url }}
+      run: timeout "$TIMEOUT" bash -c 'while ! curl -s -o /dev/null -f "$URL"; do sleep 1; done' || false

@@ -1,0 +1,25 @@
+{
+  "variables": [
+    {
+      "name": "auth_mode",
+      "value": "basic",
+      "enabled": true
+    },
+    {
+      "name": "idp_user_name",
+      "value": "testuser",
+      "enabled": true
+    },
+    {
+      "name": "idp_user_password",
+      "value": "password",
+      "enabled": true,
+      "secret": true
+    },
+    {
+      "name": "base_url",
+      "value": "http://localhost:8080",
+      "enabled": true
+    }
+  ]
+}

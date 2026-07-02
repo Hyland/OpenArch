@@ -1,0 +1,23 @@
+meta {
+  name: Get Model
+  type: http
+  seq: 13
+}
+
+get {
+  url: {{base_url}}/api/repository/model
+}
+
+script:post-response {
+  test("Status code is 200", () => {
+    expect(res.getStatus()).to.equal(200);
+  });
+  test('Check field sys_title is there', () => {
+    const responseJson = res.getBody();
+    expect(responseJson.schemas.system.fields).to.have.property('sys_title');
+  });
+  test('Check custom field mydc_foobar is not there', () => {
+    const responseJson = res.getBody();
+    expect(responseJson.schemas.system.fields).to.not.have.property('mydc_foobar');
+  });
+}

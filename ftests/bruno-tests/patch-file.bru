@@ -1,0 +1,24 @@
+meta {
+  name: Patch File
+  type: http
+  seq: 10
+}
+
+patch {
+  url: {{base_url}}/api/documents/{{file_id}}
+  body: json
+}
+
+headers {
+  Content-Type: application/json-patch+json
+}
+
+body:json {
+  [{"op":"add","path":"/sys_title","value":"My File Renamed"}]
+}
+
+script:post-response {
+  test("Status code is 200", () => {
+    expect(res.getStatus()).to.equal(200);
+  });
+}

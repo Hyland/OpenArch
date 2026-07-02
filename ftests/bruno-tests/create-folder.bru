@@ -1,0 +1,25 @@
+meta {
+  name: Create Folder
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/api/documents/00000000-0000-0000-0000-000000000000
+  body: json
+}
+
+body:json {
+  {
+    "sys_primaryType": "SysFolder",
+    "sys_title": "My Folder"
+  }
+}
+
+script:post-response {
+  test("Status code is 200", () => {
+    expect(res.getStatus()).to.equal(200);
+  });
+  const jsonData = res.getBody();
+  bru.setVar("folder_id", jsonData.sys_id);
+}

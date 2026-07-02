@@ -1,0 +1,33 @@
+meta {
+  name: Simple Query
+  type: http
+  seq: 14
+}
+
+post {
+  url: {{base_url}}/api/query
+  body: json
+}
+
+body:json {
+  {
+    "repositoryId": "default",
+    "query": "SELECT * FROM SysFolder",
+    "limit": 10,
+    "offset": 0,
+    "sort": [
+      "sys_title"
+    ]
+  }
+}
+
+script:post-response {
+  test("Status code is 200", () => {
+    expect(res.getStatus()).to.equal(200);
+  });
+  test("Response body is not empty", () => {
+    expect(res.getBody()).to.not.be.empty;
+    expect(res.getBody()).to.have.property("documents");
+    expect(res.getBody().documents).to.be.an("array").that.is.not.empty;
+  });
+}

@@ -1,0 +1,15 @@
+meta {
+  name: Delete Folder
+  type: http
+  seq: 15
+}
+
+delete {
+  url: {{base_url}}/api/documents/{{folder_id}}
+}
+
+script:post-response {
+  test("Status code is 204", () => {
+    expect(res.getStatus()).to.equal(204);
+  });
+}

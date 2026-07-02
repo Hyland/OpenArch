@@ -1,0 +1,21 @@
+meta {
+  name: Get Binary Info
+  type: http
+  seq: 9
+}
+
+head {
+  url: {{base_url}}/api/download/{{file_id}}/sysfile_blob
+}
+
+script:post-response {
+  test("Status code is 204", () => {
+    expect(res.getStatus()).to.equal(204);
+  });
+  test("Content-Type header is image/png", () => {
+    expect(res.getHeader('content-type')).to.eql('image/png');
+  });
+  test("Content-Disposition check", () => {
+    expect(res.getHeader('content-disposition')).to.eql('attachment; filename=bird.png');
+  });
+}

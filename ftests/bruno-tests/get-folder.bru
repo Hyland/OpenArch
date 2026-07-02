@@ -1,0 +1,15 @@
+meta {
+  name: Get Folder
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{base_url}}/api/documents/{{folder_id}}
+}
+
+script:post-response {
+  test("Status code is 200", () => {
+    expect(res.getStatus()).to.equal(200);
+  });
+}

@@ -1,0 +1,15 @@
+meta {
+  name: Get Root
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{base_url}}/api/documents/00000000-0000-0000-0000-000000000000
+}
+
+script:post-response {
+  test("Status code is 200", () => {
+    expect(res.getStatus()).to.equal(200);
+  });
+}

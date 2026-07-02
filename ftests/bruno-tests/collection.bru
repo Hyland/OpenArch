@@ -1,0 +1,19 @@
+meta {
+  name: HxPR Community Tests
+}
+
+vars:pre-request {
+  folder_id:
+  file_id:
+}
+
+script:pre-request {
+  // Requests that handle their own auth (or need no auth) — skip injection
+  const NO_AUTH_REQUESTS = ['Get Health-Check'];
+  if (NO_AUTH_REQUESTS.includes(bru.requestName)) { return; }
+
+  const user = bru.getEnvVar('idp_user_name');
+  const pass = bru.getEnvVar('idp_user_password');
+  const encoded = Buffer.from(user + ':' + pass).toString('base64');
+  req.setHeader('Authorization', 'Basic ' + encoded);
+}

@@ -41,8 +41,8 @@ pom.xml.releaseBackup
 **/*.tgz
 **/*.lock
 
-# postman tests
-ftests/postman-tests/package-lock.json
+# bruno tests
+ftests/bruno-tests/package-lock.json
 
 **/node_modules
 clients/hxcs-js-client/dist

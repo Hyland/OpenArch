@@ -47,6 +47,8 @@ jobs:
       - prepare_build
     env:
       VERSION_BUILD: ${{ needs.prepare_build.outputs.version }}
+      BRUNO_TEST_DIR: "./ftests/bruno-tests"
+      BRUNO_REPORTS_DIR: "localTestResults"
     outputs:
       version: ${{ env.VERSION }}
     steps:
@@ -212,6 +214,53 @@ jobs:
           tags: ghcr.io/hylandsoftware/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
           platforms: linux/amd64,linux/arm64
           push: true
+
+      - name: Run Docker Image
+        run: |
+          docker run --rm -d -p 8080:8080 --name=HXPR_COMMUNITY_APP --network="host" \
+          -e NUXEO_MONGODB_SERVER=$MONGODB_HOST:$MONGODB_PORT \
+          -e NUXEO_DATA_DIR=/tmp \
+          ghcr.io/hylandsoftware/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
+        env:
+          # use localhost for the host here because we are running the job on the VM.
+          MONGODB_HOST: localhost
+          MONGODB_PORT: 27017
+      - name: Wait for availability
+        uses: ./.github/actions/wait-for-availability
+        with:
+          url: http://localhost:8080
+      - name: Install Bruno CLI
+        run: npm install -g @usebruno/cli@3.5.0 --ignore-scripts
+      - name: Prepare Test Results
+        working-directory: ${{ env.BRUNO_TEST_DIR }}
+        run: mkdir -p ${BRUNO_REPORTS_DIR}
+      - name: Run Bruno collection
+        if: github.event_name == 'pull_request'
+        working-directory: ${{ env.BRUNO_TEST_DIR }}
+        run: |
+          bru run --env-file environments/community.localhost.json \
+            --reporter-html ${BRUNO_REPORTS_DIR}/bruno_test_report.html
+      - name: Retrieve Docker Logs
+        if: github.event_name == 'pull_request'
+        working-directory: ${{ env.BRUNO_TEST_DIR }}
+        run: docker logs HXPR_COMMUNITY_APP >> ${BRUNO_REPORTS_DIR}/hxpr_docker_logs.txt
+      - name: Dump docker logs on failure
+        if: github.event_name == 'pull_request' && failure()
+        uses: jwalton/gh-docker-logs@2741064ab9d7af54b0b1ffb6076cf64c16f0220e # v2.2.2
+      - name: Stop Docker Image
+        run: docker stop HXPR_COMMUNITY_APP
+      - name: Docker Compose Down
+        if: steps.compose.conclusion == 'success'
+        working-directory: server/hxpr-community-internal-app
+        run: docker compose down
+      # Upload the contents of test results directory to workspace
+      - name: Upload Bruno test artifacts
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: Local_Bruno_Test_Report
+          path: ${{ env.BRUNO_TEST_DIR }}/${{ env.BRUNO_REPORTS_DIR }}
+
 
   trigger_hxpr_version_update:
     name: Trigger hxpr-community-internal version update on HxPR
