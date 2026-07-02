@@ -113,7 +113,6 @@ jobs:
       - name: Rebuild modules after release version bump
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: mvn clean install -DskipTests
-
       - name: Resolve VERSION from release.sh / pom
         # On push to main, release.sh strips -SNAPSHOT to compute the released version
         # and bumps the pom to the next SNAPSHOT. On PRs / other events, fall back to
@@ -154,6 +153,18 @@ jobs:
           # use localhost for the host here because we are running the job on the VM.
           MONGODB_HOST: localhost
           MONGODB_PORT: 27017
+      - name: Replace SNAPSHOT JAR with released artifact for Docker
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          RELEASE_VERSION="${POM_VERSION%-SNAPSHOT}"
+          TARGET_DIR="server/hxpr-community-internal-app/target"
+          # Remove the next-SNAPSHOT jar produced by mvn verify (e.g. 0.0.72-SNAPSHOT)
+          rm -f "${TARGET_DIR}"/hxpr-community-internal-app-*-SNAPSHOT.jar
+          # Copy the released jar (e.g. 0.0.71) from the local Maven repository,
+          # populated by release:perform during the release.sh step
+          cp ~/.m2/repository/com/hyland/hxpr/hxpr-community-internal-app/${RELEASE_VERSION}/hxpr-community-internal-app-${RELEASE_VERSION}.jar \
+             "${TARGET_DIR}/hxpr-community-internal-app-${RELEASE_VERSION}.jar"
+
       - name: Login to ghcr.io in read only mode
         uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
         with:
