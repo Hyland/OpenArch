@@ -3,7 +3,7 @@
   <parent>
     <groupId>com.hyland.hxpr</groupId>
     <artifactId>sonarcloud-modules</artifactId>
-    <version>0.0.73</version>
+    <version>0.0.74-SNAPSHOT</version>
   </parent>
 
   <artifactId>report-aggregate</artifactId>
