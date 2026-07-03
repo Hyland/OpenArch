@@ -28,6 +28,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.nuxeo.ecm.core.transientstore.keyvalueblob.KeyValueBlobTransientStore.DOT_COMPLETED;
 import static org.nuxeo.ecm.core.transientstore.keyvalueblob.KeyValueBlobTransientStore.DOT_PARAMINFO;
 import static org.nuxeo.ecm.core.transientstore.keyvalueblob.KeyValueBlobTransientStore.DOT_PARAMS;
@@ -57,6 +61,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.api.Blobs;
 import org.nuxeo.ecm.core.api.impl.blob.StringBlob;
@@ -700,5 +705,42 @@ public class TestKeyValueBlobTransientStore {
         // then no params doc is created and the entry doesn't exist
         assertThat(getRawKeyValueStore().getString(key + DOT_PARAMS)).isNull();
         assertThat(ts.exists(key)).isFalse();
+    }
+
+    /**
+     * After {@link TransientStoreProvider#doGC()} recomputes the storage-size
+     * accumulator, the {@code __blobsize__} key must be written via
+     * {@link KeyValueStore#put(String, Long)} - i.e. as a native numeric value,
+     * not a {@link String}.
+     * <p>
+     * The DocumentDB fast path in {@code KeyValueBlobTransientStore#addStorageSize}
+     * (used on every {@link TransientStore#putBlobs} / remove) relies on
+     * {@code $inc}, which DocumentDB rejects with error code 14 on a non-numeric
+     * field. A regression to {@code kvs.put(_, String.valueOf(size))} would
+     * drop every subsequent {@code addAndGet} into the CAS-loop fallback and
+     * re-introduce the per-key contention on {@code __blobsize__} that
+     * CIN-13859 removed.
+     * <p>
+     * Verified via {@link Mockito#verify} on the {@code put} overload because
+     * neither the {@code MemKeyValueStore} nor {@code MongoDBKeyValueStore}
+     * expose a way to distinguish the storage type via a read: {@code getLong}
+     * accepts both native {@code Long} and stringified digits by design.
+     */
+    @Test
+    public void verifyComputeStorageSizeWritesLongNotString() {
+        // given a real KeyValueBlobTransientStore whose KV store is a Mockito spy
+        KeyValueStore spyKvs = Mockito.spy(getRawKeyValueStore());
+        KeyValueBlobTransientStore tspWithSpy = Mockito.spy((KeyValueBlobTransientStore) tsp);
+        Mockito.doReturn(spyKvs).when(tspWithSpy).getKeyValueStore();
+        String content = "SomeContent";
+        long expectedSize = content.getBytes(UTF_8).length;
+        createBlob("foo", content);
+
+        // when the accumulator is recomputed
+        tspWithSpy.computeStorageSize();
+
+        // then __blobsize__ is written via the Long overload and never as a String
+        verify(spyKvs).put(KeyValueBlobTransientStore.STORAGE_SIZE, Long.valueOf(expectedSize));
+        verify(spyKvs, never()).put(eq(KeyValueBlobTransientStore.STORAGE_SIZE), anyString());
     }
 }

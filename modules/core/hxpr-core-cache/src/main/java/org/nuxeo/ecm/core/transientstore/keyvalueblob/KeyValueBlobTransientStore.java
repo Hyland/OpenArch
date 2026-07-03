@@ -244,8 +244,12 @@ public class KeyValueBlobTransientStore implements TransientStoreProvider {
     @Override
     public long getStorageSize() {
         KeyValueStore kvs = getKeyValueStore();
-        String sizeStr = kvs.getString(STORAGE_SIZE);
-        return sizeStr == null ? 0 : Long.parseLong(sizeStr);
+        // getLong accepts both native Long and stringified digits (see
+        // MongoDBKeyValueStore.toLong), so historic entries written by
+        // pre-fix computeStorageSize remain readable until the next GC
+        // rewrites them.
+        Long size = kvs.getLong(STORAGE_SIZE);
+        return size == null ? 0 : size;
     }
 
     /**
@@ -254,6 +258,12 @@ public class KeyValueBlobTransientStore implements TransientStoreProvider {
      * Uses {@link KeyValueStore#addAndGet} (native MongoDB / DocumentDB {@code $inc})
      * rather than a read-then-CAS loop, which would otherwise contend on this
      * single key under concurrent {@link #putBlobs} / {@link #removeBlobs} load.
+     * <p>
+     * DocumentDB (and MongoDB) reject {@code $inc} on a non-numeric field with
+     * error code 14 / 16837, and {@link org.nuxeo.ecm.core.mongodb.kv.MongoDBKeyValueStore}
+     * falls back to a CAS loop in that case. To keep the fast path, the
+     * accumulator must always be stored as a native {@link Long} - see
+     * {@link #computeStorageSize()}.
      */
     protected void addStorageSize(long delta, KeyValueStore kvs) {
         kvs.addAndGet(STORAGE_SIZE, delta);
@@ -266,6 +276,12 @@ public class KeyValueBlobTransientStore implements TransientStoreProvider {
      * <p>
      * Does not take into account blobs that still exist in the blob provider but are not referenced anymore (due to TTL
      * expiration or GC not having been done).
+     * <p>
+     * Stores the result as a native {@link Long}: MongoDB / DocumentDB {@code $inc}
+     * (used by {@link #addStorageSize} on every {@link #putBlobs} / {@link #removeBlobs})
+     * requires a numeric field. Writing the size as a string here would trip the
+     * subsequent {@code $inc} into a CAS-loop fallback, re-introducing per-key
+     * contention on {@code __blobsize__} under concurrent uploads.
      */
     protected void computeStorageSize() {
         KeyValueStore kvs = getKeyValueStore();
@@ -273,7 +289,7 @@ public class KeyValueBlobTransientStore implements TransientStoreProvider {
                                .flatMap(Collection::stream)
                                .mapToLong(Blob::getLength)
                                .sum();
-        kvs.put(STORAGE_SIZE, String.valueOf(size));
+        kvs.put(STORAGE_SIZE, Long.valueOf(size));
     }
 
     @Override
