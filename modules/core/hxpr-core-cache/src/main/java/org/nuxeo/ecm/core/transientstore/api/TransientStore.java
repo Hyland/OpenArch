@@ -96,8 +96,8 @@ public interface TransientStore {
     List<Blob> getBlobs(String key);
 
     /**
-     * Returns the size of the blobs associated with the entry with the given {@code key} or {@code -1} if entry does
-     * not exist.
+     * Returns the size of the blobs associated with the entry with the given {@code key}, or {@code 0} if the entry
+     * does not exist or has no blobs.
      *
      * @since 7.10
      */

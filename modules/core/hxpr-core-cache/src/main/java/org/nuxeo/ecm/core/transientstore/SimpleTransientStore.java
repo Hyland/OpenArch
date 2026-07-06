@@ -166,7 +166,7 @@ public class SimpleTransientStore extends AbstractTransientStore {
     public long getSize(String key) {
         StorageEntry entry = getStorageEntry(key);
         if (entry == null) {
-            return -1;
+            return 0;
         }
         long size = entry.getSize();
         if (log.isDebugEnabled()) {

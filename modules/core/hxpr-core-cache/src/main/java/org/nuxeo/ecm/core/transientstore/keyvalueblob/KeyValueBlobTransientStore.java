@@ -285,10 +285,7 @@ public class KeyValueBlobTransientStore implements TransientStoreProvider {
      */
     protected void computeStorageSize() {
         KeyValueStore kvs = getKeyValueStore();
-        long size = keyStream().map(this::getBlobs) //
-                               .flatMap(Collection::stream)
-                               .mapToLong(Blob::getLength)
-                               .sum();
+        long size = keyStream().mapToLong(key -> getSize(key, kvs)).sum();
         kvs.put(STORAGE_SIZE, Long.valueOf(size));
     }
 
@@ -806,12 +803,15 @@ public class KeyValueBlobTransientStore implements TransientStoreProvider {
 
     @Override
     public long getSize(String key) {
-        KeyValueStore kvs = getKeyValueStore();
+        return getSize(key, getKeyValueStore());
+    }
+
+    private long getSize(String key, KeyValueStore kvs) {
         String json = kvs.getString(key + DOT_BLOBINFO);
         Map<String, String> map = jsonToMap(json);
         String size;
         if (map == null || (size = map.get(SIZE)) == null) {
-            return -1;
+            return 0;
         }
         return Long.parseLong(size);
     }

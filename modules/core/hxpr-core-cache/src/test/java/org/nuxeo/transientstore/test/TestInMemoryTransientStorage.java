@@ -187,7 +187,7 @@ public class TestInMemoryTransientStorage {
         assertNull(ts.getParameters("fakeEntry"));
         assertNull(ts.getParameter("fakeEntry", "fakeParameter"));
         assertNull(ts.getBlobs("fakeEntry"));
-        assertEquals(-1, ts.getSize("fakeEntry"));
+        assertEquals(0, ts.getSize("fakeEntry"));
         assertFalse(ts.isCompleted("fakeEntry"));
 
         // Entry with parameters only

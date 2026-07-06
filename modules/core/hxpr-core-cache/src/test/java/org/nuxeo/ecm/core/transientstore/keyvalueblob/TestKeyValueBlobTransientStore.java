@@ -247,7 +247,7 @@ public class TestKeyValueBlobTransientStore {
         assertNull(ts.getParameters("fakeEntry"));
         assertNull(ts.getParameter("fakeEntry", "fakeParameter"));
         assertNull(ts.getBlobs("fakeEntry"));
-        assertEquals(-1, ts.getSize("fakeEntry"));
+        assertEquals(0, ts.getSize("fakeEntry"));
         assertFalse(ts.isCompleted("fakeEntry"));
 
         // Entry with parameters only
@@ -261,6 +261,7 @@ public class TestKeyValueBlobTransientStore {
         List<Blob> blobs = ts.getBlobs("testEntry");
         assertNotNull(blobs);
         assertTrue(blobs.isEmpty());
+        assertEquals(0, ts.getSize("testEntry"));
 
         // Entry with blobs only
         ts.putBlobs("otherEntry", Collections.singletonList(new StringBlob("joe")));
