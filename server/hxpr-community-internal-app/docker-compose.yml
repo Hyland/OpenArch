@@ -8,7 +8,7 @@ services:
       - mongodb-data:/data/db
 
   opensearch:
-    image: opensearchproject/opensearch:2.19.5@sha256:4ee82ecb35d837a6186c81aaa64c8a5bce71aa956edbd87f1f684ab56af52c44
+    image: opensearchproject/opensearch:2.19.6@sha256:b485da5f7f7bcb174523954bae1303c8c2ddaae9f1c2c89f10d625c98544e7cd
     hostname: opensearch
     environment:
       - "discovery.type=single-node"
@@ -28,7 +28,7 @@ services:
       start_period: 30s
 
   opensearch-dashboards:
-    image: opensearchproject/opensearch-dashboards:2.19.5@sha256:20652662499b7d9cc9f583a4fa602064a6d0eccdc978c5dc14c816dc3350da5e
+    image: opensearchproject/opensearch-dashboards:2.19.6@sha256:3616df0a80eb458ccb1fa028750a51bf9f525b4c49f30e902f6ed108ada7a6e5
     container_name: opensearch-community-dashboards
     ports:
       - 5601:5601
