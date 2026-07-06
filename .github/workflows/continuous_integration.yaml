@@ -34,7 +34,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Ensure SHA pinned actions
-        uses: zgosalvez/github-actions-ensure-sha-pinned-actions@ca46236c6ce584ae24bc6283ba8dcf4b3ec8a066 # v5.0.4
+        uses: zgosalvez/github-actions-ensure-sha-pinned-actions@3db98c0363e2fa5df3e1c4c471777a7c10b24cc9 # v5.0.5
       - name: Generate Version
         id: version
         uses: ./.github/actions/generate-version
@@ -57,7 +57,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
       - name: Ensure SHA pinned actions
-        uses: zgosalvez/github-actions-ensure-sha-pinned-actions@ca46236c6ce584ae24bc6283ba8dcf4b3ec8a066 # v5.0.4
+        uses: zgosalvez/github-actions-ensure-sha-pinned-actions@3db98c0363e2fa5df3e1c4c471777a7c10b24cc9 # v5.0.5
       - name: Login to ghcr.io in read only mode
         uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
         with:
@@ -72,7 +72,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
       - name: Set up JDK 25
-        uses: actions/setup-java@ad2b38190b15e4d6bdf0c97fb4fca8412226d287 # v5.3.0
+        uses: actions/setup-java@1bcf9fb12cf4aa7d266a90ae39939e61372fe520 # v5.4.0
         with:
           java-version: '25'
           distribution: 'corretto'
@@ -180,7 +180,7 @@ jobs:
         run: mvn -nsu license:aggregate-download-licenses -DlicensesOutputDirectory=./server/hxpr-community-internal-app/target/licenses
       - name: "Clone Alfresco/third-party-license-overrides"
         run: git clone --depth=1 https://github.com/Alfresco/third-party-license-overrides.git
-      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
       - name: "Create third party license csv file and add it to the docker compose root directory"
         run: |
           python3 ./third-party-license-overrides/thirdPartyLicenseCSVCreator.py --project "${{ github.workspace }}" \
@@ -288,6 +288,6 @@ jobs:
     if: always() && failure() && github.event_name == 'push'
     steps:
       - name: Teams Notification
-        uses: Alfresco/alfresco-build-tools/.github/actions/send-teams-notification@10cea6c0b390c4f8af21d9dc1670d581bd10319f # v18.13.0
+        uses: Alfresco/alfresco-build-tools/.github/actions/send-teams-notification@499eb5d58f3f82a4efa4eaedab26dbecff18328c # v18.15.1
         with:
           webhook-url: ${{ secrets.TEAMS_GA_NOTIFS_WEBHOOK_URL }}
