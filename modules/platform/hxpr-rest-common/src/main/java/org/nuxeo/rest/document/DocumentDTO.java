@@ -18,6 +18,7 @@
  */
 package org.nuxeo.rest.document;
 
+import static org.nuxeo.ecm.core.api.DocumentConstants.SCHEMA_NAME;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ACL;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ANCESTOR_IDS;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_CHANGE_TOKEN;
@@ -66,7 +67,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * Simple document representation, useful for json serialization and swagger schema generation with the ReST API.
  */
-@Schema(name = "Document", description = "Represents a document.", additionalProperties = Schema.AdditionalPropertiesValue.TRUE)
+@Schema(name = SCHEMA_NAME, description = "Represents a document.", additionalProperties = Schema.AdditionalPropertiesValue.TRUE)
 public class DocumentDTO {
 
     @JsonProperty(SYS_REPOSITORY)

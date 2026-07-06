@@ -41,6 +41,10 @@
       <groupId>com.hyland.hxpr</groupId>
       <artifactId>hxpr-rest-common</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-core-api</artifactId>
+    </dependency>
   </dependencies>
 
   <build>

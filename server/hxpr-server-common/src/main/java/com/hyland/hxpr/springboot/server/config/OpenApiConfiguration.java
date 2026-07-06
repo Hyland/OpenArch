@@ -15,10 +15,17 @@
  */
 package com.hyland.hxpr.springboot.server.config;
 
+import static org.nuxeo.ecm.core.api.DocumentConstants.SCHEMA_NAME;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_HAS_LEGAL_HOLD;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_IS_RECORD;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_RETAIN_UNTIL;
+
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.media.BooleanSchema;
+import io.swagger.v3.oas.models.media.DateTimeSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
@@ -87,11 +94,30 @@ public class OpenApiConfiguration {
     }
 
     @Bean
+    @Order(11)
+    public OpenApiCustomizer addDocumentGovernanceProperties() {
+        return openApi ->
+            openApi.getComponents().getSchemas().forEach((schemaName, schema) -> {
+                if (schemaName.equals(SCHEMA_NAME)) {
+                    var hasLegalHoldSchema = new BooleanSchema();
+                    hasLegalHoldSchema.setDescription("True/false indicator of whether the document contains the legal hold schema.");
+                    schema.addProperty(SYSGOV_HAS_LEGAL_HOLD, hasLegalHoldSchema);
+                    var isRecordSchema = new BooleanSchema();
+                    isRecordSchema.setDescription("True/false indicator of whether the document is a record.");
+                    schema.addProperty(SYSGOV_IS_RECORD, isRecordSchema);
+                    var retainUntilSchema = new DateTimeSchema();
+                    retainUntilSchema.setDescription("The date until which the document should be retained.");
+                    schema.addProperty(SYSGOV_RETAIN_UNTIL, retainUntilSchema);
+                }
+            });
+    }
+
+    @Bean
     @Order(12)
     public OpenApiCustomizer enableAdditionalPropertiesInSchema() {
         return openApi ->
             openApi.getComponents().getSchemas().forEach((schemaName, schema) -> {
-                if (schemaName.equals("Document")) {
+                if (schemaName.equals(SCHEMA_NAME)) {
                     schema.setAdditionalProperties(true);
                 }
                 if (schemaName.equals("NamedQuery") &&

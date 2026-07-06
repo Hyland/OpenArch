@@ -31,6 +31,8 @@ public class DocumentConstants {
 
     public static final String PREFIX_SEPARATOR_S = "_";
 
+    public static final String SCHEMA_NAME = "Document";
+
     // name of system schema
     public static final String SYSTEM = "system";
 
