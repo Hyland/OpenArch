@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.nuxeo.ecm.core.api.NuxeoPrincipal;
@@ -63,7 +64,18 @@ public class ExpressionSecurityPolicy extends AbstractSecurityPolicy {
         return ((ExpressionSecurityPolicyConfig) getConfig()).getExpression();
     }
 
+    @Override
+    protected boolean checkMixin(List<ValidationViolation> violations) {
+        // mixin is optional for ExpressionSecurityPolicy
+        return StringUtils.isNotBlank(getMixin());
+    }
+
     private Expr getExpr(List<ValidationViolation> violations) {
+        if (StringUtils.isBlank(expressionString)) {
+            SecurityPolicyViolation.add(violations, Type.ERROR,
+                    "The expression must be set on security policy \"{0}\"", getName());
+            return null;
+        }
         try {
             return new ExpressionVisitor().parse(expressionString);
         } catch (IllegalArgumentException e) {

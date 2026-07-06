@@ -20,12 +20,14 @@ package org.nuxeo.ecm.core.security.expr;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_CREATOR;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.READ;
 import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FILE;
+import static org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation.Type.ERROR;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -101,6 +103,90 @@ public class TestExpressionSecurityPolicy {
         // now bob can read
         check = policy.hasPermission(idoc, bob, bobs, permission, permissions);
         assertTrue(check);
+    }
+
+    @Test
+    public void testNullExpressionAddsViolation() {
+        var config = new ExpressionSecurityPolicyConfig(null, Set.of(SYS_FILE), Set.of(READ), MIXIN, null);
+        List<ValidationViolation> violations = new ArrayList<>();
+        var policy = config.newSecurityPolicy("test", "myexpr", violations);
+
+        assertNotNull(policy);
+        assertEquals(1, violations.size());
+        assertEquals(ERROR, violations.getFirst().getType());
+        assertEquals("The expression must be set on security policy \"myexpr\"", violations.getFirst().getMessage(null));
+    }
+
+    @Test
+    public void testBlankExpressionAddsViolation() {
+        var config = new ExpressionSecurityPolicyConfig(null, Set.of(SYS_FILE), Set.of(READ), MIXIN, "   ");
+        List<ValidationViolation> violations = new ArrayList<>();
+        var policy = config.newSecurityPolicy("test", "myexpr", violations);
+
+        assertNotNull(policy);
+        assertEquals(1, violations.size());
+        assertEquals(ERROR, violations.getFirst().getType());
+        assertEquals("The expression must be set on security policy \"myexpr\"", violations.getFirst().getMessage(null));
+    }
+
+    @Test
+    public void testInvalidExpressionAddsViolation() {
+        var config = new ExpressionSecurityPolicyConfig(null, Set.of(SYS_FILE), Set.of(READ), MIXIN, "user.id ==");
+        List<ValidationViolation> violations = new ArrayList<>();
+        var policy = config.newSecurityPolicy("test", "myexpr", violations);
+
+        assertNotNull(policy);
+        assertEquals(1, violations.size());
+        assertEquals(ERROR, violations.getFirst().getType());
+        assertTrue(violations.getFirst().getMessage(null).startsWith("Invalid expression:"));
+    }
+
+    @Test
+    public void testEmptyPermissionsAddsViolation() {
+        String expression = "user.id == \"alice\"";
+        var config = new ExpressionSecurityPolicyConfig(null, Set.of(SYS_FILE), Set.of(), MIXIN, expression);
+        List<ValidationViolation> violations = new ArrayList<>();
+        config.newSecurityPolicy("test", "myexpr", violations);
+
+        assertEquals(1, violations.size());
+        assertEquals(ERROR, violations.getFirst().getType());
+        assertEquals("There are no permissions set on the \"myexpr\" security policy",
+                violations.get(0).getMessage(null));
+    }
+
+    @Test
+    public void testNullPermissionsAddsViolation() {
+        String expression = "user.id == \"alice\"";
+        var config = new ExpressionSecurityPolicyConfig(null, Set.of(SYS_FILE), null, MIXIN, expression);
+        List<ValidationViolation> violations = new ArrayList<>();
+        config.newSecurityPolicy("test", "myexpr", violations);
+
+        assertEquals(1, violations.size());
+        assertEquals(ERROR, violations.getFirst().getType());
+        assertEquals("There are no permissions set on the \"myexpr\" security policy",
+                violations.getFirst().getMessage(null));
+    }
+
+    @Test
+    public void testOptionalMixinNullIsAccepted() {
+        String expression = "user.id == \"alice\"";
+        var config = new ExpressionSecurityPolicyConfig(null, Set.of(SYS_FILE), Set.of(READ), null, expression);
+        List<ValidationViolation> violations = new ArrayList<>();
+        var policy = config.newSecurityPolicy("test", "myexpr", violations);
+
+        assertNotNull(policy);
+        assertEquals(List.of(), violations);
+    }
+
+    @Test
+    public void testOptionalMixinBlankIsAccepted() {
+        String expression = "user.id == \"alice\"";
+        var config = new ExpressionSecurityPolicyConfig(null, Set.of(SYS_FILE), Set.of(READ), "   ", expression);
+        List<ValidationViolation> violations = new ArrayList<>();
+        var policy = config.newSecurityPolicy("test", "myexpr", violations);
+
+        assertNotNull(policy);
+        assertEquals(List.of(), violations);
     }
 
 }
