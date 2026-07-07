@@ -20,9 +20,9 @@ package org.nuxeo.ecm.core.storage.dbs;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyListOf;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -66,7 +66,7 @@ public class TestDBSCachingRepository {
     public void before() {
         subConnection = mock(DBSConnection.class);
         when(subConnection.readState(any())).then(invocation -> newState(invocation.getArguments()[0].toString()));
-        when(subConnection.readStates(anyListOf(String.class))).then(
+        when(subConnection.readStates(anyList())).then(
                 invocation -> ((List<String>) invocation.getArguments()[0]).stream().map(id -> {
                     State state = new State();
                     state.put(SYS_ID, id);
