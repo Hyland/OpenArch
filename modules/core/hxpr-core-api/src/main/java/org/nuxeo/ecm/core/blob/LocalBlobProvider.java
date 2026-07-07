@@ -70,7 +70,6 @@ public class LocalBlobProvider extends BlobStoreBlobProvider {
         return config.digestConfiguration.digestAlgorithm;
     }
 
-    // used by DownloadServiceImpl for accelerated download
     public Path getStorageDir() {
         return config.storageDir;
     }

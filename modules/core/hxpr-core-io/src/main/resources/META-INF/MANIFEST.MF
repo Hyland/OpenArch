@@ -28,4 +28,3 @@ Import-Package: javax.security.auth.login,
  org.nuxeo.runtime.api,
  org.nuxeo.runtime.services.streaming
 Bundle-SymbolicName: org.nuxeo.ecm.core.io;singleton:=true
-Nuxeo-Component: OSGI-INF/download-service.xml

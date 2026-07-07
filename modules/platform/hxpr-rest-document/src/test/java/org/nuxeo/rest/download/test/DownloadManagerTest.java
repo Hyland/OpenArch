@@ -57,7 +57,6 @@ import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.ecm.core.api.impl.UserPrincipal;
 import org.nuxeo.ecm.core.event.test.CapturingEventListener;
-import org.nuxeo.ecm.core.io.download.DownloadService;
 import org.nuxeo.ecm.core.test.CoreFeature;
 import org.nuxeo.rest.download.DownloadManager;
 import org.nuxeo.rest.download.DownloadManager.BlobStreamingOutput;
@@ -359,10 +358,10 @@ public class DownloadManagerTest {
         HttpHeaders headers = mockHeaders("Range", range == null ? null : "bytes=" + range);
         createDownloadManager(head, headers);
 
-        try (CapturingEventListener listener = new CapturingEventListener(DownloadService.EVENT_NAME)) {
+        try (CapturingEventListener listener = new CapturingEventListener(DownloadManager.EVENT_NAME)) {
             ResponseEntity<StreamingResponseBody> resp = download(doc.getId());
             checkResponseBlob(expectedResult, resp);
-            assertEquals(expectedSize, listener.getCapturedEventCount(DownloadService.EVENT_NAME));
+            assertEquals(expectedSize, listener.getCapturedEventCount(DownloadManager.EVENT_NAME));
         }
     }
 

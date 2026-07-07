@@ -53,14 +53,20 @@ import org.nuxeo.ecm.core.api.DocumentRef;
 import org.nuxeo.ecm.core.api.DocumentSecurityException;
 import org.nuxeo.ecm.core.api.IdRef;
 import org.nuxeo.ecm.core.api.NuxeoException;
+import org.nuxeo.ecm.core.api.NuxeoPrincipal;
+import org.nuxeo.ecm.core.api.event.CoreEventConstants;
 import org.nuxeo.ecm.core.api.impl.blob.FileBlob;
 import org.nuxeo.ecm.core.api.model.BlobNotFoundException;
 import org.nuxeo.ecm.core.api.model.PropertyNotFoundException;
 import org.nuxeo.ecm.core.blob.BlobService;
 import org.nuxeo.ecm.core.blob.ByteRange;
+import org.nuxeo.ecm.core.event.Event;
+import org.nuxeo.ecm.core.event.EventContext;
+import org.nuxeo.ecm.core.event.EventService;
+import org.nuxeo.ecm.core.event.impl.DocumentEventContext;
+import org.nuxeo.ecm.core.event.impl.EventContextImpl;
 import org.nuxeo.ecm.core.event.impl.document.DownloadEvent;
 import org.nuxeo.ecm.core.io.download.DownloadHelper;
-import org.nuxeo.ecm.core.io.download.DownloadService;
 import org.nuxeo.ecm.core.schema.SchemaManager;
 import org.nuxeo.ecm.core.schema.TypeService;
 import org.nuxeo.rest.utils.Headers;
@@ -85,6 +91,16 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 public class DownloadManager {
 
     private static final Logger log = LoggerFactory.getLogger(DownloadManager.class);
+
+    public static final String EVENT_NAME = "download";
+
+    public static final String CTX_EXTENDED_INFOS = "extendedInfos";
+
+    public static final String CTX_BLOB_FILENAME = "blobFilename";
+
+    public static final String CTX_BLOB_XPATH = "blobXPath";
+
+    public static final String CTX_DOWNLOAD_REASON = "downloadReason";
 
     private final String requestMethod;
 
@@ -154,7 +170,7 @@ public class DownloadManager {
         }
 
         // check blob permissions
-        if (!Framework.getService(DownloadService.class).checkPermission(doc, xpath, blob, reason, extendedInfos)) {
+        if (!checkPermission(doc, xpath, blob, reason, extendedInfos)) {
             throw new DocumentSecurityException("Permission denied");
         }
 
@@ -382,12 +398,53 @@ public class DownloadManager {
         return CacheControl.maxAge(15, TimeUnit.SECONDS).mustRevalidate();
     }
 
+    /**
+     * Checks whether the download of the blob is allowed.
+     *
+     * @param doc the doc for which this download occurs, if available
+     * @param xpath the blob's xpath, if available
+     * @param blob the blob
+     * @param reason the download reason
+     * @param extendedInfos an optional map of extended informations to log
+     * @return {@code true} if download is allowed
+     */
+    protected boolean checkPermission(DocumentModel doc, String xpath, Blob blob, String reason,
+            Map<String, Serializable> extendedInfos) {
+        // TODO plug additional download permission logic here
+        return true;
+    }
+
     protected void logDownload(DocumentModel doc, String xpath, String filename, String reason,
             Map<String, Serializable> extendedInfos, boolean isPresignedUrl) {
-        if (!isHead()) {
-            Framework.getService(DownloadService.class)
-                     .logDownload(null, doc, xpath, filename, reason, extendedInfos, isPresignedUrl);
+        if (isHead()) {
+            // don't log HEAD requests
+            return;
         }
+        EventService eventService = Framework.getService(EventService.class);
+        if (eventService == null) {
+            return;
+        }
+        EventContext ctx;
+        if (doc != null) {
+            CoreSession session = doc.getCoreSession();
+            NuxeoPrincipal principal = session == null ? NuxeoPrincipal.getCurrent() : session.getPrincipal();
+            ctx = new DocumentEventContext(session, principal, doc);
+            ctx.setProperty(CoreEventConstants.REPOSITORY_NAME, doc.getRepositoryName());
+            ctx.setProperty(CoreEventConstants.IS_PRESIGNED_URL, isPresignedUrl);
+        } else {
+            ctx = new EventContextImpl(null, NuxeoPrincipal.getCurrent());
+        }
+        Map<String, Serializable> map = new HashMap<>();
+        map.put(CTX_BLOB_XPATH, xpath);
+        map.put(CTX_BLOB_FILENAME, filename);
+        map.put(CTX_DOWNLOAD_REASON, reason);
+        if (extendedInfos != null) {
+            map.putAll(extendedInfos);
+        }
+        ctx.setProperty(CTX_EXTENDED_INFOS, (Serializable) map);
+        ctx.setProperty("comment", filename);
+        Event event = ctx.newEvent(EVENT_NAME);
+        eventService.fireEvent(event);
     }
 
     protected ResponseEntity<StreamingResponseBody> transferBlobWithByteRange(Blob blob, ByteRange byteRange,
