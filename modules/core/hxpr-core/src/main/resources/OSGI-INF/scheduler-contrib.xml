@@ -6,8 +6,9 @@
 
     <schedule id="aceScheduler">
       <class>org.nuxeo.ecm.core.security.UpdateACEStatusScheduledJob</class>
-      <!-- every 5 mins -->
-      <cronExpression>0 0/5 * * * ?</cronExpression>
+      <!-- every 5 mins; cron is overridable per environment to stagger the run
+           across environments and avoid a synchronized IDP token-exchange storm -->
+      <cronExpression>${hxpr.ace.scheduler.cron:=0 0/5 * * * ?}</cronExpression>
     </schedule>
 
   </extension>
