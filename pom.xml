@@ -124,7 +124,7 @@
 
     <!-- Test dependencies -->
     <mockito-inline.version>5.2.0</mockito-inline.version>
-    <mockito-core.version>5.17.0</mockito-core.version>
+    <mockito-core.version>5.23.0</mockito-core.version>
 
     <nuxeo.skip.enforcer>false</nuxeo.skip.enforcer>
     <nuxeo.skip.enforcer.convergence>false</nuxeo.skip.enforcer.convergence>
