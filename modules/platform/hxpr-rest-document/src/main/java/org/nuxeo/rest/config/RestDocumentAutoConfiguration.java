@@ -15,13 +15,20 @@
  */
 package org.nuxeo.rest.config;
 
+import static org.nuxeo.ecm.core.api.DocumentConstants.SCHEMA_NAME;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_CREATOR;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_LAST_CONTRIBUTOR;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_LOCK_OWNER;
+
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.media.Content;
+import io.swagger.v3.oas.models.media.Schema;
 
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -31,6 +38,65 @@ import org.springframework.core.annotation.Order;
 @AutoConfiguration
 @ComponentScan(basePackages = { "org.nuxeo.rest" })
 public class RestDocumentAutoConfiguration {
+
+    static final String USER_SCHEMA_REF = "#/components/schemas/User";
+
+    static final String GROUP_SCHEMA_REF = "#/components/schemas/Group";
+
+    static final String ACE_SCHEMA_NAME = "ACE";
+
+    static final String USER_PROPERTY_NAME = "user";
+
+    static final String GROUP_PROPERTY_NAME = "group";
+
+    /**
+     * Customizer to override the description of the {@code sys_creator} property in the Document schema.
+     * <p>
+     * The class-level {@code @Schema} annotation on {@code UserDTO} defines a default description ("Represents a
+     * user.") that is used wherever a {@code UserDTO}-typed property is referenced. In OpenAPI 3.0, a property that is
+     * a {@code $ref} cannot carry sibling attributes such as {@code description} (they are silently ignored by
+     * parsers and Swagger UI), so a field-level {@code @Schema(description = ...)} annotation on the DTO field has no
+     * effect. The only OpenAPI 3.0-compliant way to attach a description to a referenced schema is to wrap the
+     * {@code $ref} in an {@code allOf}, which is what this customizer does.
+     */
+    @Bean
+    @Order(14)
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public OpenApiCustomizer documentCreatorDescriptionCustomizer() {
+        return openApi -> {
+            if (openApi.getComponents() == null || openApi.getComponents().getSchemas() == null) {
+                return;
+            }
+            Schema documentSchema = openApi.getComponents().getSchemas().get(SCHEMA_NAME);
+            if (documentSchema == null || documentSchema.getProperties() == null) {
+                return;
+            }
+            Map<String, Schema<?>> properties = documentSchema.getProperties();
+            updateDescriptionForUserProperties(properties, SYS_CREATOR, "Represents a user who created the document.", USER_SCHEMA_REF);
+            updateDescriptionForUserProperties(properties, SYS_LAST_CONTRIBUTOR, "Represents a user who has last modified the document.", USER_SCHEMA_REF);
+            updateDescriptionForUserProperties(properties, SYS_LOCK_OWNER, "Represents a user who locked the document.", USER_SCHEMA_REF);
+
+            Schema aceSchema = openApi.getComponents().getSchemas().get(ACE_SCHEMA_NAME);
+            if (aceSchema == null) {
+                return;
+            }
+            properties = aceSchema.getProperties();
+            updateDescriptionForUserProperties(properties, USER_PROPERTY_NAME, "Represents a user within the ACL.", USER_SCHEMA_REF);
+            updateDescriptionForUserProperties(properties, GROUP_PROPERTY_NAME, "Represents a group within the ACL.", GROUP_SCHEMA_REF);
+        };
+    }
+
+    private void updateDescriptionForUserProperties(Map<String, Schema<?>> properties, String propName, String newDescription, String schemaRef) {
+        if (!properties.containsKey(propName)) {
+            return;
+        }
+        Schema<?> wrapper = new Schema<>()
+                .description(newDescription);
+        if (StringUtils.isNotEmpty(schemaRef)) {
+            wrapper.addAllOfItem(new Schema<>().$ref(schemaRef));
+        }
+        properties.put(propName, wrapper);
+    }
 
     /**
      * Customizer to remove the "_1" suffix from the operationId of all operations.
