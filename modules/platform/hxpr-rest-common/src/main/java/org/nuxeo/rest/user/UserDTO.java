@@ -54,6 +54,7 @@ public record UserDTO( //
 
     public UserDTO {
         requireNonNull(id);
+        properties = properties == null ? Map.of() : properties;
     }
 
     public UserDTO(NuxeoPrincipal user) {
