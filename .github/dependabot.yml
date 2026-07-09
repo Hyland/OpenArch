@@ -5,6 +5,11 @@ registries:
     url: https://artifacts.alfresco.com/nexus/content/repositories/hylandsoftware-releases
     username: ${{secrets.NEXUS_USERNAME}}
     password: ${{secrets.NEXUS_PASSWORD}}
+  dhi-io:
+    type: docker-registry
+    url: dhi.io
+    username: ${{secrets.DHI_IO_USERNAME}}
+    password: ${{secrets.DHI_IO_OAT}}
 updates:
   - package-ecosystem: "maven"
     directories:
