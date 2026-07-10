@@ -432,13 +432,14 @@ public class TestXSDLoader {
     @Test
     public void testDuplicateProperty() throws Exception {
         URL url = ResourceHelper.getResource("schema/schema3.xsd");
+        URL url2 = ResourceHelper.getResource("schema/schema3b.xsd");
         reader.loadSchema("s1", "pref", url);
         try {
-            // read it again as another schema but with same prefix, to generate a field name collision
-            reader.loadSchema("s2", "pref", url);
+            // read another schema but with same prefix and field, to generate a field name collision
+            reader.loadSchema("s2", "pref", url2);
             fail("should have detected duplicate");
         } catch (TypeException e) {
-            assertEquals("Duplicate property \"pref_validator\" in schemas \"s1\" and \"s2\".", e.getMessage());
+            assertEquals("Duplicate property \"pref_validator\" in schemas \"s1\" (string) and \"s2\" (long).", e.getMessage());
         }
     }
 

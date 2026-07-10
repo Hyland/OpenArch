@@ -132,11 +132,12 @@ public class SchemaManagerBase implements SchemaManager {
     protected void registerSchema(Schema schema, List<ValidationViolation> violations) {
         schemas.put(schema.getName(), schema);
         for (Field field : schema.getFields()) {
-            Field old = fields.put(field.getName(), field);
-            if (old != null) {
+            Field oldField = fields.put(field.getName(), field);
+            if (oldField != null) {
+                Type oldSchema = oldField.getDeclaringType();
                 ValidationViolation violation = new AlreadyExistsViolation(
                         "label.schema.application.violation.AlreadyExistsViolation.duplicateProperty", field.getName(),
-                        old.getDeclaringType().getName(), schema.getName());
+                        oldSchema.getName(), oldField.getType().getName(), schema.getName(), field.getType().getName());
                 violations.add(violation);
             }
         }

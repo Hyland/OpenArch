@@ -47,7 +47,7 @@ public class TestSchemaManagerDTO {
                         "s2": {
                           "prefix": "pref",
                           "fields": {
-                            "pref_validator": "string"
+                            "pref_validator": "long"
                           }
                         }
                       },
@@ -65,7 +65,7 @@ public class TestSchemaManagerDTO {
             ValidationReport report = e.getReport();
             assertEquals(1, report.numberOfViolations());
             String msg = report.asList().get(0).getMessage(Locale.ENGLISH);
-            assertEquals("Duplicate property \"pref_validator\" in schemas \"s1\" and \"s2\".", msg);
+            assertEquals("Duplicate property \"pref_validator\" in schemas \"s1\" (string) and \"s2\" (long).", msg);
         }
     }
 
