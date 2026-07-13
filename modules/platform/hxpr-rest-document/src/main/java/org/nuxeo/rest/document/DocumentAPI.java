@@ -64,8 +64,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * Document CRUD Rest API.
@@ -183,7 +183,7 @@ public class DocumentAPI extends AbstractDocumentAPI {
     public DocumentDTO patchDocumentById(@PathVariable("docId") @ParameterDocId String docId,
             @RequestParam(name = CONDITION, defaultValue = "") @ParameterCondition String condition,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId,
-            @RequestBody(required = false) Object patch) throws JsonProcessingException {
+            @RequestBody(required = false) Object patch) throws JacksonException {
         return documentManager.patchDocument(repoId, new IdRef(docId), mapper.writeValueAsString(patch), condition);
     }
 
@@ -199,7 +199,7 @@ public class DocumentAPI extends AbstractDocumentAPI {
             @RequestParam(name = CONDITION, defaultValue = "") @ParameterCondition String condition,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId,
             @PathVariable() @ParameterDocPath String docPath,
-            @RequestBody(required = false) Object patch) throws JsonProcessingException {
+            @RequestBody(required = false) Object patch) throws JacksonException {
         return documentManager.patchDocument(repoId, PathRefUtils.getPathRef(docPath),
                 mapper.writeValueAsString(patch), condition);
     }

@@ -35,9 +35,9 @@ import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.springboot.transaction.Transactional;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.flipkart.zjsonpatch.JsonPatch;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import com.flipkart.zjsonpatch.Jackson3JsonPatch;
 
 import jakarta.validation.constraints.NotNull;
 
@@ -50,7 +50,7 @@ public class ModelManager {
     public SchemaManager applyPatch(String repoId, String patchBody, boolean validateOnly) throws IOException {
         JsonNode patch = mapper.readTree(patchBody);
         ModelDTO current = ModelDTO.toDTO(getSchemaManagerDTO(repoId));
-        JsonNode patched = JsonPatch.apply(patch, mapper.valueToTree(current.toMap()));
+        JsonNode patched = Jackson3JsonPatch.apply(patch, mapper.valueToTree(current.toMap()));
         Map<String, Object> patchedDto = mapper.convertValue(patched, Map.class);
         return createSchemaManagerDTO(repoId, patchedDto, validateOnly);
     }

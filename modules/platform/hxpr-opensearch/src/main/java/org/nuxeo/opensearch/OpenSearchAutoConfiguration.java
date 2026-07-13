@@ -16,9 +16,16 @@
 package org.nuxeo.opensearch;
 
 import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
 
+/**
+ * Auto-configuration for the OpenSearch feature.
+ * <p>
+ * Beans are registered explicitly via {@link Import} instead of {@code @ComponentScan}: auto-configuration classes must
+ * never enable component scanning (see the Spring Boot reference, "Locating Auto-configuration Candidates"). Every new
+ * {@code @Component} added under {@code org.nuxeo.opensearch} must be listed here to be picked up by the application.
+ */
 @AutoConfiguration
-@ComponentScan(basePackages = { "org.nuxeo.opensearch" })
+@Import({ OpenSearchFilter.class })
 public class OpenSearchAutoConfiguration {
 }

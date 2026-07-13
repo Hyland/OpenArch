@@ -69,7 +69,7 @@ jobs:
           GH_ACTOR: hxpcscicduser
           GITHUB_TOKEN: ${{ secrets.GH_CI_CD_PAT }}
         run: |
-          mvn --batch-mode clean deploy \
+          mvn --batch-mode -T1C clean deploy \
             -DskipTests \
             -DrepositoryId=ghcr.io \
             -Ddistribution-repository.url=https://maven.pkg.github.com/HylandSoftware/hxpr-community-internal

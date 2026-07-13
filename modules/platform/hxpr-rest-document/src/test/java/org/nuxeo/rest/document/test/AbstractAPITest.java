@@ -33,6 +33,11 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.flipkart.zjsonpatch.Jackson3JsonPatch;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response.Status;
+import jakarta.ws.rs.core.Response.Status.Family;
+import jakarta.ws.rs.core.Response.StatusType;
 import org.apache.http.HttpStatus;
 import org.nuxeo.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.ecm.core.api.local.DummyLoginFeature;
@@ -45,6 +50,7 @@ import org.nuxeo.rest.document.test.multipart.MockMultiPartFilePart;
 import org.nuxeo.rest.exception.NuxeoExceptionController;
 import org.nuxeo.rest.utils.Versions;
 import org.nuxeo.runtime.springboot.junit.RuntimeSpringBootTest;
+import org.nuxeo.runtime.springboot.junit.SpringBootObjectMappers;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.skyscreamer.jsonassert.Customization;
@@ -59,15 +65,8 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.flipkart.zjsonpatch.JsonPatch;
-
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response.Status;
-import jakarta.ws.rs.core.Response.Status.Family;
-import jakarta.ws.rs.core.Response.StatusType;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * Unit-test version of the server document api rest testing.
@@ -108,7 +107,7 @@ public abstract class AbstractAPITest extends RuntimeSpringBootTest {
 
     protected static final String EVENT_DATA_PROPERTY = "data";
 
-    protected static final ObjectMapper MAPPER = new ObjectMapper();
+    protected static final ObjectMapper MAPPER = SpringBootObjectMappers.productive(ObjectMapperConfiguration.class);
 
     protected static final JSONComparator DOC_COMPARATOR = new CustomComparator(NON_EXTENSIBLE,
             new Customization(SYS_CREATED, NON_NULL_MATCHER), //
@@ -281,7 +280,7 @@ public abstract class AbstractAPITest extends RuntimeSpringBootTest {
         JsonNode baseJSON = MAPPER.readTree(baseJSONString);
         String patchString = ContentTestHelper.getReferenceContent(expectedPatchPath);
         JsonNode patch = MAPPER.readTree(patchString);
-        JsonNode patched = JsonPatch.apply(patch, baseJSON);
+        JsonNode patched = Jackson3JsonPatch.apply(patch, baseJSON);
         checkResponseBodyEquals(patched.toString(), result);
     }
 

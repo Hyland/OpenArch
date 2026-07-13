@@ -37,7 +37,6 @@ import static org.nuxeo.opensearch.tasks.IndexingScrollerTaskProcessor.PROPERTY_
 import static org.nuxeo.opensearch.tasks.IndexingTaskProcessor.INDEXING_TASK_NAME;
 import static org.nuxeo.runtime.api.login.LoginService.SYSTEM_USERNAME;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.time.Duration;
@@ -60,8 +59,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import com.hyland.hxpr.async.tasks.TaskService;
 import com.hyland.hxpr.async.tasks.message.ScrollerTask;
 import io.dropwizard.metrics5.MetricName;
@@ -385,7 +387,7 @@ public class OpenSearchServiceImpl extends DefaultComponent implements OpenSearc
                 throw new NuxeoException("Missing OpenSearch pipeline config resource: " + RRF_PIPELINE_CONFIG_RESOURCE);
             }
             return MAPPER.readTree(in);
-        } catch (IOException e) {
+        } catch (IOException | JacksonException e) {
             throw new NuxeoException("Failed to load OpenSearch pipeline config: " + RRF_PIPELINE_CONFIG_RESOURCE, e);
         }
     }
@@ -686,7 +688,7 @@ public class OpenSearchServiceImpl extends DefaultComponent implements OpenSearc
                     log.debug("Updating dynamic settings for index: {}", indexName);
                     getClient().updateIndexDynamicSettings(indexName, conf.getDynamicSettings());
                 }
-            } catch (IOException e) {
+            } catch (JacksonException e) {
                 log.error("Failed to update dynamic settings for index: {}", indexName, e);
             }
             if (!dropIfExists) {

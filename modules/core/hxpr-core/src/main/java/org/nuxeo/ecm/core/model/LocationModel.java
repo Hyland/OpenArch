@@ -26,8 +26,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.nuxeo.ecm.core.api.NuxeoException;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 public record LocationModel(TextLocation text, ImageLocation position, VideoLocation timestamp,
                             SpreadSheetLocation spreadsheet) {
@@ -82,7 +82,7 @@ public record LocationModel(TextLocation text, ImageLocation position, VideoLoca
         Map<String, Object> map;
         try {
             map = MAPPER.readValue(json, Map.class);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new NuxeoException("Invalid location json string %s".formatted(json), e);
         }
         return from(map);

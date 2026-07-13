@@ -29,7 +29,7 @@ import org.opensearch.client.opensearch._types.aggregations.StringTermsBucket;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 @Schema(name = "QueryResult", title = "Query Result", description = "Represents a query result.")
 public record TermsAggregationQueryResultDTO(

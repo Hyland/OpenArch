@@ -24,7 +24,6 @@ import static org.nuxeo.ecm.core.storage.mongodb.MongoDBRepository.MONGODB_ID;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.util.Map;
 
@@ -42,7 +41,8 @@ import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesExtension;
 import org.skyscreamer.jsonassert.JSONAssert;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.UncheckedIOException;
+import tools.jackson.databind.ObjectMapper;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.ReplaceOptions;

@@ -59,10 +59,11 @@ import org.nuxeo.runtime.kv.KeyValueService;
 import org.nuxeo.runtime.kv.KeyValueStore;
 import org.nuxeo.runtime.kv.KeyValueStoreProvider;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 /**
  * Transient Store storing properties in a Key/Value store, and storing blobs using a Blob Provider.
@@ -350,7 +351,7 @@ public class KeyValueBlobTransientStore implements TransientStoreProvider {
             }
             log.warn("Expected JSON object for params, got {}: {}", node.getNodeType(), json);
             return null;
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             log.error("Invalid params JSON: {}", json);
             return null;
         }
@@ -415,7 +416,7 @@ public class KeyValueBlobTransientStore implements TransientStoreProvider {
         }
         try {
             return mapper.readValue(json, LIST_STRING);
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             log.error("Invalid JSON array: {}", json);
             return null;
         }
@@ -427,7 +428,7 @@ public class KeyValueBlobTransientStore implements TransientStoreProvider {
         }
         try {
             return mapper.readValue(json, MAP_STRING_STRING);
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             log.error("Invalid JSON object: {}", json);
             return null;
         }
@@ -436,7 +437,7 @@ public class KeyValueBlobTransientStore implements TransientStoreProvider {
     protected String toJson(Object object) {
         try {
             return mapper.writeValueAsString(object);
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new NuxeoException(e);
         }
     }

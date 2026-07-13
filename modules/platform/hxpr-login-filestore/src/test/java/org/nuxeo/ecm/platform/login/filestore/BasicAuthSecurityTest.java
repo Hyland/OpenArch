@@ -14,11 +14,14 @@ import java.util.Base64;
 
 import org.junit.jupiter.api.Test;
 import org.nuxeo.ecm.platform.login.filestore.config.FileStoreUsersProperties;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.DefaultResourceLoader;
@@ -36,8 +39,19 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
  */
 @SpringBootTest(classes = {
         BasicAuthSecurityTest.TestApp.class }, properties = "hxpr.users.file=classpath:test-users.yml")
-@AutoConfigureMockMvc
 class BasicAuthSecurityTest {
+
+    @Autowired
+    private WebApplicationContext webApplicationContext;
+
+    private MockMvc mockMvc;
+
+    @BeforeEach
+    void setUp() {
+        this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
+                                      .apply(SecurityMockMvcConfigurers.springSecurity())
+                                      .build();
+    }
 
     private static String basicAuth(String username, String password) {
         String credentials = username + ":" + password;
@@ -45,7 +59,7 @@ class BasicAuthSecurityTest {
     }
 
     @Test
-    void authenticatedRequest_withValidCredentials_returns200(@Autowired MockMvc mockMvc) throws Exception {
+    void authenticatedRequest_withValidCredentials_returns200() throws Exception {
         // alice / secret are defined in test-users.yml
         mockMvc.perform(get("/ping").header(HttpHeaders.AUTHORIZATION, basicAuth("alice", "secret")))
                .andExpect(status().isOk());
@@ -53,18 +67,18 @@ class BasicAuthSecurityTest {
 
     @Test
     @WithAnonymousUser
-    void unauthenticatedRequest_returns401(@Autowired MockMvc mockMvc) throws Exception {
+    void unauthenticatedRequest_returns401() throws Exception {
         mockMvc.perform(get("/ping")).andExpect(status().isUnauthorized());
     }
 
     @Test
-    void wrongPassword_returns401(@Autowired MockMvc mockMvc) throws Exception {
+    void wrongPassword_returns401() throws Exception {
         mockMvc.perform(get("/ping").header(HttpHeaders.AUTHORIZATION, basicAuth("alice", "wrong")))
                .andExpect(status().isUnauthorized());
     }
 
     @Test
-    void unknownUser_returns401(@Autowired MockMvc mockMvc) throws Exception {
+    void unknownUser_returns401() throws Exception {
         mockMvc.perform(get("/ping").header(HttpHeaders.AUTHORIZATION, basicAuth("nobody", "secret")))
                .andExpect(status().isUnauthorized());
     }

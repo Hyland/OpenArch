@@ -26,19 +26,19 @@ import org.junit.jupiter.api.Test;
 import org.nuxeo.rest.validation.io.ValidationErrorDTO;
 import org.skyscreamer.jsonassert.JSONAssert;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 public class ValidationErrorDTOTest {
 
     private static void assertJson(String expected, ValidationErrorDTO dto)
-            throws JsonProcessingException, JSONException {
+            throws JacksonException, JSONException {
         String json = new ObjectMapper().writeValueAsString(dto);
         JSONAssert.assertEquals(expected, json, NON_EXTENSIBLE);
     }
 
     @Test
-    public void testAllFields() throws JsonProcessingException, JSONException {
+    public void testAllFields() throws JacksonException, JSONException {
         assertJson("""
                 {
                     "path": "path",
@@ -51,7 +51,7 @@ public class ValidationErrorDTOTest {
     }
 
     @Test
-    public void testNoParameters() throws JsonProcessingException, JSONException {
+    public void testNoParameters() throws JacksonException, JSONException {
         assertJson("""
                 {
                     "path": "path",
@@ -63,7 +63,7 @@ public class ValidationErrorDTOTest {
     }
 
     @Test
-    public void testNullParameters() throws JsonProcessingException, JSONException {
+    public void testNullParameters() throws JacksonException, JSONException {
         assertJson("""
                 {
                     "path": "path",
@@ -75,7 +75,7 @@ public class ValidationErrorDTOTest {
     }
 
     @Test
-    public void testBlank() throws JsonProcessingException, JSONException {
+    public void testBlank() throws JacksonException, JSONException {
         assertJson("""
                 {
                 }

@@ -53,14 +53,14 @@ import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.opensearch.api.OpenSearchClient;
 import org.nuxeo.runtime.api.Framework;
 import org.opensearch.client.json.JsonpMapper;
-import org.opensearch.client.json.jackson.JacksonJsonProvider;
-import org.opensearch.client.json.jackson.JacksonJsonpMapper;
+import org.opensearch.client.json.jackson3.JacksonJsonProvider;
+import org.opensearch.client.json.jackson3.JacksonJsonpMapper;
 import org.opensearch.client.transport.OpenSearchTransport;
 import org.opensearch.client.transport.httpclient5.ApacheHttpClient5TransportBuilder;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 import jakarta.json.spi.JsonProvider;
 
@@ -123,9 +123,11 @@ public class OpenSearchRestClientFactory {
 
     private static final String KEY_STORE_TYPE_DEFAULT = "JKS";
 
-    private static final ObjectMapper OBJECT_MAPPER = //
-            new ObjectMapper().registerModule(new JavaTimeModule())
-                              .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+    private static final JsonMapper OBJECT_MAPPER = JsonMapper.builder()
+            .configure(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+            // Jackson 3 changed FAIL_ON_TRAILING_TOKENS default to true; must disable for JsonpMapper
+            .configure(DeserializationFeature.FAIL_ON_TRAILING_TOKENS, false)
+            .build();
 
     @SuppressWarnings("resource") // factory for OpenSearchRestClient
     public OpenSearchClient create() {

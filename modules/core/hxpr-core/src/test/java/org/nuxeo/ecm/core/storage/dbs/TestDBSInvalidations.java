@@ -24,17 +24,17 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.exc.MismatchedInputException;
-import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
-import org.apache.commons.io.output.StringBuilderWriter;
-import org.junit.jupiter.api.Test;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashSet;
+
+import org.apache.commons.io.output.StringBuilderWriter;
+import org.junit.jupiter.api.Test;
+import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.databind.exc.MismatchedInputException;
+import tools.jackson.databind.exc.UnrecognizedPropertyException;
 
 public class TestDBSInvalidations {
 
@@ -149,9 +149,8 @@ public class TestDBSInvalidations {
                     "ids": ["foo", "bar"]
                 }
                 """;
-        assertThrows(UnrecognizedPropertyException.class, () ->
-                DBSInvalidations.deserialize(new ByteArrayInputStream(jsonInvalidMessage.getBytes()))
-        );
+        assertThrows(UnrecognizedPropertyException.class,
+                () -> DBSInvalidations.deserialize(new ByteArrayInputStream(jsonInvalidMessage.getBytes())));
 
         var jsonInvalidMessage2 = """
                 {
@@ -159,9 +158,8 @@ public class TestDBSInvalidations {
                     "nodeId": "node123"
                 }
                 """;
-        assertThrows(JsonParseException.class, () ->
-            DBSInvalidations.deserialize(new ByteArrayInputStream(jsonInvalidMessage2.getBytes()))
-        );
+        assertThrows(StreamReadException.class,
+                () -> DBSInvalidations.deserialize(new ByteArrayInputStream(jsonInvalidMessage2.getBytes())));
 
         var jsonInvalidMessage3 = """
                 {
@@ -169,9 +167,8 @@ public class TestDBSInvalidations {
                     "ids": "foo"
                 }
                 """;
-        assertThrows(MismatchedInputException.class, () ->
-                DBSInvalidations.deserialize(new ByteArrayInputStream(jsonInvalidMessage3.getBytes()))
-        );
+        assertThrows(MismatchedInputException.class,
+                () -> DBSInvalidations.deserialize(new ByteArrayInputStream(jsonInvalidMessage3.getBytes())));
     }
 
     @Test

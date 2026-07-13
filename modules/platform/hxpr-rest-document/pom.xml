@@ -17,7 +17,7 @@
   <dependencies>
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
+      <artifactId>spring-boot-starter-webmvc</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -68,7 +68,7 @@
       <artifactId>hxpr-rest-common</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.flipkart.zjsonpatch</groupId>
+      <groupId>io.github.vishwakarma</groupId>
       <artifactId>zjsonpatch</artifactId>
     </dependency>
     <dependency>

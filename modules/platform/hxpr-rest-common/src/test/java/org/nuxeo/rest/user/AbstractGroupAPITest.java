@@ -26,8 +26,6 @@ import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.nuxeo.ecm.platform.usermanager.UserManager;
 import org.nuxeo.runtime.springboot.junit.RuntimeSpringBootTest;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.web.servlet.MockMvc;
 
 /**
  * Abstract base class for {@link GroupAPI} tests, shared between community (mock) and enterprise (real IAM) variants.
@@ -52,8 +50,8 @@ public abstract class AbstractGroupAPITest extends RuntimeSpringBootTest {
     }
 
     @Test
-    void shouldFindGroupById(@Autowired MockMvc mockMvc) throws Exception {
-        mockMvc.perform(get(GroupAPI.PATH + "/" + TEST_GROUP_ID)
+    void shouldFindGroupById() throws Exception {
+        mvc.perform(get(GroupAPI.PATH + "/" + TEST_GROUP_ID)
             .header("Content-Type", "application/json")
             .accept("application/json"))
             .andExpect(status().isOk())
@@ -62,30 +60,30 @@ public abstract class AbstractGroupAPITest extends RuntimeSpringBootTest {
     }
 
     @Test
-    void shouldNotFindGroupByIdWhenNoExactMatch(@Autowired MockMvc mockMvc) throws Exception {
-        mockMvc.perform(get(GroupAPI.PATH + "/name")
+    void shouldNotFindGroupByIdWhenNoExactMatch() throws Exception {
+        mvc.perform(get(GroupAPI.PATH + "/name")
             .header("Content-Type", "application/json")
             .accept("application/json"))
             .andExpect(status().is(404));
     }
 
     @Test
-    void shouldFindGroupsByNamePart(@Autowired MockMvc mockMvc) throws Exception {
-        mockMvc.perform(get(GroupAPI.PATH + "?name=" + TEST_GROUP_NAME))
+    void shouldFindGroupsByNamePart() throws Exception {
+        mvc.perform(get(GroupAPI.PATH + "?name=" + TEST_GROUP_NAME))
             .andExpect(jsonPath("$.size()", is(2)))
             .andExpect(jsonPath("$[*].id", containsInAnyOrder(TEST_GROUP_ID, TEST_GROUP_ID_TWO)))
             .andExpect(jsonPath("$[*].name", containsInAnyOrder(TEST_GROUP_NAME, TEST_GROUP_NAME_TWO)));
     }
 
     @Test
-    void shouldFindNoGroupsByNamePartWhenNoMatch(@Autowired MockMvc mockMvc) throws Exception {
-        mockMvc.perform(get(GroupAPI.PATH + "?name=other"))
+    void shouldFindNoGroupsByNamePartWhenNoMatch() throws Exception {
+        mvc.perform(get(GroupAPI.PATH + "?name=other"))
             .andExpect(jsonPath("$.size()", is(0)));
     }
 
     @Test
-    void shouldReturnAllGroupsWhenNameEmpty(@Autowired MockMvc mockMvc) throws Exception {
-        mockMvc.perform(get(GroupAPI.PATH + "?name="))
+    void shouldReturnAllGroupsWhenNameEmpty() throws Exception {
+        mvc.perform(get(GroupAPI.PATH + "?name="))
                .andExpect(jsonPath("$.size()").value(Matchers.greaterThanOrEqualTo((minGroupSize()))));
     }
 }

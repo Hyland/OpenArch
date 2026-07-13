@@ -21,7 +21,7 @@ package com.hyland.hxpr.async.tasks.mem;
 import static com.hyland.hxpr.async.tasks.TaskStatus.State.COMPLETED;
 import static jakarta.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -34,7 +34,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.hyland.hxpr.async.tasks.TaskProcessor;
 import com.hyland.hxpr.async.tasks.message.Task;
 import org.nuxeo.runtime.api.Framework;
@@ -114,7 +114,7 @@ public class MemTaskQueue<T extends Task> implements Runnable {
             T task;
             try {
                 task = MAPPER.readValue(json, processor.getTaskClass());
-            } catch (IOException e) {
+            } catch (JacksonException e) {
                 log.error("Error deserializing message: {}", json, e);
                 return true;
             }

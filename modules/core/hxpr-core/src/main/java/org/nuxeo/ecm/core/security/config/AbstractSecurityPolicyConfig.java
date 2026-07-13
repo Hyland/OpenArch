@@ -36,9 +36,9 @@ import org.nuxeo.ecm.core.security.expr.UserAttributeExpressionSecurityPolicyCon
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "engine", visible = true)
 @JsonSubTypes({ //
@@ -75,12 +75,12 @@ public abstract class AbstractSecurityPolicyConfig implements SecurityPolicyConf
         this.mixin = mixin;
     }
 
-    public static Map<String, SecurityPolicyConfig> toSecurityPolicyConfigMap(String json) throws JsonProcessingException {
+    public static Map<String, SecurityPolicyConfig> toSecurityPolicyConfigMap(String json) throws JacksonException {
         return toSecurityPolicyConfigMap(toAbstractSecurityPolicyConfigMap(json));
     }
 
     public static Map<String, AbstractSecurityPolicyConfig> toAbstractSecurityPolicyConfigMap(String json)
-            throws JsonProcessingException {
+            throws JacksonException {
         Map<String, AbstractSecurityPolicyConfig> config = MAPPER.readValue(json, CONFIG_MAP_REFERENCE);
         config.replaceAll((k, v) -> v.cleanUp()); // makes sure values are normalized
         return config;

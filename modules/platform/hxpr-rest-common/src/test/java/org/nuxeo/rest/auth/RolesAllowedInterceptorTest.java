@@ -27,6 +27,7 @@ import org.aspectj.lang.JoinPoint;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.nuxeo.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.rest.auth.config.RolesAllowedInterceptorTestConfig;
 import org.nuxeo.rest.auth.config.RolesAllowedInterceptorTestConfig.TestBean;
@@ -61,6 +62,7 @@ public class RolesAllowedInterceptorTest {
 
     @BeforeEach
     public void setup() {
+        MockitoAnnotations.openMocks(this);
         when(rolesAllowedInterceptor.getCurrentUser()).thenReturn(currentUser);
     }
 

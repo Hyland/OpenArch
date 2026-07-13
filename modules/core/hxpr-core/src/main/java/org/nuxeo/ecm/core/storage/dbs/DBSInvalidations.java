@@ -30,8 +30,9 @@ import java.util.Objects;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.exc.UnrecognizedPropertyException;
 import com.hyland.hxpr.runtime.pubsub.SerializableAccumulableInvalidations;
 import org.apache.commons.io.IOUtils;
 import org.nuxeo.runtime.api.Framework;
@@ -47,7 +48,10 @@ import org.nuxeo.runtime.transaction.TransactionHelper;
  */
 public class DBSInvalidations implements SerializableAccumulableInvalidations {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final ObjectMapper MAPPER = new ObjectMapper().rebuild()
+            .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+            .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+            .build();
 
     /**
      * Maximum number of invalidations kept, after which only {@link #all} is set. This avoids accumulating too many
@@ -215,11 +219,11 @@ public class DBSInvalidations implements SerializableAccumulableInvalidations {
         return invalidations;
     }
 
-    private static DBSInvalidations deserializeJsonInvalidations(String json) throws IOException {
+    private static DBSInvalidations deserializeJsonInvalidations(String json) {
         DBSInvalidations invalidations;
         try {
            invalidations = MAPPER.readValue(json, DBSInvalidations.class);
-       } catch (UnrecognizedPropertyException e) {
+       } catch (UnrecognizedPropertyException _) {
             // The json message could be the serialization of a DBSInvalidationsList
             var list = MAPPER.readValue(json, DBSInvalidationsList.class);
             invalidations = new DBSInvalidations();

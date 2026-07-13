@@ -25,8 +25,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.opencensus.common.Scope;
 import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.Span;
@@ -41,7 +39,7 @@ import org.nuxeo.opensearch.api.OpenSearchIndexStoreStats;
 import org.nuxeo.opensearch.io.DocumentDTO;
 import org.opensearch.client.json.JsonpMapper;
 import org.opensearch.client.json.JsonpSerializable;
-import org.opensearch.client.json.jackson.JacksonJsonpMapper;
+import org.opensearch.client.json.jackson3.JacksonJsonpMapper;
 import org.opensearch.client.opensearch.OpenSearchClient;
 import org.opensearch.client.opensearch._types.HealthStatus;
 import org.opensearch.client.opensearch._types.OpenSearchException;
@@ -63,6 +61,9 @@ import org.opensearch.client.opensearch.generic.Response;
 import org.opensearch.client.opensearch.indices.stats.IndicesStatsMetric;
 import org.opensearch.client.transport.OpenSearchTransport;
 import org.opensearch.client.transport.httpclient5.ResponseException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * @since 9.3
@@ -102,6 +103,8 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
 
     @Override
     public ObjectMapper getObjectMapper() {
+        // Reuse the transport's configured mapper (FAIL_ON_TRAILING_TOKENS / date handling set up in
+        // OpenSearchRestClientFactory) rather than a bare mapper, so response parsing stays consistent.
         return ((JacksonJsonpMapper) jsonpMapper).objectMapper();
     }
 
@@ -356,7 +359,7 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
                 throw new NuxeoException(String.format(
                         "Expecting alias that point to a single index, alias: %s, got: %s", aliasName, jsonNode.toPrettyString()));
             }
-            return jsonNode.fieldNames().next();
+            return jsonNode.propertyNames().iterator().next();
         } catch (IOException | OpenSearchException e) {
             throw new NuxeoException(e);
         }
@@ -453,7 +456,7 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
                 message = null;
             }
             throw new NuxeoException("Error performing OpenSearch query: " + message, e, HttpStatus.SC_BAD_REQUEST);
-        } catch (IOException e) {
+        } catch (IOException | JacksonException e) {
             throw new NuxeoException(e);
         }
     }
@@ -524,7 +527,7 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
                 }
             }
             throw new NuxeoException(e);
-        } catch (IOException e) {
+        } catch (IOException | JacksonException e) {
             throw new NuxeoException(e);
         }
     }
@@ -602,7 +605,7 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
                 }
                 log.info("Successfully created OpenSearch pipeline: {}", pipelineId);
             }
-        } catch (IOException e) {
+        } catch (IOException | JacksonException e) {
             throw new NuxeoException(e);
         }
     }
@@ -624,7 +627,7 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
         if (client != null) {
             try {
                 client._transport().close();
-            } catch (IOException e) {
+            } catch (IOException | JacksonException e) {
                 log.warn("Fail to close the OpenSearch transport: {}", e.getMessage(), e);
             }
             client = null;

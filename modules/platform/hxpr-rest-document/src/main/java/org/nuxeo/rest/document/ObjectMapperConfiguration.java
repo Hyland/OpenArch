@@ -18,35 +18,37 @@
  */
 package org.nuxeo.rest.document;
 
-import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
+import org.springframework.boot.jackson.autoconfigure.JsonMapperBuilderCustomizer;
 import org.springframework.core.Ordered;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.cfg.JsonNodeFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.cfg.EnumFeature;
+import tools.jackson.databind.cfg.JsonNodeFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Customizes JSON Object mapper.
  */
 @Component
-public class ObjectMapperConfiguration implements Jackson2ObjectMapperBuilderCustomizer, Ordered {
+public class ObjectMapperConfiguration implements JsonMapperBuilderCustomizer, Ordered {
 
     @Override
-    public void customize(Jackson2ObjectMapperBuilder jacksonObjectMapperBuilder) {
-        jacksonObjectMapperBuilder.featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS,
-                JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES);
-        jacksonObjectMapperBuilder.featuresToEnable(
-                // use BigDecimal for input and output of floats to avoid losing precision
-                DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS,
-                MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS,
-                DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL,
-                DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
+    public void customize(JsonMapper.Builder builder) {
+        builder.configure(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+               .configure(JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES, false)
+               .configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, true)
+               // Jackson 3 enables FAIL_ON_NULL_FOR_PRIMITIVES by default; restore the Jackson 2 behaviour where a
+               // missing or null value for a primitive DTO property becomes the Java default instead of failing.
+               .configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false)
+               .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS, true)
+               .configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true)
+               .configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true)
+               .configure(EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL, true);
         // dates written as timestamps will be converted to long (not Calendar) when converting back to DocumentDTO
-        jacksonObjectMapperBuilder.modulesToInstall(new JavaTimeModule());
     }
 
     /*

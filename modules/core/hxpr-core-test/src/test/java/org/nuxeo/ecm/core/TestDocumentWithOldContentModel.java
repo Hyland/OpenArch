@@ -21,7 +21,6 @@ import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_READ_ACL;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.READ;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -45,16 +44,16 @@ import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesExtension;
 import org.nuxeo.runtime.transaction.TransactionHelper;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.flipkart.zjsonpatch.JsonPatch;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import com.flipkart.zjsonpatch.Jackson3JsonPatch;
 
 import jakarta.inject.Inject;
 
 @ExtendWith(FeaturesExtension.class)
 @Features(CoreFeature.class)
 @RepositoryConfig(cleanup = Granularity.METHOD)
-public class TestDocumentWithOldContentModel {
+class TestDocumentWithOldContentModel {
 
     private static final String MY_TYPE = "MyType";
 
@@ -69,16 +68,16 @@ public class TestDocumentWithOldContentModel {
     private String repositoryName;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         repositoryName = session.getRepositoryName();
     }
 
-    private void patchSchemaManager(String patch) throws IOException {
+    private void patchSchemaManager(String patch) {
         // read
         SchemaManager schemaManager = typeService.getSchemaManager(repositoryName);
         // patch
         Map<String, Object> dto = schemaManager.toDTO();
-        JsonNode patched = JsonPatch.apply(MAPPER.readTree(patch), MAPPER.valueToTree(dto));
+        JsonNode patched = Jackson3JsonPatch.apply(MAPPER.readTree(patch), MAPPER.valueToTree(dto));
         dto = MAPPER.convertValue(patched, Map.class);
         // save
         typeService.setSchemaManager(repositoryName, new SchemaManagerDTO(dto));
@@ -93,7 +92,7 @@ public class TestDocumentWithOldContentModel {
     }
 
     @Test
-    public void testOldType() throws IOException {
+    void testOldType() {
         // add custom MyType to content model
         patchSchemaManager("""
                 [
@@ -154,7 +153,7 @@ public class TestDocumentWithOldContentModel {
     }
 
     @Test
-    public void testOldConstraint() throws IOException {
+    void testOldConstraint() {
         // add custom MyType to content model with no constraint
         patchSchemaManager("""
                 [

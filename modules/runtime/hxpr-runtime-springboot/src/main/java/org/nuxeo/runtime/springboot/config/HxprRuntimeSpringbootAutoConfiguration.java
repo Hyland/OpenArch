@@ -18,13 +18,31 @@
 */
 package org.nuxeo.runtime.springboot.config;
 
+import org.nuxeo.runtime.springboot.actuator.HxprInfoContributor;
+import org.nuxeo.runtime.springboot.actuator.NuxeoApplicationHealthIndicator;
+import org.nuxeo.runtime.springboot.auth.NuxeoLoginFilter;
+import org.nuxeo.runtime.springboot.transaction.TransactionalInterceptor;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.context.annotation.Import;
 
+/**
+ * Auto-configuration for the Spring Boot runtime feature.
+ * <p>
+ * Beans are registered explicitly via {@link Import} instead of {@code @ComponentScan}: auto-configuration classes must
+ * never enable component scanning (see the Spring Boot reference, "Locating Auto-configuration Candidates"). Every new
+ * {@code @Component} / {@code @Configuration} added under {@code org.nuxeo.runtime.springboot} must be listed here to be
+ * picked up by the application.
+ */
 @AutoConfiguration
 @EnableAspectJAutoProxy
-@ComponentScan(basePackages = { "org.nuxeo.runtime.springboot" })
+@Import({
+        NuxeoApplicationConfiguration.class,
+        TransactionalInterceptor.class,
+        NuxeoLoginFilter.class,
+        HxprInfoContributor.class,
+        NuxeoApplicationHealthIndicator.class,
+})
 public class HxprRuntimeSpringbootAutoConfiguration {
 
 }

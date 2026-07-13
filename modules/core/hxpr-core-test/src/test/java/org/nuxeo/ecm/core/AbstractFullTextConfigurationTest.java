@@ -25,6 +25,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.flipkart.zjsonpatch.Jackson3JsonPatch;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -40,9 +41,8 @@ import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.mockito.RuntimeInject;
 import org.nuxeo.runtime.springboot.junit.RuntimeSpringBootTest;
 import org.nuxeo.runtime.transaction.TransactionHelper;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.flipkart.zjsonpatch.JsonPatch;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * Abstract class for tests requiring a full text configuration. It updates the model definition to create a new
@@ -63,7 +63,11 @@ public abstract class AbstractFullTextConfigurationTest extends RuntimeSpringBoo
     @RuntimeInject
     private TypeService typeService;
 
-    private static final ObjectMapper mapper = new ObjectMapper();
+    private static final ObjectMapper mapper = new ObjectMapper().rebuild()
+                                                                 .disable(
+                                                                         DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES) // in Jackson 3 changed
+                                                                 .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES) // Jackson 3 default
+                                                                 .build();
 
     @BeforeEach
     public void setupModelConfig() throws Exception {
@@ -135,7 +139,7 @@ public abstract class AbstractFullTextConfigurationTest extends RuntimeSpringBoo
                 """;
 
         var jsonPatch = mapper.readTree(patch);
-        var patched = JsonPatch.apply(jsonPatch, mapper.valueToTree(schemaManager.toDTO()));
+        var patched = Jackson3JsonPatch.apply(jsonPatch, mapper.valueToTree(schemaManager.toDTO()));
         return mapper.convertValue(patched, Map.class);
     }
 
@@ -151,7 +155,7 @@ public abstract class AbstractFullTextConfigurationTest extends RuntimeSpringBoo
                 """;
 
         var jsonPatch = mapper.readTree(patch);
-        var patched = JsonPatch.apply(jsonPatch, mapper.valueToTree(schemaManager.toDTO()));
+        var patched = Jackson3JsonPatch.apply(jsonPatch, mapper.valueToTree(schemaManager.toDTO()));
         return mapper.convertValue(patched, Map.class);
     }
 

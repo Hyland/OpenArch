@@ -36,8 +36,8 @@ import org.nuxeo.ecm.core.test.CoreFeature;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesExtension;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.flipkart.zjsonpatch.JsonPatch;
+import tools.jackson.databind.ObjectMapper;
+import com.flipkart.zjsonpatch.Jackson3JsonPatch;
 
 @ExtendWith(FeaturesExtension.class)
 @Features(CoreFeature.class)
@@ -116,7 +116,7 @@ public class FullTextConfigurationServiceTest {
                 """;
 
         var jsonPatch = mapper.readTree(patch);
-        var patched = JsonPatch.apply(jsonPatch, mapper.valueToTree(schemaManager.toDTO()));
+        var patched = Jackson3JsonPatch.apply(jsonPatch, mapper.valueToTree(schemaManager.toDTO()));
         return mapper.convertValue(patched, Map.class);
     }
 }

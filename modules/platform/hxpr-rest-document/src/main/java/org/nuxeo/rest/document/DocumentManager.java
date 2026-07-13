@@ -65,10 +65,10 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.flipkart.zjsonpatch.JsonPatch;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import com.flipkart.zjsonpatch.Jackson3JsonPatch;
 
 import jakarta.servlet.http.Part;
 import jakarta.ws.rs.core.Response;
@@ -206,12 +206,12 @@ public class DocumentManager implements ApplicationEventPublisherAware {
 
     @Transactional
     public DocumentDTO patchDocument(String repoId, DocumentRef docRef, String patchString, String condition)
-            throws JsonProcessingException {
+            throws JacksonException {
         // TODO transform patch "test" statements into conditional updates, for better atomicity
         JsonNode patch = objectMapper.readTree(patchString);
         // compute a DocumentDTO with explicit empty lists, so that patch can add to them using mylist/-
         DocumentDTO document = getDocument(repoId, docRef, false, true); // with empty lists
-        JsonNode patched = JsonPatch.apply(patch, objectMapper.convertValue(document, JsonNode.class));
+        JsonNode patched = Jackson3JsonPatch.apply(patch, objectMapper.convertValue(document, JsonNode.class));
         document = objectMapper.treeToValue(patched, DocumentDTO.class);
         return updateDocument(repoId, docRef, document, condition);
     }

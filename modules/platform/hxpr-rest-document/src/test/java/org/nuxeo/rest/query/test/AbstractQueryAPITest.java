@@ -41,6 +41,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import jakarta.ws.rs.core.Response.Status;
 import org.json.JSONException;
 import org.nuxeo.rest.document.DocumentDTO;
 import org.nuxeo.rest.document.ObjectMapperConfiguration;
@@ -59,10 +60,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import jakarta.ws.rs.core.Response.Status;
 
 @Import({ NuxeoExceptionController.class, ObjectMapperConfiguration.class })
 public abstract class AbstractQueryAPITest extends AbstractAPITest {
@@ -122,7 +119,7 @@ public abstract class AbstractQueryAPITest extends AbstractAPITest {
                         postObject.put(k, v);
                     }
                 });
-                String json = new ObjectMapper().writeValueAsString(postObject);
+                String json = mapper.writeValueAsString(postObject);
                 requestBuilder.content(json);
             }
         } else {

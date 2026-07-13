@@ -44,9 +44,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.flipkart.zjsonpatch.JsonPatch;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import com.flipkart.zjsonpatch.Jackson3JsonPatch;
 
 @Component
 public class SecurityPolicyManager {
@@ -94,7 +94,7 @@ public class SecurityPolicyManager {
         String patchBodyAsString = mapper.writeValueAsString(patchBody);
         JsonNode patch = mapper.readTree(patchBodyAsString);
         JsonNode configTree = mapper.valueToTree(getConfigWithoutHidden(repoId, null, false));
-        String patchedJson = mapper.writeValueAsString(JsonPatch.apply(patch, configTree));
+        String patchedJson = mapper.writeValueAsString(Jackson3JsonPatch.apply(patch, configTree));
         Map<String, SecurityPolicyConfig> config = AbstractSecurityPolicyConfig.toSecurityPolicyConfigMap(patchedJson);
         var sanitizedPatchBody = StringUtils.truncate(patchBodyAsString, 1024);
         log.info("Patching security policies: {}", sanitizedPatchBody);

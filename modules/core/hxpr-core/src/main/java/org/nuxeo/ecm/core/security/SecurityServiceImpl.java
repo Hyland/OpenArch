@@ -50,8 +50,8 @@ import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.model.ComponentStartOrders;
 import org.nuxeo.runtime.model.DefaultComponent;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import com.hyland.hxpr.config.Configurable;
 import com.hyland.hxpr.config.ConfigurationService;
 
@@ -249,7 +249,7 @@ public class SecurityServiceImpl extends DefaultComponent implements SecuritySer
         Map<String, SecurityPolicyConfig> config = getSecurityPolicyService(repositoryName).getSecurityPolicyConfigMap();
         try {
             return MAPPER.readValue(MAPPER.writeValueAsString(config), Map.class);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             // Should not get here
             log.error("Invalid config writing security policy: {}", config);
             return Collections.emptyMap();
@@ -268,7 +268,7 @@ public class SecurityServiceImpl extends DefaultComponent implements SecuritySer
             logViolations(violations);
 
             setLocally(repositoryName, service);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             // Should not get here
             log.error("Invalid config reading security policy: {}", map);
         }

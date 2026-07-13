@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.nuxeo.rest.config;
+package com.hyland.hxpr.autoconfiguration;
 
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
@@ -22,14 +22,23 @@ import io.swagger.v3.oas.models.media.Content;
 import java.util.List;
 import java.util.Map;
 
+import org.nuxeo.rest.config.RestDocumentComponentConfiguration;
 import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.Order;
 
+/**
+ * Auto-configuration for the REST document feature.
+ * <p>
+ * Component scanning is delegated to {@link RestDocumentComponentConfiguration} and pulled in through {@link Import}:
+ * auto-configuration classes must never enable component scanning themselves (see the Spring Boot reference, "Locating
+ * Auto-configuration Candidates"). The {@code @Bean} definitions below (springdoc customizers) remain on the
+ * auto-configuration class.
+ */
 @AutoConfiguration
-@ComponentScan(basePackages = { "org.nuxeo.rest" })
+@Import(RestDocumentComponentConfiguration.class)
 public class RestDocumentAutoConfiguration {
 
     /**

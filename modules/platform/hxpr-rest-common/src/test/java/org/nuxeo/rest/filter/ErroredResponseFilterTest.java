@@ -21,15 +21,14 @@ import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayInputStream;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ReadListener;
 import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
-import java.io.ByteArrayInputStream;
-
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
@@ -37,15 +36,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.nuxeo.runtime.springboot.junit.RuntimeSpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
-@SpringBootTest(classes = { ErroredResponseFilter.class })
+@SpringBootTest(classes = {
+        ErroredResponseFilter.class }, properties = ErroredResponseFilter.LOG_ERRORED_RESPONSE_ENABLED + "=true")
 @ExtendWith({ OutputCaptureExtension.class })
 class ErroredResponseFilterTest extends RuntimeSpringBootTest {
 
-    @SpyBean
+    @MockitoSpyBean
     ErroredResponseFilter erroredResponseFilter;
 
     private static final String PAYLOAD = "{ \"foo\": \"bar\" }";

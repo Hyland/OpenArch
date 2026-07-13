@@ -19,8 +19,9 @@
 package org.nuxeo.ecm.core.storage.dbs;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.exc.MismatchedInputException;
 import com.hyland.hxpr.runtime.pubsub.SerializableAccumulableInvalidations;
 
 import java.io.IOException;
@@ -30,22 +31,25 @@ import java.util.List;
 
 public class DBSInvalidationsList implements SerializableAccumulableInvalidations {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final ObjectMapper MAPPER = new ObjectMapper().rebuild()
+            .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+            .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+            .build();
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     protected List<DBSInvalidations> invalidations;
 
-    public static DBSInvalidationsList deserialize(String message) throws IOException  {
+    public static DBSInvalidationsList deserialize(String message) {
         DBSInvalidationsList list;
         try {
             list = MAPPER.readValue(message, DBSInvalidationsList.class);
-        } catch (MismatchedInputException e) {
+        } catch (MismatchedInputException _) {
             // The json message could be the serialization of a DBSInvalidations
             try {
                 var invalidations = MAPPER.readValue(message, DBSInvalidations.class);
                 list = new DBSInvalidationsList();
                 list.add(invalidations);
-            } catch (MismatchedInputException ee) {
+            } catch (MismatchedInputException _) {
                 return null;
             }
         }

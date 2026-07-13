@@ -42,8 +42,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.schema.SchemaManager;
 import org.nuxeo.ecm.core.schema.types.primitives.StringType;
-import org.opensearch.client.json.jackson.JacksonJsonProvider;
-import org.opensearch.client.json.jackson.JacksonJsonpMapper;
+import org.opensearch.client.json.jackson3.JacksonJsonProvider;
+import org.opensearch.client.json.jackson3.JacksonJsonpMapper;
 import org.opensearch.client.opensearch._types.FieldValue;
 import org.opensearch.client.opensearch._types.query_dsl.Query;
 import org.opensearch.client.opensearch._types.query_dsl.QueryBuilders;
@@ -51,16 +51,14 @@ import org.opensearch.client.opensearch._types.query_dsl.QueryVariant;
 import org.opensearch.client.opensearch.core.SearchRequest;
 import org.opensearch.client.util.ObjectBuilder;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import jakarta.json.stream.JsonGenerator;
 
 @ExtendWith(MockitoExtension.class)
 public class NxQueryBuilderTest {
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().registerModule(
-            new JavaTimeModule()).disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+    private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder().build();
 
     private static final String EMBEDDING_TYPE = "embedding-type";
 

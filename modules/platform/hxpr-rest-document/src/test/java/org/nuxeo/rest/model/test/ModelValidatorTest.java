@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 import org.nuxeo.ecm.core.schema.TypeService;
 import org.nuxeo.ecm.core.test.CoreFeature;
+import org.nuxeo.rest.document.ObjectMapperConfiguration;
 import org.nuxeo.rest.model.dto.ModelDTO;
 import org.nuxeo.rest.model.exception.ModelValidationException;
 import org.nuxeo.rest.model.validation.ModelValidator;
@@ -32,14 +33,12 @@ import org.nuxeo.runtime.mockito.RuntimeInject;
 import org.nuxeo.runtime.springboot.junit.RuntimeSpringBootTest;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @Features(CoreFeature.class)
 @Deploy("org.nuxeo.springboot.rest.document.test:OSGI-INF/test-repo-core-types-contrib.xml")
-@SpringBootTest(classes = { ModelValidator.class })
+@SpringBootTest(classes = { ModelValidator.class, ObjectMapperConfiguration.class })
 public class ModelValidatorTest extends RuntimeSpringBootTest {
 
     private static final String REPO_ID = "test";
@@ -49,8 +48,6 @@ public class ModelValidatorTest extends RuntimeSpringBootTest {
 
     @RuntimeInject
     TypeService typeService;
-
-    private static final ObjectMapper mapper = new ObjectMapper();
 
     @Test
     public void validatorDoNotThrowsExceptionIfFullTextFlagOnValidFields() throws Exception {

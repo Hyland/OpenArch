@@ -15,16 +15,16 @@
  */
 package org.nuxeo.rest.query.io.serializer;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.opensearch.client.opensearch._types.aggregations.StringTermsBucket;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueSerializer;
 
-public class AggregationsBucketSerializer extends JsonSerializer<List<StringTermsBucket>> {
+public class AggregationsBucketSerializer extends ValueSerializer<List<StringTermsBucket>> {
 
     private static final String KEY_FIELD = "key";
 
@@ -32,12 +32,12 @@ public class AggregationsBucketSerializer extends JsonSerializer<List<StringTerm
 
     @Override
     public void serialize(List<StringTermsBucket> stringTermsBuckets, JsonGenerator jg,
-                          SerializerProvider serializerProvider) throws IOException {
+                          SerializationContext serializerProvider) throws JacksonException {
         jg.writeStartArray();
         for (StringTermsBucket bucket : stringTermsBuckets) {
             jg.writeStartObject();
-            jg.writeStringField(KEY_FIELD, bucket.key());
-            jg.writeNumberField(DOC_COUNT_FIELD, bucket.docCount());
+            jg.writeStringProperty(KEY_FIELD, bucket.key());
+            jg.writeNumberProperty(DOC_COUNT_FIELD, bucket.docCount());
             jg.writeEndObject();
         }
         jg.writeEndArray();

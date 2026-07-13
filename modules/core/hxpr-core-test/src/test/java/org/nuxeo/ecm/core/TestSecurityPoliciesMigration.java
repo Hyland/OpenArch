@@ -18,7 +18,8 @@
  */
 package org.nuxeo.ecm.core;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import tools.jackson.databind.ObjectMapper;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.ReplaceOptions;
@@ -41,7 +42,6 @@ import org.nuxeo.runtime.test.runner.FeaturesExtension;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.util.List;

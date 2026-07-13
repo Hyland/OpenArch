@@ -6,7 +6,6 @@
  */
 package org.nuxeo.rest.query.io;
 
-import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
 
@@ -14,8 +13,8 @@ import org.nuxeo.ecm.core.api.NuxeoException;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * Represents a search_after cursor token for efficient pagination in OpenSearch.
@@ -62,7 +61,7 @@ public record SearchAfterToken(
         try {
             byte[] json = MAPPER.writeValueAsBytes(this);
             return Base64.getUrlEncoder().withoutPadding().encodeToString(json);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new NuxeoException("Failed to encode search_after token", e);
         }
     }
@@ -81,7 +80,7 @@ public record SearchAfterToken(
         try {
             byte[] json = Base64.getUrlDecoder().decode(encodedToken);
             return MAPPER.readValue(json, SearchAfterToken.class);
-        } catch (IOException | IllegalArgumentException e) {
+        } catch (JacksonException | IllegalArgumentException e) {
             throw new NuxeoException("Invalid search_after token: " + e.getMessage(), e);
         }
     }

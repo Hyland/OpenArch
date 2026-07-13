@@ -59,12 +59,12 @@ import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesExtension;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 
 @ExtendWith(FeaturesExtension.class)
 @Features(CoreFeature.class)
 @Deploy("org.nuxeo.ecm.core.test.tests:OSGI-INF/test-external-user-relations-security-policy.xml")
-public class TestExternalUserRelationsSecurityPolicy {
+class TestExternalUserRelationsSecurityPolicy {
 
     private static final String REPOSITORY = "test";
 
@@ -136,7 +136,7 @@ public class TestExternalUserRelationsSecurityPolicy {
     protected CoreSession session;
 
     @BeforeAll
-    public static void beforeClass() throws IOException {
+    static void beforeClass() {
         securityService = Framework.getService(SecurityService.class);
         // set a custom ExternalUserRelationsSecurityPolicy as the only security policy
         ExternalUserRelationsSecurityPolicy policy = setSinglePolicyWithPermissions(Set.of(READ, MANAGE_SECURITY));
@@ -146,7 +146,7 @@ public class TestExternalUserRelationsSecurityPolicy {
         policy.setExternalUserRelations(config);
     }
 
-    private static ExternalUserRelationsSecurityPolicy setSinglePolicyWithPermissions(Set<String> permissions) throws IOException {
+    private static ExternalUserRelationsSecurityPolicy setSinglePolicyWithPermissions(Set<String> permissions) {
         String permissionsJson = permissions == null ? null : MAPPER.writeValueAsString(permissions);
         String configJson = POLICY_CONFIG_JSON_WITH_PERMISSIONS.formatted(permissionsJson);
         Map<String, Object> configMap = MAPPER.readValue(configJson, Map.class);
@@ -158,7 +158,7 @@ public class TestExternalUserRelationsSecurityPolicy {
     }
 
     @BeforeEach
-    public void before() {
+    void before() {
         // create test documents
         fileRefRegular = createRegularFile("Regular File").getRef();
         fileRefAlice = createFileWithEmployee("alice", session).getRef();
@@ -182,7 +182,7 @@ public class TestExternalUserRelationsSecurityPolicy {
     }
 
     @Test
-    public void testConfigPersistence() throws IOException {
+    void testConfigPersistence() {
         // re-create a policy from scratch with same name, it will re-read the persisted config
         ExternalUserRelationsSecurityPolicy policy = setSinglePolicyWithPermissions(Set.of(READ, MANAGE_SECURITY));
         // check config is as expected
@@ -192,7 +192,7 @@ public class TestExternalUserRelationsSecurityPolicy {
     }
 
     @Test
-    public void testReadAdmin() {
+    void testReadAdmin() {
         // all documents are accessible
         assertNotNull(session.getDocument(fileRefRegular));
         assertNotNull(session.getDocument(fileRefAlice));
@@ -202,7 +202,7 @@ public class TestExternalUserRelationsSecurityPolicy {
     }
 
     @Test
-    public void testReadBob() {
+    void testReadBob() {
         CoreSession userSession = CoreInstance.getCoreSession(session.getRepositoryName(), userBob);
         // regular document is accessible
         assertNotNull(userSession.getDocument(fileRefRegular));
@@ -215,7 +215,7 @@ public class TestExternalUserRelationsSecurityPolicy {
     }
 
     @Test
-    public void testReadRegularUser() {
+    void testReadRegularUser() {
         CoreSession userSession = CoreInstance.getCoreSession(session.getRepositoryName(), regularUser);
         // regular document is accessible
         assertNotNull(userSession.getDocument(fileRefRegular));
@@ -227,7 +227,7 @@ public class TestExternalUserRelationsSecurityPolicy {
     }
 
     @Test
-    public void testSearchAdmin() {
+    void testSearchAdmin() {
         // all documents are accessible
         DocumentModelList docs = session.query(QUERY);
         List<DocumentRef> docRefs = docs.stream().map(DocumentModel::getRef).toList();
@@ -240,7 +240,7 @@ public class TestExternalUserRelationsSecurityPolicy {
     }
 
     @Test
-    public void testSearchUserBob() {
+    void testSearchUserBob() {
         CoreSession userSession = CoreInstance.getCoreSession(session.getRepositoryName(), userBob);
         DocumentModelList docs = userSession.query(QUERY);
         List<DocumentRef> docRefs = docs.stream().map(DocumentModel::getRef).toList();
@@ -256,7 +256,7 @@ public class TestExternalUserRelationsSecurityPolicy {
     }
 
     @Test
-    public void testSearchUserRegular() {
+    void testSearchUserRegular() {
         CoreSession userSession = CoreInstance.getCoreSession(session.getRepositoryName(), regularUser);
         DocumentModelList docs = userSession.query(QUERY);
         List<DocumentRef> docRefs = docs.stream().map(DocumentModel::getRef).toList();
@@ -271,7 +271,7 @@ public class TestExternalUserRelationsSecurityPolicy {
     }
 
     @Test
-    public void testAllowedUpdates() {
+    void testAllowedUpdates() {
         DocumentModel documentModel = session.getDocument(fileRefBob);
         InternalSession internalSession = ((SessionImpl) session).getSession();
         InternalDocument internalDocument = internalSession.getDocumentByUUID(documentModel.getId());
@@ -311,7 +311,7 @@ public class TestExternalUserRelationsSecurityPolicy {
     }
 
     @Test
-    public void testEmptyRelations() {
+    void testEmptyRelations() {
         assertConstructorViolation("The relations must be set as a list on security policy \"wdsecurity\"",
                 POLICY_CONTRACT_TYPES, POLICY_PERMISSIONS, POLICY_MIXIN, null, POLICY_USER_ATTRIBUTE);
         assertConstructorViolation("The relations must be set as a list on security policy \"wdsecurity\"",
@@ -319,7 +319,7 @@ public class TestExternalUserRelationsSecurityPolicy {
     }
 
     @Test
-    public void testBlankUserAttribute() {
+    void testBlankUserAttribute() {
         assertConstructorViolation("The userAttribute must be set on security policy \"wdsecurity\"",
                 POLICY_CONTRACT_TYPES, POLICY_PERMISSIONS, POLICY_MIXIN, POLICY_RELATIONS, " ");
     }

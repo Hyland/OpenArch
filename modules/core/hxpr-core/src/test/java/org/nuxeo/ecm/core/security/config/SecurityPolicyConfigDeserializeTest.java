@@ -28,31 +28,31 @@ import java.util.TreeSet;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 public class SecurityPolicyConfigDeserializeTest {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    private void assertConfig(Class<?> expectedClass, String json) throws JsonProcessingException {
+    private void assertConfig(Class<?> expectedClass, String json) throws JacksonException {
         assertConfig(expectedClass, AbstractSecurityPolicyConfig.class, json);
     }
 
-    private Map<String, AbstractSecurityPolicyConfig> assertMapFromJson(int expectedSize, String json) throws JsonProcessingException {
+    private Map<String, AbstractSecurityPolicyConfig> assertMapFromJson(int expectedSize, String json) throws JacksonException {
         Map<String, AbstractSecurityPolicyConfig> map = AbstractSecurityPolicyConfig.toAbstractSecurityPolicyConfigMap(json);
         assertEquals(expectedSize, map.size());
         return map;
     }
 
-    private <T> T assertConfig(Class<?> expectedClass, Class<T> baseClass, String json) throws JsonProcessingException {
+    private <T> T assertConfig(Class<?> expectedClass, Class<T> baseClass, String json) throws JacksonException {
         T t = MAPPER.readerFor(baseClass).readValue(json);
         assertEquals(expectedClass, t.getClass());
         return t;
     }
 
     @Test
-    public void deserializeAcl() throws JsonProcessingException {
+    public void deserializeAcl() throws JacksonException {
         assertConfig(ACLSecurityPolicyConfig.class, """
                 {
                   "engine": "acl"
@@ -60,7 +60,7 @@ public class SecurityPolicyConfigDeserializeTest {
     }
 
     @Test
-    public void deserializeLock() throws JsonProcessingException {
+    public void deserializeLock() throws JacksonException {
         assertConfig(LockSecurityPolicyConfig.class, """
                 {
                   "engine": "lock"
@@ -68,7 +68,7 @@ public class SecurityPolicyConfigDeserializeTest {
     }
 
     @Test
-    public void deserializeRetention() throws JsonProcessingException {
+    public void deserializeRetention() throws JacksonException {
         assertConfig(RetentionSecurityPolicyConfig.class, """
                 {
                   "engine": "retention"
@@ -76,7 +76,7 @@ public class SecurityPolicyConfigDeserializeTest {
     }
 
     @Test
-    public void deserializeSecurityLevel() throws JsonProcessingException {
+    public void deserializeSecurityLevel() throws JacksonException {
         SecurityLevelSecurityPolicyConfig config = (SecurityLevelSecurityPolicyConfig)
                 assertConfig(SecurityLevelSecurityPolicyConfig.class, AbstractSecurityPolicyConfig.class,"""
                 {
@@ -94,7 +94,7 @@ public class SecurityPolicyConfigDeserializeTest {
     }
 
     @Test
-    public void deserializeEmptyContentTypes() throws JsonProcessingException {
+    public void deserializeEmptyContentTypes() throws JacksonException {
         SecurityLevelSecurityPolicyConfig config = (SecurityLevelSecurityPolicyConfig)
                 assertConfig(SecurityLevelSecurityPolicyConfig.class, AbstractSecurityPolicyConfig.class,"""
                 {
@@ -105,7 +105,7 @@ public class SecurityPolicyConfigDeserializeTest {
     }
 
     @Test
-    public void deserializeNullContentTypes() throws JsonProcessingException {
+    public void deserializeNullContentTypes() throws JacksonException {
         SecurityLevelSecurityPolicyConfig config = (SecurityLevelSecurityPolicyConfig)
                 assertConfig(SecurityLevelSecurityPolicyConfig.class, AbstractSecurityPolicyConfig.class,"""
                 {
@@ -115,7 +115,7 @@ public class SecurityPolicyConfigDeserializeTest {
     }
 
     @Test
-    public void deserializeSingleContentType() throws JsonProcessingException {
+    public void deserializeSingleContentType() throws JacksonException {
         SecurityLevelSecurityPolicyConfig config = (SecurityLevelSecurityPolicyConfig)
                 assertConfig(SecurityLevelSecurityPolicyConfig.class, AbstractSecurityPolicyConfig.class,"""
                 {
@@ -126,7 +126,7 @@ public class SecurityPolicyConfigDeserializeTest {
     }
 
     @Test
-    public void deserializeMultipleContentTypes() throws JsonProcessingException {
+    public void deserializeMultipleContentTypes() throws JacksonException {
         SecurityLevelSecurityPolicyConfig config = (SecurityLevelSecurityPolicyConfig)
                 assertConfig(SecurityLevelSecurityPolicyConfig.class, AbstractSecurityPolicyConfig.class,"""
                 {
@@ -137,14 +137,14 @@ public class SecurityPolicyConfigDeserializeTest {
     }
 
     @Test
-    public void deserializeNoSecurityPolicies() throws JsonProcessingException {
+    public void deserializeNoSecurityPolicies() throws JacksonException {
         assertMapFromJson(0, """
                 {
                 }""");
     }
 
     @Test
-    public void deserializeEachSecurityPolicy() throws JsonProcessingException {
+    public void deserializeEachSecurityPolicy() throws JacksonException {
         assertMapFromJson(4, """
                 {
                   "acl": {
@@ -167,7 +167,7 @@ public class SecurityPolicyConfigDeserializeTest {
     }
 
     @Test
-    public void testMapFromJsonOrder() throws JsonProcessingException {
+    public void testMapFromJsonOrder() throws JacksonException {
         List<String> unsorted = List.of("iii", "v", "iv");
         List<String> sorted = List.of("iii", "iv", "v");
         var config = assertMapFromJson(1, """
@@ -189,7 +189,7 @@ public class SecurityPolicyConfigDeserializeTest {
     }
 
     @Test
-    public void testMapFromJsonNulls() throws JsonProcessingException {
+    public void testMapFromJsonNulls() throws JacksonException {
         var config = assertMapFromJson(1, """
                 {
                   "security clearance": {
@@ -204,7 +204,7 @@ public class SecurityPolicyConfigDeserializeTest {
     }
 
     @Test
-    public void deserializeMultipleSecurityLevelPolicies() throws JsonProcessingException {
+    public void deserializeMultipleSecurityLevelPolicies() throws JacksonException {
         assertMapFromJson(2, """
                 {
                   "organisational clearance": {

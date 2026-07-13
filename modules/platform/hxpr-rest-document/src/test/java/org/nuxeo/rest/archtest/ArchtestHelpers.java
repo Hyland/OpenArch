@@ -338,7 +338,8 @@ public class ArchtestHelpers {
         public void check(JavaMethod method, ConditionEvents events) {
             method.getParameters().forEach(p -> {
                 if (p.isAnnotatedWith(Parameter.class)) {
-                    if (p.getAnnotationOfType(Parameter.class).description().isBlank()) {
+                    Parameter param = p.getAnnotationOfType(Parameter.class);
+                    if (!param.hidden() && param.description().isBlank()) {
                         events.add(SimpleConditionEvent.violated(method,
                                 "On parameters in method %s annotated with @Parameter, Description is blank. Please provide description in the Parameter annotation.".formatted(
                                         method.getName())));

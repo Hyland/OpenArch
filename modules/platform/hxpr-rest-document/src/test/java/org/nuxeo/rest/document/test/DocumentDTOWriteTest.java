@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.UnaryOperator;
 
+import com.hyland.hxpr.async.tasks.TaskService;
 import org.junit.jupiter.api.Test;
 import org.nuxeo.ecm.core.api.Blobs;
 import org.nuxeo.ecm.core.api.CoreSession;
@@ -72,9 +73,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hyland.hxpr.async.tasks.TaskService;
-
 @Features({ CoreFeature.class, UserManagerMockFeature.class, MockitoFeature.class })
 @Deploy("org.nuxeo.springboot.rest.document")
 @Deploy("org.nuxeo.springboot.rest.document.test:OSGI-INF/test-write-types-contrib.xml")
@@ -100,9 +98,6 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
 
     @Autowired
     DocumentMapper documentMapper;
-
-    @Autowired
-    ObjectMapper mapper;
 
     private void setLifecycleState(DocumentModel doc, String state) {
         doc.getCoreSession().setDocumentSystemProp(doc.getRef(), SYS_LIFECYCLE_STATE, state);

@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
@@ -32,10 +31,11 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.nuxeo.ecm.core.api.DocumentModel;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.annotation.JsonCreator;
 
 /**
  * Holds information about what type of indexing operation must be processed. IndexingCommands are create "on the fly"
@@ -47,6 +47,8 @@ public class IndexingCommand implements Serializable {
     private static final Logger log = LogManager.getLogger(IndexingCommand.class);
 
     private static final long serialVersionUID = 1L;
+
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     public enum Type {
         INSERT, UPDATE, UPDATE_SECURITY, DELETE, UPDATE_DIRECT_CHILDREN,
@@ -74,6 +76,7 @@ public class IndexingCommand implements Serializable {
 
     protected static AtomicLong seq = new AtomicLong(0);
 
+    @JsonCreator
     protected IndexingCommand() {
     }
 
@@ -157,24 +160,23 @@ public class IndexingCommand implements Serializable {
 
     public String toJSON() throws IOException {
         StringWriter out = new StringWriter();
-        JsonFactory factory = new JsonFactory();
-        JsonGenerator jsonGen = factory.createGenerator(out);
+        JsonGenerator jsonGen = MAPPER.createGenerator(out);
         toJSON(jsonGen);
         out.flush();
         jsonGen.close();
         return out.toString();
     }
 
-    public void toJSON(JsonGenerator jsonGen) throws IOException {
+    public void toJSON(JsonGenerator jsonGen) {
         jsonGen.writeStartObject();
-        jsonGen.writeStringField("id", id);
-        jsonGen.writeStringField("type", String.format("%s", type));
-        jsonGen.writeStringField("docId", getTargetDocumentId());
-        jsonGen.writeStringField("path", path);
-        jsonGen.writeStringField("repo", getRepositoryName());
-        jsonGen.writeBooleanField("recurse", recurse);
-        jsonGen.writeBooleanField("sync", sync);
-        jsonGen.writeNumberField("order", getOrder());
+        jsonGen.writeStringProperty("id", id);
+        jsonGen.writeStringProperty("type", String.format("%s", type));
+        jsonGen.writeStringProperty("docId", getTargetDocumentId());
+        jsonGen.writeStringProperty("path", path);
+        jsonGen.writeStringProperty("repo", getRepositoryName());
+        jsonGen.writeBooleanProperty("recurse", recurse);
+        jsonGen.writeBooleanProperty("sync", sync);
+        jsonGen.writeNumberProperty("order", getOrder());
         jsonGen.writeEndObject();
     }
 
@@ -184,35 +186,31 @@ public class IndexingCommand implements Serializable {
      * @throws IllegalArgumentException if json is invalid or command is invalid
      */
     public static IndexingCommand fromJSON(String json) {
-        JsonFactory jsonFactory = new JsonFactory();
-        ObjectMapper mapper = new ObjectMapper(jsonFactory);
         try {
-            return fromJSON(mapper.readTree(json));
-        } catch (IOException e) {
+            return fromJSON(MAPPER.readTree(json));
+        } catch (JacksonException e) {
             throw new IllegalArgumentException("Invalid JSON: " + json, e);
         }
     }
 
     public static IndexingCommand fromJSON(JsonNode jsonNode) {
         IndexingCommand cmd = new IndexingCommand();
-        Iterator<Map.Entry<String, JsonNode>> fieldsIterator = jsonNode.fields();
-        while (fieldsIterator.hasNext()) {
-            Map.Entry<String, JsonNode> field = fieldsIterator.next();
+        for (Map.Entry<String, JsonNode> field : jsonNode.properties()) {
             String key = field.getKey();
             JsonNode value = field.getValue();
             if (value.isNull()) {
                 continue;
             }
             if ("type".equals(key)) {
-                cmd.type = Type.valueOf(value.textValue());
+                cmd.type = Type.valueOf(value.stringValue());
             } else if ("docId".equals(key)) {
-                cmd.targetDocumentId = value.textValue();
+                cmd.targetDocumentId = value.stringValue();
             } else if ("path".equals(key)) {
-                cmd.path = value.textValue();
+                cmd.path = value.stringValue();
             } else if ("repo".equals(key)) {
-                cmd.repositoryName = value.textValue();
+                cmd.repositoryName = value.stringValue();
             } else if ("id".equals(key)) {
-                cmd.id = value.textValue();
+                cmd.id = value.stringValue();
             } else if ("recurse".equals(key)) {
                 cmd.recurse = value.booleanValue();
             } else if ("sync".equals(key)) {
@@ -261,7 +259,7 @@ public class IndexingCommand implements Serializable {
     public String toString() {
         try {
             return toJSON();
-        } catch (IOException e) {
+        } catch (IOException | JacksonException _) {
             return super.toString();
         }
     }

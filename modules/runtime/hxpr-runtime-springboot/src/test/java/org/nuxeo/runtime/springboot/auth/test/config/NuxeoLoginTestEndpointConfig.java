@@ -21,10 +21,9 @@ package org.nuxeo.runtime.springboot.auth.test.config;
 import static org.springframework.security.config.Customizer.withDefaults;
 
 import org.nuxeo.runtime.springboot.auth.test.NuxeoLoginTestEndpoint;
+import org.mockito.Mockito;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -36,8 +35,14 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @TestConfiguration
 @EnableWebMvc
 @EnableWebSecurity
-@MockBeans(@MockBean(JwtDecoder.class))
 public class NuxeoLoginTestEndpointConfig {
+
+    // @MockitoBean does not work on @Configuration classes:
+    // https://github.com/spring-projects/spring-framework/issues/33934
+    @Bean
+    public JwtDecoder jwtDecoder() {
+        return Mockito.mock(JwtDecoder.class);
+    }
 
     @Bean
     public NuxeoLoginTestEndpoint nuxeoLoginTestEndpoint() {

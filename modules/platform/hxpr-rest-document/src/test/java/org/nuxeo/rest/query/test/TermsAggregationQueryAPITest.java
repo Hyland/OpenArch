@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import jakarta.ws.rs.core.Response;
 import org.json.JSONException;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
@@ -51,10 +52,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.ResultActions;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import jakarta.ws.rs.core.Response;
 
 @Features(RestQueryAggregationsFeature.class)
 @Tag("useOpenSearch")
@@ -137,7 +134,7 @@ public class TermsAggregationQueryAPITest extends AbstractQueryAPITest {
     protected void checkResultAgainstJson(TermsAggregationQueryResultDTO result, String expectedFilePath)
             throws IOException, JSONException {
         String expected = ContentTestHelper.getReferenceContent(expectedFilePath);
-        String actual = new ObjectMapper().writeValueAsString(result);
+        String actual = mapper.writeValueAsString(result);
         JSONAssert.assertEquals(expected, actual, true);
     }
 

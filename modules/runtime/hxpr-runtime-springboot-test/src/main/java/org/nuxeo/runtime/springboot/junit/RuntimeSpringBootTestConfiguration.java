@@ -20,66 +20,56 @@ import java.util.List;
 import org.nuxeo.runtime.springboot.auth.NuxeoLoginFilter;
 import org.nuxeo.runtime.springboot.transaction.TransactionalInterceptor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration;
-import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
-import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
+import org.springframework.boot.http.converter.autoconfigure.HttpMessageConvertersAutoConfiguration;
+import org.springframework.boot.jackson.autoconfigure.JacksonAutoConfiguration;
+import org.springframework.boot.jackson.autoconfigure.JsonMapperBuilderCustomizer;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 @TestConfiguration()
 @Import({ RuntimeTestState.class, HttpMessageConvertersAutoConfiguration.class, NuxeoLoginFilter.class,
-        TransactionalInterceptor.class, JacksonAutoConfiguration.class,
-        Jackson2ObjectMapperBuilder.class, MethodValidationPostProcessor.class })
+        TransactionalInterceptor.class, JacksonAutoConfiguration.class, MethodValidationPostProcessor.class })
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @EnableWebMvc
 @EnableWebSecurity
 public class RuntimeSpringBootTestConfiguration implements WebMvcConfigurer {
 
-    private ObjectMapper mapper;
+    private JsonMapper mapper;
 
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-        converters.add(messageConverter(mapper));
+        // StringHttpMessageConverter must precede the Jackson converter so that String response bodies (e.g. an
+        // endpoint returning raw JSON as a String) are written verbatim instead of being JSON-encoded (double quoted).
         converters.add(new StringHttpMessageConverter());
+        converters.add(messageConverter(mapper));
     }
 
     @Bean
     @Primary
     @ConditionalOnMissingBean
-    ObjectMapper testJacksonObjectMapper(Jackson2ObjectMapperBuilder builder) {
-        ObjectMapper objMapper = builder.createXmlMapper(false).build();
+    JsonMapper testJacksonObjectMapper(List<JsonMapperBuilderCustomizer> customizers) {
+        JsonMapper.Builder builder = JsonMapper.builder();
+        for (JsonMapperBuilderCustomizer customizer : customizers) {
+            customizer.customize(builder);
+        }
+        JsonMapper objMapper = builder.build();
         this.mapper = objMapper;
         return objMapper;
     }
 
     @Bean
-    @Primary
-    public Jackson2ObjectMapperBuilder testJacksonObjectMapperBuilder(ApplicationContext applicationContext,
-            List<Jackson2ObjectMapperBuilderCustomizer> customizers) {
-        final var builder = new Jackson2ObjectMapperBuilder();
-        builder.applicationContext(applicationContext);
-        for (Jackson2ObjectMapperBuilderCustomizer customizer : customizers) {
-            customizer.customize(builder);
-        }
-        return builder;
-    }
-
-    @Bean
-    public MappingJackson2HttpMessageConverter messageConverter(ObjectMapper objectMapper) {
-        return new MappingJackson2HttpMessageConverter(objectMapper);
+    public JacksonJsonHttpMessageConverter messageConverter(JsonMapper objectMapper) {
+        return new JacksonJsonHttpMessageConverter(objectMapper);
     }
 }

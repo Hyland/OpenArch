@@ -1,6 +1,5 @@
 package org.nuxeo.runtime.springboot.junit.security;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -24,8 +23,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
@@ -161,7 +163,7 @@ public final class IdpTestAuthenticationSupport {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new NuxeoException("Interrupted while fetching IDP token", e);
-        } catch (IOException e) {
+        } catch (IOException | JacksonException e) {
             throw new NuxeoException("Unable to fetch IDP token", e);
         }
     }

@@ -175,7 +175,7 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.flipkart.zjsonpatch</groupId>
+      <groupId>io.github.vishwakarma</groupId>
       <artifactId>zjsonpatch</artifactId>
       <scope>test</scope>
     </dependency>

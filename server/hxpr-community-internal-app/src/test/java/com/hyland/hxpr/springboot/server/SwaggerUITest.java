@@ -27,10 +27,10 @@ import org.junit.jupiter.api.Test;
  * Checks Swagger UI is always present.
  *
  */
-public class SwaggerUITest extends AbstractSpringTest {
+class SwaggerUITest extends AbstractSpringTest {
 
     @Test
-    public void testSwaggerUI() {
+    void testSwaggerUI() {
         when().get("/swagger-ui/index.html").then().statusCode(200);
     }
 

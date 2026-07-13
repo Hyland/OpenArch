@@ -157,7 +157,7 @@ public class UploadAPI {
     @ApiResponse202(description = "Returns the upload information after chunk addition to the upload.")
     @ApiResponse404(description = "Upload with the given id not found or cannot be accessed by user.")
     @SwaggerRequestBody(content = { @Content(mediaType = ALL_VALUE, schema = @Schema(type = "string", format = "binary")) })
-    public ResponseEntity<Upload> upload(@RequestHeader HttpHeaders headers,
+    public ResponseEntity<Upload> upload(@Parameter(hidden = true) @RequestHeader HttpHeaders headers,
             @RequestParam(value = "id", required = false) @Parameter(description = "The upload id. A new upload is created if null.") String id,
             @RequestParam(value = "fileName", required = false) @Parameter(description = "The file name.") String fileName,
             @RequestParam(value = "mimeType", required = false) @Parameter(description = "The file mimetype.") String queryMimeType,

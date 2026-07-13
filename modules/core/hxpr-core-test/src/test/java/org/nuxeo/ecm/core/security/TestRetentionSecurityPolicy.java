@@ -29,7 +29,8 @@ import static org.nuxeo.ecm.core.api.security.SecurityConstants.READ;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.WRITE;
 import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FILE;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import jakarta.inject.Inject;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -53,7 +54,6 @@ import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesExtension;
 
-import java.io.IOException;
 import java.time.Instant;
 import java.util.Map;
 
@@ -121,7 +121,7 @@ public class TestRetentionSecurityPolicy {
     private static Map<String, Object> asMap(Object config) {
         try {
             return MAPPER.readValue(MAPPER.writeValueAsString(config), Map.class);
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new RuntimeException(e);
         }
     }

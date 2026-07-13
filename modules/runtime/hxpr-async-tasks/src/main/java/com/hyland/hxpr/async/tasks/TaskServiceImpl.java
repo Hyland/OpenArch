@@ -23,7 +23,6 @@ import static com.hyland.hxpr.async.tasks.TaskStatus.State.COMPLETED;
 import static com.hyland.hxpr.async.tasks.TaskStatus.State.SCHEDULED;
 import static com.hyland.hxpr.async.tasks.TaskStatus.State.UNKNOWN;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -49,10 +48,10 @@ import org.nuxeo.runtime.model.DefaultComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.json.JsonMapper;
 import com.hyland.hxpr.async.tasks.message.ScrollerTask;
 import com.hyland.hxpr.async.tasks.message.Task;
 
@@ -82,9 +81,9 @@ public class TaskServiceImpl extends DefaultComponent implements TaskService, Co
     private static final Pattern UUID_REGEX =
             Pattern.compile("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$");
 
-    public static final ObjectMapper MAPPER = //
-            new ObjectMapper().registerModule(new JavaTimeModule())
-                              .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+    public static final ObjectMapper MAPPER = JsonMapper.builder()
+            .configure(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+            .build();
 
     private final Map<String, TaskRunner<?>> runners = new HashMap<>();
 
@@ -282,7 +281,7 @@ public class TaskServiceImpl extends DefaultComponent implements TaskService, Co
         if (serializedStatus != null) {
             try {
                 return MAPPER.readValue(serializedStatus, TaskStatus.class);
-            } catch (IOException e) {
+            } catch (JacksonException e) {
                 throw new RuntimeException(e);
             }
         }
@@ -296,7 +295,7 @@ public class TaskServiceImpl extends DefaultComponent implements TaskService, Co
     private String serializeStatus(TaskStatus status) {
         try {
             return MAPPER.writeValueAsString(status);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             log.error("Error when serializing status: {}", status, e);
             throw new RuntimeException(e);
         }
@@ -305,7 +304,7 @@ public class TaskServiceImpl extends DefaultComponent implements TaskService, Co
     private String serializeTask(Task task) {
         try {
             return MAPPER.writeValueAsString(task);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             log.error("Error when serializing task: {}", task, e);
             throw new RuntimeException(e);
         }

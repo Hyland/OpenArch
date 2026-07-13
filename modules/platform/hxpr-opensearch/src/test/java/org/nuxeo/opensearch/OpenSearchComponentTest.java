@@ -57,7 +57,7 @@ import org.opensearch.client.opensearch.generic.Request;
 import org.opensearch.client.opensearch.generic.Requests;
 import org.opensearch.client.opensearch.generic.Response;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.hyland.hxpr.async.tasks.TaskService;
 
 @ExtendWith(FeaturesExtension.class)

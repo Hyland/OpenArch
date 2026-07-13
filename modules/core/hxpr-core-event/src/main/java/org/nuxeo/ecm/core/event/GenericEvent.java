@@ -15,16 +15,17 @@
  */
 package org.nuxeo.ecm.core.event;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.event.impl.EventContextImpl;
 import org.nuxeo.runtime.api.Framework;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 public abstract class GenericEvent {
 
@@ -37,9 +38,10 @@ public abstract class GenericEvent {
         // Configure ObjectMapper to serialize all fields (including private ones) and exclude null values.
         // This ensures that the event payloads are complete and concise for downstream consumers.
         // - This static configuration guarantees consistent serialization for all subclasses of GenericEvent.
-        MAPPER = new ObjectMapper();
-        MAPPER.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
-        MAPPER.setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL);
+        MAPPER = JsonMapper.builder()
+                           .changeDefaultVisibility(vc -> vc.withVisibility(PropertyAccessor.FIELD, Visibility.ANY))
+                           .changeDefaultPropertyInclusion(incl -> JsonInclude.Value.construct(JsonInclude.Include.NON_NULL, incl.getContentInclusion()))
+                           .build();
     }
 
     protected GenericEvent() {
@@ -51,7 +53,7 @@ public abstract class GenericEvent {
     protected String asString() {
         try {
             return MAPPER.writeValueAsString(this);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new NuxeoException(e);
         }
     }

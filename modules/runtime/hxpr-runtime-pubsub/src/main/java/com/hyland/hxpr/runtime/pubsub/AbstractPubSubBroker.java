@@ -20,11 +20,12 @@ package com.hyland.hxpr.runtime.pubsub;
 
 import java.io.IOException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.commons.io.output.StringBuilderWriter;
 import org.nuxeo.common.utils.TooLargeException;
 import org.nuxeo.runtime.api.Framework;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import tools.jackson.core.JacksonException;
 
 /**
  * Encapsulates message sending and receiving through the {@link PubSubService}.
@@ -41,6 +42,8 @@ import org.nuxeo.runtime.api.Framework;
  */
 public abstract class AbstractPubSubBroker<T extends SerializableMessage> {
 
+    protected static final String DISCRIMINATOR_SEP = ":";
+
     private static final Logger log = LoggerFactory.getLogger(AbstractPubSubBroker.class);
 
     protected String topic;
@@ -53,7 +56,7 @@ public abstract class AbstractPubSubBroker<T extends SerializableMessage> {
     /**
      * Initializes the broker.
      *
-     * @param topic the topic
+     * @param topic         the topic
      * @param discriminator the discriminator
      */
     public void initialize(String topic, String discriminator) {
@@ -74,8 +77,6 @@ public abstract class AbstractPubSubBroker<T extends SerializableMessage> {
         PubSubService pubSubService = Framework.getService(PubSubService.class);
         pubSubService.unregisterSubscriber(topic, this::subscriber);
     }
-
-    protected static final String DISCRIMINATOR_SEP = ":";
 
     /**
      * Sends a message to other nodes.
@@ -132,7 +133,9 @@ public abstract class AbstractPubSubBroker<T extends SerializableMessage> {
         T message;
         try {
             message = deserialize(messageString.substring(start));
-        } catch (IOException e) {
+        } catch (IOException | JacksonException e) {
+            // JacksonException extends RuntimeException in Jackson 3 (not IOException as in Jackson 2),
+            // so it must be caught explicitly to prevent an uncaught exception from crashing this subscriber thread.
             log.error("Failed to deserialize message", e);
             // don't crash for this
             return;

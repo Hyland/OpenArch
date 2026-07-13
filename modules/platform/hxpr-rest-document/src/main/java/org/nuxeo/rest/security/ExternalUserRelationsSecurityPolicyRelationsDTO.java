@@ -22,5 +22,5 @@ import java.util.List;
 import jakarta.validation.Valid;
 
 @Schema(name = "ExternalUserRelationsSecurityPolicyRelations", description = "Configuration for the External User Relations Security Policy relations data")
-public record ExternalUserRelationsSecurityPolicyRelationsDTO(@Valid List<ExternalUserRelationsSecurityPolicyUserDTO> users) {
+public record ExternalUserRelationsSecurityPolicyRelationsDTO(List<@Valid ExternalUserRelationsSecurityPolicyUserDTO> users) {
 }

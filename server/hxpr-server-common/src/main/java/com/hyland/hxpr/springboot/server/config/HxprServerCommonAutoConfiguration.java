@@ -19,17 +19,31 @@
 package com.hyland.hxpr.springboot.server.config;
 
 import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
+
+import com.hyland.hxpr.springboot.server.ApplicationLifeCycle;
+import com.hyland.hxpr.springboot.server.GreetingResourceController;
+import com.hyland.hxpr.springboot.server.RootResourceController;
+import com.hyland.hxpr.springboot.server.VersionController;
 
 /**
  * Spring Boot auto-configuration for HxPR Community Server Common.
  * <p>
- * Activates component scanning over {@code com.hyland.hxpr.springboot.server} so that all shared
- * server beans (lifecycle listeners, controllers, configuration classes) are registered automatically
- * when this module is on the classpath.
+ * Shared server beans (lifecycle listeners, controllers, configuration classes) are registered explicitly via
+ * {@link Import} instead of {@code @ComponentScan}: auto-configuration classes must never enable component scanning (see
+ * the Spring Boot reference, "Locating Auto-configuration Candidates"). Every new {@code @Component} /
+ * {@code @Controller} / {@code @Configuration} added under {@code com.hyland.hxpr.springboot.server} must be listed here
+ * to be picked up by the application.
  */
 @AutoConfiguration
-@ComponentScan(basePackages = { "com.hyland.hxpr.springboot.server" })
+@Import({
+        ApplicationLifeCycle.class,
+        VersionController.class,
+        GreetingResourceController.class,
+        RootResourceController.class,
+        CorsPolicyConfiguration.class,
+        OpenApiConfiguration.class,
+})
 public class HxprServerCommonAutoConfiguration {
 
 }

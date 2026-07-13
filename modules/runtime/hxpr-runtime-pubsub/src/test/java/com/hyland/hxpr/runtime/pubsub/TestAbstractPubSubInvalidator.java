@@ -29,6 +29,9 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
+import java.io.IOException;
+import java.io.Writer;
+
 import org.apache.commons.io.output.StringBuilderWriter;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,9 +42,7 @@ import org.nuxeo.runtime.mockito.RuntimeService;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesExtension;
 import org.nuxeo.runtime.test.runner.RuntimeFeature;
-
-import java.io.IOException;
-import java.io.Writer;
+import tools.jackson.core.exc.StreamReadException;
 
 @ExtendWith(FeaturesExtension.class)
 @Features({RuntimeFeature.class, MockitoFeature.class})
@@ -194,6 +195,17 @@ public class TestAbstractPubSubInvalidator {
         }
     }
 
+    @Test
+    public void testSubscriberSwallowsJacksonException() {
+        ThrowingDummyInvalidator invalidator = new ThrowingDummyInvalidator();
+        invalidator.initialize("topic", "d");
+
+        // must not propagate: JacksonException extends RuntimeException in Jackson 3 and would crash the subscriber thread
+        invalidator.subscriber("topic", "other:payload");
+
+        assertTrue(invalidator.receiveInvalidations().isEmpty());
+    }
+
     public static class DummyInvalidator extends AbstractPubSubInvalidationsAccumulator<DummyInvalidations> {
 
         @Override
@@ -204,6 +216,14 @@ public class TestAbstractPubSubInvalidator {
         @Override
         public DummyInvalidations deserialize(String message) throws IOException {
             return DummyInvalidations.deserialize(message);
+        }
+    }
+
+    public static class ThrowingDummyInvalidator extends DummyInvalidator {
+
+        @Override
+        public DummyInvalidations deserialize(String message) throws IOException {
+            throw new StreamReadException("malformed JSON");
         }
     }
 

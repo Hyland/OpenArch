@@ -15,10 +15,27 @@
  */
 package org.nuxeo.ecm.core.config;
 
+import org.nuxeo.ecm.core.storage.FullTextService;
+import org.nuxeo.ecm.core.storage.FulltextSupportProvider;
+import org.nuxeo.ecm.core.storage.config.FulltextSpringContext;
+import org.nuxeo.ecm.core.storage.config.FulltextSupportConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
 
+/**
+ * Auto-configuration for the Nuxeo ECM core storage feature.
+ * <p>
+ * Beans are registered explicitly via {@link Import} instead of {@code @ComponentScan}: auto-configuration classes must
+ * never enable component scanning (see the Spring Boot reference, "Locating Auto-configuration Candidates"). Every new
+ * {@code @Component} / {@code @Configuration} added under {@code org.nuxeo.ecm.core.storage} must be listed here to be
+ * picked up by the application.
+ */
 @AutoConfiguration
-@ComponentScan(basePackages = { "org.nuxeo.ecm.core.storage" })
+@Import({
+        FulltextSupportConfiguration.class,
+        FulltextSpringContext.class,
+        FullTextService.class,
+        FulltextSupportProvider.class,
+})
 public class NuxeoEcmCoreAutoConfiguration {
 }

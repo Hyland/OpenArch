@@ -23,6 +23,9 @@ import static org.nuxeo.runtime.test.runner.FeaturesLoader.Direction.FORWARD;
 
 import java.lang.reflect.Method;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Stage;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -33,6 +36,7 @@ import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.mockito.RuntimeInjector;
 import org.nuxeo.runtime.springboot.NuxeoApplication;
 import org.nuxeo.runtime.springboot.auth.NuxeoLoginFilter;
+import org.nuxeo.runtime.springboot.junit.security.IdpTestAuthenticationSupport;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesLoader;
@@ -42,7 +46,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Import;
@@ -53,12 +56,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-
-import org.nuxeo.runtime.springboot.junit.security.IdpTestAuthenticationSupport;
-
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Stage;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * Base class to extend to benefit for {@link Features} and {@link Deploy} annotations in a {@link SpringBootTest}
@@ -79,10 +77,22 @@ import com.google.inject.Stage;
 @SpringBootTest()
 @Import({ RuntimeSpringBootTestConfiguration.class })
 @TestPropertySource(properties = { "spring.profiles.active=default,local" })
-@AutoConfigureMockMvc
 public abstract class RuntimeSpringBootTest {
 
     protected MockMvc mvc;
+
+    /**
+     * The application's productive Jackson {@link ObjectMapper}, autowired from the test context. It is the same
+     * {@code @Primary} mapper assembled by {@link RuntimeSpringBootTestConfiguration}, applying every
+     * {@link org.springframework.boot.jackson.autoconfigure.JsonMapperBuilderCustomizer} bean present in the context
+     * exactly as Spring Boot does at runtime. Subclasses should use this instead of a bare {@code new ObjectMapper()}.
+     * <p>
+     * For it to fully match production, the application's customizers must be in the context: a full component-scan
+     * {@code @SpringBootTest} picks them up automatically, whereas narrow {@code @SpringBootTest(classes = ...)} slices
+     * must add the relevant customizer (e.g. {@code ObjectMapperConfiguration.class}) to their class list.
+     */
+    @Autowired
+    protected ObjectMapper mapper;
 
     /**
      * Retrieves the {@link RuntimeTestState} bean from the application context.

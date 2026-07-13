@@ -27,8 +27,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.junit.jupiter.api.Test;
 import org.nuxeo.ecm.platform.usermanager.UserManager;
 import org.nuxeo.runtime.springboot.junit.RuntimeSpringBootTest;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.web.servlet.MockMvc;
 
 /**
  * Abstract base class for {@link UserAPI} tests, shared between community (mock) and enterprise (real IAM) variants.
@@ -43,20 +41,20 @@ public abstract class AbstractUserAPITest extends RuntimeSpringBootTest {
     static final String TEST_USER_3_ID = "850edbd1-33c3-4653-b7c9-15e594570f29";
 
     @Test
-    void testExistentUser(@Autowired MockMvc mockMvc) throws Exception {
-        mockMvc.perform(get(UserAPI.PATH + "/" + TEST_USER_ID))
+    void testExistentUser() throws Exception {
+        mvc.perform(get(UserAPI.PATH + "/" + TEST_USER_ID))
                .andExpect(jsonPath("$.id", is(TEST_USER_ID)));
     }
 
     @Test
-    void testNonexistentUser(@Autowired MockMvc mockMvc) throws Exception {
-        mockMvc.perform(get(UserAPI.PATH + "/notfound"))
+    void testNonexistentUser() throws Exception {
+        mvc.perform(get(UserAPI.PATH + "/notfound"))
                .andExpect(status().is(404));
     }
 
     @Test
-    void shouldFindUserByUserNamePart(@Autowired MockMvc mockMvc) throws Exception {
-        mockMvc.perform(get(UserAPI.PATH + "?name=myUserNameTwo"))
+    void shouldFindUserByUserNamePart() throws Exception {
+        mvc.perform(get(UserAPI.PATH + "?name=myUserNameTwo"))
                .andExpect(jsonPath("$.size()", is(1)))
                .andExpect(jsonPath("$[0].id", is(TEST_USER_3_ID)))
                .andExpect(jsonPath("$[0].email", is("firstTwo.lastnameTwo@hyland.com")))
@@ -66,28 +64,28 @@ public abstract class AbstractUserAPITest extends RuntimeSpringBootTest {
     }
 
     @Test
-    void shouldFindUsersByUserNamePart(@Autowired MockMvc mockMvc) throws Exception {
-        mockMvc.perform(get(UserAPI.PATH + "?name=UserName"))
+    void shouldFindUsersByUserNamePart() throws Exception {
+        mvc.perform(get(UserAPI.PATH + "?name=UserName"))
                .andExpect(jsonPath("$[0].id", is(oneOf(TEST_USER_2_ID, TEST_USER_3_ID))));
-        mockMvc.perform(get(UserAPI.PATH + "?name=UserN"))
+        mvc.perform(get(UserAPI.PATH + "?name=UserN"))
                .andExpect(jsonPath("$[1].id", is(oneOf(TEST_USER_2_ID, TEST_USER_3_ID))));
     }
 
     @Test
-    void shouldFindNoUsersByNamePartWhenNoMatch(@Autowired MockMvc mockMvc) throws Exception {
-        mockMvc.perform(get(UserAPI.PATH + "?name=Kas"))
+    void shouldFindNoUsersByNamePartWhenNoMatch() throws Exception {
+        mvc.perform(get(UserAPI.PATH + "?name=Kas"))
                .andExpect(jsonPath("$.size()", is(0)));
     }
 
     @Test
-    void shouldFindUserWithSameFirstAndLastNameOnlyOnce(@Autowired MockMvc mockMvc) throws Exception {
-        mockMvc.perform(get(UserAPI.PATH + "?name=tiry"))
+    void shouldFindUserWithSameFirstAndLastNameOnlyOnce() throws Exception {
+        mvc.perform(get(UserAPI.PATH + "?name=tiry"))
                .andExpect(jsonPath("$.size()", is(1)));
     }
 
     @Test
-    void shouldReturnBadRequestWhenNameEmpty(@Autowired MockMvc mockMvc) throws Exception {
-        mockMvc.perform(get(UserAPI.PATH + "?name="))
+    void shouldReturnBadRequestWhenNameEmpty() throws Exception {
+        mvc.perform(get(UserAPI.PATH + "?name="))
                .andExpect(status().is(400));
     }
 }

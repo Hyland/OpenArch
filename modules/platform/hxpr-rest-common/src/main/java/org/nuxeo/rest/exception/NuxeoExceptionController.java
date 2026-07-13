@@ -26,6 +26,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.flipkart.zjsonpatch.JsonPatchApplicationException;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.ws.rs.WebApplicationException;
 import org.apache.commons.lang3.StringUtils;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.api.NuxeoPrincipal;
@@ -49,15 +52,9 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
-import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
-import com.flipkart.zjsonpatch.JsonPatchApplicationException;
-
-import jakarta.validation.ConstraintViolationException;
-import jakarta.ws.rs.WebApplicationException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.exc.InvalidFormatException;
+import tools.jackson.databind.exc.UnrecognizedPropertyException;
 
 @ControllerAdvice
 public class NuxeoExceptionController {
@@ -72,7 +69,8 @@ public class NuxeoExceptionController {
     private boolean showStackTrace;
 
     HxprErrorResponse createErrorResponse(int statusCode, Throwable cause) {
-        String message = cause.getMessage();
+        // Jackson 3 appends source location to getMessage(); prefer the original message to keep responses clean.
+        String message = (cause instanceof JacksonException je) ? je.getOriginalMessage() : cause.getMessage();
         if (statusCode == HttpStatus.INTERNAL_SERVER_ERROR.value()) {
             message = HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase();
         }
@@ -149,7 +147,7 @@ public class NuxeoExceptionController {
         if (exception.getCause() instanceof DateTimeParseException) {
             String messageFormat = "Invalid date format for '%s' date";
             var exceptionPath = exception.getPath();
-            String fieldName = exceptionPath.get(exceptionPath.size() - 1).getFieldName();
+            String fieldName = exceptionPath.get(exceptionPath.size() - 1).getPropertyName();
             return createHxprErrorResponseResponseEntity(status, messageFormat.formatted(fieldName),
                     exception.getCause());
         }
@@ -168,7 +166,9 @@ public class NuxeoExceptionController {
         if (cause.getCause() instanceof InvalidFormatException ife) {
             return handleInvalidFormatException(ife);
         }
-        if (cause.getCause() instanceof JsonMappingException jme) {
+        // Covers both databind failures and stream-level parse errors (e.g. malformed JSON / illegal control
+        // characters), which are JacksonExceptions but not DatabindExceptions.
+        if (cause.getCause() instanceof JacksonException jme) {
             if (cause.getCause() instanceof UnrecognizedPropertyException upe) {
                 return createHxprErrorResponseResponseEntity(HttpStatus.UNPROCESSABLE_ENTITY.value(), upe.getMessage(), upe);
             }
@@ -228,7 +228,7 @@ public class NuxeoExceptionController {
             return e.getResponse().getStatus();
         } else if (t instanceof SecurityException) {
             return HttpStatus.FORBIDDEN.value();
-        } else if (t instanceof IllegalArgumentException || t instanceof JsonProcessingException) {
+        } else if (t instanceof IllegalArgumentException || t instanceof JacksonException) {
             return HttpStatus.BAD_REQUEST.value();
         } else if (t instanceof DateTimeParseException) {
             return HttpStatus.BAD_REQUEST.value();

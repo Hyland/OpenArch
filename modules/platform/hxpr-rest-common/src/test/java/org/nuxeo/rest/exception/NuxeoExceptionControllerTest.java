@@ -56,7 +56,6 @@ import org.nuxeo.runtime.springboot.junit.RuntimeSpringBootTest;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.transaction.TransactionRuntimeException;
 import org.skyscreamer.jsonassert.JSONAssert;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
@@ -67,8 +66,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.databind.DatabindException;
 
 /**
  * Unit test for {@link org.nuxeo.rest.exception.NuxeoExceptionController}
@@ -76,7 +76,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 @Features({ UserManagerMockFeature.class, DummyLoginFeature.class })
 @Import(UserManagerMockTestConfiguration.class)
 @SpringBootTest(classes = { NuxeoExceptionController.class, NuxeoExceptionControllerTest.ExceptionTestResource.class })
-@AutoConfigureMockMvc
 class NuxeoExceptionControllerTest extends RuntimeSpringBootTest {
 
     @RestController
@@ -105,13 +104,13 @@ class NuxeoExceptionControllerTest extends RuntimeSpringBootTest {
         }
 
         @GetMapping("/jsonParse")
-        public void jsonParse() throws JsonParseException {
-            throw new JsonParseException(null, "fix your json");
+        public void jsonParse() {
+            throw new StreamReadException((JsonParser) null, "fix your json");
         }
 
         @GetMapping("/JsonMappingException")
-        public void jsonMappingException() throws JsonMappingException {
-            throw new JsonMappingException(null, "Invalid field type!");
+        public void jsonMappingException() {
+            throw DatabindException.from((JsonParser) null, "Invalid field type!");
         }
 
         protected ConstraintViolation getResolverConstraintViolation(String name, String value) {
@@ -156,7 +155,7 @@ class NuxeoExceptionControllerTest extends RuntimeSpringBootTest {
 
         @GetMapping("/messageConversion")
         public void messageConversion() {
-            throw new HttpMessageConversionException("oops", new JsonMappingException(null, "cause"));
+            throw new HttpMessageConversionException("oops", DatabindException.from((JsonParser) null, "cause"));
         }
 
         @GetMapping("/rendition")

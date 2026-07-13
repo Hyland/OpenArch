@@ -16,7 +16,6 @@
  */
 package org.nuxeo.rest.query.io.serializer;
 
-import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,10 +25,9 @@ import org.junit.jupiter.api.Test;
 import org.opensearch.client.opensearch._types.aggregations.StringTermsBucket;
 import org.skyscreamer.jsonassert.JSONAssert;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ObjectMapper;
 
 public class AggregationsBucketSerializerTest {
 
@@ -38,7 +36,7 @@ public class AggregationsBucketSerializerTest {
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Test
-    public void testSerializeEmptyList() throws IOException, JSONException {
+    public void testSerializeEmptyList() throws JacksonException, JSONException {
         List<StringTermsBucket> buckets = new ArrayList<>();
         String json = serializeToJson(buckets);
         String expected = """
@@ -48,7 +46,7 @@ public class AggregationsBucketSerializerTest {
     }
 
     @Test
-    public void testSerializeSingleBucket() throws IOException, JSONException {
+    public void testSerializeSingleBucket() throws JacksonException, JSONException {
         List<StringTermsBucket> buckets = List.of(createBucket("objectId", 5L));
         String json = serializeToJson(buckets);
         String expected = """
@@ -63,7 +61,7 @@ public class AggregationsBucketSerializerTest {
     }
 
     @Test
-    public void testSerializeMultipleBuckets() throws IOException, JSONException {
+    public void testSerializeMultipleBuckets() throws JacksonException, JSONException {
         List<StringTermsBucket> buckets = List.of(
                 createBucket("objectId", 10L),
                 createBucket("sourceId", 7L),
@@ -89,7 +87,7 @@ public class AggregationsBucketSerializerTest {
     }
 
     @Test
-    public void testSerializeWithSpecialCharacters() throws IOException, JSONException {
+    public void testSerializeWithSpecialCharacters() throws JacksonException, JSONException {
         List<StringTermsBucket> buckets = List.of(
                 createBucket("user.name", 2L),
                 createBucket("data-field", 1L));
@@ -109,11 +107,10 @@ public class AggregationsBucketSerializerTest {
         JSONAssert.assertEquals(expected, json, true);
     }
 
-    private String serializeToJson(List<StringTermsBucket> buckets) throws IOException {
+    private String serializeToJson(List<StringTermsBucket> buckets) throws JacksonException {
         StringWriter writer = new StringWriter();
-        JsonGenerator jg = new JsonFactory().createGenerator(writer);
-        SerializerProvider provider = mapper.getSerializerProvider();
-        serializer.serialize(buckets, jg, provider);
+        JsonGenerator jg = mapper.createGenerator(writer);
+        serializer.serialize(buckets, jg, null);
         jg.flush();
         return writer.toString();
     }

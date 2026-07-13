@@ -6,14 +6,16 @@
  */
 package org.nuxeo.ecm.platform.login.filestore;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import java.io.IOException;
+
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.dataformat.yaml.YAMLMapper;
 import jakarta.annotation.PostConstruct;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -76,7 +78,7 @@ public class UserStoreLoader {
             this.userDetails = buildUserDetails(model, model.getAdministratorsGroups());
             log.info("Loaded {} user(s) and {} group(s) from community user-store: {}", model.getUsers().size(),
                     model.getGroups().size(), fileLocation);
-        } catch (IOException e) {
+        } catch (IOException | JacksonException e) {
             throw new IllegalStateException("Failed to parse community user-store file: " + fileLocation, e);
         }
     }
