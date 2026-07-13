@@ -4,7 +4,7 @@
   <parent>
     <groupId>com.hyland.hxpr</groupId>
     <artifactId>hxpr-community-core-parent</artifactId>
-    <version>0.0.89-SNAPSHOT</version>
+    <version>0.0.89</version>
   </parent>
 
   <artifactId>hxpr-core-storage-mongodb</artifactId>
