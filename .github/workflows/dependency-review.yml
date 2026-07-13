@@ -24,4 +24,4 @@ jobs:
           fail-on-severity: high
           comment-summary-in-pr: always
           license-check: true
-          allow-licenses: ANTLR-PD, Apache-2.0, BlueOak-1.0.0, 0BSD, BSD-2-Clause-Patent, BSD-2-Clause, BSD-3-Clause-Clear, BSD-3-Clause, BSD-4-Clause, BSL-1.0, CATOSL-1.1, CC0-1.0, DOM4J, ICU, ISC, JDOM, libtiff, MS-PL, MIT-0, MIT, PostgreSQL, PSF-2.0
+          allow-licenses: ANTLR-PD, Apache-2.0, BlueOak-1.0.0, 0BSD, BSD-2-Clause-Patent, BSD-2-Clause, BSD-3-Clause-Clear, BSD-3-Clause, BSD-4-Clause, BSL-1.0, CATOSL-1.1, CC0-1.0, ICU, ISC, libtiff, MS-PL, MIT-0, MIT, PostgreSQL, PSF-2.0
