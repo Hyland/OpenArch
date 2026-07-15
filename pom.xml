@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.hyland.hxpr</groupId>
   <artifactId>hxpr-community-internal-parent</artifactId>
-  <version>0.0.90</version>
+  <version>0.0.91-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>HxPR Community Internal Parent</name>
 
@@ -1761,7 +1761,7 @@
     <connection>scm:git:https://github.com/HylandSoftware/hxpr-community-internal.git</connection>
     <developerConnection>scm:git:https://github.com/HylandSoftware/hxpr-community-internal.git</developerConnection>
     <url>https://github.com/HylandSoftware/hxpr-community-internal</url>
-    <tag>0.0.90</tag>
+    <tag>0.0.2-SNAPSHOT</tag>
   </scm>
 
   <distributionManagement>
