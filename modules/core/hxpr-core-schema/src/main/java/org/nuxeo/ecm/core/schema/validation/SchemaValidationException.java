@@ -18,6 +18,11 @@
  */
 package org.nuxeo.ecm.core.schema.validation;
 
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
+
 /**
  * Exception thrown when some process failed due to {@link SchemaValidationViolation}.
  *
@@ -25,9 +30,6 @@ package org.nuxeo.ecm.core.schema.validation;
 public class SchemaValidationException extends RuntimeException implements ValidationException {
 
     private static final long serialVersionUID = 1L;
-
-    protected static final String MESSAGE = "%d violation(s) thrown. Call "
-            + SchemaValidationException.class.getSimpleName() + ".getViolations() for more information.";
 
     protected final ValidationReport report;
 
@@ -42,10 +44,30 @@ public class SchemaValidationException extends RuntimeException implements Valid
 
     @Override
     public String getMessage() {
-        if (report!= null && report.hasViolation()) {
-            return MESSAGE.formatted(report.numberOfViolations());
+        if (report != null && report.hasViolation()) {
+            List<ValidationViolation> violations = report.asList();
+            StringBuilder message = new StringBuilder("Invalid content model");
+            if (violations.size() == 1) {
+                appendViolation(message, violations.get(0));
+            } else {
+                message.append(" (%d errors):".formatted(violations.size()));
+                for (ValidationViolation violation : violations) {
+                    message.append("\n- error");
+                    appendViolation(message, violation);
+                }
+            }
+            return message.toString();
         } else {
             return super.getMessage();
         }
     }
+
+    private static void appendViolation(StringBuilder message, ValidationViolation violation) {
+        String xpath = violation.getPath();
+        if (StringUtils.isNotBlank(xpath)) {
+            message.append(" on property %s".formatted(xpath));
+        }
+        message.append(": '%s'".formatted(violation.getMessage(null)));
+    }
+
 }

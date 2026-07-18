@@ -35,15 +35,37 @@ public class SchemaValidationExceptionTest {
 
     private static final SchemaDTONode testNode2 = new SchemaDTONode(Map.of("key2", "value2"), "key2");
 
+    private static final SchemaDTONode testNodeBlankPath = new SchemaDTONode(Map.of("", "value3"), "");
+
     @Test
     public void getTests() {
-        ValidationReport report = new ValidationReport(
-                List.of(new InvalidObjectViolation(testNode1), new InvalidObjectViolation(testNode2)));
+        InvalidObjectViolation violation1 = new InvalidObjectViolation(testNode1);
+        InvalidObjectViolation violation2 = new InvalidObjectViolation(testNode2);
+        InvalidObjectViolation violation3 = new InvalidObjectViolation(testNodeBlankPath);
+
+        // more than one violation: report the count and every error, including one with a blank path
+        ValidationReport report = new ValidationReport(List.of(violation1, violation2, violation3));
         SchemaValidationException e = new SchemaValidationException(report);
 
-        assertEquals(e.getMessage(), "2 violation(s) thrown. Call %s.getViolations() for more information.".formatted(
-                SchemaValidationException.class.getSimpleName()));
+        assertEquals("""
+            Invalid content model (3 errors):
+            - error on property key1: 'The value "value1" is invalid.'
+            - error on property key2: 'The value "value2" is invalid.'
+            - error: 'The value "value3" is invalid.'""", e.getMessage());
         assertEquals(report, e.getReport());
+
+        // a single violation: report just that one
+        report = new ValidationReport(List.of(violation1));
+        e = new SchemaValidationException(report);
+
+        assertEquals("Invalid content model on property key1: 'The value \"value1\" is invalid.'",
+                e.getMessage());
+
+        // a single violation with a blank path: omit the property clause
+        report = new ValidationReport(List.of(new InvalidObjectViolation(testNodeBlankPath)));
+        e = new SchemaValidationException(report);
+
+        assertEquals("Invalid content model: 'The value \"value3\" is invalid.'", e.getMessage());
 
         e = new SchemaValidationException(null);
 
