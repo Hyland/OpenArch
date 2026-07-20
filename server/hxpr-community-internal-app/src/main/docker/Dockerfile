@@ -29,7 +29,7 @@ FROM dhi.io/amazoncorretto:25-alpine3.23-dev@sha256:a6b53a63dfbe2addcf3234faa654
 ARG RUN_JAVA_VERSION=1.3.8
 
 # Install run-java script. curl is pinned and immediately removed to keep the layer clean.
-RUN apk add --no-cache curl=8.19.0-r0 \
+RUN apk add --no-cache curl=8.20.0-r0 \
     && mkdir /deployments \
     && curl https://repo1.maven.org/maven2/io/fabric8/run-java-sh/${RUN_JAVA_VERSION}/run-java-sh-${RUN_JAVA_VERSION}-sh.sh \
          -o /deployments/run-java.sh \
