@@ -76,7 +76,7 @@ public class UploadAPITest extends AbstractUploadAPITest {
 
     public static final String CONTENT_TYPE_URI_LIST = "text/uri-list";
 
-    public static final String EXTERNAL_URI = "https://particle.hyland.com/assets/favicon/apple-touch-icon.png";
+    public static final String EXTERNAL_URI = "https://github.githubassets.com/assets/apple-touch-icon-144x144-b882e354c005.png";
 
     public static final String HYLAND_PNG = "hyland.png";
 
