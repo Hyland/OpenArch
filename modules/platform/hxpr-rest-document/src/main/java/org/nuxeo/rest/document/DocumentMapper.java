@@ -405,6 +405,10 @@ public class DocumentMapper implements ApplicationContextAware {
             getCleaner().add(uploadId);
             blobsContext.uploads().add(upload);
             blob = upload.getBlob();
+            if (blob == null) {
+                throw new DocumentValidationException(
+                        "No blob available for upload id '%s' (already attached or incomplete)".formatted(uploadId));
+            }
             fireEventforUploadUsage(blob);
             upload.setAttachStatus(UploadAttachStatus.PROCESSING);
             if (_testAttachStatusBarrier != null) {

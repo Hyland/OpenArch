@@ -285,6 +285,25 @@ public class DocumentMapperTest extends RuntimeSpringBootTest {
     }
 
     @Test
+    public void mapperThrowsExceptionWhenUploadBlobIsReleased() throws Exception {
+        DocumentModel doc = session.createDocumentModel("/", "test", SYS_FILE);
+        doc.create();
+
+        UploadDTO uploadDTO = new UploadDTO(null, "test.txt", "text/plain", null, null, false, 0, 0);
+        Upload upload = uploadService.handleUpload(handler, uploadDTO.queryMimeType(), uploadDTO,
+                new ByteArrayInputStream("test content".getBytes(UTF_8))).getBody();
+
+        // simulate an already-attached upload: its blob storage has been released, so getBlob() returns null
+        upload.releaseBlobs();
+
+        var docDTO = new DocumentDTO();
+        docDTO.setProperties(Map.of(SYSFILE_BLOB, Map.of(UPLOAD_ID_MARKER, upload.getId())));
+        var exception = assertThrows(DocumentValidationException.class,
+                () -> mapper.updateDocumentModel(doc, docDTO));
+        assertThat(exception.getMessage()).contains("No blob available for upload id");
+    }
+
+    @Test
     public void attachStatusIsReadyAfterMapping() throws Exception {
         DocumentModel doc = session.createDocumentModel("/", "test", SYS_FILE);
         doc.create();
