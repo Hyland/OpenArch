@@ -4,7 +4,7 @@
   <parent>
     <groupId>com.hyland.hxpr</groupId>
     <artifactId>hxpr-community-core-parent</artifactId>
-    <version>0.0.95</version>
+    <version>0.0.96-SNAPSHOT</version>
   </parent>
 
   <artifactId>hxpr-core-test</artifactId>
