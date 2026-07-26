@@ -41,10 +41,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.nuxeo.ecm.core.api.Blob;
-import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.api.impl.blob.StringBlob;
 import org.nuxeo.ecm.core.blob.BlobStore.OptionalOrUnknown;
-import org.nuxeo.ecm.core.blob.LocalBlobStore.LocalBlobGarbageCollector;
 import org.nuxeo.ecm.core.blob.binary.BinaryGarbageCollector;
 import org.nuxeo.ecm.core.blob.binary.BinaryManagerStatus;
 import org.nuxeo.ecm.core.utils.BlobUtils;
@@ -58,8 +56,6 @@ public abstract class TestAbstractBlobStore {
     protected static final String ID1 = "id1";
 
     protected static final String ID2 = "id2";
-
-    protected static final String ID3 = "id3";
 
     protected static final String ID4 = "id4";
 
@@ -94,31 +90,6 @@ public abstract class TestAbstractBlobStore {
     public void tearDown() throws IOException {
         bs.clear();
         Files.deleteIfExists(tmpFile);
-    }
-
-    /**
-     * If this is true, then GC won't delete some files that are younger than a time threshold.
-     */
-    public boolean hasGCTimeThreshold() {
-        return false;
-    }
-
-    public void waitForGCTimeThreshold() {
-        // no wait by default
-    }
-
-    // later we check absence of GCed blob, so we must make sure that these are deleted
-    // this means waiting a bit to account for the cache layer whose storages has a time threshold
-    protected void waitForTimeResolution() {
-        PathStrategy cachePathStrategy = getCachePathStrategy();
-        if (cachePathStrategy != null) {
-            try {
-                Thread.sleep(LocalBlobGarbageCollector.TIME_RESOLUTION + 1000);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new NuxeoException();
-            }
-        }
     }
 
     // we can't check the size on files encrypted when stored
@@ -394,19 +365,6 @@ public abstract class TestAbstractBlobStore {
         String key2 = bs.writeBlob(blobContext(ID2, "barbaz"));
         assertKey(ID2, key2);
 
-        long addNum = 0;
-        long addSize = 0;
-        String key3 = null;
-        if (hasGCTimeThreshold()) {
-            // sleep before GC to pass time threshold (in some implementations)
-            waitForGCTimeThreshold();
-            // create another binary after time threshold, it won't be GCed
-            key3 = bs.writeBlob(blobContext(ID3, "abcde"));
-            assertKey(ID3, key3);
-            addNum = 1;
-            addSize = 5;
-        }
-
         // GC in non-delete mode
         BinaryGarbageCollector gc = bs.getBinaryGarbageCollector();
         assertFalse(gc.isInProgress());
@@ -417,18 +375,16 @@ public abstract class TestAbstractBlobStore {
         gc.stop(false);
         assertFalse(gc.isInProgress());
         BinaryManagerStatus status = gc.getStatus();
-        assertEquals(1 + addNum, status.getNumBinaries());
+        assertEquals(1, status.getNumBinaries());
         assertEquals(1, status.getNumBinariesGC());
         if (checkSizeOfGCedFiles()) {
-            assertEquals(3 + addSize, status.getSizeBinaries());
+            assertEquals(3, status.getSizeBinaries());
             assertEquals(6, status.getSizeBinariesGC());
         }
 
         // check content
         assertBlob(key1, FOO);
         assertBlob(key2, "barbaz");
-
-        waitForTimeResolution();
 
         // real GC
         assertFalse(gc.isInProgress());
@@ -448,19 +404,15 @@ public abstract class TestAbstractBlobStore {
         gc.stop(true); // delete=true
         assertFalse(gc.isInProgress());
         status = gc.getStatus();
-        assertEquals(1 + addNum, status.getNumBinaries());
+        assertEquals(1, status.getNumBinaries());
         assertEquals(1, status.getNumBinariesGC());
         if (checkSizeOfGCedFiles()) {
-            assertEquals(3 + addSize, status.getSizeBinaries());
+            assertEquals(3, status.getSizeBinaries());
             assertEquals(6, status.getSizeBinariesGC());
         }
         // check content, one blob gone
         assertBlob(key1, FOO);
         assertNoBlob(key2);
-        // if time threshold, other blob is still here
-        if (hasGCTimeThreshold()) {
-            assertBlob(key3, "abcde");
-        }
 
         // cache tmp/other is still here
         if (cacheTmp != null) {
@@ -484,21 +436,6 @@ public abstract class TestAbstractBlobStore {
         String key2 = bs.writeBlob(blobContext(ID2, "barbaz"));
         assertKey(ID2, key2);
 
-        long addNum = 0;
-        long addSize = 0;
-        String key3 = null;
-        if (hasGCTimeThreshold()) {
-            // sleep before GC to pass time threshold (in some implementations)
-            waitForGCTimeThreshold();
-            // create another binary after time threshold, it won't be GCed
-            key3 = bs.writeBlob(blobContext(ID3, "abcde"));
-            assertKey(ID3, key3);
-            addNum = 1;
-            addSize = 5;
-        }
-
-        waitForTimeResolution();
-
         // GC start
 
         BinaryGarbageCollector gc = bs.getBinaryGarbageCollector();
@@ -517,7 +454,7 @@ public abstract class TestAbstractBlobStore {
         gc.mark(key1);
         assertTrue(gc.isInProgress());
 
-        // add a blob while GC is in progress
+        // add a blob while GC is in progress; the write marks it, so it isn't collected
         String key4 = bs.writeBlob(blobContext(ID4, "xyzzy"));
         assertKey(ID4, key4);
 
@@ -525,25 +462,16 @@ public abstract class TestAbstractBlobStore {
 
         assertFalse(gc.isInProgress());
         BinaryManagerStatus status = gc.getStatus();
-        // filesystem-based GC uses real mark&sweep so will see the blob added during GC
-        boolean countBlobAddedDuringGC = status.getNumBinaries() == 2 + addNum;
-        if (countBlobAddedDuringGC) {
-            addNum += 1;
-            addSize += 5;
-        }
-        assertEquals(1 + addNum, status.getNumBinaries());
+        // the blob added during GC isn't part of the candidate set computed at start, so it isn't counted
+        assertEquals(1, status.getNumBinaries());
         assertEquals(1, status.getNumBinariesGC());
         if (checkSizeOfGCedFiles()) {
-            assertEquals(3 + addSize, status.getSizeBinaries());
+            assertEquals(3, status.getSizeBinaries());
             assertEquals(6, status.getSizeBinariesGC());
         }
         // check content, one blob gone
         assertBlob(key1, FOO);
         assertNoBlob(key2);
-        // if time threshold, other blob is still here
-        if (hasGCTimeThreshold()) {
-            assertBlob(key3, "abcde");
-        }
         // blob added during GC is still here
         assertBlob(key4, "xyzzy");
 

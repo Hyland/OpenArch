@@ -283,6 +283,19 @@ public interface BlobStore {
     BinaryGarbageCollector getBinaryGarbageCollector();
 
     /**
+     * Marks a key as in use in this store's garbage collector, to protect its blob from a concurrent GC.
+     * <p>
+     * A backend must call this once the key is known but <em>before</em> the blob is actually written to the backend:
+     * because the mark happens before the write, the write is the last operation, so the blob is guaranteed to exist
+     * afterwards even if a GC concurrently deletes it. Marking is a no-op when no GC is in progress.
+     *
+     * @param key the blob key
+     */
+    default void markForGC(String key) {
+        getBinaryGarbageCollector().mark(key);
+    }
+
+    /**
      * If this blob store wraps another one, returns it, otherwise returns this.
      *
      * @return the lowest-level blob store

@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.nuxeo.runtime.test.runner.Deploy;
 
 @Deploy("org.nuxeo.ecm.core.api.tests:OSGI-INF/test-blob-provider-local-record.xml")
-public class TestLocalBlobStoreRecord extends TestLocalBlobStoreAbstract {
+public class TestLocalBlobStoreRecord extends TestAbstractBlobStore {
 
     @Test
     public void testFlags() {

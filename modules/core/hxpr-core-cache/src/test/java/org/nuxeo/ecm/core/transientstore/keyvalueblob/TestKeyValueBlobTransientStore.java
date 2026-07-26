@@ -67,7 +67,6 @@ import org.nuxeo.ecm.core.api.impl.blob.StringBlob;
 import org.nuxeo.ecm.core.blob.AbstractBlobGarbageCollector;
 import org.nuxeo.ecm.core.blob.BlobProvider;
 import org.nuxeo.ecm.core.blob.LocalBlobProvider;
-import org.nuxeo.ecm.core.blob.LocalBlobStore.LocalBlobGarbageCollector;
 import org.nuxeo.ecm.core.blob.binary.BinaryGarbageCollector;
 import org.nuxeo.ecm.core.transientstore.api.MaximumTransientSpaceExceeded;
 import org.nuxeo.ecm.core.transientstore.api.TransientStore;
@@ -361,8 +360,6 @@ public class TestKeyValueBlobTransientStore {
     }
 
     protected void removeAllBlobsFromBlobProvider() throws Exception {
-        // sleep needed because the GC doesn't remove very young files
-        Thread.sleep(LocalBlobGarbageCollector.TIME_RESOLUTION + 100);
         BinaryGarbageCollector gc = ((KeyValueBlobTransientStore) ts).getBlobProvider()
                                                                      .getBinaryGarbageCollector();
         gc.start();
@@ -669,23 +666,17 @@ public class TestKeyValueBlobTransientStore {
     static Stream<Arguments> isToDeleteEmptyCases() {
         AbstractBlobGarbageCollector emptyToDelete = new AbstractBlobGarbageCollector() {
             @Override public String getId() { return "empty-toDelete"; }
-            @Override public void computeToDelete() { toDelete = new HashSet<>(); }
-            @Override public void removeUnmarkedBlobsAndUpdateStatus(boolean delete) { /* stub — stop() not called in this test */ }
+            @Override public void computeToDelete() { /* nothing */ }
+            @Override public long removeUnmarkedBlob(String key, boolean delete) { return -1; }
         };
         AbstractBlobGarbageCollector nonEmptyToDelete = new AbstractBlobGarbageCollector() {
             @Override public String getId() { return "non-empty-toDelete"; }
-            @Override public void computeToDelete() { toDelete = new HashSet<>(); toDelete.add("key"); }
-            @Override public void removeUnmarkedBlobsAndUpdateStatus(boolean delete) { /* stub — stop() not called in this test */ }
-        };
-        AbstractBlobGarbageCollector oldStyleMarked = new AbstractBlobGarbageCollector() {
-            @Override public String getId() { return "old-style-marked"; }
-            // computeToDelete not overridden: base sets marked, leaves toDelete null
-            @Override public void removeUnmarkedBlobsAndUpdateStatus(boolean delete) { /* stub — stop() not called in this test */ }
+            @Override public void computeToDelete() { toDelete.add("key"); }
+            @Override public long removeUnmarkedBlob(String key, boolean delete) { return -1; }
         };
         return Stream.of(
                 Arguments.of(emptyToDelete, true,  "empty toDelete → true (mark scan can be skipped)"),
-                Arguments.of(nonEmptyToDelete, false, "non-empty toDelete → false (mark scan required)"),
-                Arguments.of(oldStyleMarked, false, "old-style marked GC → false (conservative, cannot skip)")
+                Arguments.of(nonEmptyToDelete, false, "non-empty toDelete → false (mark scan required)")
         );
     }
 

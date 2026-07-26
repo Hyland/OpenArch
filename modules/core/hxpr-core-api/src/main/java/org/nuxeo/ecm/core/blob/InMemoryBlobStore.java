@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -108,6 +107,7 @@ public class InMemoryBlobStore extends AbstractBlobStore {
         if (hasVersioning()) {
             key = key + VER_SEP + RANDOM.nextLong();
         }
+        markForGC(key);
         map.put(key, baos.toByteArray());
         return key;
     }
@@ -184,6 +184,7 @@ public class InMemoryBlobStore extends AbstractBlobStore {
             String digestAlgorithm = ((KeyStrategyDigest) keyStrategy).digestAlgorithm;
             key = new DigestUtils(digestAlgorithm).digestAsHex(bytes);
         }
+        markForGC(key);
         map.put(key, bytes);
         return key;
     }
@@ -274,7 +275,6 @@ public class InMemoryBlobStore extends AbstractBlobStore {
 
         @Override
         public void computeToDelete() {
-            toDelete = new HashSet<>();
             for (Iterator<Entry<String, byte[]>> it = map.entrySet().iterator(); it.hasNext();) {
                 Entry<String, byte[]> es = it.next();
                 String key = es.getKey();
@@ -286,23 +286,17 @@ public class InMemoryBlobStore extends AbstractBlobStore {
         }
 
         @Override
-        public void removeUnmarkedBlobsAndUpdateStatus(boolean delete) {
-            for (String key : toDelete) {
-                byte[] bytes = map.get(key);
-                if (bytes == null) {
-                    // shouldn't happen except if blob concurrently removed
-                    continue;
-                }
-                int length = bytes.length;
-                status.setSizeBinariesGC(status.getSizeBinariesGC() + length);
-                status.setNumBinariesGC(status.getNumBinariesGC() + 1);
-                status.setSizeBinaries(status.getSizeBinaries() - length);
-                status.setNumBinaries(status.getNumBinaries() - 1);
-                if (delete) {
-                    map.remove(key);
-                    legalHold.remove(key);
-                }
+        protected long removeUnmarkedBlob(String key, boolean delete) {
+            byte[] bytes = map.get(key);
+            if (bytes == null) {
+                // shouldn't happen except if blob concurrently removed
+                return -1;
             }
+            if (delete) {
+                map.remove(key);
+                legalHold.remove(key);
+            }
+            return bytes.length;
         }
     }
 

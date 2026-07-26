@@ -57,9 +57,9 @@ public interface BinaryGarbageCollector {
     /**
      * Marks a binary as being in use.
      *
-     * @param digest the binary's digest
+     * @param key the binary's key
      */
-    void mark(String digest);
+    void mark(String key);
 
     /**
      * Stops the garbage collection process and deletes all binaries that have not been marked (sweep).

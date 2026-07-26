@@ -96,8 +96,13 @@ public class EmptyBlobStore extends AbstractBlobStore {
         }
 
         @Override
-        public void removeUnmarkedBlobsAndUpdateStatus(boolean delete) {
-            // nothing
+        public void computeToDelete() {
+            // nothing to delete
+        }
+
+        @Override
+        protected long removeUnmarkedBlob(String key, boolean delete) {
+            return -1; // an empty store holds no blob for any key
         }
     }
 

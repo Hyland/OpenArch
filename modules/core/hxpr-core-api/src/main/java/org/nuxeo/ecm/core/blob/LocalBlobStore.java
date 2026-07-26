@@ -19,23 +19,20 @@
 package org.nuxeo.ecm.core.blob;
 
 import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.RandomAccessFile;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
-import java.util.HashSet;
-import java.util.Set;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.blob.binary.BinaryGarbageCollector;
-import org.nuxeo.ecm.core.blob.binary.BinaryManagerStatus;
 
 /**
  * Blob storage as files on a local filesystem. The actual storage path chosen for a given key is decided based on a
@@ -69,6 +66,7 @@ public class LocalBlobStore extends AbstractBlobStore {
             Files.createDirectories(dest.getParent());
             logTrace(name, "-->", name, "rename");
             logTrace("hnote right of " + name + ": " + key);
+            markForGC(key);
             PathStrategy.atomicMove(tmp, dest);
             return key;
         } finally {
@@ -116,6 +114,7 @@ public class LocalBlobStore extends AbstractBlobStore {
         }
         Path dest = pathStrategy.getPathForKey(key);
         Files.createDirectories(dest.getParent());
+        markForGC(key);
         if (atomicMove) {
             if (sourceStore == this) {
                 logTrace("hnote right of " + name + ": " + sourceKey);
@@ -143,6 +142,7 @@ public class LocalBlobStore extends AbstractBlobStore {
             throws IOException {
         Path dest = pathStrategy.getPathForKey(key);
         Files.createDirectories(dest.getParent());
+        markForGC(key);
         Path tmp = null;
         try {
             Path readTo;
@@ -237,22 +237,7 @@ public class LocalBlobStore extends AbstractBlobStore {
         return gc;
     }
 
-    public class LocalBlobGarbageCollector implements BinaryGarbageCollector {
-
-        /**
-         * Windows FAT filesystems have a time resolution of 2s. Other common filesystems have 1s.
-         */
-        public static final long TIME_RESOLUTION = 2000;
-
-        protected volatile long startTime;
-
-        protected BinaryManagerStatus status;
-
-        // for tests, to simulate behavior of other GCs that don't use on-disk marking
-        public volatile boolean markInMemory;
-
-        // for tests
-        protected Set<String> toDelete;
+    public class LocalBlobGarbageCollector extends AbstractBlobGarbageCollector {
 
         @Override
         public String getId() {
@@ -260,153 +245,60 @@ public class LocalBlobStore extends AbstractBlobStore {
         }
 
         @Override
-        public BinaryManagerStatus getStatus() {
-            return status;
-        }
-
-        @Override
-        public boolean isInProgress() {
-            // volatile as this is designed to be called from another thread
-            return startTime != 0;
-        }
-
-        @Override
-        public void start() {
-            if (startTime != 0) {
-                throw new NuxeoException("Already started");
-            }
-            startTime = System.currentTimeMillis();
-            status = new BinaryManagerStatus();
-            if (markInMemory) {
-                toDelete = new HashSet<>();
-                computeToDelete(pathStrategy.dir.toFile(), startTime - TIME_RESOLUTION);
-            }
-        }
-
-        // for tests
-        protected void computeToDelete(File file, long minTime) {
-            if (file.isDirectory()) {
-                for (File f : file.listFiles()) {
-                    computeToDelete(f, minTime);
-                }
-            } else if (file.isFile() && file.canWrite()) {
-                long lastModified = file.lastModified();
-                if (lastModified == 0) {
-                    log.warn("GC cannot read last modified for file: {}", file);
-                } else if (lastModified < minTime) {
-                    status.setSizeBinaries(status.getSizeBinaries() + file.length());
-                    status.setNumBinaries(status.getNumBinaries() + 1);
-                    toDelete.add(file.getName());
-                }
-            }
-        }
-
-        @Override
-        public void mark(String key) {
-            if (markInMemory) {
-                toDelete.remove(key);
-            } else {
-                OptionalOrUnknown<Path> fileOpt = getStoredFile(key);
-                if (!fileOpt.isPresent()) {
-                    log.warn("Unknown blob for key: {}",  key);
-                    return;
-                }
-                // mark the blob by touching the file
-                touch(fileOpt.get().toFile());
-            }
-        }
-
-        @Override
-        public void stop(boolean delete) {
-            if (startTime == 0) {
-                throw new NuxeoException("Not started");
-            }
-            if (markInMemory) {
-                removeUnmarkedBlobsAndUpdateStatus(delete);
-            } else {
-                deleteOld(pathStrategy.dir.toFile(), startTime - TIME_RESOLUTION, 0, delete);
-            }
-            status.setGcDuration(System.currentTimeMillis() - startTime);
-            startTime = 0;
-            toDelete = null;
-        }
-
-        protected void removeUnmarkedBlobsAndUpdateStatus(boolean delete) {
-            for (String key : toDelete) {
-                OptionalOrUnknown<Path> fileOpt = getStoredFile(key);
-                if (!fileOpt.isPresent()) {
-                    // shouldn't happen except if blob concurrently removed
-                    continue;
-                }
-                Path path = fileOpt.get();
-                long length;
-                try {
-                    length = Files.size(path);
-                } catch (IOException e) {
-                    log.error("Binary garbage collector failed to read file size for key: {}", key, e);
-                    continue;
-                }
-                status.setSizeBinariesGC(status.getSizeBinariesGC() + length);
-                status.setNumBinariesGC(status.getNumBinariesGC() + 1);
-                status.setSizeBinaries(status.getSizeBinaries() - length);
-                status.setNumBinaries(status.getNumBinaries() - 1);
-                if (delete) {
-                    try {
-                        Files.delete(path);
-                    } catch (IOException e) {
-                        log.error("Binary garbage collector failed to delete file for key: {}", key, e);
-                    }
-                }
-            }
-        }
-
-        protected void deleteOld(File file, long minTime, int depth, boolean delete) {
-            if (file.isDirectory()) {
-                for (File f : file.listFiles()) {
-                    deleteOld(f, minTime, depth + 1, delete);
-                }
-                // NXP-30465: do not delete empty directories
-            } else if (file.isFile() && file.canWrite()) {
-                long lastModified = file.lastModified();
-                long length = file.length();
-                if (lastModified == 0) {
-                    log.warn("GC cannot read last modified for file: {}", file);
-                } else if (lastModified < minTime) {
-                    status.setSizeBinariesGC(status.getSizeBinariesGC() + length);
-                    status.setNumBinariesGC(status.getNumBinariesGC() + 1);
-                    if (delete) {
-                        log.debug("GC deleting file: {}", file);
-                        if (!file.delete()) { // NOSONAR
-                            log.warn("GC failed to delete file: {}", file);
-                        }
-                    }
-                } else {
-                    status.setSizeBinaries(status.getSizeBinaries() + length);
-                    status.setNumBinaries(status.getNumBinaries() + 1);
-                }
-            }
-        }
-
-        /** Sets the last modification date to now on a file. */
-        protected void touch(File file) {
-            long time = System.currentTimeMillis();
-            if (file.setLastModified(time)) {
-                // ok
-                return;
-            }
-            if (!file.canWrite()) {
-                // cannot write -> stop won't be able to delete anyway
+        public void computeToDelete() {
+            Path dir = pathStrategy.dir;
+            if (!Files.isDirectory(dir)) {
                 return;
             }
             try {
-                // Windows: the file may be open for reading
-                // workaround found by Thomas Mueller, see JCR-2872
-                try (RandomAccessFile r = new RandomAccessFile(file, "rw")) {
-                    r.setLength(r.length());
-                }
+                Files.walkFileTree(dir, new SimpleFileVisitor<>() {
+                    @Override
+                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+                        // skip temp files: they are in-flight writes, not blobs (their random name isn't a key,
+                        // so it would neither resolve for deletion nor should it be deleted from under a writer)
+                        if (attrs.isRegularFile() && Files.isWritable(file) && !pathStrategy.isTempFile(file)) {
+                            status.setSizeBinaries(status.getSizeBinaries() + attrs.size());
+                            status.setNumBinaries(status.getNumBinaries() + 1);
+                            toDelete.add(file.getFileName().toString());
+                        }
+                        return FileVisitResult.CONTINUE;
+                    }
+
+                    @Override
+                    public FileVisitResult visitFileFailed(Path file, IOException e) {
+                        // I/O error or missing permission on a file or directory; skip and continue
+                        log.warn("GC cannot access: {}", file, e);
+                        return FileVisitResult.CONTINUE;
+                    }
+                });
             } catch (IOException e) {
-                log.warn("Cannot set last modified for file: {}", file, e);
+                log.warn("GC failed to traverse directory: {}", dir, e);
             }
+        }
+
+        @Override
+        protected long removeUnmarkedBlob(String key, boolean delete) {
+            OptionalOrUnknown<Path> fileOpt = getStoredFile(key);
+            if (!fileOpt.isPresent()) {
+                // shouldn't happen except if blob concurrently removed
+                return -1;
+            }
+            Path path = fileOpt.get();
+            long length;
+            try {
+                length = Files.size(path);
+            } catch (IOException e) {
+                log.error("Binary garbage collector failed to read file size for key: {}", key, e);
+                return -1;
+            }
+            if (delete) {
+                try {
+                    Files.delete(path);
+                } catch (IOException e) {
+                    log.error("Binary garbage collector failed to delete file for key: {}", key, e);
+                }
+            }
+            return length;
         }
 
     }

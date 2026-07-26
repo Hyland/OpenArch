@@ -83,8 +83,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledOnOs;
-import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -2898,7 +2896,6 @@ public class TestSQLRepositoryAPI {
     @Test
     public void testBinaryGC() throws Exception {
         // GC binaries from previous tests
-        Thread.sleep(3 * 1000);
         runBinariesGC(true, false);
 
         // store some binaries
@@ -2927,21 +2924,20 @@ public class TestSQLRepositoryAPI {
         nextTransaction();
 
         // run GC in non-delete mode
-        Thread.sleep(3 * 1000); // sleep before GC to pass its time threshold
         status = runBinariesGC(false, false);
         assertEquals(2, status.getNumBinaries()); // GHI, JKL
         assertEquals(2 * 3, status.getSizeBinaries());
         assertEquals(2, status.getNumBinariesGC()); // ABC, DEF
         assertEquals(2 * 3, status.getSizeBinariesGC());
 
-        // add a new binary during GC and revive one which was about to die
+        // add a new binary during GC and revive one which was about to die;
+        // the write-time mark protects the revived DEF, MNO added during GC isn't in the candidate set so isn't counted
         status = runBinariesGC(true, true);
-        assertEquals(4, status.getNumBinaries()); // DEF3, GHI2, JKL, MNO
-        assertEquals(4 * 3, status.getSizeBinaries());
+        assertEquals(3, status.getNumBinaries()); // DEF3, GHI2, JKL (MNO not counted)
+        assertEquals(3 * 3, status.getSizeBinaries());
         assertEquals(1, status.getNumBinariesGC()); // ABC
         assertEquals(1 * 3, status.getSizeBinariesGC());
 
-        Thread.sleep(3 * 1000);
         status = runBinariesGC(true, false);
         assertEquals(4, status.getNumBinaries()); // DEF3, GHI2, JKL, MNO
         assertEquals(4 * 3, status.getSizeBinaries());
@@ -2983,10 +2979,8 @@ public class TestSQLRepositoryAPI {
 
     /** Test that stores blobs in attachments (complex list). */
     @Test
-    @DisabledOnOs(value = OS.WINDOWS, disabledReason = "Not enough time granularity")
     public void testBinaryGC2() throws Exception {
         // GC binaries from previous tests
-        Thread.sleep(3 * 1000);
         runBinariesGC(true, false);
 
         DocumentModel doc = session.createDocumentModel("/", "file", SYS_FILE);
@@ -3002,7 +2996,6 @@ public class TestSQLRepositoryAPI {
         nextTransaction();
 
         // run GC in non-delete mode
-        Thread.sleep(3 * 1000); // sleep before GC to pass its time threshold
         BinaryManagerStatus status = runBinariesGC(false, false);
         assertEquals(2, status.getNumBinaries()); // ABC, DEF
         assertEquals(1, status.getNumBinariesGC()); // GHI

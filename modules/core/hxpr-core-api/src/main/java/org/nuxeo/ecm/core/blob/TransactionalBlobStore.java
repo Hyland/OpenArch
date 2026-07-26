@@ -353,6 +353,9 @@ public class TransactionalBlobStore extends AbstractBlobStore implements Synchro
                             // without versioning, atomically move to permanent store
                             if (!hasVersioning()) {
                                 try {
+                                    // this runs outside any writeBlob, but copyOrMoveBlob marks the key in the
+                                    // permanent store's GC before publishing the blob, protecting it from a
+                                    // concurrent GC; keep any future rework of this move on a path that still marks
                                     String returnedKey = store.copyOrMoveBlob(key, transientStore, transientKey, true);
                                     if (returnedKey == null) {
                                         log.error("Missing blob from transient blob store: {}, failed to commit creation of file: {}", transientKey, key);

@@ -20,13 +20,14 @@ package org.nuxeo.ecm.core.blob;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.blob.binary.BinaryGarbageCollector;
 import org.nuxeo.ecm.core.blob.binary.BinaryManagerStatus;
 
 /**
- * Basic implementation for a garbage collector recording marked or to-delete blobs in memory.
+ * Basic implementation for a garbage collector recording, in memory, the candidate keys and the keys marked in use.
  */
 public abstract class AbstractBlobGarbageCollector implements BinaryGarbageCollector {
 
@@ -35,10 +36,15 @@ public abstract class AbstractBlobGarbageCollector implements BinaryGarbageColle
 
     protected BinaryManagerStatus status;
 
-    // kept for backward compat with old subclasses implementations
-    protected Set<String> marked;
+    // Keys marked as in use during the GC. Positive marking (rather than removing from toDelete) so that a mark
+    // arriving before computeToDelete() has added the key as a candidate isn't lost. The set is thread-safe
+    // (ConcurrentHashMap.newKeySet) because mark() is called from other threads (e.g. concurrent blob writes); the
+    // field is also volatile to publish the reference, which start()/stop() reassign (null when no GC is in progress).
+    @SuppressWarnings("java:S3077") // volatile is for reference publication; the value is already a thread-safe type
+    protected volatile Set<String> marked;
 
-    // new implementations must use this instead
+    // Keys candidate for deletion, computed at start(). Confined to the GC thread (populated by computeToDelete(),
+    // consumed by stop()); mark() doesn't touch it, so it needs neither thread-safety nor volatile.
     protected Set<String> toDelete;
 
     @Override
@@ -53,28 +59,17 @@ public abstract class AbstractBlobGarbageCollector implements BinaryGarbageColle
         }
         startTime = System.currentTimeMillis();
         status = new BinaryManagerStatus();
-        marked = null;
+        // allocate the thread-safe marked set before computeToDelete(), so that blobs written concurrently during the
+        // traversal are recorded as in use even before their key is added as a candidate
+        marked = ConcurrentHashMap.newKeySet();
+        toDelete = new HashSet<>();
         computeToDelete();
-        if (marked == null && toDelete == null) {
-            throw new IllegalStateException("New class must define 'toDelete'");
-        }
-        if (marked != null && toDelete != null) {
-            throw new IllegalStateException("New class must not define 'marked'");
-        }
     }
 
     /**
-     * Computes keys candidate for deletion.
-     * <p>
-     * Overrides should not call super (this allows detecting old implementations).
-     *
-     * @since 11.5
+     * Computes the keys candidate for deletion, adding them to {@link #toDelete}.
      */
-    public void computeToDelete() {
-        // new implementations shouldn't do this, just keep marked null and define toDelete
-        marked = new HashSet<>();
-        toDelete = null;
-    }
+    public abstract void computeToDelete();
 
     @Override
     public void stop(boolean delete) {
@@ -82,7 +77,23 @@ public abstract class AbstractBlobGarbageCollector implements BinaryGarbageColle
             throw new NuxeoException("Not started");
         }
         try {
-            removeUnmarkedBlobsAndUpdateStatus(delete);
+            // delete the candidate blobs that were not marked as in use, and update the status
+            Set<String> marked = this.marked;
+            for (String key : toDelete) {
+                if (marked.contains(key)) {
+                    // marked as in use (possibly by a concurrent blob write); keep it
+                    continue;
+                }
+                long length = removeUnmarkedBlob(key, delete);
+                if (length < 0) {
+                    // blob not present (shouldn't happen except if concurrently removed); don't count it
+                    continue;
+                }
+                status.setSizeBinariesGC(status.getSizeBinariesGC() + length);
+                status.setNumBinariesGC(status.getNumBinariesGC() + 1);
+                status.setSizeBinaries(status.getSizeBinaries() - length);
+                status.setNumBinaries(status.getNumBinaries() - 1);
+            }
         } finally {
             marked = null;
             toDelete = null;
@@ -91,30 +102,19 @@ public abstract class AbstractBlobGarbageCollector implements BinaryGarbageColle
         }
     }
 
-    public void removeUnmarkedBlobsAndUpdateStatus(boolean delete) {
-        // kept for backward compat, new implementations should override everything
-        Set<String> unmarked = getUnmarkedBlobsAndUpdateStatus();
-        if (delete) {
-            removeBlobs(unmarked);
-        }
-    }
-
-    // kept for backward compat
-    public Set<String> getUnmarkedBlobsAndUpdateStatus() {
-        throw new UnsupportedOperationException();
-    }
-
-    // kept for backward compat
-    public void removeBlobs(Set<String> keys) {
-        throw new UnsupportedOperationException();
-    }
+    /**
+     * Removes from the backend the unmarked blob with the given key if {@code delete} is true, and returns its length.
+     *
+     * @return the blob length, or a negative value if the blob is not present (then it isn't counted in the status)
+     */
+    protected abstract long removeUnmarkedBlob(String key, boolean delete);
 
     @Override
-    public void mark(String digest) {
+    public void mark(String key) {
+        // records the key as in use; may be called with no GC in progress (e.g. on every blob write), then a no-op
+        Set<String> marked = this.marked;
         if (marked != null) {
-            marked.add(digest);
-        } else {
-            toDelete.remove(digest);
+            marked.add(key);
         }
     }
 

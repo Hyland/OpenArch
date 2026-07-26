@@ -134,6 +134,8 @@ public abstract class AbstractBlobStore implements BlobStore {
 
     @Override
     public String writeBlob(BlobWriteContext blobWriteContext) throws IOException {
+        // each backend marks the key in its GC just before writing the blob (see markForGC),
+        // so that a blob written (or a deduplicated blob referenced anew) while a GC is in progress isn't collected
         String returnedKey = writeBlobUsingOptimizedCopy(blobWriteContext);
         if (returnedKey != null) {
             return returnedKey;
@@ -182,6 +184,7 @@ public abstract class AbstractBlobStore implements BlobStore {
             String digest;
             if (sourceStore == this) {
                 // copy to self, nothing to do (includes temporary pseudo-digest for async)
+                markForGC(sourceKey);
                 return sourceKey;
             } else if (sourceStore.getKeyStrategy().equals(keyStrategy)
                     && (digest = keyStrategy.getDigestFromKey(stripBlobKeyVersionSuffix(sourceKey))) != null) {
@@ -195,6 +198,7 @@ public abstract class AbstractBlobStore implements BlobStore {
                 key = null; // let the store compute the digest, or trigger async digest computation
             }
         }
+        // copyOrMoveBlob marks the (possibly computed) key itself, just before writing to the backend
         return copyOrMoveBlob(key, sourceStore, sourceKey, false);
     }
 

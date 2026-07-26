@@ -33,13 +33,8 @@ import org.nuxeo.ecm.core.api.Blobs;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.NuxeoException;
-import org.nuxeo.ecm.core.blob.BlobService;
-import org.nuxeo.ecm.core.blob.BlobProvider;
 import org.nuxeo.ecm.core.blob.DocumentBlobService;
-import org.nuxeo.ecm.core.blob.LocalBlobProvider;
-import org.nuxeo.ecm.core.blob.LocalBlobStore.LocalBlobGarbageCollector;
 import org.nuxeo.ecm.core.blob.ManagedBlob;
-import org.nuxeo.ecm.core.blob.binary.BinaryGarbageCollector;
 import org.nuxeo.ecm.core.blob.binary.BinaryManagerStatus;
 import org.nuxeo.ecm.core.test.CoreFeature;
 import org.nuxeo.runtime.test.runner.Deploy;
@@ -64,9 +59,6 @@ public class TestBlobGCSharedStorage {
     protected CoreSession session;
 
     @Inject
-    protected BlobService blobService;
-
-    @Inject
     protected DocumentBlobService documentBlobService;
 
     @Test
@@ -86,10 +78,6 @@ public class TestBlobGCSharedStorage {
         ManagedBlob blob2 = (ManagedBlob) doc2.getPropertyValue(SYSFILE_BLOB);
         assertTrue(blob1.getKey().startsWith("first:"), blob1.getKey());
         assertTrue(blob2.getKey().startsWith("second:"), blob2.getKey());
-
-        // tweak GC to not use on-disk marking, to be representative of other GCs
-        setMarkInMemory("first");
-        setMarkInMemory("second");
 
         // check that when the GC runs nothing gets deleted
         sleepBeforeGC();
@@ -112,12 +100,6 @@ public class TestBlobGCSharedStorage {
             Thread.currentThread().interrupt();
             throw new NuxeoException(e);
         }
-    }
-
-    protected void setMarkInMemory(String blobProviderId) {
-        BlobProvider bp = blobService.getBlobProvider(blobProviderId);
-        BinaryGarbageCollector gc = ((LocalBlobProvider) bp).getStore().getBinaryGarbageCollector();
-        ((LocalBlobGarbageCollector) gc).markInMemory = true;
     }
 
 }
