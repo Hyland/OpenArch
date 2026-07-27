@@ -40,7 +40,7 @@
     <maven.compiler.target>25</maven.compiler.target>
     <maven-release-plugin.version>3.3.1</maven-release-plugin.version>
 
-    <maven-jar-plugin.version>3.5.0</maven-jar-plugin.version>
+    <maven-jar-plugin.version>3.5.1</maven-jar-plugin.version>
     <classifier.name>none</classifier.name>
     <manifest.file />
     <distribution-repository.url>https://example.com</distribution-repository.url>
@@ -99,7 +99,7 @@
     <antlr4.version>4.13.2</antlr4.version>
     <jericho-html.version>3.4</jericho-html.version>
     <dumbster.version>1.7.1</dumbster.version>
-    <zjsonpatch.version>0.6.2</zjsonpatch.version>
+    <zjsonpatch.version>0.6.3</zjsonpatch.version>
     <archunit.version>1.4.2</archunit.version>
     <jupiter-pioneer.version>2.3.0</jupiter-pioneer.version>
     <woodstox.version>7.2.1</woodstox.version>
@@ -110,7 +110,7 @@
     <jna.version>5.19.1</jna.version>
 
     <!-- MongoDB -->
-    <mongo.java.driver.version>5.9.0</mongo.java.driver.version>
+    <mongo.java.driver.version>5.9.1</mongo.java.driver.version>
     <quartz.version>2.3.2</quartz.version>
     <quartz.mongodb.version>2.2.0-rc2</quartz.mongodb.version>
 
