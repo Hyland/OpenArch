@@ -3,7 +3,7 @@
   <parent>
     <groupId>com.hyland.hxpr</groupId>
     <artifactId>hxpr-community-core-parent</artifactId>
-    <version>0.0.97</version>
+    <version>0.0.98-SNAPSHOT</version>
   </parent>
   <artifactId>hxpr-core-schema</artifactId>
   <name>HxPR Core Schema</name>
