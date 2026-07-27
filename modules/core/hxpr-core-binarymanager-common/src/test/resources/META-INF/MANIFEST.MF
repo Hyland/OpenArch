@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: HxPR Core BinaryManager Common Testing
+Bundle-SymbolicName: org.nuxeo.ecm.core.storage.binarymanager.common.tests;singleton:=true
+Bundle-Vendor: Hyland

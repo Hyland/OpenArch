@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.ecm.blob.cloud.other.managed.test">
+  <!-- partial override merged onto the "other" provider deployed by the concrete feature -->
+  <extension target="org.nuxeo.ecm.core.blob.BlobService" point="configuration">
+    <blobprovider name="other">
+      <property name="keyStrategy">managed</property>
+    </blobprovider>
+  </extension>
+
+</component>
