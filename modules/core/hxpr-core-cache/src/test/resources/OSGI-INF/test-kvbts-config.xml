@@ -11,6 +11,12 @@
       <class>org.nuxeo.ecm.core.blob.LocalBlobProvider</class>
       <property name="path">mytransientbinaries</property>
     </blobprovider>
+    <!-- InMemoryBlobProvider: its GC extends AbstractBlobGarbageCollector,
+         enabling coverage of the instanceof fast-exit branch in doGC(). -->
+    <blobprovider name="inmemtransient">
+      <class>org.nuxeo.ecm.core.blob.InMemoryBlobProvider</class>
+      <property name="transient">true</property>
+    </blobprovider>
   </extension>
 
   <extension target="org.nuxeo.ecm.core.transientstore.TransientStorageComponent" point="store">
@@ -18,6 +24,10 @@
       <targetMaxSizeMB>1</targetMaxSizeMB>
       <absoluteMaxSizeMB>1</absoluteMaxSizeMB>
       <property name="defaultBlobProvider">mytransient</property>
+    </store>
+    <!-- Store backed by InMemoryBlobProvider for doGC() fast-exit coverage. -->
+    <store name="inmemstore" class="org.nuxeo.ecm.core.transientstore.keyvalueblob.KeyValueBlobTransientStore">
+      <property name="blobProvider">inmemtransient</property>
     </store>
   </extension>
 

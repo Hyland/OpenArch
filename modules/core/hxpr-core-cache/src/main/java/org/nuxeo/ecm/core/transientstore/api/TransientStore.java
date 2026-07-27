@@ -127,8 +127,9 @@ public interface TransientStore {
     void remove(String key);
 
     /**
-     * Informs the store that the entry with the given {@code key} can be released if TTL or GC parameters require to do
-     * some cleanup.
+     * Releases the entry with the given {@code key} by applying the {@code secondLevelTTL}.
+     * Call this after a blob has been transferred to permanent storage so the entry survives only
+     * long enough for clients to poll the attach status.
      * <p>
      * Has no effect if entry does not exist.
      */

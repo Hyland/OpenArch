@@ -47,6 +47,14 @@ public interface BinaryGarbageCollector {
     void start();
 
     /**
+     * Returns {@code true} if the blob store is empty after {@link #start()}, meaning the mark
+     * phase can be skipped. Only meaningful to call just after {@link #start()}.
+     */
+    default boolean isToDeleteEmpty() {
+        return false;
+    }
+
+    /**
      * Marks a binary as being in use.
      *
      * @param digest the binary's digest

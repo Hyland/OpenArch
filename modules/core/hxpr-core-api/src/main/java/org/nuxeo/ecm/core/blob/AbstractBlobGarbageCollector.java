@@ -123,4 +123,12 @@ public abstract class AbstractBlobGarbageCollector implements BinaryGarbageColle
         return status;
     }
 
+    @Override
+    public boolean isToDeleteEmpty() {
+        if (toDelete != null) {
+            return toDelete.isEmpty();
+        }
+        return false;
+    }
+
 }

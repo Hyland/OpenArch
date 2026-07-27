@@ -181,8 +181,6 @@ public class KeyValueBlobTransientStore implements TransientStoreProvider {
     /** TTL used to keep objects around a bit longer if there's space for them, for caching. */
     protected int releaseTTL;
 
-    protected long targetMaxSize;
-
     protected long absoluteMaxSize;
 
     protected ObjectMapper mapper;
@@ -207,7 +205,6 @@ public class KeyValueBlobTransientStore implements TransientStoreProvider {
         mapper = new ObjectMapper();
         ttl = config.getFirstLevelTTL() * 60;
         releaseTTL = config.getSecondLevelTTL() * 60;
-        targetMaxSize = config.getTargetMaxSizeMB() * 1024L * 1024;
         absoluteMaxSize = config.getAbsoluteMaxSizeMB() * 1024L * 1024;
     }
 
@@ -298,16 +295,21 @@ public class KeyValueBlobTransientStore implements TransientStoreProvider {
         gc.start();
         // if a concurrent user of the key/value store adds new keys after this point,
         // it's ok because the GC doesn't delete keys created after GC start
+        boolean blobStoreNotEmpty = !gc.isToDeleteEmpty();
         try {
-            keyStream().map(this::getBlobKeys) //
-                       .flatMap(Collection::stream)
-                       .forEach(gc::mark);
+            if (blobStoreNotEmpty) {
+                keyStream().map(this::getBlobKeys)
+                           .flatMap(Collection::stream)
+                           .forEach(gc::mark);
+            }
             delete = true;
         } finally {
             // don't delete if there's an exception, but still stop the GC
             gc.stop(delete);
         }
-        computeStorageSize();
+        if (blobStoreNotEmpty) {
+            computeStorageSize();
+        }
     }
 
     @Override
@@ -836,46 +838,11 @@ public class KeyValueBlobTransientStore implements TransientStoreProvider {
 
     @Override
     public void release(String key) {
-        if (targetMaxSize > 0 && getStorageSize() > targetMaxSize) {
-            // do the costly computation of the exact storage size if needed
-            doGC();
-            if (getStorageSize() > targetMaxSize) {
-                remove(key);
-                return;
-            }
-        }
-        setReleaseTTL(key);
-    }
-
-    // set TTL on all keys for this entry
-    protected void setReleaseTTL(String key) {
+        // Only .completed and .params survive at this point: blobs were already removed by
+        // putBlobs(key, List.of()) before release() is called.
         KeyValueStore kvs = getKeyValueStore();
         kvs.setTTL(key + DOT_COMPLETED, releaseTTL);
         kvs.setTTL(key + DOT_PARAMS, releaseTTL);
-        // Legacy paraminfo + per-parameter keys + their format keys.
-        // No-op for entries already using the consolidated layout.
-        String legacyJson = kvs.getString(key + DOT_PARAMINFO);
-        if (legacyJson != null) {
-            List<String> parameters = jsonToList(legacyJson);
-            if (parameters != null) {
-                parameters.forEach(parameter -> {
-                    String k = key + DOT_PARAM_DOT + parameter;
-                    kvs.setTTL(k, releaseTTL);
-                    kvs.setTTL(k + FORMAT, releaseTTL);
-                });
-            }
-            kvs.setTTL(key + DOT_PARAMINFO, releaseTTL);
-        }
-        String blobInfoJson = kvs.getString(key + DOT_BLOBINFO);
-        Map<String, String> map = jsonToMap(blobInfoJson);
-        if (map != null) {
-            String countStr = map.get(COUNT);
-            int count = countStr == null ? 0 : Integer.parseInt(countStr);
-            for (int i = 0; i < count; i++) {
-                kvs.setTTL(key + DOT_BLOB_DOT + i, releaseTTL);
-            }
-        }
-        kvs.setTTL(key + DOT_BLOBINFO, releaseTTL);
     }
 
     @Override

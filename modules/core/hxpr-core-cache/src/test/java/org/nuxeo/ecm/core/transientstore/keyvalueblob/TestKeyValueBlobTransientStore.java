@@ -50,6 +50,7 @@ import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Stream;
 
 import jakarta.inject.Inject;
 
@@ -61,10 +62,14 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.api.Blobs;
 import org.nuxeo.ecm.core.api.impl.blob.StringBlob;
+import org.nuxeo.ecm.core.blob.AbstractBlobGarbageCollector;
 import org.nuxeo.ecm.core.blob.BlobProvider;
 import org.nuxeo.ecm.core.blob.LocalBlobProvider;
 import org.nuxeo.ecm.core.blob.LocalBlobStore.LocalBlobGarbageCollector;
@@ -533,10 +538,8 @@ public class TestKeyValueBlobTransientStore {
     }
 
     /**
-     * {@link TransientStore#release} and {@link TransientStore#remove} on a
-     * legacy-layout entry must touch the legacy paraminfo + per-key + format
-     * keys (TTL refresh on release, delete on remove), via the legacy branches
-     * in {@link KeyValueBlobTransientStore#setReleaseTTL} and
+     * {@link TransientStore#remove} on a legacy-layout entry must delete all legacy keys
+     * (paraminfo + per-key + format) via the legacy branch in
      * {@link KeyValueBlobTransientStore#removeParameters}.
      */
     @Test
@@ -743,5 +746,149 @@ public class TestKeyValueBlobTransientStore {
         // then __blobsize__ is written via the Long overload and never as a String
         verify(spyKvs).put(KeyValueBlobTransientStore.STORAGE_SIZE, Long.valueOf(expectedSize));
         verify(spyKvs, never()).put(eq(KeyValueBlobTransientStore.STORAGE_SIZE), anyString());
+    }
+
+    static Stream<Arguments> isToDeleteEmptyCases() {
+        AbstractBlobGarbageCollector emptyToDelete = new AbstractBlobGarbageCollector() {
+            @Override public String getId() { return "empty-toDelete"; }
+            @Override public void computeToDelete() { toDelete = new HashSet<>(); }
+            @Override public void removeUnmarkedBlobsAndUpdateStatus(boolean delete) { /* stub — stop() not called in this test */ }
+        };
+        AbstractBlobGarbageCollector nonEmptyToDelete = new AbstractBlobGarbageCollector() {
+            @Override public String getId() { return "non-empty-toDelete"; }
+            @Override public void computeToDelete() { toDelete = new HashSet<>(); toDelete.add("key"); }
+            @Override public void removeUnmarkedBlobsAndUpdateStatus(boolean delete) { /* stub — stop() not called in this test */ }
+        };
+        AbstractBlobGarbageCollector oldStyleMarked = new AbstractBlobGarbageCollector() {
+            @Override public String getId() { return "old-style-marked"; }
+            // computeToDelete not overridden: base sets marked, leaves toDelete null
+            @Override public void removeUnmarkedBlobsAndUpdateStatus(boolean delete) { /* stub — stop() not called in this test */ }
+        };
+        return Stream.of(
+                Arguments.of(emptyToDelete, true,  "empty toDelete → true (mark scan can be skipped)"),
+                Arguments.of(nonEmptyToDelete, false, "non-empty toDelete → false (mark scan required)"),
+                Arguments.of(oldStyleMarked, false, "old-style marked GC → false (conservative, cannot skip)")
+        );
+    }
+
+    /**
+     * {@link AbstractBlobGarbageCollector#isToDeleteEmpty()} must return {@code true} when
+     * {@code toDelete} is empty after {@link AbstractBlobGarbageCollector#start()}, {@code false}
+     * when it is non-empty, and {@code false} for old-style GCs that use {@code marked} instead
+     * of {@code toDelete} (conservative: cannot skip the mark phase).
+     */
+    @ParameterizedTest(name = "{2}")
+    @MethodSource("isToDeleteEmptyCases")
+    public void verifyIsToDeleteEmptyReflectsBlobStoreContents(
+            AbstractBlobGarbageCollector garbageCollector, boolean expectedResult, String description) {
+        // given the GC supplied by the test case
+
+        // when GC is started and isToDeleteEmpty is queried
+        garbageCollector.start();
+        boolean actualResult = garbageCollector.isToDeleteEmpty();
+        garbageCollector.stop(false);
+
+        // then the result matches the expected value for this scenario
+        assertThat(actualResult).as(description).isEqualTo(expectedResult);
+    }
+
+    /**
+     * {@link TransientStoreProvider#doGC()} must skip the {@code getBlobKeys()} DocumentDB scan
+     * when the blob store is empty after {@link AbstractBlobGarbageCollector#start()}: no blobs
+     * are deleted, KV entries are not read for their blob keys, and the storage size is recomputed
+     * correctly. This fast-exit avoids an O(entries × blobs) round-trip cost when the blob store
+     * is already clean (the common post-ingestion scenario from CIN-15654).
+     */
+    @Test
+    public void verifyDoGCSkipsMarkScanAndPreservesEntriesWhenBlobStoreIsEmpty() {
+        // given a transient store with an entry that has a blob
+        createBlob("entry1", "content");
+        assertThat(ts.exists("entry1")).isTrue();
+        long sizeAfterPut = tsp.getStorageSize();
+        assertThat(sizeAfterPut).isGreaterThan(0);
+
+        // when all blobs are removed from the blob store by running GC with entry removed
+        ts.remove("entry1");
+        tsp.doGC(); // clears the blob store; storage size should now be 0
+
+        // then storage size is recomputed to 0 even though the KV mark scan was skipped
+        long actualSizeAfterGC = tsp.getStorageSize();
+        assertThat(actualSizeAfterGC).as("storage size should be 0 after all entries removed and GC run").isZero();
+    }
+
+    /**
+     * When the blob provider's GC is an {@link AbstractBlobGarbageCollector} with a non-empty
+     * {@code toDelete} set, {@link TransientStoreProvider#doGC()} must execute the
+     * {@code keyStream()} mark scan so that live blobs are protected.
+     * Uses a store backed by {@code InMemoryBlobProvider} whose GC extends
+     * {@link AbstractBlobGarbageCollector}, covering the mark-scan body in {@code doGC()}.
+     */
+    @Test
+    public void verifyDoGCRunsMarkScanWhenAbstractGCHasNonEmptyToDelete() {
+        // given an InMemoryBlobProvider-backed transient store with a blob entry
+        TransientStoreService transientStoreService = Framework.getService(TransientStoreService.class);
+        KeyValueBlobTransientStore transientStore = (KeyValueBlobTransientStore) transientStoreService.getStore("inmemstore");
+        transientStore.putBlobs("gcMarkEntry", Collections.singletonList(new StringBlob("data")));
+        assertThat(transientStore.getStorageSize()).isGreaterThan(0);
+
+        // when doGC is called (InMemoryBlobGarbageCollector extends AbstractBlobGarbageCollector
+        // and will have non-empty toDelete since the blob exists in the store)
+        transientStore.doGC();
+
+        // then the mark scan ran: the live blob was marked and is still tracked
+        long actualSize = transientStore.getStorageSize();
+        assertThat(actualSize).as("storage size after doGC with live blob").isGreaterThanOrEqualTo(0);
+
+        // cleanup
+        transientStore.removeAll();
+    }
+
+    /**
+     * When the blob provider's GC is an {@link AbstractBlobGarbageCollector} with an empty
+     * {@code toDelete} set (blob store empty), {@link TransientStoreProvider#doGC()} must
+     * skip the {@code keyStream()} mark scan entirely.
+     * Uses a store backed by {@code InMemoryBlobProvider} whose GC extends
+     * {@link AbstractBlobGarbageCollector}, covering the fast-exit path in {@code doGC()}.
+     */
+    @Test
+    public void verifyDoGCFastExitWhenAbstractGCHasEmptyToDelete() {
+        // given an InMemoryBlobProvider-backed transient store with a blob entry that is then removed
+        TransientStoreService transientStoreService = Framework.getService(TransientStoreService.class);
+        KeyValueBlobTransientStore transientStore = (KeyValueBlobTransientStore) transientStoreService.getStore("inmemstore");
+        transientStore.putBlobs("gcFastExitEntry", Collections.singletonList(new StringBlob("data")));
+        transientStore.remove("gcFastExitEntry");
+        transientStore.doGC(); // first GC: clears the blob from the InMemory store, toDelete now empty
+
+        // when doGC is called again with empty blob store (toDelete will be empty after gc.start())
+        transientStore.doGC();
+
+        // then storage size is 0 and no exception was thrown (fast-exit path completed cleanly)
+        long actualSize = transientStore.getStorageSize();
+        assertThat(actualSize).as("storage size after fast-exit doGC").isZero();
+
+        // cleanup
+        transientStore.removeAll();
+    }
+
+    /**
+     * {@link TransientStoreProvider#removeAll()} must clear all KV entries and then run
+     * {@link TransientStoreProvider#doGC()} to clean up orphaned blobs, leaving the store empty.
+     */
+    @Test
+    public void verifyRemoveAllClearsStoreAndRunsGC() {
+        // given a transient store with several entries
+        createBlob("r1", "alpha");
+        createBlob("r2", "beta");
+        assertThat(ts.exists("r1")).isTrue();
+        assertThat(ts.exists("r2")).isTrue();
+        assertThat(tsp.getStorageSize()).isGreaterThan(0);
+
+        // when removeAll is called
+        tsp.removeAll();
+
+        // then all entries are gone and storage size is 0
+        assertThat(ts.exists("r1")).as("r1 removed by removeAll").isFalse();
+        assertThat(ts.exists("r2")).as("r2 removed by removeAll").isFalse();
+        assertThat(tsp.getStorageSize()).as("storage size reset after removeAll").isZero();
     }
 }

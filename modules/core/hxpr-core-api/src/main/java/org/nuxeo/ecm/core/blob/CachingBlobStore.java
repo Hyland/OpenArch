@@ -472,6 +472,11 @@ public class CachingBlobStore extends AbstractBlobStore {
         }
 
         @Override
+        public boolean isToDeleteEmpty() {
+            return delegate.isToDeleteEmpty();
+        }
+
+        @Override
         public BinaryManagerStatus getStatus() {
             return delegate.getStatus();
         }

@@ -429,6 +429,7 @@ public class Upload {
         transientStore.putParameter(id, RELEASED_PARAM_NAME, true);
         // forget any locally cached blob
         blob = null;
+        transientStore.release(id);
     }
 
     /** Whether this upload's blob storage has been freed via {@link #releaseBlobs()}. */

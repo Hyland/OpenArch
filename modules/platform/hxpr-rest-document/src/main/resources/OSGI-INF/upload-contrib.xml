@@ -8,10 +8,9 @@
       class="org.nuxeo.ecm.core.transientstore.keyvalueblob.KeyValueBlobTransientStore">
       <property name="keyValueStore">uploadTransientKV</property> <!-- not defined here: fallback on default -->
       <property name="blobProvider">uploadTransientBlobProvider</property>
-      <targetMaxSizeMB>${nuxeo.upload.handler.store.targetMaxSizeMB:=100}</targetMaxSizeMB>
       <absoluteMaxSizeMB>-1</absoluteMaxSizeMB>
       <firstLevelTTL>${nuxeo.upload.handler.store.ttl:=4320}</firstLevelTTL>
-      <secondLevelTTL>${nuxeo.upload.handler.store.ttl2:=10}</secondLevelTTL>
+      <secondLevelTTL>${nuxeo.upload.handler.store.ttl2:=60}</secondLevelTTL>
     </store>
 
   </extension>
