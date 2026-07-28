@@ -33,11 +33,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.nuxeo.ecm.core.transientstore.keyvalueblob.KeyValueBlobTransientStore.DOT_COMPLETED;
-import static org.nuxeo.ecm.core.transientstore.keyvalueblob.KeyValueBlobTransientStore.DOT_PARAMINFO;
 import static org.nuxeo.ecm.core.transientstore.keyvalueblob.KeyValueBlobTransientStore.DOT_PARAMS;
-import static org.nuxeo.ecm.core.transientstore.keyvalueblob.KeyValueBlobTransientStore.DOT_PARAM_DOT;
-import static org.nuxeo.ecm.core.transientstore.keyvalueblob.KeyValueBlobTransientStore.FORMAT;
-import static org.nuxeo.ecm.core.transientstore.keyvalueblob.KeyValueBlobTransientStore.FORMAT_JAVA;
 
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -56,7 +52,6 @@ import jakarta.inject.Inject;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -486,83 +481,6 @@ public class TestKeyValueBlobTransientStore {
      */
     protected KeyValueStore getRawKeyValueStore() {
         return Framework.getService(KeyValueService.class).getKeyValueStore("transient_" + NAME);
-    }
-
-    /**
-     * Reading a String parameter from a legacy-layout entry (paraminfo + per-key
-     * value, no {@code DOT_PARAMS}) must fall back to the legacy keys via both
-     * {@link TransientStore#getParameter} and {@link TransientStore#getParameters}.
-     * The fallback exists for entries created on pre-Phase-19 code that are
-     * still within their TTL window at deploy time; it can be removed after one
-     * {@code firstLevelTTL} window has elapsed since the deploy.
-     */
-    @Test
-    public void verifyLegacyStringParamFallback() {
-        // given a legacy-layout entry seeded directly into the KV store
-        KeyValueStore kvs = getRawKeyValueStore();
-        String key = "legacyEntry";
-        kvs.put(key + DOT_COMPLETED, "false");
-        kvs.put(key + DOT_PARAMINFO, "[\"name\"]");
-        kvs.put(key + DOT_PARAM_DOT + "name", "value-on-old-code");
-
-        // when the consolidated-layout readers run against it
-        Object singleParam = ts.getParameter(key, "name");
-        Map<String, Object> allParams = ts.getParameters(key);
-
-        // then both fall through to the legacy keys
-        assertThat(singleParam).isEqualTo("value-on-old-code");
-        assertThat(allParams).containsEntry("name", "value-on-old-code");
-    }
-
-    /**
-     * Reading a Java-serialised parameter from a legacy-layout entry must fall
-     * back to the legacy keys, deserialise the bytes, and return the original
-     * object.
-     */
-    @Test
-    public void verifyLegacyJavaSerializedParamFallback() {
-        // given a legacy-layout entry whose parameter is Java-serialised
-        KeyValueStore kvs = getRawKeyValueStore();
-        String key = "legacyJavaEntry";
-        Long original = 42L;
-        kvs.put(key + DOT_COMPLETED, "false");
-        kvs.put(key + DOT_PARAMINFO, "[\"obj\"]");
-        kvs.put(key + DOT_PARAM_DOT + "obj", SerializationUtils.serialize(original));
-        kvs.put(key + DOT_PARAM_DOT + "obj" + FORMAT, FORMAT_JAVA);
-
-        // when reading the parameter
-        Object value = ts.getParameter(key, "obj");
-
-        // then the bytes are deserialised back to the original object
-        assertThat(value).isEqualTo(original);
-    }
-
-    /**
-     * {@link TransientStore#remove} on a legacy-layout entry must delete all legacy keys
-     * (paraminfo + per-key + format) via the legacy branch in
-     * {@link KeyValueBlobTransientStore#removeParameters}.
-     */
-    @Test
-    public void verifyLegacyRemoveAndRelease() {
-        // given a legacy-layout entry with two params plus a blob
-        KeyValueStore kvs = getRawKeyValueStore();
-        String key = "legacyMixed";
-        kvs.put(key + DOT_COMPLETED, "false");
-        kvs.put(key + DOT_PARAMINFO, "[\"x\",\"y\"]");
-        kvs.put(key + DOT_PARAM_DOT + "x", "1");
-        kvs.put(key + DOT_PARAM_DOT + "y", "2");
-        createBlob(key, "legacy-content");
-
-        // when the entry is released, then removed
-        ts.release(key);
-        assertThat(ts.exists(key)).as("entry survives release").isTrue();
-        ts.remove(key);
-
-        // then the entry is gone and so are all legacy keys
-        assertThat(ts.exists(key)).as("entry removed").isFalse();
-        assertThat(kvs.getString(key + DOT_PARAMINFO)).isNull();
-        assertThat(kvs.getString(key + DOT_PARAM_DOT + "x")).isNull();
-        assertThat(kvs.getString(key + DOT_PARAM_DOT + "y")).isNull();
     }
 
     /**

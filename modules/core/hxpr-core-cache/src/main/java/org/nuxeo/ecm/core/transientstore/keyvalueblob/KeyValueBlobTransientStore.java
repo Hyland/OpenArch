@@ -26,10 +26,7 @@ import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_LENGTH;
 import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_MIME_TYPE;
 import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_FILENAME;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -124,18 +121,6 @@ public class KeyValueBlobTransientStore implements TransientStoreProvider {
 
     /** Per-upload params bag holding all parameters as native JSON values, see class Javadoc for the layout. @since 0.0.68 */
     public static final String DOT_PARAMS = SEP + "params";
-
-    /** Legacy per-upload params index list ({@code ["foo", "bar"]}). Read-only fallback for entries created before {@link #DOT_PARAMS}; never written by current code. */
-    public static final String DOT_PARAMINFO = SEP + "paraminfo";
-
-    /** Legacy per-parameter key prefix ({@code <id>.param.<name>}). Read-only fallback for entries created before {@link #DOT_PARAMS}; never written by current code. */
-    public static final String DOT_PARAM_DOT = SEP + "param" + SEP;
-
-    /** Legacy per-parameter format suffix; only {@link #FORMAT_JAVA} appears in practice. Read-only fallback. */
-    public static final String FORMAT = "__format";
-
-    /** Legacy format marker used by the pre-{@link #DOT_PARAMS} layout for non-String values stored as a Java-serialised {@code byte[]}. Read-only fallback. */
-    public static final String FORMAT_JAVA = "java";
 
     /** @since 11.1 */
     public static final String DOT_BLOBLOCK = SEP + "bloblock";
@@ -501,28 +486,7 @@ public class KeyValueBlobTransientStore implements TransientStoreProvider {
         if (params != null) {
             return nodeToObject(params.get(parameter));
         }
-        // Fallback: legacy per-key layout. Used for entries created on
-        // pre-DOT_PARAMS code; phased out as TTL expires after the deploy.
-        String legacyKey = key + DOT_PARAM_DOT + parameter;
-        String legacyFormat = kvs.getString(legacyKey + FORMAT);
-        if (legacyFormat == null) {
-            return kvs.getString(legacyKey);
-        }
-        byte[] bytes = kvs.get(legacyKey);
-        return deserializeJava(bytes);
-    }
-
-    /** @since 0.0.68 */
-    protected Object deserializeJava(byte[] bytes) {
-        if (bytes == null) {
-            return null;
-        }
-        try (ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
-                ObjectInput in = new ObjectInputStream(bis)) {
-            return in.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            throw new NuxeoException(e);
-        }
+        return null;
     }
 
     @Override
@@ -539,40 +503,12 @@ public class KeyValueBlobTransientStore implements TransientStoreProvider {
             }
             return map;
         }
-        // Fallback: legacy paraminfo + per-key reads. Used for entries created
-        // on pre-DOT_PARAMS code; phased out as TTL expires after the deploy.
-        List<String> legacyNames = jsonToList(kvs.getString(key + DOT_PARAMINFO));
-        if (legacyNames == null) {
-            // Entry doesn't exist at all -> null; entry exists but has no params -> empty map.
-            return kvs.getString(key + DOT_COMPLETED) == null ? null : Collections.emptyMap();
-        }
-        Map<String, Object> map = new HashMap<>(legacyNames.size());
-        for (String p : legacyNames) {
-            Object value = getParameter(key, p);
-            if (value != null) {
-                map.put(p, value);
-            }
-        }
-        return map;
+        // Entry doesn't exist at all -> null; entry exists but has no params -> empty map.
+        return kvs.getString(key + DOT_COMPLETED) == null ? null : Collections.emptyMap();
     }
 
     protected void removeParameters(String key, KeyValueStore kvs) {
         kvs.put(key + DOT_PARAMS, (String) null);
-        // Also clean up legacy per-key entries if present. Skip the lookup
-        // when no legacy paraminfo key exists to keep the common-case cost
-        // at one read.
-        String legacyJson = kvs.getString(key + DOT_PARAMINFO);
-        if (legacyJson != null) {
-            List<String> parameters = jsonToList(legacyJson);
-            if (parameters != null) {
-                for (String parameter : parameters) {
-                    String k = key + DOT_PARAM_DOT + parameter;
-                    kvs.put(k, (String) null);
-                    kvs.put(k + FORMAT, (String) null);
-                }
-            }
-            kvs.put(key + DOT_PARAMINFO, (String) null);
-        }
     }
 
     @Override
