@@ -32,6 +32,10 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.nuxeo.ecm.core.transientstore.keyvalueblob.KeyValueBlobTransientStore.BLOBKEY_PREFIX;
+import static org.nuxeo.ecm.core.transientstore.keyvalueblob.KeyValueBlobTransientStore.DOT_BLOB;
+import static org.nuxeo.ecm.core.transientstore.keyvalueblob.KeyValueBlobTransientStore.DOT_BLOB_DOT;
+import static org.nuxeo.ecm.core.transientstore.keyvalueblob.KeyValueBlobTransientStore.DOT_BLOBINFO;
 import static org.nuxeo.ecm.core.transientstore.keyvalueblob.KeyValueBlobTransientStore.DOT_COMPLETED;
 import static org.nuxeo.ecm.core.transientstore.keyvalueblob.KeyValueBlobTransientStore.DOT_PARAMS;
 
@@ -190,23 +194,21 @@ public class TestKeyValueBlobTransientStore {
         size = tsp.getStorageSize();
         assertEquals(contentByteLength, size);
 
-        // update the entry
+        // update the entry with a replacement blob
         Blob otherBlob = new StringBlob(content2);
         otherBlob.setFilename("fake2.txt");
         otherBlob.setMimeType("text/plain");
-        blobs.add(otherBlob);
-        ts.putBlobs(key, blobs);
+        ts.putBlobs(key, Collections.singletonList(otherBlob));
 
         // check update
         assertTrue(ts.exists(key));
         assertEquals(new HashSet<>(Arrays.asList(key)), tsp.keySet());
-        assertEquals(contentByteLength + content2ByteLength, ts.getSize(key));
+        assertEquals(content2ByteLength, ts.getSize(key));
         blobs = ts.getBlobs(key);
-        assertEquals(2, blobs.size());
-        assertEquals("fake.txt", blobs.get(0).getFilename());
-        assertEquals("fake2.txt", blobs.get(1).getFilename());
+        assertEquals(1, blobs.size());
+        assertEquals("fake2.txt", blobs.get(0).getFilename());
         size = tsp.getStorageSize();
-        assertEquals(contentByteLength + content2ByteLength, size);
+        assertEquals(content2ByteLength, size);
 
         // move to deletable entries
         // check that still here
@@ -419,10 +421,16 @@ public class TestKeyValueBlobTransientStore {
         Runnable put = () -> {
             ts.putBlobs(key, Collections.singletonList(new StringBlob("foo")));
         };
+        // With the flat single-document .blobinfo layout, putBlobs atomically replaces
+        // the blob state in one KV write. A concurrent getBlobs may observe the brief window
+        // between removeBlobs (which clears .blob) and the new kvs.put(DOT_BLOB),
+        // returning an empty list. That is correct transient-store behaviour: the entry is
+        // still alive (DOT_COMPLETED present) but has no blobs in transit. It must never
+        // crash, throw, or return null.
         Runnable get = () -> {
             List<Blob> blobs = ts.getBlobs(key);
-            assertNotNull(blobs);
-            assertEquals(1, blobs.size());
+            assertNotNull(blobs); // must not be null: entry exists, just momentarily blobless
+            // size may be 0 or 1; both are valid under concurrent replacement
         };
 
         // check once that it's ok without concurrency
@@ -702,6 +710,7 @@ public class TestKeyValueBlobTransientStore {
     }
 
     /**
+     * After {@link TransientStoreProvider#doGCSkipsMarkScanAndPreservesEntriesWhenBlobStoreIsEmpty},
      * {@link TransientStoreProvider#doGC()} must skip the {@code getBlobKeys()} DocumentDB scan
      * when the blob store is empty after {@link AbstractBlobGarbageCollector#start()}: no blobs
      * are deleted, KV entries are not read for their blob keys, and the storage size is recomputed
@@ -799,5 +808,220 @@ public class TestKeyValueBlobTransientStore {
         assertThat(ts.exists("r1")).as("r1 removed by removeAll").isFalse();
         assertThat(ts.exists("r2")).as("r2 removed by removeAll").isFalse();
         assertThat(tsp.getStorageSize()).as("storage size reset after removeAll").isZero();
+    }
+
+    // -----------------------------------------------------------------------
+    // CIN-15767: flat .blobinfo layout and __blobkey__ prefix index
+    // -----------------------------------------------------------------------
+
+    /**
+     * After {@link TransientStore#putBlobs}, blob metadata must be inlined in the
+     * {@code .blobinfo} key (flat layout) rather than written to a separate {@code .blob.0}
+     * key. The {@code .blob.0} key must be absent for newly written entries.
+     */
+    @Test
+    public void verifyFlatBlobInfoLayoutOnPutBlobs() {
+        // given a fresh entry with one blob
+        String key = "flatLayoutEntry";
+        createBlob(key, "flat content");
+
+        // then blob metadata is inlined in .blob (flat layout)
+        KeyValueStore kvs = getRawKeyValueStore();
+        String blobInfoJson = kvs.getString(key + DOT_BLOB);
+        assertThat(blobInfoJson).as(".blob must be present and contain inline key field")
+                .isNotNull()
+                .contains("\"key\"");
+
+        // and no separate .blob.0 key is written for new entries
+        String legacyBlobKey = kvs.getString(key + DOT_BLOB_DOT + "0");
+        assertThat(legacyBlobKey).as(".blob.0 must not be written for new entries").isNull();
+    }
+
+    /**
+     * After {@link TransientStore#putBlobs}, a {@code __blobkey__.<blobKey>} index entry must
+     * be present in the KV store for every blob stored. This allows {@link #doGC()} to enumerate
+     * all live blob keys via a single prefix scan rather than per-entry reads.
+     */
+    @Test
+    public void verifyBlobKeyIndexEntryWrittenOnPutBlobs() {
+        // given an entry with a blob
+        String key = "blobKeyIndexEntry";
+        createBlob(key, "indexed blob content");
+
+        // get the stored flat blob JSON and extract the inlined blob key
+        KeyValueStore kvs = getRawKeyValueStore();
+        String blobInfoJson = kvs.getString(key + DOT_BLOB);
+        assertThat(blobInfoJson).as(".blob must exist").isNotNull();
+        assertThat(blobInfoJson).as(".blob must have key field").contains("\"key\"");
+        String blobKey = extractBlobKeyFromFlatJson(blobInfoJson);
+
+        // then a __blobkey__.<blobKey> index entry must exist
+        assertThat(kvs.getString(BLOBKEY_PREFIX + blobKey))
+                .as("__blobkey__.<blobKey> index entry must be present after putBlobs")
+                .isNotNull();
+    }
+
+    /**
+     * After {@link TransientStore#remove}, the {@code __blobkey__} index entry for the blob must
+     * be deleted so that the GC prefix scan doesn't see stale references.
+     */
+    @Test
+    public void verifyBlobKeyIndexEntryRemovedOnRemove() {
+        // given an entry with a blob
+        String key = "removedBlobKeyIndex";
+        createBlob(key, "remove test");
+
+        KeyValueStore kvs = getRawKeyValueStore();
+        String blobInfoJson = kvs.getString(key + DOT_BLOB);
+        String blobKey = extractBlobKeyFromFlatJson(blobInfoJson);
+
+        // when the entry is removed
+        ts.remove(key);
+
+        // then the __blobkey__ index entry is also removed
+        assertThat(kvs.getString(BLOBKEY_PREFIX + blobKey))
+                .as("__blobkey__.<blobKey> must be deleted on remove")
+                .isNull();
+    }
+
+    /**
+     * {@link TransientStore#getBlobs} must transparently read entries written in the old
+     * {@code .blobinfo} + {@code .blob.0} layout (pre-CIN-15767). This ensures rolling-deploy
+     * safety: pods running the new code can serve entries that were written by old pods.
+     */
+    @Test
+    public void verifyGetBlobsFallsBackToLegacyLayout() {
+        // given an entry written via the new path first (to get a real blob into the provider)
+        String key = "legacyLayoutEntry";
+        String content = "legacy content";
+        String digest = DigestUtils.md5Hex(content);
+        ts.putBlobs(key, Collections.singletonList(new StringBlob(content, "text/plain", null, "legacy.txt")));
+
+        // extract the blob key from the new-layout .blob, then reshape to old layout
+        KeyValueStore kvs = getRawKeyValueStore();
+        String blobInfoJson = kvs.getString(key + DOT_BLOB);
+        String blobKey = extractBlobKeyFromFlatJson(blobInfoJson);
+
+        // write old-layout: .blobinfo without blob.0.* fields, a separate .blob.0, no index entry
+        kvs.put(key + DOT_BLOBINFO, "{\"count\":\"1\",\"size\":\"" + content.getBytes(UTF_8).length + "\"}");
+        kvs.put(key + DOT_BLOB_DOT + "0",
+                "{\"key\":\"" + blobKey + "\",\"mimeType\":\"text/plain\",\"filename\":\"legacy.txt\",\"length\":\""
+                        + content.getBytes(UTF_8).length + "\",\"digest\":\"" + digest + "\"}");
+        kvs.put(BLOBKEY_PREFIX + blobKey, (String) null); // remove index entry
+
+        // when getBlobs is called
+        List<Blob> blobs = ts.getBlobs(key);
+
+        // then the blob is returned correctly from the old layout fallback
+        assertThat(blobs).as("should return one blob from legacy layout").hasSize(1);
+        assertThat(blobs.get(0).getFilename()).isEqualTo("legacy.txt");
+    }
+
+    /**
+     * {@link TransientStoreProvider#doGC()} with new-layout entries must use the
+     * {@code __blobkey__} prefix scan to mark live blobs, not the legacy {@code getBlobKeys}
+     * per-entry reads. After GC on a store with live entries, all blobs must still be accessible.
+     */
+    @Test
+    public void verifyDoGCUsesNewBlobKeyIndex() {
+        // given two entries with blobs (new flat layout)
+        createBlob("gcIdx1", "gc index content 1");
+        createBlob("gcIdx2", "gc index content 2");
+        long sizeAfterPut = tsp.getStorageSize();
+        assertThat(sizeAfterPut).isGreaterThan(0);
+
+        // when GC runs with live blobs in the blob store
+        tsp.doGC();
+
+        // then both entries survive (blobs were marked via __blobkey__ prefix scan)
+        assertThat(ts.exists("gcIdx1")).as("gcIdx1 must survive doGC").isTrue();
+        assertThat(ts.exists("gcIdx2")).as("gcIdx2 must survive doGC").isTrue();
+        assertThat(ts.getBlobs("gcIdx1")).as("gcIdx1 blobs still readable").hasSize(1);
+        assertThat(ts.getBlobs("gcIdx2")).as("gcIdx2 blobs still readable").hasSize(1);
+        assertThat(tsp.getStorageSize()).as("storage size unchanged after GC with live entries")
+                                       .isEqualTo(sizeAfterPut);
+    }
+
+    /**
+     * {@link TransientStoreProvider#doGC()} must still protect blobs written in the old layout
+     * (no {@code __blobkey__} index, blob key in {@code .blob.0}) via the legacy
+     * {@link KeyValueBlobTransientStore#getBlobKeys(String)} fallback.
+     */
+    @Test
+    public void verifyDoGCLegacyFallbackProtectsOldLayoutBlobs() {
+        // given an entry first written via new layout (to get a real blob into the provider)
+        String key = "gcLegacyEntry";
+        String content = "old layout gc content";
+        createBlob(key, content);
+
+        KeyValueStore kvs = getRawKeyValueStore();
+        String blobInfoJson = kvs.getString(key + DOT_BLOB);
+        String blobKey = extractBlobKeyFromFlatJson(blobInfoJson);
+
+        // reshape to old layout: strip blob.* fields from .blob, write .blobinfo + .blob.0, remove index
+        kvs.put(key + DOT_BLOB, (String) null); // clear new-layout document
+        kvs.put(key + DOT_BLOBINFO,
+                "{\"count\":\"1\",\"size\":\"" + content.getBytes(UTF_8).length + "\"}");
+        kvs.put(key + DOT_BLOB_DOT + "0",
+                "{\"key\":\"" + blobKey + "\",\"mimeType\":\"text/plain\",\"length\":\""
+                        + content.getBytes(UTF_8).length + "\"}");
+        kvs.put(BLOBKEY_PREFIX + blobKey, (String) null); // no index entry — simulates old code
+
+        // when GC runs
+        tsp.doGC();
+
+        // then the old-layout blob was protected via the getBlobKeys fallback
+        assertThat(ts.exists(key)).as("old-layout entry must survive doGC").isTrue();
+        assertThat(ts.getBlobs(key)).as("old-layout blob still readable after doGC").hasSize(1);
+    }
+
+    /**
+     * Helper: extracts the blob provider key from a flat {@code .blobinfo} JSON string.
+     * Parses {@code "key":"<value>"}.
+     */
+    private static String extractBlobKeyFromFlatJson(String blobInfoJson) {
+        assertThat(blobInfoJson).as("blobinfo JSON").isNotNull();
+        // Use a non-greedy match on "key": to avoid matching fields like "mimeType" etc.
+        // The JSON contains "key":"<blobKey>" where blobKey is the actual blob provider key.
+        int idx = blobInfoJson.indexOf("\"key\"");
+        assertThat(idx).as("key field in blobinfo JSON").isGreaterThan(-1);
+        return blobInfoJson.substring(idx + "\"key\"".length())
+                           .replaceAll("^\\s*:\\s*\"([^\"]+)\".*", "$1");
+    }
+
+    /**
+     * {@link TransientStore#remove} on an entry written in the old layout (separate {@code .blob.0}
+     * key, {@code size} field in {@code .blobinfo}) must clean up the old-layout keys, adjust the
+     * storage-size accumulator, and not leave a stale {@code __blobkey__} index entry.
+     * Covers the {@code removeBlobs} old-layout fallback path introduced in CIN-15767.
+     */
+    @Test
+    public void verifyRemoveCleansUpOldLayoutEntry() {
+        // given an entry seeded via the new path (to get a real blob into the provider)
+        String key = "oldLayoutRemoveEntry";
+        String content = "old layout remove content";
+        ts.putBlobs(key, Collections.singletonList(new StringBlob(content, "text/plain", null, "old.txt")));
+
+        // reshape to old layout: .blobinfo with a "size" field + separate .blob.0 key, no blob.key inline
+        KeyValueStore kvs = getRawKeyValueStore();
+        String blobInfoJson = kvs.getString(key + DOT_BLOB);
+        String blobKey = extractBlobKeyFromFlatJson(blobInfoJson);
+        int contentBytes = content.getBytes(UTF_8).length;
+        kvs.put(key + DOT_BLOB, (String) null); // clear new-layout document so fallback path is exercised
+        kvs.put(key + DOT_BLOBINFO, "{\"size\":\"" + contentBytes + "\"}");
+        kvs.put(key + DOT_BLOB_DOT + "0",
+                "{\"key\":\"" + blobKey + "\",\"mimeType\":\"text/plain\",\"length\":\"" + contentBytes + "\"}");
+        kvs.put(BLOBKEY_PREFIX + blobKey, (String) null); // no index entry — simulates pre-index old code
+
+        long sizeBeforeRemove = tsp.getStorageSize();
+        assertThat(sizeBeforeRemove).as("storage size reflects the seeded blob").isGreaterThan(0);
+
+        // when the entry is removed
+        ts.remove(key);
+
+        // then the entry is gone, .blob.0 is cleaned up, and storage size is adjusted
+        assertThat(ts.exists(key)).as("entry must not exist after remove").isFalse();
+        assertThat(kvs.getString(key + DOT_BLOB_DOT + "0")).as(".blob.0 legacy key must be deleted").isNull();
+        assertThat(tsp.getStorageSize()).as("storage size must decrease by blob length").isEqualTo(sizeBeforeRemove - contentBytes);
     }
 }

@@ -33,8 +33,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -89,22 +87,24 @@ import tools.jackson.databind.node.ObjectNode;
  *                       and Long; see {@link #setNodeValue} for the contract.
  *                       Read and written via Jackson's tree model (ObjectNode) to
  *                       keep the codec non-polymorphic; see {@link #readParamsTree}
- *                       for why. Entries created on pre-{@code DOT_PARAMS} code
- *                       are read via a fallback path (see {@link #getParameter}
- *                       and {@link #getParameters}); the fallback can be removed
- *                       after one {@link TransientStoreConfig#getFirstLevelTTL}
- *                       window has passed since the deploy.
+ *                       for why.
  *
- *   entryKey.bloblock:  "true" if there is a blob read/write in progress, null otherwise
- *   entryKey.blobinfo:  {"count": number of blobs,
- *                        "size": storage size of the blobs}
- *   entryKey.blob.0:    {"key": key in blob provider for first blob,
- *                        "mimeType": MIME Type,
- *                        "encoding": encoding,
- *                        "filename": filename,
- *                        "digest": digest}
- *   entryKey.blob.1:    {...} same for second blob
- *   etc.
+ *   entryKey.blob:      {"key": "&lt;key in blob provider&gt;",
+ *                        "mimeType": "...",
+ *                        "encoding": "...",
+ *                        "filename": "...",
+ *                        "length": "&lt;bytes&gt;",
+ *                        "digest": "..."}
+ *                       HxPR always stores exactly one blob per entry.
+ *                       Entries written before this layout carry a separate {@code entryKey.blob.0}
+ *                       key; {@link #getBlobs} reads both transparently until old entries expire.
+ *                       Entries written by pre-{@code DOT_BLOB} code used {@code entryKey.blobinfo}
+ *                       as the document key; {@link #getBlobInfoJson} falls back to that key too.
+ *
+ *   __blobkey__.*:      one key per blob currently held: {@code __blobkey__.<blobKey>}, empty value,
+ *                       same TTL as the entry. Allows {@link #doGC()} to enumerate all live blob keys
+ *                       with a single prefix scan. Written in {@link #putBlobs}, deleted in
+ *                       {@link #removeBlobs}.
  * </pre>
  *
  * @since 9.3
@@ -119,18 +119,29 @@ public class KeyValueBlobTransientStore implements TransientStoreProvider {
 
     public static final String DOT_COMPLETED = SEP + "completed";
 
-    /** Per-upload params bag holding all parameters as native JSON values, see class Javadoc for the layout. @since 0.0.68 */
+    /** Per-upload params bag; see class Javadoc for the layout. */
     public static final String DOT_PARAMS = SEP + "params";
 
-    /** @since 11.1 */
-    public static final String DOT_BLOBLOCK = SEP + "bloblock";
+    public static final String DOT_BLOB = SEP + "blob";
 
+    /** @deprecated Legacy blob-info key ({@code entryKey.blobinfo}). Written by pre-{@code DOT_BLOB} code;
+     *  read as a fallback in {@link #getBlobInfoJson}. Remove after one {@link TransientStoreConfig#getFirstLevelTTL} window. */
+    @Deprecated(since = "CIN-15767")
     public static final String DOT_BLOBINFO = SEP + "blobinfo";
 
-    public static final String COUNT = "count";
+    /** @deprecated Old size field name in legacy {@code entryKey.blobinfo} documents (pre-flat layout). */
+    @Deprecated(since = "CIN-15767")
+    protected static final String SIZE = "size";
 
-    public static final String SIZE = "size";
+    /**
+     * Prefix for per-blob-key index entries: {@code __blobkey__.<blobKey>}, empty value, same TTL
+     * as the entry. A prefix scan on this lets {@link #doGC()} mark all live blobs in one query.
+     */
+    public static final String BLOBKEY_PREFIX = "__blobkey__" + SEP;
 
+    /** @deprecated Legacy per-blob key ({@code entryKey.blob.0}, …). Written by pre-flat-layout code;
+     *  read as a fallback in {@link #getBlobs}. Remove after one {@link TransientStoreConfig#getFirstLevelTTL} window. */
+    @Deprecated(since = "CIN-15767")
     public static final String DOT_BLOB_DOT = SEP + "blob" + SEP;
 
     public static final String CONFIG_KEY_VALUE_STORE = "keyValueStore";
@@ -142,15 +153,6 @@ public class KeyValueBlobTransientStore implements TransientStoreProvider {
 
     /** @since 11.1 */
     public static final String CONFIG_DEFAULT_BLOB_PROVIDER_DEFAULT = "default";
-
-    /** @since 11.1 */
-    protected static final int BLOB_LOCK_TTL = 60; // don't keep any lock longer than 60s
-
-    /** @since 11.1 */
-    protected static final long LOCK_ACQUIRE_TIME_NANOS = TimeUnit.SECONDS.toNanos(5);
-
-    /** @since 11.1 */
-    protected static final long LOCK_EXPONENTIAL_BACKOFF_AFTER_NANOS = TimeUnit.MILLISECONDS.toNanos(100);
 
     protected String name;
 
@@ -227,44 +229,27 @@ public class KeyValueBlobTransientStore implements TransientStoreProvider {
     @Override
     public long getStorageSize() {
         KeyValueStore kvs = getKeyValueStore();
-        // getLong accepts both native Long and stringified digits (see
-        // MongoDBKeyValueStore.toLong), so historic entries written by
-        // pre-fix computeStorageSize remain readable until the next GC
-        // rewrites them.
         Long size = kvs.getLong(STORAGE_SIZE);
         return size == null ? 0 : size;
     }
 
     /**
-     * Atomically adjusts the {@code __blobsize__} accumulator by {@code delta}.
-     * <p>
-     * Uses {@link KeyValueStore#addAndGet} (native MongoDB / DocumentDB {@code $inc})
-     * rather than a read-then-CAS loop, which would otherwise contend on this
-     * single key under concurrent {@link #putBlobs} / {@link #removeBlobs} load.
-     * <p>
-     * DocumentDB (and MongoDB) reject {@code $inc} on a non-numeric field with
-     * error code 14 / 16837, and {@link org.nuxeo.ecm.core.mongodb.kv.MongoDBKeyValueStore}
-     * falls back to a CAS loop in that case. To keep the fast path, the
-     * accumulator must always be stored as a native {@link Long} - see
-     * {@link #computeStorageSize()}.
+     * Atomically adjusts the {@code __blobsize__} accumulator by {@code delta} using
+     * {@link KeyValueStore#addAndGet} (native {@code $inc}) to avoid CAS contention
+     * under concurrent {@link #putBlobs} / {@link #removeBlobs} load. The accumulator
+     * must always be stored as a native {@link Long} — see {@link #computeStorageSize()}.
      */
     protected void addStorageSize(long delta, KeyValueStore kvs) {
         kvs.addAndGet(STORAGE_SIZE, delta);
     }
 
     /**
-     * Computes an exact value for the current storage size (sum of all blobs size). THIS METHOD IS COSTLY.
+     * Computes an exact value for the current storage size (sum of all blob sizes). THIS METHOD IS COSTLY.
      * <p>
-     * Does not take into account blob de-duplication that may be done by the blob provider.
+     * Does not account for blob de-duplication or blobs that exist in the provider but are no longer referenced.
      * <p>
-     * Does not take into account blobs that still exist in the blob provider but are not referenced anymore (due to TTL
-     * expiration or GC not having been done).
-     * <p>
-     * Stores the result as a native {@link Long}: MongoDB / DocumentDB {@code $inc}
-     * (used by {@link #addStorageSize} on every {@link #putBlobs} / {@link #removeBlobs})
-     * requires a numeric field. Writing the size as a string here would trip the
-     * subsequent {@code $inc} into a CAS-loop fallback, re-introducing per-key
-     * contention on {@code __blobsize__} under concurrent uploads.
+     * Stores the result as a native {@link Long} so the {@code $inc} fast path in {@link #addStorageSize}
+     * remains available on subsequent calls.
      */
     protected void computeStorageSize() {
         KeyValueStore kvs = getKeyValueStore();
@@ -283,6 +268,15 @@ public class KeyValueBlobTransientStore implements TransientStoreProvider {
         boolean blobStoreNotEmpty = !gc.isToDeleteEmpty();
         try {
             if (blobStoreNotEmpty) {
+                // Mark live blobs via the __blobkey__ prefix index (one scan for the whole store).
+                // Old entries without index entries are covered by the getBlobKeys fallback;
+                // remove that fallback after one firstLevelTTL window.
+                KeyValueStoreProvider kvs = (KeyValueStoreProvider) getKeyValueStore();
+                int prefixLen = BLOBKEY_PREFIX.length();
+                kvs.keyStream(BLOBKEY_PREFIX)
+                   .map(k -> k.substring(prefixLen))
+                   .forEach(gc::mark);
+                // Legacy fallback for entries without __blobkey__ index entries.
                 keyStream().map(this::getBlobKeys)
                            .flatMap(Collection::stream)
                            .forEach(gc::mark);
@@ -521,11 +515,10 @@ public class KeyValueBlobTransientStore implements TransientStoreProvider {
             }
         }
 
-        // first, outside the lock
-        // store the blobs, and compute the total size and the blob maps
+        // store the blobs and compute total size
         BlobProvider bp = getBlobProvider();
         long totalSize = 0;
-        List<String> blobMapJsons = new ArrayList<>();
+        List<Map<String, String>> blobMaps = new ArrayList<>();
         for (Blob blob : blobs) {
             long size = blob.getLength();
             if (size >= 0) {
@@ -546,52 +539,76 @@ public class KeyValueBlobTransientStore implements TransientStoreProvider {
             blobMap.put(KEY_BLOB_FILENAME, blob.getFilename());
             blobMap.put(KEY_BLOB_LENGTH, String.valueOf(size));
             blobMap.put(KEY_BLOB_DIGEST, blob.getDigest());
-            String blobMapJson = toJson(blobMap);
-            blobMapJsons.add(blobMapJson);
+            blobMaps.add(blobMap);
         }
-        Map<String, String> blobInfoMap = new HashMap<>();
-        blobInfoMap.put(COUNT, String.valueOf(blobs.size()));
-        blobInfoMap.put(SIZE, String.valueOf(totalSize));
-        String blobInfoMapJson = toJson(blobInfoMap);
 
-        // acquire a lock while writing
+        // write new blobs and index entries
         KeyValueStore kvs = getKeyValueStore();
-        acquireBlobLockOrThrow(key, kvs);
-        try {
-            // remove previous blobs
-            removeBlobs(key, kvs);
-            // write new blobs maps
-            int i = 0;
-            for (String blobMapJson : blobMapJsons) {
-                kvs.put(key + DOT_BLOB_DOT + i, blobMapJson, ttl);
-                i++;
-            }
-            // write blob info
-            kvs.put(key + DOT_BLOBINFO, blobInfoMapJson, ttl);
-            addStorageSize(totalSize, kvs);
-            markEntryExists(key, kvs);
-        } finally {
-            releaseBlobLock(key, kvs);
+        removeBlobs(key, kvs);
+
+        Map<String, String> flatMap = new HashMap<>();
+        // HxPR always stores exactly one blob per entry; inline its metadata directly
+        if (!blobMaps.isEmpty()) {
+            flatMap.putAll(blobMaps.get(0));
         }
+        kvs.put(key + DOT_BLOB, toJson(flatMap), ttl);
+
+        for (Map<String, String> blobMap : blobMaps) {
+            String blobKey = blobMap.get(KEY_BLOB_KEY);
+            if (blobKey != null) {
+                kvs.put(BLOBKEY_PREFIX + blobKey, "", ttl);
+            }
+        }
+
+        addStorageSize(totalSize, kvs);
+        markEntryExists(key, kvs);
+    }
+
+    /**
+     * Reads the blob-info JSON for the given entry key, trying the new {@link #DOT_BLOB} key first
+     * and falling back to the legacy {@link #DOT_BLOBINFO} key for entries written by older code.
+     * Returns {@code null} if neither key is present.
+     */
+    @SuppressWarnings("java:S1874") // intentional use of deprecated DOT_BLOBINFO for migration fallback
+    protected String getBlobInfoJson(String key, KeyValueStore kvs) {
+        String json = kvs.getString(key + DOT_BLOB);
+        if (json == null) {
+            json = kvs.getString(key + DOT_BLOBINFO); // legacy fallback
+        }
+        return json;
     }
 
     protected void removeBlobs(String key, KeyValueStore kvs) {
-        String json = kvs.getString(key + DOT_BLOBINFO);
+        String json = getBlobInfoJson(key, kvs);
         Map<String, String> map = jsonToMap(json);
         if (map == null) {
             return;
         }
-        String countStr = map.get(COUNT);
-        int count = countStr == null ? 0 : Integer.parseInt(countStr);
-        String sizeStr = map.get(SIZE);
-        long size = sizeStr == null ? 0 : Long.parseLong(sizeStr);
-
-        // remove blobs
-        for (int i = 0; i < count; i++) {
-            kvs.put(key + DOT_BLOB_DOT + i, (String) null);
+        // new flat layout: length from KEY_BLOB_LENGTH; old layout: size from SIZE field
+        String lengthStr = map.get(KEY_BLOB_LENGTH);
+        if (lengthStr == null) {
+            lengthStr = map.get(SIZE); // old layout fallback
         }
-        kvs.put(key + DOT_BLOBINFO, (String) null);
-        // fix storage size
+        long size = lengthStr == null ? 0 : Long.parseLong(lengthStr);
+
+        // new flat layout: blob.key inlined in blobinfo
+        String blobKey = map.get(KEY_BLOB_KEY);
+        if (blobKey == null) {
+            // old layout: blob key in a separate .blob.0 key
+            String blobMapJson = kvs.getString(key + DOT_BLOB_DOT + "0");
+            if (blobMapJson != null) {
+                Map<String, String> blobMap = jsonToMap(blobMapJson);
+                if (blobMap != null) {
+                    blobKey = blobMap.get(KEY_BLOB_KEY);
+                }
+            }
+        }
+        if (blobKey != null) {
+            kvs.put(BLOBKEY_PREFIX + blobKey, (String) null);
+        }
+        kvs.put(key + DOT_BLOB_DOT + "0", (String) null); // remove legacy key if present
+        kvs.put(key + DOT_BLOB, (String) null);
+        kvs.put(key + DOT_BLOBINFO, (String) null); // remove legacy key if present
         addStorageSize(-size, kvs);
     }
 
@@ -599,145 +616,98 @@ public class KeyValueBlobTransientStore implements TransientStoreProvider {
     public List<Blob> getBlobs(String key) {
         KeyValueStore kvs = getKeyValueStore();
         BlobProvider bp = getBlobProvider();
-        List<String> blobMapJsons = new ArrayList<>();
 
-        // try to acquire a lock but still proceed without the lock (best effort)
-        boolean lockAcquired = tryAcquireBlobLock(key, kvs);
-        try {
-            String info = kvs.getString(key + DOT_BLOBINFO);
-            if (info == null) {
-                // if the entry doesn't exist at all return null, otherwise empty
-                if (kvs.getString(key + DOT_COMPLETED) == null) {
-                    return null;
-                } else {
-                    return Collections.emptyList();
-                }
-            }
-            Map<String, String> blobInfoMap = jsonToMap(info);
-            String countStr = blobInfoMap.get(COUNT);
-            if (countStr == null) {
+        String info = getBlobInfoJson(key, kvs);
+        if (info == null) {
+            // if the entry doesn't exist at all return null, otherwise empty
+            if (kvs.getString(key + DOT_COMPLETED) == null) {
+                return null;
+            } else {
                 return Collections.emptyList();
             }
-            int count = Integer.parseInt(countStr);
-            for (int i = 0; i < count; i++) {
-                String blobMapJson = kvs.getString(key + DOT_BLOB_DOT + i);
-                blobMapJsons.add(blobMapJson);
+        }
+        Map<String, String> blobInfoMap = jsonToMap(info);
+
+        // new flat layout: blob metadata inlined under blob.* keys
+        Map<String, String> blobMap = extractFlatBlobMap(blobInfoMap);
+        if (blobMap == null) {
+            // old layout: metadata in a separate .blob.0 key
+            String blobMapJson = kvs.getString(key + DOT_BLOB_DOT + "0");
+            if (blobMapJson == null) {
+                return Collections.emptyList();
             }
-        } finally {
-            if (lockAcquired) {
-                releaseBlobLock(key, kvs);
-            }
+            blobMap = jsonToMap(blobMapJson);
+        }
+        if (blobMap == null) {
+            return Collections.emptyList();
         }
 
-        // compute blobs from read blob maps
-        List<Blob> blobs = new ArrayList<>();
-        for (String blobMapJson : blobMapJsons) {
-            if (blobMapJson == null) {
-                // corrupted entry, bail out
-                break;
-            }
-            Map<String, String> blobMap = jsonToMap(blobMapJson);
-            String blobKey = blobMap.get(KEY_BLOB_KEY);
-            if (blobKey == null) {
-                // corrupted entry, bail out
-                break;
-            }
-            String mimeType = blobMap.get(KEY_BLOB_MIME_TYPE);
-            String encoding = blobMap.get(KEY_BLOB_ENCODING);
-            String filename = blobMap.get(KEY_BLOB_FILENAME);
-            String lengthStr = blobMap.get(KEY_BLOB_LENGTH);
-            Long length = lengthStr == null ? null : Long.valueOf(lengthStr);
-            String digest = blobMap.get(KEY_BLOB_DIGEST);
-            BlobInfo blobInfo = new BlobInfo();
-            blobInfo.setKey(blobKey);
-            blobInfo.setMimeType(mimeType);
-            blobInfo.setEncoding(encoding);
-            blobInfo.setFilename(filename);
-            blobInfo.setLength(length);
-            blobInfo.setDigest(digest);
-            try {
-                Blob blob = bp.readBlob(blobInfo);
-                blobs.add(blob);
-            } catch (IOException e) {
-                // ignore, the blob was removed from the blob provider
-                // maybe by a concurrent GC from this transient store
-                // or from the blob provider itself (if it's incorrectly shared)
-                log.debug("Failed to read blob: {} in blob provider: {} for transient store: {}" , digest, blobProviderId
-                        , name);
-            }
+        String blobKey = blobMap.get(KEY_BLOB_KEY);
+        if (blobKey == null) {
+            return Collections.emptyList();
         }
-        return blobs;
+        BlobInfo blobInfo = new BlobInfo();
+        blobInfo.setKey(blobKey);
+        blobInfo.setMimeType(blobMap.get(KEY_BLOB_MIME_TYPE));
+        blobInfo.setEncoding(blobMap.get(KEY_BLOB_ENCODING));
+        blobInfo.setFilename(blobMap.get(KEY_BLOB_FILENAME));
+        String lengthStr = blobMap.get(KEY_BLOB_LENGTH);
+        blobInfo.setLength(lengthStr == null ? null : Long.valueOf(lengthStr));
+        blobInfo.setDigest(blobMap.get(KEY_BLOB_DIGEST));
+        try {
+            return new ArrayList<>(List.of(bp.readBlob(blobInfo)));
+        } catch (IOException e) {
+            log.debug("Failed to read blob: {} in blob provider: {} for transient store: {}",
+                    blobInfo.getDigest(), blobProviderId, name);
+            return Collections.emptyList();
+        }
     }
 
-    // used by GC
+    /** Extracts blob metadata from a flat {@code .blob} map; returns {@code null} for old layout. */
+    @SuppressWarnings("java:S1168") // null is a sentinel meaning "old layout"; empty map would be ambiguous
+    protected Map<String, String> extractFlatBlobMap(Map<String, String> blobInfoMap) {
+        String blobKey = blobInfoMap.get(KEY_BLOB_KEY);
+        if (blobKey == null) {
+            return null; // old layout
+        }
+        Map<String, String> blobMap = new HashMap<>();
+        blobMap.put(KEY_BLOB_KEY, blobKey);
+        blobMap.put(KEY_BLOB_MIME_TYPE, blobInfoMap.get(KEY_BLOB_MIME_TYPE));
+        blobMap.put(KEY_BLOB_ENCODING, blobInfoMap.get(KEY_BLOB_ENCODING));
+        blobMap.put(KEY_BLOB_FILENAME, blobInfoMap.get(KEY_BLOB_FILENAME));
+        blobMap.put(KEY_BLOB_LENGTH, blobInfoMap.get(KEY_BLOB_LENGTH));
+        blobMap.put(KEY_BLOB_DIGEST, blobInfoMap.get(KEY_BLOB_DIGEST));
+        return blobMap;
+    }
+
+    /**
+     * Returns blob keys for the given entry, falling back to the old {@code .blob.N} layout
+     * for entries without a {@link #BLOBKEY_PREFIX} index. Remove after one firstLevelTTL window.
+     */
     protected List<String> getBlobKeys(String key) {
         KeyValueStore kvs = getKeyValueStore();
-        String info = kvs.getString(key + DOT_BLOBINFO);
+        String info = getBlobInfoJson(key, kvs);
         if (info == null) {
             return Collections.emptyList();
         }
         Map<String, String> blobInfoMap = jsonToMap(info);
-        String countStr = blobInfoMap.get(COUNT);
-        if (countStr == null) {
+        if (blobInfoMap == null) {
             return Collections.emptyList();
         }
-        int count = Integer.parseInt(countStr);
-        List<String> blobKeys = new ArrayList<>(count);
-        for (int i = 0; i < count; i++) {
-            String blobMapJson = kvs.getString(key + DOT_BLOB_DOT + i);
-            if (blobMapJson == null) {
-                // corrupted entry, bail out
-                break;
-            }
-            Map<String, String> blobMap = jsonToMap(blobMapJson);
-            String blobKey = blobMap.get(KEY_BLOB_KEY);
-            if (blobKey == null) {
-                // corrupted entry, bail out
-                break;
-            }
-            blobKeys.add(blobKey);
+
+        // new flat layout: skip — already covered by the __blobkey__ prefix scan in doGC
+        if (blobInfoMap.get(KEY_BLOB_KEY) != null) {
+            return Collections.emptyList();
         }
-        return blobKeys;
-    }
 
-    protected void acquireBlobLockOrThrow(String key, KeyValueStore kvs) {
-        if (tryAcquireBlobLock(key, kvs)) {
-            return;
+        // old layout: blob key in a separate .blob.0 key
+        String blobMapJson = kvs.getString(key + DOT_BLOB_DOT + "0");
+        if (blobMapJson == null) {
+            return Collections.emptyList();
         }
-        throw new NuxeoException("Failed to acquire blob lock for: " + key);
-    }
-
-    protected boolean tryAcquireBlobLock(String key, KeyValueStore kvs) {
-        return acquireLock(() -> tryAcquireOnceBlobLock(key, kvs));
-    }
-
-    protected boolean tryAcquireOnceBlobLock(String key, KeyValueStore kvs) {
-        return kvs.compareAndSet(key + DOT_BLOBLOCK, null, "true", BLOB_LOCK_TTL);
-    }
-
-    protected void releaseBlobLock(String key, KeyValueStore kvs) {
-        kvs.put(key + DOT_BLOBLOCK, (String) null);
-    }
-
-    protected boolean acquireLock(BooleanSupplier tryAcquireOnce) {
-        long start = System.nanoTime();
-        long sleep = 1; // ms
-        long elapsed;
-        while ((elapsed = System.nanoTime() - start) < LOCK_ACQUIRE_TIME_NANOS) {
-            if (tryAcquireOnce.getAsBoolean()) {
-                return true;
-            }
-            try {
-                Thread.sleep(sleep);
-                if (elapsed > LOCK_EXPONENTIAL_BACKOFF_AFTER_NANOS) {
-                    sleep *= 2;
-                }
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new RuntimeException(e);
-            }
-        }
-        return false;
+        Map<String, String> blobMap = jsonToMap(blobMapJson);
+        String blobKey = blobMap == null ? null : blobMap.get(KEY_BLOB_KEY);
+        return blobKey != null ? List.of(blobKey) : Collections.emptyList();
     }
 
     @Override
@@ -746,13 +716,17 @@ public class KeyValueBlobTransientStore implements TransientStoreProvider {
     }
 
     private long getSize(String key, KeyValueStore kvs) {
-        String json = kvs.getString(key + DOT_BLOBINFO);
+        String json = getBlobInfoJson(key, kvs);
         Map<String, String> map = jsonToMap(json);
-        String size;
-        if (map == null || (size = map.get(SIZE)) == null) {
+        if (map == null) {
             return 0;
         }
-        return Long.parseLong(size);
+        // new flat layout: length from KEY_BLOB_LENGTH; old layout: size from SIZE field
+        String size = map.get(KEY_BLOB_LENGTH);
+        if (size == null) {
+            size = map.get(SIZE); // old layout fallback
+        }
+        return size == null ? 0 : Long.parseLong(size);
     }
 
     @Override
