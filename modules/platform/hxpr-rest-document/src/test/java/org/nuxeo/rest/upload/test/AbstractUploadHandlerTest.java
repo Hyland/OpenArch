@@ -229,23 +229,20 @@ public abstract class AbstractUploadHandlerTest extends RuntimeSpringBootTest {
         assertEquals(76, tsm.getStorageSize());
 
         String chunkEntryKey1 = uploadId + "_0";
-        List<Blob> chunkEntryBlobs = ts.getBlobs(chunkEntryKey1);
-        assertEquals(1, chunkEntryBlobs.size());
-        blob1 = chunkEntryBlobs.get(0);
+        blob1 = ts.getBlob(chunkEntryKey1);
+        assertNotNull(blob1);
         assertEquals(chunk1, blob1.getString());
         assertEquals(15, blob1.getLength());
 
         String chunkEntryKey2 = uploadId + "_1";
-        chunkEntryBlobs = ts.getBlobs(chunkEntryKey2);
-        assertEquals(1, chunkEntryBlobs.size());
-        blob2 = chunkEntryBlobs.get(0);
+        blob2 = ts.getBlob(chunkEntryKey2);
+        assertNotNull(blob2);
         assertEquals(chunk2, blob2.getString());
         assertEquals(15, blob2.getLength());
 
         String chunkEntryKey3 = uploadId + "_2";
-        chunkEntryBlobs = ts.getBlobs(chunkEntryKey3);
-        assertEquals(1, chunkEntryBlobs.size());
-        blob3 = chunkEntryBlobs.get(0);
+        blob3 = ts.getBlob(chunkEntryKey3);
+        assertNotNull(blob3);
         assertEquals(chunk3, blob3.getString());
         assertEquals(8, blob3.getLength());
 

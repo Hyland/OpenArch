@@ -20,10 +20,8 @@
 
 package org.nuxeo.ecm.core.transientstore;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -148,18 +146,16 @@ public class SimpleTransientStore extends AbstractTransientStore {
     }
 
     @Override
-    public List<Blob> getBlobs(String key) {
+    public Blob getBlob(String key) {
         StorageEntry entry = getStorageEntry(key);
         if (entry == null) {
             return null;
         }
-        // Get blob information from the store
-        List<Map<String, String>> blobInfos = entry.getBlobInfos();
-        if (blobInfos == null) {
-            return new ArrayList<>();
+        Map<String, String> blobInfo = entry.getBlobInfo();
+        if (blobInfo == null) {
+            return null;
         }
-        // Load blobs from the file system
-        return loadBlobs(blobInfos);
+        return loadBlob(blobInfo);
     }
 
     @Override
@@ -220,24 +216,24 @@ public class SimpleTransientStore extends AbstractTransientStore {
     }
 
     @Override
-    protected void persistBlobs(String key, long sizeOfBlobs, List<Map<String, String>> blobInfos) {
+    protected void persistBlob(String key, long sizeOfBlob, Map<String, String> blobInfo) {
         synchronized (this) {
             StorageEntry entry = getStorageEntry(key);
             // Update storage size
             if (entry == null) {
-                if (sizeOfBlobs > 0) {
-                    incrementStorageSize(sizeOfBlobs);
+                if (sizeOfBlob > 0) {
+                    incrementStorageSize(sizeOfBlob);
                 }
                 entry = new StorageEntry();
             } else {
-                incrementStorageSize(sizeOfBlobs - entry.getSize());
+                incrementStorageSize(sizeOfBlob - entry.getSize());
             }
             // Update entry size
-            entry.setSize(sizeOfBlobs);
+            entry.setSize(sizeOfBlob);
             // Set blob information
-            entry.setBlobInfos(blobInfos);
+            entry.setBlobInfo(blobInfo);
             if (log.isDebugEnabled()) {
-                log.debug(String.format("Setting blobs %s in StorageEntry stored at key %s", blobInfos, key));
+                log.debug(String.format("Setting blob %s in StorageEntry stored at key %s", blobInfo, key));
             }
             putStorageEntry(key, entry);
         }

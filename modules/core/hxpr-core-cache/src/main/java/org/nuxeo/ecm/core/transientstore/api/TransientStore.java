@@ -20,14 +20,13 @@
 
 package org.nuxeo.ecm.core.transientstore.api;
 
-import java.util.List;
 import java.util.Map;
 import org.nuxeo.ecm.core.api.Blob;
 
 /**
  * Service Interface for managing a transient store.
  * <p>
- * Allows to store entries in 2 sub parts: a list of blobs stored on a file system along with a map of parameters.
+ * Allows to store entries in 2 sub parts: a single blob stored on a file system along with a map of parameters.
  *
  * @since 7.2
  */
@@ -78,26 +77,26 @@ public interface TransientStore {
     Map<String, Object> getParameters(String key);
 
     /**
-     * Associates the given {@code blobs} with the entry with the given {@code key}.
+     * Associates {@code blob} with the entry with the given {@code key}. Pass {@code null} to clear any existing blob.
      * <p>
      * If entry does not exist a new entry is created.
      *
      * @since 7.10
      */
-    void putBlobs(String key, List<Blob> blobs);
+    void putBlob(String key, Blob blob);
 
     /**
-     * Gets the blobs associated with the entry with the given {@code key}.
+     * Gets the blob associated with the entry with the given {@code key}.
      * <p>
-     * Returns {@code null} if entry does not exist.
+     * Returns {@code null} if entry does not exist or has no blob.
      *
      * @since 7.10
      */
-    List<Blob> getBlobs(String key);
+    Blob getBlob(String key);
 
     /**
-     * Returns the size of the blobs associated with the entry with the given {@code key}, or {@code 0} if the entry
-     * does not exist or has no blobs.
+     * Returns the size of the blob associated with the entry with the given {@code key}, or {@code 0} if the entry
+     * does not exist or has no blob.
      *
      * @since 7.10
      */

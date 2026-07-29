@@ -44,7 +44,6 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
@@ -120,7 +119,7 @@ public class TestKeyValueBlobTransientStore {
         blob.setFilename("fake.txt");
         blob.setMimeType("text/plain");
         blob.setDigest(DigestUtils.md5Hex(content));
-        ts.putBlobs(key, Collections.singletonList(blob));
+        ts.putBlob(key, blob);
     }
 
     @Test
@@ -181,9 +180,8 @@ public class TestKeyValueBlobTransientStore {
         assertEquals(contentByteLength, ts.getSize(key));
         assertEquals("1", ts.getParameter(key, "A"));
         assertEquals("b", ts.getParameter(key, "B"));
-        List<Blob> blobs = ts.getBlobs(key);
-        assertEquals(1, blobs.size());
-        Blob blob = blobs.get(0);
+        Blob blob = ts.getBlob(key);
+        assertNotNull(blob);
         assertEquals("fake.txt", blob.getFilename());
         assertEquals("text/plain", blob.getMimeType());
         assertEquals(contentMD5, blob.getDigest());
@@ -198,15 +196,15 @@ public class TestKeyValueBlobTransientStore {
         Blob otherBlob = new StringBlob(content2);
         otherBlob.setFilename("fake2.txt");
         otherBlob.setMimeType("text/plain");
-        ts.putBlobs(key, Collections.singletonList(otherBlob));
+        ts.putBlob(key, otherBlob);
 
         // check update
         assertTrue(ts.exists(key));
         assertEquals(new HashSet<>(Arrays.asList(key)), tsp.keySet());
         assertEquals(content2ByteLength, ts.getSize(key));
-        blobs = ts.getBlobs(key);
-        assertEquals(1, blobs.size());
-        assertEquals("fake2.txt", blobs.get(0).getFilename());
+        Blob updatedBlob = ts.getBlob(key);
+        assertNotNull(updatedBlob);
+        assertEquals("fake2.txt", updatedBlob.getFilename());
         size = tsp.getStorageSize();
         assertEquals(content2ByteLength, size);
 
@@ -247,7 +245,7 @@ public class TestKeyValueBlobTransientStore {
         assertFalse(ts.exists("fakeEntry"));
         assertNull(ts.getParameters("fakeEntry"));
         assertNull(ts.getParameter("fakeEntry", "fakeParameter"));
-        assertNull(ts.getBlobs("fakeEntry"));
+        assertNull(ts.getBlob("fakeEntry"));
         assertEquals(0, ts.getSize("fakeEntry"));
         assertFalse(ts.isCompleted("fakeEntry"));
 
@@ -259,20 +257,16 @@ public class TestKeyValueBlobTransientStore {
         assertEquals(1, params.size());
         assertNotNull(ts.getParameter("testEntry", "param1"));
         assertNull(ts.getParameter("testEntry", "param2"));
-        List<Blob> blobs = ts.getBlobs("testEntry");
-        assertNotNull(blobs);
-        assertTrue(blobs.isEmpty());
+        assertNull(ts.getBlob("testEntry"));
         assertEquals(0, ts.getSize("testEntry"));
 
         // Entry with blobs only
-        ts.putBlobs("otherEntry", Collections.singletonList(new StringBlob("joe")));
+        ts.putBlob("otherEntry", new StringBlob("joe"));
         assertTrue(ts.exists("otherEntry"));
         params = ts.getParameters("otherEntry");
         assertNotNull(params);
         assertTrue(params.isEmpty());
-        blobs = ts.getBlobs("otherEntry");
-        assertNotNull(blobs);
-        assertEquals(1, blobs.size());
+        assertNotNull(ts.getBlob("otherEntry"));
     }
 
     @Test
@@ -280,10 +274,10 @@ public class TestKeyValueBlobTransientStore {
         // store is configured for 1MB max
         byte[] bytes = new byte[1024 * 1024 + 1];
         Blob blob = Blobs.createBlob(bytes);
-        ts.putBlobs("foo", Collections.singletonList(blob));
+        ts.putBlob("foo", blob);
         // store another one but we've exceeded the size allowed
         try {
-            ts.putBlobs("bar", Collections.singletonList(Blobs.createBlob("x")));
+            ts.putBlob("bar", Blobs.createBlob("x"));
             fail("Should have exceeded maximum transient space");
         } catch (MaximumTransientSpaceExceeded e) {
             assertEquals("Maximum Transient Space Exceeded", e.getMessage());
@@ -358,7 +352,7 @@ public class TestKeyValueBlobTransientStore {
         removeAllBlobsFromBlobProvider();
 
         // get the blob, should not crash
-        ts.getBlobs(key);
+        ts.getBlob(key);
     }
 
     protected void removeAllBlobsFromBlobProvider() throws Exception {
@@ -419,18 +413,17 @@ public class TestKeyValueBlobTransientStore {
     public void testPutBlobsGetBlobsConcurrency() throws Exception {
         String key = "mykey";
         Runnable put = () -> {
-            ts.putBlobs(key, Collections.singletonList(new StringBlob("foo")));
+            ts.putBlob(key, new StringBlob("foo"));
         };
-        // With the flat single-document .blobinfo layout, putBlobs atomically replaces
-        // the blob state in one KV write. A concurrent getBlobs may observe the brief window
-        // between removeBlobs (which clears .blob) and the new kvs.put(DOT_BLOB),
-        // returning an empty list. That is correct transient-store behaviour: the entry is
-        // still alive (DOT_COMPLETED present) but has no blobs in transit. It must never
-        // crash, throw, or return null.
+        // With the flat single-document .blob layout, putBlob atomically replaces
+        // the blob state in one KV write. A concurrent getBlob may observe the brief window
+        // between removeBlob (which clears .blob) and the new kvs.put(DOT_BLOB),
+        // returning null. That is correct transient-store behaviour: the entry is
+        // still alive (DOT_COMPLETED present) but has no blob in transit. It must never
+        // crash or throw.
         Runnable get = () -> {
-            List<Blob> blobs = ts.getBlobs(key);
-            assertNotNull(blobs); // must not be null: entry exists, just momentarily blobless
-            // size may be 0 or 1; both are valid under concurrent replacement
+            // null is valid during a concurrent replacement — entry exists, momentarily blobless
+            ts.getBlob(key);
         };
 
         // check once that it's ok without concurrency
@@ -475,6 +468,8 @@ public class TestKeyValueBlobTransientStore {
         if (exc.getValue() != null) {
             throw exc.getValue();
         }
+        // explicit assertion: no AssertionError was thrown on the getBlob thread
+        assertThat(exc.getValue()).as("getBlob must not fail under concurrent putBlob").isNull();
     }
 
     /**
@@ -641,7 +636,7 @@ public class TestKeyValueBlobTransientStore {
      * not a {@link String}.
      * <p>
      * The DocumentDB fast path in {@code KeyValueBlobTransientStore#addStorageSize}
-     * (used on every {@link TransientStore#putBlobs} / remove) relies on
+     * (used on every {@link TransientStore#putBlob} / remove) relies on
      * {@code $inc}, which DocumentDB rejects with error code 14 on a non-numeric
      * field. A regression to {@code kvs.put(_, String.valueOf(size))} would
      * drop every subsequent {@code addAndGet} into the CAS-loop fallback and
@@ -746,7 +741,7 @@ public class TestKeyValueBlobTransientStore {
         // given an InMemoryBlobProvider-backed transient store with a blob entry
         TransientStoreService transientStoreService = Framework.getService(TransientStoreService.class);
         KeyValueBlobTransientStore transientStore = (KeyValueBlobTransientStore) transientStoreService.getStore("inmemstore");
-        transientStore.putBlobs("gcMarkEntry", Collections.singletonList(new StringBlob("data")));
+        transientStore.putBlob("gcMarkEntry", new StringBlob("data"));
         assertThat(transientStore.getStorageSize()).isGreaterThan(0);
 
         // when doGC is called (InMemoryBlobGarbageCollector extends AbstractBlobGarbageCollector
@@ -773,7 +768,7 @@ public class TestKeyValueBlobTransientStore {
         // given an InMemoryBlobProvider-backed transient store with a blob entry that is then removed
         TransientStoreService transientStoreService = Framework.getService(TransientStoreService.class);
         KeyValueBlobTransientStore transientStore = (KeyValueBlobTransientStore) transientStoreService.getStore("inmemstore");
-        transientStore.putBlobs("gcFastExitEntry", Collections.singletonList(new StringBlob("data")));
+        transientStore.putBlob("gcFastExitEntry", new StringBlob("data"));
         transientStore.remove("gcFastExitEntry");
         transientStore.doGC(); // first GC: clears the blob from the InMemory store, toDelete now empty
 
@@ -811,16 +806,16 @@ public class TestKeyValueBlobTransientStore {
     }
 
     // -----------------------------------------------------------------------
-    // CIN-15767: flat .blobinfo layout and __blobkey__ prefix index
+    // CIN-15767: flat .blob layout and __blobkey__ prefix index
     // -----------------------------------------------------------------------
 
     /**
-     * After {@link TransientStore#putBlobs}, blob metadata must be inlined in the
-     * {@code .blobinfo} key (flat layout) rather than written to a separate {@code .blob.0}
+     * After {@link TransientStore#putBlob}, blob metadata must be inlined in the
+     * {@code .blob} key (flat layout) rather than written to a separate {@code .blob.0}
      * key. The {@code .blob.0} key must be absent for newly written entries.
      */
     @Test
-    public void verifyFlatBlobInfoLayoutOnPutBlobs() {
+    public void verifyFlatBlobLayoutOnPutBlob() {
         // given a fresh entry with one blob
         String key = "flatLayoutEntry";
         createBlob(key, "flat content");
@@ -838,7 +833,7 @@ public class TestKeyValueBlobTransientStore {
     }
 
     /**
-     * After {@link TransientStore#putBlobs}, a {@code __blobkey__.<blobKey>} index entry must
+     * After {@link TransientStore#putBlob}, a {@code __blobkey__.<blobKey>} index entry must
      * be present in the KV store for every blob stored. This allows {@link #doGC()} to enumerate
      * all live blob keys via a single prefix scan rather than per-entry reads.
      */
@@ -857,7 +852,7 @@ public class TestKeyValueBlobTransientStore {
 
         // then a __blobkey__.<blobKey> index entry must exist
         assertThat(kvs.getString(BLOBKEY_PREFIX + blobKey))
-                .as("__blobkey__.<blobKey> index entry must be present after putBlobs")
+                .as("__blobkey__.<blobKey> index entry must be present after putBlob")
                 .isNotNull();
     }
 
@@ -885,7 +880,7 @@ public class TestKeyValueBlobTransientStore {
     }
 
     /**
-     * {@link TransientStore#getBlobs} must transparently read entries written in the old
+     * {@link TransientStore#getBlob} must transparently read entries written in the old
      * {@code .blobinfo} + {@code .blob.0} layout (pre-CIN-15767). This ensures rolling-deploy
      * safety: pods running the new code can serve entries that were written by old pods.
      */
@@ -895,7 +890,7 @@ public class TestKeyValueBlobTransientStore {
         String key = "legacyLayoutEntry";
         String content = "legacy content";
         String digest = DigestUtils.md5Hex(content);
-        ts.putBlobs(key, Collections.singletonList(new StringBlob(content, "text/plain", null, "legacy.txt")));
+        ts.putBlob(key, new StringBlob(content, "text/plain", null, "legacy.txt"));
 
         // extract the blob key from the new-layout .blob, then reshape to old layout
         KeyValueStore kvs = getRawKeyValueStore();
@@ -909,12 +904,12 @@ public class TestKeyValueBlobTransientStore {
                         + content.getBytes(UTF_8).length + "\",\"digest\":\"" + digest + "\"}");
         kvs.put(BLOBKEY_PREFIX + blobKey, (String) null); // remove index entry
 
-        // when getBlobs is called
-        List<Blob> blobs = ts.getBlobs(key);
+        // when getBlob is called
+        Blob actualBlob = ts.getBlob(key);
 
         // then the blob is returned correctly from the old layout fallback
-        assertThat(blobs).as("should return one blob from legacy layout").hasSize(1);
-        assertThat(blobs.get(0).getFilename()).isEqualTo("legacy.txt");
+        assertThat(actualBlob).as("should return blob from legacy layout").isNotNull();
+        assertThat(actualBlob.getFilename()).isEqualTo("legacy.txt");
     }
 
     /**
@@ -936,8 +931,8 @@ public class TestKeyValueBlobTransientStore {
         // then both entries survive (blobs were marked via __blobkey__ prefix scan)
         assertThat(ts.exists("gcIdx1")).as("gcIdx1 must survive doGC").isTrue();
         assertThat(ts.exists("gcIdx2")).as("gcIdx2 must survive doGC").isTrue();
-        assertThat(ts.getBlobs("gcIdx1")).as("gcIdx1 blobs still readable").hasSize(1);
-        assertThat(ts.getBlobs("gcIdx2")).as("gcIdx2 blobs still readable").hasSize(1);
+        assertThat(ts.getBlob("gcIdx1")).as("gcIdx1 blob still readable").isNotNull();
+        assertThat(ts.getBlob("gcIdx2")).as("gcIdx2 blob still readable").isNotNull();
         assertThat(tsp.getStorageSize()).as("storage size unchanged after GC with live entries")
                                        .isEqualTo(sizeAfterPut);
     }
@@ -972,11 +967,11 @@ public class TestKeyValueBlobTransientStore {
 
         // then the old-layout blob was protected via the getBlobKeys fallback
         assertThat(ts.exists(key)).as("old-layout entry must survive doGC").isTrue();
-        assertThat(ts.getBlobs(key)).as("old-layout blob still readable after doGC").hasSize(1);
+        assertThat(ts.getBlob(key)).as("old-layout blob still readable after doGC").isNotNull();
     }
 
     /**
-     * Helper: extracts the blob provider key from a flat {@code .blobinfo} JSON string.
+     * Helper: extracts the blob provider key from a flat {@code .blob} JSON string.
      * Parses {@code "key":"<value>"}.
      */
     private static String extractBlobKeyFromFlatJson(String blobInfoJson) {
@@ -1000,7 +995,7 @@ public class TestKeyValueBlobTransientStore {
         // given an entry seeded via the new path (to get a real blob into the provider)
         String key = "oldLayoutRemoveEntry";
         String content = "old layout remove content";
-        ts.putBlobs(key, Collections.singletonList(new StringBlob(content, "text/plain", null, "old.txt")));
+        ts.putBlob(key, new StringBlob(content, "text/plain", null, "old.txt"));
 
         // reshape to old layout: .blobinfo with a "size" field + separate .blob.0 key, no blob.key inline
         KeyValueStore kvs = getRawKeyValueStore();

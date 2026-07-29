@@ -31,9 +31,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -86,7 +84,7 @@ public abstract class AbstractTransientStore implements TransientStoreProvider {
      * Updates the total storage size and the storage size of the entry with the given {@code key} according to
      * {@code sizeOfBlobs} and stores the blob information in this entry.
      */
-    protected abstract void persistBlobs(String key, long sizeOfBlobs, List<Map<String, String>> blobInfos);
+    protected abstract void persistBlob(String key, long sizeOfBlob, Map<String, String> blobInfo);
 
     /**
      * Sets the size of the disk storage in bytes.
@@ -102,56 +100,52 @@ public abstract class AbstractTransientStore implements TransientStoreProvider {
     protected abstract void removeEntry(String key);
 
     @Override
-    public void putBlobs(String key, List<Blob> blobs) {
+    public void putBlob(String key, Blob blob) {
         if (config.getAbsoluteMaxSizeMB() < 0 || getStorageSize() < config.getAbsoluteMaxSizeMB() * (1024 * 1024)) {
-            // Store blobs on the file system
-            List<Map<String, String>> blobInfos = storeBlobs(key, blobs);
+            // Store blob on the file system
+            Map<String, String> blobInfo = storeBlob(key, blob);
             // Persist blob information in the store
-            persistBlobs(key, getSizeOfBlobs(blobs), blobInfos);
+            persistBlob(key, getSizeOfBlob(blob), blobInfo);
         } else {
             throw new MaximumTransientSpaceExceeded();
         }
     }
 
-    protected List<Map<String, String>> storeBlobs(String key, List<Blob> blobs) {
-        if (blobs == null) {
+    protected Map<String, String> storeBlob(String key, Blob blob) {
+        if (blob == null) {
             return null;
         }
-        // Store blobs on the file system and compute blob information
-        List<Map<String, String>> blobInfos = new ArrayList<>();
-        for (Blob blob : blobs) {
-            Map<String, String> blobInfo = new HashMap<>();
-            File cachingDir = getCachingDirectory(key);
-            String uuid = UUID.randomUUID().toString();
-            File cachedFile = new File(cachingDir, uuid);
-            try {
-                if (blob instanceof FileBlob fileBlob && fileBlob.isTemporary()) {
-                    fileBlob.moveTo(cachedFile);
-                } else {
-                    blob.transferTo(cachedFile);
-                }
-            } catch (IOException e) {
-                throw new NuxeoException(e);
+        // Store blob on the file system and compute blob information
+        Map<String, String> blobInfo = new HashMap<>();
+        File cachingDir = getCachingDirectory(key);
+        String uuid = UUID.randomUUID().toString();
+        File cachedFile = new File(cachingDir, uuid);
+        try {
+            if (blob instanceof FileBlob fileBlob && fileBlob.isTemporary()) {
+                fileBlob.moveTo(cachedFile);
+            } else {
+                blob.transferTo(cachedFile);
             }
-            Path cachedFileRelativePath = Paths.get(cachingDir.getName(), uuid);
-            blobInfo.put("file", cachedFileRelativePath.toString());
-            // Redis doesn't support null values
-            if (blob.getFilename() != null) {
-                blobInfo.put(KEY_BLOB_FILENAME, blob.getFilename());
-            }
-            if (blob.getEncoding() != null) {
-                blobInfo.put(KEY_BLOB_ENCODING, blob.getEncoding());
-            }
-            if (blob.getMimeType() != null) {
-                blobInfo.put(KEY_BLOB_MIME_TYPE, blob.getMimeType());
-            }
-            if (blob.getDigest() != null) {
-                blobInfo.put(KEY_BLOB_DIGEST, blob.getDigest());
-            }
-            blobInfos.add(blobInfo);
+        } catch (IOException e) {
+            throw new NuxeoException(e);
         }
-        log.debug("Stored blobs on the file system: {}" , blobInfos);
-        return blobInfos;
+        Path cachedFileRelativePath = Paths.get(cachingDir.getName(), uuid);
+        blobInfo.put("file", cachedFileRelativePath.toString());
+        // Redis doesn't support null values
+        if (blob.getFilename() != null) {
+            blobInfo.put(KEY_BLOB_FILENAME, blob.getFilename());
+        }
+        if (blob.getEncoding() != null) {
+            blobInfo.put(KEY_BLOB_ENCODING, blob.getEncoding());
+        }
+        if (blob.getMimeType() != null) {
+            blobInfo.put(KEY_BLOB_MIME_TYPE, blob.getMimeType());
+        }
+        if (blob.getDigest() != null) {
+            blobInfo.put(KEY_BLOB_DIGEST, blob.getDigest());
+        }
+        log.debug("Stored blob on the file system: {}", blobInfo);
+        return blobInfo;
     }
 
     public File getCachingDirectory(String key) {
@@ -177,32 +171,26 @@ public abstract class AbstractTransientStore implements TransientStoreProvider {
         return dirName;
     }
 
-    protected long getSizeOfBlobs(List<Blob> blobs) {
-        long size = 0;
-        if (blobs != null) {
-            for (Blob blob : blobs) {
-                long blobLength = blob.getLength();
-                if (blobLength > -1) {
-                    size += blobLength;
-                }
-            }
+    protected long getSizeOfBlob(Blob blob) {
+        if (blob == null) {
+            return 0;
         }
-        return size;
+        long length = blob.getLength();
+        return length > -1 ? length : 0;
     }
 
-    protected List<Blob> loadBlobs(List<Map<String, String>> blobInfos) {
-        log.debug("Loading blobs from the file system: {}" , blobInfos);
-        List<Blob> blobs = new ArrayList<>();
-        for (Map<String, String> info : blobInfos) {
-            File blobFile = new File(cacheDir, info.get("file"));
-            Blob blob = new FileBlob(blobFile);
-            blob.setEncoding(info.get(KEY_BLOB_ENCODING));
-            blob.setMimeType(info.get(KEY_BLOB_MIME_TYPE));
-            blob.setFilename(info.get(KEY_BLOB_FILENAME));
-            blob.setDigest(info.get(KEY_BLOB_DIGEST));
-            blobs.add(blob);
+    protected Blob loadBlob(Map<String, String> blobInfo) {
+        if (blobInfo == null) {
+            return null;
         }
-        return blobs;
+        log.debug("Loading blob from the file system: {}", blobInfo);
+        File blobFile = new File(cacheDir, blobInfo.get("file"));
+        Blob blob = new FileBlob(blobFile);
+        blob.setEncoding(blobInfo.get(KEY_BLOB_ENCODING));
+        blob.setMimeType(blobInfo.get(KEY_BLOB_MIME_TYPE));
+        blob.setFilename(blobInfo.get(KEY_BLOB_FILENAME));
+        blob.setDigest(blobInfo.get(KEY_BLOB_DIGEST));
+        return blob;
     }
 
     @Override
@@ -242,10 +230,10 @@ public abstract class AbstractTransientStore implements TransientStoreProvider {
     @Override
     public void remove(String key) {
         removeEntry(key);
-        removeBlobs(key);
+        removeBlob(key);
     }
 
-    protected void removeBlobs(String key) {
+    protected void removeBlob(String key) {
         FileUtils.deleteQuietly(getCachingDirectory(key));
     }
 

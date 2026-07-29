@@ -208,7 +208,7 @@ public class Upload {
     }
 
     public void addBlob(Blob blob) {
-        transientStore.putBlobs(id, List.of(blob));
+        transientStore.putBlob(id, blob);
         // mark upload as non-chunked
         transientStore.putParameter(id, ChunkInfo.CHUNKED_PARAM_NAME, false);
         hasContent = true;
@@ -237,7 +237,7 @@ public class Upload {
         // single putParameters call to avoid serialising on the per-upload params
         // doc CAS. The PARTIAL_FILESIZE read-modify-write must stay sequential.
         String chunkEntryKey = id + "_" + chunkIndex;
-        transientStore.putBlobs(chunkEntryKey, List.of(blob));
+        transientStore.putBlob(chunkEntryKey, blob);
 
         Map<String, Object> params = new HashMap<>();
         // mark entry as chunked on first chunk
@@ -287,11 +287,7 @@ public class Upload {
     }
 
     protected Blob getBlobFromStore(String key) {
-        List<Blob> storeBlobs = transientStore.getBlobs(key);
-        if (storeBlobs == null || storeBlobs.isEmpty()) {
-            return null;
-        }
-        return storeBlobs.get(0);
+        return transientStore.getBlob(key);
     }
 
     protected Blob buildChunkedBlob() {
@@ -323,7 +319,7 @@ public class Upload {
             localBlob.setFilename(getFileName());
             localBlob.setEncoding(getEncoding());
             // store the final file
-            transientStore.putBlobs(id, List.of(localBlob));
+            transientStore.putBlob(id, localBlob);
             return getBlobFromStore(id);
         } catch (IOException ioe) {
             setStatus(UploadStatus.ERROR);
@@ -424,7 +420,7 @@ public class Upload {
             }
         }
         // remove the concatenated blob, but keep parameters (status, attachStatus, attachDocId, ...)
-        transientStore.putBlobs(id, List.of());
+        transientStore.putBlob(id, null);
         // mark this upload's blobs as released
         transientStore.putParameter(id, RELEASED_PARAM_NAME, true);
         // forget any locally cached blob

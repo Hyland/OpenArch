@@ -27,8 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.File;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 import com.hyland.hxpr.async.tasks.AsyncTasksFeature;
@@ -81,7 +79,7 @@ public class TestInMemoryTransientStorage {
         blob.setFilename("fake.txt");
         blob.setMimeType("text/plain");
         blob.setDigest(DigestUtils.md5Hex(content));
-        ts.putBlobs(id, Collections.singletonList(blob));
+        ts.putBlob(id, blob);
     }
 
     @Test
@@ -130,9 +128,8 @@ public class TestInMemoryTransientStorage {
         assertEquals(11, ts.getSize("1"));
         assertEquals("1", ts.getParameter("1", "A"));
         assertEquals("b", ts.getParameter("1", "B"));
-        List<Blob> blobs = ts.getBlobs("1");
-        assertEquals(1, blobs.size());
-        Blob blob = blobs.get(0);
+        Blob blob = ts.getBlob("1");
+        assertNotNull(blob);
         assertEquals("fake.txt", blob.getFilename());
         assertEquals("text/plain", blob.getMimeType());
         assertEquals(DigestUtils.md5Hex("FakeContent"), blob.getDigest());
@@ -141,24 +138,21 @@ public class TestInMemoryTransientStorage {
         size = ((AbstractTransientStore) ts).getStorageSize();
         assertEquals(11, size);
 
-        // update the entry
+        // update the entry with a replacement blob
         Blob otherBlob = new StringBlob("FakeContent2");
         otherBlob.setFilename("fake2.txt");
         otherBlob.setMimeType("text/plain");
-        blobs.add(otherBlob);
-        ts.putBlobs("1", blobs);
+        ts.putBlob("1", otherBlob);
 
         // check update
         assertTrue(ts.exists("1"));
         assertEquals(1, tsm.keySet().size());
         assertTrue(tsm.keySet().contains("1"));
-        assertEquals(23, ts.getSize("1"));
-        blobs = ts.getBlobs("1");
-        assertEquals(2, blobs.size());
-        assertEquals("fake.txt", blobs.get(0).getFilename());
-        assertEquals("fake2.txt", blobs.get(1).getFilename());
+        Blob updatedBlob = ts.getBlob("1");
+        assertNotNull(updatedBlob);
+        assertEquals("fake2.txt", updatedBlob.getFilename());
         size = ((AbstractTransientStore) ts).getStorageSize();
-        assertEquals(23, size);
+        assertEquals(12, size); // replacement: old blob (11 bytes) replaced by new (12 bytes)
 
         // move to deletable entries
         // check that still here
@@ -186,7 +180,7 @@ public class TestInMemoryTransientStorage {
         assertFalse(ts.exists("fakeEntry"));
         assertNull(ts.getParameters("fakeEntry"));
         assertNull(ts.getParameter("fakeEntry", "fakeParameter"));
-        assertNull(ts.getBlobs("fakeEntry"));
+        assertNull(ts.getBlob("fakeEntry"));
         assertEquals(0, ts.getSize("fakeEntry"));
         assertFalse(ts.isCompleted("fakeEntry"));
 
@@ -198,19 +192,15 @@ public class TestInMemoryTransientStorage {
         assertEquals(1, params.size());
         assertNotNull(ts.getParameter("testEntry", "param1"));
         assertNull(ts.getParameter("testEntry", "param2"));
-        List<Blob> blobs = ts.getBlobs("testEntry");
-        assertNotNull(blobs);
-        assertTrue(blobs.isEmpty());
+        assertNull(ts.getBlob("testEntry"));
 
         // Entry with blobs only
-        ts.putBlobs("otherEntry", Collections.singletonList(new StringBlob("joe")));
+        ts.putBlob("otherEntry", new StringBlob("joe"));
         assertTrue(ts.exists("otherEntry"));
         params = ts.getParameters("otherEntry");
         assertNotNull(params);
         assertTrue(params.isEmpty());
-        blobs = ts.getBlobs("otherEntry");
-        assertNotNull(blobs);
-        assertEquals(1, blobs.size());
+        assertNotNull(ts.getBlob("otherEntry"));
     }
 
     @Test
@@ -231,9 +221,8 @@ public class TestInMemoryTransientStorage {
         assertTrue(ts.exists("1"));
         assertEquals("1", ts.getParameter("1", "A"));
         assertEquals("b", ts.getParameter("1", "B"));
-        List<Blob> blobs = ts.getBlobs("1");
-        assertEquals(1, blobs.size());
-        Blob blob = blobs.get(0);
+        Blob blob = ts.getBlob("1");
+        assertNotNull(blob);
         assertEquals("fake.txt", blob.getFilename());
         assertEquals("text/plain", blob.getMimeType());
         assertEquals("FakeContent", IOUtils.toString(blob.getStream(), UTF_8));

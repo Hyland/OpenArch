@@ -18,7 +18,6 @@
  */
 package org.nuxeo.ecm.core.transientstore;
 
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -38,7 +37,7 @@ public class StorageEntry {
 
     protected ConcurrentMap<String, Object> params;
 
-    protected List<Map<String, String>> blobInfos;
+    protected Map<String, String> blobInfo;
 
     protected long size;
 
@@ -50,7 +49,7 @@ public class StorageEntry {
 
     public StorageEntry(long size, boolean completed) {
         params = null;
-        blobInfos = null;
+        blobInfo = null;
         this.size = size;
         this.completed = completed;
     }
@@ -83,12 +82,12 @@ public class StorageEntry {
         params.put(param, value);
     }
 
-    public List<Map<String, String>> getBlobInfos() {
-        return blobInfos;
+    public Map<String, String> getBlobInfo() {
+        return blobInfo;
     }
 
-    public void setBlobInfos(List<Map<String, String>> blobInfos) {
-        this.blobInfos = blobInfos;
+    public void setBlobInfo(Map<String, String> blobInfo) {
+        this.blobInfo = blobInfo;
     }
 
     public long getSize() {
