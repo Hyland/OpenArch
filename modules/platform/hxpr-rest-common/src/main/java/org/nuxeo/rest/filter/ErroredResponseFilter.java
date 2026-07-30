@@ -23,6 +23,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.apache.http.HttpStatus;
 import org.apache.logging.log4j.LogManager;
@@ -48,6 +49,9 @@ public class ErroredResponseFilter extends OncePerRequestFilter {
     private static final List<Integer> FILTERED_SC = Arrays.asList(HttpStatus.SC_BAD_REQUEST,
             HttpStatus.SC_INTERNAL_SERVER_ERROR);
 
+    // Pattern to match request bodies containing Authorization headers to prevent logging payload containing credentials
+    private static final Pattern AUTHORIZATION_PATTERN = Pattern.compile("^\\s*#?\\s*authorization\\s*:", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+
     @Value("${" + LOG_ERRORED_RESPONSE_PAYLOAD_LIMIT + ":" + DEFAULT_PAYLOAD_LIMIT + "}")
     private int payloadLimit;
 
@@ -63,13 +67,19 @@ public class ErroredResponseFilter extends OncePerRequestFilter {
             return;
         }
         String capturedPayload = cachedRequest.getContentAsString();
-        if (capturedPayload.isEmpty()) {
+        // The find method scans the input sequence looking for the next subsequence that matches the pattern.
+        // As authorization can be one of the headers, it's needed to use find instead of matches which tries to match the entire input
+        // Find authorization header and replace it with **** to prevent from logging payload which contains credentials
+        if (AUTHORIZATION_PATTERN.matcher(capturedPayload).find()) {
+            capturedPayload = "*****";
+        } else if (capturedPayload.isEmpty()) {
             // the request payload has length > 0 but the captured payload is empty -> should not happen
             log.warn("Could not get payload for request that resulted in response with status code {}: {} {}",
                     statusCode, request.getMethod(), request.getRequestURI());
             return;
+        } else {
+            capturedPayload = capturedPayload.replaceAll("[\n\r]", "_");
         }
-        capturedPayload = capturedPayload.replaceAll("[\n\r]", "_");
         log.warn("Request failed with status code {}: {} {} {}", statusCode, request.getMethod(),
                 request.getRequestURI(), capturedPayload);
     }

@@ -25,8 +25,8 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.http.HttpClient;
 import java.net.http.HttpResponse;
 import java.util.Map;
 import java.util.concurrent.CyclicBarrier;
@@ -59,6 +59,8 @@ public class UploadServiceImpl implements UploadService {
     private static final String CONTENT_TYPE_URI_LIST = "text/uri-list";
 
     private static final String BODY_ENCODING_BASE64 = "base64";
+
+    private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
 
     // only used for testing
     public static volatile CyclicBarrier _testProcessingStatusBarrier;
@@ -96,14 +98,14 @@ public class UploadServiceImpl implements UploadService {
         String encoding;
         String bodyEncoding;
         if (CONTENT_TYPE_URI_LIST.equals(mediaType)) {
-            UploadExternalUriClient externalUriManager = new UploadExternalUriClient(input);
-            URI uri;
+            UploadExternalUriClient externalUriManager = new UploadExternalUriClient(HTTP_CLIENT);
+            UriWithHeaders uriWithHeaders;
             try {
-                uri = externalUriManager.getURI();
+                uriWithHeaders = UriWithHeaders.of(input);
             } catch (URISyntaxException e) { // NOSONAR
-                throw new NuxeoException(BAD_REQUEST.getStatusCode());
+                throw new NuxeoException(e.getInput(), e, BAD_REQUEST.getStatusCode());
             }
-            HttpResponse<InputStream> response = externalUriManager.downloadResourceFromURI(uri);
+            HttpResponse<InputStream> response = externalUriManager.downloadResourceFromURI(uriWithHeaders);
             input = response.body();
             UploadExternalUriClient.MimeTypeAndEncoding mimeTypeAndEncoding = externalUriManager.getMimeTypeAndEncoding(response.headers());
             mimeType = mimeTypeAndEncoding.mimeType();

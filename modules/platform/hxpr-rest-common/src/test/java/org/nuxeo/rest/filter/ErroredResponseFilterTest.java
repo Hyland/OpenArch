@@ -115,6 +115,24 @@ class ErroredResponseFilterTest extends RuntimeSpringBootTest {
         assertThat(output).doesNotContain(payload).contains(halfPayload);
     }
 
+    @Test
+    void testShouldHidePayloadContainingAuthorization(CapturedOutput output) {
+        runFilter("#Authorization:", HttpStatus.SC_BAD_REQUEST);
+        assertThat(output).contains("Request failed with status code 400: POST http://example.com/base *****");
+    }
+
+    @Test
+    void testShouldHidePayloadContainingAuthorizationWithSpaces(CapturedOutput output) {
+        runFilter(" # Authorization  : ", HttpStatus.SC_BAD_REQUEST);
+        assertThat(output).contains("Request failed with status code 400: POST http://example.com/base *****");
+    }
+
+    @Test
+    void testShouldHidePayloadContainingAuthorizationWithAdditionalLines(CapturedOutput output) {
+        runFilter(" #  additional comment \n # Authorization  : ", HttpStatus.SC_BAD_REQUEST);
+        assertThat(output).contains("Request failed with status code 400: POST http://example.com/base *****");
+    }
+
     /**
      * Mock {@link ServletInputStream} implementation that wraps a {@link ByteArrayInputStream}. Is accessed by the
      * {@link ErroredResponseFilter} to read the request payload.

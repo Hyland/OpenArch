@@ -18,14 +18,12 @@
  */
 package org.nuxeo.rest.upload;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static jakarta.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
@@ -33,11 +31,11 @@ import java.net.http.HttpResponse;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import jakarta.ws.rs.core.Response;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.http.entity.ContentType;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.runtime.api.Framework;
@@ -55,21 +53,29 @@ public class UploadExternalUriClient {
 
     public static final String UPLOAD_URI_ALLOWED_HOST_LIST_PROPERTY = "hxp.rest.upload.uri.allowedHostList";
 
+    public static final String UPLOAD_URI_ALLOWED_HEADER_LIST_PROPERTY = "hxp.rest.upload.uri.allowedHeadersList";
+
+    private static final String DEFAULT_ALLOWED_HEADERS = "Authorization";
+
     private static final String SCHEME_HTTPS = "https";
 
-    private final InputStream inputStream;
+    private HttpClient httpClient;
 
-    public UploadExternalUriClient(InputStream inputStream) {
-        this.inputStream = inputStream;
+    public UploadExternalUriClient(HttpClient httpClient) {
+        this.httpClient = httpClient;
     }
 
-    public HttpResponse<InputStream> downloadResourceFromURI(URI uri) {
+    public HttpResponse<InputStream> downloadResourceFromURI(UriWithHeaders uriWithHeaders) {
+        URI uri = uriWithHeaders.uri();
         if (!isValidURI(uri)) {
             throw new NuxeoException("Invalid URI %s".formatted(uri), BAD_REQUEST.getStatusCode());
         }
+        var headers = uriWithHeaders.headers();
+        validateHeaders(headers);
         try {
-            HttpClient httpClient = HttpClient.newHttpClient();
-            HttpRequest httpRequest = HttpRequest.newBuilder(uri).GET().build();
+            HttpRequest.Builder httpRequestBuilder = HttpRequest.newBuilder(uri);
+            headers.forEach(httpRequestBuilder::header);
+            HttpRequest httpRequest = httpRequestBuilder.GET().build();
             HttpResponse<InputStream> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofInputStream());
             if (response == null || response.body() == null) {
                 throw new NuxeoException("Error during stream downloading of URI: %s".formatted(uri), BAD_REQUEST.getStatusCode());
@@ -86,22 +92,20 @@ public class UploadExternalUriClient {
         }
     }
 
-    public URI getURI() throws URISyntaxException, IOException {
-        List<String> uriList = IOUtils.readLines(inputStream, UTF_8).stream().filter(line -> line.startsWith("http")).toList();
-        inputStream.close();
-        if (uriList.size() > 1) {
-            // multiple URIs in request body is currently not supported
-            throw new URISyntaxException("Request body contains more than one URI", "Multiple URIs are not allowed");
-        }
-        String uriName = uriList.get(0);
-        return new URI(uriName);
-    }
-
     public boolean isValidURI(URI uri) {
         boolean isUriSchemeInsecureAllowed = Framework.isBooleanPropertyTrue(UPLOAD_URI_SCHEME_ALLOW_INSECURE_PROPERTY);
         List<String> uriAllowedHostList = Arrays.asList(Framework.getProperty(UPLOAD_URI_ALLOWED_HOST_LIST_PROPERTY, "*").split(","));
         return (isUriInAllowedHostList(uriAllowedHostList, uri)
                 && (uri.getScheme().equalsIgnoreCase(SCHEME_HTTPS) || isUriSchemeInsecureAllowed));
+    }
+
+    private void validateHeaders(Map<String, String> inputHeaders) {
+        List<String> headersAllowedList = getAllowedHeaders();
+        for (String headerName : inputHeaders.keySet()) {
+            if (!headersAllowedList.contains(headerName)) {
+                throw new NuxeoException("Request payload contains forbidden header: %s".formatted(headerName), BAD_REQUEST.getStatusCode());
+            }
+        }
     }
 
     public MimeTypeAndEncoding getMimeTypeAndEncoding(HttpHeaders headers) {
@@ -126,6 +130,18 @@ public class UploadExternalUriClient {
             throw new NuxeoException("Content-Type not found in response headers of stream download URI", BAD_REQUEST.getStatusCode());
         }
         return ContentType.parse(headerContentType.get());
+    }
+
+    private static List<String> getAllowedHeaders() {
+        if (!Framework.isInitialized()) {
+            return List.of();
+        }
+        return Arrays.stream(Framework.getProperty(UploadExternalUriClient.UPLOAD_URI_ALLOWED_HEADER_LIST_PROPERTY,
+                                DEFAULT_ALLOWED_HEADERS)
+                        .split(","))
+                .map(String::trim)
+                .filter(header -> !header.isEmpty())
+                .toList();
     }
 
     public record MimeTypeAndEncoding( //
