@@ -288,4 +288,31 @@ public class QueryAPITest extends AbstractQueryAPITest {
         assertEquals(DEFAULT_LIMIT_VALUE, dto.limit());
         assertEquals(DEFAULT_SELECT_STATEMENT, dto.query());
     }
+
+    @Test
+    public void testQueryAllPOSTSyncTrue() throws Exception {
+        var result = checkResponse(OK, POST, Map.of("sync", true));
+        checkQueryResponseBody("rest/query_res_all.json", result, "");
+    }
+
+    @Test
+    public void testQueryAllSortedPOSTSyncTrue() throws Exception {
+        var result = checkResponse(OK, POST, Map.of("sync", true, "sort", List.of(TITLE_SORT)));
+        checkQueryResponseBody("rest/query_res_all.json", result, " ORDER BY sys_title");
+    }
+
+    @Test
+    public void testValidQueryPOSTSyncTrue() throws Exception {
+        String validQuery = "SELECT * from Foo";
+        var result = checkResponse(OK, POST, Map.of("sync", true, QUERY_STRING_PROP, validQuery));
+        checkQueryResponseBody("rest/query_res_default.json", result);
+    }
+
+    @Test
+    public void testComplexQueriesPOSTSyncTrue() throws Exception {
+        checkResponse(OK, POST, Map.of("sync", true, QUERY_STRING_PROP, "SELECT * from TestDocument"))
+                .andExpect(jsonPath("count").value(1));
+        checkResponse(OK, POST, Map.of("sync", true, QUERY_STRING_PROP, "SELECT * FROM SysContent WHERE sys_title = \"title\""))
+                .andExpect(jsonPath("count").value(1));
+    }
 }

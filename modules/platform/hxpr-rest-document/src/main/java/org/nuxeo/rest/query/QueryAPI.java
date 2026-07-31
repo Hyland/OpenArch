@@ -80,10 +80,13 @@ public class QueryAPI {
 
     private final OpenSearchQueryManager osqm;
 
+    private final RepositoryQueryManager rqm;
+
     private final NamedQueryRegistry namedQueryRegistry;
 
-    public QueryAPI(OpenSearchQueryManager osqm, NamedQueryRegistry namedQueryRegistry) {
+    public QueryAPI(OpenSearchQueryManager osqm, RepositoryQueryManager rqm, NamedQueryRegistry namedQueryRegistry) {
         this.osqm = osqm;
+        this.rqm = rqm;
         this.namedQueryRegistry = namedQueryRegistry;
     }
 
@@ -95,11 +98,13 @@ public class QueryAPI {
     @Operation(summary = "Returns the search results.", operationId = "getDocumentsByQuery")
     @ApiResponse200(description = "Returns the search results for given query.")
     @Transactional
-    public DocumentQueryResultDTO getDocumentsByPost(@RequestBody(required = false) DocumentQueryDTO query) {
+    public DocumentQueryResultDTO getDocumentsByPost(
+            @RequestBody(required = false) DocumentQueryDTO query,
+            @RequestParam(name = "sync", required = false, defaultValue = "false") boolean sync) {
         if (query == null) {
             query = new DocumentQueryDTO(null);
         }
-        return osqm.getResults(query);
+        return getQueryManager(sync).getResults(query);
     }
 
     @PostMapping("/advanced")
@@ -107,11 +112,12 @@ public class QueryAPI {
     @ApiResponse200(description = "Returns the search results for given advanced query.")
     @Transactional
     public DocumentQueryResultDTO getDocumentsByAdvancedPost(
-            @RequestBody(required = false) DocumentAdvancedQueryDTO query) {
+            @RequestBody(required = false) DocumentAdvancedQueryDTO query,
+            @RequestParam(name = "sync", required = false, defaultValue = "false") boolean sync) {
         if (query == null) {
             query = new DocumentAdvancedQueryDTO((String) null);
         }
-        return osqm.getResults(query);
+        return getQueryManager(sync).getResults(query);
     }
 
     @GetMapping(path = "/named", consumes = ALL_VALUE)
@@ -141,8 +147,10 @@ public class QueryAPI {
     @ApiResponse200(description = "Returns the search results for given named query.")
     @ApiResponse404(description = "Named query not found.")
     @Transactional
-    public DocumentQueryResultDTO getDocumentsByNamedPost(@RequestBody(required = false) DocumentNamedQueryDTO query) {
-        var result = osqm.getResults(query);
+    public DocumentQueryResultDTO getDocumentsByNamedPost(
+            @RequestBody(required = false) DocumentNamedQueryDTO query,
+            @RequestParam(name = "sync", required = false, defaultValue = "false") boolean sync) {
+        var result = getQueryManager(sync).getResults(query);
         if (result == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Named query not found.");
         }
@@ -183,5 +191,9 @@ public class QueryAPI {
     public TermsAggregationQueryResultDTO queryTermsAggregation(
             @RequestBody(required = true) TermsAggregationsQueryDTO query) {
         return osqm.getResults(query.query(), query.termsAggregationProperty(), query.searchTerm(), query.limit());
+    }
+
+    private QueryManager getQueryManager(boolean sync) {
+        return sync ? rqm : osqm;
     }
 }
