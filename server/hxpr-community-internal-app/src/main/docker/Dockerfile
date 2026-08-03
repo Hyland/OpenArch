@@ -24,7 +24,7 @@
 #
 ###
 # kics-scan disable=b03a748a-542d-44f4-bb86-9199ab4fd2d5
-FROM dhi.io/amazoncorretto:25-alpine3.23-dev@sha256:a6b53a63dfbe2addcf3234faa6540c0bc7b60b82dbae4aff4a87867b4ebc32b4 AS builder
+FROM dhi.io/amazoncorretto:25-alpine3.23-dev@sha256:dabe537b0efd07de9ba252ff344d14ac82f68123cb668b8a3b564c1fbe4495b8 AS builder
 
 ARG RUN_JAVA_VERSION=1.3.8
 
@@ -62,7 +62,7 @@ RUN addgroup -g ${GROUP_ID} ${GROUP_NAME} && \
     sed -i 's/#networkaddress.cache.ttl=-1/networkaddress.cache.ttl=0/' $JAVA_HOME/conf/security/java.security
 
 # kics-scan disable=b03a748a-542d-44f4-bb86-9199ab4fd2d5
-FROM dhi.io/amazoncorretto:25-alpine3.23@sha256:3f7020641dac924b57dc756c0866893c4e4f8a730a151ce675d037582a52cd4e
+FROM dhi.io/amazoncorretto:25-alpine3.23@sha256:0a7dd27b44fb6d7ec9c3a3d809c5f6a0ff20a1afc5d1fd1352cd6c431aad6b49
 
 ARG BUILD_DATE
 ARG COMMIT_SHA
