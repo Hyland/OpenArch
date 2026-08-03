@@ -1,6 +1,6 @@
 services:
   mongodb:
-    image: mongo:7.0.37@sha256:340c1c56fb10e95cf79ff547f8664b96bc6ead9909bc355238cbf865a9695a6f
+    image: mongo:7.0.39@sha256:9bdaeb6dac6e7e762e84e2f84103d1f9bb078fa1ba6bde8bb9d2274f655ad173
     hostname: mongo
     ports:
       - "27017:27017"
