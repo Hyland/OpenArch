@@ -59,7 +59,7 @@ jobs:
       - name: Ensure SHA pinned actions
         uses: zgosalvez/github-actions-ensure-sha-pinned-actions@3db98c0363e2fa5df3e1c4c471777a7c10b24cc9 # v5.0.5
       - name: Login to ghcr.io in read only mode
-        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
+        uses: docker/login-action@abd2ef45e78c5afb21d64d4ca52ee8550d9572c7 # v4.5.1
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -168,7 +168,7 @@ jobs:
              "${TARGET_DIR}/hxpr-community-internal-app-${RELEASE_VERSION}.jar"
 
       - name: Login to ghcr.io in read only mode
-        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
+        uses: docker/login-action@abd2ef45e78c5afb21d64d4ca52ee8550d9572c7 # v4.5.1
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -200,7 +200,7 @@ jobs:
             BUILD_URL=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
       - name: Login to ghcr.io in write mode
-        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
+        uses: docker/login-action@abd2ef45e78c5afb21d64d4ca52ee8550d9572c7 # v4.5.1
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -288,6 +288,6 @@ jobs:
     if: always() && failure() && github.event_name == 'push'
     steps:
       - name: Teams Notification
-        uses: Alfresco/alfresco-build-tools/.github/actions/send-teams-notification@e87345fb177248fc5bdc7838107f098438818df1 # v18.21.0
+        uses: Alfresco/alfresco-build-tools/.github/actions/send-teams-notification@ac0009fd55b474dbf50864caa4f9da36a41e5ffe # v18.21.2
         with:
           webhook-url: ${{ secrets.TEAMS_GA_NOTIFS_WEBHOOK_URL }}

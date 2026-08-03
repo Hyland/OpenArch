@@ -125,6 +125,6 @@ jobs:
     if: always() && failure() && github.event_name == 'push'
     steps:
       - name: Teams Notification
-        uses: Alfresco/alfresco-build-tools/.github/actions/send-teams-notification@e87345fb177248fc5bdc7838107f098438818df1 # v18.21.0
+        uses: Alfresco/alfresco-build-tools/.github/actions/send-teams-notification@ac0009fd55b474dbf50864caa4f9da36a41e5ffe # v18.21.2
         with:
           webhook-url: ${{ secrets.TEAMS_GA_NOTIFS_WEBHOOK_URL }}
