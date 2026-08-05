@@ -23,6 +23,45 @@
     },
     "system#contributorList": {
       "list": "string"
+    },
+    "cinremote#stringList": {
+      "list": "string"
+    },
+    "cinremote#cinBlob": {
+      "fields": {
+        "blob": "blob",
+        "label": "string",
+        "originalMimeType": "string",
+        "originalFilename": "string",
+        "originalLength": "long",
+        "originalDigest": "string",
+        "uploadedMimeType": "string"
+      }
+    },
+    "cinremote#cinBlobList": {
+      "list": "cinremote#cinBlob"
+    },
+    "cinremote#contentDigest": {
+      "fields": {
+        "contentName": "string",
+        "digestValue": "string"
+      }
+    },
+    "cinremote#contentDigestList": {
+      "list": "cinremote#contentDigest"
+    },
+    "cincontext#stringList": {
+      "list": "string"
+    },
+    "cincontext#kgProcessingState": {
+      "fields": {
+        "ontologyId": "string",
+        "state": "blob",
+        "status": "string"
+      }
+    },
+    "cincontext#kgProcessingStateList": {
+      "list": "cincontext#kgProcessingState"
     }
   },
   "schemas": {
@@ -52,7 +91,10 @@
         "sysrendition_blob": "blob",
         "sysrendition_blobPath": "string",
         "sysrendition_id": "string",
-        "sysrendition_isExternal": {"extends": "boolean", "default": "false"},
+        "sysrendition_isExternal": {
+          "extends": "boolean",
+          "default": "false"
+        },
         "sysrendition_sourceDoc": "string",
         "sysrendition_status": "string"
       }
@@ -192,13 +234,13 @@
         "sysmdtext_verticallyCenterText": "boolean"
       }
     },
-    "sysgovernable" : {
-      "fields" : {
-        "sysgov_hasLegalHold" : "boolean",
-        "sysgov_isRecord" : "boolean",
-        "sysgov_retainUntil" : "date"
+    "sysgovernable": {
+      "fields": {
+        "sysgov_hasLegalHold": "boolean",
+        "sysgov_isRecord": "boolean",
+        "sysgov_retainUntil": "date"
       },
-      "prefix" : "sysgov"
+      "prefix": "sysgov"
     },
     "sysgraph": {
       "prefix": "sysgraph",
@@ -225,6 +267,41 @@
           }
         }
       }
+    },
+    "cinremote": {
+      "prefix": "cin",
+      "fields": {
+        "cin_id": "string",
+        "cin_paths": "cinremote#stringList",
+        "cin_directAncestors": "cinremote#stringList",
+        "cin_allAncestors": "cinremote#stringList",
+        "cin_dateCreated": "date",
+        "cin_createdBy": "string",
+        "cin_dateModified": "date",
+        "cin_modifiedBy": "cinremote#stringList",
+        "cin_type": "string",
+        "cin_sourceId": "string",
+        "cin_aspects": "cinremote#stringList",
+        "cin_read": "cinremote#stringList",
+        "cin_deny": "cinremote#stringList",
+        "cin_orgUnit": "string",
+        "cin_isOrgUnit": "boolean",
+        "cin_ingest": "any",
+        "cin_digests": "cinremote#contentDigestList",
+        "cin_ingestProperties": "any",
+        "cin_ingestPropertyNames": "cinremote#stringList",
+        "cin_ingestEventVersion": "long",
+        "cin_blobs": "cinremote#cinBlobList",
+        "cin_ingestRaw": "blob"
+      }
+    },
+    "cincontext": {
+      "prefix": "cinctx",
+      "fields": {
+        "cinctx_contextProperties": "any",
+        "cinctx_contextPropertyNames": "cincontext#stringList",
+        "cinctx_kgProcessingStates": "cincontext#kgProcessingStateList"
+      }
     }
   },
   "mixinTypes": {
@@ -237,8 +314,8 @@
       "noPerDocumentQuery": true
     },
     "SysFullTextIndexable": {},
-    "SysGovernable" : {
-      "schemas" : [
+    "SysGovernable": {
+      "schemas": [
         "sysgovernable"
       ]
     },
@@ -290,7 +367,17 @@
     },
     "SysVersionedWithParent": {},
     "SysTestDocument": {},
-    "SysHasEmbeddings": {}
+    "SysHasEmbeddings": {},
+    "CinRemote": {
+      "schemas": [
+        "cinremote"
+      ]
+    },
+    "CinContext": {
+      "schemas": [
+        "cincontext"
+      ]
+    }
   },
   "primaryTypes": {
     "SysContent": {},
@@ -406,7 +493,10 @@
     },
     "SysEmbeddings": {
       "extends": "SysContent",
-      "schemas": ["sysembeddings", "system"]
+      "schemas": [
+        "sysembeddings",
+        "system"
+      ]
     }
   }
 }

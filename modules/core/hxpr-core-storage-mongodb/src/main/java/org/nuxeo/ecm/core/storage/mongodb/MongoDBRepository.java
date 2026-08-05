@@ -20,6 +20,15 @@ package org.nuxeo.ecm.core.storage.mongodb;
 
 import static org.nuxeo.ecm.core.api.DocumentConstants.SCHEMA_SYSEMB;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SCHEMA_SYSGRAPH;
+import static org.nuxeo.ecm.core.api.DocumentConstants.CINCONTEXT_PREFIX;
+import static org.nuxeo.ecm.core.api.DocumentConstants.CINREMOTE_INGEST_EVENT_VERSION;
+import static org.nuxeo.ecm.core.api.DocumentConstants.CINREMOTE_INGEST_RAW;
+import static org.nuxeo.ecm.core.api.DocumentConstants.CINREMOTE_PREFIX;
+import static org.nuxeo.ecm.core.api.DocumentConstants.CONTEXT_KG_PROCESSING_STATES;
+import static org.nuxeo.ecm.core.api.DocumentConstants.CONTEXT_PROPERTIES;
+import static org.nuxeo.ecm.core.api.DocumentConstants.CONTEXT_PROPERTY_NAMES;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SCHEMA_CINCONTEXT;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SCHEMA_CINREMOTE;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_EMBEDDINGS;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_PREFIX;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGRAPH_GRAPH_DB_IDS;
@@ -107,6 +116,8 @@ import static org.nuxeo.ecm.core.api.DocumentConstants.SCHEMA_SYSMD_TEXT;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SCHEMA_SYSTEM;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.WRITE;
 import static org.nuxeo.ecm.core.schema.MixinNames.SYS_GRAPHABLE;
+import static org.nuxeo.ecm.core.schema.MixinNames.CIN_CONTEXT;
+import static org.nuxeo.ecm.core.schema.MixinNames.CIN_REMOTE;
 import static org.nuxeo.ecm.core.schema.MixinNames.SYS_HAS_EMBEDDINGS;
 import static org.nuxeo.ecm.core.schema.MixinNames.SYS_VERSIONED_WITH_PARENT;
 import static org.nuxeo.ecm.core.schema.MixinNames.SYS_MD_ANNOTATABLE;
@@ -140,6 +151,7 @@ import static org.nuxeo.ecm.core.security.SecurityServiceImpl.CONFIG_SECURITY;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -150,6 +162,7 @@ import org.apache.logging.log4j.Logger;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.nuxeo.ecm.core.model.Repository;
+import org.nuxeo.ecm.core.schema.types.primitives.AnyType;
 import org.nuxeo.ecm.core.schema.types.primitives.BooleanType;
 import org.nuxeo.ecm.core.schema.types.primitives.DoubleType;
 import org.nuxeo.ecm.core.schema.types.primitives.LongType;
@@ -212,6 +225,23 @@ public class MongoDBRepository extends DBSRepositoryBase implements Configuratio
     public static final String LANGUAGE_FIELD = "__language";
 
     public static final String SYSGRAPH_STRING_LIST_TYPE = "sysgraph#stringList";
+
+    // Content Intelligence composite type names — see migrateCinModel() below.
+    static final String CINREMOTE_STRING_LIST_TYPE = "cinremote#stringList";
+
+    static final String CINREMOTE_CIN_BLOB_TYPE = "cinremote#cinBlob";
+
+    static final String CINREMOTE_CIN_BLOB_LIST_TYPE = "cinremote#cinBlobList";
+
+    static final String CINREMOTE_CONTENT_DIGEST_TYPE = "cinremote#contentDigest";
+
+    static final String CINREMOTE_CONTENT_DIGEST_LIST_TYPE = "cinremote#contentDigestList";
+
+    static final String CINCONTEXT_STRING_LIST_TYPE = "cincontext#stringList";
+
+    static final String CINCONTEXT_KG_PROCESSING_STATE_TYPE = "cincontext#kgProcessingState";
+
+    static final String CINCONTEXT_KG_PROCESSING_STATE_LIST_TYPE = "cincontext#kgProcessingStateList";
 
     // KG-config migration constants — see migrateKgConfig() below.
 
@@ -486,7 +516,99 @@ public class MongoDBRepository extends DBSRepositoryBase implements Configuratio
             needsMigration = true;
         }
 
+        // Content Intelligence model (CinRemote / CinContext) for existing repositories
+        needsMigration |= migrateCinModel(types, schemas, mixins);
+
         return needsMigration;
+    }
+
+    /**
+     * Seeds the Content Intelligence content model (the {@code cinremote} / {@code cincontext} schemas, their
+     * composite types and the {@code CinRemote} / {@code CinContext} mixins) into an existing repository whose stored
+     * content model predates them.
+     * <p>
+     * New repositories get this model natively from {@code CoreExtensions.xml} + the {@code cinremote.xsd} /
+     * {@code cincontext.xsd} schemas; this migration only backfills repositories provisioned before the model shipped
+     * in the product. It is idempotent: every entry is added with {@code putIfAbsent} / {@code computeIfAbsent}, so an
+     * already-seeded model is left untouched and reports no change.
+     *
+     * @return {@code true} if any entry was added (a migration is needed), {@code false} otherwise
+     */
+    private boolean migrateCinModel(Map<String, Object> types, Map<String, Object> schemas,
+            Map<String, Object> mixins) {
+        boolean migrated = false;
+
+        // Composite types referenced by the cinremote / cincontext schemas.
+        migrated |= types.putIfAbsent(CINREMOTE_STRING_LIST_TYPE, Map.of(LIST, StringType.ID)) == null;
+        migrated |= types.putIfAbsent(CINREMOTE_CIN_BLOB_TYPE, Map.of(FIELDS, Map.of(
+                "blob", BLOB_TYPE,
+                "label", StringType.ID,
+                "originalMimeType", StringType.ID,
+                "originalFilename", StringType.ID,
+                "originalLength", LongType.ID,
+                "originalDigest", StringType.ID,
+                "uploadedMimeType", StringType.ID))) == null;
+        migrated |= types.putIfAbsent(CINREMOTE_CIN_BLOB_LIST_TYPE,
+                Map.of(LIST, CINREMOTE_CIN_BLOB_TYPE)) == null;
+        migrated |= types.putIfAbsent(CINREMOTE_CONTENT_DIGEST_TYPE, Map.of(FIELDS, Map.of(
+                "contentName", StringType.ID,
+                "digestValue", StringType.ID))) == null;
+        migrated |= types.putIfAbsent(CINREMOTE_CONTENT_DIGEST_LIST_TYPE,
+                Map.of(LIST, CINREMOTE_CONTENT_DIGEST_TYPE)) == null;
+        migrated |= types.putIfAbsent(CINCONTEXT_STRING_LIST_TYPE, Map.of(LIST, StringType.ID)) == null;
+        migrated |= types.putIfAbsent(CINCONTEXT_KG_PROCESSING_STATE_TYPE, Map.of(FIELDS, Map.of(
+                "ontologyId", StringType.ID,
+                "state", BLOB_TYPE,
+                "status", StringType.ID))) == null;
+        migrated |= types.putIfAbsent(CINCONTEXT_KG_PROCESSING_STATE_LIST_TYPE,
+                Map.of(LIST, CINCONTEXT_KG_PROCESSING_STATE_TYPE)) == null;
+
+        // cinremote schema (prefix "cin").
+        migrated |= schemas.putIfAbsent(SCHEMA_CINREMOTE, Map.of(PREFIX, CINREMOTE_PREFIX, FIELDS,
+                cinRemoteFields())) == null;
+
+        // cincontext schema (prefix "cinctx").
+        migrated |= schemas.putIfAbsent(SCHEMA_CINCONTEXT, Map.of(PREFIX, CINCONTEXT_PREFIX, FIELDS, Map.of(
+                CONTEXT_PROPERTIES, AnyType.ID,
+                CONTEXT_PROPERTY_NAMES, CINCONTEXT_STRING_LIST_TYPE,
+                CONTEXT_KG_PROCESSING_STATES, CINCONTEXT_KG_PROCESSING_STATE_LIST_TYPE))) == null;
+
+        // CinRemote / CinContext mixins.
+        migrated |= mixins.putIfAbsent(CIN_REMOTE, Map.of(SCHEMAS, List.of(SCHEMA_CINREMOTE))) == null;
+        migrated |= mixins.putIfAbsent(CIN_CONTEXT, Map.of(SCHEMAS, List.of(SCHEMA_CINCONTEXT))) == null;
+
+        return migrated;
+    }
+
+    /**
+     * Builds the {@code cinremote} schema field-to-type map. Kept as a helper because the schema has more than the
+     * {@link Map#of} 10-entry limit.
+     */
+    private static Map<String, Object> cinRemoteFields() {
+        Map<String, Object> fields = new LinkedHashMap<>();
+        fields.put("cin_id", StringType.ID);
+        fields.put("cin_paths", CINREMOTE_STRING_LIST_TYPE);
+        fields.put("cin_directAncestors", CINREMOTE_STRING_LIST_TYPE);
+        fields.put("cin_allAncestors", CINREMOTE_STRING_LIST_TYPE);
+        fields.put("cin_dateCreated", DateType.ID);
+        fields.put("cin_createdBy", StringType.ID);
+        fields.put("cin_dateModified", DateType.ID);
+        fields.put("cin_modifiedBy", CINREMOTE_STRING_LIST_TYPE);
+        fields.put("cin_type", StringType.ID);
+        fields.put("cin_sourceId", StringType.ID);
+        fields.put("cin_aspects", CINREMOTE_STRING_LIST_TYPE);
+        fields.put("cin_read", CINREMOTE_STRING_LIST_TYPE);
+        fields.put("cin_deny", CINREMOTE_STRING_LIST_TYPE);
+        fields.put("cin_orgUnit", StringType.ID);
+        fields.put("cin_isOrgUnit", BooleanType.ID);
+        fields.put("cin_ingest", AnyType.ID);
+        fields.put("cin_digests", CINREMOTE_CONTENT_DIGEST_LIST_TYPE);
+        fields.put("cin_ingestProperties", AnyType.ID);
+        fields.put("cin_ingestPropertyNames", CINREMOTE_STRING_LIST_TYPE);
+        fields.put(CINREMOTE_INGEST_EVENT_VERSION, LongType.ID);
+        fields.put("cin_blobs", CINREMOTE_CIN_BLOB_LIST_TYPE);
+        fields.put(CINREMOTE_INGEST_RAW, BLOB_TYPE);
+        return fields;
     }
 
      /**

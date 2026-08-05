@@ -62,6 +62,16 @@ public final class MixinNames {
     public static final String SYS_GRAPHABLE = "SysGraphable";
 
     /**
+     * Content Intelligence mixin carrying the remote (source-system) representation of a document.
+     */
+    public static final String CIN_REMOTE = "CinRemote";
+
+    /**
+     * Content Intelligence mixin carrying context (knowledge-graph processing) properties.
+     */
+    public static final String CIN_CONTEXT = "CinContext";
+
+    /**
      * If your Nuxeo target version is 5.3.2 or higher, you'll be able to manage the order of this document children
      */
     public static final String SYS_ORDERABLE = "SysOrderable";

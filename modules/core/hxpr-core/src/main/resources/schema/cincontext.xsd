@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema targetNamespace="http://www.nuxeo.org/ecm/schemas/cincontext"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:nxs="http://www.nuxeo.org/ecm/schemas/cincontext">
+
+    <xs:include schemaLocation="base.xsd" />
+    <xs:include schemaLocation="core-types.xsd" />
+
+    <xs:element name="contextProperties" type="xs:anyType"/>
+    <xs:element name="contextPropertyNames" type="nxs:stringList"/>
+    <xs:element name="kgProcessingStates" type="nxs:kgProcessingStateList"/>
+
+    <xs:complexType name="kgProcessingState">
+        <xs:sequence>
+            <xs:element name="ontologyId" type="xs:string" />
+            <xs:element name="state" type="nxs:blob" />
+            <xs:element name="status" type="xs:string" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="kgProcessingStateList">
+        <xs:sequence>
+            <xs:element name="item" type="nxs:kgProcessingState" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+
+</xs:schema>

@@ -28,6 +28,10 @@
     <!-- Knowledge Graph schema -->
     <schema name="sysgraph" prefix="sysgraph" src="schema/sysgraph.xsd"/>
 
+    <!-- Content Intelligence schemas -->
+    <schema name="cinremote" prefix="cin" src="schema/cinremote.xsd"/>
+    <schema name="cincontext" prefix="cinctx" src="schema/cincontext.xsd"/>
+
     <!-- Additional schemas for storing document metadata -->
     <schema name="sysmdannotatable" prefix="sysmdannotatable" src="schema/metadata-annotatable.xsd"/>
     <schema name="sysmdredactable" prefix="sysmdredactable" src="schema/metadata-redactable.xsd"/>
@@ -89,6 +93,14 @@
   <!-- Knowledge Graph mixin -->
     <mixin name="SysGraphable">
       <schema name="sysgraph"/>
+    </mixin>
+
+  <!-- Content Intelligence mixins -->
+    <mixin name="CinRemote">
+      <schema name="cinremote"/>
+    </mixin>
+    <mixin name="CinContext">
+      <schema name="cincontext"/>
     </mixin>
 
     <doctype name="SysFolder" extends="SysContent">

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema targetNamespace="http://www.nuxeo.org/ecm/schemas/cinremote"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:nxs="http://www.nuxeo.org/ecm/schemas/cinremote">
+
+    <xs:include schemaLocation="base.xsd" />
+    <xs:include schemaLocation="core-types.xsd" />
+
+    <xs:element name="id" type="xs:string"/>
+    <xs:element name="paths" type="nxs:stringList"/>
+    <xs:element name="directAncestors" type="nxs:stringList"/>
+    <xs:element name="allAncestors" type="nxs:stringList"/>
+    <xs:element name="dateCreated" type="xs:dateTime"/>
+    <xs:element name="createdBy" type="xs:string"/>
+    <xs:element name="dateModified" type="xs:dateTime"/>
+    <xs:element name="modifiedBy" type="nxs:stringList"/>
+    <xs:element name="type" type="xs:string"/>
+    <xs:element name="sourceId" type="xs:string"/>
+    <xs:element name="aspects" type="nxs:stringList"/>
+    <xs:element name="read" type="nxs:stringList"/>
+    <xs:element name="deny" type="nxs:stringList"/>
+    <xs:element name="orgUnit" type="xs:string"/>
+    <xs:element name="isOrgUnit" type="xs:boolean"/>
+    <!-- Deprecated in favour of cin_ingestProperties and cin_ingestPropertyNames -->
+    <xs:element name="ingest" type="xs:anyType"/>
+    <!-- Deprecated in favour of cin_blobs -->
+    <xs:element name="digests" type="nxs:contentDigestList" />
+    <xs:element name="ingestProperties" type="xs:anyType"/>
+    <xs:element name="ingestPropertyNames" type="nxs:stringList"/>
+    <xs:element name="ingestEventVersion" type="xs:long" />
+    <xs:element name="blobs" type="nxs:cinBlobList"/>
+    <xs:element name="ingestRaw" type="nxs:blob"/>
+
+    <!-- Deprecated in favour of cin_blobs -->
+    <xs:complexType name="contentDigest">
+        <xs:sequence>
+            <xs:element name="contentName" type="xs:string" />
+            <xs:element name="digestValue" type="xs:string" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Deprecated in favour of cin_blobs -->
+    <xs:complexType name="contentDigestList">
+        <xs:sequence>
+            <xs:element name="item" type="nxs:contentDigest" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="cinBlob">
+        <xs:sequence>
+            <xs:element name="blob" type="nxs:blob" />
+            <xs:element name="label" type="xs:string" />
+            <xs:element name="originalMimeType" type="xs:string" />
+            <xs:element name="originalFilename" type="xs:string" />
+            <xs:element name="originalLength" type="xs:long" />
+            <xs:element name="originalDigest" type="xs:string" />
+            <xs:element name="uploadedMimeType" type="xs:string" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="cinBlobList">
+        <xs:sequence>
+            <xs:element name="item" type="nxs:cinBlob" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>

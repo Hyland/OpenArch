@@ -262,6 +262,18 @@ public class DocumentConstants {
     public static final String SYSGRAPH_GRAPH_DB_IDS = "sysgraph_graphDBIds";
     public static final String SYSGRAPH_ONTOLOGY_REFS = "sysgraph_ontologyRefs";
 
+    // Content Intelligence
+    public static final String SCHEMA_CINREMOTE = "cinremote";
+    public static final String CINREMOTE_PREFIX = "cin";
+    public static final String CINREMOTE_INGEST_EVENT_VERSION = "cin_ingestEventVersion";
+    public static final String CINREMOTE_INGEST_RAW = "cin_ingestRaw";
+
+    public static final String SCHEMA_CINCONTEXT = "cincontext";
+    public static final String CINCONTEXT_PREFIX = "cinctx";
+    public static final String CONTEXT_PROPERTIES = "cinctx_contextProperties";
+    public static final String CONTEXT_PROPERTY_NAMES = "cinctx_contextPropertyNames";
+    public static final String CONTEXT_KG_PROCESSING_STATES = "cinctx_kgProcessingStates";
+
     //Fulltext
     public static final String FULLTEXT_EXTRACTOR_TASK_NAME = "fulltextExtractor";
     public static final String FULLTEXT_EXTRACTOR_SCROLLER_TASK_NAME = "scrollerDocument";
