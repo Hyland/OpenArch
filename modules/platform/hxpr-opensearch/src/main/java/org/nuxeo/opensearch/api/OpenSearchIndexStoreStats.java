@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2024 Hyland (https://www.hyland.com/) and others.
+ * (C) Copyright 2024-2026 Hyland (https://www.hyland.com/).
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

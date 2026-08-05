@@ -55,6 +55,7 @@
     <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
     <sonar-maven-plugin.version>5.5.0.6356</sonar-maven-plugin.version>
     <license-maven-plugin.version>2.7.1</license-maven-plugin.version>
+    <license-maven-plugin.mycila.version>5.1.1</license-maven-plugin.mycila.version>
     <!-- Sonar & JaCoCo (related profile: sonar)-->
     <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
     <sonar.organization>hylandsoftware</sonar.organization>
@@ -1247,6 +1248,41 @@
                 <DependencyConvergence />
               </rules>
             </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>com.mycila</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+        <version>${license-maven-plugin.mycila.version}</version>
+        <configuration>
+          <licenseSets>
+            <licenseSet>
+              <header>${maven.multiModuleProjectDirectory}/tools/license-header.txt</header>
+              <includes>
+                <include>**/*.java</include>
+              </includes>
+              <excludes>
+                <exclude>**/target/**</exclude>
+              </excludes>
+              <headerSections>
+                <headerSection>
+                  <key>COPYRIGHT_YEARS</key>
+                  <defaultValue>2026</defaultValue>
+                  <ensureMatch>\d{4}(-\d{4})?</ensureMatch>
+                </headerSection>
+              </headerSections>
+            </licenseSet>
+          </licenseSets>
+          <strictCheck>true</strictCheck>
+          <failIfMissing>true</failIfMissing>
+        </configuration>
+        <executions>
+          <execution>
+            <id>check-license-headers</id>
+            <goals>
+              <goal>check</goal>
+            </goals>
           </execution>
         </executions>
       </plugin>

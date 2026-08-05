@@ -175,9 +175,9 @@ jobs:
           password: ${{ secrets.GH_HS_HX_RO_CLASSIC_TOKEN }}
 
       - name: "Run mvn license plugin"
-        run: mvn -nsu license:aggregate-add-third-party
+        run: mvn -nsu org.codehaus.mojo:license-maven-plugin:aggregate-add-third-party
       - name: "Download licenses"
-        run: mvn -nsu license:aggregate-download-licenses -DlicensesOutputDirectory=./server/hxpr-community-internal-app/target/licenses
+        run: mvn -nsu org.codehaus.mojo:license-maven-plugin:aggregate-download-licenses -DlicensesOutputDirectory=./server/hxpr-community-internal-app/target/licenses
       - name: "Clone Alfresco/third-party-license-overrides"
         run: git clone --depth=1 https://github.com/Alfresco/third-party-license-overrides.git
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0

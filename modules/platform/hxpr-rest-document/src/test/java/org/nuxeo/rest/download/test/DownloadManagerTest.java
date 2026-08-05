@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2015-2021 Nuxeo (http://nuxeo.com/) and others.
+ * (C) Copyright 2015-2026 Hyland (https://www.hyland.com/).
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,11 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- * Contributors:
- *     Florent Guillaume
- *     Estelle Giuly
- *     Anahide Tchertchian
  */
 package org.nuxeo.rest.download.test;
 
