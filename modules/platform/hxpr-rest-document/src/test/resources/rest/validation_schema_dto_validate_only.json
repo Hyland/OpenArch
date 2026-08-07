@@ -118,7 +118,7 @@
             "invalidValue": [
                 "relation-foobar"
             ],
-            "message": "The value \"[relation-foobar]\" cannot be applied as \"schemas/sysrelation\" already exists with value \"'{'prefix=sysrelation, fields='{'sysrelation_source='{'type=string'}', sysrelation_target='{'type=string'}', sysrelation_predicate='{'type=string'}''}''}'\".",
+            "message": "The value \"[relation-foobar]\" cannot be applied as \"schemas/sysrelation\" already exists with value \"'{'fields='{'sysrelation_predicate='{'type=string'}', sysrelation_source='{'type=string'}', sysrelation_target='{'type=string'}''}', prefix=sysrelation'}'\".",
             "messageKey": "label.schema.application.violation.AlreadyExistsViolation.modified",
             "parameters": [
                 [

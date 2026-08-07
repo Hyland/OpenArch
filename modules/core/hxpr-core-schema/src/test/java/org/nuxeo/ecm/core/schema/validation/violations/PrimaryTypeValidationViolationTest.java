@@ -19,14 +19,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import org.junit.jupiter.api.Test;
-import org.nuxeo.ecm.core.schema.validation.SchemaDTONode;
+import org.nuxeo.ecm.core.schema.dto.DTOPath;
 
 public class PrimaryTypeValidationViolationTest extends AbstractValidationViolationTest {
 
-    private static final SchemaDTONode originalNode = new SchemaDTONode(Map.of("1st", Map.of("2nd", "originalValue")), "1st").get("2nd");
+    private static final DTOPath originalNode = DTOPath.root("1st", null).child("2nd", "originalValue");
 
     private static final PrimaryTypeValidationViolation removedViolation = new PrimaryTypeValidationViolation(originalNode, "removed");
 
@@ -37,9 +36,8 @@ public class PrimaryTypeValidationViolationTest extends AbstractValidationViolat
 
     @Override
     protected PrimaryTypeValidationViolation getTestObject() {
-        return new PrimaryTypeValidationViolation(new SchemaDTONode(Map.of("key", "value"), "key"), "not", "a", "known", "key");
+        return new PrimaryTypeValidationViolation(DTOPath.root("key", "value"), "not", "a", "known", "key");
     }
-
 
     @Test
     public void testGetMessage() {

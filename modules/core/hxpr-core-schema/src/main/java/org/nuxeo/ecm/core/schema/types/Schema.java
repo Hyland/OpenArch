@@ -15,9 +15,8 @@
  */
 package org.nuxeo.ecm.core.schema.types;
 
-import java.util.Map;
-
 import org.nuxeo.ecm.core.schema.SchemaManager;
+import org.nuxeo.ecm.core.schema.dto.SchemaDTO;
 
 /**
  * A marker interface for schemas.
@@ -34,6 +33,6 @@ public interface Schema extends ComplexType {
      */
     boolean isVersionWritabe();
 
-    Map<String, Object> toSchemaDTO(SchemaManager schemaManager);
+    SchemaDTO toSchemaDTO(SchemaManager schemaManager);
 
 }

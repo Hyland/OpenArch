@@ -26,6 +26,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.nuxeo.ecm.core.schema.SchemaManager;
+import org.nuxeo.ecm.core.schema.dto.MixinTypeDTO;
+import org.nuxeo.ecm.core.schema.dto.TypeDTO;
 
 /**
  * A Composite Type resolves fields for several schemas.
@@ -52,26 +54,16 @@ public class CompositeTypeImpl extends ComplexTypeImpl implements CompositeType 
     }
 
     @Override
-    public Map<String, Object> toMixinTypeDTO(boolean noPerDocumentQuery) {
+    public MixinTypeDTO toMixinTypeDTO(boolean noPerDocumentQuery) {
         List<String> schemaNames = schemas.keySet() //
                                           .stream()
                                           .sorted()
                                           .collect(toList()); // needs to be mutable for fixups
-        Map<String, Object> dto = new LinkedHashMap<>();
-        if (!schemaNames.isEmpty()) {
-            dto.put("schemas", schemaNames);
-        }
-        if (noPerDocumentQuery) {
-            dto.put("noPerDocumentQuery", true);
-        }
-        if (projectId != null) {
-            dto.put("projectId", projectId);
-        }
-        return dto;
+        return new MixinTypeDTO(projectId, noPerDocumentQuery, schemaNames.isEmpty() ? null : schemaNames);
     }
 
     @Override
-    public Map<String, Object> toTypeDTO(SchemaManager schemaManager) {
+    public TypeDTO toTypeDTO(SchemaManager schemaManager) {
         throw new UnsupportedOperationException(getClass().getName());
     }
 

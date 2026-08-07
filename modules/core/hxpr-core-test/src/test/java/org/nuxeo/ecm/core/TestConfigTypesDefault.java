@@ -27,6 +27,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.nuxeo.common.utils.FileUtils;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.schema.SchemaManager;
+import org.nuxeo.ecm.core.schema.SchemaManagerDTO;
 import org.nuxeo.ecm.core.test.CoreFeature;
 import org.nuxeo.ecm.core.test.annotations.Granularity;
 import org.nuxeo.ecm.core.test.annotations.RepositoryConfig;
@@ -64,9 +65,23 @@ public class TestConfigTypesDefault {
     @Test
     public void testConfig() throws Exception {
         SchemaManager schemaManager = session.getSchemaManager();
-        Map<String, Object> dto = schemaManager.toDTO();
-        String actual = MAPPER.writeValueAsString(dto);
+        String actual = MAPPER.writeValueAsString(schemaManager.toMap());
         String expected = readFile(CONFIG);
+        JSONAssert.assertEquals(actual, expected, actual, true);
+    }
+
+    /**
+     * The persisted shape is a contract: reading it back and dumping it again must be the identity.
+     * This pins both halves of the storage codec against the same reference document.
+     */
+    @Test
+    public void testConfigRoundTrip() throws Exception {
+        String expected = readFile(CONFIG);
+        // the SchemaManagerDTO constructor consumes the map it is given, so read a fresh copy
+        @SuppressWarnings("unchecked")
+        Map<String, Object> input = MAPPER.readValue(expected, Map.class);
+        SchemaManager schemaManager = new SchemaManagerDTO(input);
+        String actual = MAPPER.writeValueAsString(schemaManager.toMap());
         JSONAssert.assertEquals(actual, expected, actual, true);
     }
 

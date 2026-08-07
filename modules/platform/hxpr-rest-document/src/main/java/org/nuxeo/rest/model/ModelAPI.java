@@ -43,16 +43,14 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.api.repository.RepositoryManager;
 import org.nuxeo.ecm.core.schema.SchemaManager;
 import org.nuxeo.ecm.core.schema.TypeService;
+import org.nuxeo.ecm.core.schema.dto.ContentModelDTO;
 import org.nuxeo.rest.auth.AdministratorAccess;
-import org.nuxeo.rest.model.dto.Constants;
-import org.nuxeo.rest.model.dto.ModelDTO;
 import org.nuxeo.rest.model.validation.ModelValidator;
 import org.nuxeo.rest.swagger.annotation.ApiResponse200;
 import org.nuxeo.rest.swagger.annotation.ApiResponse204;
@@ -111,7 +109,7 @@ public class ModelAPI {
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
     @Inherited
-    @ApiResponse200(content = { @Content(schema = @Schema(implementation = ModelDTO.class), examples = {
+    @ApiResponse200(content = { @Content(schema = @Schema(implementation = ContentModelDTO.class), examples = {
             @ExampleObject(value = PUT_REQUEST_EXAMPLE) }) })
     private @interface ApiResponse200Model {
         @AliasFor(annotation = ApiResponse200.class, attribute = "description")
@@ -140,11 +138,11 @@ public class ModelAPI {
     @Operation(summary = "Returns the model for the repository.", operationId = "getModel")
     @ApiResponse200Model
     @ApiResponse404RepositoryNotFound
-    public ResponseEntity<ModelDTO> doGet(
+    public ResponseEntity<ContentModelDTO> doGet(
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId) {
         checkRepoExists(repoId);
 
-        return ResponseEntity.ok(ModelDTO.toDTO(modelManager.getSchemaManagerDTO(repoId)));
+        return ResponseEntity.ok(modelManager.getContentModel(repoId));
     }
 
     @PutMapping(consumes = APPLICATION_JSON_VALUE)
@@ -155,10 +153,10 @@ public class ModelAPI {
     @ApiResponse422ValidationError
     @SwaggerRequestBody(content = { @Content(examples = { @ExampleObject(value = PUT_REQUEST_EXAMPLE) }) })
     @AdministratorAccess
-    public ResponseEntity<ModelDTO> doPut(
+    public ResponseEntity<ContentModelDTO> doPut(
             @RequestParam(value = MODEL_VALIDATE_ONLY, required = false, defaultValue = "false") @ParameterValidateOnly boolean validateOnly,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId,
-            @RequestBody(required = false) ModelDTO modelDTO) {
+            @RequestBody ContentModelDTO modelDTO) {
         checkRepoExists(repoId);
         modelValidator.validate(modelDTO);
         SchemaManager schemaManager = generateSchemaManagerBasedOnDto(repoId, modelDTO, validateOnly);
@@ -177,10 +175,10 @@ public class ModelAPI {
     @SwaggerRequestBody(content = {
             @Content(schema = @Schema(type = "object"), examples = @ExampleObject(value = PATCH_REQUEST_EXAMPLE)) })
     @AdministratorAccess
-    public ResponseEntity<ModelDTO> doPatch(
+    public ResponseEntity<ContentModelDTO> doPatch(
             @RequestParam(value = MODEL_VALIDATE_ONLY, required = false, defaultValue = "false") @ParameterValidateOnly boolean validateOnly,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId,
-            @RequestBody(required = false) Object patchBody) throws IOException {
+            @RequestBody Object patchBody) throws IOException {
         checkRepoExists(repoId);
         SchemaManager schemaManager = modelManager.applyPatch(repoId, mapper.writeValueAsString(patchBody),
                 validateOnly);
@@ -193,7 +191,7 @@ public class ModelAPI {
     @PutMapping(path = "/project/{projectId}", consumes = APPLICATION_JSON_VALUE)
     @Operation(summary = "Sets the model items specific to projects in the existing content model for the repository.", operationId = "setModelItemsForProject")
     @ApiResponse200(description = "Sets the model items specific to projects in the existing content model and returns the model for the repository.", content = {
-        @Content(schema = @Schema(implementation = ModelDTO.class),
+        @Content(schema = @Schema(implementation = ContentModelDTO.class),
             examples = { @ExampleObject(value = PUT_FOR_PROJECT_RESPONSE_EXAMPLE) }) })
     @ApiResponse204ModelValid
     @ApiResponse404RepositoryNotFound
@@ -201,16 +199,15 @@ public class ModelAPI {
     @ApiResponse422ValidationError
     @SwaggerRequestBody(content = { @Content(examples = { @ExampleObject(value = PUT_FOR_PROJECT_REQUEST_EXAMPLE) }) })
     @AdministratorAccess
-    public ResponseEntity<ModelDTO> doPutForProject(@PathVariable("projectId") String projectId,
+    public ResponseEntity<ContentModelDTO> doPutForProject(@PathVariable("projectId") String projectId,
             @RequestParam(value = MODEL_VALIDATE_ONLY, required = false, defaultValue = "false") @ParameterValidateOnly boolean validateOnly,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId,
-            @RequestBody(required = false) ModelDTO modelDTO) {
+            @RequestBody ContentModelDTO modelDTO) {
         checkRepoExists(repoId);
         modelValidator.validate(Framework.getService(TypeService.class).getSchemaManager(repoId), modelDTO, projectId);
-        ModelDTO modelDTOFromGet = doGet(repoId).getBody();
-        ModelDTO consolidatedModelDTO = modelManager.createConsolidatedContentModel(modelDTOFromGet, modelDTO,
-                projectId);
-        SchemaManager schemaManager = generateSchemaManagerBasedOnDto(repoId, consolidatedModelDTO, validateOnly);
+        ContentModelDTO current = modelManager.getContentModel(repoId);
+        ContentModelDTO consolidated = modelManager.createConsolidatedContentModel(current, modelDTO, projectId);
+        SchemaManager schemaManager = generateSchemaManagerBasedOnDto(repoId, consolidated, validateOnly);
         if (!validateOnly) {
             modelManager.persistSchemaManager(repoId, schemaManager);
         }
@@ -225,11 +222,10 @@ public class ModelAPI {
     }
 
     @NonNull
-    private SchemaManager generateSchemaManagerBasedOnDto(String repoId, ModelDTO modelDTO, boolean validateOnly) {
+    private SchemaManager generateSchemaManagerBasedOnDto(String repoId, ContentModelDTO modelDTO, boolean validateOnly) {
         SchemaManager schemaManager;
-        Map<String, Object> dto = modelDTO.toMap();
         try {
-            schemaManager = modelManager.createSchemaManagerDTO(repoId, dto, validateOnly);
+            schemaManager = modelManager.createSchemaManager(repoId, modelDTO, validateOnly);
         } catch (NullPointerException | ClassCastException | RuntimeServiceException e) {
             log.debug("Invalid model", e);
             throw new NuxeoException(BAD_REQUEST.value());
@@ -240,17 +236,17 @@ public class ModelAPI {
     @GetMapping(path = "/project/{projectId}")
     @Operation(summary = "Returns the model specific to a project for the repository.", operationId = "getModelItemsForProject")
     @ApiResponse200(description = "The model items specific to a project in the existing content model and returns the model for the repository.", content = {
-            @Content(schema = @Schema(implementation = ModelDTO.class), examples = {
+            @Content(schema = @Schema(implementation = ContentModelDTO.class), examples = {
                     @ExampleObject(value = PUT_FOR_PROJECT_RESPONSE_EXAMPLE) }) })
     @ApiResponse404RepositoryNotFound
     @AdministratorAccess
-    public ResponseEntity<ModelDTO> doGetForProject(@PathVariable("projectId") String projectId,
+    public ResponseEntity<ContentModelDTO> doGetForProject(@PathVariable("projectId") String projectId,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId) {
         checkRepoExists(repoId);
         if (StringUtils.isBlank(projectId)) {
             return doGet(repoId);
         }
-        return ResponseEntity.ok(ModelDTO.toDTO(modelManager.getSchemaManagerDTO(repoId, projectId)));
+        return ResponseEntity.ok(modelManager.getContentModel(repoId, projectId));
     }
 
 }

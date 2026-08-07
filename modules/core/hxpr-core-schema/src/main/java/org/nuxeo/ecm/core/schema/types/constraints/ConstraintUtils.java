@@ -118,27 +118,25 @@ public final class ConstraintUtils {
         return null;
     }
 
-    private static final Set<Function<Map<String, Object>, Constraint>> DTO_TO_CONSTRAINTS_FUNCS = new HashSet<>(List.of( //
-            NotNullConstraint::fromDTO, //
-            LengthConstraint::fromDTO, //
-            NumericIntervalConstraint::fromDTO, //
-            DateIntervalConstraint::fromDTO, //
-            EnumConstraint::fromDTO, //
-            PatternConstraint::fromDTO, //
-            ObjectResolverConstraint::fromDTO));
+    private static final Set<Function<Map<String, Object>, Constraint>> MAP_TO_CONSTRAINTS_FUNCS = new HashSet<>(List.of( //
+            NotNullConstraint::fromMap, //
+            LengthConstraint::fromMap, //
+            NumericIntervalConstraint::fromMap, //
+            DateIntervalConstraint::fromMap, //
+            EnumConstraint::fromMap, //
+            PatternConstraint::fromMap, //
+            ObjectResolverConstraint::fromMap));
 
-    @SuppressWarnings("rawtypes")
-    public static Set<Constraint> constraintsFromDTO(Object o) {
+    @SuppressWarnings("unchecked")
+    public static Set<Constraint> constraintsFromMap(Object o) {
         if (o == null) {
             return Set.of();
         }
         if (!(o instanceof Map map)) {
             throw new RuntimeServiceException("Invalid constraints: " + o);
         }
-        @SuppressWarnings("unchecked")
-        Map<String, Object> dto = map;
-        return DTO_TO_CONSTRAINTS_FUNCS.stream() //
-                                       .map(f -> f.apply(dto))
+        return MAP_TO_CONSTRAINTS_FUNCS.stream() //
+                                       .map(f -> f.apply(map))
                                        .filter(Objects::nonNull)
                                        .collect(toSet());
     }

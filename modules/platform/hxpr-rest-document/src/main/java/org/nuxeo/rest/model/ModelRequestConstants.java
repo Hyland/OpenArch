@@ -186,10 +186,15 @@ public class ModelRequestConstants {
              }
             """;
 
+    /**
+     * The patch applies to the document {@code GET} returns, so a path must exist for
+     * {@code replace}, {@code remove} and {@code test}: use {@code add} to introduce a key that is
+     * not there yet, such as a {@code projectId} on a type that has none.
+     */
     public static final String PATCH_REQUEST_EXAMPLE = """
             [
                 { "op": "add", "path": "/schemas/dublincore/fields/dc_foobar", "value": { "type" : "string" } },
-                { "op": "remove", "path": "/primaryTypes/SysFile/projectId" },
+                { "op": "add", "path": "/primaryTypes/SysFile/projectId", "value": "HxP001" },
                 { "op": "replace", "path": "/types/newType/fields/oldMember", "value": { "type" : "date"} },
                 { "op": "test", "path": "/types/newType/fields/oldMember","value": { "type" : "date"} }
             ]

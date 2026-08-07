@@ -15,17 +15,14 @@
  */
 package org.nuxeo.ecm.core.schema.types;
 
-import static org.nuxeo.common.function.FunctionUtils.sortByKeyAndMapValue;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.nuxeo.ecm.core.schema.SchemaManager;
+import org.nuxeo.ecm.core.schema.dto.ConstraintsDTO;
+import org.nuxeo.ecm.core.schema.dto.TypeDTO;
 import org.nuxeo.ecm.core.schema.types.constraints.Constraint;
 import org.nuxeo.ecm.core.schema.types.resolver.ObjectResolver;
 
@@ -50,17 +47,8 @@ public abstract class AbstractType implements Type {
     }
 
     @Override
-    public Map<String, Object> toTypeDTO(SchemaManager schemaManager) {
-        Map<String, Object> constraintsDTO = new LinkedHashMap<>();
-        constraints.forEach(c -> constraintsDTO.putAll(c.toDTO()));
-        Map<String, Object> dto = new LinkedHashMap<>();
-        if (!constraintsDTO.isEmpty()) {
-            dto.put("constraints", sortByKeyAndMapValue(constraintsDTO, Entry::getValue));
-        }
-        if (projectId != null) {
-            dto.put("projectId", projectId);
-        }
-        return dto;
+    public TypeDTO toTypeDTO(SchemaManager schemaManager) {
+        return new TypeDTO(projectId, null, ConstraintsDTO.of(constraints), null, null);
     }
 
     @Override

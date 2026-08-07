@@ -25,8 +25,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.nuxeo.common.utils.i18n.I18NUtils;
 import org.nuxeo.ecm.core.schema.SchemaManagerConstants;
+import org.nuxeo.ecm.core.schema.dto.DTOPath;
 import org.nuxeo.ecm.core.schema.types.constraints.Constraint;
-import org.nuxeo.ecm.core.schema.validation.SchemaDTONode;
 
 public abstract class AbstractValidationViolation extends AbstractBaseValidationViolation {
 
@@ -48,9 +48,8 @@ public abstract class AbstractValidationViolation extends AbstractBaseValidation
         this(invalidValue, path, appendMessageKey(messageKey, keyArgs), Type.ERROR);
     }
 
-    protected AbstractValidationViolation(SchemaDTONode node, String messageKey, Type type, String... keyArgs) {
-        this(node.getNode() == null ? node.getKey() : node.getNode(), node.getPath(),
-                appendMessageKey(messageKey, keyArgs), type);
+    protected AbstractValidationViolation(DTOPath node, String messageKey, Type type, String... keyArgs) {
+        this(node.invalidValue(), node.path(), appendMessageKey(messageKey, keyArgs), type);
     }
 
     protected abstract Logger getLog();

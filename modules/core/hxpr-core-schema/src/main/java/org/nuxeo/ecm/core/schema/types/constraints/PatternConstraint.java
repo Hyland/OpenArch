@@ -16,6 +16,7 @@
 
 package org.nuxeo.ecm.core.schema.types.constraints;
 
+import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.PATTERN;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -120,12 +121,12 @@ public class PatternConstraint extends AbstractConstraint {
     }
 
     @Override
-    public Map<String, Object> toDTO() {
-        return Map.of("pattern", pattern.pattern());
+    public Map<String, Object> toMap() {
+        return Map.of(PATTERN, pattern.pattern());
     }
 
-    public static PatternConstraint fromDTO(Map<String, Object> dto) {
-        if (dto.get("pattern") instanceof String pattern) {
+    public static PatternConstraint fromMap(Map<String, Object> map) {
+        if (map.get(PATTERN) instanceof String pattern) {
             return new PatternConstraint(pattern);
         }
         return null;

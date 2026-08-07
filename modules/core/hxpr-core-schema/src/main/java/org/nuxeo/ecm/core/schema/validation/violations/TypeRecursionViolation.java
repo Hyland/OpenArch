@@ -20,7 +20,7 @@ import java.util.Locale;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.nuxeo.ecm.core.schema.validation.SchemaDTONode;
+import org.nuxeo.ecm.core.schema.dto.DTOPath;
 
 /**
  * Violation designed to be used when an object has error when a provided type causes a Type Recursion. <p>
@@ -41,8 +41,8 @@ public class TypeRecursionViolation extends AbstractValidationViolation {
 
     private static final String DEFAULT_MSG_FORMAT = "The value \"%s\" is a type recursion.";
 
-    public TypeRecursionViolation(SchemaDTONode node, String... keyArgs) {
-        super(node.getKey(), node.getPath(), MESSAGE_KEY, keyArgs);
+    public TypeRecursionViolation(DTOPath node, String... keyArgs) {
+        super(node.key(), node.path(), MESSAGE_KEY, keyArgs);
     }
 
     @Override

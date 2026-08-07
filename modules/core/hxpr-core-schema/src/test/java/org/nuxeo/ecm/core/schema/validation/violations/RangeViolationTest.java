@@ -19,11 +19,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+import org.nuxeo.ecm.core.schema.dto.DTOPath;
 import org.nuxeo.ecm.core.schema.types.constraints.LengthConstraint;
-import org.nuxeo.ecm.core.schema.validation.SchemaDTONode;
 
 public class RangeViolationTest extends AbstractValidationViolationTest {
 
@@ -31,7 +30,7 @@ public class RangeViolationTest extends AbstractValidationViolationTest {
 
     private static final long MIN = 5L;
 
-    private static final SchemaDTONode node = new SchemaDTONode(Map.of("key", "value"), "key");
+    private static final DTOPath node = DTOPath.root("key", "value");
 
     @Override
     protected String getExpectedMessage() {

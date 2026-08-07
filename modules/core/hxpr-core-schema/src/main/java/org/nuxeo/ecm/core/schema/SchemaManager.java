@@ -18,6 +18,8 @@ package org.nuxeo.ecm.core.schema;
 import java.util.Map;
 import java.util.Set;
 
+import org.nuxeo.ecm.core.schema.dto.ContentModelDTO;
+import org.nuxeo.ecm.core.schema.dto.ModelMapCodec;
 import org.nuxeo.ecm.core.schema.types.CompositeType;
 import org.nuxeo.ecm.core.schema.types.Field;
 import org.nuxeo.ecm.core.schema.types.Schema;
@@ -78,6 +80,15 @@ public interface SchemaManager {
      */
     Set<String> getDocumentTypeNamesExtendedBy(String docType);
 
-    Map<String, Object> toDTO();
+    /** The whole content model as a DTO. */
+    ContentModelDTO toContentModel();
+
+    /**
+     * The whole content model as the untyped map the configuration service persists. Derived from
+     * {@link #toContentModel()}, so there is only one place a model can be rendered from.
+     */
+    default Map<String, Object> toMap() {
+        return ModelMapCodec.write(toContentModel());
+    }
 
 }

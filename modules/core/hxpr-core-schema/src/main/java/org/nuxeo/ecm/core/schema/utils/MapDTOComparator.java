@@ -15,90 +15,80 @@
  */
 package org.nuxeo.ecm.core.schema.utils;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.nuxeo.ecm.core.schema.validation.SchemaDTONode;
+import org.nuxeo.ecm.core.schema.dto.DTOPath;
 
 /**
- * This class is written for processing difference between key-value pairs between two nested maps.
- * The result is the map of original key-value pairs, maintaining the structure of the nested map.
+ * Computes the difference between two nested maps, reporting which entries of the original were
+ * removed or modified, and where.
  */
 public class MapDTOComparator {
 
-    private final Map<String, Object> differences;
+    private final List<DTOPath> removedNodes = new ArrayList<>();
 
-    private final List<SchemaDTONode> removedNodes = new ArrayList<>();
-
-    private final List<Pair<SchemaDTONode, SchemaDTONode>> modifiedNodes = new ArrayList<>();
+    private final List<Pair<DTOPath, DTOPath>> modifiedNodes = new ArrayList<>();
 
     public MapDTOComparator(Map<String, Object> originalMap, Map<String, Object> updatedMap) {
-        this.differences = calculateDifferences(originalMap, updatedMap);
+        compare(originalMap, null, updatedMap, null);
     }
 
-    public Map<String, Object> getDifferences() {
-        return differences;
-    }
-
-    public List<SchemaDTONode> getRemovedNodes() {
+    public List<DTOPath> getRemovedNodes() {
         return removedNodes;
     }
 
-    public List<Pair<SchemaDTONode, SchemaDTONode>> getModifiedNodes() {
+    public List<Pair<DTOPath, DTOPath>> getModifiedNodes() {
         return modifiedNodes;
     }
 
-    private SchemaDTONode nextNode(Map<String, Object> map, SchemaDTONode node, String key) {
-        if (node == null) {
-            node = new SchemaDTONode(map, key);
-        } else {
-            node = node.get(key);
-        }
-        return node;
+    private static DTOPath nextNode(DTOPath parent, String key, Object value) {
+        return parent == null ? DTOPath.root(key, value) : parent.child(key, value);
     }
 
     /**
-     * Compares the two maps provided and returns a Map of the entries in the original map that have been altered or removed in the updated map.
-     * @return A map of entries from {@code originalMap} that have been modified or removed in {@code updateMap}
+     * Walks both maps together, collecting the entries of the original that the update removed or
+     * changed. A removed subtree is reported once, at its root, rather than leaf by leaf; a changed
+     * one is reported at the leaf that actually differs.
      */
-    private Map<String, Object> calculateDifferences(Map<String, Object> origMap, Map<String, Object> updateMap) {
-        return calculateDifferences(origMap, null, updateMap, null);
-    }
-
-    private Map<String, Object> calculateDifferences(Map<String, Object> origMap, SchemaDTONode originalNode,
-            Map<String, Object> updateMap, SchemaDTONode updatedNode) {
-        Map<String, Object> mapDifferences = new HashMap<>();
-        // Iterate through the entries in the first map
-        origMap.entrySet().forEach(entry -> {
-            String key = entry.getKey();
-            SchemaDTONode nextOrigNode = nextNode(origMap, originalNode, key);
-            SchemaDTONode nextUpdatedNode = nextNode(updateMap, updatedNode, key);
-            Object value1 = nextOrigNode.getNode();
-            Object value2 = nextUpdatedNode.getNode();
-            if (nextOrigNode.getNode() != null && nextUpdatedNode.getNode() == null) {
+    private void compare(Map<String, Object> origMap, DTOPath originalNode, Map<String, Object> updateMap,
+            DTOPath updatedNode) {
+        origMap.forEach((key, origValue) -> {
+            Object updatedValue = updateMap == null ? null : updateMap.get(key);
+            DTOPath nextOrigNode = nextNode(originalNode, key, origValue);
+            DTOPath nextUpdatedNode = nextNode(updatedNode, key, updatedValue);
+            if (origValue != null && updatedValue == null) {
                 // Key is not present in the second map
-                mapDifferences.put(key, nextOrigNode.getNode());
                 removedNodes.add(nextOrigNode);
-            } else if (nextOrigNode.isMap() && nextUpdatedNode.isMap()) {
+            } else if (origValue instanceof Map && updatedValue instanceof Map) {
                 // Both values are maps, so we need to compare them recursively
-                Map<String, Object> nestedDifferences = calculateDifferences(nextOrigNode.asMap(), nextOrigNode,
-                        nextUpdatedNode.asMap(), nextUpdatedNode);
-                if (!nestedDifferences.isEmpty()) {
-                    mapDifferences.put(key, nestedDifferences);
-                }
-            } else if (value1 != null && !value1.equals(value2) &&
-                    !((value1 instanceof Number number1 && value2 instanceof Number number2)
-                            && number1.intValue() == number2.intValue())) {
+                compare(asMap(origValue), nextOrigNode, asMap(updatedValue), nextUpdatedNode);
+            } else if (origValue != null && !equalValues(origValue, updatedValue)) {
                 // Values are different
-                mapDifferences.put(key, value1);
                 modifiedNodes.add(Pair.of(nextOrigNode, nextUpdatedNode));
             }
-        }
-        );
-        return mapDifferences;
+        });
     }
 
+    /**
+     * Numbers are compared by value: the same constraint bound can arrive as an {@link Integer} on
+     * one side and a {@link Long} on the other depending on how it was serialized.
+     */
+    private static boolean equalValues(Object left, Object right) {
+        if (left.equals(right)) {
+            return true;
+        }
+        if (left instanceof Number leftNumber && right instanceof Number rightNumber) {
+            return new BigDecimal(leftNumber.toString()).compareTo(new BigDecimal(rightNumber.toString())) == 0;
+        }
+        return false;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<String, Object> asMap(Object value) {
+        return (Map<String, Object>) value;
+    }
 }
