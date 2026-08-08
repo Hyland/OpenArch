@@ -3,7 +3,7 @@
     <parent>
       <groupId>com.hyland.hxpr</groupId>
       <artifactId>hxpr-community-internal-parent</artifactId>
-      <version>0.0.111</version>
+      <version>0.0.112-SNAPSHOT</version>
     </parent>
 
     <artifactId>sonarcloud-modules</artifactId>
