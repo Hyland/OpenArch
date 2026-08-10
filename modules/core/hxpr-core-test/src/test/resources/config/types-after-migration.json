@@ -572,6 +572,7 @@
       ]
     },
     "SysFile": {
+      "extends": "SysContent",
       "mixins": [
         "WithBar"
       ]
@@ -621,6 +622,8 @@
         "system"
       ]
     },
-    "SysRoot": {}
+    "SysRoot": {
+      "extends": "SysFolder"
+    }
   }
 }

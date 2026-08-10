@@ -509,6 +509,7 @@ public class MongoDBRepository extends DBSRepositoryBase implements Configuratio
         // ADD migration code here and set needsMigration to true if any changes were made
          needsMigration = migrateMetadataTypes(config);
          needsMigration |= migrateRenditionSchema(schemas);
+         needsMigration |= MongoDBPrimaryTypeParentMigrator.migrate(primaryTypes);
 
         // Knowledge Graph stringList type
         if (types.putIfAbsent(SYSGRAPH_STRING_LIST_TYPE, Map.of(LIST, StringType.ID)) == null) {
