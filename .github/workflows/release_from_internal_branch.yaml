@@ -42,7 +42,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
       - name: Set up JDK 25
-        uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95 # v5.6.0
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
         with:
           java-version: '25'
           distribution: 'corretto'
@@ -125,6 +125,6 @@ jobs:
     if: always() && failure() && github.event_name == 'push'
     steps:
       - name: Teams Notification
-        uses: Alfresco/alfresco-build-tools/.github/actions/send-teams-notification@ac0009fd55b474dbf50864caa4f9da36a41e5ffe # v18.21.2
+        uses: Alfresco/alfresco-build-tools/.github/actions/send-teams-notification@5177eca5d3d71342d7f7e0a2a4d74cc16b1eeb1b # v18.21.3
         with:
           webhook-url: ${{ secrets.TEAMS_GA_NOTIFS_WEBHOOK_URL }}

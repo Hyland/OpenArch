@@ -34,7 +34,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Ensure SHA pinned actions
-        uses: zgosalvez/github-actions-ensure-sha-pinned-actions@3db98c0363e2fa5df3e1c4c471777a7c10b24cc9 # v5.0.5
+        uses: zgosalvez/github-actions-ensure-sha-pinned-actions@46cfe808a5f1588656ef299eedd0ce2fd7ec0dcc # v5.0.6
       - name: Generate Version
         id: version
         uses: ./.github/actions/generate-version
@@ -57,9 +57,9 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
       - name: Ensure SHA pinned actions
-        uses: zgosalvez/github-actions-ensure-sha-pinned-actions@3db98c0363e2fa5df3e1c4c471777a7c10b24cc9 # v5.0.5
+        uses: zgosalvez/github-actions-ensure-sha-pinned-actions@46cfe808a5f1588656ef299eedd0ce2fd7ec0dcc # v5.0.6
       - name: Login to ghcr.io in read only mode
-        uses: docker/login-action@abd2ef45e78c5afb21d64d4ca52ee8550d9572c7 # v4.5.1
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -72,7 +72,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
       - name: Set up JDK 25
-        uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95 # v5.6.0
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
         with:
           java-version: '25'
           distribution: 'corretto'
@@ -168,7 +168,7 @@ jobs:
              "${TARGET_DIR}/hxpr-community-internal-app-${RELEASE_VERSION}.jar"
 
       - name: Login to ghcr.io in read only mode
-        uses: docker/login-action@abd2ef45e78c5afb21d64d4ca52ee8550d9572c7 # v4.5.1
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -200,7 +200,7 @@ jobs:
             BUILD_URL=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
       - name: Login to ghcr.io in write mode
-        uses: docker/login-action@abd2ef45e78c5afb21d64d4ca52ee8550d9572c7 # v4.5.1
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -288,6 +288,6 @@ jobs:
     if: always() && failure() && github.event_name == 'push'
     steps:
       - name: Teams Notification
-        uses: Alfresco/alfresco-build-tools/.github/actions/send-teams-notification@ac0009fd55b474dbf50864caa4f9da36a41e5ffe # v18.21.2
+        uses: Alfresco/alfresco-build-tools/.github/actions/send-teams-notification@5177eca5d3d71342d7f7e0a2a4d74cc16b1eeb1b # v18.21.3
         with:
           webhook-url: ${{ secrets.TEAMS_GA_NOTIFS_WEBHOOK_URL }}
