@@ -24,7 +24,7 @@
 #
 ###
 # kics-scan disable=b03a748a-542d-44f4-bb86-9199ab4fd2d5
-FROM dhi.io/amazoncorretto:25-alpine3.23-dev@sha256:dabe537b0efd07de9ba252ff344d14ac82f68123cb668b8a3b564c1fbe4495b8 AS builder
+FROM dhi.io/amazoncorretto:25-alpine3.23-dev@sha256:693d4000c20cabd342315656d26133d422a88e4ff3fab1c123381b0a43f0cec8 AS builder
 
 ARG RUN_JAVA_VERSION=1.3.8
 
