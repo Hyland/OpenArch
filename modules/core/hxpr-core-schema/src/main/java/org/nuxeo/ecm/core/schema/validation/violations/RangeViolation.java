@@ -22,9 +22,9 @@ import java.util.Locale;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.nuxeo.ecm.core.schema.dto.DTOPath;
 import org.nuxeo.ecm.core.schema.types.constraints.Constraint;
 import org.nuxeo.ecm.core.schema.types.constraints.RangeConstraint;
+import org.nuxeo.ecm.core.schema.validation.SchemaDTONode;
 
 /**
  * Violation designed to be used when a class or object has error with the values provided. <p>
@@ -45,14 +45,14 @@ public class RangeViolation extends AbstractValidationViolation {
     private final transient String defaultMessage;
 
     public <T extends Constraint & RangeConstraint<E>, E extends Number & Comparable<E>> RangeViolation(T constraint,
-            DTOPath node, String minParameter, String maxParameter) {
-        super(constraint.getMin(), appendPath(minParameter, node.path()), MESSAGE_KEY, Type.ERROR);
-        this.messageParameters = extractParameters(constraint, node.path(), minParameter, maxParameter);
+            SchemaDTONode node, String minParameter, String maxParameter) {
+        super(constraint.getMin(), appendPath(minParameter, node.getPath()), MESSAGE_KEY, Type.ERROR);
+        this.messageParameters = extractParameters(constraint, node.getPath(), minParameter, maxParameter);
         this.defaultMessage = MESSAGE_FORMAT.formatted(constraint.getMin(), constraint.getMax());
     }
 
     /**
-     * Extracts the parameters from the provided {@link Constraint} and {@link DTOPath}.
+     * Extracts the parameters from the provided {@link Constraint} and {@link SchemaDTONode}.
      * <p>
      * Parameters extracted will take the format:
      * <pre>

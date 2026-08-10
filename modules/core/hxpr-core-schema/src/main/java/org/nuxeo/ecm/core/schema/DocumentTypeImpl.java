@@ -22,10 +22,11 @@ import static org.nuxeo.ecm.core.schema.MixinNames.SYS_GOVERNABLE;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
-import org.nuxeo.ecm.core.schema.dto.PrimaryTypeDTO;
 import org.nuxeo.ecm.core.schema.types.CompositeType;
 import org.nuxeo.ecm.core.schema.types.CompositeTypeImpl;
 import org.nuxeo.ecm.core.schema.types.Schema;
@@ -55,7 +56,7 @@ public class DocumentTypeImpl extends CompositeTypeImpl implements DocumentType 
         this(name, null, List.of(), List.of(), null);
     }
 
-    public PrimaryTypeDTO toDocumentTypeDTO() {
+    public Map<String, Object> toDocumentTypeDTO() {
         String extendz = superType == null ? null : superType.getName();
         Set<String> superMixins = superType == null ? Set.of() : ((DocumentTypeImpl) superType).getMixins();
         Set<String> superSchemas = superType == null ? Set.of() : ((DocumentTypeImpl) superType).getSchemaNames();
@@ -76,12 +77,23 @@ public class DocumentTypeImpl extends CompositeTypeImpl implements DocumentType 
                                          .toList();
         List<String> subtypeList = subtypes == null ? List.of() : subtypes.stream().sorted().toList();
 
-        return new PrimaryTypeDTO(projectId, extendz, emptyToNull(schemaList), emptyToNull(mixinList),
-                emptyToNull(subtypeList));
-    }
-
-    private static List<String> emptyToNull(List<String> list) {
-        return list.isEmpty() ? null : list;
+        Map<String, Object> map = new LinkedHashMap<>();
+        if (projectId != null) {
+            map.put("projectId", projectId);
+        }
+        if (extendz != null) {
+            map.put("extends", extendz);
+        }
+        if (!schemaList.isEmpty()) {
+            map.put("schemas", schemaList);
+        }
+        if (!mixinList.isEmpty()) {
+            map.put("mixins", mixinList);
+        }
+        if (!subtypeList.isEmpty()) {
+            map.put("subtypes", subtypeList);
+        }
+        return map;
     }
 
     @Override

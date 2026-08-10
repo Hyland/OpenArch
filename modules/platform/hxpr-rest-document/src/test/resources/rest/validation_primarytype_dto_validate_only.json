@@ -118,7 +118,7 @@
     },
     {
       "invalidValue": "File-foobar",
-      "message": "The value \"File-foobar\" cannot be applied as \"primaryTypes/SysFile\" already exists with value \"'{'extends=SysContent, schemas=[mydublincore, sysfiles, system], mixins=[SysFilish]'}'\".",
+      "message": "The value \"File-foobar\" cannot be applied as \"primaryTypes/SysFile\" already exists with value \"'{'mixins=[SysFilish], extends=SysContent, schemas=[mydublincore, sysfiles, system], subtypes=null'}'\".",
       "messageKey": "label.schema.application.violation.AlreadyExistsViolation.modified",
       "parameters": [
         "File-foobar",
@@ -131,7 +131,8 @@
             "mydublincore",
             "sysfiles",
             "system"
-          ]
+          ],
+          "subtypes": null
         },
         "primaryTypes/SysFile"
       ],

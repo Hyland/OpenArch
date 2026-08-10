@@ -16,7 +16,6 @@
 
 package org.nuxeo.ecm.core.schema.types.constraints;
 
-import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.RESOLVER;
 import static org.nuxeo.ecm.core.schema.types.resolver.ObjectResolver.NAME_KEY;
 
 import java.util.Collections;
@@ -47,12 +46,12 @@ public final class ObjectResolverConstraint extends AbstractConstraint {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public static ObjectResolverConstraint fromMap(Map<String, Object> map) {
-        if (!(map.get(RESOLVER) instanceof Map resolverMap)) {
+    public static ObjectResolverConstraint fromDTO(Map<String, Object> dto) {
+        if (!(dto.get("resolver") instanceof Map map)) {
             return null;
         }
         Map<String, String> parameters = new HashMap<>();
-        resolverMap.forEach((k, v) -> parameters.put(Objects.toString(k, null), Objects.toString(v, null)));
+        map.forEach((k, v) -> parameters.put(Objects.toString(k, null), Objects.toString(v, null)));
         String name = parameters.remove(NAME_KEY);
 
         var objectResolverService = Framework.getService(ObjectResolverService.class);
@@ -61,8 +60,8 @@ public final class ObjectResolverConstraint extends AbstractConstraint {
     }
 
     @Override
-    public Map<String, Object> toMap() {
-        return Map.of(RESOLVER, resolver.toMap());
+    public Map<String, Object> toDTO() {
+        return Map.of("resolver", resolver.toDTO());
     }
 
     public ObjectResolver getResolver() {

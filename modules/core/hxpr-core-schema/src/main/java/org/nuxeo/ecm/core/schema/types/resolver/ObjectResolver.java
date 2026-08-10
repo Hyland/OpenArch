@@ -158,6 +158,6 @@ public interface ObjectResolver {
      */
     String getConstraintErrorMessage(Object invalidValue, Locale locale);
 
-    Map<String, Object> toMap();
+    Map<String, Object> toDTO();
 
 }

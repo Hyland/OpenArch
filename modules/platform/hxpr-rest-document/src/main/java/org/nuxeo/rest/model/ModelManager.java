@@ -24,10 +24,9 @@ import java.util.Objects;
 import org.nuxeo.ecm.core.schema.SchemaManager;
 import org.nuxeo.ecm.core.schema.SchemaManagerDTO;
 import org.nuxeo.ecm.core.schema.TypeService;
-import org.nuxeo.ecm.core.schema.dto.ContentModelDTO;
-import org.nuxeo.ecm.core.schema.dto.ModelMapCodec;
 import org.nuxeo.ecm.core.schema.validation.SchemaValidationUtils;
 import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
+import org.nuxeo.rest.model.dto.ModelDTO;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.springboot.transaction.Transactional;
 import org.springframework.stereotype.Component;
@@ -46,24 +45,23 @@ public class ModelManager {
     @Transactional
     public SchemaManager applyPatch(String repoId, String patchBody, boolean validateOnly) throws IOException {
         JsonNode patch = mapper.readTree(patchBody);
-        // the patch applies to the model as the API renders it, i.e. to what GET returns
-        JsonNode patched = Jackson3JsonPatch.apply(patch, mapper.valueToTree(getContentModel(repoId)));
-        // read the patch result ourselves rather than letting Jackson bind it, so that a value of
-        // the wrong shape is reported as a validation violation instead of a binding failure
-        List<ValidationViolation> violations = new ArrayList<>();
-        Map<String, Object> patchedMap = mapper.convertValue(patched, Map.class);
-        ContentModelDTO model = ModelMapCodec.read(patchedMap, violations);
-        // diff against the patch result as it stands, not against the model read out of it: an
-        // entry the reader had to drop still counts as a modification, not as a removal
-        return createSchemaManager(repoId, model, patchedMap, violations, validateOnly);
+        ModelDTO current = ModelDTO.toDTO(getSchemaManagerDTO(repoId));
+        JsonNode patched = Jackson3JsonPatch.apply(patch, mapper.valueToTree(current.toMap()));
+        Map<String, Object> patchedDto = mapper.convertValue(patched, Map.class);
+        return createSchemaManagerDTO(repoId, patchedDto, validateOnly);
     }
 
-    ContentModelDTO getContentModel(String repoId) {
-        return getTypeService().getSchemaManager(repoId).toContentModel();
+    Map<String, Object> getSchemaManagerDTO(String repoId) {
+        return getTypeService().getSchemaManager(repoId).toDTO();
     }
 
-    ContentModelDTO getContentModel(String repoId, @NotNull String projectId) {
-        return getContentModel(repoId).filterByProject(projectId);
+    Map<String, Object> getSchemaManagerDTO(String repoId, @NotNull String projectId) {
+        ModelDTO model = ModelDTO.toDTO(getSchemaManagerDTO(repoId));
+        model.types().values().removeIf(type -> !projectId.equals(type.projectId()));
+        model.schemas().values().removeIf(schema -> !projectId.equals(schema.projectId()));
+        model.mixinTypes().values().removeIf(mixinType -> !projectId.equals(mixinType.projectId()));
+        model.primaryTypes().values().removeIf(primaryType -> !projectId.equals(primaryType.projectId()));
+        return model.toMap();
     }
 
     void persistSchemaManager(String repoId, SchemaManager schemaManager) {
@@ -75,32 +73,60 @@ public class ModelManager {
     }
 
     /**
-     * Returns a consolidated content model for the proposed update specific to a project: every
-     * item currently belonging to {@code projectId} is dropped, and the contributed ones are added
-     * in its place, stamped with that project.
+     * Returns a consolidated content model for the proposed update specific to a project.
+     * <p>
+     * Uses the DTO instance prepared from the existing content model and DTO
+     * instance created from the request for a supplied projectId .
+     * ProjectId supplied as a URL paratamer is set to the
+     * corresponding placeholder in the request DTO for every schema/mixintype/primarytype present followed by removing
+     * all existing entities associated with the supplied project in the DTO instance and
+     * adding the new entities from the request DTO.
+     * </p>
      *
-     * @param current the existing content model
-     * @param contributed the content model from the request made for a project
+     * @param modelDTOFromGet DTO instance prepared using the existing content model
+     * @param modelDTOFromRequest DTO instance prepared from the request made for a project
      * @param projectId the one associated with the proposed update
      * @return the consolidated content model for update
      */
-    public ContentModelDTO createConsolidatedContentModel(ContentModelDTO current, ContentModelDTO contributed,
+    public ModelDTO createConsolidatedContentModel(ModelDTO modelDTOFromGet, ModelDTO modelDTOFromRequest,
             String projectId) {
+
         Objects.requireNonNull(projectId);
-        return current.withProjectItems(projectId, contributed);
+
+        // Associate the projectId passed in the URL parameter to respective DTO projectId placeholder in request
+        modelDTOFromRequest.mixinTypes().entrySet().forEach(item -> item.setValue(item.getValue().withProjectId(projectId)));
+
+        modelDTOFromRequest.primaryTypes().entrySet().forEach(item -> item.setValue(item.getValue().withProjectId(projectId)));
+
+        modelDTOFromRequest.schemas().entrySet().forEach(item -> item.setValue(item.getValue().withProjectId(projectId)));
+
+        modelDTOFromRequest.types().entrySet().forEach(item -> item.setValue(item.getValue().withProjectId(projectId)));
+
+        var mixinTypeDTOMap = modelDTOFromGet.mixinTypes();
+        mixinTypeDTOMap.values().removeIf(mixinType -> projectId.equals(mixinType.projectId()));
+        mixinTypeDTOMap.putAll(modelDTOFromRequest.mixinTypes());
+
+        var schemaDTOMap = modelDTOFromGet.schemas();
+        schemaDTOMap.values().removeIf(schema -> projectId.equals(schema.projectId()));
+        schemaDTOMap.putAll(modelDTOFromRequest.schemas());
+
+        var primaryTypeDTOMap = modelDTOFromGet.primaryTypes();
+        primaryTypeDTOMap.values().removeIf(primaryType -> projectId.equals(primaryType.projectId()));
+        primaryTypeDTOMap.putAll(modelDTOFromRequest.primaryTypes());
+
+        var typeDTOMap = modelDTOFromGet.types();
+        typeDTOMap.values().removeIf(type -> projectId.equals(type.projectId()));
+        typeDTOMap.putAll(modelDTOFromRequest.types());
+
+        return modelDTOFromGet;
     }
 
-    public SchemaManager createSchemaManager(String repoId, ContentModelDTO model, boolean validateOnly) {
-        return createSchemaManager(repoId, model, ModelMapCodec.write(model), new ArrayList<>(), validateOnly);
-    }
-
-    /**
-     * @param model the requested model
-     * @param requestedMap the request as it stands, which is what the diff reports values from
-     */
-    private SchemaManager createSchemaManager(String repoId, ContentModelDTO model,
-            Map<String, Object> requestedMap, List<ValidationViolation> violations, boolean validateOnly) {
-        SchemaValidationUtils.validateDTODiff(ModelMapCodec.write(getContentModel(repoId)), requestedMap, violations);
-        return new SchemaManagerDTO(model, violations, validateOnly);
+    public SchemaManager createSchemaManagerDTO(String repoId, Map<String, Object> dto, boolean validateOnly) {
+        List<ValidationViolation> violations = new ArrayList<>();
+        Map<String, Object> current = this.getSchemaManagerDTO(repoId);
+        // normalize current into map
+        Map<String, Object> map = ModelDTO.toDTO(current).toMap();
+        SchemaValidationUtils.validateDTODiff(map, dto, violations);
+        return new SchemaManagerDTO(dto, violations, validateOnly);
     }
 }

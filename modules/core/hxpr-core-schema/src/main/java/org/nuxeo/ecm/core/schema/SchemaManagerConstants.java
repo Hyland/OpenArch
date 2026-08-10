@@ -31,8 +31,6 @@ public class SchemaManagerConstants {
 
     public static final String DEFAULT = "default";
 
-    public static final String ENUMERATION = "enumeration";
-
     public static final String FIELDS = "fields";
 
     public static final String FULL_TEXT_INDEXED = "fullTextIndexed";
@@ -41,19 +39,7 @@ public class SchemaManagerConstants {
 
     public static final String LIST = "list";
 
-    public static final String MAX_EXCLUSIVE = "maxExclusive";
-
-    public static final String MAX_INCLUSIVE = "maxInclusive";
-
-    public static final String MAX_LENGTH = "maxLength";
-
     public static final String MESSAGE_KEY_SEPARATOR = ".";
-
-    public static final String MIN_EXCLUSIVE = "minExclusive";
-
-    public static final String MIN_INCLUSIVE = "minInclusive";
-
-    public static final String MIN_LENGTH = "minLength";
 
     public static final String MIXIN_TYPES = "mixinTypes";
 
@@ -62,10 +48,6 @@ public class SchemaManagerConstants {
     public static final String MODIFIED = "modified";
 
     public static final String NO_PER_DOCUMENT_QUERY = "noPerDocumentQuery";
-
-    public static final String NULLABLE = "nullable";
-
-    public static final String PATTERN = "pattern";
 
     public static final String PREFIX = "prefix";
 
@@ -84,8 +66,6 @@ public class SchemaManagerConstants {
     public static final String SUBTYPES = "subtypes";
 
     public static final String SUPERTYPES = "supertypes";
-
-    public static final String TYPE = "type";
 
     public static final String TYPES = "types";
 

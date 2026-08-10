@@ -31,9 +31,6 @@ import org.nuxeo.ecm.core.schema.DocumentType;
 import org.nuxeo.ecm.core.schema.SchemaManager;
 import org.nuxeo.ecm.core.schema.TypeConstants;
 import org.nuxeo.ecm.core.schema.XSDTypes;
-import org.nuxeo.ecm.core.schema.dto.ContentModelDTO;
-import org.nuxeo.ecm.core.schema.dto.FieldDTO;
-import org.nuxeo.ecm.core.schema.dto.PrimaryTypeDTO;
 import org.nuxeo.ecm.core.schema.types.ComplexType;
 import org.nuxeo.ecm.core.schema.types.ListType;
 import org.nuxeo.ecm.core.schema.types.SimpleTypeImpl;
@@ -45,7 +42,10 @@ import org.nuxeo.ecm.core.schema.types.primitives.DateType;
 import org.nuxeo.ecm.core.schema.types.primitives.StringType;
 import org.nuxeo.ecm.core.schema.validation.ValidationReport;
 import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
-import org.nuxeo.rest.model.Constants;
+import org.nuxeo.rest.model.dto.Constants;
+import org.nuxeo.rest.model.dto.FieldDTO;
+import org.nuxeo.rest.model.dto.ModelDTO;
+import org.nuxeo.rest.model.dto.PrimaryTypeDTO;
 import org.nuxeo.rest.model.exception.ModelValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +68,7 @@ public class ModelValidator {
      * @param modelDTOFromRequest DTO instance prepared from the request made for a project
      * @param projectId the one associated with the proposed update
      */
-    public void validate(SchemaManager schemaManager, ContentModelDTO modelDTOFromRequest, String projectId) {
+    public void validate(SchemaManager schemaManager, ModelDTO modelDTOFromRequest, String projectId) {
         violations.clear();
         // MixinTypes
         modelDTOFromRequest.mixinTypes().forEach((key, value) -> {
@@ -119,7 +119,7 @@ public class ModelValidator {
      * </p>
      * @param modelDTOFromRequest DTO instance prepared from the request.
      */
-    public void validate(ContentModelDTO modelDTOFromRequest) {
+    public void validate(ModelDTO modelDTOFromRequest) {
         violations.clear();
         validateFields(modelDTOFromRequest);
         validatePrimaryTypesHaveSystemSchema(modelDTOFromRequest);
@@ -158,12 +158,13 @@ public class ModelValidator {
      *
      * @param modelDTOFromRequest The model to validate.
      */
-    private void validateFullTextFields(SchemaManager schemaManager, ContentModelDTO modelDTOFromRequest) {
+    private void validateFullTextFields(SchemaManager schemaManager, ModelDTO modelDTOFromRequest) {
         modelDTOFromRequest.schemas().forEach((schemaName, schema) -> {
             if (schema.fields() != null) {
                 schema.fields().forEach((fieldName, field) -> {
                     if (field.fullTextIndexed()) {
-                        validateFieldForFullTextIndexed(field.typeRef(), fieldName, schemaName, schemaManager);
+                        validateFieldForFullTextIndexed(field.type(), fieldName, schemaName, schemaManager);
+                        validateFieldForFullTextIndexed(field.extend(), fieldName, schemaName, schemaManager);
                     }
                 });
             }
@@ -227,7 +228,7 @@ public class ModelValidator {
      * Validates default value of field is of correct type or not
      * @param modelDTOFromRequest DTO instance prepared from the request
      */
-    private void validateFields(ContentModelDTO modelDTOFromRequest) {
+    private void validateFields(ModelDTO modelDTOFromRequest) {
         modelDTOFromRequest.schemas().forEach((schemaName, schema) -> {
             if (schema.fields() != null) {
                 schema.fields().forEach((fieldName, field) -> checkValue(field, fieldName, schemaName));
@@ -243,9 +244,9 @@ public class ModelValidator {
 
     private void checkValue(FieldDTO field, String fieldName, String formRequestFieldType) {
         if (field.defaultValue() != null) {
-            if (DateType.ID.equals(field.typeRef())) {
+            if (DateType.ID.equals(field.extend())) {
                 validateFieldForDate(field.defaultValue(), fieldName, formRequestFieldType);
-            } else if (BooleanType.ID.equals(field.typeRef())) {
+            } else if (BooleanType.ID.equals(field.extend())) {
                 validateFieldForBool(field.defaultValue(), fieldName, formRequestFieldType);
             }
         }
@@ -255,7 +256,7 @@ public class ModelValidator {
      *
      * @param defaultValueOfDate default value of content model datetype
      * @param fieldName field name of content model
-     * @param formRequestFieldType ContentModelDTO node content model
+     * @param formRequestFieldType ModelDTO node content model
      */
     private void validateFieldForDate(String defaultValueOfDate, String fieldName, String formRequestFieldType) {
         try {
@@ -274,7 +275,7 @@ public class ModelValidator {
      *
      * @param defaultValueOfBool default value of content model boolean type
      * @param fieldName field name of content model
-     * @param formRequestFieldType ContentModelDTO node type name content model
+     * @param formRequestFieldType ModelDTO node type name content model
      */
     private void validateFieldForBool(String defaultValueOfBool, String fieldName, String formRequestFieldType) {
         if (!(defaultValueOfBool.equalsIgnoreCase("true") || defaultValueOfBool.equalsIgnoreCase("false"))) {
@@ -291,11 +292,11 @@ public class ModelValidator {
      * @param modelDTOFromRequest DTO instance prepared from the request
      */
 
-    private void validatePrimaryTypesHaveSystemSchema(SchemaManager schemaManager, ContentModelDTO modelDTOFromRequest) {
+    private void validatePrimaryTypesHaveSystemSchema(SchemaManager schemaManager, ModelDTO modelDTOFromRequest) {
         new SystemSchemaValidator(schemaManager, modelDTOFromRequest).validate();
     }
 
-    private void validatePrimaryTypesHaveSystemSchema(ContentModelDTO modelDTOFromRequest) {
+    private void validatePrimaryTypesHaveSystemSchema(ModelDTO modelDTOFromRequest) {
         new SystemSchemaValidator(modelDTOFromRequest).validate();
     }
 
@@ -303,7 +304,7 @@ public class ModelValidator {
 
         private final Logger logger = LoggerFactory.getLogger(SystemSchemaValidator.class);
 
-        private final ContentModelDTO modelDTO;
+        private final ModelDTO modelDTO;
 
         private final SchemaManager schemaManager;
 
@@ -313,12 +314,12 @@ public class ModelValidator {
 
         private final Set<String> typesDone = new HashSet<>();
 
-        public SystemSchemaValidator(SchemaManager schemaManager, ContentModelDTO modelDTO) {
+        public SystemSchemaValidator(SchemaManager schemaManager, ModelDTO modelDTO) {
             this.schemaManager = schemaManager;
             this.modelDTO = modelDTO;
         }
 
-        public SystemSchemaValidator( ContentModelDTO modelDTO) {
+        public SystemSchemaValidator( ModelDTO modelDTO) {
             this.modelDTO = modelDTO;
             this.schemaManager = null;
         }
@@ -329,7 +330,7 @@ public class ModelValidator {
             modelDTO.primaryTypes().keySet().forEach(name -> {
                 Set<String> schemas = primaryTypesSchemas.getOrDefault(name, new HashSet<>());
                 if (!name.equals(SYS_CONTENT) && !schemas.contains(SYSTEM)) {
-                    logger.error("payload responsible for validation error for primaryType without system schema is.....{}, \n\n\n and primaryType name is...{}", modelDTO, name);
+                    logger.error("payload responsible for validation error for primaryType without system schema is.....{}, \n\n\n and primaryType name is...{}", modelDTO.toMap(), name);
                     violations.add(new ModelDTOViolation(
                             "The system schema must be present in the following content type %s".formatted(name),
                             name));

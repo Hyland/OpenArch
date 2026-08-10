@@ -58,9 +58,9 @@ import org.nuxeo.ecm.core.api.local.WithUser;
 import org.nuxeo.ecm.core.schema.TypeService;
 import org.nuxeo.ecm.core.test.CoreFeature;
 import org.nuxeo.rest.document.test.AbstractAPITest;
-import org.nuxeo.rest.model.Constants;
 import org.nuxeo.rest.model.ModelAPI;
 import org.nuxeo.rest.model.ModelManager;
+import org.nuxeo.rest.model.dto.Constants;
 import org.nuxeo.rest.model.validation.ModelValidator;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.test.runner.Features;
@@ -238,21 +238,6 @@ class ModelAPITest extends AbstractAPITest {
     @ValueSource(strings = { "", PARAM_VALIDATE_ONLY_FALSE, PARAM_VALIDATE_ONLY_TRUE })
     void testPutBadRepo(String queryParam) throws Exception {
         checkResponseWithPayload(NOT_FOUND, PUT, BAD_REPO_ID, "{}", Constants.API_PATH + queryParam);
-    }
-
-    /**
-     * A missing body is a bad request, not a server error. The bodies used to be declared optional,
-     * which let a {@code null} model reach the validator and NPE out as a 500.
-     */
-    @Test
-    void testMissingBody() throws Exception {
-        mvc.perform(put(Constants.API_PATH).header(HXCS_REPOSITORY, REPO_ID)
-                .contentType(APPLICATION_JSON).with(csrf())).andExpect(status().is(BAD_REQUEST.getStatusCode()));
-        mvc.perform(put(Constants.API_PATH + PROJECT_PF_00000).header(HXCS_REPOSITORY, REPO_ID)
-                .contentType(APPLICATION_JSON).with(csrf())).andExpect(status().is(BAD_REQUEST.getStatusCode()));
-        mvc.perform(patch(Constants.API_PATH).header(HXCS_REPOSITORY, REPO_ID)
-                .contentType(MediaType.APPLICATION_JSON_PATCH_JSON).with(csrf()))
-           .andExpect(status().is(BAD_REQUEST.getStatusCode()));
     }
 
     @ParameterizedTest
@@ -477,7 +462,7 @@ class ModelAPITest extends AbstractAPITest {
                         "value": {"schemas-foo": "bar" }
                     },
                     {
-                        "op": "add",
+                        "op": "replace",
                         "path": "/primaryTypes/SysRendition/mixins",
                         "value": "mixins-foobar"
                     },
@@ -1784,19 +1769,32 @@ class ModelAPITest extends AbstractAPITest {
         checkResponseBodyPatched("rest/model.json", "rest/model_updated_ForProject.patch.json", result);
     }
 
-    /**
-     * A list whose item is a complex type declared inline is a valid declaration: the schema layer
-     * has always been able to build it, and it round-trips through the persisted shape as
-     * {@code {"list": {"fields": {…}}}}. It used to be rejected only because the REST layer's list
-     * DTO could hold nothing but a type reference, so the nested {@code fields} were dropped before
-     * the schema layer ever saw them.
-     */
     @ParameterizedTest
     @ValueSource(strings = { "", PARAM_VALIDATE_ONLY_FALSE })
-    public void testPutForANewProjectWithListOfInlineComplexType(String queryParam) throws Exception {
+    public void testPutForANewProjectWithSchemaValidationError(String queryParam) throws Exception {
         // get original JSON
         checkResponse(OK, GET, REPO_ID, Constants.API_PATH);
 
+        String invalidObjectViolation = """
+                {
+                      "invalidValue": {
+                        "list": {}
+                      },
+                      "message": "The value \\"'{'list='{''}''}'\\" is an invalid type in the field \\"schemas/test/fields/test_desc5\\".",
+                      "messageKey": "label.schema.application.violation.InvalidObjectViolation.fields",
+                      "parameters": [
+                        {
+                          "list": {}
+                        },
+                        "schemas/test/fields/test_desc5"
+                      ],
+                      "path": "schemas/test/fields/test_desc5"
+                    }
+                """;
+
+        // Content model item (schema/mixinTypes/primaryTypes) passed in the request body for a project is not supported
+        // by the repository
+        // in the content model
         String putBodyForProject = """
                 {
                   "mixinTypes": {
@@ -1863,10 +1861,9 @@ class ModelAPITest extends AbstractAPITest {
         JSONObject jsonObject = new JSONObject(putBodyForProject);
         // put new model for consuming the project specific PUT endpoint
         String newBody = jsonObject.toString();
-        checkResponseWithPayload(OK, PUT, REPO_ID, newBody, Constants.API_PATH + PROJECT_PF_00000 + queryParam);
-        // the inline complex item survives the round trip
-        var result = checkResponse(OK, GET, REPO_ID, Constants.API_PATH);
-        result.andExpect(jsonPath("$.schemas.test.fields.test_desc5.list.fields.first.type", is("string")));
+        var result = checkResponseWithPayload(UNPROCESSABLE_ENTITY, PUT, REPO_ID, newBody,
+                Constants.API_PATH + PROJECT_PF_00000 + queryParam);
+        assertEqualsInJsonPath(invalidObjectViolation, result, "errors[2]");
     }
 
     @ParameterizedTest

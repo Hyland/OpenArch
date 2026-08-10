@@ -16,8 +16,8 @@
 package org.nuxeo.ecm.core.schema.types;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
-import org.nuxeo.ecm.core.schema.dto.MixinTypeDTO;
 
 /**
  * A composite type is an aggregation of several schemas.
@@ -56,6 +56,6 @@ public interface CompositeType extends ComplexType {
      */
     Collection<Schema> getSchemas();
 
-    MixinTypeDTO toMixinTypeDTO(boolean noPerDocumentQuery);
+    Map<String, Object> toMixinTypeDTO(boolean noPerDocumentQuery);
 
 }

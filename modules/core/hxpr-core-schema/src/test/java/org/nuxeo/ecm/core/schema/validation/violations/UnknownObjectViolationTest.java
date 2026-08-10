@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
-import org.nuxeo.ecm.core.schema.dto.DTOPath;
+import org.nuxeo.ecm.core.schema.validation.SchemaDTONode;
 
 public class UnknownObjectViolationTest extends AbstractValidationViolationTest {
 
@@ -32,7 +32,7 @@ public class UnknownObjectViolationTest extends AbstractValidationViolationTest 
 
     @Override
     protected AbstractValidationViolation getTestObject() {
-        DTOPath node = DTOPath.root("key", "value");
+        SchemaDTONode node = new SchemaDTONode(Map.of("key", "value"), "key");
         return new UnknownObjectViolation(node, "not", "a", "known", "key");
     }
 
@@ -40,23 +40,23 @@ public class UnknownObjectViolationTest extends AbstractValidationViolationTest 
     @Override
     public void testGetMessageParameters() {
         // Test invalidValue is not a Map
-        DTOPath node = DTOPath.root("key", "value");
+        SchemaDTONode node = new SchemaDTONode(Map.of("key", "value"), "key");
         UnknownObjectViolation violation = new UnknownObjectViolation(node);
         assertEquals(List.of("value", "key"), violation.getMessageParameters(null));
 
         // Test invalidValue is Map, but does not contain resolver
-        node = DTOPath.root("root", Map.of("child1", "value"));
+        node = new SchemaDTONode(Map.of("root", Map.of("child1", "value")), "root");
         violation = new UnknownObjectViolation(node);
         assertEquals(List.of(Map.of("child1", "value"), "root"), violation.getMessageParameters(null));
 
         // Test with broken resolver
-        node = DTOPath.root("root", Map.of("resolver", Map.of("broken", "resolverName")));
+        node = new SchemaDTONode(Map.of("root", Map.of("resolver", Map.of("broken", "resolverName"))), "root");
         violation = new UnknownObjectViolation(node);
         assertEquals(List.of(Map.of("resolver", Map.of("broken", "resolverName")), "root"),
                 violation.getMessageParameters(null));
 
         // Test with resolver containing name
-        node = DTOPath.root("root", Map.of("resolver", Map.of("name", "resolverName")));
+        node = new SchemaDTONode(Map.of("root", Map.of("resolver", Map.of("name", "resolverName"))), "root");
         violation = new UnknownObjectViolation(node);
         assertEquals(List.of(Map.of("resolver", Map.of("name", "resolverName")), "resolverName", "root"),
                 violation.getMessageParameters(null));

@@ -16,10 +16,6 @@
 
 package org.nuxeo.ecm.core.schema.types.constraints;
 
-import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.MAX_EXCLUSIVE;
-import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.MAX_INCLUSIVE;
-import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.MIN_EXCLUSIVE;
-import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.MIN_INCLUSIVE;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -225,15 +221,15 @@ public class NumericIntervalConstraint extends AbstractConstraint implements Ran
     }
 
     @Override
-    public Map<String, Object> toMap() {
-        var map = new LinkedHashMap<String, Object>();
+    public Map<String, Object> toDTO() {
+        var dto = new LinkedHashMap<String, Object>();
         if (min != null) {
-            map.put(includingMin ? MIN_INCLUSIVE : MIN_EXCLUSIVE, toNumber(min));
+            dto.put(includingMin ? "minInclusive" : "minExclusive", toNumber(min));
         }
         if (max != null) {
-            map.put(includingMax ? MAX_INCLUSIVE : MAX_EXCLUSIVE, toNumber(max));
+            dto.put(includingMax ? "maxInclusive" : "maxExclusive", toNumber(max));
         }
-        return map;
+        return dto;
     }
 
     private static Number toNumber(BigDecimal value) {
@@ -244,21 +240,21 @@ public class NumericIntervalConstraint extends AbstractConstraint implements Ran
         }
     }
 
-    public static NumericIntervalConstraint fromMap(Map<String, Object> map) {
+    public static NumericIntervalConstraint fromDTO(Map<String, Object> dto) {
         Number min = null;
         boolean includingMin = false;
         Number max = null;
         boolean includingMax = false;
-        if (map.get(MIN_INCLUSIVE) instanceof Number val) {
+        if (dto.get("minInclusive") instanceof Number val) {
             min = val;
             includingMin = true;
-        } else if (map.get(MIN_EXCLUSIVE) instanceof Number val) {
+        } else if (dto.get("minExclusive") instanceof Number val) {
             min = val;
         }
-        if (map.get(MAX_INCLUSIVE) instanceof Number val) {
+        if (dto.get("maxInclusive") instanceof Number val) {
             max = val;
             includingMax = true;
-        } else if (map.get(MAX_EXCLUSIVE) instanceof Number val) {
+        } else if (dto.get("maxExclusive") instanceof Number val) {
             max = val;
         }
         if (min != null || max != null) {

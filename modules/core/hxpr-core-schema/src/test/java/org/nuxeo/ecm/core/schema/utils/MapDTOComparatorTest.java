@@ -22,7 +22,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
-import org.nuxeo.ecm.core.schema.dto.DTOPath;
+import org.nuxeo.ecm.core.schema.validation.SchemaDTONode;
 
 public class MapDTOComparatorTest {
 
@@ -31,14 +31,22 @@ public class MapDTOComparatorTest {
         Map<String, Object> originalMap = testMapOrig();
         Map<String, Object> updatedMap = testMapRemoveTypesBlobFieldsEncoding();
 
-        List<DTOPath> expectedMissingNodes = List.of(
-                pathIn(originalMap, "types", "blob", "fields", "encoding"));
+        Map<String, Object> expectedRemovedMap = Map.of(
+                "types", Map.of(
+                        "blob", Map.of(
+                                "fields", Map.of(
+                                        "encoding", "string"))));
 
-        List<Pair<DTOPath, DTOPath>> expectedModifiedNodes = List.of();
+        Map<String, Object> expectedResult = expectedRemovedMap;
+
+        List<SchemaDTONode> expectedMissingNodes = List.of(
+                new SchemaDTONode(originalMap, "types").get("blob").get("fields").get("encoding"));
+
+        List<Pair<SchemaDTONode, SchemaDTONode>> expectedModifiedNodes = List.of();
 
         MapDTOComparator comparator = new MapDTOComparator(originalMap, updatedMap);
 
-        assertComparator(expectedMissingNodes, expectedModifiedNodes, comparator);
+        assertComparator(expectedResult, expectedMissingNodes, expectedModifiedNodes, comparator);
     }
 
     @Test
@@ -46,14 +54,25 @@ public class MapDTOComparatorTest {
         Map<String, Object> originalMap = testMapOrig();
         Map<String, Object> updatedMap = testMapRemoveTypesBlob();
 
-        List<DTOPath> expectedMissingNodes = List.of(
-                pathIn(originalMap, "types", "blob"));
+        Map<String, Object> expectedResult = Map.of(
+                "types", Map.of(
+                        "blob", Map.of(
+                                "fields", Map.of(
+                                        "digest", "string",
+                                        "encoding", "string",
+                                        "filename", "string",
+                                        "key", "string",
+                                        "length", "string",
+                                        "mimeType", "string"))));
 
-        List<Pair<DTOPath, DTOPath>> expectedModifiedNodes = List.of();
+        List<SchemaDTONode> expectedMissingNodes = List.of(
+                new SchemaDTONode(originalMap, "types").get("blob"));
+
+        List<Pair<SchemaDTONode, SchemaDTONode>> expectedModifiedNodes = List.of();
 
         MapDTOComparator comparator = new MapDTOComparator(originalMap, updatedMap);
 
-        assertComparator(expectedMissingNodes, expectedModifiedNodes, comparator);
+        assertComparator(expectedResult, expectedMissingNodes, expectedModifiedNodes, comparator);
     }
 
     @Test
@@ -61,15 +80,21 @@ public class MapDTOComparatorTest {
         Map<String, Object> originalMap = testMapOrig();
         Map<String, Object> updatedMap = testMapModifyTypesBlobFieldsEncoding();
 
-        List<DTOPath> expectedMissingNodes = List.of();
+        Map<String, Object> expectedResult = Map.of(
+                "types", Map.of(
+                        "blob", Map.of(
+                                "fields", Map.of(
+                                        "encoding", "string"))));
 
-        List<Pair<DTOPath, DTOPath>> expectedModifiedNodes = List.of(
+        List<SchemaDTONode> expectedMissingNodes = List.of();
+
+        List<Pair<SchemaDTONode, SchemaDTONode>> expectedModifiedNodes = List.of(
                 Pair.of(
-                        pathIn(originalMap, "types", "blob", "fields", "encoding"),
-                        pathIn(updatedMap, "types", "blob", "fields", "encoding")));
+                        new SchemaDTONode(originalMap, "types").get("blob").get("fields").get("encoding"),
+                        new SchemaDTONode(updatedMap, "types").get("blob").get("fields").get("encoding")));
 
         MapDTOComparator comparator = new MapDTOComparator(originalMap, updatedMap);
-        assertComparator(expectedMissingNodes, expectedModifiedNodes, comparator);
+        assertComparator(expectedResult, expectedMissingNodes, expectedModifiedNodes, comparator);
     }
 
     @Test
@@ -79,7 +104,7 @@ public class MapDTOComparatorTest {
 
         MapDTOComparator comparator = new MapDTOComparator(originalMap, updatedMap);
 
-        assertComparator(List.of(), List.of(), comparator);
+        assertComparator(Map.of(), List.of(), List.of(), comparator);
     }
 
     @Test
@@ -87,16 +112,26 @@ public class MapDTOComparatorTest {
         Map<String, Object> originalMap = testMapOrig();
         Map<String, Object> updatedMap = testMapRemoveDublinAndModifyNestedValue();
 
-        List<DTOPath> expectedMissingNodes = List.of(
-                pathIn(originalMap, "types", "dublincore#clob"));
+        Map<String, Object> expectedResult = Map.of(
+                "types", Map.of(
+                        "blob", Map.of(
+                                "fields", Map.of(
+                                        "length", "string")),
+                        "dublincore#clob", Map.of(
+                                "extends", "string",
+                                "constraints", Map.of(
+                                        "maxLength", 2000))));
+
+        List<SchemaDTONode> expectedMissingNodes = List.of(
+                new SchemaDTONode(originalMap, "types").get("dublincore#clob"));
         var expectedModifiedNodes = List.of(
                 Pair.of(
-                        pathIn(originalMap, "types", "blob", "fields", "length"),
-                        pathIn(updatedMap, "types", "blob", "fields", "length")));
+                        new SchemaDTONode(originalMap, "types").get("blob").get("fields").get("length"),
+                        new SchemaDTONode(updatedMap, "types").get("blob").get("fields").get("length")));
 
         MapDTOComparator comparator = new MapDTOComparator(originalMap, updatedMap);
 
-        assertComparator(expectedMissingNodes, expectedModifiedNodes, comparator);
+        assertComparator(expectedResult, expectedMissingNodes, expectedModifiedNodes, comparator);
     }
 
     @Test
@@ -104,14 +139,25 @@ public class MapDTOComparatorTest {
         Map<String, Object> originalMap = testMapOrig();
         Map<String, Object> updatedMap = testMapModifyNestedMapToObject();
 
-        List<DTOPath> expectedMissingNodes = List.of();
-        List<Pair<DTOPath, DTOPath>> expectedModifiedNodes = List.of(
+        Map<String, Object> expectedResult = Map.of(
+                "types", Map.of(
+                        "blob", Map.of(
+                                "fields", Map.of(
+                                        "digest", "string",
+                                        "encoding", "string",
+                                        "filename", "string",
+                                        "key", "string",
+                                        "length", "string",
+                                        "mimeType", "string"))));
+
+        List<SchemaDTONode> expectedMissingNodes = List.of();
+        List<Pair<SchemaDTONode, SchemaDTONode>> expectedModifiedNodes = List.of(
                 Pair.of(
-                        pathIn(originalMap, "types", "blob", "fields"),
-                        pathIn(updatedMap, "types", "blob", "fields")));
+                        new SchemaDTONode(originalMap, "types").get("blob").get("fields"),
+                        new SchemaDTONode(updatedMap, "types").get("blob").get("fields")));
 
         MapDTOComparator comparator = new MapDTOComparator(originalMap, updatedMap);
-        assertComparator(expectedMissingNodes, expectedModifiedNodes, comparator);
+        assertComparator(expectedResult, expectedMissingNodes, expectedModifiedNodes, comparator);
     }
 
     @Test
@@ -119,14 +165,19 @@ public class MapDTOComparatorTest {
         Map<String, Object> originalMap = testMapOrig();
         Map<String, Object> updatedMap = testMapModifyObjectToMap();
 
-        List<DTOPath> expectedMissingNodes = List.of();
-        List<Pair<DTOPath, DTOPath>> expectedModifiedNodes = List.of(
+        Map<String, Object> expectedResult = Map.of(
+                "types", Map.of(
+                        "dublincore#clob", Map.of(
+                                "extends", "string")));
+
+        List<SchemaDTONode> expectedMissingNodes = List.of();
+        List<Pair<SchemaDTONode, SchemaDTONode>> expectedModifiedNodes = List.of(
                 Pair.of(
-                        pathIn(originalMap, "types", "dublincore#clob", "extends"),
-                        pathIn(updatedMap, "types", "dublincore#clob", "extends")));
+                        new SchemaDTONode(originalMap, "types").get("dublincore#clob").get("extends"),
+                        new SchemaDTONode(updatedMap, "types").get("dublincore#clob").get("extends")));
 
         MapDTOComparator comparator = new MapDTOComparator(originalMap, updatedMap);
-        assertComparator(expectedMissingNodes, expectedModifiedNodes, comparator);
+        assertComparator(expectedResult, expectedMissingNodes, expectedModifiedNodes, comparator);
     }
 
     @Test
@@ -135,32 +186,18 @@ public class MapDTOComparatorTest {
                 Map.of("dublincore#clob", Map.of("constraints", Map.of("maxLength", 2000))));
         Map<String, Object> longMap = Map.of("types",
                 Map.of("dublincore#clob", Map.of("constraints", Map.of("maxLength", 2000L))));
-        // an Integer and a Long of the same value are not a change
         MapDTOComparator mapComparator = new MapDTOComparator(integerMap, longMap);
-        assertComparator(List.of(), List.of(), mapComparator);
+        assertComparator(Map.of(), List.of(), List.of(), mapComparator);
 
-        // a number and a string are
         Map<String, Object> stringMap = Map.of("types",
         Map.of("dublincore#clob", Map.of("constraints", Map.of("maxLength", "2000"))));
         mapComparator = new MapDTOComparator(longMap, stringMap);
-        assertComparator(List.of(), List.of(Pair.of(
-                pathIn(longMap, "types", "dublincore#clob", "constraints", "maxLength"),
-                pathIn(stringMap, "types", "dublincore#clob", "constraints", "maxLength"))), mapComparator);
+        assertEquals(longMap, mapComparator.getDifferences());
     }
 
-    /** Builds the {@link DTOPath} of {@code keys} within {@code map}, values included. */
-    private static DTOPath pathIn(Map<String, Object> map, String... keys) {
-        Object value = map.get(keys[0]);
-        DTOPath path = DTOPath.root(keys[0], value);
-        for (int i = 1; i < keys.length; i++) {
-            value = value instanceof Map<?, ?> nested ? nested.get(keys[i]) : null;
-            path = path.child(keys[i], value);
-        }
-        return path;
-    }
-
-    private void assertComparator(List<DTOPath> expectedMissingNodes,
-            List<Pair<DTOPath, DTOPath>> expectedModifiedNodes, MapDTOComparator comparator) {
+    private void assertComparator(Map<String, Object> expectedMap, List<SchemaDTONode> expectedMissingNodes,
+            List<Pair<SchemaDTONode, SchemaDTONode>> expectedModifiedNodes, MapDTOComparator comparator) {
+        assertEquals(expectedMap, comparator.getDifferences());
         assertEquals(expectedMissingNodes, comparator.getRemovedNodes());
         assertEquals(expectedModifiedNodes, comparator.getModifiedNodes());
     }

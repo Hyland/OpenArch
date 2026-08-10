@@ -185,41 +185,41 @@ public class TestNumericIntervalConstraint {
     }
 
     @Test
-    public void testFromMap() {
-        Map<String, Object> map;
+    public void testFromDTO() {
+        Map<String, Object> dto;
 
-        map = Map.of();
-        assertNull(NumericIntervalConstraint.fromMap(map));
+        dto = Map.of();
+        assertNull(NumericIntervalConstraint.fromDTO(dto));
 
-        map = Map.of("minInclusive", 123);
-        assertNumericIntervalConstraint(123, true, null, false, map);
+        dto = Map.of("minInclusive", 123);
+        assertNumericIntervalConstraint(123, true, null, false, dto);
 
-        map = Map.of("minExclusive", 123);
-        assertNumericIntervalConstraint(123, false, null, false, map);
+        dto = Map.of("minExclusive", 123);
+        assertNumericIntervalConstraint(123, false, null, false, dto);
 
-        map = Map.of("maxInclusive", 456);
-        assertNumericIntervalConstraint(null, false, 456, true, map);
+        dto = Map.of("maxInclusive", 456);
+        assertNumericIntervalConstraint(null, false, 456, true, dto);
 
-        map = Map.of("maxExclusive", 456);
-        assertNumericIntervalConstraint(null, false, 456, false, map);
+        dto = Map.of("maxExclusive", 456);
+        assertNumericIntervalConstraint(null, false, 456, false, dto);
 
-        map = Map.of("minInclusive", 123, "maxInclusive", 456);
-        assertNumericIntervalConstraint(123, true, 456, true, map);
+        dto = Map.of("minInclusive", 123, "maxInclusive", 456);
+        assertNumericIntervalConstraint(123, true, 456, true, dto);
 
-        map = Map.of("minExclusive", 123, "maxInclusive", 456);
-        assertNumericIntervalConstraint(123, false, 456, true, map);
+        dto = Map.of("minExclusive", 123, "maxInclusive", 456);
+        assertNumericIntervalConstraint(123, false, 456, true, dto);
 
-        map = Map.of("minInclusive", 123, "maxExclusive", 456);
-        assertNumericIntervalConstraint(123, true, 456, false, map);
+        dto = Map.of("minInclusive", 123, "maxExclusive", 456);
+        assertNumericIntervalConstraint(123, true, 456, false, dto);
 
-        map = Map.of("minExclusive", 123, "maxExclusive", 456);
-        assertNumericIntervalConstraint(123, false, 456, false, map);
+        dto = Map.of("minExclusive", 123, "maxExclusive", 456);
+        assertNumericIntervalConstraint(123, false, 456, false, dto);
     }
 
     private static void assertNumericIntervalConstraint(Object min, boolean includingMin, Object max,
-            boolean includingMax, Map<String, Object> map) {
+            boolean includingMax, Map<String, Object> dto) {
         assertEquals(new NumericIntervalConstraint(min, includingMin, max, includingMax),
-                NumericIntervalConstraint.fromMap(map));
+                NumericIntervalConstraint.fromDTO(dto));
 
     }
 

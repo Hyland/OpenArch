@@ -21,7 +21,7 @@ import java.util.Locale;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.nuxeo.ecm.core.schema.dto.DTOPath;
+import org.nuxeo.ecm.core.schema.validation.SchemaDTONode;
 
 /**
  * Violation uses when an item that you wish to remove or modified already exists.
@@ -54,9 +54,9 @@ public class AlreadyExistsViolation extends AbstractValidationViolation {
      *  <li>label.schema.application.violation.AlreadyExistsViolation.removed</li>
      * </ul>
      * There may be other possible keys, not listed here.
-     * @see #AlreadyExistsViolation(DTOPath, DTOPath, String...)
+     * @see #AlreadyExistsViolation(SchemaDTONode, SchemaDTONode, String...)
      */
-    public AlreadyExistsViolation(DTOPath node, String... keyArgs) {
+    public AlreadyExistsViolation(SchemaDTONode node, String... keyArgs) {
         super(node, MESSAGE_KEY, ValidationViolation.Type.WARNING, keyArgs);
         this.messageParameters = List.of(getInvalidValue(), getPath());
     }
@@ -75,11 +75,11 @@ public class AlreadyExistsViolation extends AbstractValidationViolation {
      *  <li>label.schema.application.violation.AlreadyExistsViolation.modified</li>
      * </ul>
      * There may be other possible keys, not listed here.
-     * @see #AlreadyExistsViolation(DTOPath, String...)
+     * @see #AlreadyExistsViolation(SchemaDTONode, String...)
      */
-    public AlreadyExistsViolation(DTOPath invalidNode, DTOPath originalNode, String... keyArgs) {
+    public AlreadyExistsViolation(SchemaDTONode invalidNode, SchemaDTONode originalNode, String... keyArgs) {
         super(invalidNode, MESSAGE_KEY, ValidationViolation.Type.WARNING, keyArgs);
-        this.messageParameters = List.of(getInvalidValue(), originalNode.value(), getPath());
+        this.messageParameters = List.of(getInvalidValue(), originalNode.getNode(), getPath());
     }
 
     public AlreadyExistsViolation(String messageKey, String... parameters) {

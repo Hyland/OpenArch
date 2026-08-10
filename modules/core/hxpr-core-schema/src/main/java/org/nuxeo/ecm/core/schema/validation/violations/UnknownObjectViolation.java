@@ -24,7 +24,7 @@ import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.nuxeo.ecm.core.schema.dto.DTOPath;
+import org.nuxeo.ecm.core.schema.validation.SchemaDTONode;
 
 /**
  * Violation designed to be used when an object is not known. <p>
@@ -40,7 +40,7 @@ public class UnknownObjectViolation extends AbstractValidationViolation {
 
     private static final String DEFAULT_MSG_FORMAT = "The value \"%s\" is unknown.";
 
-    public UnknownObjectViolation(DTOPath node, String... keyArgs) {
+    public UnknownObjectViolation(SchemaDTONode node, String... keyArgs) {
         super(node, MESSAGE_KEY, Type.ERROR, keyArgs);
     }
 

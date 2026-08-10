@@ -143,7 +143,7 @@ public abstract class AbstractObjectResolver implements ObjectResolver {
     }
 
     @Override
-    public Map<String, Object> toMap() {
+    public Map<String, Object> toDTO() {
         Map<String, Object> params = new HashMap<>(parameters);
         params.remove(NAME_KEY);
         params.remove(VALIDATION_PARAMETER_KEY);
@@ -152,10 +152,10 @@ public abstract class AbstractObjectResolver implements ObjectResolver {
         }
         params = sortByKeyAndMapValue(params, Entry::getValue);
 
-        Map<String, Object> map = new LinkedHashMap<>();
-        map.put(NAME_KEY, getName()); // put name first
-        map.putAll(params);
-        return map;
+        Map<String, Object> dto = new LinkedHashMap<>();
+        dto.put(NAME_KEY, getName()); // put name first
+        dto.putAll(params);
+        return dto;
     }
 
 }

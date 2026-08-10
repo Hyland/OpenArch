@@ -76,11 +76,11 @@ class TestDocumentWithOldContentModel {
         // read
         SchemaManager schemaManager = typeService.getSchemaManager(repositoryName);
         // patch
-        Map<String, Object> map = schemaManager.toMap();
-        JsonNode patched = Jackson3JsonPatch.apply(MAPPER.readTree(patch), MAPPER.valueToTree(map));
-        map = MAPPER.convertValue(patched, Map.class);
+        Map<String, Object> dto = schemaManager.toDTO();
+        JsonNode patched = Jackson3JsonPatch.apply(MAPPER.readTree(patch), MAPPER.valueToTree(dto));
+        dto = MAPPER.convertValue(patched, Map.class);
         // save
-        typeService.setSchemaManager(repositoryName, new SchemaManagerDTO(map));
+        typeService.setSchemaManager(repositoryName, new SchemaManagerDTO(dto));
         // commit tx so that the existing session acquires the new schema manager
         TransactionHelper.commitOrRollbackTransaction();
         TransactionHelper.startTransaction();

@@ -28,11 +28,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.nuxeo.ecm.core.schema.dto.ContentModelDTO;
-import org.nuxeo.ecm.core.schema.dto.MixinTypeDTO;
-import org.nuxeo.ecm.core.schema.dto.PrimaryTypeDTO;
-import org.nuxeo.ecm.core.schema.dto.SchemaDTO;
-import org.nuxeo.ecm.core.schema.dto.TypeDTO;
 import org.nuxeo.ecm.core.schema.types.ComplexType;
 import org.nuxeo.ecm.core.schema.types.CompositeType;
 import org.nuxeo.ecm.core.schema.types.Field;
@@ -239,31 +234,32 @@ public class SchemaManagerBase implements SchemaManager {
 
     // ============================================================
 
-    // DTO dump
+    // JSON DTO dump
 
     @Override
-    public ContentModelDTO toContentModel() {
-        return new ContentModelDTO( //
-                sortByKeyAndMapValue(schemas, this::toSchemaDTO), //
-                sortByKeyAndMapValue(types, this::toTypeDTO), //
-                sortByKeyAndMapValue(mixins, this::toMixinTypeDTO), //
-                sortByKeyAndMapValue(documentTypes, this::toDocumentTypeDTO));
+    public Map<String, Object> toDTO() {
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("types", sortByKeyAndMapValue(types, this::toTypeDTO));
+        map.put("schemas", sortByKeyAndMapValue(schemas, this::toSchemaDTO));
+        map.put("mixinTypes", sortByKeyAndMapValue(mixins, this::toMixinTypeDTO));
+        map.put("primaryTypes", sortByKeyAndMapValue(documentTypes, this::toDocumentTypeDTO));
+        return map;
     }
 
-    private TypeDTO toTypeDTO(Entry<String, Type> e) {
+    private Object toTypeDTO(Entry<String, Type> e) {
         return e.getValue().toTypeDTO(this);
     }
 
-    private SchemaDTO toSchemaDTO(Entry<String, Schema> e) {
+    private Map<String, Object> toSchemaDTO(Entry<String, Schema> e) {
         return e.getValue().toSchemaDTO(this);
     }
 
-    private MixinTypeDTO toMixinTypeDTO(Entry<String, CompositeType> e) {
+    private Map<String, Object> toMixinTypeDTO(Entry<String, CompositeType> e) {
         boolean noPerDocumentQuery = noPerDocumentQueryMixins.contains(e.getKey());
         return e.getValue().toMixinTypeDTO(noPerDocumentQuery);
     }
 
-    private PrimaryTypeDTO toDocumentTypeDTO(Entry<String, DocumentTypeImpl> e) {
+    private Map<String, Object> toDocumentTypeDTO(Entry<String, DocumentTypeImpl> e) {
         return e.getValue().toDocumentTypeDTO();
     }
 

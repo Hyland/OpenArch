@@ -21,13 +21,11 @@ import static org.nuxeo.ecm.core.schema.TypeConstants.PREFIX_SEPARATOR;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.nuxeo.ecm.core.schema.SchemaManager;
-import org.nuxeo.ecm.core.schema.dto.ConstraintsDTO;
-import org.nuxeo.ecm.core.schema.dto.FieldDTO;
-import org.nuxeo.ecm.core.schema.dto.TypeDTO;
 import org.nuxeo.ecm.core.schema.types.constraints.Constraint;
 
 /**
@@ -57,13 +55,20 @@ public class ComplexTypeImpl extends AbstractType implements ComplexType {
     }
 
     @Override
-    public TypeDTO toTypeDTO(SchemaManager schemaManager) {
-        return new TypeDTO(projectId, toFieldsDTO(schemaManager), ConstraintsDTO.of(constraints), null, null);
-    }
+    public Map<String, Object> toTypeDTO(SchemaManager schemaManager) {
+        Map<String, Object> map = new HashMap<>();
+        fields.forEach((name, field) -> {
+            map.put(name, field.toFieldDtoOrReference(schemaManager));
+        });
+        Map<String, Object> fieldMap = sortByKeyAndMapValue(map, Entry::getValue);
 
-    /** The fields, sorted by name so that the output is stable. */
-    protected Map<String, FieldDTO> toFieldsDTO(SchemaManager schemaManager) {
-        return sortByKeyAndMapValue(fields, e -> e.getValue().toFieldDTO(schemaManager));
+        Map<String, Object> dto = new LinkedHashMap<>();
+        if (!prefix.isEmpty()) {
+            dto.put("prefix", prefix);
+        }
+        dto.put("fields", fieldMap);
+        dto.putAll(super.toTypeDTO(schemaManager)); // constraints, projectId
+        return dto;
     }
 
     // also called by CompositeTypeImpl

@@ -15,40 +15,38 @@
  */
 package org.nuxeo.ecm.core.schema;
 
-import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.ANONYMOUS_TYPE;
+import static java.lang.Boolean.TRUE;
+import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.COMPLEX;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.CONSTRAINTS;
+import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.DEFAULT;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.EXTENDS;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.FIELDS;
+import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.FULL_TEXT_INDEXED;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.ITEM;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.LIST;
-import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.MIXIN_TYPES;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.MIXINS;
+import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.MIXIN_TYPES;
+import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.NO_PER_DOCUMENT_QUERY;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.PRIMARY_TYPES;
+import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.PROJECT_ID;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.SCHEMAS;
+import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.STRING;
+import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.SUBTYPES;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.SUPERTYPES;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.TYPES;
+import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.VERSION_WRITABLE;
 import static org.nuxeo.ecm.core.schema.TypeConstants.PREFIX_SEPARATOR;
 import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_CONTENT;
 import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_RELATION;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import org.nuxeo.ecm.core.schema.dto.ConstraintsDTO;
-import org.nuxeo.ecm.core.schema.dto.ContentModelDTO;
-import org.nuxeo.ecm.core.schema.dto.DTOPath;
-import org.nuxeo.ecm.core.schema.dto.FieldDTO;
-import org.nuxeo.ecm.core.schema.dto.MixinTypeDTO;
-import org.nuxeo.ecm.core.schema.dto.ModelMapCodec;
-import org.nuxeo.ecm.core.schema.dto.PrimaryTypeDTO;
-import org.nuxeo.ecm.core.schema.dto.SchemaDTO;
-import org.nuxeo.ecm.core.schema.dto.TypeDTO;
 import org.nuxeo.ecm.core.schema.types.ComplexType;
 import org.nuxeo.ecm.core.schema.types.ComplexTypeImpl;
 import org.nuxeo.ecm.core.schema.types.CompositeType;
@@ -62,7 +60,9 @@ import org.nuxeo.ecm.core.schema.types.SimpleType;
 import org.nuxeo.ecm.core.schema.types.SimpleTypeImpl;
 import org.nuxeo.ecm.core.schema.types.Type;
 import org.nuxeo.ecm.core.schema.types.constraints.Constraint;
+import org.nuxeo.ecm.core.schema.types.constraints.ConstraintUtils;
 import org.nuxeo.ecm.core.schema.types.constraints.ObjectResolverConstraint;
+import org.nuxeo.ecm.core.schema.validation.SchemaDTONode;
 import org.nuxeo.ecm.core.schema.validation.SchemaValidationException;
 import org.nuxeo.ecm.core.schema.validation.SchemaValidationUtils;
 import org.nuxeo.ecm.core.schema.validation.ValidationReport;
@@ -74,11 +74,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Schema Manager implementation built from a {@link ContentModelDTO}.
- * <p>
- * The DTO has already been checked for <em>shape</em> by {@link ModelMapCodec} (or by Jackson, on
- * the REST path). What is left here is <em>resolution</em>: turning names into types, schemas and
- * mixins, and reporting the ones that do not resolve.
+ * Schema Manager implementation initialized through JSON DTO.
  */
 public class SchemaManagerDTO extends SchemaManagerBase {
 
@@ -86,57 +82,55 @@ public class SchemaManagerDTO extends SchemaManagerBase {
 
     private final List<ValidationViolation> violations;
 
-    public SchemaManagerDTO(ContentModelDTO model, List<ValidationViolation> violations, boolean validateOnly) {
+    public SchemaManagerDTO(Map<String, Object> dto, List<ValidationViolation> violations, boolean validateOnly) {
         this.violations = violations == null ? new ArrayList<>() : violations;
-        registerTypes(model.types());
-        registerSchemas(model.schemas());
-        registerMixinTypes(model.mixinTypes());
-        registerPrimaryTypes(model.primaryTypes());
+        SchemaDTONode typeNode = new SchemaDTONode(dto, TYPES);
+        SchemaDTONode schemaNode = new SchemaDTONode(dto, SCHEMAS);
+        SchemaDTONode mixinTypeNode = new SchemaDTONode(dto, MIXIN_TYPES);
+        SchemaDTONode primaryTypeNode = new SchemaDTONode(dto, PRIMARY_TYPES);
+        registerTypes(typeNode);
+        registerSchemas(schemaNode);
+        registerMixinTypes(mixinTypeNode);
+        registerPrimaryTypes(primaryTypeNode);
         computeDenormalizations();
         checkValidParents();
         ValidationReport.checkViolations(this.violations, !validateOnly, SchemaValidationException::new);
     }
 
-    /** Builds from the persisted map form; shape problems in the map become violations too. */
-    public SchemaManagerDTO(Map<String, Object> map, List<ValidationViolation> violations, boolean validateOnly) {
-        this(violations == null ? new ArrayList<>() : violations, map, validateOnly);
-    }
-
-    /**
-     * Reading the map and binding the result must share one violations list, and a {@code this(…)}
-     * call cannot introduce a local; hence this overload, distinguished only by parameter order.
-     */
-    private SchemaManagerDTO(List<ValidationViolation> violations, Map<String, Object> map, boolean validateOnly) {
-        this(ModelMapCodec.read(map, violations), violations, validateOnly);
-    }
-
-    public SchemaManagerDTO(Map<String, Object> map) {
-        this(map, new ArrayList<>(), false);
+    public SchemaManagerDTO(Map<String, Object> dto) {
+        this(dto, new ArrayList<>(), false);
     }
 
     /*
      * ===== Types =====
      */
+    private SchemaDTONode pendingTypeDTONodes;
 
-    /** Types not registered yet; consumed as they are resolved, so forward references work. */
-    private Map<String, TypeDTO> pendingTypes;
-
-    private void registerTypes(Map<String, TypeDTO> typeDTOs) {
-        pendingTypes = new LinkedHashMap<>(typeDTOs);
-        while (!pendingTypes.isEmpty()) {
-            registerPendingType(pendingTypes.keySet().iterator().next());
+    private void registerTypes(SchemaDTONode typeNode) {
+        pendingTypeDTONodes = typeNode;
+        if (!typeNode.isMap()) {
+            violations.add(new InvalidObjectViolation(typeNode));
+            return;
+        }
+        while (!pendingTypeDTONodes.asMap().isEmpty()) {
+            String name = pendingTypeDTONodes.asMap().keySet().iterator().next();
+            registerPendingType(name);
         }
     }
 
     // may return null if not found
     private Type registerPendingType(String name) {
-        TypeDTO dto = pendingTypes.remove(name);
-        if (dto == null) {
+        SchemaDTONode childNode = pendingTypeDTONodes.get(name);
+        if (pendingTypeDTONodes.isMap() && pendingTypeDTONodes.asMap().remove(name) == null) {
             return null;
         }
-        Type type = createType(name, dto, typePath(name, dto));
+        if (!childNode.isMap()) {
+            violations.add(new InvalidObjectViolation(childNode, TYPES));
+            return null;
+        }
+        Type type = createType(childNode);
         if (type != null) {
-            types.put(name, type);
+            types.put(childNode.getKey(), type);
         }
         return type;
     }
@@ -157,38 +151,37 @@ public class SchemaManagerDTO extends SchemaManagerBase {
         return registerPendingType(name);
     }
 
-    private static DTOPath typePath(String name, TypeDTO dto) {
-        return DTOPath.root(TYPES, null).child(name, ModelMapCodec.toJson(dto));
-    }
-
-    private Type createType(String name, TypeDTO dto, DTOPath path) {
-        if (dto.extend() != null) {
-            return newSimpleType(name, dto, path);
-        }
-        if (dto.list() != null) {
-            return newListType(name, dto.list(), path.child(LIST, ModelMapCodec.toJson(dto.list())),
-                    dto.projectId());
-        }
-        if (dto.fields() != null) {
-            return newComplexType(name, dto.fields(), path.child(FIELDS, null), dto.projectId());
-        }
-        violations.add(new TypeRecursionViolation(path));
-        return null;
-    }
-
-    private SimpleType newSimpleType(String name, TypeDTO dto, DTOPath path) {
-        DTOPath extendsPath = path.child(EXTENDS, dto.extend());
-        Type superType = getRegisteredType(dto.extend());
-        if (!(superType instanceof SimpleType simpleSuperType)) {
-            violations.add(new InvalidObjectViolation(extendsPath, TYPES, SUPERTYPES));
+    private Type createType(SchemaDTONode node) {
+        Type type;
+        String projectId = getProjectId(node);
+        if (node.containsKey(EXTENDS)) {
+            type = newSimpleType(node.get(EXTENDS), projectId);
+        } else if (node.containsKey(LIST)) {
+            type = newListType(node.get(LIST), projectId);
+        } else if (node.containsKey(FIELDS)) {
+            type = newComplexType(node.get(FIELDS), projectId);
+        } else {
+            violations.add(new TypeRecursionViolation(node));
             return null;
         }
-        Set<Constraint> constraints = toConstraints(dto.constraints(), path.child(CONSTRAINTS, null));
-        return newSimpleTypeWithConstraints(name, simpleSuperType, constraints, dto.projectId());
+        return type;
     }
 
-    private SimpleType newSimpleTypeWithConstraints(String name, SimpleType superType, Set<Constraint> constraints,
-            String projectId) {
+    private SimpleType newSimpleType(SchemaDTONode node, String projectId) {
+        if (!(node.getNode() instanceof String st)) {
+            violations.add(new InvalidObjectViolation(node, TYPES, SUPERTYPES, STRING));
+            return null;
+        }
+        Type t = getRegisteredType(st);
+        if (!(t instanceof SimpleType superType)) {
+            violations.add(new InvalidObjectViolation(node, TYPES, SUPERTYPES));
+            return null;
+        }
+        Set<Constraint> constraints = constraintsFromDTO(node.getParentNode().get(CONSTRAINTS));
+        return newSimpleTypeWithConstraints(node.getParentNode().getKey(), superType, constraints, projectId);
+    }
+
+    private SimpleType newSimpleTypeWithConstraints(String name, SimpleType superType, Set<Constraint> constraints, String projectId) {
         if (constraints.isEmpty()) {
             return superType;
         }
@@ -202,108 +195,162 @@ public class SchemaManagerDTO extends SchemaManagerBase {
         return type;
     }
 
-    private Type newListType(String name, FieldDTO item, DTOPath itemPath, String projectId) {
-        FieldTypeInfo fti = getFieldTypeInfo(item, itemPath);
-        if (fti.type() == null) {
-            violations.add(new InvalidObjectViolation(itemPath, TYPES, LIST));
-            return null;
+    private Type newListType(SchemaDTONode node, String projectId) {
+        FieldTypeInfo fti = getFieldTypeInfo(node);
+        if (fti == null) {
+            return null; // We have already found a violation, no need to continue
         }
-        return new ListTypeImpl(name, fti.type(), ITEM, fti.defaultValue(), fti.constraints(), projectId);
+        Type type = fti.type();
+        if (type == null) {
+            violations.add(new InvalidObjectViolation(node, TYPES, LIST));
+            return type;
+        }
+        return new ListTypeImpl(node.getParentNode().getKey(), type, ITEM, fti.defaultValue(),
+                fti.constraints(), projectId);
     }
 
-    private ComplexTypeImpl newComplexType(String name, Map<String, FieldDTO> fields, DTOPath fieldsPath,
-            String projectId) {
-        ComplexType superType = null; // actually not needed in our use cases
-        ComplexTypeImpl ct = new ComplexTypeImpl(superType, name, "", projectId);
-        addFields(ct, fields, fieldsPath);
+    private ComplexTypeImpl newComplexType(SchemaDTONode node, String projectId) {
+        if (node.getNode() == null || !node.isMap()) {
+            violations.add(new InvalidObjectViolation(node, TYPES, COMPLEX));
+            return null;
+        }
+
+        ComplexType syperType = null; // actually not needed in our use cases
+        ComplexTypeImpl ct = new ComplexTypeImpl(syperType, node.getParentNode().getKey(), "", projectId);
+        addFields(ct, node);
         return ct;
     }
 
-    private void addFields(ComplexTypeImpl ct, Map<String, FieldDTO> fields, DTOPath fieldsPath) {
-        fields.forEach((name, field) -> addField(ct, name, field,
-                fieldsPath.child(name, ModelMapCodec.toJson(field))));
+    private void addFields(ComplexTypeImpl ct, SchemaDTONode node) {
+        node.asMap().keySet().forEach(name -> addField(ct, node.get(name)));
     }
 
-    private void addField(ComplexTypeImpl ct, String name, FieldDTO field, DTOPath path) {
-        FieldTypeInfo fti = getFieldTypeInfo(field, path);
-        if (fti.type() == null) {
-            violations.add(new InvalidObjectViolation(path, FIELDS));
+    private void addField(ComplexTypeImpl ct, SchemaDTONode node) {
+        FieldTypeInfo fti = getFieldTypeInfo(node);
+        if (fti == null) {
+            return; // We've already discovered a violation, no need to continue
+        }
+        Type type = fti.type();
+        if (type == null) {
+            violations.add(new InvalidObjectViolation(node, FIELDS));
             return;
         }
-        ct.addField(new FieldImpl(name, ct, fti.type(), fti.defaultValue(), fti.constraints(),
-                field.fullTextIndexed()));
+        var fullTextIndexedNode = node.get(FULL_TEXT_INDEXED);
+        var fullTextIndexed = false;
+        if (fullTextIndexedNode != null && fullTextIndexedNode.getNode() instanceof Boolean fullTextIndexedValue) {
+            fullTextIndexed = fullTextIndexedValue;
+        }
+
+        FieldImpl field = new FieldImpl(node.getKey(), ct, type, fti.defaultValue(), fti.constraints(), fullTextIndexed);
+        ct.addField(field);
     }
 
     private record FieldTypeInfo( //
             Type type, //
             Set<Constraint> constraints, //
             String defaultValue) {
+
+        public static FieldTypeInfo ofType(Type type) {
+            return new FieldTypeInfo(type, Set.of(), null);
+        }
     }
 
-    private FieldTypeInfo getFieldTypeInfo(FieldDTO field, DTOPath path) {
-        Type type;
-        if (field.typeRef() != null) {
-            // a reference to a named type, however it was spelled
-            type = getRegisteredType(field.typeRef());
+    private FieldTypeInfo getFieldTypeInfo(SchemaDTONode node) {
+        if (node.getNode() instanceof String typeName) {
+            return getStringFieldTypeInfo(typeName);
+        } else if (node.isMap()) {
+            Map<String, Object> dto = node.asMap();
+            if (dto.containsKey("type") && dto.get("type") != null) {
+                String typeName = (String) dto.get("type");
+                return getStringFieldTypeInfo(typeName);
+            }
+            Type type;
+            if (dto.containsKey(EXTENDS)) {
+                SchemaDTONode extendsNode = node.get(EXTENDS);
+                if (extendsNode.getNode() instanceof String extendz) {
+                    type = getRegisteredType(extendz);
+                } else {
+                    violations.add(new InvalidObjectViolation(extendsNode));
+                    return null;
+                }
+            } else {
+                // anonymous type
+                type = createType(node.createAnonymousNode());
+            }
+            return getDefaultFieldTypeInfo(node, type);
         } else {
-            // an anonymous type declared inline
-            type = createAnonymousType(field, path);
+            violations.add(new InvalidObjectViolation(node));
+            return null;
         }
-        Set<Constraint> constraints = toConstraints(field.constraints(), path.child(CONSTRAINTS, null));
+    }
+
+    private FieldTypeInfo getDefaultFieldTypeInfo(SchemaDTONode node, Type type) {
+        Set<Constraint> constraints = constraintsFromDTO(node.get(CONSTRAINTS));
+        String defaultValue = (String) node.get(DEFAULT).getNode();
         if (type instanceof PrimitiveType pt) {
             type = newSimpleTypeWithConstraints(type.getName(), pt, constraints, null);
         }
-        return new FieldTypeInfo(type, constraints, field.defaultValue());
+        return new FieldTypeInfo(type, constraints, defaultValue);
     }
 
-    private Type createAnonymousType(FieldDTO field, DTOPath path) {
-        if (field.list() != null) {
-            return newListType(ANONYMOUS_TYPE, field.list(),
-                    path.child(LIST, ModelMapCodec.toJson(field.list())), field.projectId());
-        }
-        if (field.fields() != null) {
-            return newComplexType(ANONYMOUS_TYPE, field.fields(), path.child(FIELDS, null), field.projectId());
-        }
-        violations.add(new TypeRecursionViolation(path.anonymous()));
-        return null;
+    private FieldTypeInfo getStringFieldTypeInfo(String name) {
+        Type type = getRegisteredType(name);
+        return FieldTypeInfo.ofType(type);
     }
 
     /*
      * ===== Schemas =====
      */
 
-    private void registerSchemas(Map<String, SchemaDTO> schemaDTOs) {
-        schemaDTOs.forEach(this::registerSchema);
+    private void registerSchemas(SchemaDTONode schemaDTOs) {
+        schemaDTOs.asMap().keySet().forEach(key -> registerSchema(schemaDTOs.get(key)));
     }
 
-    private void registerSchema(String name, SchemaDTO dto) {
-        Schema schema = newSchema(name, dto);
-        List<ValidationViolation> schemaViolations = new ArrayList<>(); // temporary diagnostic code
-        registerSchema(schema, schemaViolations);
-        if (!schemaViolations.isEmpty()) {
-            // for now just log an error, to diagnose pre-existing issues
-            schemaViolations.forEach(violation -> log.error(violation.getMessage(Locale.ENGLISH)));
+    private void registerSchema(SchemaDTONode node) {
+        if (node.getNode() == null || !node.isMap()) {
+            violations.add(new InvalidObjectViolation(node, SCHEMAS));
+            return;
+        }
+        Schema schema = newSchema(node);
+        if (schema != null) {
+            List<ValidationViolation> violations = new ArrayList<>(); // temporary diagnostic code
+            registerSchema(schema, violations);
+            if (!violations.isEmpty()) {
+                // for now just log an error, to diagnose pre-existing issues
+                violations.forEach(violation -> log.error(violation.getMessage(Locale.ENGLISH)));
+            }
         }
     }
 
-    private SchemaImpl newSchema(String name, SchemaDTO dto) {
-        Map<String, FieldDTO> fields = dto.fields();
-        // the prefix is derived from the field names, not read from the DTO
-        String prefix = "";
-        if (!fields.isEmpty()) {
-            String fieldName = fields.keySet().iterator().next();
+    private SchemaImpl newSchema(SchemaDTONode node) {
+        String name = node.getKey();
+        Map<String, Object> dto = node.asMap();
+        SchemaDTONode fieldsNode = node.get(FIELDS);
+        if (fieldsNode.getNode() == null || !fieldsNode.isMap()) {
+            violations.add(new InvalidObjectViolation(fieldsNode, FIELDS, COMPLEX));
+            return null;
+        }
+
+        String prefix;
+        if (!fieldsNode.asMap().isEmpty()) {
+            String fieldName = fieldsNode.asMap().keySet().iterator().next();
             int i = fieldName.indexOf(PREFIX_SEPARATOR);
             prefix = i == -1 ? "" : fieldName.substring(0, i);
+        } else {
+            prefix = "";
         }
-        SchemaImpl schema = new SchemaImpl(name, prefix, dto.versionWritable(), dto.projectId());
-        addFields(schema, fields, DTOPath.root(SCHEMAS, null).child(name, null).child(FIELDS, null));
+        boolean versionWritable = TRUE.equals(dto.get(VERSION_WRITABLE));
+
+        String projectId = getProjectId(node);
+        SchemaImpl schema = new SchemaImpl(name, prefix, versionWritable, projectId);
+        addFields(schema, fieldsNode);
         return schema;
     }
 
-    private Schema getSchemaOrThrow(String name, DTOPath path) {
+    private Schema getSchemaOrThrow(String name, SchemaDTONode node) {
         Schema schema = getSchema(name);
         if (schema == null) {
-            violations.add(new UnknownObjectViolation(path, SCHEMAS));
+            violations.add(new UnknownObjectViolation(node, SCHEMAS));
         }
         return schema;
     }
@@ -312,28 +359,54 @@ public class SchemaManagerDTO extends SchemaManagerBase {
      * ===== Mixin Types =====
      */
 
-    private void registerMixinTypes(Map<String, MixinTypeDTO> mixinDTOs) {
-        mixinDTOs.forEach(this::registerMixinType);
+    private void registerMixinTypes(SchemaDTONode mixinDTOs) {
+        mixinDTOs.asMap().keySet().forEach(key -> registerMixinType(mixinDTOs.get(key)));
     }
 
-    private void registerMixinType(String name, MixinTypeDTO dto) {
-        DTOPath path = DTOPath.root(MIXIN_TYPES, null).child(name, null);
-        List<String> schemaNames = dto.schemas() == null ? List.of() : dto.schemas();
-        DTOPath schemasPath = path.child(SCHEMAS, schemaNames);
-        List<Schema> schemas = schemaNames.stream() //
-                                          .map(schemaName -> getSchemaOrThrow(schemaName, schemasPath))
-                                          .filter(Objects::nonNull) // Filter out incoming nulls from violations
-                                          .toList();
-        mixins.put(name, new CompositeTypeImpl(null, name, schemas, dto.projectId()));
-        if (dto.noPerDocumentQuery()) {
+    private void registerMixinType(SchemaDTONode node) {
+        String name = node.getKey();
+        if (node.getNode() == null || !node.isMap()) {
+            violations.add(new InvalidObjectViolation(node, MIXINS, TYPES));
+            return;
+        }
+
+        CompositeTypeImpl ct = newCompositeType(node);
+        if (ct == null) {
+            // We've discovered a violation, no need to continue
+            return;
+        }
+        mixins.put(ct.getName(), ct);
+        boolean noPerDocumentQuery = TRUE.equals(node.asMap().get(NO_PER_DOCUMENT_QUERY));
+        if (noPerDocumentQuery) {
             noPerDocumentQueryMixins.add(name);
         }
     }
 
-    private CompositeType getMixinOrThrow(String name, DTOPath path) {
+    private CompositeTypeImpl newCompositeType(SchemaDTONode node) {
+        String name = node.getKey();
+        final SchemaDTONode schemasNode = node.get(SCHEMAS);
+        List<String> schemaNames;
+        if (schemasNode.getNode() != null) {
+            if (!schemasNode.isList()) {
+                violations.add(new InvalidObjectViolation(schemasNode, MIXINS, TYPES));
+                return null;
+            }
+            schemaNames = schemasNode.asList();
+        } else {
+            schemaNames = List.of();
+        }
+        List<Schema> schemas = schemaNames.stream() //
+                                          .map(schemaName -> getSchemaOrThrow(schemaName, schemasNode))
+                                          .filter(Objects::nonNull) // Filter out incoming nulls from violations
+                                          .toList();
+        String projectId = getProjectId(node);
+        return new CompositeTypeImpl(null, name, schemas, projectId);
+    }
+
+    private CompositeType getMixinOrThrow(String name, SchemaDTONode node) {
         CompositeType mixin = getMixin(name);
         if (mixin == null) {
-            violations.add(new UnknownObjectViolation(path, MIXINS));
+            violations.add(new UnknownObjectViolation(node, MIXINS));
         }
         return mixin;
     }
@@ -342,10 +415,11 @@ public class SchemaManagerDTO extends SchemaManagerBase {
      * ===== Primary Types =====
      */
 
-    private Map<String, PrimaryTypeDTO> pendingPrimaryTypes;
+    private SchemaDTONode pendingPrimaryTypeDTOs;
 
     void checkValidParents() {
-        for (DocumentType docType : this.documentTypes.values()) {
+        var docTypes = this.documentTypes;
+        for (DocumentType docType : docTypes.values()) {
             if (docType.getName().equals(SYS_CONTENT) || docType.getName().equals(SYS_RELATION)) {
                 continue; // root types have no super type
             }
@@ -355,11 +429,16 @@ public class SchemaManagerDTO extends SchemaManagerBase {
         }
     }
 
-    private void registerPrimaryTypes(Map<String, PrimaryTypeDTO> primaryTypeDTOs) {
-        pendingPrimaryTypes = new LinkedHashMap<>(primaryTypeDTOs);
+    private void registerPrimaryTypes(SchemaDTONode typeNode) {
+        pendingPrimaryTypeDTOs = typeNode;
+        if (!typeNode.isMap()) {
+            violations.add(new InvalidObjectViolation(typeNode));
+            return;
+        }
         // compute documentTypes and specialDocumentTypes
-        while (!pendingPrimaryTypes.isEmpty()) {
-            registerPendingDocumentType(pendingPrimaryTypes.keySet().iterator().next());
+        while (!pendingPrimaryTypeDTOs.asMap().isEmpty()) {
+            String name = pendingPrimaryTypeDTOs.asMap().keySet().iterator().next();
+            registerPendingDocumentType(name);
         }
     }
 
@@ -374,77 +453,142 @@ public class SchemaManagerDTO extends SchemaManagerBase {
     }
 
     private DocumentType registerPendingDocumentType(String name) {
-        PrimaryTypeDTO dto = pendingPrimaryTypes.remove(name);
-        if (dto == null) {
+        SchemaDTONode typeNode = pendingPrimaryTypeDTOs.get(name);
+        if (pendingPrimaryTypeDTOs.isMap() && pendingPrimaryTypeDTOs.asMap().remove(name) == null) {
             return null;
         }
-        DocumentTypeImpl doctype = newDocumentType(name, dto);
+        if (!typeNode.isMap()) {
+            violations.add(new InvalidObjectViolation(typeNode, PRIMARY_TYPES));
+            return null;
+        }
+
+        DocumentTypeImpl doctype = newDocumentType(typeNode);
         documentTypes.put(name, doctype);
         return doctype;
     }
 
-    private DocumentTypeImpl newDocumentType(String name, PrimaryTypeDTO dto) {
-        DTOPath path = DTOPath.root(PRIMARY_TYPES, null).child(name, null);
-        DocumentType superType = dto.extend() == null ? null : getRegisteredDocumentType(dto.extend());
-        List<Schema> schemas = getNewDocumentTypeSchemas(dto, path, superType);
-        List<CompositeType> docMixins = getNewDocumentTypeMixins(dto, path, superType);
-        List<String> subtypes = dto.subtypes() == null ? null : new ArrayList<>(dto.subtypes());
+    private DocumentTypeImpl newDocumentType(SchemaDTONode node) {
+        DocumentType superType = getNewDocumentTypeSuperType(node);
 
-        DocumentTypeImpl dt = new DocumentTypeImpl(name, superType, schemas, docMixins, dto.projectId());
+        List<Schema> schemas = getNewDocumentTypeSchemas(node, superType);
+
+        List<CompositeType> mixins = getNewDocumentTypeMixins(node, superType);
+
+        List<String> subtypes = getNewDocumentTypeSubTypes(node);
+
+        String projectId = getProjectId(node);
+        DocumentTypeImpl dt = new DocumentTypeImpl(node.getKey(), superType, schemas, mixins, projectId);
         dt.setSubtypes(subtypes);
         return dt;
     }
 
-    private List<Schema> getNewDocumentTypeSchemas(PrimaryTypeDTO dto, DTOPath path, DocumentType superType) {
-        Set<String> schemaNames = new HashSet<>(dto.schemas() == null ? List.of() : dto.schemas());
+    private DocumentType getNewDocumentTypeSuperType(SchemaDTONode node) {
+        DocumentType superType;
+        SchemaDTONode extendsNode = node.get(EXTENDS);
+        if (extendsNode.getNode() != null) {
+            if (!(extendsNode.getNode() instanceof String extendz)) {
+                violations.add(new InvalidObjectViolation(extendsNode, PRIMARY_TYPES, EXTENDS));
+                superType = null;
+            } else {
+                superType = getRegisteredDocumentType(extendz);
+            }
+        } else {
+            superType = null;
+        }
+        return superType;
+    }
+
+    private List<Schema> getNewDocumentTypeSchemas(SchemaDTONode node, DocumentType superType) {
+        Set<String> schemaNames;
+        final SchemaDTONode schemasNode = node.get(SCHEMAS);
+        if (schemasNode.getNode() != null) {
+            if (!schemasNode.isList()) {
+                violations.add(new InvalidObjectViolation(schemasNode, PRIMARY_TYPES, SCHEMAS));
+                schemaNames = new HashSet<>();
+            } else {
+                schemaNames = new HashSet<>(schemasNode.asList());
+            }
+        } else {
+            schemaNames = new HashSet<>();
+        }
         // add parent schemas
         if (superType != null) {
             schemaNames.addAll(superType.getSchemaNames());
         }
         // add mixin schemas
-        if (dto.mixins() != null) {
-            dto.mixins()
-               .stream()
-               .map(this::getMixin)
-               .filter(Objects::nonNull)
-               .forEach(mixin -> schemaNames.addAll(mixin.getSchemaNames()));
+        final SchemaDTONode mixinsNode = node.get(MIXINS);
+        if (mixinsNode != null && mixinsNode.isList()) {
+            mixinsNode.asList()
+                      .stream()
+                      .map(this::getMixin)
+                      .filter(Objects::nonNull)
+                      .forEach(mixin -> schemaNames.addAll(mixin.getSchemaNames()));
         }
-        DTOPath schemasPath = path.child(SCHEMAS, dto.schemas());
         return schemaNames.stream() //
-                          .map(schemaName -> getSchemaOrThrow(schemaName, schemasPath)) //
+                          .map(schemaName -> getSchemaOrThrow(schemaName, schemasNode)) //
                           .filter(Objects::nonNull) // Filter out incoming nulls from violations
                           .toList();
     }
 
-    private List<CompositeType> getNewDocumentTypeMixins(PrimaryTypeDTO dto, DTOPath path, DocumentType superType) {
-        List<String> mixinNames = new ArrayList<>(dto.mixins() == null ? List.of() : dto.mixins());
+    private List<CompositeType> getNewDocumentTypeMixins(SchemaDTONode node, DocumentType superType) {
+        List<String> mixins;
+        SchemaDTONode mixinsNode = node.get(MIXINS);
+        if (mixinsNode.getNode() != null) {
+            if (!mixinsNode.isList()) {
+                violations.add(new InvalidObjectViolation(mixinsNode, PRIMARY_TYPES, MIXINS));
+                mixins = new ArrayList<>();
+            } else {
+                mixins = new ArrayList<>(mixinsNode.asList());
+            }
+        } else {
+            mixins = new ArrayList<>();
+        }
         // add parent mixins
         if (superType != null) {
-            mixinNames.addAll(superType.getMixins());
+            mixins.addAll(superType.getMixins());
         }
-        DTOPath mixinsPath = path.child(MIXINS, dto.mixins());
-        return mixinNames.stream() //
-                         .map(mixin -> getMixinOrThrow(mixin, mixinsPath)) //
-                         .filter(Objects::nonNull) // Filter out incoming nulls from violations
-                         .toList();
+        return mixins.stream() //
+                     .map(mixin -> getMixinOrThrow(mixin, mixinsNode)) //
+                     .filter(Objects::nonNull) // Filter out incoming nulls from violations
+                     .toList();
     }
 
-    /*
-     * ===== Constraints =====
-     */
-
-    private Set<Constraint> toConstraints(ConstraintsDTO dto, DTOPath path) {
-        if (dto == null) {
-            return Set.of();
+    private List<String> getNewDocumentTypeSubTypes(SchemaDTONode node) {
+        List<String> subtypes;
+        SchemaDTONode subtypeNode = node.get(SUBTYPES);
+        if (subtypeNode.getNode() != null) {
+            if (!subtypeNode.isList()) {
+                violations.add(new InvalidObjectViolation(subtypeNode, PRIMARY_TYPES, SUBTYPES));
+                subtypes = null;
+            } else {
+                subtypes = new ArrayList<>(subtypeNode.asList());
+            }
+        } else {
+            subtypes = null;
         }
+        return subtypes;
+    }
+
+    private String getProjectId(SchemaDTONode node) {
+        if (node.containsKey(PROJECT_ID)) {
+            if (node.get(PROJECT_ID).getNode() instanceof String projectId) {
+                return projectId;
+            } else {
+                violations.add(new InvalidObjectViolation(node, PROJECT_ID));
+            }
+        }
+        return null;
+    }
+
+    private Set<Constraint> constraintsFromDTO(SchemaDTONode node) {
         Set<Constraint> constraints;
         try {
-            constraints = dto.toConstraints();
+            constraints = ConstraintUtils.constraintsFromDTO(node.getNode());
         } catch (IllegalArgumentException e) {
-            violations.add(new InvalidObjectViolation(path.withValue(dto.toMap()), PRIMARY_TYPES, CONSTRAINTS));
+            violations.add(new InvalidObjectViolation(node, PRIMARY_TYPES, CONSTRAINTS));
             return Set.of();
         }
-        SchemaValidationUtils.validateConstraints(constraints, path.withValue(dto.toMap()), violations);
+        SchemaValidationUtils.validateConstraints(constraints, node, violations);
         return constraints;
     }
 }

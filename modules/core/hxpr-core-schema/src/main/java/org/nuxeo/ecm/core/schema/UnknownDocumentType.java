@@ -18,10 +18,9 @@ package org.nuxeo.ecm.core.schema;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
-import org.nuxeo.ecm.core.schema.dto.MixinTypeDTO;
-import org.nuxeo.ecm.core.schema.dto.TypeDTO;
 import org.nuxeo.ecm.core.schema.types.Field;
 import org.nuxeo.ecm.core.schema.types.Schema;
 import org.nuxeo.ecm.core.schema.types.Type;
@@ -108,7 +107,7 @@ public class UnknownDocumentType implements DocumentType {
     }
 
     @Override
-    public TypeDTO toTypeDTO(SchemaManager schemaManager) {
+    public Map<String, Object> toTypeDTO(SchemaManager schemaManager) {
         throw new UnsupportedOperationException(getErrorMessage());
     }
 
@@ -223,7 +222,7 @@ public class UnknownDocumentType implements DocumentType {
     }
 
     @Override
-    public MixinTypeDTO toMixinTypeDTO(boolean noPerDocumentQuery) {
+    public Map<String, Object> toMixinTypeDTO(boolean noPerDocumentQuery) {
         throw new UnsupportedOperationException(getErrorMessage());
     }
 }

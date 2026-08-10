@@ -20,7 +20,7 @@ import java.util.Locale;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.nuxeo.ecm.core.schema.dto.DTOPath;
+import org.nuxeo.ecm.core.schema.validation.SchemaDTONode;
 
 /**
  * Violation designed to be used when a provided object is invalid. <p>
@@ -36,7 +36,7 @@ public class InvalidObjectViolation extends AbstractValidationViolation {
 
     private static final String DEFAULT_MSG_FORMAT = "The value \"%s\" is invalid.";
 
-    public InvalidObjectViolation(DTOPath node, String... keyArgs) {
+    public InvalidObjectViolation(SchemaDTONode node, String... keyArgs) {
         super(node, MESSAGE_KEY, Type.ERROR, keyArgs);
     }
 

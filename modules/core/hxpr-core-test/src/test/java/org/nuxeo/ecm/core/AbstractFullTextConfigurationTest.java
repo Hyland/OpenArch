@@ -136,7 +136,7 @@ public abstract class AbstractFullTextConfigurationTest extends RuntimeSpringBoo
                 """;
 
         var jsonPatch = mapper.readTree(patch);
-        var patched = Jackson3JsonPatch.apply(jsonPatch, mapper.valueToTree(schemaManager.toMap()));
+        var patched = Jackson3JsonPatch.apply(jsonPatch, mapper.valueToTree(schemaManager.toDTO()));
         return mapper.convertValue(patched, Map.class);
     }
 
@@ -152,7 +152,7 @@ public abstract class AbstractFullTextConfigurationTest extends RuntimeSpringBoo
                 """;
 
         var jsonPatch = mapper.readTree(patch);
-        var patched = Jackson3JsonPatch.apply(jsonPatch, mapper.valueToTree(schemaManager.toMap()));
+        var patched = Jackson3JsonPatch.apply(jsonPatch, mapper.valueToTree(schemaManager.toDTO()));
         return mapper.convertValue(patched, Map.class);
     }
 

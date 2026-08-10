@@ -17,7 +17,6 @@ package org.nuxeo.ecm.core.schema;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,11 +29,6 @@ import org.springframework.context.ApplicationContextAware;
 
 import com.hyland.hxpr.config.Configurable;
 import com.hyland.hxpr.config.ConfigurationService;
-import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
-import org.nuxeo.ecm.core.schema.dto.ModelMapCodec;
-import org.nuxeo.ecm.core.schema.dto.ContentModelDTO;
-import java.util.List;
-import java.util.ArrayList;
 
 /**
  * The TypeService is the component dealing with registration of schemas and document types (and mixins).
@@ -134,7 +128,7 @@ public class TypeServiceImpl extends DefaultComponent implements TypeService, Co
     // Configurable
     @Override
     public Map<String, Object> getLocalConfiguration(String repositoryName) {
-        return getSchemaManager(repositoryName).toMap();
+        return getSchemaManager(repositoryName).toDTO();
     }
 
     // Configurable
@@ -142,15 +136,7 @@ public class TypeServiceImpl extends DefaultComponent implements TypeService, Co
     public void setLocalConfiguration(String repositoryName, Map<String, Object> config) {
         SchemaManager schemaManager;
         try {
-            List<ValidationViolation> violations = new ArrayList<>();
-            AtomicBoolean legacyShape = new AtomicBoolean();
-            ContentModelDTO model = ModelMapCodec.read(config, violations, legacyShape);
-            if (legacyShape.get()) {
-                log.warn("Content model for repository {} is stored in the legacy shape; "
-                        + "it will be rewritten in the current shape the next time the model is updated",
-                        repositoryName);
-            }
-            schemaManager = new SchemaManagerDTO(model, violations, false);
+            schemaManager = new SchemaManagerDTO(config);
         } catch (NullPointerException | ClassCastException | RuntimeServiceException e) {
             log.error("Failed to read types for repository: {}", repositoryName, e);
             return;

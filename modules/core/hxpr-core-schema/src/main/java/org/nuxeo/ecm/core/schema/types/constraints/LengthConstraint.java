@@ -16,8 +16,6 @@
 
 package org.nuxeo.ecm.core.schema.types.constraints;
 
-import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.MAX_LENGTH;
-import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.MIN_LENGTH;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -184,24 +182,24 @@ public class LengthConstraint extends AbstractConstraint implements RangeConstra
     }
 
     @Override
-    public Map<String, Object> toMap() {
-        var map = new LinkedHashMap<String, Object>();
+    public Map<String, Object> toDTO() {
+        var dto = new LinkedHashMap<String, Object>();
         if (min != null) {
-            map.put(MIN_LENGTH, min);
+            dto.put("minLength", min);
         }
         if (max != null) {
-            map.put(MAX_LENGTH, max);
+            dto.put("maxLength", max);
         }
-        return map;
+        return dto;
     }
 
-    public static LengthConstraint fromMap(Map<String, Object> map) {
+    public static LengthConstraint fromDTO(Map<String, Object> dto) {
         Number min = null;
         Number max = null;
-        if (map.get(MIN_LENGTH) instanceof Number val) {
+        if (dto.get("minLength") instanceof Number val) {
             min = val;
         }
-        if (map.get(MAX_LENGTH) instanceof Number val) {
+        if (dto.get("maxLength") instanceof Number val) {
             max = val;
         }
         if (min != null || max != null) {

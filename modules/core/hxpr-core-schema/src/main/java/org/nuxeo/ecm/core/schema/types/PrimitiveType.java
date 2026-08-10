@@ -16,10 +16,11 @@
 package org.nuxeo.ecm.core.schema.types;
 
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 
 import org.nuxeo.ecm.core.schema.SchemaManager;
-import org.nuxeo.ecm.core.schema.dto.TypeDTO;
 import org.nuxeo.ecm.core.schema.types.constraints.Constraint;
 import org.nuxeo.ecm.core.schema.types.constraints.TypeConstraint;
 import org.nuxeo.ecm.core.schema.types.resolver.ObjectResolver;
@@ -34,8 +35,13 @@ public abstract class PrimitiveType extends AbstractType implements SimpleType {
     }
 
     @Override
-    public TypeDTO toTypeDTO(SchemaManager schemaManager) {
-        return new TypeDTO(projectId, null, null, null, getName());
+    public Map<String, Object> toTypeDTO(SchemaManager schemaManager) {
+        Map<String, Object> dto = new LinkedHashMap<>();
+        dto.put("extends", getName());
+        if (projectId != null) {
+            dto.put("projectId", projectId);
+        }
+        return dto;
     }
 
     @Override

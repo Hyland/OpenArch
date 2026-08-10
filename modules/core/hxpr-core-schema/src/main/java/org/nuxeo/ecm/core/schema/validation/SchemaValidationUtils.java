@@ -16,14 +16,7 @@
 package org.nuxeo.ecm.core.schema.validation;
 
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.CONSTRAINTS;
-import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.MAX_EXCLUSIVE;
-import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.MAX_INCLUSIVE;
-import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.MAX_LENGTH;
-import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.MIN_EXCLUSIVE;
-import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.MIN_INCLUSIVE;
-import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.MIN_LENGTH;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.MODIFIED;
-import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.PATH_DELIMITER;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.PRIMARY_TYPES;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.RESOLVER;
 import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_CONTENT;
@@ -34,7 +27,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.nuxeo.ecm.core.schema.dto.DTOPath;
 import org.nuxeo.ecm.core.schema.types.constraints.Constraint;
 import org.nuxeo.ecm.core.schema.types.constraints.LengthConstraint;
 import org.nuxeo.ecm.core.schema.types.constraints.NumericIntervalConstraint;
@@ -50,12 +42,16 @@ import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
 
 public class SchemaValidationUtils {
 
+    private static final String MAX_LENGTH = "maxLength";
+
+    private static final String MIN_LENGTH = "minLength";
+
     private SchemaValidationUtils() {
         // Utility class
     }
 
     /**
-     * Provides validation for the set of {@link Constraint}s at the provided {@link DTOPath}. <p>
+     * Provides validation for the set of {@link Constraint}s at the provided {@link SchemaDTONode}. <p>
      * The following classes are currently validated:
      * <ul>
      * <li>{@link LengthConstraint}</li>
@@ -63,7 +59,7 @@ public class SchemaValidationUtils {
      * <li>{@link ObjectResolverConstraint}</li>
      * </ul>
      * <p>
-     * Any errors detected will be added to the provided {@link ValidationViolation} list
+     * Any errors detected will be added to the provided {@code List<SchemaValidationViolation>}
      * @param constraints to validate
      * @param node location of the constraints
      * @param violations list of violations to add errors to
@@ -71,12 +67,12 @@ public class SchemaValidationUtils {
      * @see SchemaValidationUtils#validateNumericIntervalConstraint
      * @see SchemaValidationUtils#validateObjectResolverConstraint
      */
-    public static void validateConstraints(Set<Constraint> constraints, DTOPath node,
+    public static void validateConstraints(Set<Constraint> constraints, SchemaDTONode node,
             List<ValidationViolation> violations) {
         constraints.forEach(constraint -> validateConstraint(constraint, node, violations));
     }
 
-    private static void validateConstraint(Constraint constraint, DTOPath node,
+    private static void validateConstraint(Constraint constraint, SchemaDTONode node,
             List<ValidationViolation> violations) {
         if (constraint == null) {
             return;
@@ -95,7 +91,7 @@ public class SchemaValidationUtils {
     /**
      * Validates {@link RangeConstraint}.
      * Checks that the minLength < maxLength of the constraint.
-     * If this is not the case a {@link RangeViolation} is added to {@code violations}
+     * If this is not the case a {@Link SchemaDTOViolation} is added to {@code violations}
      * @param <T> {@link Constraint} implementing {@link RangeConstraint}
      * @param <E> {@link Number} implementing {@link Comparable} used by the {@link RangeConstraint}
      * @param constraint
@@ -105,7 +101,7 @@ public class SchemaValidationUtils {
      * @param violations
      */
     private static <T extends Constraint & RangeConstraint<E>, E extends Number & Comparable<E>> void validateRangeConstraint(
-            T constraint, DTOPath node, String minParameter, String maxParameter,
+            T constraint, SchemaDTONode node, String minParameter, String maxParameter,
             List<ValidationViolation> violations) {
         if (!constraint.validRange()) {
             violations.add(new RangeViolation(constraint, node, minParameter, maxParameter));
@@ -115,13 +111,13 @@ public class SchemaValidationUtils {
     /**
      * Validates {@link LengthConstraint}.
      * Checks that the minLength < maxLength of the constraint.
-     * If this is not the case a {@link RangeViolation} is added to {@code violations}
+     * If this is not the case a {@Link SchemaDTOViolation} is added to {@code violations}
      * @param constraint The {@link LengthConstraint} to validate
      * @param node Location of the constraint
      * @param violations List of violations
      * @see {@link #validateRangeConstraint}
      */
-    private static void validateLengthConstraint(LengthConstraint constraint, DTOPath node,
+    private static void validateLengthConstraint(LengthConstraint constraint, SchemaDTONode node,
             List<ValidationViolation> violations) {
         validateRangeConstraint(constraint, node, MIN_LENGTH, MAX_LENGTH, violations);
     }
@@ -129,16 +125,16 @@ public class SchemaValidationUtils {
     /**
      * Validates {@link NumericIntervalConstraint}.
      * Checks that the min < max of the constraint. <p>
-     * If this is not the case a {@link RangeViolation} is added to {@code violations}
+     * If this is not the case a {@Link SchemaDTOViolation} is added to {@code violations}
      * @param constraint The {@link NumericIntervalConstraint} to validate
      * @param node Location of the constraint
      * @param violations List of violations
      * @see {@link #validateRangeConstraint}
      */
-    private static void validateNumericIntervalConstraint(NumericIntervalConstraint constraint, DTOPath node,
+    private static void validateNumericIntervalConstraint(NumericIntervalConstraint constraint, SchemaDTONode node,
             List<ValidationViolation> violations) {
-        validateRangeConstraint(constraint, node, constraint.isIncludingMin() ? MIN_INCLUSIVE : MIN_EXCLUSIVE,
-                constraint.isIncludingMax() ? MAX_INCLUSIVE : MAX_EXCLUSIVE, violations);
+        validateRangeConstraint(constraint, node, constraint.isIncludingMin() ? "minInclusive" : "minExclusive",
+                constraint.isIncludingMax() ? "maxInclusive" : "maxExclusive", violations);
     }
 
     /**
@@ -150,7 +146,7 @@ public class SchemaValidationUtils {
      * @param violations List of violations
      */
     private static void validateObjectResolverConstraint(ObjectResolverConstraint resolverConstraint,
-            DTOPath node, List<ValidationViolation> violations) {
+            SchemaDTONode node, List<ValidationViolation> violations) {
         ObjectResolver resolver = resolverConstraint.getResolver();
         if (resolver == null) {
             violations.add(new UnknownObjectViolation(node, CONSTRAINTS, RESOLVER));
@@ -160,27 +156,21 @@ public class SchemaValidationUtils {
     public static void validateDTODiff(Map<String, Object> origDto, Map<String, Object> newDto,
             List<ValidationViolation> violations) {
         MapDTOComparator comparator = new MapDTOComparator(origDto, newDto);
-        List<Pair<DTOPath, DTOPath>> modifiedNodes = comparator.getModifiedNodes();
+        List<Pair<SchemaDTONode, SchemaDTONode>> modifiedNodes = comparator.getModifiedNodes();
         if (!modifiedNodes.isEmpty()) {
             modifiedNodes.forEach(nodePair -> violations.add(
                     new AlreadyExistsViolation(nodePair.getRight(), nodePair.getLeft(), MODIFIED)));
         }
-        List<DTOPath> removedNodes = comparator.getRemovedNodes();
+        List<SchemaDTONode> removedNodes = comparator.getRemovedNodes();
         if (!removedNodes.isEmpty()) {
             removedNodes.forEach(node -> {
-                if (isRootPrimaryType(node)) {
+                if (PRIMARY_TYPES.equals(node.getParentNode().getKey())
+                        && (SYS_CONTENT.equals(node.getKey()) || SYS_ROOT.equals(node.getKey()))) {
                     violations.add(new PrimaryTypeValidationViolation(node, "removed"));
                 } else {
                     violations.add(new AlreadyExistsViolation(node, "removed"));
                 }
             });
         }
-    }
-
-    /** Whether the node is one of the primary types that may never be removed. */
-    private static boolean isRootPrimaryType(DTOPath node) {
-        String path = node.path();
-        return path.equals(PRIMARY_TYPES + PATH_DELIMITER + SYS_CONTENT)
-                || path.equals(PRIMARY_TYPES + PATH_DELIMITER + SYS_ROOT);
     }
 }

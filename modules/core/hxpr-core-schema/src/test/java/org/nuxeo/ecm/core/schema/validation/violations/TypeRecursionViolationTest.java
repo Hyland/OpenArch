@@ -16,8 +16,9 @@
 package org.nuxeo.ecm.core.schema.validation.violations;
 
 import java.util.List;
+import java.util.Map;
 
-import org.nuxeo.ecm.core.schema.dto.DTOPath;
+import org.nuxeo.ecm.core.schema.validation.SchemaDTONode;
 
 public class TypeRecursionViolationTest extends AbstractValidationViolationTest {
 
@@ -33,7 +34,7 @@ public class TypeRecursionViolationTest extends AbstractValidationViolationTest 
 
     @Override
     protected AbstractValidationViolation getTestObject() {
-        DTOPath node = DTOPath.root("key", "value");
+        SchemaDTONode node = new SchemaDTONode(Map.of("key", "value"), "key");
         return new TypeRecursionViolation(node);
     }
 

@@ -113,7 +113,7 @@ public class FullTextConfigurationServiceTest {
                 """;
 
         var jsonPatch = mapper.readTree(patch);
-        var patched = Jackson3JsonPatch.apply(jsonPatch, mapper.valueToTree(schemaManager.toMap()));
+        var patched = Jackson3JsonPatch.apply(jsonPatch, mapper.valueToTree(schemaManager.toDTO()));
         return mapper.convertValue(patched, Map.class);
     }
 }

@@ -21,9 +21,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 import org.nuxeo.ecm.core.schema.TypeService;
-import org.nuxeo.ecm.core.schema.dto.ContentModelDTO;
 import org.nuxeo.ecm.core.test.CoreFeature;
 import org.nuxeo.rest.document.ObjectMapperConfiguration;
+import org.nuxeo.rest.model.dto.ModelDTO;
 import org.nuxeo.rest.model.exception.ModelValidationException;
 import org.nuxeo.rest.model.validation.ModelValidator;
 import org.nuxeo.runtime.mockito.RuntimeInject;
@@ -73,7 +73,7 @@ public class ModelValidatorTest extends RuntimeSpringBootTest {
                 }
                 """;
         var jsonNode = mapper.readTree(modelToValidate);
-        var modelToValidateDTO = mapper.convertValue(jsonNode, ContentModelDTO.class);
+        var modelToValidateDTO = mapper.convertValue(jsonNode, ModelDTO.class);
         assertDoesNotThrow(() -> modelValidator.validate(currentModel, modelToValidateDTO, "HxP001"));
     }
 
@@ -108,7 +108,7 @@ public class ModelValidatorTest extends RuntimeSpringBootTest {
                 }
                 """;
         var jsonNode = mapper.readTree(modelToValidate);
-        var modelToValidateDTO = mapper.convertValue(jsonNode, ContentModelDTO.class);
+        var modelToValidateDTO = mapper.convertValue(jsonNode, ModelDTO.class);
         var report = assertThrows(ModelValidationException.class,
                 () -> modelValidator.validate(currentModel, modelToValidateDTO, "HxP001")).getReport();
         assertEquals(2, report.numberOfViolations());
@@ -144,7 +144,7 @@ public class ModelValidatorTest extends RuntimeSpringBootTest {
                  }
                 """;
         var jsonNode = mapper.readTree(modelToValidate);
-        var modelToValidateDTO = mapper.convertValue(jsonNode, ContentModelDTO.class);
+        var modelToValidateDTO = mapper.convertValue(jsonNode, ModelDTO.class);
         var report = assertThrows(ModelValidationException.class,
                 () -> modelValidator.validate(currentModel, modelToValidateDTO, "HxP001")).getReport();
         assertEquals(1, report.numberOfViolations());
@@ -171,7 +171,7 @@ public class ModelValidatorTest extends RuntimeSpringBootTest {
                  }
                 """;
         var jsonNode = mapper.readTree(modelToValidate);
-        var modelToValidateDTO = mapper.convertValue(jsonNode, ContentModelDTO.class);
+        var modelToValidateDTO = mapper.convertValue(jsonNode, ModelDTO.class);
         assertDoesNotThrow(() -> modelValidator.validate(currentModel, modelToValidateDTO, "HxP001"));
     }
 
@@ -197,7 +197,7 @@ public class ModelValidatorTest extends RuntimeSpringBootTest {
                  }
                 """;
         var jsonNode = mapper.readTree(modelToValidate);
-        var modelToValidateDTO = mapper.convertValue(jsonNode, ContentModelDTO.class);
+        var modelToValidateDTO = mapper.convertValue(jsonNode, ModelDTO.class);
         assertDoesNotThrow(() -> modelValidator.validate(currentModel, modelToValidateDTO, "HxP001"));
     }
 
@@ -227,7 +227,7 @@ public class ModelValidatorTest extends RuntimeSpringBootTest {
                 }
                 """;
         var jsonNode = mapper.readTree(modelToValidate);
-        var modelToValidateDTO = mapper.convertValue(jsonNode, ContentModelDTO.class);
+        var modelToValidateDTO = mapper.convertValue(jsonNode, ModelDTO.class);
         var report = assertThrows(ModelValidationException.class,
                 () -> modelValidator.validate(currentModel, modelToValidateDTO, "HxP001")).getReport();
         assertEquals(1, report.numberOfViolations());
@@ -254,7 +254,7 @@ public class ModelValidatorTest extends RuntimeSpringBootTest {
                 }
                 """;
         var jsonNode = mapper.readTree(modelToValidate);
-        var modelToValidateDTO = mapper.convertValue(jsonNode, ContentModelDTO.class);
+        var modelToValidateDTO = mapper.convertValue(jsonNode, ModelDTO.class);
         assertDoesNotThrow(() -> modelValidator.validate(currentModel, modelToValidateDTO, "HxP001"));
     }
     @Test
@@ -277,7 +277,7 @@ public class ModelValidatorTest extends RuntimeSpringBootTest {
                  }
                 """;
         var jsonNode = mapper.readTree(modelToValidate);
-        var modelToValidateDTO = mapper.convertValue(jsonNode, ContentModelDTO.class);
+        var modelToValidateDTO = mapper.convertValue(jsonNode, ModelDTO.class);
         var report = assertThrows(ModelValidationException.class,
                 () -> modelValidator.validate(modelToValidateDTO)).getReport();
         assertEquals(1, report.numberOfViolations());
@@ -302,7 +302,7 @@ public class ModelValidatorTest extends RuntimeSpringBootTest {
                  }
                 """;
         var jsonNode = mapper.readTree(modelToValidate);
-        var modelToValidateDTO = mapper.convertValue(jsonNode, ContentModelDTO.class);
+        var modelToValidateDTO = mapper.convertValue(jsonNode, ModelDTO.class);
         var report = assertThrows(ModelValidationException.class,
                 () -> modelValidator.validate(modelToValidateDTO)).getReport();
         assertEquals(1, report.numberOfViolations());
@@ -334,7 +334,7 @@ public class ModelValidatorTest extends RuntimeSpringBootTest {
                  }
                 """;
         var jsonNode = mapper.readTree(modelToValidate);
-        var modelToValidateDTO = mapper.convertValue(jsonNode, ContentModelDTO.class);
+        var modelToValidateDTO = mapper.convertValue(jsonNode, ModelDTO.class);
         assertDoesNotThrow(() -> modelValidator.validate(currentModel, modelToValidateDTO, "HxP001"));
     }
 
@@ -363,7 +363,7 @@ public class ModelValidatorTest extends RuntimeSpringBootTest {
                  }
                 """;
         var jsonNode = mapper.readTree(modelToValidate);
-        var modelToValidateDTO = mapper.convertValue(jsonNode, ContentModelDTO.class);
+        var modelToValidateDTO = mapper.convertValue(jsonNode, ModelDTO.class);
         assertDoesNotThrow(() -> modelValidator.validate(currentModel, modelToValidateDTO, "HxP001"));
     }
 
@@ -384,7 +384,7 @@ public class ModelValidatorTest extends RuntimeSpringBootTest {
                  }
                 """;
         var jsonNode = mapper.readTree(modelToValidate);
-        var modelToValidateDTO = mapper.convertValue(jsonNode, ContentModelDTO.class);
+        var modelToValidateDTO = mapper.convertValue(jsonNode, ModelDTO.class);
         assertDoesNotThrow(() -> modelValidator.validate(currentModel, modelToValidateDTO, "HxP001"));
     }
 
@@ -417,7 +417,7 @@ public class ModelValidatorTest extends RuntimeSpringBootTest {
                  }
                 """;
         var jsonNode = mapper.readTree(modelToValidate);
-        var modelToValidateDTO = mapper.convertValue(jsonNode, ContentModelDTO.class);
+        var modelToValidateDTO = mapper.convertValue(jsonNode, ModelDTO.class);
         assertDoesNotThrow(() -> modelValidator.validate(currentModel, modelToValidateDTO, "HxP001"));
     }
 }
