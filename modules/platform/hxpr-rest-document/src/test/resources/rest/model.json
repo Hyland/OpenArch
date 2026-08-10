@@ -281,7 +281,8 @@
           "constraints": {
             "nullable": false
           }
-        }
+        },
+        "sysemb_chunks": { "type": "blob" }
       }
     },
     "sysgraph": {

@@ -22,5 +22,6 @@
     <xs:include schemaLocation="core-types.xsd" />
 
     <xs:element name="embeddings" type="nxs:blob" nillable="false" nxsv:nillable="false" />
+    <xs:element name="chunks" type="nxs:blob" />
 
 </xs:schema>

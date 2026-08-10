@@ -252,6 +252,7 @@ public class DocumentConstants {
     public static final String SCHEMA_SYSEMB = "sysembeddings";
     public static final String SYSEMB_PREFIX = "sysemb";
     public static final String SYSEMB_EMBEDDINGS = "sysemb_embeddings";
+    public static final String SYSEMB_CHUNKS = "sysemb_chunks";
 
     // SysGraphable (ontology routing)
     public static final String SCHEMA_SYSGRAPH = "sysgraph";

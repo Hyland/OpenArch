@@ -87,6 +87,9 @@
     },
     "sysembeddings": {
       "fields": {
+        "sysemb_chunks": {
+          "type": "blob"
+        },
         "sysemb_embeddings": {
           "extends": "blob",
           "constraints": {

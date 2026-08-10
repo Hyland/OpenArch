@@ -168,6 +168,20 @@
                 "schemas/sysfiles/fields/sysfiles_blobs"
             ],
             "path": "schemas/sysfiles/fields/sysfiles_blobs"
+        },
+        {
+            "invalidValue": {
+                "type": "blob"
+            },
+            "message": "The value \"'{'type=blob'}'\" is an invalid type in the field \"schemas/sysembeddings/fields/sysemb_chunks\".",
+            "messageKey": "label.schema.application.violation.InvalidObjectViolation.fields",
+            "parameters": [
+                {
+                    "type": "blob"
+                },
+                "schemas/sysembeddings/fields/sysemb_chunks"
+            ],
+            "path": "schemas/sysembeddings/fields/sysemb_chunks"
         }
     ]
 }

@@ -18,18 +18,23 @@ package org.nuxeo.ecm.core.test;
 import static org.apache.http.HttpStatus.SC_CONFLICT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.nuxeo.ecm.core.SysEmbeddingsPolicies.EMBEDDINGS_NAME_PREFIX;
 import static org.nuxeo.ecm.core.api.CoreSession.ENFORCE_SYS_NAME;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_CHUNKS;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_EMBEDDINGS;
 import static org.nuxeo.ecm.core.schema.MixinNames.SYS_HAS_EMBEDDINGS;
 import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_EMBEDDINGS;
 import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FILE;
 
+import java.io.IOException;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
+import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.api.Blobs;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
@@ -296,6 +301,59 @@ class SysEmbeddingsDoctypeTest {
 
         // then it fails at save time with a validation exception
         assertThrows(DocumentValidationException.class, () -> session.save());
+    }
+
+    // =======================================================================
+    // ACCEPTANCE RULE 6: sysemb_chunks Blob
+    // =======================================================================
+
+    /**
+     * Creating a SysEmbeddings with both {@code sysemb_embeddings} and {@code sysemb_chunks} blobs
+     * should succeed with no validation error, and both blobs should be readable back.
+     */
+    @Test
+    void testCreateSysEmbeddingsWithBothBlobsShouldSucceed() throws IOException {
+        // given a doc with SysHasEmbeddings mixin
+        DocumentModel doc = createDocWithSysHasEmbeddings();
+
+        // when creating an embeddings child with both blobs set in the same write
+        DocumentModel emb = newEmbeddings(doc, EMBEDDINGS_NAME_PREFIX + "both");
+        emb.setPropertyValue(SYSEMB_EMBEDDINGS, Blobs.createBlob("hello embeddings"));
+        emb.setPropertyValue(SYSEMB_CHUNKS, Blobs.createBlob("hello chunks"));
+        emb.create();
+        session.save();
+        emb.refresh();
+
+        // then both blobs are stored
+        Blob embeddings = (Blob) emb.getPropertyValue(SYSEMB_EMBEDDINGS);
+        Blob chunks = (Blob) emb.getPropertyValue(SYSEMB_CHUNKS);
+        assertEquals("hello embeddings", embeddings.getString());
+        assertEquals("hello chunks", chunks.getString());
+    }
+
+    /**
+     * Clearing the {@code sysemb_chunks} blob on an existing SysEmbeddings should succeed with no
+     * validation error, since only {@code sysemb_embeddings} is required.
+     */
+    @Test
+    void testClearSysembChunksShouldSucceed() throws IOException {
+        // given a doc with SysHasEmbeddings mixin and a SysEmbeddings child holding both blobs
+        DocumentModel doc = createDocWithSysHasEmbeddings();
+        DocumentModel emb = newEmbeddings(doc, EMBEDDINGS_NAME_PREFIX + "clearable");
+        emb.setPropertyValue(SYSEMB_EMBEDDINGS, Blobs.createBlob("hello embeddings"));
+        emb.setPropertyValue(SYSEMB_CHUNKS, Blobs.createBlob("hello chunks"));
+        emb.create();
+        session.save();
+
+        // when clearing sysemb_chunks
+        emb.setPropertyValue(SYSEMB_CHUNKS, null);
+        session.save();
+        emb.refresh();
+
+        // then sysemb_chunks is cleared and sysemb_embeddings is preserved
+        assertNull(emb.getPropertyValue(SYSEMB_CHUNKS));
+        Blob embeddings = (Blob) emb.getPropertyValue(SYSEMB_EMBEDDINGS);
+        assertEquals("hello embeddings", embeddings.getString());
     }
 
     // =======================================================================

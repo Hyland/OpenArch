@@ -15,8 +15,6 @@
  */
 package org.nuxeo.ecm.core.storage.mongodb;
 
-import static org.nuxeo.ecm.core.api.DocumentConstants.SCHEMA_SYSEMB;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SCHEMA_SYSGRAPH;
 import static org.nuxeo.ecm.core.api.DocumentConstants.CINCONTEXT_PREFIX;
 import static org.nuxeo.ecm.core.api.DocumentConstants.CINREMOTE_INGEST_EVENT_VERSION;
 import static org.nuxeo.ecm.core.api.DocumentConstants.CINREMOTE_INGEST_RAW;
@@ -26,6 +24,9 @@ import static org.nuxeo.ecm.core.api.DocumentConstants.CONTEXT_PROPERTIES;
 import static org.nuxeo.ecm.core.api.DocumentConstants.CONTEXT_PROPERTY_NAMES;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SCHEMA_CINCONTEXT;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SCHEMA_CINREMOTE;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SCHEMA_SYSEMB;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SCHEMA_SYSGRAPH;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_CHUNKS;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_EMBEDDINGS;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_PREFIX;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGRAPH_GRAPH_DB_IDS;
@@ -126,6 +127,7 @@ import static org.nuxeo.ecm.core.schema.MixinNames.SYS_MD_REDACTABLE;
 import static org.nuxeo.ecm.core.schema.MixinNames.SYS_MD_TEXT;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.CONSTRAINTS;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.EXTENDS;
+import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.NULLABLE;
 import static org.nuxeo.ecm.core.schema.TypeConstants.BLOB_TYPE;
 import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_CONTENT;
 import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_EMBEDDINGS;
@@ -774,7 +776,17 @@ public class MongoDBRepository extends DBSRepositoryBase implements Configuratio
                 FIELDS, Map.of(
                         SYSEMB_EMBEDDINGS, Map.of(
                                 EXTENDS, BLOB_TYPE,
-                                CONSTRAINTS, Map.of("nullable", false)))));
+                                CONSTRAINTS, Map.of(NULLABLE, false)))));
+        Map<String, Object> embSchemaMap = (Map<String, Object>) schemas.get(SCHEMA_SYSEMB);
+        Map<String, Object> embFields = (Map<String, Object>) embSchemaMap.get(FIELDS);
+        if (!embFields.containsKey(SYSEMB_CHUNKS)) {
+            Map<String, Object> newFields = new HashMap<>(embFields);
+            newFields.put(SYSEMB_CHUNKS, BLOB_TYPE);
+            Map<String, Object> newSchema = new HashMap<>(embSchemaMap);
+            newSchema.put(FIELDS, newFields);
+            schemas.put(SCHEMA_SYSEMB, newSchema);
+            migrated = true;
+        }
 
         // Knowledge Graph
         schemas.computeIfAbsent(SCHEMA_SYSGRAPH, k -> Map.of(
