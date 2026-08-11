@@ -2,13 +2,13 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.hyland.hxpr</groupId>
-    <artifactId>sonarcloud-modules</artifactId>
-    <version>0.0.116-SNAPSHOT</version>
+    <artifactId>community-sonarcloud-modules</artifactId>
+    <version>12.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>report-aggregate</artifactId>
+  <artifactId>community-report-aggregate</artifactId>
   <packaging>pom</packaging>
-  <name>Test Coverage Aggregrate Report</name>
+  <name>Community Test Coverage Aggregrate Report</name>
   <description>Aggregates the coverate report from our individual hxpr-community modules</description>
 
   <dependencies>
