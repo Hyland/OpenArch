@@ -109,7 +109,7 @@ public class TestReindex {
 
     @AfterEach
     public void disableSynchronousMode() {
-        OpenSearchInlineListener.useSyncIndexing.set(TRUE);
+        OpenSearchInlineListener.useSyncIndexing.remove();
         syncMode = false;
     }
 
