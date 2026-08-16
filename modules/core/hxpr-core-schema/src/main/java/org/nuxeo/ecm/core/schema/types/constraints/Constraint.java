@@ -153,7 +153,7 @@ public interface Constraint {
         }
     }
 
-    default Map<String, Object> toDTO() {
+    default Map<String, Object> toMap() {
         throw new UnsupportedOperationException(getClass().getName());
     }
 

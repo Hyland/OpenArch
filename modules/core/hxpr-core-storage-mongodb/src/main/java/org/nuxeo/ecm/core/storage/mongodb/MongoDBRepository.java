@@ -127,6 +127,7 @@ import static org.nuxeo.ecm.core.schema.MixinNames.SYS_MD_REDACTABLE;
 import static org.nuxeo.ecm.core.schema.MixinNames.SYS_MD_TEXT;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.CONSTRAINTS;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.EXTENDS;
+import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.NULLABLE;
 import static org.nuxeo.ecm.core.schema.TypeConstants.BLOB_TYPE;
 import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_CONTENT;
 import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_EMBEDDINGS;
@@ -776,7 +777,7 @@ public class MongoDBRepository extends DBSRepositoryBase implements Configuratio
                 FIELDS, Map.of(
                         SYSEMB_EMBEDDINGS, Map.of(
                                 EXTENDS, BLOB_TYPE,
-                                CONSTRAINTS, Map.of("nullable", false)))));
+                                CONSTRAINTS, Map.of(NULLABLE, false)))));
         Map<String, Object> embSchemaMap = (Map<String, Object>) schemas.get(SCHEMA_SYSEMB);
         Map<String, Object> embFields = (Map<String, Object>) embSchemaMap.get(FIELDS);
         if (!embFields.containsKey(SYSEMB_CHUNKS)) {

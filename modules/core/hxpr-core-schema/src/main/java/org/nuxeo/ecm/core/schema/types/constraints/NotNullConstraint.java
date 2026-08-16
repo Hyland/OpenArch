@@ -16,6 +16,7 @@
 
 package org.nuxeo.ecm.core.schema.types.constraints;
 
+import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.NULLABLE;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -71,12 +72,12 @@ public class NotNullConstraint extends AbstractConstraint {
     }
 
     @Override
-    public Map<String, Object> toDTO() {
-        return Map.of("nullable", false);
+    public Map<String, Object> toMap() {
+        return Map.of(NULLABLE, false);
     }
 
-    public static NotNullConstraint fromDTO(Map<String, Object> dto) {
-        if (dto.get("nullable") == Boolean.FALSE) {
+    public static NotNullConstraint fromMap(Map<String, Object> map) {
+        if (map.get(NULLABLE) == Boolean.FALSE) {
             return new NotNullConstraint();
         }
         return null;

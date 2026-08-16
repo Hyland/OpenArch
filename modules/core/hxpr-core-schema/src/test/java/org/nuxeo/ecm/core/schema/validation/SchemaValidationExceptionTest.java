@@ -20,19 +20,19 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
+import org.nuxeo.ecm.core.schema.dto.DTOPath;
 import org.nuxeo.ecm.core.schema.validation.violations.InvalidObjectViolation;
 
 public class SchemaValidationExceptionTest {
 
-    private static final SchemaDTONode testNode1 = new SchemaDTONode(Map.of("key1", "value1"), "key1");
+    private static final DTOPath testNode1 = DTOPath.root("key1", "value1");
 
-    private static final SchemaDTONode testNode2 = new SchemaDTONode(Map.of("key2", "value2"), "key2");
+    private static final DTOPath testNode2 = DTOPath.root("key2", "value2");
 
-    private static final SchemaDTONode testNodeBlankPath = new SchemaDTONode(Map.of("", "value3"), "");
+    private static final DTOPath testNodeBlankPath = DTOPath.root("", "value3");
 
     @Test
     public void getTests() {

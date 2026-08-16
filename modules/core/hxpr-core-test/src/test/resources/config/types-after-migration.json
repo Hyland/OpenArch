@@ -1,267 +1,530 @@
 {
-  "types": {
-    "foo": {
-      "fields": {
-        "foo": "string"
-      }
-    },
-    "stringList": {
-      "list": "string"
-    },
-    "blob": {
-      "fields": {
-        "mimeType": "string",
-        "key": "binary",
-        "filename": "string",
-        "length": "long",
-        "digest": "string"
-      }
-    },
-    "system#contributorList": {
-      "list": "string"
-    },
-    "sysgraph#stringList": {
-      "list": "string"
-    },
-    "cinremote#stringList": {
-      "list": "string"
-    },
-    "cinremote#cinBlob": {
-      "fields": {
-        "blob": "blob",
-        "label": "string",
-        "originalMimeType": "string",
-        "originalFilename": "string",
-        "originalLength": "long",
-        "originalDigest": "string",
-        "uploadedMimeType": "string"
-      }
-    },
-    "cinremote#cinBlobList": {
-      "list": "cinremote#cinBlob"
-    },
-    "cinremote#contentDigest": {
-      "fields": {
-        "contentName": "string",
-        "digestValue": "string"
-      }
-    },
-    "cinremote#contentDigestList": {
-      "list": "cinremote#contentDigest"
-    },
-    "cincontext#stringList": {
-      "list": "string"
-    },
-    "cincontext#kgProcessingState": {
-      "fields": {
-        "ontologyId": "string",
-        "state": "blob",
-        "status": "string"
-      }
-    },
-    "cincontext#kgProcessingStateList": {
-      "list": "cincontext#kgProcessingState"
-    }
-  },
   "schemas": {
     "bar": {
-      "prefix": "bar",
       "fields": {
-        "bar_bar": "string"
-      }
+        "bar_bar": {
+          "type": "string"
+        }
+      },
+      "prefix": "bar"
     },
-    "system": {
-      "prefix": "sys",
+    "cincontext": {
       "fields": {
-        "sys_contributors": "system#contributorList",
-        "sys_created": "date",
-        "sys_creator": "string",
-        "sys_description": "string",
-        "sys_lastContributor": "string",
-        "sys_modified": "date",
-        "sys_title": "string"
-      }
+        "cinctx_contextProperties": {
+          "type": "any"
+        },
+        "cinctx_contextPropertyNames": {
+          "type": "cincontext#stringList"
+        },
+        "cinctx_kgProcessingStates": {
+          "type": "cincontext#kgProcessingStateList"
+        }
+      },
+      "prefix": "cinctx"
     },
-    "sysmdbm": {
-      "prefix": "sysmdbm",
+    "cinremote": {
       "fields": {
-        "sysmdbm_name": "string",
-        "sysmdbm_pageId": "long",
-        "sysmdbm_additionalData": "string"
-      }
-    },
-    "sysmdanno": {
-      "prefix": "sysmdanno",
-      "fields": {
-        "sysmdanno_name": "string",
-        "sysmdanno_pageId": "long",
-        "sysmdanno_type": "string",
-        "sysmdanno_contentItemId": "string",
-        "sysmdanno_id": "string",
-        "sysmdanno_x": "double",
-        "sysmdanno_y": "double",
-        "sysmdanno_height": "double",
-        "sysmdanno_width": "double",
-        "sysmdanno_fillColor": "string",
-        "sysmdanno_fillable": "boolean",
-        "sysmdanno_stroke": "string",
-        "sysmdanno_opacity": "double",
-        "sysmdanno_resizable": "boolean",
-        "sysmdanno_movable": "boolean",
-        "sysmdanno_data": "string",
-        "sysmdanno_scale": "double",
-        "sysmdanno_fixRotation": "boolean",
-        "sysmdanno_additionalData": "string"
-      }
-    },
-    "sysmdcomment": {
-      "prefix": "sysmdcomment",
-      "fields": {
-        "sysmdcomment_content": "string",
-        "sysmdcomment_externalAuthor": "string",
-        "sysmdcomment_state": "string",
-        "sysmdcomment_additionalData": "string",
-        "sysmdcomment_date": "date",
-        "sysmdcomment_updatedAt": "date",
-        "sysmdcomment_isExternalComment": "boolean",
-        "sysmdcomment_externalId": "string"
-      }
-    },
-    "sysmdtext": {
-      "prefix": "sysmdtext",
-      "fields": {
-        "sysmdtext_text": "string",
-        "sysmdtext_fontFamily": "string",
-        "sysmdtext_fontSize": "string",
-        "sysmdtext_fontColor": "string",
-        "sysmdtext_textAlignment": "string",
-        "sysmdtext_verticallyCenterText": "boolean",
-        "sysmdtext_horizontallyCenterTextBox": "boolean",
-        "sysmdtext_italic": "boolean",
-        "sysmdtext_bold": "boolean",
-        "sysmdtext_underline": "boolean",
-        "sysmdtext_strikeThrough": "boolean",
-        "sysmdtext_overflow": "boolean",
-        "sysmdtext_padding": "double",
-        "sysmdtext_radius": "double",
-        "sysmdtext_lineHeight": "double",
-        "sysmdtext_lineHeightMultiplier": "double"
-      }
-    },
-    "sysmdline": {
-      "prefix": "sysmdline",
-      "fields": {
-        "sysmdline_reverseX": "boolean",
-        "sysmdline_reverseY": "boolean",
-        "sysmdline_markerStart": "string",
-        "sysmdline_markerEnd": "string",
-        "sysmdline_lineCap": "string"
-      }
-    },
-    "sysmdimage": {
-      "prefix": "sysmdimage",
-      "fields": {
-        "sysmdimage_href": "string",
-        "sysmdimage_padding": "double",
-        "sysmdimage_radius": "double"
-      }
-    },
-    "sysmdhl": {
-      "prefix": "sysmdhl",
-      "fields": {
-        "sysmdhl_highlights": "string"
-      }
-    },
-    "sysmdpath": {
-      "prefix": "sysmdpath",
-      "fields": {
-        "sysmdpath_path": "string"
-      }
-    },
-    "sysmdannotatable": {
-      "prefix": "sysmdannotatable",
-      "fields": {
-        "sysmdannotatable_state": "string"
-      }
-    },
-    "sysmdredactable": {
-      "prefix": "sysmdredactable",
-      "fields": {
-        "sysmdredactable_sourceDocumentId": "string",
-        "sysmdredactable_state": "string"
-      }
-    },
-    "sysrelation": {
-      "prefix": "sysrelation",
-      "fields": {
-        "sysrelation_predicate": "string",
-        "sysrelation_source": "string",
-        "sysrelation_target": "string"
-      }
+        "cin_allAncestors": {
+          "type": "cinremote#stringList"
+        },
+        "cin_aspects": {
+          "type": "cinremote#stringList"
+        },
+        "cin_blobs": {
+          "type": "cinremote#cinBlobList"
+        },
+        "cin_createdBy": {
+          "type": "string"
+        },
+        "cin_dateCreated": {
+          "type": "date"
+        },
+        "cin_dateModified": {
+          "type": "date"
+        },
+        "cin_deny": {
+          "type": "cinremote#stringList"
+        },
+        "cin_digests": {
+          "type": "cinremote#contentDigestList"
+        },
+        "cin_directAncestors": {
+          "type": "cinremote#stringList"
+        },
+        "cin_id": {
+          "type": "string"
+        },
+        "cin_ingest": {
+          "type": "any"
+        },
+        "cin_ingestEventVersion": {
+          "type": "long"
+        },
+        "cin_ingestProperties": {
+          "type": "any"
+        },
+        "cin_ingestPropertyNames": {
+          "type": "cinremote#stringList"
+        },
+        "cin_ingestRaw": {
+          "type": "blob"
+        },
+        "cin_isOrgUnit": {
+          "type": "boolean"
+        },
+        "cin_modifiedBy": {
+          "type": "cinremote#stringList"
+        },
+        "cin_orgUnit": {
+          "type": "string"
+        },
+        "cin_paths": {
+          "type": "cinremote#stringList"
+        },
+        "cin_read": {
+          "type": "cinremote#stringList"
+        },
+        "cin_sourceId": {
+          "type": "string"
+        },
+        "cin_type": {
+          "type": "string"
+        }
+      },
+      "prefix": "cin"
     },
     "sysembeddings": {
-      "prefix": "sysemb",
       "fields": {
-        "sysemb_chunks": "blob",
+        "sysemb_chunks": {
+          "type": "blob"
+        },
         "sysemb_embeddings": {
           "extends": "blob",
           "constraints": {
             "nullable": false
           }
         }
-      }
+      },
+      "prefix": "sysemb"
     },
     "sysgraph": {
-      "prefix": "sysgraph",
       "fields": {
-        "sysgraph_graphDBIds": "sysgraph#stringList",
-        "sysgraph_ontologyRefs": "sysgraph#stringList"
+        "sysgraph_graphDBIds": {
+          "type": "sysgraph#stringList"
+        },
+        "sysgraph_ontologyRefs": {
+          "type": "sysgraph#stringList"
+        }
+      },
+      "prefix": "sysgraph"
+    },
+    "sysmdanno": {
+      "fields": {
+        "sysmdanno_additionalData": {
+          "type": "string"
+        },
+        "sysmdanno_contentItemId": {
+          "type": "string"
+        },
+        "sysmdanno_data": {
+          "type": "string"
+        },
+        "sysmdanno_fillColor": {
+          "type": "string"
+        },
+        "sysmdanno_fillable": {
+          "type": "boolean"
+        },
+        "sysmdanno_fixRotation": {
+          "type": "boolean"
+        },
+        "sysmdanno_height": {
+          "type": "double"
+        },
+        "sysmdanno_id": {
+          "type": "string"
+        },
+        "sysmdanno_movable": {
+          "type": "boolean"
+        },
+        "sysmdanno_name": {
+          "type": "string"
+        },
+        "sysmdanno_opacity": {
+          "type": "double"
+        },
+        "sysmdanno_pageId": {
+          "type": "long"
+        },
+        "sysmdanno_resizable": {
+          "type": "boolean"
+        },
+        "sysmdanno_scale": {
+          "type": "double"
+        },
+        "sysmdanno_stroke": {
+          "type": "string"
+        },
+        "sysmdanno_type": {
+          "type": "string"
+        },
+        "sysmdanno_width": {
+          "type": "double"
+        },
+        "sysmdanno_x": {
+          "type": "double"
+        },
+        "sysmdanno_y": {
+          "type": "double"
+        }
+      },
+      "prefix": "sysmdanno"
+    },
+    "sysmdannotatable": {
+      "fields": {
+        "sysmdannotatable_state": {
+          "type": "string"
+        }
+      },
+      "prefix": "sysmdannotatable"
+    },
+    "sysmdbm": {
+      "fields": {
+        "sysmdbm_additionalData": {
+          "type": "string"
+        },
+        "sysmdbm_name": {
+          "type": "string"
+        },
+        "sysmdbm_pageId": {
+          "type": "long"
+        }
+      },
+      "prefix": "sysmdbm"
+    },
+    "sysmdcomment": {
+      "fields": {
+        "sysmdcomment_additionalData": {
+          "type": "string"
+        },
+        "sysmdcomment_content": {
+          "type": "string"
+        },
+        "sysmdcomment_date": {
+          "type": "date"
+        },
+        "sysmdcomment_externalAuthor": {
+          "type": "string"
+        },
+        "sysmdcomment_externalId": {
+          "type": "string"
+        },
+        "sysmdcomment_isExternalComment": {
+          "type": "boolean"
+        },
+        "sysmdcomment_state": {
+          "type": "string"
+        },
+        "sysmdcomment_updatedAt": {
+          "type": "date"
+        }
+      },
+      "prefix": "sysmdcomment"
+    },
+    "sysmdhl": {
+      "fields": {
+        "sysmdhl_highlights": {
+          "type": "string"
+        }
+      },
+      "prefix": "sysmdhl"
+    },
+    "sysmdimage": {
+      "fields": {
+        "sysmdimage_href": {
+          "type": "string"
+        },
+        "sysmdimage_padding": {
+          "type": "double"
+        },
+        "sysmdimage_radius": {
+          "type": "double"
+        }
+      },
+      "prefix": "sysmdimage"
+    },
+    "sysmdline": {
+      "fields": {
+        "sysmdline_lineCap": {
+          "type": "string"
+        },
+        "sysmdline_markerEnd": {
+          "type": "string"
+        },
+        "sysmdline_markerStart": {
+          "type": "string"
+        },
+        "sysmdline_reverseX": {
+          "type": "boolean"
+        },
+        "sysmdline_reverseY": {
+          "type": "boolean"
+        }
+      },
+      "prefix": "sysmdline"
+    },
+    "sysmdpath": {
+      "fields": {
+        "sysmdpath_path": {
+          "type": "string"
+        }
+      },
+      "prefix": "sysmdpath"
+    },
+    "sysmdredactable": {
+      "fields": {
+        "sysmdredactable_sourceDocumentId": {
+          "type": "string"
+        },
+        "sysmdredactable_state": {
+          "type": "string"
+        }
+      },
+      "prefix": "sysmdredactable"
+    },
+    "sysmdtext": {
+      "fields": {
+        "sysmdtext_bold": {
+          "type": "boolean"
+        },
+        "sysmdtext_fontColor": {
+          "type": "string"
+        },
+        "sysmdtext_fontFamily": {
+          "type": "string"
+        },
+        "sysmdtext_fontSize": {
+          "type": "string"
+        },
+        "sysmdtext_horizontallyCenterTextBox": {
+          "type": "boolean"
+        },
+        "sysmdtext_italic": {
+          "type": "boolean"
+        },
+        "sysmdtext_lineHeight": {
+          "type": "double"
+        },
+        "sysmdtext_lineHeightMultiplier": {
+          "type": "double"
+        },
+        "sysmdtext_overflow": {
+          "type": "boolean"
+        },
+        "sysmdtext_padding": {
+          "type": "double"
+        },
+        "sysmdtext_radius": {
+          "type": "double"
+        },
+        "sysmdtext_strikeThrough": {
+          "type": "boolean"
+        },
+        "sysmdtext_text": {
+          "type": "string"
+        },
+        "sysmdtext_textAlignment": {
+          "type": "string"
+        },
+        "sysmdtext_underline": {
+          "type": "boolean"
+        },
+        "sysmdtext_verticallyCenterText": {
+          "type": "boolean"
+        }
+      },
+      "prefix": "sysmdtext"
+    },
+    "sysrelation": {
+      "fields": {
+        "sysrelation_predicate": {
+          "type": "string"
+        },
+        "sysrelation_source": {
+          "type": "string"
+        },
+        "sysrelation_target": {
+          "type": "string"
+        }
+      },
+      "prefix": "sysrelation"
+    },
+    "system": {
+      "fields": {
+        "sys_contributors": {
+          "type": "system#contributorList"
+        },
+        "sys_created": {
+          "type": "date"
+        },
+        "sys_creator": {
+          "type": "string"
+        },
+        "sys_description": {
+          "type": "string"
+        },
+        "sys_lastContributor": {
+          "type": "string"
+        },
+        "sys_modified": {
+          "type": "date"
+        },
+        "sys_title": {
+          "type": "string"
+        }
+      },
+      "prefix": "sys"
+    }
+  },
+  "types": {
+    "blob": {
+      "fields": {
+        "digest": {
+          "type": "string"
+        },
+        "filename": {
+          "type": "string"
+        },
+        "key": {
+          "type": "binary"
+        },
+        "length": {
+          "type": "long"
+        },
+        "mimeType": {
+          "type": "string"
+        }
       }
     },
-    "cinremote": {
-      "prefix": "cin",
+    "cincontext#kgProcessingState": {
       "fields": {
-        "cin_id": "string",
-        "cin_paths": "cinremote#stringList",
-        "cin_directAncestors": "cinremote#stringList",
-        "cin_allAncestors": "cinremote#stringList",
-        "cin_dateCreated": "date",
-        "cin_createdBy": "string",
-        "cin_dateModified": "date",
-        "cin_modifiedBy": "cinremote#stringList",
-        "cin_type": "string",
-        "cin_sourceId": "string",
-        "cin_aspects": "cinremote#stringList",
-        "cin_read": "cinremote#stringList",
-        "cin_deny": "cinremote#stringList",
-        "cin_orgUnit": "string",
-        "cin_isOrgUnit": "boolean",
-        "cin_ingest": "any",
-        "cin_digests": "cinremote#contentDigestList",
-        "cin_ingestProperties": "any",
-        "cin_ingestPropertyNames": "cinremote#stringList",
-        "cin_ingestEventVersion": "long",
-        "cin_blobs": "cinremote#cinBlobList",
-        "cin_ingestRaw": "blob"
+        "ontologyId": {
+          "type": "string"
+        },
+        "state": {
+          "type": "blob"
+        },
+        "status": {
+          "type": "string"
+        }
       }
     },
-    "cincontext": {
-      "prefix": "cinctx",
+    "cincontext#kgProcessingStateList": {
+      "list": {
+        "type": "cincontext#kgProcessingState"
+      }
+    },
+    "cincontext#stringList": {
+      "list": {
+        "type": "string"
+      }
+    },
+    "cinremote#cinBlob": {
       "fields": {
-        "cinctx_contextProperties": "any",
-        "cinctx_contextPropertyNames": "cincontext#stringList",
-        "cinctx_kgProcessingStates": "cincontext#kgProcessingStateList"
+        "blob": {
+          "type": "blob"
+        },
+        "label": {
+          "type": "string"
+        },
+        "originalDigest": {
+          "type": "string"
+        },
+        "originalFilename": {
+          "type": "string"
+        },
+        "originalLength": {
+          "type": "long"
+        },
+        "originalMimeType": {
+          "type": "string"
+        },
+        "uploadedMimeType": {
+          "type": "string"
+        }
+      }
+    },
+    "cinremote#cinBlobList": {
+      "list": {
+        "type": "cinremote#cinBlob"
+      }
+    },
+    "cinremote#contentDigest": {
+      "fields": {
+        "contentName": {
+          "type": "string"
+        },
+        "digestValue": {
+          "type": "string"
+        }
+      }
+    },
+    "cinremote#contentDigestList": {
+      "list": {
+        "type": "cinremote#contentDigest"
+      }
+    },
+    "cinremote#stringList": {
+      "list": {
+        "type": "string"
+      }
+    },
+    "foo": {
+      "fields": {
+        "foo": {
+          "type": "string"
+        }
+      }
+    },
+    "stringList": {
+      "list": {
+        "type": "string"
+      }
+    },
+    "sysgraph#stringList": {
+      "list": {
+        "type": "string"
+      }
+    },
+    "system#contributorList": {
+      "list": {
+        "type": "string"
       }
     }
   },
   "mixinTypes": {
-    "WithBar": {
+    "CinContext": {
       "schemas": [
-        "bar"
+        "cincontext"
+      ]
+    },
+    "CinRemote": {
+      "schemas": [
+        "cinremote"
       ]
     },
     "SysFolderish": {},
-    "SysVersionedWithParent": {},
+    "SysGraphable": {
+      "schemas": [
+        "sysgraph"
+      ]
+    },
+    "SysHasEmbeddings": {},
+    "SysMDAnnotatable": {
+      "schemas": [
+        "sysmdannotatable"
+      ]
+    },
     "SysMDHL": {
       "schemas": [
         "sysmdhl"
@@ -282,35 +545,20 @@
         "sysmdpath"
       ]
     },
-    "SysMDText": {
-      "schemas": [
-        "sysmdtext"
-      ]
-    },
-    "SysMDAnnotatable": {
-      "schemas": [
-        "sysmdannotatable"
-      ]
-    },
     "SysMDRedactable": {
       "schemas": [
         "sysmdredactable"
       ]
     },
-    "SysHasEmbeddings": {},
-    "SysGraphable": {
+    "SysMDText": {
       "schemas": [
-        "sysgraph"
+        "sysmdtext"
       ]
     },
-    "CinRemote": {
+    "SysVersionedWithParent": {},
+    "WithBar": {
       "schemas": [
-        "cinremote"
-      ]
-    },
-    "CinContext": {
-      "schemas": [
-        "cincontext"
+        "bar"
       ]
     }
   },
@@ -338,20 +586,20 @@
         "SysFolderish"
       ]
     },
-    "SysMDBookmark": {
+    "SysMDAnnotation": {
       "extends": "SysContent",
       "schemas": [
-        "sysmdbm",
+        "sysmdanno",
         "system"
       ],
       "mixins": [
         "SysVersionedWithParent"
       ]
     },
-    "SysMDAnnotation": {
+    "SysMDBookmark": {
       "extends": "SysContent",
       "schemas": [
-        "sysmdanno",
+        "sysmdbm",
         "system"
       ],
       "mixins": [

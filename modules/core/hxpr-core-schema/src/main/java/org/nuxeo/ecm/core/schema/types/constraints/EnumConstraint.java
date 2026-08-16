@@ -16,6 +16,7 @@
 
 package org.nuxeo.ecm.core.schema.types.constraints;
 
+import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.ENUMERATION;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -133,13 +134,13 @@ public class EnumConstraint extends AbstractConstraint {
     }
 
     @Override
-    public Map<String, Object> toDTO() {
+    public Map<String, Object> toMap() {
         var values = possibleValues.stream().sorted().toList();
-        return Map.of("enumeration", values);
+        return Map.of(ENUMERATION, values);
     }
 
-    public static EnumConstraint fromDTO(Map<String, Object> dto) {
-        if (dto.get("enumeration") instanceof List<?> list) {
+    public static EnumConstraint fromMap(Map<String, Object> map) {
+        if (map.get(ENUMERATION) instanceof List<?> list) {
             return new EnumConstraint(list);
         }
         return null;

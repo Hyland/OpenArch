@@ -18,6 +18,7 @@ package org.nuxeo.ecm.core.schema.types;
 import java.util.Set;
 
 import org.nuxeo.ecm.core.schema.SchemaManager;
+import org.nuxeo.ecm.core.schema.dto.FieldDTO;
 import org.nuxeo.ecm.core.schema.types.constraints.Constraint;
 
 /**
@@ -75,7 +76,7 @@ public interface Field {
      */
     Set<Constraint> getConstraints();
 
-    Object toFieldDtoOrReference(SchemaManager schemaManager);
+    FieldDTO toFieldDTO(SchemaManager schemaManager);
 
     /**
      * Returns true if the property 'fullTextIndexed' is defined on the field.

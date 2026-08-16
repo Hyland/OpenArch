@@ -20,7 +20,7 @@ import java.util.Locale;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.nuxeo.ecm.core.schema.validation.SchemaDTONode;
+import org.nuxeo.ecm.core.schema.dto.DTOPath;
 
 /**
  * Violation uses when an item that you wish to remove Document or Root under primary type.
@@ -52,7 +52,7 @@ public class PrimaryTypeValidationViolation extends AbstractValidationViolation 
      *  <li>label.schema.application.violation.PrimaryTypeValidationViolation.removed</li>
      * </ul>
      */
-    public PrimaryTypeValidationViolation(SchemaDTONode node, String... keyArgs) {
+    public PrimaryTypeValidationViolation(DTOPath node, String... keyArgs) {
         super(node, MESSAGE_KEY, ValidationViolation.Type.ERROR, keyArgs);
         this.messageParameters = List.of(getInvalidValue(), getPath());
     }

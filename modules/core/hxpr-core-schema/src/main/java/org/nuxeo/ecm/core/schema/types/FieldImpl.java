@@ -15,19 +15,15 @@
  */
 package org.nuxeo.ecm.core.schema.types;
 
-import static java.lang.Boolean.TRUE;
-import static org.nuxeo.common.function.FunctionUtils.sortByKeyAndMapValue;
-import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.FULL_TEXT_INDEXED;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.nuxeo.ecm.core.schema.SchemaManager;
+import org.nuxeo.ecm.core.schema.dto.ConstraintsDTO;
+import org.nuxeo.ecm.core.schema.dto.FieldDTO;
+import org.nuxeo.ecm.core.schema.dto.TypeDTO;
 import org.nuxeo.ecm.core.schema.types.constraints.Constraint;
 import org.nuxeo.ecm.core.schema.types.constraints.ConstraintUtils;
 import org.nuxeo.ecm.core.schema.types.constraints.NotNullConstraint;
@@ -69,49 +65,27 @@ public class FieldImpl implements Field {
     }
 
     @Override
-    public Object toFieldDtoOrReference(SchemaManager schemaManager) {
-        Map<String, Object> dto;
+    public FieldDTO toFieldDTO(SchemaManager schemaManager) {
         String typeName = type.getName();
+        FieldDTO base;
         if (type instanceof PrimitiveType || schemaManager.getType(typeName) != null) {
-            // primitive type or type registered with schema manager
-            dto = new LinkedHashMap<>();
-            dto.put("extends", typeName);
+            // primitive type or type registered with the schema manager: a reference by name
+            base = FieldDTO.ofType(typeName);
         } else {
-            // anonymous type
-            dto = type.toTypeDTO(schemaManager);
+            // anonymous type, declared inline
+            TypeDTO anonymous = type.toTypeDTO(schemaManager);
+            base = new FieldDTO(anonymous.extend(), anonymous.fields(), anonymous.list(), anonymous.constraints(),
+                    null, false, anonymous.projectId());
         }
 
-        // constraints
-        Map<String, Object> constraintsDTO;
-        if (dto.containsKey("constraints")) {
-            constraintsDTO = (Map<String, Object>) dto.get("constraints");
-        } else {
-            constraintsDTO = new LinkedHashMap<>();
-        }
-        // keep only those field-related, not those from its type
+        // keep only the constraints that are the field's own, not those of its type
         Set<Constraint> fieldConstraints = new HashSet<>(constraints);
         fieldConstraints.removeAll(type.getConstraints());
-        fieldConstraints.stream() //
-                        .filter(c -> !(c instanceof TypeConstraint))
-                        .forEach(c -> constraintsDTO.putAll(c.toDTO()));
-        if (!constraintsDTO.isEmpty()) {
-            dto.put("constraints", sortByKeyAndMapValue(constraintsDTO, Entry::getValue));
-        }
+        fieldConstraints.removeIf(TypeConstraint.class::isInstance);
 
-        if (defaultValue != null) {
-            dto.put("default",  defaultValue);
-        }
-
-        if (fullTextIndexed) {
-            dto.put(FULL_TEXT_INDEXED, TRUE);
-        }
-
-        if (dto.size() == 1 && dto.containsKey("extends")) {
-            // just "extends" (no constraints), return it directly
-            return dto.get("extends");
-        } else {
-            return dto;
-        }
+        return new FieldDTO(base.typeRef(), base.fields(), base.list(),
+                ConstraintsDTO.merge(base.constraints(), ConstraintsDTO.of(fieldConstraints)), defaultValue,
+                fullTextIndexed, base.projectId());
     }
 
     @Override

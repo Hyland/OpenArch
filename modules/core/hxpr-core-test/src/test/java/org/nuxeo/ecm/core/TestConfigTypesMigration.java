@@ -89,8 +89,8 @@ public class TestConfigTypesMigration {
     @Test
     public void testMigration() throws Exception {
         SchemaManager schemaManager = session.getSchemaManager();
-        Map<String, Object> dto = schemaManager.toDTO();
-        String actual = MAPPER.writeValueAsString(dto);
+        Map<String, Object> map = schemaManager.toMap();
+        String actual = MAPPER.writeValueAsString(map);
         String expected = readFile(NEW_TYPES);
         JSONAssert.assertEquals(actual, expected, actual, true);
     }

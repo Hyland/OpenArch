@@ -53,9 +53,9 @@ public class TestSchemaManagerDTO {
                       "primaryTypes": {}
                     }
                 """;
-        Map<String, Object> dto = MAPPER.readValue(modelJson, Map.class);
+        Map<String, Object> map = MAPPER.readValue(modelJson, Map.class);
         try {
-            new SchemaManagerDTO(dto, null, false);
+            new SchemaManagerDTO(map, null, false);
             // fail("should have detected duplicate");
             // for now an error is logged
         } catch (SchemaValidationException e) {
@@ -90,8 +90,54 @@ public class TestSchemaManagerDTO {
                   "primaryTypes": {}
                 }
                 """;
-        Map<String, Object> dto = MAPPER.readValue(modelJson, Map.class);
-        new SchemaManagerDTO(dto, null, false);
+        Map<String, Object> map = MAPPER.readValue(modelJson, Map.class);
+        new SchemaManagerDTO(map, null, false);
+    }
+
+    /**
+     * A type that belongs to a project must still say so once it has been through the schema layer
+     * and back out again.
+     * <p>
+     * List and complex types always did; a <em>simple</em> type (one that is a supertype plus
+     * constraints) did not, because its DTO was built from its supertype's and only the constraints
+     * were lifted across, so a project-scoped simple type lost its {@code projectId} on every save.
+     * All three kinds are covered here so the asymmetry cannot come back.
+     */
+    @Test
+    public void testProjectScopedTypesKeepTheirProjectId() throws Exception {
+        String modelJson = """
+                {
+                  "types": {
+                    "myproject#boundedString": {
+                      "extends": "string",
+                      "constraints": {
+                        "maxLength": 10
+                      },
+                      "projectId": "P123"
+                    },
+                    "myproject#stringList": {
+                      "list": "string",
+                      "projectId": "P123"
+                    },
+                    "myproject#pair": {
+                      "fields": {
+                        "first": "string",
+                        "second": "string"
+                      },
+                      "projectId": "P123"
+                    }
+                  },
+                  "schemas": {},
+                  "mixinTypes": {},
+                  "primaryTypes": {}
+                }
+                """;
+        Map<String, Object> map = MAPPER.readValue(modelJson, Map.class);
+        SchemaManager schemaManager = new SchemaManagerDTO(map);
+
+        Map<String, Object> types = (Map<String, Object>) schemaManager.toMap().get("types");
+        types.forEach((name, type) -> assertEquals("P123", ((Map<String, Object>) type).get("projectId"),
+                "projectId lost for type " + name));
     }
 
 }

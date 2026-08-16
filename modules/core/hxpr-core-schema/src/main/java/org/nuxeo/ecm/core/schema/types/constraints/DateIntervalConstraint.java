@@ -16,6 +16,10 @@
 
 package org.nuxeo.ecm.core.schema.types.constraints;
 
+import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.MAX_EXCLUSIVE;
+import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.MAX_INCLUSIVE;
+import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.MIN_EXCLUSIVE;
+import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.MIN_INCLUSIVE;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -241,32 +245,32 @@ public class DateIntervalConstraint extends AbstractConstraint {
     }
 
     @Override
-    public Map<String, Object> toDTO() {
+    public Map<String, Object> toMap() {
         var map = new LinkedHashMap<String, Object>();
         if (minTime != null) {
-            map.put(includingMin ? "minInclusive" : "minExclusive", toISO8601(minTime));
+            map.put(includingMin ? MIN_INCLUSIVE : MIN_EXCLUSIVE, toISO8601(minTime));
         }
         if (maxTime != null) {
-            map.put(includingMax ? "maxInclusive" : "maxExclusive", toISO8601(maxTime));
+            map.put(includingMax ? MAX_INCLUSIVE : MAX_EXCLUSIVE, toISO8601(maxTime));
         }
         return map;
     }
 
-    public static DateIntervalConstraint fromDTO(Map<String, Object> dto) {
+    public static DateIntervalConstraint fromMap(Map<String, Object> map) {
         Number min = null;
         boolean includingMin = false;
         Number max = null;
         boolean includingMax = false;
-        if (dto.get("minInclusive") instanceof String s) {
+        if (map.get(MIN_INCLUSIVE) instanceof String s) {
             min = fromISO8601(s);
             includingMin = true;
-        } else if (dto.get("minExclusive") instanceof String s) {
+        } else if (map.get(MIN_EXCLUSIVE) instanceof String s) {
             min = fromISO8601(s);
         }
-        if (dto.get("maxInclusive") instanceof String s) {
+        if (map.get(MAX_INCLUSIVE) instanceof String s) {
             max = fromISO8601(s);
             includingMax = true;
-        } else if (dto.get("maxExclusive") instanceof String s) {
+        } else if (map.get(MAX_EXCLUSIVE) instanceof String s) {
             max = fromISO8601(s);
         }
         if (min != null || max != null) {

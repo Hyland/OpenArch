@@ -31,17 +31,17 @@ import org.junit.jupiter.api.Test;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.api.RenditionException;
 import org.nuxeo.ecm.core.api.local.DummyLoginFeature;
-import org.nuxeo.ecm.core.api.validation.ConstraintViolation;
 import org.nuxeo.ecm.core.api.validation.ConstraintViolation.PathNode;
+import org.nuxeo.ecm.core.api.validation.ConstraintViolation;
 import org.nuxeo.ecm.core.api.validation.DocumentValidationException;
 import org.nuxeo.ecm.core.api.validation.DocumentValidationReport;
 import org.nuxeo.ecm.core.model.DocumentModelResolver;
+import org.nuxeo.ecm.core.schema.dto.DTOPath;
 import org.nuxeo.ecm.core.schema.types.Field;
 import org.nuxeo.ecm.core.schema.types.FieldImpl;
 import org.nuxeo.ecm.core.schema.types.constraints.Constraint;
 import org.nuxeo.ecm.core.schema.types.constraints.ObjectResolverConstraint;
 import org.nuxeo.ecm.core.schema.types.resolver.ObjectResolver;
-import org.nuxeo.ecm.core.schema.validation.SchemaDTONode;
 import org.nuxeo.ecm.core.schema.validation.SchemaValidationException;
 import org.nuxeo.ecm.core.schema.validation.ValidationReport;
 import org.nuxeo.ecm.core.schema.validation.violations.InvalidObjectViolation;
@@ -135,7 +135,7 @@ class NuxeoExceptionControllerTest extends RuntimeSpringBootTest {
         @GetMapping("validateModel")
         public void validateModel() {
             ValidationReport report = new ValidationReport(
-                List.of(new TypeRecursionViolation(new SchemaDTONode(Map.of("foo", "bar"), "foo")))
+                List.of(new TypeRecursionViolation(DTOPath.root("foo", "bar")))
             );
             throw new SchemaValidationException(report);
         }
@@ -143,8 +143,8 @@ class NuxeoExceptionControllerTest extends RuntimeSpringBootTest {
         @GetMapping("validateModelMultiple")
         public void validateModelMultiple() {
             ValidationReport report = new ValidationReport(
-                List.of(new TypeRecursionViolation(new SchemaDTONode(Map.of("foo", "bar"), "foo")), //
-                        new InvalidObjectViolation(new SchemaDTONode(Map.of("foo", List.of("bar", "foo")), "foo"),"types", "supertypes")) //"In type: foo, invalid supertype: {List=bar}", List.of("bar", "foo"), "bar", "bar"))
+                List.of(new TypeRecursionViolation(DTOPath.root("foo", "bar")), //
+                        new InvalidObjectViolation(DTOPath.root("foo", List.of("bar", "foo")),"types", "supertypes")) //"In type: foo, invalid supertype: {List=bar}", List.of("bar", "foo"), "bar", "bar"))
             );
             throw new SchemaValidationException(report);
         }

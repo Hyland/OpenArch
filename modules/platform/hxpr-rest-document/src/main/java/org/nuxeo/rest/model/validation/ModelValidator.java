@@ -16,6 +16,12 @@
 package org.nuxeo.rest.model.validation;
 
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSTEM;
+import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.LIST;
+import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.MAX_EXCLUSIVE;
+import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.MAX_INCLUSIVE;
+import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.MIN_EXCLUSIVE;
+import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.MIN_INCLUSIVE;
+import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.PATH_DELIMITER;
 import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_KEY;
 import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_CONTENT;
 
@@ -31,10 +37,15 @@ import org.nuxeo.ecm.core.schema.DocumentType;
 import org.nuxeo.ecm.core.schema.SchemaManager;
 import org.nuxeo.ecm.core.schema.TypeConstants;
 import org.nuxeo.ecm.core.schema.XSDTypes;
+import org.nuxeo.ecm.core.schema.dto.ConstraintsDTO;
+import org.nuxeo.ecm.core.schema.dto.ContentModelDTO;
+import org.nuxeo.ecm.core.schema.dto.FieldDTO;
+import org.nuxeo.ecm.core.schema.dto.PrimaryTypeDTO;
 import org.nuxeo.ecm.core.schema.types.ComplexType;
 import org.nuxeo.ecm.core.schema.types.ListType;
 import org.nuxeo.ecm.core.schema.types.SimpleTypeImpl;
 import org.nuxeo.ecm.core.schema.types.Type;
+import org.nuxeo.ecm.core.schema.types.constraints.ConstraintUtils;
 import org.nuxeo.ecm.core.schema.types.TypeException;
 import org.nuxeo.ecm.core.schema.types.primitives.BinaryType;
 import org.nuxeo.ecm.core.schema.types.primitives.BooleanType;
@@ -42,10 +53,7 @@ import org.nuxeo.ecm.core.schema.types.primitives.DateType;
 import org.nuxeo.ecm.core.schema.types.primitives.StringType;
 import org.nuxeo.ecm.core.schema.validation.ValidationReport;
 import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
-import org.nuxeo.rest.model.dto.Constants;
-import org.nuxeo.rest.model.dto.FieldDTO;
-import org.nuxeo.rest.model.dto.ModelDTO;
-import org.nuxeo.rest.model.dto.PrimaryTypeDTO;
+import org.nuxeo.rest.model.Constants;
 import org.nuxeo.rest.model.exception.ModelValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +76,7 @@ public class ModelValidator {
      * @param modelDTOFromRequest DTO instance prepared from the request made for a project
      * @param projectId the one associated with the proposed update
      */
-    public void validate(SchemaManager schemaManager, ModelDTO modelDTOFromRequest, String projectId) {
+    public void validate(SchemaManager schemaManager, ContentModelDTO modelDTOFromRequest, String projectId) {
         violations.clear();
         // MixinTypes
         modelDTOFromRequest.mixinTypes().forEach((key, value) -> {
@@ -119,7 +127,7 @@ public class ModelValidator {
      * </p>
      * @param modelDTOFromRequest DTO instance prepared from the request.
      */
-    public void validate(ModelDTO modelDTOFromRequest) {
+    public void validate(ContentModelDTO modelDTOFromRequest) {
         violations.clear();
         validateFields(modelDTOFromRequest);
         validatePrimaryTypesHaveSystemSchema(modelDTOFromRequest);
@@ -158,13 +166,12 @@ public class ModelValidator {
      *
      * @param modelDTOFromRequest The model to validate.
      */
-    private void validateFullTextFields(SchemaManager schemaManager, ModelDTO modelDTOFromRequest) {
+    private void validateFullTextFields(SchemaManager schemaManager, ContentModelDTO modelDTOFromRequest) {
         modelDTOFromRequest.schemas().forEach((schemaName, schema) -> {
             if (schema.fields() != null) {
                 schema.fields().forEach((fieldName, field) -> {
                     if (field.fullTextIndexed()) {
-                        validateFieldForFullTextIndexed(field.type(), fieldName, schemaName, schemaManager);
-                        validateFieldForFullTextIndexed(field.extend(), fieldName, schemaName, schemaManager);
+                        validateFieldForFullTextIndexed(field.typeRef(), fieldName, schemaName, schemaManager);
                     }
                 });
             }
@@ -228,7 +235,7 @@ public class ModelValidator {
      * Validates default value of field is of correct type or not
      * @param modelDTOFromRequest DTO instance prepared from the request
      */
-    private void validateFields(ModelDTO modelDTOFromRequest) {
+    private void validateFields(ContentModelDTO modelDTOFromRequest) {
         modelDTOFromRequest.schemas().forEach((schemaName, schema) -> {
             if (schema.fields() != null) {
                 schema.fields().forEach((fieldName, field) -> checkValue(field, fieldName, schemaName));
@@ -244,11 +251,55 @@ public class ModelValidator {
 
     private void checkValue(FieldDTO field, String fieldName, String formRequestFieldType) {
         if (field.defaultValue() != null) {
-            if (DateType.ID.equals(field.extend())) {
+            if (DateType.ID.equals(field.typeRef())) {
                 validateFieldForDate(field.defaultValue(), fieldName, formRequestFieldType);
-            } else if (BooleanType.ID.equals(field.extend())) {
+            } else if (BooleanType.ID.equals(field.typeRef())) {
                 validateFieldForBool(field.defaultValue(), fieldName, formRequestFieldType);
             }
+        }
+        validateConstraintBounds(field.constraints(), fieldName, formRequestFieldType);
+        // a complex field carries nested fields, and a list field the type of its items; both hold defaults and
+        // constraints of their own, and are reported by the path that leads to them
+        if (field.fields() != null) {
+            field.fields()
+                 .forEach((nestedName, nested) -> checkValue(nested, fieldName + PATH_DELIMITER + nestedName,
+                         formRequestFieldType));
+        }
+        if (field.list() != null) {
+            checkValue(field.list(), fieldName + PATH_DELIMITER + LIST, formRequestFieldType);
+        }
+    }
+
+    /**
+     * Checks that the interval bounds of a constraint can be read back by the constraint layer.
+     * <p>
+     * A bound it cannot convert is dropped, and a missing bound means "unbounded": the constraint would then silently
+     * not apply at all, leaving the caller believing a rule is in place when it is not. Report it as a violation
+     * instead. The conversions of {@link ConstraintUtils} are used as the oracle, so a bound is only rejected when it
+     * would really produce no constraint.
+     * <p>
+     * Length bounds are not checked here: a length is held as a {@link Long} and so a non-integer value cannot survive
+     * deserialization to reach this point, which is why {@code minLength}/{@code maxLength} are validated by
+     * {@link org.nuxeo.ecm.core.schema.dto.ModelMapCodec} as the model is read instead.
+     */
+    private void validateConstraintBounds(ConstraintsDTO constraints, String fieldName, String formRequestFieldType) {
+        if (constraints == null) {
+            return;
+        }
+        validateIntervalBound(constraints.minInclusive(), MIN_INCLUSIVE, fieldName, formRequestFieldType);
+        validateIntervalBound(constraints.minExclusive(), MIN_EXCLUSIVE, fieldName, formRequestFieldType);
+        validateIntervalBound(constraints.maxInclusive(), MAX_INCLUSIVE, fieldName, formRequestFieldType);
+        validateIntervalBound(constraints.maxExclusive(), MAX_EXCLUSIVE, fieldName, formRequestFieldType);
+    }
+
+    /** An interval bound must be a number or an ISO 8601 date, the two forms the interval constraints can read. */
+    private void validateIntervalBound(Object bound, String boundName, String fieldName, String formRequestFieldType) {
+        if (bound != null && ConstraintUtils.objectToBigDecimal(bound) == null
+                && ConstraintUtils.objectToTimeMillis(bound) == null) {
+            violations.add(new ModelDTOViolation(
+                    "The %s value %s cannot be added to the field %s from schema %s as it is neither a number nor a valid ISO 8601 format [yyyy-MM-dd[THH:mm:ss[.SSS][+tz]]]".formatted(
+                            boundName, bound, fieldName, formRequestFieldType),
+                    fieldName));
         }
     }
 
@@ -256,7 +307,7 @@ public class ModelValidator {
      *
      * @param defaultValueOfDate default value of content model datetype
      * @param fieldName field name of content model
-     * @param formRequestFieldType ModelDTO node content model
+     * @param formRequestFieldType ContentModelDTO node content model
      */
     private void validateFieldForDate(String defaultValueOfDate, String fieldName, String formRequestFieldType) {
         try {
@@ -275,7 +326,7 @@ public class ModelValidator {
      *
      * @param defaultValueOfBool default value of content model boolean type
      * @param fieldName field name of content model
-     * @param formRequestFieldType ModelDTO node type name content model
+     * @param formRequestFieldType ContentModelDTO node type name content model
      */
     private void validateFieldForBool(String defaultValueOfBool, String fieldName, String formRequestFieldType) {
         if (!(defaultValueOfBool.equalsIgnoreCase("true") || defaultValueOfBool.equalsIgnoreCase("false"))) {
@@ -292,11 +343,11 @@ public class ModelValidator {
      * @param modelDTOFromRequest DTO instance prepared from the request
      */
 
-    private void validatePrimaryTypesHaveSystemSchema(SchemaManager schemaManager, ModelDTO modelDTOFromRequest) {
+    private void validatePrimaryTypesHaveSystemSchema(SchemaManager schemaManager, ContentModelDTO modelDTOFromRequest) {
         new SystemSchemaValidator(schemaManager, modelDTOFromRequest).validate();
     }
 
-    private void validatePrimaryTypesHaveSystemSchema(ModelDTO modelDTOFromRequest) {
+    private void validatePrimaryTypesHaveSystemSchema(ContentModelDTO modelDTOFromRequest) {
         new SystemSchemaValidator(modelDTOFromRequest).validate();
     }
 
@@ -304,7 +355,7 @@ public class ModelValidator {
 
         private final Logger logger = LoggerFactory.getLogger(SystemSchemaValidator.class);
 
-        private final ModelDTO modelDTO;
+        private final ContentModelDTO modelDTO;
 
         private final SchemaManager schemaManager;
 
@@ -314,12 +365,12 @@ public class ModelValidator {
 
         private final Set<String> typesDone = new HashSet<>();
 
-        public SystemSchemaValidator(SchemaManager schemaManager, ModelDTO modelDTO) {
+        public SystemSchemaValidator(SchemaManager schemaManager, ContentModelDTO modelDTO) {
             this.schemaManager = schemaManager;
             this.modelDTO = modelDTO;
         }
 
-        public SystemSchemaValidator( ModelDTO modelDTO) {
+        public SystemSchemaValidator( ContentModelDTO modelDTO) {
             this.modelDTO = modelDTO;
             this.schemaManager = null;
         }
@@ -330,7 +381,7 @@ public class ModelValidator {
             modelDTO.primaryTypes().keySet().forEach(name -> {
                 Set<String> schemas = primaryTypesSchemas.getOrDefault(name, new HashSet<>());
                 if (!name.equals(SYS_CONTENT) && !schemas.contains(SYSTEM)) {
-                    logger.error("payload responsible for validation error for primaryType without system schema is.....{}, \n\n\n and primaryType name is...{}", modelDTO.toMap(), name);
+                    logger.error("payload responsible for validation error for primaryType without system schema is.....{}, \n\n\n and primaryType name is...{}", modelDTO, name);
                     violations.add(new ModelDTOViolation(
                             "The system schema must be present in the following content type %s".formatted(name),
                             name));

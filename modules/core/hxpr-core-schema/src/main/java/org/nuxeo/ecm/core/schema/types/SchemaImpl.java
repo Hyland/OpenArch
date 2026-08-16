@@ -15,11 +15,9 @@
  */
 package org.nuxeo.ecm.core.schema.types;
 
-import static java.lang.Boolean.TRUE;
-
-import java.util.Map;
-
 import org.nuxeo.ecm.core.schema.SchemaManager;
+import org.nuxeo.ecm.core.schema.dto.SchemaDTO;
+import org.nuxeo.ecm.core.schema.dto.TypeDTO;
 
 /**
  * The implementation of a Schema
@@ -41,19 +39,13 @@ public class SchemaImpl extends ComplexTypeImpl implements Schema {
     }
 
     @Override
-    public Map<String, Object> toSchemaDTO(SchemaManager schemaManager) {
-        Map<String, Object> map = super.toTypeDTO(schemaManager);
-        if (isVersionWritabe) {
-            map.put("versionWritable", TRUE);
-        }
-        if (projectId != null) {
-            map.put("projectId", projectId);
-        }
-        return map;
+    public SchemaDTO toSchemaDTO(SchemaManager schemaManager) {
+        return new SchemaDTO(projectId, toFieldsDTO(schemaManager), isVersionWritabe,
+                prefix.isEmpty() ? null : prefix);
     }
 
     @Override
-    public Map<String, Object> toTypeDTO(SchemaManager schemaManager) {
+    public TypeDTO toTypeDTO(SchemaManager schemaManager) {
         throw new UnsupportedOperationException(getClass().getName());
     }
 

@@ -20,13 +20,12 @@ import static java.util.stream.Collectors.toSet;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.nuxeo.ecm.core.schema.SchemaManager;
+import org.nuxeo.ecm.core.schema.dto.TypeDTO;
 import org.nuxeo.ecm.core.schema.types.constraints.Constraint;
 import org.nuxeo.ecm.core.schema.types.constraints.TypeConstraint;
 
@@ -72,15 +71,8 @@ public class ListTypeImpl extends AbstractType implements ListType {
     }
 
     @Override
-    public Map<String, Object> toTypeDTO(SchemaManager schemaManager) {
-        Object listTypeDTO = field.toFieldDtoOrReference(schemaManager);
-
-        Map<String, Object> dto = new LinkedHashMap<>();
-        dto.put("list", listTypeDTO);
-        if (projectId != null) {
-            dto.put("projectId", projectId);
-        }
-        return dto;
+    public TypeDTO toTypeDTO(SchemaManager schemaManager) {
+        return new TypeDTO(projectId, null, null, field.toFieldDTO(schemaManager), null);
     }
 
     @Override

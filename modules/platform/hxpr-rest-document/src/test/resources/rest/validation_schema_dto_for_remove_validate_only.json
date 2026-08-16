@@ -222,7 +222,7 @@
                     }
                 }
             },
-            "message": "The value \"'{'fields='{'filename='{'type=string'}', digest='{'type=string'}', length='{'type=long'}', mimeType='{'type=string'}', encoding='{'type=string'}', key='{'type=binary'}''}''}'\" already exists at \"types/blob\" and cannot be removed.",
+            "message": "The value \"'{'fields='{'digest='{'type=string'}', encoding='{'type=string'}', filename='{'type=string'}', key='{'type=binary'}', length='{'type=long'}', mimeType='{'type=string'}''}''}'\" already exists at \"types/blob\" and cannot be removed.",
             "messageKey": "label.schema.application.violation.AlreadyExistsViolation.removed",
             "parameters": [
                 {

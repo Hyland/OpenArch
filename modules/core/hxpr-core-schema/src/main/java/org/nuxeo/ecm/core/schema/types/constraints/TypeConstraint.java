@@ -92,7 +92,7 @@ public class TypeConstraint extends AbstractConstraint {
     }
 
     @Override
-    public Map<String, Object> toDTO() {
+    public Map<String, Object> toMap() {
         return Map.of();
     }
 

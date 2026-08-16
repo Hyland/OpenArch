@@ -15,12 +15,9 @@
  */
 package org.nuxeo.ecm.core.schema.types;
 
-import static org.nuxeo.common.function.FunctionUtils.sortByKeyAndMapValue;
-
-import java.util.Map;
-import java.util.Map.Entry;
-
 import org.nuxeo.ecm.core.schema.SchemaManager;
+import org.nuxeo.ecm.core.schema.dto.ConstraintsDTO;
+import org.nuxeo.ecm.core.schema.dto.TypeDTO;
 import org.nuxeo.ecm.core.schema.types.resolver.ObjectResolver;
 
 /**
@@ -42,23 +39,12 @@ public class SimpleTypeImpl extends AbstractType implements SimpleType {
     }
 
     @Override
-    public Map<String, Object> toTypeDTO(SchemaManager schemaManager) {
-        Map<String, Object> dto = superType.toTypeDTO(schemaManager);
-        Map<String, Object> cdto = super.toTypeDTO(schemaManager);
-        @SuppressWarnings("unchecked")
-        Map<String, Object> superConstraints = (Map<String, Object>) dto.get("constraints");
-        @SuppressWarnings("unchecked")
-        Map<String, Object> thisConstraints = (Map<String, Object>) cdto.get("constraints");
-
-        if (superConstraints != null) {
-            if (thisConstraints != null) {
-                superConstraints.putAll(thisConstraints);
-            }
-            dto.put("constraints", sortByKeyAndMapValue(superConstraints, Entry::getValue));
-        } else if (thisConstraints != null) {
-            dto.put("constraints", thisConstraints);
-        }
-        return dto;
+    public TypeDTO toTypeDTO(SchemaManager schemaManager) {
+        // the supertype chain supplies "extends" and any inherited constraints
+        TypeDTO superDTO = superType.toTypeDTO(schemaManager);
+        ConstraintsDTO constraints = ConstraintsDTO.merge(superDTO.constraints(),
+                super.toTypeDTO(schemaManager).constraints());
+        return new TypeDTO(projectId, null, constraints, null, superDTO.extend());
     }
 
     @Override
