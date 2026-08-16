@@ -15,10 +15,13 @@
  */
 package org.nuxeo.ecm.core.blob;
 
+import java.time.Duration;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.blob.binary.BinaryGarbageCollector;
 import org.nuxeo.ecm.core.blob.binary.BinaryManagerStatus;
@@ -27,6 +30,8 @@ import org.nuxeo.ecm.core.blob.binary.BinaryManagerStatus;
  * Basic implementation for a garbage collector recording, in memory, the candidate keys and the keys marked in use.
  */
 public abstract class AbstractBlobGarbageCollector implements BinaryGarbageCollector {
+
+    private static final Logger log = LogManager.getLogger(AbstractBlobGarbageCollector.class);
 
     // volatile as this is designed to be called from another thread
     protected volatile long startTime;
@@ -54,7 +59,8 @@ public abstract class AbstractBlobGarbageCollector implements BinaryGarbageColle
         if (startTime != 0) {
             throw new GCAlreadyStartedException("Already started");
         }
-        startTime = System.currentTimeMillis();
+        log.info("Starting blob GC for {}", getId());
+        startTime = System.nanoTime();
         status = new BinaryManagerStatus();
         // allocate the thread-safe marked set before computeToDelete(), so that blobs written concurrently during the
         // traversal are recorded as in use even before their key is added as a candidate
@@ -73,6 +79,7 @@ public abstract class AbstractBlobGarbageCollector implements BinaryGarbageColle
         if (startTime == 0) {
             throw new NuxeoException("Not started");
         }
+        log.info("Stopping blob GC for {} ...", getId());
         try {
             // delete the candidate blobs that were not marked as in use, and update the status
             Set<String> marked = this.marked;
@@ -91,10 +98,14 @@ public abstract class AbstractBlobGarbageCollector implements BinaryGarbageColle
                 status.setSizeBinaries(status.getSizeBinaries() - length);
                 status.setNumBinaries(status.getNumBinaries() - 1);
             }
+            status.setDuration(Duration.ofNanos(System.nanoTime() - startTime));
+            log.info("Completed blob GC for {}: {}", getId(), status);
+        } catch (RuntimeException e) {
+            log.error("Failed blob GC for {}", getId(), e);
+            throw e;
         } finally {
             marked = null;
             toDelete = null;
-            status.setGcDuration(System.currentTimeMillis() - startTime);
             startTime = 0;
         }
     }

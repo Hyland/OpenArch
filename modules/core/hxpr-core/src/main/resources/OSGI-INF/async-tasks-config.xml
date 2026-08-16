@@ -6,6 +6,7 @@
     <asyncTask name="computeDigest" class="org.nuxeo.ecm.core.async.tasks.ComputeDigestTaskProcessor"/>
     <asyncTask name="updateAceStatus" class="org.nuxeo.ecm.core.async.tasks.UpdateACEStatusTaskProcessor"/>
     <asyncTask name="cleanupOrphans" class="org.nuxeo.ecm.core.async.tasks.CleanupOrphansTaskProcessor"/>
+    <asyncTask name="blobGarbageCollector" class="org.nuxeo.ecm.core.blob.BlobGarbageCollectorTaskProcessor"/>
   </extension>
 
 </component>

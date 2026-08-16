@@ -22,6 +22,7 @@
     <asyncTask name="transientStorageGC" enabled="false"/>
     <asyncTask name="listener" enabled="false"/>
     <asyncTask name="cleanupOrphans" enabled="false"/>
+    <asyncTask name="blobGarbageCollector" enabled="false"/>
   </extension>
 
 </component>

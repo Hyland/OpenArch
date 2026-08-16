@@ -15,12 +15,14 @@
  */
 package org.nuxeo.ecm.core.blob.binary;
 
+import java.time.Duration;
+
 /**
  * Status of a BinaryManager, including files that may have just been deleted by GC
  */
 public class BinaryManagerStatus {
 
-    private long gcDuration;
+    private Duration duration;
 
     private long numBinaries;
 
@@ -31,14 +33,14 @@ public class BinaryManagerStatus {
     private long sizeBinariesGC;
 
     /**
-     * The GC duration, in milliseconds
+     * The GC duration.
      */
-    public long getGCDuration() {
-        return gcDuration;
+    public Duration getDuration() {
+        return duration;
     }
 
-    public void setGcDuration(long gcDuration) {
-        this.gcDuration = gcDuration;
+    public void setDuration(Duration duration) {
+        this.duration = duration;
     }
 
     /**
@@ -88,7 +90,7 @@ public class BinaryManagerStatus {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("BinaryManagerStatus [gcDuration=").append(gcDuration) //
+        builder.append("BinaryManagerStatus[duration=").append(duration) //
         .append(", numBinaries=").append(numBinaries) //
         .append(", sizeBinaries=").append(sizeBinaries) //
         .append(", numBinariesGC=").append(numBinariesGC) //

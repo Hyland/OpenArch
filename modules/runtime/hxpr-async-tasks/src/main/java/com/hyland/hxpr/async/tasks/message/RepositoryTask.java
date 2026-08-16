@@ -30,4 +30,14 @@ public class RepositoryTask extends AbstractTask {
         this.timestamp = null;
     }
 
+    // copy of BlobGarbageCollectorTaskProcessor.BLOB_GC_TASK_NAME
+    private static final String BLOB_GC_TASK_NAME = "blobGarbageCollector";
+
+    @Override
+    public boolean requiresRunningGuard() {
+        // easier than having a separate variant of RepositoryTask just to override this
+        // blob GC is long-running so requires a guard
+        return BLOB_GC_TASK_NAME.equals(taskName);
+    }
+
 }

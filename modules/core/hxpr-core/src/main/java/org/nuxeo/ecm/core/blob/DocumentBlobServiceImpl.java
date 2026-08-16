@@ -20,6 +20,7 @@ import static org.nuxeo.ecm.core.api.DocumentConstants.SYSFILE_BLOB;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.LinkedList;
 import java.util.List;
@@ -338,7 +339,7 @@ public class DocumentBlobServiceImpl extends DefaultComponent implements Documen
             Set<String> ids = gcs.stream().map(BinaryGarbageCollector::getId).collect(toSet());
             boolean sharedStorage = ids.size() < gcs.size();
             // start gc
-            long start = System.currentTimeMillis();
+            long start = System.nanoTime();
             for (BinaryGarbageCollector gc : gcs) {
                 gc.start();
             }
@@ -372,12 +373,12 @@ public class DocumentBlobServiceImpl extends DefaultComponent implements Documen
             for (BinaryGarbageCollector gc : gcs) {
                 gc.stop(delete);
                 BinaryManagerStatus status = gc.getStatus();
-                globalStatus.setNumBinaries(status.getNumBinaries() + status.getNumBinaries());
-                globalStatus.setSizeBinaries(status.getSizeBinaries() + status.getSizeBinaries());
-                globalStatus.setNumBinariesGC(status.getNumBinariesGC() + status.getNumBinariesGC());
-                globalStatus.setSizeBinariesGC(status.getSizeBinariesGC() + status.getSizeBinariesGC());
+                globalStatus.setNumBinaries(globalStatus.getNumBinaries() + status.getNumBinaries());
+                globalStatus.setSizeBinaries(globalStatus.getSizeBinaries() + status.getSizeBinaries());
+                globalStatus.setNumBinariesGC(globalStatus.getNumBinariesGC() + status.getNumBinariesGC());
+                globalStatus.setSizeBinariesGC(globalStatus.getSizeBinariesGC() + status.getSizeBinariesGC());
             }
-            globalStatus.setGcDuration(System.currentTimeMillis() - start);
+            globalStatus.setDuration(Duration.ofNanos(System.nanoTime() - start));
             return globalStatus;
         }, BINARY_GC_TX_TIMEOUT_SEC);
     }

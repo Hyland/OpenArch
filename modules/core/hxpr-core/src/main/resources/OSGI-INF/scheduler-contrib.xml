@@ -11,6 +11,12 @@
       <cronExpression>${hxpr.ace.scheduler.cron:=0 0/5 * * * ?}</cronExpression>
     </schedule>
 
+    <schedule id="blobGarbageCollectorScheduler">
+      <class>org.nuxeo.ecm.core.blob.BlobGarbageCollectorScheduledJob</class>
+      <!-- every day at 02:00; overridable per environment -->
+      <cronExpression>${hxpr.blob.gc.scheduler.cron:=0 0 2 * * ?}</cronExpression>
+    </schedule>
+
   </extension>
 
 </component>
