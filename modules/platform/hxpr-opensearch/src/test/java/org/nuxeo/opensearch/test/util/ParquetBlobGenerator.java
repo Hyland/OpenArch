@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
@@ -76,6 +77,22 @@ public class ParquetBlobGenerator {
 
     private static final Schema EMBEDDING_SCHEMA;
 
+    /**
+     * Minimal Avro schema for the {@code sysemb_chunks} parquet: only {@code id} and {@code text}, keyed by
+     * embedding id.
+     */
+    private static final Schema CHUNK_TEXT_SCHEMA = new Schema.Parser().parse("""
+            {
+              "type": "record",
+              "name": "Chunk",
+              "namespace": "com.hyland.hxpr.embeddings.avro",
+              "fields": [
+                { "name": "id", "type": "string" },
+                { "name": "text", "type": ["null", "string"], "default": null }
+              ]
+            }
+            """);
+
     public static final String PARQUET_FILE_EXTENSION = ".parquet";
 
     public static final String PARQUET_FILE_MIME_TYPE = "application/x-parquet";
@@ -105,6 +122,31 @@ public class ParquetBlobGenerator {
         return generate(count, type, false);
     }
 
+    /**
+     * Creates the backing blob for a generated parquet. Uses {@link Blobs#createBlobWithExtension} by default so
+     * tests running under the Nuxeo runtime get file tracking; subclasses may override to create a plain
+     * {@link org.nuxeo.ecm.core.api.impl.blob.FileBlob} when the runtime isn't available.
+     */
+    protected Blob newParquetBlob() throws IOException {
+        Blob blob = Blobs.createBlobWithExtension(PARQUET_FILE_EXTENSION);
+        blob.setMimeType(PARQUET_FILE_MIME_TYPE);
+        return blob;
+    }
+
+    /**
+     * Exposes the loaded embedding Avro schema for subclasses that write parquet directly.
+     */
+    protected static Schema embeddingSchema() {
+        return EMBEDDING_SCHEMA;
+    }
+
+    /**
+     * Exposes the chunk-text Avro schema for subclasses that write parquet directly.
+     */
+    protected static Schema chunkTextSchema() {
+        return CHUNK_TEXT_SCHEMA;
+    }
+
     public String getRawEmbeddingIdForIndex(int index) {
         return EMBEDDING_ID_PREFIX + index;
     }
@@ -113,8 +155,7 @@ public class ParquetBlobGenerator {
      * Generates a Parquet blob with one embedding having the given id and type and an optional blob reference value.
      */
     public Blob generateOneEmbedding(String embeddingRawId, String type, boolean withBlobRef) throws IOException {
-        Blob blob = Blobs.createBlobWithExtension(PARQUET_FILE_EXTENSION);
-        blob.setMimeType(PARQUET_FILE_MIME_TYPE);
+        Blob blob = newParquetBlob();
 
         try (var writer = AvroParquetWriter.<GenericRecord> builder(new LocalOutputFile(blob.getFile().toPath()))
                                            .withSchema(EMBEDDING_SCHEMA)
@@ -132,7 +173,7 @@ public class ParquetBlobGenerator {
      * Generates a Parquet blob with test embeddings and an optional blob reference value.
      */
     public Blob generate(int count, String type, boolean withBlobRef) throws IOException {
-        Blob blob = Blobs.createBlobWithExtension(PARQUET_FILE_EXTENSION);
+        Blob blob = newParquetBlob();
 
         try (var writer = AvroParquetWriter.<GenericRecord> builder(new LocalOutputFile(blob.getFile().toPath()))
                                            .withSchema(EMBEDDING_SCHEMA)
@@ -146,7 +187,6 @@ public class ParquetBlobGenerator {
             }
         }
 
-        blob.setMimeType(PARQUET_FILE_MIME_TYPE);
         return blob;
     }
 
@@ -163,8 +203,7 @@ public class ParquetBlobGenerator {
      */
     public Blob generateVariantUpdate(EmbeddingVariant variant, int count, String embeddingsType, boolean withBlobRef)
             throws IOException {
-        Blob blob = Blobs.createBlobWithExtension(PARQUET_FILE_EXTENSION);
-        blob.setMimeType(PARQUET_FILE_MIME_TYPE);
+        Blob blob = newParquetBlob();
 
         try (var writer = AvroParquetWriter.<GenericRecord> builder(new LocalOutputFile(blob.getFile().toPath()))
                                            .withSchema(EMBEDDING_SCHEMA)
@@ -247,6 +286,87 @@ public class ParquetBlobGenerator {
     }
 
     /**
+     * Generates an embeddings parquet with the two-file shape: no {@code text} column. Same ids as
+     * {@link #generate(int, String)} so it can be joined against {@link #generateChunkTexts(int, java.util.function.IntFunction)}.
+     */
+    public Blob generateWithoutText(int count, String type) throws IOException {
+        Schema noTextSchema = buildEmbeddingSchemaWithoutText();
+        Blob blob = newParquetBlob();
+        try (var writer = AvroParquetWriter.<GenericRecord> builder(new LocalOutputFile(blob.getFile().toPath()))
+                                           .withSchema(noTextSchema)
+                                           .withWriteMode(ParquetFileWriter.Mode.OVERWRITE)
+                                           .build()) {
+            for (int i = 0; i < count; i++) {
+                GenericRecord rec = new GenericData.Record(noTextSchema);
+                String rawId = getRawEmbeddingIdForIndex(i + 1);
+                rec.put(EMBEDDING_FIELD_ID, rawId);
+                rec.put(EMBEDDING_FIELD_TYPE, type);
+                List<Double> vector = new ArrayList<>();
+                for (int j = 0; j < 4; j++) vector.add(0.1 * (i + 1) + 0.01 * j);
+                rec.put(EMBEDDING_FIELD_VECTOR, vector);
+                rec.put(EMBEDDING_FIELD_LOCATION, createLocationRecord(i));
+                writer.write(rec);
+            }
+        }
+        return blob;
+    }
+
+    private Schema buildEmbeddingSchemaWithoutText() {
+        List<Schema.Field> kept = new ArrayList<>();
+        for (Schema.Field f : EMBEDDING_SCHEMA.getFields()) {
+            if (EMBEDDING_FIELD_TEXT.equals(f.name())) continue;
+            Schema.Field copy = new Schema.Field(f.name(), f.schema(), f.doc(), f.defaultVal());
+            kept.add(copy);
+        }
+        return Schema.createRecord(EMBEDDING_SCHEMA.getName() + "NoText", EMBEDDING_SCHEMA.getDoc(),
+                EMBEDDING_SCHEMA.getNamespace(), false, kept);
+    }
+
+    /**
+     * Generates a chunk-text parquet blob ({@code sysemb_chunks} shape) whose rows carry only {@code id} and
+     * {@code text}. Ids match the raw ids used by {@link #generate(int, String)} so the two blobs can be joined
+     * by the parser.
+     *
+     * @param count number of chunk rows
+     * @param textForIndex function that produces the text to write for a given zero-based index
+     */
+    public Blob generateChunkTexts(int count, java.util.function.IntFunction<String> textForIndex) throws IOException {
+        Blob blob = newParquetBlob();
+        try (var writer = AvroParquetWriter.<GenericRecord> builder(new LocalOutputFile(blob.getFile().toPath()))
+                                           .withSchema(CHUNK_TEXT_SCHEMA)
+                                           .withWriteMode(ParquetFileWriter.Mode.OVERWRITE)
+                                           .build()) {
+            for (int i = 0; i < count; i++) {
+                GenericRecord rec = new GenericData.Record(CHUNK_TEXT_SCHEMA);
+                rec.put(EMBEDDING_FIELD_ID, getRawEmbeddingIdForIndex(i + 1));
+                rec.put(EMBEDDING_FIELD_TEXT, textForIndex.apply(i));
+                writer.write(rec);
+            }
+        }
+        return blob;
+    }
+
+    /**
+     * Generates a chunk-text parquet from an explicit {@code rawId -> text} map. Use when a test wants to
+     * exercise partial coverage (some ids from the embeddings blob missing from the chunks blob).
+     */
+    public Blob generateChunkTextsFromMap(Map<String, String> rawIdToText) throws IOException {
+        Blob blob = newParquetBlob();
+        try (var writer = AvroParquetWriter.<GenericRecord> builder(new LocalOutputFile(blob.getFile().toPath()))
+                                           .withSchema(CHUNK_TEXT_SCHEMA)
+                                           .withWriteMode(ParquetFileWriter.Mode.OVERWRITE)
+                                           .build()) {
+            for (Map.Entry<String, String> e : rawIdToText.entrySet()) {
+                GenericRecord rec = new GenericData.Record(CHUNK_TEXT_SCHEMA);
+                rec.put(EMBEDDING_FIELD_ID, e.getKey());
+                rec.put(EMBEDDING_FIELD_TEXT, e.getValue());
+                writer.write(rec);
+            }
+        }
+        return blob;
+    }
+
+    /**
      * Generates a Parquet blob from a list of EmbeddingModel.
      *
      * @param embeddings the list of embeddings to convert to Parquet format
@@ -257,8 +377,7 @@ public class ParquetBlobGenerator {
         if (embeddings == null || embeddings.isEmpty()) {
             throw new IllegalArgumentException("Embeddings list cannot be null or empty");
         }
-        Blob blob = Blobs.createBlobWithExtension(PARQUET_FILE_EXTENSION);
-        blob.setMimeType(PARQUET_FILE_MIME_TYPE);
+        Blob blob = newParquetBlob();
 
         try (var writer = AvroParquetWriter.<GenericRecord> builder(new LocalOutputFile(blob.getFile().toPath()))
                                            .withSchema(EMBEDDING_SCHEMA)

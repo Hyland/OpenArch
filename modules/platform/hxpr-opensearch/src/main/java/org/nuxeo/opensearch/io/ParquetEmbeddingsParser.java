@@ -82,10 +82,52 @@ public class ParquetEmbeddingsParser implements EmbeddingsParser {
         return embeddings;
     }
 
+    @Override
+    public Map<String, String> parseChunkTexts(Blob chunksBlob, String embeddingsType) {
+        if (chunksBlob == null) {
+            return Map.of();
+        }
+        long len = chunksBlob.getLength();
+        if (len == 0) {
+            log.debug("parseChunkTexts skip: empty blob length=0 (type={})", embeddingsType);
+            return Map.of();
+        }
+        Map<String, String> chunks = new HashMap<>();
+        try (CloseableFile closeableFile = chunksBlob.getCloseableFile()) {
+            var inputFile = new LocalInputFile(closeableFile.getFile().toPath());
+            try (var reader = AvroParquetReader.<GenericRecord> builder(inputFile).build()) {
+                GenericRecord first = reader.read();
+                if (first == null) {
+                    return Map.of();
+                }
+                if (first.getSchema().getField(FIELD_ID) == null || first.getSchema().getField(FIELD_TEXT) == null) {
+                    log.debug("parseChunkTexts skip: id/text field missing from schema (type={})", embeddingsType);
+                    return Map.of();
+                }
+                for (GenericRecord rec = first; rec != null; rec = reader.read()) {
+                    String id = toScopedId(rec.get(FIELD_ID), embeddingsType);
+                    String text = toNullableString(rec.get(FIELD_TEXT));
+                    chunks.put(id, text);
+                }
+            }
+        } catch (IOException | RuntimeException e) {
+            // Impact: with the chunks blob present but unreadable, the two-blob parse will overlay an empty map
+            // and every embedding for this document ends up with null text. Elevated to error so ops sees it.
+            log.error("parseChunkTexts failure - indexed text will be null for all rows (type={} mimeType={} length={})",
+                    embeddingsType, chunksBlob.getMimeType(), len, e);
+            return Map.of();
+        }
+        return chunks;
+    }
+
     protected EmbeddingModel toEmbeddingModel(GenericRecord emb, String repositoryName, String parentDocId,
             String embeddingsType) {
         String id = toScopedId(emb.get(FIELD_ID), embeddingsType);
-        String text = toNullableString(emb.get(FIELD_TEXT));
+        // Gate on schema presence: Avro throws if the field isn't declared, and the two-file shape omits it.
+        String text = null;
+        if (emb.getSchema().getField(FIELD_TEXT) != null) {
+            text = toNullableString(emb.get(FIELD_TEXT));
+        }
         List<Double> vector = toVector(emb.get(FIELD_VECTOR));
         LocationModel location = toLocation(emb.get(FIELD_LOCATION));
         String blobRef = null;

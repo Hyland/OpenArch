@@ -15,7 +15,10 @@
  */
 package org.nuxeo.opensearch.io;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.model.EmbeddingModel;
@@ -25,17 +28,13 @@ import org.nuxeo.ecm.core.model.EmbeddingModel;
  * <p>
  * A single implementation can be contributed through the <code>embeddingsParser</code> extension point.
  * If none is contributed or the contributed implementation is disabled / fails to instantiate, the
- * runtime will transparently fall back to {@link #DEFAULT}.
- * </p>
- * <p>
- * The {@link #newParser()} implementation simply returns an empty collection (no embeddings extracted) and is
- * used as a fallback if no parser is contributed.
+ * runtime will transparently fall back to {@link #newParser()}.
  * </p>
  */
 public interface EmbeddingsParser {
 
     /**
-     * Provides the default parser instance (returns an empty collection).
+     * Provides the default parser instance.
      */
     static EmbeddingsParser newParser() {
         return new ParquetEmbeddingsParser();
@@ -51,5 +50,40 @@ public interface EmbeddingsParser {
      * @return a collection of parsed embeddings (never {@code null}); empty for {@link #newParser()}
      */
     Collection<EmbeddingModel> parse(Blob blob, String repositoryName, String parentDocId, String embeddingsType);
+
+    /**
+     * Parses the embeddings blob, and when a chunks blob is also provided, overlays its text onto the parsed
+     * records by joining on embedding id.
+     * <p>
+     * When {@code chunksBlob} is null the text in the embeddings blob is used. When it is non-null but the
+     * parser doesn't recognise its format (default {@link #parseChunkTexts} returns empty), text is cleared
+     * rather than falling back to the embeddings blob - a caller that supplied a chunks blob has declared
+     * that shape, and fabricating text from the other side would mask a delivery bug. Implementations that
+     * carry more than {@code {id, text}} in the chunks blob should override {@link #parseChunkTexts}.
+     * </p>
+     */
+    default Collection<EmbeddingModel> parse(Blob embeddingsBlob, Blob chunksBlob, String repositoryName,
+            String parentDocId, String embeddingsType) {
+        Collection<EmbeddingModel> parsed = parse(embeddingsBlob, repositoryName, parentDocId, embeddingsType);
+        if (chunksBlob == null) {
+            return parsed;
+        }
+        Map<String, String> chunkTexts = parseChunkTexts(chunksBlob, embeddingsType);
+        List<EmbeddingModel> merged = new ArrayList<>(parsed.size());
+        for (EmbeddingModel m : parsed) {
+            merged.add(new EmbeddingModel(m.id(), m.repository(), m.docId(), m.type(), m.vector(),
+                    chunkTexts.get(m.id()), m.location(), m.blobRef()));
+        }
+        return merged;
+    }
+
+    /**
+     * Extracts an id -> chunk text map from a chunk-text blob. Returns an empty map when the blob is null,
+     * empty, or in an unrecognised format. Keys must match the ids produced by
+     * {@link #parse(Blob, String, String, String)} so callers can join without further conversion.
+     */
+    default Map<String, String> parseChunkTexts(Blob chunksBlob, String embeddingsType) {
+        return Map.of();
+    }
 
 }

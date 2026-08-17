@@ -333,14 +333,17 @@ public class EmbeddingsIndexer {
         }
 
         try {
-            Blob blob = (Blob) ctx.embeddingsDoc().getPropertyValue(DocumentConstants.SYSEMB_EMBEDDINGS);
-            if (blob == null) {
+            Blob embeddingsBlob = (Blob) ctx.embeddingsDoc().getPropertyValue(DocumentConstants.SYSEMB_EMBEDDINGS);
+            if (embeddingsBlob == null) {
                 log.debug("Null blob for command {}, will delete {} embeddings", cmd.getId(), ctx.existingIds().size());
                 return List.of();
             }
-            log.debug("Parsing embeddings blob (length={}) for command {} (type={} parentId={})", blob.getLength(), cmd.getId(), ctx.embeddingsType(), ctx.parentDoc().getId());
-            Collection<EmbeddingModel> parsed = embeddingsParser
-                          .parse(blob, cmd.getRepositoryName(), ctx.parentDoc().getId(), ctx.embeddingsType());
+            Blob chunksBlob = (Blob) ctx.embeddingsDoc().getPropertyValue(DocumentConstants.SYSEMB_CHUNKS);
+            log.debug("Parsing embeddings blob (length={}, chunksBlob={}) for command {} (type={} parentId={})",
+                    embeddingsBlob.getLength(), chunksBlob == null ? "absent" : "present (length=" + chunksBlob.getLength() + ")",
+                    cmd.getId(), ctx.embeddingsType(), ctx.parentDoc().getId());
+            Collection<EmbeddingModel> parsed = embeddingsParser.parse(embeddingsBlob, chunksBlob,
+                    cmd.getRepositoryName(), ctx.parentDoc().getId(), ctx.embeddingsType());
             log.debug("Parser returned {} embeddings for command {}", parsed.size(), cmd.getId());
             return parsed;
         } catch (RuntimeException e) {

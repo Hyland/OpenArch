@@ -21,8 +21,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_CHUNKS;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_EMBEDDINGS;
 import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_BLOB_REF;
+import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_TEXT;
 import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_TYPE;
 import static org.nuxeo.opensearch.OpenSearchConstants.INDEX_BULK_MAX_SIZE_PROPERTY;
 
@@ -585,6 +587,157 @@ class TestEmbeddingsIndexing {
         assertEmbeddingsDocCount(movedParent, EMB_CHILD_COUNT);
         assertEmbeddingsCount(movedParent, EMB_CHILD_COUNT);
         assertParentPathInIndex(movedParent.getId(), newPath);
+    }
+
+    /**
+     * Two-file shape: when {@code sysemb_chunks} is set on the SysEmbeddings child, the chunk text used for
+     * indexing comes from that blob rather than the {@code text} column of {@code sysemb_embeddings}. Joined
+     * by embedding id.
+     */
+    @Test
+    void testChunkTextComesFromChunksBlobWhenSet() throws Exception {
+        DocumentModel parent = createParent("parentDoc");
+        String childSuffix = "chunks_child";
+        String embType = SysEmbeddingsPolicies.getEmbeddingsTypeFromName(
+                SysEmbeddingsPolicies.ensureEmbeddingsNamePrefix(childSuffix));
+        int count = 5;
+
+        Blob embeddingsBlob = new ParquetBlobGenerator().generate(count, embType);
+        Blob chunksBlob = new ParquetBlobGenerator().generateChunkTexts(count, i -> "chunk-text-" + (i + 1));
+
+        DocumentModel emb = session.createDocumentModel(parent.getPathAsString(),
+                SysEmbeddingsPolicies.ensureEmbeddingsNamePrefix(childSuffix), TypeConstants.SYS_EMBEDDINGS);
+        emb.setPropertyValue(SYSEMB_EMBEDDINGS, embeddingsBlob);
+        emb.setPropertyValue(SYSEMB_CHUNKS, chunksBlob);
+        emb.create();
+        session.save();
+
+        saveAndAssertForEmbeddingsIndexCommands(1);
+
+        SearchResponse<DocumentDTO> response = searchEmbeddingsForParentByTypeInEmbeddingsIndex(parent, embType);
+        assertEquals(count, response.hits().total().value());
+        List<String> texts = response.hits()
+                                     .hits()
+                                     .stream()
+                                     .map(h -> (String) h.source().getProperties().get(EMBEDDING_PROPERTY_TEXT))
+                                     .toList();
+        for (int i = 0; i < count; i++) {
+            assertTrue(texts.contains("chunk-text-" + (i + 1)),
+                    "Expected chunk-file text for id " + (i + 1) + " but got " + texts);
+        }
+    }
+
+    /**
+     * Single-file shape: when {@code sysemb_chunks} is absent, the read path still sources text from the
+     * {@code text} column of {@code sysemb_embeddings}. Guardrail against a regression that would silently
+     * drop text on re-index for documents that never carried the second blob.
+     */
+    @Test
+    void testChunkTextComesFromEmbeddingsBlobWhenChunksAbsent() throws Exception {
+        DocumentModel parent = createParent("parentDoc");
+        String childSuffix = "legacy_child";
+        String embType = SysEmbeddingsPolicies.getEmbeddingsTypeFromName(
+                SysEmbeddingsPolicies.ensureEmbeddingsNamePrefix(childSuffix));
+        int count = 3;
+
+        Blob embeddingsBlob = new ParquetBlobGenerator().generate(count, embType);
+        DocumentModel emb = session.createDocumentModel(parent.getPathAsString(),
+                SysEmbeddingsPolicies.ensureEmbeddingsNamePrefix(childSuffix), TypeConstants.SYS_EMBEDDINGS);
+        emb.setPropertyValue(SYSEMB_EMBEDDINGS, embeddingsBlob);
+        // no SYSEMB_CHUNKS
+        emb.create();
+        session.save();
+
+        saveAndAssertForEmbeddingsIndexCommands(1);
+
+        SearchResponse<DocumentDTO> response = searchEmbeddingsForParentByTypeInEmbeddingsIndex(parent, embType);
+        assertEquals(count, response.hits().total().value());
+        // ParquetBlobGenerator writes text = "<type> - <rawId>" for INITIAL rows.
+        response.hits().hits().forEach(hit -> {
+            String text = (String) hit.source().getProperties().get(EMBEDDING_PROPERTY_TEXT);
+            assertNotNull(text, "Legacy shape must keep text from the embeddings blob");
+            assertTrue(text.startsWith(embType + " - "),
+                    "Expected legacy text to be sourced from embeddings blob, got: " + text);
+        });
+    }
+
+    /**
+     * Two-file shape where the embeddings blob has no {@code text} column at all (chunk text lives entirely
+     * in {@code sysemb_chunks}). Guardrail against a regression where an absent column would throw during
+     * Avro read and cause the whole parse to be swallowed as empty.
+     */
+    @Test
+    void testEmbeddingsBlobWithoutTextColumnStillIndexes() throws Exception {
+        DocumentModel parent = createParent("parentDoc");
+        String childSuffix = "notext_child";
+        String embType = SysEmbeddingsPolicies.getEmbeddingsTypeFromName(
+                SysEmbeddingsPolicies.ensureEmbeddingsNamePrefix(childSuffix));
+        int count = 4;
+
+        ParquetBlobGenerator gen = new ParquetBlobGenerator();
+        Blob embeddingsBlob = gen.generateWithoutText(count, embType);
+        Blob chunksBlob = gen.generateChunkTexts(count, i -> "notext-chunk-" + (i + 1));
+
+        DocumentModel emb = session.createDocumentModel(parent.getPathAsString(),
+                SysEmbeddingsPolicies.ensureEmbeddingsNamePrefix(childSuffix), TypeConstants.SYS_EMBEDDINGS);
+        emb.setPropertyValue(SYSEMB_EMBEDDINGS, embeddingsBlob);
+        emb.setPropertyValue(SYSEMB_CHUNKS, chunksBlob);
+        emb.create();
+        session.save();
+
+        saveAndAssertForEmbeddingsIndexCommands(1);
+
+        SearchResponse<DocumentDTO> response = searchEmbeddingsForParentByTypeInEmbeddingsIndex(parent, embType);
+        assertEquals(count, response.hits().total().value(),
+                "Missing text column must not cause the parser to drop every embedding");
+        List<String> texts = response.hits()
+                                     .hits()
+                                     .stream()
+                                     .map(h -> (String) h.source().getProperties().get(EMBEDDING_PROPERTY_TEXT))
+                                     .toList();
+        for (int i = 0; i < count; i++) {
+            assertTrue(texts.contains("notext-chunk-" + (i + 1)),
+                    "Expected chunk-file text " + (i + 1) + " but got " + texts);
+        }
+    }
+
+    /**
+     * The chunks blob may not carry text for every id in the embeddings blob. Ids present in embeddings but
+     * missing in the chunks blob must still be indexed, but with no text set - callers should never see
+     * stale text from a mismatched source.
+     */
+    @Test
+    void testChunkTextMissingForSomeIdsLeavesTextUnset() throws Exception {
+        DocumentModel parent = createParent("parentDoc");
+        String childSuffix = "partial_child";
+        String embType = SysEmbeddingsPolicies.getEmbeddingsTypeFromName(
+                SysEmbeddingsPolicies.ensureEmbeddingsNamePrefix(childSuffix));
+        int count = 4;
+
+        ParquetBlobGenerator gen = new ParquetBlobGenerator();
+        Blob embeddingsBlob = gen.generate(count, embType);
+        // Cover only the first two raw ids.
+        Blob chunksBlob = gen.generateChunkTextsFromMap(Map.of(
+                gen.getRawEmbeddingIdForIndex(1), "partial-1",
+                gen.getRawEmbeddingIdForIndex(2), "partial-2"));
+
+        DocumentModel emb = session.createDocumentModel(parent.getPathAsString(),
+                SysEmbeddingsPolicies.ensureEmbeddingsNamePrefix(childSuffix), TypeConstants.SYS_EMBEDDINGS);
+        emb.setPropertyValue(SYSEMB_EMBEDDINGS, embeddingsBlob);
+        emb.setPropertyValue(SYSEMB_CHUNKS, chunksBlob);
+        emb.create();
+        session.save();
+
+        saveAndAssertForEmbeddingsIndexCommands(1);
+
+        SearchResponse<DocumentDTO> response = searchEmbeddingsForParentByTypeInEmbeddingsIndex(parent, embType);
+        assertEquals(count, response.hits().total().value());
+        long withText = response.hits()
+                                .hits()
+                                .stream()
+                                .filter(h -> h.source().getProperties().get(EMBEDDING_PROPERTY_TEXT) != null)
+                                .count();
+        assertEquals(2, withText, "Only the two ids covered by the chunk file should have text");
     }
 
     /* ---------------- Helpers ---------------- */
