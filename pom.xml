@@ -69,11 +69,11 @@
 
     <spring-cloud.version>5.0.0</spring-cloud.version>
     <git-commit-id-plugin.version>10.0.0</git-commit-id-plugin.version>
-    <springdoc.version>3.0.3</springdoc.version>
+    <springdoc.version>3.1.0</springdoc.version>
 
     <commons-io.version>2.22.0</commons-io.version>
     <commons-codec.version>1.22.1</commons-codec.version>
-    <commons-collections4.version>4.5.0</commons-collections4.version>
+    <commons-collections4.version>4.6.0</commons-collections4.version>
     <commons-text.version>1.15.0</commons-text.version>
     <commons-csv.version>1.14.1</commons-csv.version>
     <commons-fileupload2.version>2.0.0-M5</commons-fileupload2.version>
@@ -82,9 +82,9 @@
     <apache.httpcomponents.version>4.5.14</apache.httpcomponents.version>
     <opencensus.version>0.31.1</opencensus.version>
     <git-commit-id-plugin.version>10.0.0</git-commit-id-plugin.version>
-    <classgraph.version>4.8.189</classgraph.version>
+    <classgraph.version>4.8.192</classgraph.version>
     <metrics-bom.version>5.0.7</metrics-bom.version>
-    <jackson-bom.version>3.2.1</jackson-bom.version>
+    <jackson-bom.version>3.2.2</jackson-bom.version>
     <osgi.version>4.3.1</osgi.version>
     <jakarta.enterprise.cdi.version>4.1.0</jakarta.enterprise.cdi.version>
     <hamcrest.version>3.0</hamcrest.version>
@@ -111,7 +111,7 @@
     <jna.version>5.19.1</jna.version>
 
     <!-- MongoDB -->
-    <mongo.java.driver.version>5.9.1</mongo.java.driver.version>
+    <mongo.java.driver.version>5.10.0</mongo.java.driver.version>
     <quartz.version>2.3.2</quartz.version>
     <quartz.mongodb.version>2.2.0-rc2</quartz.mongodb.version>
 
@@ -120,7 +120,7 @@
     <opensearch.rest.version>3.8.0</opensearch.rest.version>
 
     <!-- Apache -->
-    <parquet.version>1.17.1</parquet.version>
+    <parquet.version>1.18.0</parquet.version>
     <avro.version>1.12.1</avro.version>
 
     <!-- Test dependencies -->
