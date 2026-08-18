@@ -1,0 +1,1 @@
+Link to documentation where license details can be found: https://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/intro.html
