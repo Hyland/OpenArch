@@ -978,7 +978,9 @@ public class MongoDBRepository extends DBSRepositoryBase implements Configuratio
         Bson filter = Filters.exists(SYS_BLOB_KEYS, true);
         Bson projection = Projections.fields(Projections.excludeId(), Projections.include(SYS_BLOB_KEYS));
         log.trace("MongoDB: QUERY {} KEYS {}", filter, projection);
-        coll.find(filter).noCursorTimeout(true).projection(projection).forEach(doc -> {
+        // noCursorTimeout(true) is not supported by Amazon DynamoDB, and not needed anyway
+        // because mark is in-memory so very fast
+        coll.find(filter).projection(projection).forEach(doc -> {
             Object blobKeys = doc.get(SYS_BLOB_KEYS);
             if (blobKeys instanceof List list) {
                 for (Object v : list) {
