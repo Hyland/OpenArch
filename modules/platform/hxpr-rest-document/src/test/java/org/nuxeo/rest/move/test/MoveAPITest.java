@@ -25,6 +25,7 @@ import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FOLDER;
 import static org.nuxeo.rest.document.AbstractDocumentAPI.PATH;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.Map;
 
@@ -47,6 +48,7 @@ import org.nuxeo.runtime.mockito.RuntimeInject;
 import org.nuxeo.runtime.test.runner.Features;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 
 /**
@@ -89,6 +91,22 @@ public class MoveAPITest extends AbstractAPITest {
         return checkResponseWithPayload(status, POST, REPO_ID, payload, path);
     }
 
+    /**
+     * Sends the move request with the condition passed as a proper query parameter.
+     * <p>
+     * The value must not be appended to the path, as characters like {@code &} (used by the {@code &&} operator of the
+     * expression syntax) would be parsed as query parameter separators and silently truncate the condition.
+     */
+    private ResultActions checkMoveApiResponseWithParam(Status status, String payload, String paramName,
+            String paramValue) throws Exception {
+        String path = PATH + "/" + doc.getId() + "/move";
+        var requestBuilder = getBaseRequestBuilder(POST, getRepositoryHttpHeaders(REPO_ID), path);
+        requestBuilder.queryParam(paramName, paramValue);
+        requestBuilder.contentType(MediaType.APPLICATION_JSON);
+        requestBuilder.content(payload);
+        return mvc.perform(requestBuilder).andExpect(status().is(status.getStatusCode()));
+    }
+
     @Test
     public void testMoveDocument() throws Exception {
         // parent is not the folder
@@ -109,6 +127,23 @@ public class MoveAPITest extends AbstractAPITest {
         // move with condition that succeeds
         condition = "sys_title = 'title'";
         checkMoveApiResponse(OK, getMoveBody(), "?" + QueryParameters.CONDITION + "=" + condition).andExpectAll(
+                // moved document is the doc
+                jsonPath(SYS_ID).value(doc.getId()),
+                // parent is the folder
+                jsonPath(SYS_PARENT_ID).value(folder.getId()));
+    }
+
+    @Test
+    public void testConditionalMoveIf() throws Exception {
+        // try to move file with expression condition that fails
+        String expr = "content.sys_title == \"no-such-title\"";
+        checkMoveApiResponseWithParam(PRECONDITION_FAILED, getMoveBody(), QueryParameters.IF, expr);
+        // a conjunction failing only on its second operand, to check that the whole expression is received
+        expr = "content.sys_title == \"title\" && content.sys_creator == \"no-such-user\"";
+        checkMoveApiResponseWithParam(PRECONDITION_FAILED, getMoveBody(), QueryParameters.IF, expr);
+        // move with expression condition that succeeds
+        expr = "content.sys_title == \"title\" && content.sys_creator == user.id";
+        checkMoveApiResponseWithParam(OK, getMoveBody(), QueryParameters.IF, expr).andExpectAll(
                 // moved document is the doc
                 jsonPath(SYS_ID).value(doc.getId()),
                 // parent is the folder

@@ -60,6 +60,8 @@ import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_REMOVED;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.SYSTEM_USERNAME;
 import static org.nuxeo.ecm.core.async.tasks.DeleteBatchTaskProcessor.BATCH_DELETE_TASK_NAME;
 import static org.nuxeo.ecm.core.schema.MixinNames.SYS_VERSIONED_WITH_PARENT;
+import static org.nuxeo.ecm.core.security.expr.ExpressionSecurityPolicy.CONTEXT_CONTENT;
+import static org.nuxeo.ecm.core.security.expr.ExpressionSecurityPolicy.CONTEXT_USER;
 import static org.nuxeo.ecm.core.storage.dbs.DBSDocument.KEY_ACE_BEGIN;
 import static org.nuxeo.ecm.core.storage.dbs.DBSDocument.KEY_ACE_CREATOR;
 import static org.nuxeo.ecm.core.storage.dbs.DBSDocument.KEY_ACE_END;
@@ -109,6 +111,7 @@ import org.apache.logging.log4j.Logger;
 import org.nuxeo.common.utils.IdUtils;
 import org.nuxeo.ecm.core.DocumentImpl;
 import org.nuxeo.ecm.core.api.Blob;
+import org.nuxeo.ecm.core.api.ConditionFailedException;
 import org.nuxeo.ecm.core.api.CoreInstance;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DeletedChildDocumentRecord;
@@ -123,6 +126,7 @@ import org.nuxeo.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.ecm.core.api.PartialList;
 import org.nuxeo.ecm.core.api.PropertyException;
 import org.nuxeo.ecm.core.api.ScrollResult;
+import org.nuxeo.ecm.core.api.UpdateCondition;
 import org.nuxeo.ecm.core.api.lock.LockManager;
 import org.nuxeo.ecm.core.api.query.QueryParameters;
 import org.nuxeo.ecm.core.api.repository.FulltextConfiguration;
@@ -139,6 +143,7 @@ import org.nuxeo.ecm.core.model.Repository;
 import org.nuxeo.ecm.core.query.QueryParseException;
 import org.nuxeo.ecm.core.query.sql.HXQL;
 import org.nuxeo.ecm.core.query.sql.HXQLParser;
+import org.nuxeo.ecm.core.query.sql.model.BooleanLiteral;
 import org.nuxeo.ecm.core.query.sql.model.Operand;
 import org.nuxeo.ecm.core.query.sql.model.OrderByClause;
 import org.nuxeo.ecm.core.query.sql.model.OrderByExpr;
@@ -159,6 +164,9 @@ import org.nuxeo.ecm.core.schema.types.primitives.DateType;
 import org.nuxeo.ecm.core.schema.types.primitives.StringType;
 import org.nuxeo.ecm.core.security.SecurityPolicyService;
 import org.nuxeo.ecm.core.security.SecurityService;
+import org.nuxeo.ecm.core.security.expr.ExprEvaluator;
+import org.nuxeo.ecm.core.security.expr.ExpressionVisitor;
+import org.nuxeo.ecm.core.security.expr.ast.Expr;
 import org.nuxeo.ecm.core.storage.ExpressionEvaluator;
 import org.nuxeo.ecm.core.storage.QueryOptimizer;
 import org.nuxeo.ecm.core.storage.State;
@@ -846,8 +854,8 @@ public class DBSSession implements InternalSession {
     }
 
     @Override
-    public InternalDocument move(InternalDocument source, InternalDocument parent, String name, String condition,
-            NuxeoPrincipal principal) {
+    public InternalDocument move(InternalDocument source, InternalDocument parent, String name,
+            UpdateCondition condition, NuxeoPrincipal principal) {
         String oldName = source.getName();
         if (name == null) {
             name = oldName;
@@ -892,7 +900,7 @@ public class DBSSession implements InternalSession {
         sourceState.put(SYS_NAME, name);
         sourceState.put(SYS_PARENT_ID, parentId);
         if (condition != null) {
-            setUpdateCondition(sourceId, condition);
+            setUpdateCondition(sourceId, condition, principal);
         }
 
         // update ancestors on all sub-children
@@ -1048,7 +1056,7 @@ public class DBSSession implements InternalSession {
         }
 
         DBSDocumentState docState = transaction.getStateForUpdate(id);
-        if (!InternalSession.canDeleteUndeletable(NuxeoPrincipal.getCurrent())) {
+        if (!InternalSession.canDeleteUndeletable(principal)) {
             Instant retainUntil = (Instant) docState.get(SYSGOV_RETAIN_UNTIL);
             if (retainUntil != null && Instant.now().isBefore(retainUntil)) {
                 throw new DocumentSecurityException(CANNOT_REMOVE_UNDER_RETENTION.formatted(id));
@@ -1615,12 +1623,41 @@ public class DBSSession implements InternalSession {
         transaction.markUserChange(id);
     }
 
-    public void setUpdateCondition(String id, String condition) {
-        // TODO better way to parse predicate directly
-        String hxql = "SELECT * FROM Foo WHERE " + condition;
-        Statement statement = HXQLParser.parse(hxql);
-        Predicate predicate = statement.getWhereClause().predicate();
-        transaction.setUpdateConditionPredicate(id, predicate);
+    public void setUpdateCondition(String id, UpdateCondition condition, NuxeoPrincipal principal) {
+        Operand operand = switch (condition.syntax()) {
+            case HXQL -> parseHxqlCondition(condition.condition());
+            case EXPR -> parseExprCondition(condition.condition(), principal);
+        };
+        switch (operand) {
+            case Predicate predicate -> transaction.setUpdateConditionPredicate(id, predicate);
+            // an EXPR condition may be short-circuited by the evaluator into a constant
+            case BooleanLiteral(var value) -> {
+                if (!value) {
+                    // the condition can never be true, no need to attempt the update
+                    throw new ConditionFailedException(id);
+                }
+                // the condition is always true, so clear any condition previously set for this document
+                transaction.setUpdateConditionPredicate(id, null);
+            }
+            default -> throw new QueryParseException("Condition is not a predicate: " + condition.condition());
+        }
+    }
+
+    protected Operand parseHxqlCondition(String hxql) {
+        return HXQLParser.parsePredicate(hxql);
+    }
+
+    protected Operand parseExprCondition(String expr, NuxeoPrincipal principal) {
+        try {
+            Expr parsed = new ExpressionVisitor().parse(expr);
+            Map<String, Object> context = Map.of( //
+                    CONTEXT_CONTENT, ExprEvaluator.CONTENT, //
+                    CONTEXT_USER, principal);
+            return new ExprEvaluator(context).evaluateOperand(parsed);
+        } catch (IllegalArgumentException e) {
+            // both the parser and the evaluator signal errors this way
+            throw new QueryParseException("Invalid expression: " + expr + ": " + e.getMessage(), e);
+        }
     }
 
     /*

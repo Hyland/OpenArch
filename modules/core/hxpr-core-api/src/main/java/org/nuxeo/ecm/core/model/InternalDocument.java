@@ -31,6 +31,7 @@ import org.nuxeo.ecm.core.api.security.ACL;
 import org.nuxeo.ecm.core.api.Lock;
 import org.nuxeo.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.ecm.core.api.PropertyException;
+import org.nuxeo.ecm.core.api.UpdateCondition;
 import org.nuxeo.ecm.core.schema.DocumentType;
 
 /**
@@ -418,14 +419,14 @@ public interface InternalDocument {
     void markUserChange();
 
     /**
-     * Sets the condition (an HXQL predicate) under which the document is updated on {@link InternalSession#save save}.
+     * Sets the condition under which the document is updated on {@link InternalSession#save save}.
      * <p>
      * A {@link ConcurrentUpdateException} will be thrown at {@link InternalSession#save save} time if the condition is
      * not met, after which the transaction must be rolled back.
      *
-     * @param condition the condition (an HXQL predicate)
+     * @param condition the condition
      */
-    void setUpdateCondition(String condition);
+    void setUpdateCondition(UpdateCondition condition, NuxeoPrincipal principal);
 
     /**
      * Gets the mixins available on this document (from the type and the instance mixins).

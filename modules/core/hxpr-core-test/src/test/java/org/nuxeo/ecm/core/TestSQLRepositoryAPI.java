@@ -102,6 +102,7 @@ import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.ecm.core.api.PathRef;
 import org.nuxeo.ecm.core.api.PropertyException;
+import org.nuxeo.ecm.core.api.UpdateCondition;
 import org.nuxeo.ecm.core.api.local.DummyLoginFeature;
 import org.nuxeo.ecm.core.api.model.PropertyNotFoundException;
 import org.nuxeo.ecm.core.api.security.ACE;
@@ -4046,7 +4047,8 @@ public class TestSQLRepositoryAPI {
         session.save();
 
         // conditional update that passes; showcase complex HXQL conditions
-        doc.setUpdateCondition("sys_title = 'foo' AND (sys_primaryType IN ('SysFile', 'Foo') OR sys_name = 'abcd')");
+        String hxql = "sys_title = 'foo' AND (sys_primaryType IN ('SysFile', 'Foo') OR sys_name = 'abcd')";
+        doc.setUpdateCondition(UpdateCondition.hxql(hxql));
         doc.setPropertyValue(SYS_TITLE, "bar");
         session.save();
         assertEquals("bar", doc.getTitle());
@@ -4056,7 +4058,7 @@ public class TestSQLRepositoryAPI {
         doc.refresh();
 
         // conditional update that fails
-        doc.setUpdateCondition("sys_title = 'baz'");
+        doc.setUpdateCondition(UpdateCondition.hxql("sys_title = 'baz'"));
         doc.setPropertyValue(SYS_TITLE, "gee");
         assertThrows(ConditionFailedException.class, () -> session.save());
 
@@ -4081,10 +4083,10 @@ public class TestSQLRepositoryAPI {
         doc.refresh();
 
         // conditional update syntax error
-        assertThrows(QueryParseException.class, () -> doc.setUpdateCondition("this-is-not-hxql"));
+        assertThrows(QueryParseException.class, () -> doc.setUpdateCondition(UpdateCondition.hxql("this-is-not-hxql")));
 
         // conditional update on sys_path is forbidden
-        doc.setUpdateCondition("sys_path = 'foo'");
+        doc.setUpdateCondition(UpdateCondition.hxql("sys_path = 'foo'"));
         doc.setPropertyValue(SYS_TITLE, "bar");
         var e = assertThrows(QueryParseException.class, () -> session.save());
         assertEquals("sys_path not allowed in condition", e.getMessage());
@@ -4095,13 +4097,110 @@ public class TestSQLRepositoryAPI {
         doc.refresh();
 
         // conditional update on sys_path STARTSWITH is forbidden too
-        doc.setUpdateCondition("sys_path STARTSWITH '/foo'");
+        doc.setUpdateCondition(UpdateCondition.hxql("sys_path STARTSWITH '/foo'"));
         doc.setPropertyValue(SYS_TITLE, "bar");
         e = assertThrows(QueryParseException.class, () -> session.save());
         assertEquals("sys_path not allowed in condition", e.getMessage());
 
         // rollback after exception in save
         TransactionHelper.setTransactionRollbackOnly();
+    }
+
+    @Test
+    public void testConditionalUpdateExpr() {
+        DocumentModel doc = session.createDocumentModel("/", "doc", SYS_FILE);
+        doc.setPropertyValue(SYS_TITLE, "foo");
+        doc.create();
+        session.save();
+
+        // conditional update that passes; showcase complex expression conditions
+        doc.setUpdateCondition(UpdateCondition.expr(
+                "content.sys_title == \"foo\" && (content.sys_primaryType == \"SysFile\" || content.sys_name == \"abcd\")"));
+        doc.setPropertyValue(SYS_TITLE, "bar");
+        session.save();
+        assertEquals("bar", doc.getTitle());
+
+        // commit transaction
+        nextTransaction();
+        doc.refresh();
+
+        // conditional update that fails
+        doc.setUpdateCondition(UpdateCondition.expr("content.sys_title == \"baz\""));
+        doc.setPropertyValue(SYS_TITLE, "gee");
+        assertThrows(ConditionFailedException.class, () -> session.save());
+
+        // rollback after exception in save
+        TransactionHelper.setTransactionRollbackOnly();
+        nextTransaction();
+        doc.refresh();
+
+        // doc has still old value from previous transaction
+        assertEquals("bar", doc.getTitle());
+    }
+
+    @Test
+    public void testConditionalUpdateExprUser() {
+        DocumentModel doc = session.createDocumentModel("/", "doc", SYS_FILE);
+        doc.setPropertyValue(SYS_TITLE, "foo");
+        doc.create();
+        session.save();
+
+        // commit transaction
+        nextTransaction();
+        doc.refresh();
+
+        // the current user is available in the expression, which HXQL conditions cannot express
+        doc.setUpdateCondition(UpdateCondition.expr("content.sys_creator == user.id"));
+        doc.setPropertyValue(SYS_TITLE, "bar");
+        session.save();
+        assertEquals("bar", doc.getTitle());
+    }
+
+    @Test
+    public void testConditionalUpdateExprConstant() {
+        DocumentModel doc = session.createDocumentModel("/", "doc", SYS_FILE);
+        doc.setPropertyValue(SYS_TITLE, "foo");
+        doc.create();
+        session.save();
+
+        // commit transaction
+        nextTransaction();
+        doc.refresh();
+
+        // an expression that is always true doesn't constrain the update
+        doc.setUpdateCondition(UpdateCondition.expr("1 == 1"));
+        doc.setPropertyValue(SYS_TITLE, "bar");
+        session.save();
+        assertEquals("bar", doc.getTitle());
+
+        // an expression that is always false fails immediately, without attempting the update
+        assertThrows(ConditionFailedException.class, () -> doc.setUpdateCondition(UpdateCondition.expr("1 == 2")));
+    }
+
+    @Test
+    public void testConditionalUpdateExprInvalid() {
+        DocumentModel doc = session.createDocumentModel("/", "doc", SYS_FILE);
+        doc.setPropertyValue(SYS_TITLE, "foo");
+        doc.create();
+        session.save();
+
+        // commit transaction
+        nextTransaction();
+        doc.refresh();
+
+        // syntax error
+        assertThrows(QueryParseException.class,
+                () -> doc.setUpdateCondition(UpdateCondition.expr("this is not an expression")));
+
+        // unknown toplevel name
+        var e = assertThrows(QueryParseException.class,
+                () -> doc.setUpdateCondition(UpdateCondition.expr("nosuchthing.foo == 1")));
+        assertTrue(e.getMessage().contains("No global property: nosuchthing"), e.getMessage());
+
+        // not a predicate
+        e = assertThrows(QueryParseException.class,
+                () -> doc.setUpdateCondition(UpdateCondition.expr("content.sys_title")));
+        assertEquals("Condition is not a predicate: content.sys_title", e.getMessage());
     }
 
     @Test

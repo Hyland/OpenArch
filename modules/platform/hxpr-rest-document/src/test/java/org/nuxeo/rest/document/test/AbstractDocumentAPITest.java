@@ -75,6 +75,7 @@ import static org.nuxeo.rest.document.test.MultiPartTestHelper.getMainUploadIdPa
 import static org.nuxeo.rest.utils.Headers.HXCS_REPOSITORY;
 import static org.nuxeo.rest.utils.QueryParameters.CONDITION;
 import static org.nuxeo.rest.utils.QueryParameters.ENFORCE_SYS_NAME;
+import static org.nuxeo.rest.utils.QueryParameters.IF;
 import static org.springframework.http.HttpMethod.DELETE;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.PATCH;
@@ -91,6 +92,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.io.IOException;
 import java.time.Instant;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.core.MediaType;
@@ -628,6 +630,51 @@ public abstract class AbstractDocumentAPITest extends AbstractAPITest {
         // check again after failed update, nothing changed
         result = checkResponse(OK, GET, REPO_ID, getApiPath(id, path));
         checkResponseBodyReplacing("rest/folder_updated.json", id, name, result);
+
+        // cleanup
+        checkResponseWithPayload(NO_CONTENT, DELETE, REPO_ID, "", getApiPath(id, path));
+    }
+
+    @Test
+    public void testConditionalUpdateIf() throws Exception {
+        String creationJson = getCreationJson();
+        var result = checkResponseWithPayload(OK, POST, REPO_ID, creationJson, getRootApiPath());
+        String id = getJsonPath(result, SYS_ID);
+        String name = getJsonPath(result, SYS_NAME);
+        String path = getJsonPath(result, SYS_PATH);
+
+        // check update with expression condition that matches
+        String updateJson = getUpdateJson();
+        String expr = "content.sys_title == \"My Folder\"";
+        result = checkResponseWithPayload(OK, PUT, REPO_ID, updateJson,
+                getApiPath(id, path) + "?" + IF + "=" + expr);
+        checkResponseBodyReplacing("rest/folder_updated.json", id, name, result);
+
+        // check update with expression condition that does not match
+        updateJson = """
+                {
+                  "sys_title": "My Folder updated again"
+                }
+                """;
+        expr = "content.sys_title == \"no-such-title\"";
+        checkResponseWithPayload(PRECONDITION_FAILED, PUT, REPO_ID, updateJson,
+                getApiPath(id, path) + "?" + IF + "=" + expr);
+
+        // check again after failed update, nothing changed
+        result = checkResponse(OK, GET, REPO_ID, getApiPath(id, path));
+        checkResponseBodyReplacing("rest/folder_updated.json", id, name, result);
+
+        // an invalid expression is rejected
+        expr = "this is not an expression";
+        result = checkResponseWithPayload(BAD_REQUEST, PUT, REPO_ID, updateJson,
+                getApiPath(id, path) + "?" + IF + "=" + expr);
+        checkErrorResponse(BAD_REQUEST, Pattern.compile("Invalid expression: " + expr + ": .*"), result);
+
+        // condition and if are mutually exclusive
+        result = checkResponseWithPayload(BAD_REQUEST, PUT, REPO_ID, updateJson,
+                getApiPath(id, path) + "?" + CONDITION + "=sys_title = 'My Folder'" + "&" + IF
+                        + "=content.sys_title == \"My Folder\"");
+        checkErrorResponse(BAD_REQUEST, "Cannot use both condition and if parameters", result);
 
         // cleanup
         checkResponseWithPayload(NO_CONTENT, DELETE, REPO_ID, "", getApiPath(id, path));

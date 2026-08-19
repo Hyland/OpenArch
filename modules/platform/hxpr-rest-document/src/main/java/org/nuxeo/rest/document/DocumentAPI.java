@@ -21,6 +21,7 @@ import static org.nuxeo.rest.document.DocumentManager.DEFAULT_REPOSITORY_ID;
 import static org.nuxeo.rest.utils.Headers.HXCS_REPOSITORY;
 import static org.nuxeo.rest.utils.QueryParameters.CONDITION;
 import static org.nuxeo.rest.utils.QueryParameters.ENFORCE_SYS_NAME;
+import static org.nuxeo.rest.utils.QueryParameters.IF;
 import static org.nuxeo.rest.utils.Versions.APP_HXCS_JSON;
 import static org.nuxeo.rest.utils.Versions.APP_HXCS_JSON_V1;
 import static org.springframework.http.MediaType.ALL_VALUE;
@@ -40,6 +41,7 @@ import org.nuxeo.rest.swagger.annotation.ApiResponse404DocumentNotFound;
 import org.nuxeo.rest.swagger.annotation.ApiResponse412;
 import org.nuxeo.rest.swagger.annotation.Authenticated;
 import org.nuxeo.rest.swagger.annotation.ParameterCondition;
+import org.nuxeo.rest.swagger.annotation.ParameterIf;
 import org.nuxeo.rest.swagger.annotation.ParameterDocId;
 import org.nuxeo.rest.swagger.annotation.ParameterDocPath;
 import org.nuxeo.rest.swagger.annotation.ParameterEnforceSysName;
@@ -143,10 +145,11 @@ public class DocumentAPI extends AbstractDocumentAPI {
     @ApiResponse404DocumentNotFound
     @ApiResponse412(description = "Condition evaluated to false.")
     public DocumentDTO updateDocumentById(@PathVariable("docId") @ParameterDocId String docId,
-            @RequestParam(name = CONDITION, defaultValue = "") @ParameterCondition String condition,
+            @RequestParam(name = CONDITION, defaultValue = "") @ParameterCondition String hxql,
+            @RequestParam(name = IF, defaultValue = "") @ParameterIf String expr,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId,
             @RequestBody(required = false) DocumentDTO doc) {
-        return documentManager.updateDocument(repoId, new IdRef(docId), doc, condition);
+        return documentManager.updateDocument(repoId, new IdRef(docId), doc, toUpdateCondition(hxql, expr));
     }
 
     @PutMapping(path = DOC_PATH + "/{*docPath}", consumes = APPLICATION_JSON_VALUE)
@@ -156,11 +159,13 @@ public class DocumentAPI extends AbstractDocumentAPI {
     @ApiResponse404DocumentNotFound
     @ApiResponse412(description = "Condition evaluated to false.")
     public DocumentDTO updateDocumentByPath(
-            @RequestParam(name = CONDITION, defaultValue = "") @ParameterCondition String condition,
+            @RequestParam(name = CONDITION, defaultValue = "") @ParameterCondition String hxql,
+            @RequestParam(name = IF, defaultValue = "") @ParameterIf String expr,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId,
             @PathVariable() @ParameterDocPath String docPath,
             @RequestBody(required = false) DocumentDTO doc) {
-        return documentManager.updateDocument(repoId, PathRefUtils.getPathRef(docPath), doc, condition);
+        return documentManager.updateDocument(repoId, PathRefUtils.getPathRef(docPath), doc,
+                toUpdateCondition(hxql, expr));
     }
 
     @PatchMapping(path = "/{docId}", consumes = APPLICATION_JSON_PATCH_JSON)
@@ -171,10 +176,12 @@ public class DocumentAPI extends AbstractDocumentAPI {
     @ApiResponse404DocumentNotFound
     @ApiResponse412(description = "Condition evaluated to false.")
     public DocumentDTO patchDocumentById(@PathVariable("docId") @ParameterDocId String docId,
-            @RequestParam(name = CONDITION, defaultValue = "") @ParameterCondition String condition,
+            @RequestParam(name = CONDITION, defaultValue = "") @ParameterCondition String hxql,
+            @RequestParam(name = IF, defaultValue = "") @ParameterIf String expr,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId,
             @RequestBody(required = false) Object patch) throws JacksonException {
-        return documentManager.patchDocument(repoId, new IdRef(docId), mapper.writeValueAsString(patch), condition);
+        return documentManager.patchDocument(repoId, new IdRef(docId), mapper.writeValueAsString(patch),
+                toUpdateCondition(hxql, expr));
     }
 
     @PatchMapping(path = DOC_PATH + "/{*docPath}", consumes = APPLICATION_JSON_PATCH_JSON)
@@ -185,12 +192,13 @@ public class DocumentAPI extends AbstractDocumentAPI {
     @ApiResponse404DocumentNotFound
     @ApiResponse412(description = "Condition evaluated to false.")
     public DocumentDTO patchDocumentByPath(
-            @RequestParam(name = CONDITION, defaultValue = "") @ParameterCondition String condition,
+            @RequestParam(name = CONDITION, defaultValue = "") @ParameterCondition String hxql,
+            @RequestParam(name = IF, defaultValue = "") @ParameterIf String expr,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId,
             @PathVariable() @ParameterDocPath String docPath,
             @RequestBody(required = false) Object patch) throws JacksonException {
         return documentManager.patchDocument(repoId, PathRefUtils.getPathRef(docPath),
-                mapper.writeValueAsString(patch), condition);
+                mapper.writeValueAsString(patch), toUpdateCondition(hxql, expr));
     }
 
     @DeleteMapping(path = "/{docId}", consumes = ALL_VALUE)

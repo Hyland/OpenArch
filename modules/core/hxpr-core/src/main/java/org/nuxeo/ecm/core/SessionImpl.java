@@ -79,6 +79,7 @@ import org.nuxeo.ecm.core.api.PartialList;
 import org.nuxeo.ecm.core.api.PathRef;
 import org.nuxeo.ecm.core.api.PropertyException;
 import org.nuxeo.ecm.core.api.ScrollResult;
+import org.nuxeo.ecm.core.api.UpdateCondition;
 import org.nuxeo.ecm.core.api.event.CoreEventConstants;
 import org.nuxeo.ecm.core.api.event.DocumentEventCategories;
 import org.nuxeo.ecm.core.api.event.DocumentEventTypes;
@@ -496,7 +497,7 @@ public class SessionImpl implements CoreSession {
     }
 
     @Override
-    public DocumentModel move(DocumentRef docRef, DocumentRef folderRef, String name, String condition) {
+    public DocumentModel move(DocumentRef docRef, DocumentRef folderRef, String name, UpdateCondition condition) {
         InternalDocument doc = resolveReference(docRef, READ);
 
         if (doc.isVersion()) {

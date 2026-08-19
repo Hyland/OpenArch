@@ -27,6 +27,7 @@ import org.nuxeo.common.utils.Path;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentRef;
+import org.nuxeo.ecm.core.api.UpdateCondition;
 import org.nuxeo.ecm.core.api.ValuesVisitor;
 import org.nuxeo.ecm.core.api.IdRef;
 import org.nuxeo.ecm.core.api.Lock;
@@ -164,7 +165,7 @@ public class ShallowDocumentModel implements DocumentModel {
     }
 
     @Override
-    public void setUpdateCondition(String condition) {
+    public void setUpdateCondition(UpdateCondition condition) {
         throw new UnsupportedOperationException();
     }
 

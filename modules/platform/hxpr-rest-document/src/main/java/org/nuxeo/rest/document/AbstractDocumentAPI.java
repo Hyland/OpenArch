@@ -16,6 +16,9 @@
 package org.nuxeo.rest.document;
 
 import static jakarta.ws.rs.core.MediaType.MULTIPART_FORM_DATA;
+import static org.nuxeo.rest.utils.QueryParameters.CONDITION;
+import static org.nuxeo.rest.utils.QueryParameters.IF;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -27,6 +30,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.apache.commons.lang3.StringUtils;
+import org.nuxeo.ecm.core.api.NuxeoException;
+import org.nuxeo.ecm.core.api.UpdateCondition;
 import org.nuxeo.rest.swagger.annotation.ApiResponse200;
 import org.nuxeo.rest.swagger.annotation.ApiResponse204;
 import org.nuxeo.rest.swagger.annotation.ApiResponse400;
@@ -51,6 +57,29 @@ public abstract class AbstractDocumentAPI {
 
     protected AbstractDocumentAPI(DocumentManager documentManager) {
         this.documentManager = documentManager;
+    }
+
+    /**
+     * Computes the update condition from the mutually exclusive {@code condition} and {@code if} parameters.
+     *
+     * @param hxql the value of the {@code condition} parameter (an HXQL predicate)
+     * @param expr the value of the {@code if} parameter (an expression)
+     * @return the condition, or {@code null} if none was provided
+     */
+    protected static UpdateCondition toUpdateCondition(String hxql, String expr) {
+        boolean hasHxql = StringUtils.isNotBlank(hxql);
+        boolean hasExpr = StringUtils.isNotBlank(expr);
+        if (hasHxql && hasExpr) {
+            throw new NuxeoException("Cannot use both " + CONDITION + " and " + IF + " parameters",
+                    BAD_REQUEST.value());
+        }
+        if (hasHxql) {
+            return UpdateCondition.hxql(hxql);
+        } else if (hasExpr) {
+            return UpdateCondition.expr(expr);
+        } else {
+            return null;
+        }
     }
 
     @Target(ElementType.METHOD)

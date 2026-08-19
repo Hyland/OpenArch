@@ -66,6 +66,7 @@ import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.ecm.core.api.PathRef;
 import org.nuxeo.ecm.core.api.PropertyException;
+import org.nuxeo.ecm.core.api.UpdateCondition;
 import org.nuxeo.ecm.core.api.ValuesVisitor;
 import org.nuxeo.ecm.core.api.model.PropertyNotFoundException;
 import org.nuxeo.ecm.core.api.model.resolver.DocumentPropertyObjectResolverImpl;
@@ -625,8 +626,8 @@ public class DocumentImpl implements DocumentModel {
     }
 
     @Override
-    public void setUpdateCondition(String condition) throws QueryParseException {
-        doc.setUpdateCondition(condition);
+    public void setUpdateCondition(UpdateCondition condition) throws QueryParseException {
+        doc.setUpdateCondition(condition, principal);
     }
 
     @Override

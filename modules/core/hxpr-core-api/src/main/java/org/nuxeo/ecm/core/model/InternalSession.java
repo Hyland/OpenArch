@@ -25,6 +25,7 @@ import org.nuxeo.ecm.core.api.IterableQueryResult;
 import org.nuxeo.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.ecm.core.api.PartialList;
 import org.nuxeo.ecm.core.api.ScrollResult;
+import org.nuxeo.ecm.core.api.UpdateCondition;
 import org.nuxeo.ecm.core.api.lock.LockManager;
 import org.nuxeo.ecm.core.api.security.SecurityConstants;
 import org.nuxeo.ecm.core.schema.SchemaManager;
@@ -144,10 +145,10 @@ public interface InternalSession {
      *
      * @param src the source document to move
      * @param dst the destination folder
-     * @param condition the condition (an HXQL predicate), or {@code null}
+     * @param condition the condition, or {@code null}
      * @param name the new name of the document or null if the original name should be preserved
      */
-    InternalDocument move(InternalDocument src, InternalDocument dst, String name, String condition,
+    InternalDocument move(InternalDocument src, InternalDocument dst, String name, UpdateCondition condition,
             NuxeoPrincipal principal);
 
     /**

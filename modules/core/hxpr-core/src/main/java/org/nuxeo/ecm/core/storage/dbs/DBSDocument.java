@@ -87,6 +87,7 @@ import org.nuxeo.ecm.core.api.Lock;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.ecm.core.api.PropertyException;
+import org.nuxeo.ecm.core.api.UpdateCondition;
 import org.nuxeo.ecm.core.api.ValuesVisitor;
 import org.nuxeo.ecm.core.api.lock.LockManager;
 import org.nuxeo.ecm.core.api.model.BlobNotFoundException;
@@ -913,8 +914,8 @@ public class DBSDocument implements InternalDocument {
     }
 
     @Override
-    public void setUpdateCondition(String condition) throws QueryParseException {
-        session.setUpdateCondition(getId(), condition);
+    public void setUpdateCondition(UpdateCondition condition, NuxeoPrincipal principal) throws QueryParseException {
+        session.setUpdateCondition(getId(), condition, principal);
     }
 
     protected String getSchema(String xpath) {

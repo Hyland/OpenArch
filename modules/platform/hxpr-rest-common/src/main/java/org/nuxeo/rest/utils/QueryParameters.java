@@ -31,10 +31,18 @@ public class QueryParameters {
 
     /**
      * Document update/move parameter. When provided, it must be an HXQL predicate defining the condition under which
-     * the update/move is done.
+     * the update/move is done. Mutually exclusive with {@link #IF}.
      * <p>
      * If the condition is not true a 412 error will be returned and no change will be done.
      */
     public static final String CONDITION = "condition";
+
+    /**
+     * Document update/move parameter. When provided, it must be an expression defining the condition under which the
+     * update/move is done. Mutually exclusive with {@link #CONDITION}.
+     * <p>
+     * If the condition is not true a 412 error will be returned and no change will be done.
+     */
+    public static final String IF = "if";
 
 }

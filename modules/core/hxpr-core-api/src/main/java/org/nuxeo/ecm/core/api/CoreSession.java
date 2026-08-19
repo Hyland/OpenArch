@@ -322,10 +322,9 @@ public interface CoreSession {
      * @param src the source document reference
      * @param dst the destination folder reference
      * @param name the new name of the file, or {@code null}
-     * @param condition the condition (an HXQL predicate) under which the document is moved, or {@code null} for no
-     *            condition
+     * @param condition the condition under which the document is moved, or {@code null} for no condition
      */
-    DocumentModel move(DocumentRef src, DocumentRef dst, String name, String condition);
+    DocumentModel move(DocumentRef src, DocumentRef dst, String name, UpdateCondition condition);
 
     /**
      * Bulk move. Destination must be a folder document.

@@ -40,6 +40,7 @@ import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentRef;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.api.NuxeoPrincipal;
+import org.nuxeo.ecm.core.api.UpdateCondition;
 import org.nuxeo.ecm.core.api.event.CoreEventConstants;
 import org.nuxeo.ecm.core.event.Event;
 import org.nuxeo.ecm.core.event.EventService;
@@ -156,7 +157,7 @@ public class DocumentManager {
         return documentMapper.documentModelToDocumentDTO(document);
     }
 
-    public DocumentDTO updateDocument(String repoId, DocumentRef docRef, DocumentDTO doc, String condition) {
+    public DocumentDTO updateDocument(String repoId, DocumentRef docRef, DocumentDTO doc, UpdateCondition condition) {
         CoreSession session = getSession(repoId);
         DocumentDTO currentDocument = getDocument(repoId, docRef);
         if (aclChangesHandler.isChangeInACL(currentDocument, doc)) {
@@ -178,7 +179,7 @@ public class DocumentManager {
         }
         documentMapper.updateDocumentModel(docModel, doc);
         applyGovernance(session, session.getDocument(docRef), doc);
-        if (StringUtils.isNotBlank(condition)) {
+        if (condition != null) {
             docModel.setUpdateCondition(condition);
         }
         session.save();
@@ -186,7 +187,7 @@ public class DocumentManager {
         return documentMapper.documentModelToDocumentDTO(docModel);
     }
 
-    public DocumentDTO patchDocument(String repoId, DocumentRef docRef, String patchString, String condition)
+    public DocumentDTO patchDocument(String repoId, DocumentRef docRef, String patchString, UpdateCondition condition)
             throws JacksonException {
         // TODO transform patch "test" statements into conditional updates, for better atomicity
         JsonNode patch = objectMapper.readTree(patchString);
@@ -205,11 +206,9 @@ public class DocumentManager {
         return documentMapper.documentModelToDocumentDTO(copy);
     }
 
-    public DocumentDTO moveDocument(String repoId, DocumentRef docRef, DocumentRef parentRef, String condition) {
+    public DocumentDTO moveDocument(String repoId, DocumentRef docRef, DocumentRef parentRef,
+            UpdateCondition condition) {
         CoreSession session = getSession(repoId);
-        if (StringUtils.isBlank(condition)) {
-            condition = null;
-        }
         DocumentModel moved = session.move(docRef, parentRef, null, condition);
         session.save();
         moved.refresh();

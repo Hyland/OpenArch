@@ -18,6 +18,7 @@ package org.nuxeo.rest.move;
 import static org.nuxeo.rest.document.DocumentManager.DEFAULT_REPOSITORY_ID;
 import static org.nuxeo.rest.utils.Headers.HXCS_REPOSITORY;
 import static org.nuxeo.rest.utils.QueryParameters.CONDITION;
+import static org.nuxeo.rest.utils.QueryParameters.IF;
 import static org.nuxeo.rest.utils.Versions.APP_HXCS_JSON;
 import static org.nuxeo.rest.utils.Versions.APP_HXCS_JSON_V1;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -38,6 +39,7 @@ import org.nuxeo.rest.swagger.annotation.ApiResponse404DocumentNotFound;
 import org.nuxeo.rest.swagger.annotation.ApiResponse412;
 import org.nuxeo.rest.swagger.annotation.Authenticated;
 import org.nuxeo.rest.swagger.annotation.ParameterCondition;
+import org.nuxeo.rest.swagger.annotation.ParameterIf;
 import org.nuxeo.rest.swagger.annotation.ParameterRepoId;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -70,7 +72,8 @@ public class MoveAPI extends AbstractDocumentAPI {
     @ApiResponse412(description = "Condition evaluated to false.")
     public DocumentDTO move(
             @PathVariable("docId") @Parameter(description = "The document id to be moved.") String docId,
-            @RequestParam(name = CONDITION, defaultValue = "") @ParameterCondition String condition,
+            @RequestParam(name = CONDITION, defaultValue = "") @ParameterCondition String hxql,
+            @RequestParam(name = IF, defaultValue = "") @ParameterIf String expr,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId,
             @RequestBody(required = false) MoveDTO moveRequestBody) {
         String targetParentId = moveRequestBody.targetParentId();
@@ -78,6 +81,7 @@ public class MoveAPI extends AbstractDocumentAPI {
             throw new NuxeoException("Missing destination folder id to move document: targetParentId",
                     BAD_REQUEST.value());
         }
-        return documentManager.moveDocument(repoId, new IdRef(docId), new IdRef(targetParentId), condition);
+        return documentManager.moveDocument(repoId, new IdRef(docId), new IdRef(targetParentId),
+                toUpdateCondition(hxql, expr));
     }
 }

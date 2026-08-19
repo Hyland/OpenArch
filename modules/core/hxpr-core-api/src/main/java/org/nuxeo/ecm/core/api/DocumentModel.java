@@ -527,14 +527,15 @@ public interface DocumentModel extends Serializable {
     void copyContextData(DocumentModel otherDocument);
 
     /**
-     * Sets the condition (an HXQL predicate) under which the document is updated on {@link CoreSession#save save}.
+     * Sets the condition under which the document is updated on {@link CoreSession#save save}.
      * <p>
-     * A {@link ConditionFailedException} will be thrown at {@link CoreSession#save save} time if the condition is not
-     * met, after which the transaction must be rolled back.
+     * A {@link ConditionFailedException} is thrown immediately when an expression is statically false; otherwise it is
+     * thrown at {@link CoreSession#save save} time if the condition is not met. After either failure, the transaction
+     * must be rolled back.
      *
-     * @param condition the condition (an HXQL predicate)
+     * @param condition the condition
      */
-    void setUpdateCondition(String condition);
+    void setUpdateCondition(UpdateCondition condition);
 
     /**
      * Returns the name of the repository in which the document is stored.
