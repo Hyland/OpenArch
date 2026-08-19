@@ -22,21 +22,15 @@ import java.util.List;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.rest.query.OpenSearchQueryManager;
 import org.nuxeo.rest.query.io.EmbeddingQueryResultDTO;
-import org.nuxeo.runtime.springboot.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.stereotype.Component;
 
 @Component
-public class EmbeddingManager implements ApplicationEventPublisherAware {
+public class EmbeddingManager {
 
     @Autowired
     OpenSearchQueryManager osqm;
 
-    ApplicationEventPublisher applicationEventPublisher;
-
-    @Transactional
     public EmbeddingRestDTO getEmbedding(String repoId, String docId, String embeddingId) {
         EmbeddingQueryResultDTO results = osqm.getResults(repoId, docId, embeddingId);
         List<EmbeddingRestDTO> embeddings = results.embeddings();
@@ -47,8 +41,4 @@ public class EmbeddingManager implements ApplicationEventPublisherAware {
         return embeddings.getFirst();
     }
 
-    @Override
-    public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
-        this.applicationEventPublisher = applicationEventPublisher;
-    }
 }

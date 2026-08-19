@@ -53,7 +53,6 @@ import org.nuxeo.rest.swagger.annotation.ApiResponse404DocumentNotFound;
 import org.nuxeo.rest.swagger.annotation.Authenticated;
 import org.nuxeo.rest.swagger.annotation.ParameterRepoId;
 import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.springboot.transaction.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -110,7 +109,6 @@ public class DocumentPermissionsAPI extends AbstractDocumentAPI {
         @Content(schema = @Schema(implementation = ListEffectiveACLDTO.class)) }
     )
     @ApiResponse404DocumentNotFound
-    @Transactional
     public ListEffectiveACLDTO getDocumentFullEffectiveACL(@ParameterDocId @PathVariable("docId") String docId,
             @ParameterUserIds @RequestParam(name = "usernames", required = false, defaultValue = "") List<String> userIds,
             @ParameterRepoId @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) String repoId) {
@@ -140,7 +138,6 @@ public class DocumentPermissionsAPI extends AbstractDocumentAPI {
         @Content(schema = @Schema(implementation = ListEffectivePermissionsDTO.class)) }
     )
     @ApiResponse404DocumentNotFound
-    @Transactional
     public ListEffectivePermissionsDTO getDocumentFullEffectivePermissions(
             @ParameterDocId @PathVariable("docId") String docId,
             @ParameterUserIds @RequestParam(name = "usernames", required = false, defaultValue = "") List<String> userIds,

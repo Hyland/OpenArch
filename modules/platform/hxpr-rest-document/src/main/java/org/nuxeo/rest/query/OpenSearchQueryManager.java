@@ -68,7 +68,6 @@ import org.nuxeo.rest.query.io.SearchAfterToken;
 import org.nuxeo.rest.query.spec.NamedQueryRegistry;
 import org.nuxeo.rest.query.spec.QuerySpecification;
 import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.springboot.transaction.Transactional;
 import org.opensearch.client.opensearch._types.aggregations.Aggregate;
 import org.opensearch.client.opensearch._types.aggregations.StringTermsBucket;
 import org.opensearch.client.opensearch.core.search.Hit;
@@ -95,7 +94,6 @@ public class OpenSearchQueryManager extends AbstractQueryManager {
         super(queryConfig, namedQueryRegistry, translator);
     }
 
-    @Transactional
     @Override
     protected DocumentQueryResultDTO executeAdvancedQuery(DocumentAdvancedQueryDTO query) {
         QuerySpecification spec = initQuerySpecification(query);
@@ -165,7 +163,6 @@ public class OpenSearchQueryManager extends AbstractQueryManager {
         return result;
     }
 
-    @Transactional
     @Override
     protected EmbeddingQueryResultDTO executeEmbeddingQuery(String repoId, String docId, String embeddingId) {
         log.debug("Look up embedding with id '{}' for document '{}' in OpenSearch", embeddingId, docId);
@@ -182,7 +179,6 @@ public class OpenSearchQueryManager extends AbstractQueryManager {
         return getEmbeddingQueryResultDTO(session, repositoryId, spec, nxQuery, null);
     }
 
-    @Transactional
     @Override
     protected EmbeddingQueryResultDTO executeEmbeddingQuery(EmbeddingQueryDTO query) {
         log.debug("Perform OpenSearch embedding query '{}' with limit={}, offset={}", query.query(), query.limit(),
@@ -246,7 +242,6 @@ public class OpenSearchQueryManager extends AbstractQueryManager {
         return embeddings;
     }
 
-    @Transactional
     @Override
     public TermsAggregationQueryResultDTO executeTermsAggregationQuery(DocumentQueryDTO query, String termsAggregationField,
             String searchTerm, int aggregationLimit) {

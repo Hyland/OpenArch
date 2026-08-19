@@ -30,12 +30,17 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 
 @Component
 @ConditionalOnProperty(name = ErroredResponseFilter.LOG_ERRORED_RESPONSE_ENABLED, havingValue = "true")
+// Outermost of the application filters, so that the status observed is the one the client is actually served,
+// including what NuxeoLoginFilter and TransactionFilter turn a failure into on their way out.
+@Order(Ordered.LOWEST_PRECEDENCE - 30)
 public class ErroredResponseFilter extends OncePerRequestFilter {
 
     public static final String LOG_ERRORED_RESPONSE_ENABLED = "hxpr.log.errored.response.enabled";
@@ -60,12 +65,26 @@ public class ErroredResponseFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         boolean hasRequestPayload = request.getInputStream() != null && request.getInputStream().available() > 0;
         ContentCachingRequestWrapper cachedRequest = new ContentCachingRequestWrapper(request, payloadLimit);
-        filterChain.doFilter(cachedRequest, response);
+        try {
+            filterChain.doFilter(cachedRequest, response);
+        } catch (ServletException | IOException | RuntimeException e) {
+            // Nothing set a status, the container will, and it won't dispatch back through this filter. The request
+            // did fail though, so log its payload against the status the error dispatch is about to produce.
+            if (hasRequestPayload) {
+                logRequestPayload(request, cachedRequest, HttpStatus.SC_INTERNAL_SERVER_ERROR);
+            }
+            throw e;
+        }
         int statusCode = response.getStatus();
         if (!FILTERED_SC.contains(statusCode) || !hasRequestPayload) {
             // not the status code we are looking for OR no payload
             return;
         }
+        logRequestPayload(request, cachedRequest, statusCode);
+    }
+
+    protected void logRequestPayload(HttpServletRequest request, ContentCachingRequestWrapper cachedRequest,
+            int statusCode) {
         String capturedPayload = cachedRequest.getContentAsString();
         // The find method scans the input sequence looking for the next subsequence that matches the pattern.
         // As authorization can be one of the headers, it's needed to use find instead of matches which tries to match the entire input

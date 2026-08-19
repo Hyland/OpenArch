@@ -39,7 +39,6 @@ import org.nuxeo.rest.swagger.annotation.ApiResponse412;
 import org.nuxeo.rest.swagger.annotation.Authenticated;
 import org.nuxeo.rest.swagger.annotation.ParameterCondition;
 import org.nuxeo.rest.swagger.annotation.ParameterRepoId;
-import org.nuxeo.runtime.springboot.transaction.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -69,7 +68,6 @@ public class MoveAPI extends AbstractDocumentAPI {
     @ApiResponse200(description = "Returns the document information.")
     @ApiResponse404DocumentNotFound
     @ApiResponse412(description = "Condition evaluated to false.")
-    @Transactional
     public DocumentDTO move(
             @PathVariable("docId") @Parameter(description = "The document id to be moved.") String docId,
             @RequestParam(name = CONDITION, defaultValue = "") @ParameterCondition String condition,

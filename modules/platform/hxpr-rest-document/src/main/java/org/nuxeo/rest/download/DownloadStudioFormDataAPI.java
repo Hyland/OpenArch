@@ -37,7 +37,6 @@ import org.nuxeo.rest.swagger.annotation.ApiResponse404DocumentNotFound;
 import org.nuxeo.rest.swagger.annotation.Authenticated;
 import org.nuxeo.rest.swagger.annotation.ParameterDocId;
 import org.nuxeo.rest.swagger.annotation.ParameterRepoId;
-import org.nuxeo.runtime.springboot.transaction.Transactional;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -71,7 +70,6 @@ public class DownloadStudioFormDataAPI {
     @ApiResponse404DocumentNotFound
     @ApiResponse501(description = "Pre-signed URL is not available for the requested blob.")
     @Operation(summary = "Returns the the pre-signed S3 Url for a downloadable object.", operationId = "downloadUrlByIdAndXPath")
-    @Transactional(property = "nuxeo.rest.download.timeout.seconds")
     public ResponseEntity<String> doGetUrl(@PathVariable("docId") @ParameterDocId String docId,
             @PathVariable("propertyXPathAndFilename") @DownloadAPI.ParameterXPathAndFilename String propertyXPathAndFilename,
             @RequestParam(name = "expiration", required = false) @Parameter(description = "expiration value for generating the S3 pre-signed url in seconds.") Long expirationSeconds,

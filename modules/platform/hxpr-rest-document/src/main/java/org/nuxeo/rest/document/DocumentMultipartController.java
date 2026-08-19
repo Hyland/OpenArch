@@ -37,7 +37,6 @@ import org.nuxeo.rest.swagger.annotation.ParameterDocId;
 import org.nuxeo.rest.swagger.annotation.ParameterDocPath;
 import org.nuxeo.rest.swagger.annotation.ParameterEnforceSysName;
 import org.nuxeo.rest.swagger.annotation.ParameterRepoId;
-import org.nuxeo.runtime.springboot.transaction.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -68,7 +67,6 @@ public class DocumentMultipartController extends AbstractDocumentAPI {
     @RequestBodyMultiPart
     @ApiResponse200DocumentPost
     @ApiResponse404ParentDocumentNotFound
-    @Transactional
     public DocumentDTO createDocumentByIdMultiPart(
             @PathVariable("docId") @Parameter(description = "The parent document id.") String parentId,
             @RequestParam(name = ENFORCE_SYS_NAME, defaultValue = "false") @ParameterEnforceSysName boolean enforceSysName,
@@ -84,7 +82,6 @@ public class DocumentMultipartController extends AbstractDocumentAPI {
     @RequestBodyMultiPart
     @ApiResponse200DocumentPost
     @ApiResponse404ParentDocumentNotFound
-    @Transactional
     public DocumentDTO createDocumentByPathMultiPart(
             @RequestParam(name = ENFORCE_SYS_NAME, defaultValue = "false") @ParameterEnforceSysName boolean enforceSysName,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId,
@@ -100,7 +97,6 @@ public class DocumentMultipartController extends AbstractDocumentAPI {
     @ApiResponse200Document
     @ApiResponse400SingleAcePerPrincipal
     @ApiResponse404DocumentNotFound
-    @Transactional
     public DocumentDTO updateDocumentByIdMultiPart(@PathVariable("docId") @ParameterDocId String docId,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId,
             @RequestPart(DOCUMENT_REQUEST_PART) DocumentDTO doc, HttpServletRequest request)
@@ -114,7 +110,6 @@ public class DocumentMultipartController extends AbstractDocumentAPI {
     @ApiResponse200Document
     @ApiResponse400SingleAcePerPrincipal
     @ApiResponse404DocumentNotFound
-    @Transactional
     public DocumentDTO updateDocumentByPathMultiPart(
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId,
             @PathVariable() @ParameterDocPath String docPath, @RequestPart(DOCUMENT_REQUEST_PART) DocumentDTO doc,

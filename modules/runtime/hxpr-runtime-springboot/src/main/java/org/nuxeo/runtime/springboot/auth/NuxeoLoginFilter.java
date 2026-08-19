@@ -23,9 +23,12 @@ import javax.security.auth.login.LoginException;
 
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.runtime.api.Framework;
+import org.nuxeo.runtime.api.login.LoginContext;
 import org.nuxeo.runtime.springboot.security.SpringSecurityHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -38,6 +41,9 @@ import jakarta.servlet.http.HttpServletResponse;
  * Filter that logs in the authorized user while doing processing.
  */
 @Component
+// Explicit order so the request-scoped TransactionFilter can sit just inside this filter, i.e. the transaction
+// commits while the user is still logged in.
+@Order(Ordered.LOWEST_PRECEDENCE - 20)
 public class NuxeoLoginFilter extends OncePerRequestFilter {
 
     private static final Logger log = LoggerFactory.getLogger(NuxeoLoginFilter.class);
@@ -63,17 +69,25 @@ public class NuxeoLoginFilter extends OncePerRequestFilter {
     protected void doFilterWithLogin(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws IOException, ServletException {
         String userId = SpringSecurityHelper.getPrincipalId();
-        try (var _ = Framework.loginUser(userId)) {
-            request.setAttribute(AUTHENTICATED_ATTRIBUTE, Boolean.TRUE);
-            filterChain.doFilter(request, response);
+        // Only a failure of the login itself is turned into a status here. What the request throws afterwards is for
+        // the REST exception handler, or failing that the container, to render: swallowing it would answer with a
+        // bare status and no body, and would silently drop failures raised by the filters we wrap (the request
+        // transaction commit, in particular).
+        LoginContext loginContext;
+        try {
+            loginContext = Framework.loginUser(userId);
         } catch (LoginException e) {
             log.info(e.getMessage(), e);
-            response.setStatus(SC_UNAUTHORIZED);
+            response.sendError(SC_UNAUTHORIZED);
+            return;
         } catch (NuxeoException e) {
-            if (log.isDebugEnabled()) {
-                log.debug(e.getMessage(), e);
-            }
-            response.setStatus(e.getStatusCode());
+            log.debug(e.getMessage(), e);
+            response.sendError(e.getStatusCode());
+            return;
+        }
+        try (loginContext) {
+            request.setAttribute(AUTHENTICATED_ATTRIBUTE, Boolean.TRUE);
+            filterChain.doFilter(request, response);
         }
     }
 

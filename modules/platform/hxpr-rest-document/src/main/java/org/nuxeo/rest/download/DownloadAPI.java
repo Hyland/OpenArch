@@ -43,7 +43,6 @@ import org.nuxeo.rest.swagger.annotation.ApiResponse404DocumentNotFound;
 import org.nuxeo.rest.swagger.annotation.Authenticated;
 import org.nuxeo.rest.swagger.annotation.ParameterDocId;
 import org.nuxeo.rest.swagger.annotation.ParameterRepoId;
-import org.nuxeo.runtime.springboot.transaction.Transactional;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -86,7 +85,6 @@ public class DownloadAPI {
     @ApiResponse204(description = "Returns the document blob information.", content = {
             @Content(mediaType = ALL_VALUE) })
     @ApiResponse404DocumentNotFound
-    @Transactional(property = "nuxeo.rest.download.timeout.seconds")
     public ResponseEntity<StreamingResponseBody> doHead(@PathVariable("docId") @ParameterDocId String docId,
             @PathVariable("propertyXPathAndFilename") @ParameterXPathAndFilename String propertyXPathAndFilename,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId)
@@ -100,7 +98,6 @@ public class DownloadAPI {
     @ApiResponse200(description = "Returns the document blob.", content = {
             @Content(mediaType = ALL_VALUE, schema = @Schema(type = "string", format = "binary")) })
     @ApiResponse404DocumentNotFound
-    @Transactional(property = "nuxeo.rest.download.timeout.seconds")
     public ResponseEntity<StreamingResponseBody> doGet(@PathVariable("docId") @ParameterDocId String docId,
             @PathVariable("propertyXPathAndFilename") @ParameterXPathAndFilename String propertyXPathAndFilename,
             @RequestParam(name = "inline", required = false) @Parameter(description = "Inline content disposition enablement.") Boolean inline,

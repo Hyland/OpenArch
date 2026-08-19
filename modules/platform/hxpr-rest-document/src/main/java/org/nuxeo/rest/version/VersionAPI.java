@@ -35,7 +35,6 @@ import org.nuxeo.rest.swagger.annotation.ApiResponse412;
 import org.nuxeo.rest.swagger.annotation.ApiResponse422;
 import org.nuxeo.rest.swagger.annotation.Authenticated;
 import org.nuxeo.rest.swagger.annotation.ParameterRepoId;
-import org.nuxeo.runtime.springboot.transaction.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -59,7 +58,6 @@ public class VersionAPI extends AbstractDocumentAPI {
     @ApiResponse412(description = "The document is not versionable.")
     @ApiResponse422(description = "The document to be restored is not a version")
     @ApiResponse200(description = "Returns a current working copy")
-    @Transactional
     public DocumentDTO restoreVersion(
             @PathVariable("versionId") @Parameter(description = "The id of the version to be restored") String versionId,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId) {

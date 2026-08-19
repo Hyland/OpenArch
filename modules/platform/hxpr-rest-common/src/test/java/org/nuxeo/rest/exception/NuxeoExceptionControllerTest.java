@@ -19,6 +19,7 @@ import static jakarta.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
 import static jakarta.ws.rs.core.HttpHeaders.RETRY_AFTER;
 import static org.nuxeo.ecm.core.schema.types.resolver.ObjectResolver.NAME_KEY;
 import static org.skyscreamer.jsonassert.JSONCompareMode.NON_EXTENSIBLE;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -60,6 +61,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import tools.jackson.core.JsonParser;
@@ -163,6 +165,17 @@ class NuxeoExceptionControllerTest extends RuntimeSpringBootTest {
     @Test
     public void testNuxeoException() throws Exception {
         doTestException("/exception/nuxeo", 456, "oops");
+    }
+
+    /**
+     * An error response produced by an {@code @ExceptionHandler} leaves the resolved exception on the request.
+     * {@code TransactionFilter} keys the rollback of the request transaction off that, so it has to be there.
+     */
+    @Test
+    public void testResolvedExceptionIsRecordedOnTheRequest() throws Exception {
+        var result = mvc.perform(get("/exception/runtime")).andExpect(status().is(500)).andReturn();
+
+        assertNotNull(result.getRequest().getAttribute(DispatcherServlet.EXCEPTION_ATTRIBUTE));
     }
 
     @Test

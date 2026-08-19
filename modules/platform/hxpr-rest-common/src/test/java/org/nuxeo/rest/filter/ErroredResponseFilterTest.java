@@ -17,6 +17,7 @@ package org.nuxeo.rest.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -72,6 +73,41 @@ class ErroredResponseFilterTest extends RuntimeSpringBootTest {
         }
         // run the filter
         assertThatCode(() -> erroredResponseFilter.doFilter(request, response, filterChain)).doesNotThrowAnyException();
+    }
+
+    /**
+     * Runs the filter with a chain that consumes the payload and then fails, as the request transaction failing to
+     * commit does, and checks that the original failure is the one that comes back out.
+     */
+    private void runFilterThrowing(String payload, RuntimeException failure) {
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+        HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
+        FilterChain filterChain = Mockito.mock(FilterChain.class);
+        try {
+            when(request.getMethod()).thenReturn("POST");
+            when(request.getRequestURI()).thenReturn("http://example.com/base");
+            when(request.getInputStream()).thenReturn(
+                    new ServletInputStreamImpl(new ByteArrayInputStream(payload.getBytes())));
+            when(request.getContentLength()).thenReturn(payload.length());
+            // the handler had answered successfully: nothing has set an error status, the container will
+            when(response.getStatus()).thenReturn(HttpStatus.SC_OK);
+            Mockito.doAnswer(invocation -> {
+                ServletRequest cachedRequest = invocation.getArgument(0);
+                cachedRequest.getInputStream().readAllBytes();
+                throw failure;
+            }).when(filterChain).doFilter(any(), any());
+        } catch (Exception e) {
+            fail("Failed to set up the mocks before running the filter", e);
+        }
+        // run the filter
+        assertThatThrownBy(() -> erroredResponseFilter.doFilter(request, response, filterChain)).isSameAs(failure);
+    }
+
+    @Test
+    void testExceptionEscapingTheChainIsLoggedAsAnInternalError(CapturedOutput output) {
+        runFilterThrowing(PAYLOAD, new IllegalStateException("commit failed"));
+        assertThat(output).contains(
+                "Request failed with status code 500: POST http://example.com/base { \"foo\": \"bar\" }");
     }
 
     @Test

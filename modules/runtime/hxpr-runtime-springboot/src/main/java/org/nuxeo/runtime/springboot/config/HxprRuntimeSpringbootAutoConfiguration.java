@@ -18,7 +18,7 @@ package org.nuxeo.runtime.springboot.config;
 import org.nuxeo.runtime.springboot.actuator.HxprInfoContributor;
 import org.nuxeo.runtime.springboot.actuator.NuxeoApplicationHealthIndicator;
 import org.nuxeo.runtime.springboot.auth.NuxeoLoginFilter;
-import org.nuxeo.runtime.springboot.transaction.TransactionalInterceptor;
+import org.nuxeo.runtime.springboot.transaction.TransactionFilter;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Import;
@@ -35,7 +35,7 @@ import org.springframework.context.annotation.Import;
 @EnableAspectJAutoProxy
 @Import({
         NuxeoApplicationConfiguration.class,
-        TransactionalInterceptor.class,
+        TransactionFilter.class,
         NuxeoLoginFilter.class,
         HxprInfoContributor.class,
         NuxeoApplicationHealthIndicator.class,

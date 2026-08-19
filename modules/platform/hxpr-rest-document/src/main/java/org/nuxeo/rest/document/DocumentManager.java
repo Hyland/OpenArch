@@ -55,11 +55,8 @@ import org.nuxeo.rest.upload.UploadDTO;
 import org.nuxeo.rest.upload.UploadService;
 import org.nuxeo.rest.upload.handler.UploadHandler;
 import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.springboot.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.stereotype.Component;
 
 import tools.jackson.core.JacksonException;
@@ -74,15 +71,13 @@ import jakarta.ws.rs.core.Response;
  * {@link DocumentDTO} manager.
  */
 @Component
-public class DocumentManager implements ApplicationEventPublisherAware {
+public class DocumentManager {
 
     public static final String DEFAULT_REPOSITORY_ID = "default";
 
     public static final String BASE_DOCUMENT_PATH = "/api/documents"; // NOSONAR
 
     private static final Logger log = LoggerFactory.getLogger(DocumentManager.class);
-
-    ApplicationEventPublisher applicationEventPublisher;
 
     DocumentMapper documentMapper;
 
@@ -112,7 +107,6 @@ public class DocumentManager implements ApplicationEventPublisherAware {
      * @param docRef         document reference
      * @return the document
      */
-    @Transactional
     public DocumentDTO getDocument(String repoId, DocumentRef docRef) {
         return getDocument(repoId, docRef, false, false);
     }
@@ -125,7 +119,6 @@ public class DocumentManager implements ApplicationEventPublisherAware {
      * @param withEmptyLists whether to keep empty lists instead of replacing them with null
      * @return the document
      */
-    @Transactional
     public DocumentDTO getDocument(String repoId, DocumentRef docRef, boolean withAuditEvent, boolean withEmptyLists) {
         CoreSession session = getSession(repoId);
         DocumentModel document = session.getDocument(docRef);
@@ -135,7 +128,6 @@ public class DocumentManager implements ApplicationEventPublisherAware {
         return documentMapper.documentModelToDocumentDTO(document, withEmptyLists);
     }
 
-    @Transactional
     public DocumentAncestorsDTO getDocumentAncestors(String repoId, DocumentRef docRef) {
         DocumentAncestorsDTO ancestorsDTO = new DocumentAncestorsDTO();
         CoreSession session = getSession(repoId);
@@ -148,7 +140,6 @@ public class DocumentManager implements ApplicationEventPublisherAware {
         return ancestorsDTO;
     }
 
-    @Transactional
     public DocumentDTO createDocument(String repoId, DocumentRef parentRef, DocumentDTO doc, boolean enforceSysName) {
         if (StringUtils.isBlank(doc.getPrimaryType())) {
             throw new NuxeoException("Missing document type for document creation: primaryType",
@@ -162,13 +153,9 @@ public class DocumentManager implements ApplicationEventPublisherAware {
         applyGovernance(session, document, doc);
         session.save();
         document.refresh();
-        DocumentDTO documentDTO = documentMapper.documentModelToDocumentDTO(document);
-        var docEvent = new DocumentEvent(this);
-        applicationEventPublisher.publishEvent(docEvent);
-        return documentDTO;
+        return documentMapper.documentModelToDocumentDTO(document);
     }
 
-    @Transactional
     public DocumentDTO updateDocument(String repoId, DocumentRef docRef, DocumentDTO doc, String condition) {
         CoreSession session = getSession(repoId);
         DocumentDTO currentDocument = getDocument(repoId, docRef);
@@ -196,12 +183,9 @@ public class DocumentManager implements ApplicationEventPublisherAware {
         }
         session.save();
         docModel.refresh();
-        DocumentDTO documentDTO = documentMapper.documentModelToDocumentDTO(docModel);
-        applicationEventPublisher.publishEvent(new DocumentEvent(this));
-        return documentDTO;
+        return documentMapper.documentModelToDocumentDTO(docModel);
     }
 
-    @Transactional
     public DocumentDTO patchDocument(String repoId, DocumentRef docRef, String patchString, String condition)
             throws JacksonException {
         // TODO transform patch "test" statements into conditional updates, for better atomicity
@@ -213,7 +197,6 @@ public class DocumentManager implements ApplicationEventPublisherAware {
         return updateDocument(repoId, docRef, document, condition);
     }
 
-    @Transactional
     public DocumentDTO copyDocument(String repoId, DocumentRef src, DocumentRef dst, String name) {
         CoreSession session = getSession(repoId);
         DocumentModel copy = session.copy(src, dst, name);
@@ -222,7 +205,6 @@ public class DocumentManager implements ApplicationEventPublisherAware {
         return documentMapper.documentModelToDocumentDTO(copy);
     }
 
-    @Transactional
     public DocumentDTO moveDocument(String repoId, DocumentRef docRef, DocumentRef parentRef, String condition) {
         CoreSession session = getSession(repoId);
         if (StringUtils.isBlank(condition)) {
@@ -234,7 +216,6 @@ public class DocumentManager implements ApplicationEventPublisherAware {
         return documentMapper.documentModelToDocumentDTO(moved);
     }
 
-    @Transactional
     public DocumentDTO checkinDocument(String repoId, DocumentRef docRef, boolean minor) {
         CoreSession session = getSession(repoId);
         DocumentRef checkedInDoc = session.checkIn(docRef, minor);
@@ -242,7 +223,6 @@ public class DocumentManager implements ApplicationEventPublisherAware {
         return getDocument(repoId, checkedInDoc);
     }
 
-    @Transactional
     public DocumentDTO setLock(String repoId, DocumentRef docRef) {
         CoreSession session = getSession(repoId);
         session.setLock(docRef);
@@ -250,7 +230,6 @@ public class DocumentManager implements ApplicationEventPublisherAware {
         return getDocument(repoId, docRef);
     }
 
-    @Transactional
     public DocumentDTO removeLock(String repoId, DocumentRef docRef) {
         CoreSession session = getSession(repoId);
         session.removeLock(docRef);
@@ -258,24 +237,20 @@ public class DocumentManager implements ApplicationEventPublisherAware {
         return getDocument(repoId, docRef);
     }
 
-    @Transactional
     public void deleteDocument(String repoId, DocumentRef docRef) {
         CoreSession session = getSession(repoId);
         session.removeDocument(docRef);
         session.save();
     }
 
-    @Transactional
     public List<DocumentDTO> getChildren(String repoId, DocumentRef docRef) {
         return getSession(repoId).getChildren(docRef).stream().map(documentMapper::documentModelToDocumentDTO).toList();
     }
 
-    @Transactional
     public boolean isRecord(String repoId, DocumentRef docRef) {
         return getSession(repoId).isRecord(docRef);
     }
 
-    @Transactional
     public DocumentDTO makeRecord(String repoId, DocumentRef docRef) {
         CoreSession session = getSession(repoId);
         session.setRecord(docRef, true);
@@ -283,7 +258,6 @@ public class DocumentManager implements ApplicationEventPublisherAware {
         return getDocument(repoId, docRef);
     }
 
-    @Transactional
     public DocumentDTO setLegalHold(String repoId, DocumentRef docRef, Boolean hold, String comment) {
         CoreSession session = getSession(repoId);
         session.setLegalHold(docRef, hold, comment);
@@ -291,7 +265,6 @@ public class DocumentManager implements ApplicationEventPublisherAware {
         return documentMapper.documentModelToDocumentDTO(session.getDocument(docRef));
     }
 
-    @Transactional
     public DocumentDTO setRetainUntil(String repoId, DocumentRef docRef, Instant until, String comment) {
         CoreSession session = getSession(repoId);
         session.setRetainUntil(docRef, until, comment);
@@ -299,7 +272,6 @@ public class DocumentManager implements ApplicationEventPublisherAware {
         return documentMapper.documentModelToDocumentDTO(session.getDocument(docRef));
     }
 
-    @Transactional
     public DocumentDTO restoreVersion(String repoId, DocumentRef versionRef) {
         CoreSession session = getSession(repoId);
         DocumentModel doc = session.restoreVersion(versionRef);
@@ -308,14 +280,12 @@ public class DocumentManager implements ApplicationEventPublisherAware {
         return documentMapper.documentModelToDocumentDTO(doc);
     }
 
-    @Transactional
     public DocumentDTO uploadAndCreateDocument(String repoId, DocumentRef parentRef, DocumentDTO doc,
             boolean enforceSysName, Collection<Part> multiParts) {
         uploadMultiParts(doc, multiParts);
         return createDocument(repoId, parentRef, doc, enforceSysName);
     }
 
-    @Transactional
     public DocumentDTO uploadAndUpdateDocument(String repoId, DocumentRef docRef, DocumentDTO doc,
             Collection<Part> multiParts) {
         uploadMultiParts(doc, multiParts);
@@ -438,12 +408,6 @@ public class DocumentManager implements ApplicationEventPublisherAware {
         eventService.fireEvent(event);
     }
 
-    @Override
-    public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
-        this.applicationEventPublisher = applicationEventPublisher;
-    }
-
-    @Transactional
     public DocumentDTO importDocument(DocumentDTO dto, String repoId, DocumentRef docRef, BulkImportUploadDTO uploadDTO,
             InputStream inputStream) throws IOException {
         String uploadId = getUpload(uploadDTO.filename(), uploadDTO.mimeType(), uploadDTO.encoding(), inputStream);

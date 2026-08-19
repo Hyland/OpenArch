@@ -28,7 +28,6 @@ import org.nuxeo.rest.query.RepositoryQueryManager;
 import org.nuxeo.rest.query.conf.DefaultNamedQueries;
 import org.nuxeo.rest.query.conf.DefaultNamedQueryRegistry;
 import org.nuxeo.rest.upload.UploadHandlerCleaner;
-import org.nuxeo.rest.upload.UploadHandlerCleanerInterceptor;
 import org.nuxeo.rest.upload.UploadService;
 import org.nuxeo.rest.upload.handler.UploadHandler;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -49,7 +48,6 @@ import org.springframework.context.annotation.Import;
         RepositoryQueryManager.class, //
         OpenSearchQueryManager.class, //
         DefaultNamedQueryRegistry.class, //
-        UploadHandlerCleanerInterceptor.class, //
         UploadHandlerCleaner.class //
 })
 @EnableConfigurationProperties({ QueryConfig.class })

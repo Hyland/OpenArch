@@ -52,7 +52,6 @@ import org.nuxeo.rest.swagger.annotation.ApiResponse400;
 import org.nuxeo.rest.swagger.annotation.ApiResponse404;
 import org.nuxeo.rest.swagger.annotation.Authenticated;
 import org.nuxeo.rest.swagger.annotation.ParameterRepoId;
-import org.nuxeo.runtime.springboot.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -94,7 +93,6 @@ public class QueryAPI {
     @PostMapping
     @Operation(summary = "Returns the search results.", operationId = "getDocumentsByQuery")
     @ApiResponse200(description = "Returns the search results for given query.")
-    @Transactional
     public DocumentQueryResultDTO getDocumentsByPost(
             @RequestBody(required = false) DocumentQueryDTO query,
             @RequestParam(name = "sync", required = false, defaultValue = "false") boolean sync) {
@@ -107,7 +105,6 @@ public class QueryAPI {
     @PostMapping("/advanced")
     @Operation(summary = "Returns the advanced search results.", operationId = "getDocumentsByAdvancedQuery")
     @ApiResponse200(description = "Returns the search results for given advanced query.")
-    @Transactional
     public DocumentQueryResultDTO getDocumentsByAdvancedPost(
             @RequestBody(required = false) DocumentAdvancedQueryDTO query,
             @RequestParam(name = "sync", required = false, defaultValue = "false") boolean sync) {
@@ -129,7 +126,6 @@ public class QueryAPI {
     @Operation(summary = "Returns the named query definition.", operationId = "getNamedQuery")
     @ApiResponse200(description = "Returns the named query definition.")
     @ApiResponse404(description = "Named query not found.")
-    @Transactional
     public NamedQueryDefinition getNamedQuery(
             @PathVariable("namedQuery") @Parameter(description = "The named query id.") String namedQuery) {
         NamedQueryDefinition query = namedQueryRegistry.getNamedQuery(namedQuery);
@@ -143,7 +139,6 @@ public class QueryAPI {
     @Operation(summary = "Returns the search results for given named query.", operationId = "getDocumentsByNamedQuery")
     @ApiResponse200(description = "Returns the search results for given named query.")
     @ApiResponse404(description = "Named query not found.")
-    @Transactional
     public DocumentQueryResultDTO getDocumentsByNamedPost(
             @RequestBody(required = false) DocumentNamedQueryDTO query,
             @RequestParam(name = "sync", required = false, defaultValue = "false") boolean sync) {
@@ -158,7 +153,6 @@ public class QueryAPI {
     @Operation(summary = "Waits for for full text search indexing.", operationId = "waitForFullTextSearchIndexing")
     @ApiResponse200(description = "Waits for full text search indexing.", content = {
             @Content(schema = @Schema(type = "object"), examples = @ExampleObject("{ \"indexing\": \"done\" }")) })
-    @Transactional
     public Map<String, Object> waitForFullTextSearchIndexing(
             @RequestParam(name = "refresh", required = false, defaultValue = "true") @Parameter(description = "Refresh status.") Boolean refresh,
             @RequestParam(name = "timeout", required = false, defaultValue = "5") @Parameter(description = "The timeout (in seconds).") Integer timeout,
@@ -171,7 +165,6 @@ public class QueryAPI {
     @PostMapping("/embeddings")
     @Operation(summary = "Vector search.", operationId = "getEmbeddingsByQuery")
     @ApiResponse200(description = "Returns the nearest embeddings for given query.")
-    @Transactional
     public EmbeddingQueryResultDTO getEmbeddingsByPost(@RequestBody(required = false) EmbeddingQueryDTO query) {
         return osqm.getResults(query);
     }
@@ -184,7 +177,6 @@ public class QueryAPI {
     @ApiResponse400(description = "Invalid request body. Please be aware that termsAggregationProperty is required", content = {
             @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = HxprErrorResponse.class), examples = {
                     @ExampleObject(value = QueryRequestConstants.TERMS_AGGREGATION_INVALID_INPUT_EXAMPLE) }) })
-    @Transactional
     public TermsAggregationQueryResultDTO queryTermsAggregation(
             @RequestBody(required = true) TermsAggregationsQueryDTO query) {
         return osqm.getResults(query.query(), query.termsAggregationProperty(), query.searchTerm(), query.limit());

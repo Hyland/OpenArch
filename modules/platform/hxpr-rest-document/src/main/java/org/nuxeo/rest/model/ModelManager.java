@@ -29,7 +29,6 @@ import org.nuxeo.ecm.core.schema.dto.ModelMapCodec;
 import org.nuxeo.ecm.core.schema.validation.SchemaValidationUtils;
 import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
 import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.springboot.transaction.Transactional;
 import org.springframework.stereotype.Component;
 
 import tools.jackson.databind.JsonNode;
@@ -43,7 +42,6 @@ public class ModelManager {
 
     private static final ObjectMapper mapper = new ObjectMapper();
 
-    @Transactional
     public SchemaManager applyPatch(String repoId, String patchBody, boolean validateOnly) throws IOException {
         JsonNode patch = mapper.readTree(patchBody);
         // the patch applies to the model as the API renders it, i.e. to what GET returns

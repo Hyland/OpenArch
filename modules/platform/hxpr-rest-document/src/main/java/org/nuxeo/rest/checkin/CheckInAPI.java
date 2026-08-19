@@ -37,7 +37,6 @@ import org.nuxeo.rest.swagger.annotation.ApiResponse422;
 import org.nuxeo.rest.swagger.annotation.Authenticated;
 import org.nuxeo.rest.swagger.annotation.ParameterCheckInMinor;
 import org.nuxeo.rest.swagger.annotation.ParameterRepoId;
-import org.nuxeo.runtime.springboot.transaction.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -63,7 +62,6 @@ public class CheckInAPI extends AbstractDocumentAPI {
     @ApiResponse412(description = "The document is not versionable.")
     @ApiResponse422(description = "A version cannot be checked in.")
     @ApiResponse200(description = "Returns the created document version.")
-    @Transactional
     public DocumentDTO checkIn(
             @PathVariable("docId") @Parameter(description = "The id of the document to be checked in.") String docId,
             @RequestParam(value = "minor", required = false, defaultValue = "false") @ParameterCheckInMinor boolean minor,

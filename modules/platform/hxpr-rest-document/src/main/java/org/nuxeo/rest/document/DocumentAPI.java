@@ -44,7 +44,6 @@ import org.nuxeo.rest.swagger.annotation.ParameterDocId;
 import org.nuxeo.rest.swagger.annotation.ParameterDocPath;
 import org.nuxeo.rest.swagger.annotation.ParameterEnforceSysName;
 import org.nuxeo.rest.swagger.annotation.ParameterRepoId;
-import org.nuxeo.runtime.springboot.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -108,7 +107,6 @@ public class DocumentAPI extends AbstractDocumentAPI {
     @Operation(summary = "Returns the document's ancestors.", operationId = "getDocumentAncestors")
     @ApiResponse200Document(description = "Returns an object containing a list of the document's ancestors.")
     @ApiResponse404DocumentNotFound
-    @Transactional
     public DocumentAncestorsDTO getDocumentAncestors(@PathVariable("docId") @ParameterDocId String docId,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId) {
         return documentManager.getDocumentAncestors(repoId, new IdRef(docId));
@@ -118,7 +116,6 @@ public class DocumentAPI extends AbstractDocumentAPI {
     @Operation(summary = "Creates a document under parent with given id.", operationId = "createDocumentUnderParentById")
     @ApiResponse200DocumentPost
     @ApiResponse404ParentDocumentNotFound
-    @Transactional
     public DocumentDTO createDocumentById(
             @PathVariable("docId") @Parameter(description = "The parent document id.") String parentId,
             @RequestParam(name = ENFORCE_SYS_NAME, defaultValue = "false") @ParameterEnforceSysName boolean enforceSysName,
@@ -131,7 +128,6 @@ public class DocumentAPI extends AbstractDocumentAPI {
     @Operation(summary = "Creates a document under parent with given path.", operationId = "createDocumentUnderParentByPath")
     @ApiResponse200DocumentPost
     @ApiResponse404ParentDocumentNotFound
-    @Transactional
     public DocumentDTO createDocumentByPath(
             @RequestParam(name = ENFORCE_SYS_NAME, defaultValue = "false") @ParameterEnforceSysName boolean enforceSysName,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId,
@@ -146,7 +142,6 @@ public class DocumentAPI extends AbstractDocumentAPI {
     @ApiResponse400SingleAcePerPrincipal
     @ApiResponse404DocumentNotFound
     @ApiResponse412(description = "Condition evaluated to false.")
-    @Transactional
     public DocumentDTO updateDocumentById(@PathVariable("docId") @ParameterDocId String docId,
             @RequestParam(name = CONDITION, defaultValue = "") @ParameterCondition String condition,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId,
@@ -160,7 +155,6 @@ public class DocumentAPI extends AbstractDocumentAPI {
     @ApiResponse400SingleAcePerPrincipal
     @ApiResponse404DocumentNotFound
     @ApiResponse412(description = "Condition evaluated to false.")
-    @Transactional
     public DocumentDTO updateDocumentByPath(
             @RequestParam(name = CONDITION, defaultValue = "") @ParameterCondition String condition,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId,
@@ -176,7 +170,6 @@ public class DocumentAPI extends AbstractDocumentAPI {
     @ApiResponse400PatchMissingField
     @ApiResponse404DocumentNotFound
     @ApiResponse412(description = "Condition evaluated to false.")
-    @Transactional
     public DocumentDTO patchDocumentById(@PathVariable("docId") @ParameterDocId String docId,
             @RequestParam(name = CONDITION, defaultValue = "") @ParameterCondition String condition,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId,
@@ -191,7 +184,6 @@ public class DocumentAPI extends AbstractDocumentAPI {
     @ApiResponse400PatchMissingField
     @ApiResponse404DocumentNotFound
     @ApiResponse412(description = "Condition evaluated to false.")
-    @Transactional
     public DocumentDTO patchDocumentByPath(
             @RequestParam(name = CONDITION, defaultValue = "") @ParameterCondition String condition,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId,
@@ -206,7 +198,6 @@ public class DocumentAPI extends AbstractDocumentAPI {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ApiResponse204DocumentDeleted
     @ApiResponse404DocumentNotFound
-    @Transactional
     public void deleteDocumentById(@PathVariable("docId") @ParameterDocId String docId,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId) {
         documentManager.deleteDocument(repoId, new IdRef(docId));
@@ -217,7 +208,6 @@ public class DocumentAPI extends AbstractDocumentAPI {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ApiResponse204DocumentDeleted
     @ApiResponse404DocumentNotFound
-    @Transactional
     public void deleteDocumentByPath(
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId,
             @PathVariable() @ParameterDocPath String docPath) {

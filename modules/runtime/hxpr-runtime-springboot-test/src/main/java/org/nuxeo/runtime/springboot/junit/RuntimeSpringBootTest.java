@@ -34,6 +34,7 @@ import org.nuxeo.runtime.mockito.RuntimeInjector;
 import org.nuxeo.runtime.springboot.NuxeoApplication;
 import org.nuxeo.runtime.springboot.auth.NuxeoLoginFilter;
 import org.nuxeo.runtime.springboot.junit.security.IdpTestAuthenticationSupport;
+import org.nuxeo.runtime.springboot.transaction.TransactionFilter;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesLoader;
@@ -166,11 +167,13 @@ public abstract class RuntimeSpringBootTest {
     }
 
     @BeforeEach
-    public void setup(@Autowired WebApplicationContext context, @Autowired NuxeoLoginFilter interceptor) {
+    public void setup(@Autowired WebApplicationContext context, @Autowired NuxeoLoginFilter loginFilter,
+            @Autowired TransactionFilter transactionFilter) {
 
+        // Order matters: login is outermost so the request transaction commits while the user is still logged in.
         var builder = MockMvcBuilders.webAppContextSetup(context)
                                      .apply(SecurityMockMvcConfigurers.springSecurity())
-                                     .addFilters(interceptor);
+                                     .addFilters(loginFilter, transactionFilter); // login before transaction
         String bearerToken = IdpTestAuthenticationSupport.bearerTokenOrNull();
         if (bearerToken != null) {
             builder.defaultRequest(MockMvcRequestBuilders.get("/")

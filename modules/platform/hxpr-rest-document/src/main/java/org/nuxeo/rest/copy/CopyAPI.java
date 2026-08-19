@@ -36,7 +36,6 @@ import org.nuxeo.rest.swagger.annotation.ApiResponse200;
 import org.nuxeo.rest.swagger.annotation.ApiResponse404DocumentNotFound;
 import org.nuxeo.rest.swagger.annotation.Authenticated;
 import org.nuxeo.rest.swagger.annotation.ParameterRepoId;
-import org.nuxeo.runtime.springboot.transaction.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -62,7 +61,6 @@ public class CopyAPI extends AbstractDocumentAPI {
     @Operation(summary = "Copies the source document inside the destination folder", description = "Copy a given document id to a given destination folder.  Requires request body with target name and targetParentId", operationId = "copy")
     @ApiResponse200(description = "Returns the document information.")
     @ApiResponse404DocumentNotFound
-    @Transactional
     public DocumentDTO copy(
             @PathVariable("docId") @Parameter(description = "The source document id to be copied.") String docId,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId,

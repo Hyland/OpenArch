@@ -36,7 +36,6 @@ import org.nuxeo.rest.query.io.TermsAggregationQueryResultDTO;
 import org.nuxeo.rest.query.spec.NamedQueryRegistry;
 import org.nuxeo.rest.query.spec.QuerySpecification;
 import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.springboot.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -90,7 +89,6 @@ public class RepositoryQueryManager extends AbstractQueryManager {
         return result;
     }
 
-   @Transactional
     public DocumentQueryResultDTO getDocumentVersions(String repoId, String docId, long limit, long offset) {
         String NXQLQuery = NXQL_VERSIONS.formatted(docId);
         DocumentQueryDTO query = new DocumentQueryDTO(repoId, NXQLQuery, limit, offset, null);

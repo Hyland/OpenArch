@@ -23,7 +23,6 @@ import org.nuxeo.rest.vocabulary.io.VocabularyDTO;
 import org.nuxeo.rest.vocabulary.io.VocabularyEntryRequestDTO;
 import org.nuxeo.rest.vocabulary.io.VocabularyEntryResponseDTO;
 import org.nuxeo.rest.vocabulary.io.VocabularyIdDTO;
-import org.nuxeo.runtime.springboot.transaction.Transactional;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -38,13 +37,11 @@ public class VocabularyManager {
         this.vocabularyService = vocabularyService;
     }
 
-    @Transactional
     public VocabularyDTO createVocabulary(String repoId, VocabularyDTO vocabularyDto) {
         return vocabularyMapper.toVocabularyDto(
                 vocabularyService.createVocabulary(repoId, vocabularyMapper.toVocabulary(vocabularyDto)));
     }
 
-    @Transactional
     public VocabularyEntryResponseDTO createVocabularyEntry(String repoId, String vocabularyId,
             VocabularyEntryRequestDTO entry) {
         var vocabularyParent = vocabularyService.getVocabulary(repoId, vocabularyId);
@@ -54,7 +51,6 @@ public class VocabularyManager {
         return vocabularyMapper.vocabularyEntryWrapperToVocabularyEntryResponse(createdEntry);
     }
 
-    @Transactional
     public List<VocabularyIdDTO> getVocabularyList(String repoId) {
         return vocabularyService.getVocabularies(repoId)
                                 .stream()
@@ -62,24 +58,20 @@ public class VocabularyManager {
                                 .toList();
     }
 
-    @Transactional
     public void deleteVocabulary(String repoId, String vocabularyId) {
         vocabularyService.removeVocabulary(repoId, vocabularyId);
     }
 
-    @Transactional
     public List<VocabularyEntryResponseDTO> getVocabularyEntries(String repoId, String vocabularyId) {
         var entries = vocabularyService.getVocabularyEntries(repoId, vocabularyId);
         return entries.stream().map(vocabularyMapper::vocabularyEntryWrapperToVocabularyEntryResponse).toList();
     }
 
-    @Transactional
     public VocabularyEntryResponseDTO getVocabularyEntry(String repoId, String vocabularyId, String entryKey) {
         var entry = vocabularyService.getVocabularyEntry(repoId, vocabularyId, entryKey);
         return vocabularyMapper.vocabularyEntryWrapperToVocabularyEntryResponse(entry);
     }
 
-    @Transactional
     public VocabularyEntryResponseDTO updateVocabularyEntry(String repoId, String vocabularyId,
             VocabularyEntryRequestDTO entry) {
         var parent = vocabularyService.getVocabulary(repoId, vocabularyId);
@@ -89,7 +81,6 @@ public class VocabularyManager {
         return vocabularyMapper.vocabularyEntryWrapperToVocabularyEntryResponse(updatedEntry);
     }
 
-    @Transactional
     public void deleteVocabularyEntry(String repoId, String vocabularyId, String vocabularyKey) {
         vocabularyService.removeVocabularyEntry(repoId, vocabularyId, vocabularyKey);
     }

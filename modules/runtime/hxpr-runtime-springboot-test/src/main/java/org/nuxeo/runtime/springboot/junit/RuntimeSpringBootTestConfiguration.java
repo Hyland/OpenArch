@@ -18,7 +18,7 @@ package org.nuxeo.runtime.springboot.junit;
 import java.util.List;
 
 import org.nuxeo.runtime.springboot.auth.NuxeoLoginFilter;
-import org.nuxeo.runtime.springboot.transaction.TransactionalInterceptor;
+import org.nuxeo.runtime.springboot.transaction.TransactionFilter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.http.converter.autoconfigure.HttpMessageConvertersAutoConfiguration;
 import org.springframework.boot.jackson.autoconfigure.JacksonAutoConfiguration;
@@ -39,7 +39,7 @@ import tools.jackson.databind.json.JsonMapper;
 
 @TestConfiguration()
 @Import({ RuntimeTestState.class, HttpMessageConvertersAutoConfiguration.class, NuxeoLoginFilter.class,
-        TransactionalInterceptor.class, JacksonAutoConfiguration.class, MethodValidationPostProcessor.class })
+        TransactionFilter.class, JacksonAutoConfiguration.class, MethodValidationPostProcessor.class })
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @EnableWebMvc
 @EnableWebSecurity

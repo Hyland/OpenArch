@@ -49,7 +49,6 @@ import org.nuxeo.rest.vocabulary.io.VocabularyDTO;
 import org.nuxeo.rest.vocabulary.io.VocabularyEntryRequestDTO;
 import org.nuxeo.rest.vocabulary.io.VocabularyEntryResponseDTO;
 import org.nuxeo.rest.vocabulary.io.VocabularyIdDTO;
-import org.nuxeo.runtime.springboot.transaction.Transactional;
 import org.springframework.core.annotation.AliasFor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -169,7 +168,6 @@ public class VocabularyAPI {
     @ApiResponse201(description = "Returns the created vocabulary.")
     @ApiResponse400(description = "Invalid vocabulary id.")
     @ApiResponse409(description = "Vocabulary already exists.")
-    @Transactional
     public ResponseEntity<VocabularyDTO> createVocabulary(
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId,
             @RequestBody(required = false) VocabularyDTO vocabulary) {
@@ -183,7 +181,6 @@ public class VocabularyAPI {
     @ApiResponse400(description = "Invalid vocabulary entry key or label.")
     @ApiResponse404VocabularyNotFound
     @ApiResponse409(description = "Entry already exists in this vocabulary.")
-    @Transactional
     public ResponseEntity<VocabularyEntryResponseDTO> createVocabularyEntry(
             @PathVariable(VOCABULARY_ID) @PathVariableId String vocabularyId,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId,
@@ -198,7 +195,6 @@ public class VocabularyAPI {
     @ApiResponse204(description = "Vocabulary removed successfully.")
     @ApiResponse404VocabularyNotFound
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @Transactional
     public void deleteVocabulary(@PathVariable(VOCABULARY_ID) @PathVariableId String vocabularyId,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId) {
         manager.deleteVocabulary(repoId, vocabularyId);
@@ -209,7 +205,6 @@ public class VocabularyAPI {
     @ApiResponse204(description = "Vocabulary entry removed successfully.")
     @ApiResponse404VocabularyOrEntryNotFound
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @Transactional
     public void deleteVocabularyEntry(@PathVariable(VOCABULARY_ID) @PathVariableId String vocabularyId,
             @PathVariable(VOCABULARY_KEY) @PathVariableKey String vocabularyKey,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId) {

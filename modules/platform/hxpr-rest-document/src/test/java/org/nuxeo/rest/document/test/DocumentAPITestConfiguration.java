@@ -22,7 +22,6 @@ import org.nuxeo.rest.document.DocumentMapper;
 import org.nuxeo.rest.document.ObjectMapperConfiguration;
 import org.nuxeo.rest.document.utils.ACLChangesHandler;
 import org.nuxeo.rest.upload.UploadHandlerCleaner;
-import org.nuxeo.rest.upload.UploadHandlerCleanerInterceptor;
 import org.nuxeo.rest.upload.config.UploadServiceConfiguration;
 import org.nuxeo.rest.upload.handler.UploadHandlerConfig;
 import org.nuxeo.rest.vocabulary.config.VocabularyAPIConfig;
@@ -39,7 +38,6 @@ import org.springframework.context.annotation.Import;
         UploadHandlerConfig.class, //
         UploadHandlerCleaner.class, //
         UploadServiceConfiguration.class, //
-        VocabularyAPIConfig.class, //
-        UploadHandlerCleanerInterceptor.class}) //
+        VocabularyAPIConfig.class}) //
 public class DocumentAPITestConfiguration {
 }
