@@ -24,7 +24,7 @@ import java.util.Optional;
 import org.nuxeo.ecm.core.api.IterableQueryResult;
 import org.nuxeo.opensearch.core.OpenSearchHitConverter;
 import org.nuxeo.opensearch.io.DocumentDTO;
-import org.nuxeo.opensearch.query.NxQueryBuilder;
+import org.nuxeo.opensearch.query.OpenSearchQueryBuilder;
 import org.opensearch.client.opensearch.core.search.Hit;
 import org.opensearch.client.opensearch.core.search.TotalHits;
 
@@ -33,7 +33,7 @@ import org.opensearch.client.opensearch.core.search.TotalHits;
  * <p>
  * Queries OpenSearch when there's no more result in current response and there's more in cluster.
  * <p>
- * For better performance use {@link NxQueryBuilder#onlyOpenSearchResponse()} for the first scroll requests.
+ * For better performance use {@link OpenSearchQueryBuilder#onlyOpenSearchResponse()} for the first scroll requests.
  *
  * @since 8.4
  */

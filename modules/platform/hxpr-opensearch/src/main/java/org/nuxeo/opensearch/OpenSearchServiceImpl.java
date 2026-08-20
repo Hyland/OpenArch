@@ -99,7 +99,7 @@ import org.nuxeo.opensearch.config.OpenSearchIndexConfig;
 import org.nuxeo.opensearch.core.OpenSearchResultSetImpl;
 import org.nuxeo.opensearch.fetcher.Fetcher;
 import org.nuxeo.opensearch.io.DocumentDTO;
-import org.nuxeo.opensearch.query.NxQueryBuilder;
+import org.nuxeo.opensearch.query.OpenSearchQueryBuilder;
 import org.nuxeo.opensearch.query.WildcardUtils;
 import org.nuxeo.opensearch.tasks.IndexingTaskProcessor;
 import org.nuxeo.opensearch.tasks.message.IndexingTask;
@@ -350,7 +350,7 @@ public class OpenSearchServiceImpl extends DefaultComponent implements OpenSearc
      * Ensures the hybrid search RRF pipeline exists in OpenSearch.
      * <p>
      * Hybrid (vector + chunkFTS) queries reference the {@code rrf_pipeline} search pipeline (see
-     * {@code NxQueryBuilder}). Creating it here at startup removes the per-request existence check that
+     * {@code OpenSearchQueryBuilder}). Creating it here at startup removes the per-request existence check that
      * used to run on every hybrid query.
      * <p>
      * Called from {@link #start()} after indexes are initialized, ensuring the OpenSearch service and
@@ -1395,13 +1395,13 @@ public class OpenSearchServiceImpl extends DefaultComponent implements OpenSearc
     // Search ===============================================================
 
     @Override
-    public DocumentModelList query(NxQueryBuilder queryBuilder) {
+    public DocumentModelList query(OpenSearchQueryBuilder queryBuilder) {
         return queryAndAggregate(queryBuilder).getDocuments();
     }
 
     @SuppressWarnings("resource") // IterableQueryResult closed by OpenSearchResult.getRows().close()
     @Override
-    public OpenSearchResult queryAndAggregate(NxQueryBuilder queryBuilder) {
+    public OpenSearchResult queryAndAggregate(OpenSearchQueryBuilder queryBuilder) {
         SearchResponse<DocumentDTO> response = search(queryBuilder);
         if (queryBuilder.returnsDocuments()) {
             DocumentModelListImpl docs = getDocumentModels(queryBuilder, response);
@@ -1413,18 +1413,18 @@ public class OpenSearchServiceImpl extends DefaultComponent implements OpenSearc
         return new OpenSearchResult(response);
     }
 
-    public OpenSearchResult queryWithTermsAggregation(NxQueryBuilder queryBuilder, String termsAggregationField,
+    public OpenSearchResult queryWithTermsAggregation(OpenSearchQueryBuilder queryBuilder, String termsAggregationField,
             String searchTerm, int aggregationLimit) {
         SearchResponse<DocumentDTO> response = searchWithAggregations(queryBuilder, termsAggregationField, searchTerm, aggregationLimit);
         return new OpenSearchResult(response);
     }
 
     @Override
-    public OpenSearchScrollResult scroll(NxQueryBuilder queryBuilder, long keepAlive) {
+    public OpenSearchScrollResult scroll(OpenSearchQueryBuilder queryBuilder, long keepAlive) {
         return scroll(queryBuilder, SearchType.DfsQueryThenFetch, keepAlive);
     }
 
-    protected OpenSearchScrollResult scroll(NxQueryBuilder queryBuilder, SearchType searchType, long keepAlive) {
+    protected OpenSearchScrollResult scroll(OpenSearchQueryBuilder queryBuilder, SearchType searchType, long keepAlive) {
         SearchResponse<DocumentDTO> response = searchScroll(queryBuilder, searchType, keepAlive);
         return getScrollResults(queryBuilder, response, response.scrollId(), keepAlive);
     }
@@ -1442,7 +1442,7 @@ public class OpenSearchServiceImpl extends DefaultComponent implements OpenSearc
     }
 
     @SuppressWarnings("resource") // IterableQueryResult closed by EsResult.getRows().close()
-    protected OpenSearchScrollResult getScrollResults(NxQueryBuilder queryBuilder, SearchResponse<DocumentDTO> response,
+    protected OpenSearchScrollResult getScrollResults(OpenSearchQueryBuilder queryBuilder, SearchResponse<DocumentDTO> response,
             String scrollId, long keepAlive) {
         if (queryBuilder.returnsDocuments()) {
             DocumentModelListImpl docs = getDocumentModels(queryBuilder, response);
@@ -1454,7 +1454,7 @@ public class OpenSearchServiceImpl extends DefaultComponent implements OpenSearc
         return new OpenSearchScrollResult(response, queryBuilder, scrollId, keepAlive);
     }
 
-    protected DocumentModelListImpl getDocumentModels(NxQueryBuilder queryBuilder,
+    protected DocumentModelListImpl getDocumentModels(OpenSearchQueryBuilder queryBuilder,
             SearchResponse<DocumentDTO> response) {
         DocumentModelListImpl ret;
         long totalSize = Optional.ofNullable(response.hits().total())
@@ -1486,11 +1486,11 @@ public class OpenSearchServiceImpl extends DefaultComponent implements OpenSearc
         }
     }
 
-    private IterableQueryResult getRows(NxQueryBuilder queryBuilder, SearchResponse<DocumentDTO> response) {
+    private IterableQueryResult getRows(OpenSearchQueryBuilder queryBuilder, SearchResponse<DocumentDTO> response) {
         return new OpenSearchResultSetImpl(response, queryBuilder.getSelectFieldsAndTypes());
     }
 
-    protected SearchResponse<DocumentDTO> search(NxQueryBuilder query) {
+    protected SearchResponse<DocumentDTO> search(OpenSearchQueryBuilder query) {
         try (Context ignored = searchTimer.time()) {
             // CIN-12609: hybrid (kNN + chunk FTS) queries MUST NOT use DFS. The hybrid score-ranker /
             // RRF phase-results processor is incompatible with the DFS pre-phase: with DFS the per-
@@ -1507,7 +1507,7 @@ public class OpenSearchServiceImpl extends DefaultComponent implements OpenSearc
         }
     }
 
-    protected SearchResponse<DocumentDTO> searchWithAggregations(NxQueryBuilder query, String termsAggregationField,
+    protected SearchResponse<DocumentDTO> searchWithAggregations(OpenSearchQueryBuilder query, String termsAggregationField,
             String searchTerm, int aggregationLimit) {
         try (Context ignored = searchTimer.time()) {
             SearchRequest request = buildSearchRequestWithTopNAggregation(query, termsAggregationField, searchTerm, aggregationLimit);
@@ -1515,7 +1515,7 @@ public class OpenSearchServiceImpl extends DefaultComponent implements OpenSearc
         }
     }
 
-    protected SearchResponse<DocumentDTO> searchScroll(NxQueryBuilder query, SearchType searchType, long keepAlive) {
+    protected SearchResponse<DocumentDTO> searchScroll(OpenSearchQueryBuilder query, SearchType searchType, long keepAlive) {
         try (Context ignored = searchTimer.time()) {
             SearchRequest request = buildSearchScrollRequest(query, searchType, keepAlive);
             return getClient().search(request);
@@ -1530,16 +1530,16 @@ public class OpenSearchServiceImpl extends DefaultComponent implements OpenSearc
         }
     }
 
-    protected SearchRequest buildSearchRequest(NxQueryBuilder query, SearchType searchType) {
+    protected SearchRequest buildSearchRequest(OpenSearchQueryBuilder query, SearchType searchType) {
         return buildSearchRequest(query, searchType, -1);
     }
 
-    protected SearchRequest buildSearchScrollRequest(NxQueryBuilder query, SearchType searchType, long keepAlive) {
+    protected SearchRequest buildSearchScrollRequest(OpenSearchQueryBuilder query, SearchType searchType, long keepAlive) {
         SearchRequest request = buildSearchRequest(query, searchType, keepAlive);
         return request.toBuilder().scroll(b -> b.time(timeOf(keepAlive))).build();
     }
 
-    protected SearchRequest buildSearchRequest(NxQueryBuilder query, SearchType searchType, long keepAlive) {
+    protected SearchRequest buildSearchRequest(OpenSearchQueryBuilder query, SearchType searchType, long keepAlive) {
         // For embedding queries (vector/hybrid/embeddingId), use the embeddings index with denormalized data
         // For regular queries, use the main document index
         boolean isEmbeddingQuery = query.isEmbeddingQuery();
@@ -1556,7 +1556,7 @@ public class OpenSearchServiceImpl extends DefaultComponent implements OpenSearc
         return builder.build();
     }
 
-    protected SearchRequest buildSearchRequestWithTopNAggregation(NxQueryBuilder nxqlQueryBuilder, String termsAggregationField,
+    protected SearchRequest buildSearchRequestWithTopNAggregation(OpenSearchQueryBuilder nxqlQueryBuilder, String termsAggregationField,
             String searchTerm, int aggregationLimit) {
         List<String> indexes = getSearchIndexes(nxqlQueryBuilder.getSearchRepositories());
 

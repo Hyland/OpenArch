@@ -43,7 +43,7 @@ import org.nuxeo.ecm.core.query.sql.HXQL;
 import org.nuxeo.opensearch.api.OpenSearchService;
 import org.nuxeo.opensearch.api.OpenSearchResult;
 import org.nuxeo.opensearch.core.OpenSearchResultSetImpl;
-import org.nuxeo.opensearch.query.NxQueryBuilder;
+import org.nuxeo.opensearch.query.OpenSearchQueryBuilder;
 import org.nuxeo.opensearch.test.RepositoryOpenSearchFeature;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.test.runner.Features;
@@ -141,7 +141,7 @@ public class TestCompareQueryAndFetch {
 
     protected void compareOpenSearchAndCore(String nxql) throws Exception {
         IterableQueryResult coreResult = session.queryAndFetch(nxql, HXQL.HXQL);
-        OpenSearchResult openSearchRes = oss.queryAndAggregate(new NxQueryBuilder(session).nxql(nxql).limit(20));
+        OpenSearchResult openSearchRes = oss.queryAndAggregate(new OpenSearchQueryBuilder(session).hxql(nxql).limit(20));
         try (IterableQueryResult openSearchResult = openSearchRes.getRows()) {
             assertSameDocumentLists(coreResult, openSearchResult);
             coreResult.close();
@@ -161,7 +161,7 @@ public class TestCompareQueryAndFetch {
     public void testIteratorWithLimit() throws Exception {
         int LIMIT = 5;
         OpenSearchResult openSearchRes = oss.queryAndAggregate(
-                new NxQueryBuilder(session).nxql("select sys_id FROM SysContent").limit(LIMIT));
+                new OpenSearchQueryBuilder(session).hxql("select sys_id FROM SysContent").limit(LIMIT));
         try (IterableQueryResult res = openSearchRes.getRows()) {
             // the number of doc in the iterator
             assertEquals(LIMIT, res.size());
@@ -173,7 +173,7 @@ public class TestCompareQueryAndFetch {
     @Test
     public void testRangeCompareDate() throws Exception {
         OpenSearchResult openSearchRes = oss.queryAndAggregate(
-                new NxQueryBuilder(session).nxql("select sys_id FROM SysContent WHERE sys_created > DATE '2020-01-01'"));
+                new OpenSearchQueryBuilder(session).hxql("select sys_id FROM SysContent WHERE sys_created > DATE '2020-01-01'"));
         try (IterableQueryResult res = openSearchRes.getRows()) {
             assertEquals(14, ((OpenSearchResultSetImpl) res).totalSize());
         }

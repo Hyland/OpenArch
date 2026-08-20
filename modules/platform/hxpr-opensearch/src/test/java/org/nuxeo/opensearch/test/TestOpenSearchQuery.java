@@ -52,7 +52,7 @@ import org.nuxeo.ecm.core.schema.TypeConstants;
 import org.nuxeo.opensearch.api.OpenSearchResult;
 import org.nuxeo.opensearch.api.OpenSearchService;
 import org.nuxeo.opensearch.io.DocumentDTO;
-import org.nuxeo.opensearch.query.NxQueryBuilder;
+import org.nuxeo.opensearch.query.OpenSearchQueryBuilder;
 import org.nuxeo.opensearch.test.util.ParquetBlobGenerator;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
@@ -129,20 +129,20 @@ public class TestOpenSearchQuery {
     public void searchWithCorrelation() throws Exception {
         createDocumentWithFiles();
 
-        DocumentModelList ret = oss.query(new NxQueryBuilder(session).nxql("SELECT * FROM SysContent"));
+        DocumentModelList ret = oss.query(new OpenSearchQueryBuilder(session).hxql("SELECT * FROM SysContent"));
         assertEquals(1, ret.totalSize());
         // search without correlation works
-        ret = oss.query(new NxQueryBuilder(session).nxql(
+        ret = oss.query(new OpenSearchQueryBuilder(session).hxql(
                 "SELECT * FROM SysContent WHERE sysfiles_blobs/*/blob/filename = 'testfile1.txt' AND sysfiles_blobs/*/blob/length=3"));
         assertEquals(1, ret.totalSize());
-        ret = oss.query(new NxQueryBuilder(session).nxql(
+        ret = oss.query(new OpenSearchQueryBuilder(session).hxql(
                 "SELECT * FROM SysContent WHERE sysfiles_blobs/blob/filename = 'testfile1.txt' AND sysfiles_blobs/blob/length=3"));
         assertEquals(1, ret.totalSize());
-        ret = oss.query(new NxQueryBuilder(session).nxql(
+        ret = oss.query(new OpenSearchQueryBuilder(session).hxql(
                 "SELECT * FROM SysContent WHERE sysfiles_blobs/blob/filename = 'testfile4.txt' AND sysfiles_blobs/blob/length=3"));
         assertEquals(1, ret.totalSize());
         // search with correlation is not supported in NXQL
-        ret = oss.query(new NxQueryBuilder(session).nxql(
+        ret = oss.query(new OpenSearchQueryBuilder(session).hxql(
                 "SELECT * FROM SysContent WHERE sysfiles_blobs/*1/blob/filename = 'testfile3.txt' AND sysfiles_blobs/*1/blob/length=3"));
         assertEquals(0, ret.totalSize()); // TODO should be 1 when implemented
     }
@@ -155,13 +155,13 @@ public class TestOpenSearchQuery {
         txFeature.nextTransaction();
 
         // match the document with system user
-        DocumentModelList ret = oss.query(new NxQueryBuilder(session).nxql("SELECT * FROM SysContent"));
+        DocumentModelList ret = oss.query(new OpenSearchQueryBuilder(session).hxql("SELECT * FROM SysContent"));
         assertEquals(1, ret.totalSize());
 
         // no match for unknown user
         CoreSession restrictedSession = CoreInstance.getCoreSession(session.getRepositoryName(),
                 DummyLoginFeature.getTestPrincipal("bob", false));
-        ret = oss.query(new NxQueryBuilder(restrictedSession).nxql("SELECT * FROM SysContent"));
+        ret = oss.query(new OpenSearchQueryBuilder(restrictedSession).hxql("SELECT * FROM SysContent"));
         assertEquals(0, ret.totalSize());
     }
 
@@ -196,7 +196,7 @@ public class TestOpenSearchQuery {
         // Run a knn query for the embedding. 0.11 is close to 0.1, so we expect "embedding_id_0.1" to be returned.
         List<Double> targetVector = makeVectorFilledWith(0.11);
         OpenSearchResult result = oss.queryAndAggregate(
-                new NxQueryBuilder(session).embeddingQuery(TEST_EMBEDDING_TYPE, targetVector, null, "SELECT * FROM SysContent"));
+                new OpenSearchQueryBuilder(session).embeddingQuery(TEST_EMBEDDING_TYPE, targetVector, null, "SELECT * FROM SysContent"));
         HitsMetadata<DocumentDTO> hits = result.getOpenSearchResponse().hits();
         assertEquals(5, hits.total().value());
         assertEquals(embeddingIdPrefix + "1", hits.hits().get(0).id(), "Unexpected closest embedding returned");
@@ -209,7 +209,7 @@ public class TestOpenSearchQuery {
     @Test
     public void testExceptionReturnedByOpenSearch() {
         var exception = assertThrows(NuxeoException.class, () -> {
-            oss.query(new NxQueryBuilder(session).nxql("SELECT * FROM SysContent WHERE sys_name LIKE 'File%'"));
+            oss.query(new OpenSearchQueryBuilder(session).hxql("SELECT * FROM SysContent WHERE sys_name LIKE 'File%'"));
         });
         assertEquals(
                 "Error performing OpenSearch query: failed to create query: Can only use phrase prefix queries on text fields - not on [sys_name] which is of type [keyword]",
@@ -250,7 +250,7 @@ public class TestOpenSearchQuery {
         txFeature.nextTransaction();
 
         // Search with aggregations on title field
-        NxQueryBuilder queryBuilder = new NxQueryBuilder(session).nxql("SELECT * FROM SysContent");
+        OpenSearchQueryBuilder queryBuilder = new OpenSearchQueryBuilder(session).hxql("SELECT * FROM SysContent");
         OpenSearchResult result = oss.queryWithTermsAggregation(queryBuilder, SEARCH_TITLE_FIELD_PATH,
                 "tEchNiCaL", 5);
 
@@ -283,7 +283,7 @@ public class TestOpenSearchQuery {
         txFeature.nextTransaction();
 
         // Search with aggregations on nature field
-        NxQueryBuilder queryBuilder = new NxQueryBuilder(session).nxql("SELECT * FROM SysContent");
+        OpenSearchQueryBuilder queryBuilder = new OpenSearchQueryBuilder(session).hxql("SELECT * FROM SysContent");
         OpenSearchResult result = oss.queryWithTermsAggregation(queryBuilder, SEARCH_NATURE_FIELD_PATH, "report", 5);
 
         // Verify aggregation results
@@ -315,7 +315,7 @@ public class TestOpenSearchQuery {
         txFeature.nextTransaction();
 
         // Search with aggregations on boolean field
-        NxQueryBuilder queryBuilder = new NxQueryBuilder(session).nxql("SELECT * FROM SysContent");
+        OpenSearchQueryBuilder queryBuilder = new OpenSearchQueryBuilder(session).hxql("SELECT * FROM SysContent");
 
         assertThrows(NuxeoException.class, () ->  oss.queryWithTermsAggregation(queryBuilder, SEARCH_IS_CHECKED_IN_VERSION_FIELD_PATH, "true", 5));
     }
@@ -338,7 +338,7 @@ public class TestOpenSearchQuery {
         txFeature.nextTransaction();
 
         // Search with aggregations on date field (matching 2023 dates)
-        NxQueryBuilder queryBuilder = new NxQueryBuilder(session).nxql("SELECT * FROM SysContent");
+        OpenSearchQueryBuilder queryBuilder = new OpenSearchQueryBuilder(session).hxql("SELECT * FROM SysContent");
         OpenSearchResult result = oss.queryWithTermsAggregation(queryBuilder, SEARCH_CREATED_MIN_FIELD_PATH,
                 "2023", 5);
 

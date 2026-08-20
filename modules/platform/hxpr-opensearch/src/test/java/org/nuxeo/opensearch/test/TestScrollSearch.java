@@ -36,7 +36,7 @@ import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentModelList;
 import org.nuxeo.opensearch.api.OpenSearchService;
 import org.nuxeo.opensearch.api.OpenSearchScrollResult;
-import org.nuxeo.opensearch.query.NxQueryBuilder;
+import org.nuxeo.opensearch.query.OpenSearchQueryBuilder;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesExtension;
 import org.nuxeo.runtime.transaction.TransactionHelper;
@@ -73,7 +73,7 @@ public class TestScrollSearch {
 
         // Initial search request, includes the first batch of results
         String query = "select * FROM SysContent order by sys_path";
-        OpenSearchScrollResult res = oss.scroll(new NxQueryBuilder(session).nxql(query).limit(pageSize), 10000);
+        OpenSearchScrollResult res = oss.scroll(new OpenSearchQueryBuilder(session).hxql(query).limit(pageSize), 10000);
         assertNotNull(res);
         assertNotNull(res.getQueryBuilder());
         assertEquals(10000, res.getKeepAlive());

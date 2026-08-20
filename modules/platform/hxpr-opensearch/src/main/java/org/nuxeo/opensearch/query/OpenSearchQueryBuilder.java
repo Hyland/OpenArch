@@ -31,7 +31,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.BiConsumer;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -41,6 +40,7 @@ import org.nuxeo.ecm.core.api.CoreInstance;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.query.nxql.SortInfo;
+import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
 import org.nuxeo.ecm.core.schema.SchemaManager;
 import org.nuxeo.ecm.core.schema.types.Type;
 import org.nuxeo.opensearch.OpenSearchConstants;
@@ -61,13 +61,13 @@ import org.opensearch.client.opensearch.core.search.TrackHits;
 import org.opensearch.client.opensearch.core.search.TrackHits.Builder;
 
 /**
- * OpenSearch query builder for the Nuxeo ES api.
+ * OpenSearch query builder.
  *
  * @since 5.9.5
  */
-public class NxQueryBuilder {
+public class OpenSearchQueryBuilder {
 
-    private static final Logger log = LogManager.getLogger(NxQueryBuilder.class);
+    private static final Logger log = LogManager.getLogger(OpenSearchQueryBuilder.class);
 
     private static final int DEFAULT_LIMIT = 10;
 
@@ -77,7 +77,7 @@ public class NxQueryBuilder {
 
     private final List<String> repositories = new ArrayList<>();
 
-    private final NxqlQueryConverter nxqlQueryConverter;
+    private final HXQLQueryConverter hxqlQueryConverter;
 
     private final SchemaManager schemaManager;
 
@@ -85,7 +85,7 @@ public class NxQueryBuilder {
 
     private int offset = 0;
 
-    private String nxql;
+    private String hxql;
 
     private Query osQuery;
 
@@ -117,19 +117,19 @@ public class NxQueryBuilder {
 
     private List<Object> searchAfter;
 
-    public NxQueryBuilder(CoreSession coreSession) {
+    public OpenSearchQueryBuilder(CoreSession coreSession) {
         session = coreSession;
         repositories.add(session.getRepositoryName());
-        nxqlQueryConverter = new NxqlQueryConverter(session.getSchemaManager());
+        hxqlQueryConverter = new HXQLQueryConverter(session.getSchemaManager());
         schemaManager = coreSession.getSchemaManager();
     }
 
     /** Used by tests. */
-    protected NxQueryBuilder(CoreSession coreSession, String repositoryName, NxqlQueryConverter nxqlQueryConverter,
+    protected OpenSearchQueryBuilder(CoreSession coreSession, String repositoryName, HXQLQueryConverter hxqlQueryConverter,
             SchemaManager schemaManager) {
         session = coreSession;
         repositories.add(repositoryName);
-        this.nxqlQueryConverter = nxqlQueryConverter;
+        this.hxqlQueryConverter = hxqlQueryConverter;
         this.schemaManager = schemaManager;
     }
 
@@ -139,7 +139,7 @@ public class NxQueryBuilder {
      * at maximum. This settings could be changed on ES by changing {index.max_result_window}, but it is preferable to
      * use the scan &amp; scroll API.
      */
-    public NxQueryBuilder limit(int limit) {
+    public OpenSearchQueryBuilder limit(int limit) {
         // For compatibility only, deprecated since 8.4
         if (limit < 0) {
             limit = Integer.MAX_VALUE;
@@ -152,17 +152,17 @@ public class NxQueryBuilder {
      * Says to skip that many documents before beginning to return documents. If both offset and limit appear, then
      * offset documents are skipped before starting to count the limit documents that are returned.
      */
-    public NxQueryBuilder offset(int offset) {
+    public OpenSearchQueryBuilder offset(int offset) {
         this.offset = offset;
         return this;
     }
 
-    public NxQueryBuilder addSort(SortInfo sortInfo) {
+    public OpenSearchQueryBuilder addSort(SortInfo sortInfo) {
         sortInfos.add(sortInfo);
         return this;
     }
 
-    public NxQueryBuilder addSort(SortInfo[] sortInfos) {
+    public OpenSearchQueryBuilder addSort(SortInfo[] sortInfos) {
         if (sortInfos != null && sortInfos.length > 0) {
             Collections.addAll(this.sortInfos, sortInfos);
         }
@@ -170,10 +170,10 @@ public class NxQueryBuilder {
     }
 
     /**
-     * Build the query from a NXQL string. You should either use nxql, either esQuery, not both.
+     * Build the query from a HXQL string. You should either use HXQL or esQuery, not both.
      */
-    public NxQueryBuilder nxql(String nxql) {
-        this.nxql = nxql;
+    public OpenSearchQueryBuilder hxql(String hxql) {
+        this.hxql = hxql;
         osQuery = null;
         return this;
     }
@@ -183,7 +183,7 @@ public class NxQueryBuilder {
      *
      * @since 10.2
      */
-    public NxQueryBuilder hitDocConsumer(HitDocConsumer consumer) {
+    public OpenSearchQueryBuilder hitDocConsumer(HitDocConsumer consumer) {
         hitDocConsumer = consumer;
         return this;
     }
@@ -191,7 +191,7 @@ public class NxQueryBuilder {
     /**
      * @since 11.1
      */
-    public NxQueryBuilder useUnrestrictedSession(boolean useUnrestrictedSession) {
+    public OpenSearchQueryBuilder useUnrestrictedSession(boolean useUnrestrictedSession) {
         this.useUnrestrictedSession = useUnrestrictedSession;
         return this;
     }
@@ -200,7 +200,7 @@ public class NxQueryBuilder {
      * If you need to track the total number of hits. You can improve query times by not setting this option (default
      * value is true)
      */
-    public NxQueryBuilder trackTotalCount(boolean trackTotalCount) {
+    public OpenSearchQueryBuilder trackTotalCount(boolean trackTotalCount) {
         this.trackTotalCount = trackTotalCount;
         return this;
     }
@@ -208,7 +208,7 @@ public class NxQueryBuilder {
     /**
      * Set the max value for totalCount
      */
-    public NxQueryBuilder trackTotalCountUpTo(Integer trackTotalCountUpTo) {
+    public OpenSearchQueryBuilder trackTotalCountUpTo(Integer trackTotalCountUpTo) {
         this.trackTotalCountUpTo = trackTotalCountUpTo;
         return this;
     }
@@ -220,7 +220,7 @@ public class NxQueryBuilder {
      * @param searchAfter list of sort values from the last document
      * @return this builder
      */
-    public NxQueryBuilder searchAfter(List<Object> searchAfter) {
+    public OpenSearchQueryBuilder searchAfter(List<Object> searchAfter) {
         this.searchAfter = searchAfter;
         return this;
     }
@@ -231,7 +231,7 @@ public class NxQueryBuilder {
      *
      * @since 7.3
      */
-    public NxQueryBuilder onlyOpenSearchResponse() {
+    public OpenSearchQueryBuilder onlyOpenSearchResponse() {
         osOnly = true;
         return this;
     }
@@ -248,10 +248,6 @@ public class NxQueryBuilder {
         return sortInfos;
     }
 
-    public String getNxql() {
-        return nxql;
-    }
-
     public CoreSession getSession() {
         return session;
     }
@@ -261,17 +257,15 @@ public class NxQueryBuilder {
      * udpateRequest to get the full request.
      */
     public Query makeQuery() {
-        if (osQuery == null && nxql != null) {
-            osQuery = nxqlQueryConverter.toESQueryBuilder(nxql, session).build().toQuery();
-            // handle the built-in order by clause
-            if (nxql.toLowerCase().contains("order by")) {
-                List<SortInfo> builtInSortInfos = nxqlQueryConverter.getSortInfo(nxql);
-                sortInfos.addAll(builtInSortInfos);
-            }
-            if (nxqlHasSelectClause(nxql)) {
-                selectFieldsAndTypes = nxqlQueryConverter.getSelectClauseFields(nxql);
-                Set<String> keySet = selectFieldsAndTypes.keySet();
-                selectFields = keySet.toArray(new String[0]);
+        if (osQuery == null && hxql != null) {
+            SQLQuery parsedHxql = HXQLQueryConverter.parse(hxql);
+            osQuery = hxqlQueryConverter.toESQueryBuilder(parsedHxql, session).build().toQuery();
+            // the query's own ORDER BY, if it has one, follows whatever sort was set on this builder
+            sortInfos.addAll(hxqlQueryConverter.getSortInfo(parsedHxql));
+            if (!parsedHxql.getSelectClause().elements().isEmpty()) {
+                // an explicit projection means rows of fields rather than documents
+                selectFieldsAndTypes = hxqlQueryConverter.getSelectClauseFields(parsedHxql);
+                selectFields = selectFieldsAndTypes.keySet().toArray(String[]::new);
                 returnsDocuments = false;
             }
             if (isEmbeddingQuery()) {
@@ -341,11 +335,6 @@ public class NxQueryBuilder {
             }
         }
         return osQuery;
-    }
-
-    protected boolean nxqlHasSelectClause(String nxql) {
-        String lowerNxql = nxql.toLowerCase();
-        return lowerNxql.startsWith("select") && !lowerNxql.startsWith("select * from");
     }
 
     public List<SortOptions> getSortBuilders() {
@@ -424,7 +413,7 @@ public class NxQueryBuilder {
 
     /*
      * Add the default sort field _id (either default or tiebreaker) to the list.
-     * The field was added from {@link NxQueryBuilder#ensureTiebreakerSort}
+     * The field was added from {@link #ensureTiebreakerSort}
      */
     public static void addDefaultSortField(List<String> sortFields) {
         sortFields.add(OpenSearchConstants.ID_FIELD);
@@ -455,9 +444,9 @@ public class NxQueryBuilder {
         setTotalHits(request);
 
         // Fields selection
-        String[] nxqlFields = getSelectFields();
-        List<String> includes = Arrays.stream(nxqlFields) //
-                                      .map(nxqlName -> nxqlQueryConverter.getFieldName(nxqlName, null))
+        String[] hxqlFields = getSelectFields();
+        List<String> includes = Arrays.stream(hxqlFields) //
+                                      .map(hxqlName -> hxqlQueryConverter.getFieldName(hxqlName, null))
                                       .toList();
         request.source(b -> b.filter(fb -> fb.includes(includes)));
     }
@@ -480,7 +469,7 @@ public class NxQueryBuilder {
      *
      * @since 6.0
      */
-    public NxQueryBuilder addSearchRepository(String repositoryName) {
+    public OpenSearchQueryBuilder addSearchRepository(String repositoryName) {
         repositories.add(repositoryName);
         return this;
     }
@@ -490,7 +479,7 @@ public class NxQueryBuilder {
      *
      * @since 6.0
      */
-    public NxQueryBuilder searchOnAllRepositories() {
+    public OpenSearchQueryBuilder searchOnAllRepositories() {
         searchOnAllRepo = true;
         return this;
     }
@@ -558,8 +547,8 @@ public class NxQueryBuilder {
         return !returnsDocuments;
     }
 
-    public NxQueryBuilder embeddingQuery(String embeddingType, List<Double> vector, String chunkFtsQuery, String nxql) {
-        nxql(nxql);
+    public OpenSearchQueryBuilder embeddingQuery(String embeddingType, List<Double> vector, String chunkFtsQuery, String hxql) {
+        hxql(hxql);
         this.embeddingId = null;
         this.embeddingType = embeddingType;
         this.embeddingVector = vector;
@@ -570,8 +559,8 @@ public class NxQueryBuilder {
         return this;
     }
 
-    public NxQueryBuilder embeddingIdQuery(String embeddingId, String nxql) {
-        nxql(nxql);
+    public OpenSearchQueryBuilder embeddingIdQuery(String embeddingId, String hxql) {
+        hxql(hxql);
         this.embeddingVector = null;
         this.chunkFtsQuery = null;
         this.embeddingId = embeddingId;

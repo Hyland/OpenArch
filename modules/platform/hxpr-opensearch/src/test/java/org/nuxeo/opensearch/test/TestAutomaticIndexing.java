@@ -50,7 +50,7 @@ import org.nuxeo.ecm.core.security.RetentionExpiredFinderScheduledJob;
 import org.nuxeo.opensearch.api.OpenSearchService;
 import org.nuxeo.opensearch.io.DocumentDTO;
 import org.nuxeo.opensearch.listener.OpenSearchInlineListener;
-import org.nuxeo.opensearch.query.NxQueryBuilder;
+import org.nuxeo.opensearch.query.OpenSearchQueryBuilder;
 import org.nuxeo.runtime.test.runner.ConsoleLogLevelThreshold;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesExtension;
@@ -327,9 +327,9 @@ public class TestAutomaticIndexing {
         nextTransactionWithWait();
 
         DocumentModelList ret = oss.query(
-                new NxQueryBuilder(session).nxql("SELECT * FROM SysContent WHERE sys_fulltext.sys_title = 'search'"));
+                new OpenSearchQueryBuilder(session).hxql("SELECT * FROM SysContent WHERE sys_fulltext.sys_title = 'search'"));
         assertEquals(1, ret.totalSize());
-        ret = oss.query(new NxQueryBuilder(session).nxql("SELECT * FROM SysContent WHERE sys_fulltext.sys_title = 'bar'"));
+        ret = oss.query(new OpenSearchQueryBuilder(session).hxql("SELECT * FROM SysContent WHERE sys_fulltext.sys_title = 'bar'"));
         assertEquals(1, ret.totalSize());
 
     }
@@ -369,14 +369,14 @@ public class TestAutomaticIndexing {
         nextTransactionWithWaitAssertNumberOfCommandProcessed(1); // 1 update
 
         DocumentModelList ret = oss.query(
-                new NxQueryBuilder(session).nxql("SELECT * FROM SysContent WHERE sys_isTrashed = FALSE"));
+                new OpenSearchQueryBuilder(session).hxql("SELECT * FROM SysContent WHERE sys_isTrashed = FALSE"));
         assertEquals(1, ret.totalSize());
         doc = session.getDocument(doc.getRef());
         trashService.untrashDocument(doc);
 
         nextTransactionWithWaitAssertNumberOfCommandProcessed(1);
 
-        ret = oss.query(new NxQueryBuilder(session).nxql("SELECT * FROM SysContent WHERE sys_isTrashed = FALSE"));
+        ret = oss.query(new OpenSearchQueryBuilder(session).hxql("SELECT * FROM SysContent WHERE sys_isTrashed = FALSE"));
         assertEquals(2, ret.totalSize());
 
         SearchResponse<DocumentDTO> searchResponse = searchAll();
@@ -441,7 +441,7 @@ public class TestAutomaticIndexing {
         nextTransactionWithWaitAssertNumberOfCommandProcessed(1);
 
         DocumentModelList docs = oss.query(
-                new NxQueryBuilder(session).nxql("SELECT * FROM SysContent Where sys_title='NewTitle'"));
+                new OpenSearchQueryBuilder(session).hxql("SELECT * FROM SysContent Where sys_title='NewTitle'"));
         assertEquals(1, docs.totalSize());
     }
 
@@ -473,7 +473,7 @@ public class TestAutomaticIndexing {
 
         nextTransactionWithWaitAssertNumberOfCommandProcessed(6);
 
-        DocumentModelList ret = oss.query(new NxQueryBuilder(session).nxql(
+        DocumentModelList ret = oss.query(new OpenSearchQueryBuilder(session).hxql(
                 String.format("SELECT * FROM SysContent WHERE sys_parentId='%s' ORDER BY sys_pos", ofolder.getId())));
         assertEquals(4, ret.totalSize());
         assertEquals(file1.getId(), ret.get(0).getId());
@@ -485,7 +485,7 @@ public class TestAutomaticIndexing {
         // only the 4 direct children are reindexed
         nextTransactionWithWaitAssertNumberOfCommandProcessed(7);
 
-        ret = oss.query(new NxQueryBuilder(session).nxql(
+        ret = oss.query(new OpenSearchQueryBuilder(session).hxql(
                 String.format("SELECT * FROM SysContent WHERE sys_parentId='%s' ORDER BY sys_pos", ofolder.getId())));
         assertEquals(4, ret.totalSize());
         assertEquals(file1.getId(), ret.get(0).getId());
@@ -514,7 +514,7 @@ public class TestAutomaticIndexing {
         // 3 docs (2 files + 1 folder checkout) + 1 update on folder when first version is created + 2 versions of folder
         nextTransactionWithWaitAssertNumberOfCommandProcessed(6);
 
-        DocumentModelList ret = oss.query(new NxQueryBuilder(session).nxql("SELECT * FROM SysContent"));
+        DocumentModelList ret = oss.query(new OpenSearchQueryBuilder(session).hxql("SELECT * FROM SysContent"));
         assertEquals(5, ret.totalSize());
 
         // delete the first version
@@ -522,7 +522,7 @@ public class TestAutomaticIndexing {
 
         nextTransactionWithWaitAssertNumberOfCommandProcessed(1);
 
-        ret = oss.query(new NxQueryBuilder(session).nxql("SELECT * FROM SysContent"));
+        ret = oss.query(new OpenSearchQueryBuilder(session).hxql("SELECT * FROM SysContent"));
         assertEquals(4, ret.totalSize());
     }
 
@@ -534,7 +534,7 @@ public class TestAutomaticIndexing {
         createADocumentWith3Versions();
 
         DocumentModelList ret = oss.query(
-                new NxQueryBuilder(session).nxql("SELECT * FROM SysContent WHERE sysver_isVersion = FALSE AND sys_title='v3'"));
+                new OpenSearchQueryBuilder(session).hxql("SELECT * FROM SysContent WHERE sysver_isVersion = FALSE AND sys_title='v3'"));
         assertEquals(1, ret.totalSize());
         DocumentModel doc = ret.get(0);
         assertEquals("v3", doc.getTitle());
@@ -545,7 +545,7 @@ public class TestAutomaticIndexing {
         nextTransactionWithWait();
 
         ret = oss.query(
-                new NxQueryBuilder(session).nxql("SELECT * FROM SysContent WHERE sysver_isVersion = FALSE AND sys_title='v2'"));
+                new OpenSearchQueryBuilder(session).hxql("SELECT * FROM SysContent WHERE sysver_isVersion = FALSE AND sys_title='v2'"));
         assertEquals(1, ret.totalSize());
         assertEquals("v2", ret.get(0).getTitle());
     }
@@ -581,7 +581,7 @@ public class TestAutomaticIndexing {
         doc.refresh();
 
         // check ES
-        DocumentModelList ret = oss.query(new NxQueryBuilder(session).nxql(
+        DocumentModelList ret = oss.query(new OpenSearchQueryBuilder(session).hxql(
                 "SELECT * FROM SysContent WHERE sys_path = '/file' and sysver_isVersion = FALSE AND sys_title='v2'"));
         assertEquals(1, ret.totalSize());
         assertEquals("v2", ret.get(0).getTitle());
@@ -592,7 +592,7 @@ public class TestAutomaticIndexing {
         nextTransactionWithWait();
 
         // check ES
-        ret = oss.query(new NxQueryBuilder(session).nxql(
+        ret = oss.query(new OpenSearchQueryBuilder(session).hxql(
                 "SELECT * FROM SysContent WHERE sys_path = '/file' and sysver_isVersion = FALSE AND sys_title='v1'"));
         assertEquals(1, ret.totalSize());
         assertEquals("v1", ret.get(0).getTitle());
@@ -625,11 +625,11 @@ public class TestAutomaticIndexing {
 
         // sort on a field that does not exist on the mapping and not present in the index
         DocumentModelList ret = oss.query(
-                new NxQueryBuilder(session).nxql("SELECT * FROM SysContent ORDER BY mydc_source"));
+                new OpenSearchQueryBuilder(session).hxql("SELECT * FROM SysContent ORDER BY mydc_source"));
         assertEquals(0, ret.totalSize());
 
         // sort on internal field
-        ret = oss.query(new NxQueryBuilder(session).nxql("SELECT * FROM SysContent ORDER BY sys_pos"));
+        ret = oss.query(new OpenSearchQueryBuilder(session).hxql("SELECT * FROM SysContent ORDER BY sys_pos"));
         assertEquals(0, ret.totalSize());
 
     }
@@ -665,7 +665,7 @@ public class TestAutomaticIndexing {
 
         // no record found in index
         String nxql = "SELECT * FROM SysContent WHERE sysgov_isRecord = TRUE";
-        DocumentModelList ret = oss.query(new NxQueryBuilder(session).nxql(nxql));
+        DocumentModelList ret = oss.query(new OpenSearchQueryBuilder(session).hxql(nxql));
         assertEquals(0, ret.totalSize());
 
         // make the doc a record
@@ -674,7 +674,7 @@ public class TestAutomaticIndexing {
         nextTransactionWithWaitAssertNumberOfCommandProcessed(1); // update
 
         // record is now found
-        ret = oss.query(new NxQueryBuilder(session).nxql(nxql));
+        ret = oss.query(new OpenSearchQueryBuilder(session).hxql(nxql));
         assertEquals(1, ret.totalSize());
 
     }
@@ -689,7 +689,7 @@ public class TestAutomaticIndexing {
 
         // no retention found in index
         String nxql1 = "SELECT * FROM SysContent WHERE sysgov_retainUntil IS NOT NULL";
-        DocumentModelList ret1 = oss.query(new NxQueryBuilder(session).nxql(nxql1));
+        DocumentModelList ret1 = oss.query(new OpenSearchQueryBuilder(session).hxql(nxql1));
         assertEquals(0, ret1.totalSize());
 
         // set retention to two seconds in the future
@@ -700,7 +700,7 @@ public class TestAutomaticIndexing {
         nextTransactionWithWaitAssertNumberOfCommandProcessed(1); // update
 
         // retention is now found
-        ret1 = oss.query(new NxQueryBuilder(session).nxql(nxql1));
+        ret1 = oss.query(new OpenSearchQueryBuilder(session).hxql(nxql1));
         assertEquals(1, ret1.totalSize());
 
         // wait 2s to pass retention expiration date
@@ -713,7 +713,7 @@ public class TestAutomaticIndexing {
         nextTransactionWithWaitAssertNumberOfCommandProcessed(1); // update
 
         // null retention is not found anymore
-        ret1 = oss.query(new NxQueryBuilder(session).nxql(nxql1));
+        ret1 = oss.query(new OpenSearchQueryBuilder(session).hxql(nxql1));
         assertEquals(0, ret1.totalSize());
     }
 
@@ -727,7 +727,7 @@ public class TestAutomaticIndexing {
 
         // no retention found in index
         String nxql = "SELECT * FROM SysContent WHERE sysgov_hasLegalHold = TRUE";
-        DocumentModelList ret = oss.query(new NxQueryBuilder(session).nxql(nxql));
+        DocumentModelList ret = oss.query(new OpenSearchQueryBuilder(session).hxql(nxql));
         assertEquals(0, ret.totalSize());
 
         // set legal hold
@@ -737,7 +737,7 @@ public class TestAutomaticIndexing {
         nextTransactionWithWaitAssertNumberOfCommandProcessed(1); // update
 
         // legal hold is now found
-        ret = oss.query(new NxQueryBuilder(session).nxql(nxql));
+        ret = oss.query(new OpenSearchQueryBuilder(session).hxql(nxql));
         assertEquals(1, ret.totalSize());
 
         // remove legal hold
@@ -746,7 +746,7 @@ public class TestAutomaticIndexing {
         nextTransactionWithWaitAssertNumberOfCommandProcessed(1); // update
 
         // legal hold is not found anymore
-        ret = oss.query(new NxQueryBuilder(session).nxql(nxql));
+        ret = oss.query(new OpenSearchQueryBuilder(session).hxql(nxql));
         assertEquals(0, ret.totalSize());
     }
 

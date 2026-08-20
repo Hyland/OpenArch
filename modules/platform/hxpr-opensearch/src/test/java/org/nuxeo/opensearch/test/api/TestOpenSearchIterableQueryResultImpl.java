@@ -45,7 +45,7 @@ import org.nuxeo.ecm.core.schema.types.Type;
 import org.nuxeo.opensearch.api.OpenSearchScrollResult;
 import org.nuxeo.opensearch.api.OpenSearchService;
 import org.nuxeo.opensearch.api.OpenSearchIterableQueryResultImpl;
-import org.nuxeo.opensearch.query.NxQueryBuilder;
+import org.nuxeo.opensearch.query.OpenSearchQueryBuilder;
 import org.nuxeo.opensearch.test.RepositoryOpenSearchFeature;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
@@ -78,7 +78,7 @@ public class TestOpenSearchIterableQueryResultImpl {
 
         String nxql = "select sys_id, sys_path FROM SysContent";
         // Request the first batch
-        NxQueryBuilder queryBuilder = new NxQueryBuilder(session).nxql(nxql).limit(20).onlyOpenSearchResponse();
+        OpenSearchQueryBuilder queryBuilder = new OpenSearchQueryBuilder(session).hxql(nxql).limit(20).onlyOpenSearchResponse();
         OpenSearchScrollResult res = oss.scroll(queryBuilder, 10000);
 
         // Init wrapper
@@ -112,7 +112,7 @@ public class TestOpenSearchIterableQueryResultImpl {
 
         String nxql = "select sys_id, sys_path FROM SysContent";
         // Request the first batch
-        NxQueryBuilder queryBuilder = new NxQueryBuilder(session).nxql(nxql).limit(20).onlyOpenSearchResponse();
+        OpenSearchQueryBuilder queryBuilder = new OpenSearchQueryBuilder(session).hxql(nxql).limit(20).onlyOpenSearchResponse();
         OpenSearchScrollResult res = oss.scroll(queryBuilder, 10000);
 
         // Init wrapper
@@ -141,7 +141,7 @@ public class TestOpenSearchIterableQueryResultImpl {
     public void testConstructor() {
         Map<String, Type> map = new HashMap<>();
         String nxql = "select sys_id, sys_path FROM SysContent";
-        NxQueryBuilder queryBuilder = new NxQueryBuilder(session).nxql(nxql).limit(20).onlyOpenSearchResponse();
+        OpenSearchQueryBuilder queryBuilder = new OpenSearchQueryBuilder(session).hxql(nxql).limit(20).onlyOpenSearchResponse();
         OpenSearchScrollResult res = oss.scroll(queryBuilder, 10000);
         res.getQueryBuilder().setSelectFieldsAndTypes(map);
         assertThrows(IllegalArgumentException.class, () -> new OpenSearchIterableQueryResultImpl(oss, res));

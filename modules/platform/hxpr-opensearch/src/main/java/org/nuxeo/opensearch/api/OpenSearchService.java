@@ -22,7 +22,7 @@ import java.util.concurrent.Future;
 
 import org.nuxeo.ecm.core.api.DocumentModelList;
 import org.nuxeo.opensearch.commands.IndexingCommand;
-import org.nuxeo.opensearch.query.NxQueryBuilder;
+import org.nuxeo.opensearch.query.OpenSearchQueryBuilder;
 
 /**
  * Interface to index or search documents, or administer indexes.
@@ -32,23 +32,23 @@ public interface OpenSearchService {
     // search
 
     /**
-     * Returns a document list using an {@link NxQueryBuilder}.
+     * Returns a document list using an {@link OpenSearchQueryBuilder}.
      */
-    DocumentModelList query(NxQueryBuilder queryBuilder);
+    DocumentModelList query(OpenSearchQueryBuilder queryBuilder);
 
     /**
      * Returns documents and aggregates.
      */
-    OpenSearchResult queryAndAggregate(NxQueryBuilder queryBuilder);
+    OpenSearchResult queryAndAggregate(OpenSearchQueryBuilder queryBuilder);
 
     /**
-     * Performs the initial search of a scrollable search request using an {@link NxQueryBuilder}.
+     * Performs the initial search of a scrollable search request using an {@link OpenSearchQueryBuilder}.
      *
      * @param keepAlive the search context lifetime
      * @return an {@link OpenSearchScrollResult} including the search results and a scroll id, to be passed to the subsequent
      *         calls to {@link #scroll(OpenSearchScrollResult)}
      */
-    OpenSearchScrollResult scroll(NxQueryBuilder queryBuilder, long keepAlive);
+    OpenSearchScrollResult scroll(OpenSearchQueryBuilder queryBuilder, long keepAlive);
 
     /**
      * Retrieves the next batch of results of a scrollable search request for the given {@link OpenSearchScrollResult}.
@@ -255,6 +255,6 @@ public interface OpenSearchService {
     /**
      * Search for documents and aggregate property names matching a wildcard pattern.
      */
-    OpenSearchResult queryWithTermsAggregation(NxQueryBuilder queryBuilder, String termsAggregationField,
+    OpenSearchResult queryWithTermsAggregation(OpenSearchQueryBuilder queryBuilder, String termsAggregationField,
             String searchTerm, int aggregationLimit);
 }

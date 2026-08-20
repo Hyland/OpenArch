@@ -49,7 +49,7 @@ import org.nuxeo.ecm.core.api.trash.TrashService;
 import org.nuxeo.opensearch.api.OpenSearchService;
 import org.nuxeo.opensearch.io.DocumentDTO;
 import org.nuxeo.opensearch.listener.OpenSearchInlineListener;
-import org.nuxeo.opensearch.query.NxQueryBuilder;
+import org.nuxeo.opensearch.query.OpenSearchQueryBuilder;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesExtension;
@@ -240,13 +240,13 @@ public class TestTreeIndexing {
 
         buildAndIndexTree();
 
-        DocumentModelList docs = oss.query(new NxQueryBuilder(session).nxql("select * FROM SysContent"));
+        DocumentModelList docs = oss.query(new OpenSearchQueryBuilder(session).hxql("select * FROM SysContent"));
         assertEquals(10, docs.totalSize());
 
         // check for user with no rights
         startTransaction();
         CoreSession restrictedSession = getRestrictedSession();
-        docs = oss.query(new NxQueryBuilder(restrictedSession).nxql("select * FROM SysContent"));
+        docs = oss.query(new OpenSearchQueryBuilder(restrictedSession).hxql("select * FROM SysContent"));
         assertEquals(0, docs.totalSize());
 
         // add READ rights and check that user now has access
@@ -260,7 +260,7 @@ public class TestTreeIndexing {
         // 1 sync non recurse + 1 async recursive
         nextTransactionWithWaitAssertNumberOfCommandProcessed(syncMode ? 17 : 16);
 
-        docs = oss.query(new NxQueryBuilder(restrictedSession).nxql("select * FROM SysContent"));
+        docs = oss.query(new OpenSearchQueryBuilder(restrictedSession).hxql("select * FROM SysContent"));
         assertEquals(8, docs.totalSize());
 
         // block rights and check that blocking is taken into account
@@ -279,7 +279,7 @@ public class TestTreeIndexing {
 
         nextTransactionWithWaitAssertNumberOfCommandProcessed(syncMode ? 11 : 10);
 
-        docs = oss.query(new NxQueryBuilder(restrictedSession).nxql("select * FROM SysContent"));
+        docs = oss.query(new OpenSearchQueryBuilder(restrictedSession).hxql("select * FROM SysContent"));
         assertEquals(3, docs.totalSize());
     }
 
@@ -287,11 +287,11 @@ public class TestTreeIndexing {
     public void shouldStoreOnlyEffectiveACEs() throws Exception {
         buildAndIndexTree();
 
-        DocumentModelList docs = oss.query(new NxQueryBuilder(session).nxql("select * FROM SysContent"));
+        DocumentModelList docs = oss.query(new OpenSearchQueryBuilder(session).hxql("select * FROM SysContent"));
         assertEquals(10, docs.totalSize());
 
         CoreSession restrictedSession = getRestrictedSession();
-        docs = oss.query(new NxQueryBuilder(restrictedSession).nxql("select * FROM SysContent"));
+        docs = oss.query(new OpenSearchQueryBuilder(restrictedSession).hxql("select * FROM SysContent"));
         assertEquals(0, docs.totalSize());
 
         DocumentRef ref = new PathRef("/folder0");
@@ -301,7 +301,7 @@ public class TestTreeIndexing {
 
         nextTransactionWithWait();
 
-        docs = oss.query(new NxQueryBuilder(restrictedSession).nxql("select * FROM SysContent order by sys_title"));
+        docs = oss.query(new OpenSearchQueryBuilder(restrictedSession).hxql("select * FROM SysContent order by sys_title"));
         assertEquals(10, docs.totalSize());
 
         acl = new ACLImpl();
@@ -313,7 +313,7 @@ public class TestTreeIndexing {
 
         nextTransactionWithWait();
 
-        docs = oss.query(new NxQueryBuilder(restrictedSession).nxql("select * FROM SysContent order by sys_title"));
+        docs = oss.query(new OpenSearchQueryBuilder(restrictedSession).hxql("select * FROM SysContent order by sys_title"));
         assertEquals(0, docs.totalSize());
     }
 
@@ -333,7 +333,7 @@ public class TestTreeIndexing {
         nextTransactionWithWaitAssertNumberOfCommandProcessed(syncMode ? 16 : 15);
 
         DocumentModelList docs = oss.query(
-                new NxQueryBuilder(session).nxql("select * FROM SysContent where sys_isTrashed = FALSE"));
+                new OpenSearchQueryBuilder(session).hxql("select * FROM SysContent where sys_isTrashed = FALSE"));
         assertEquals(2, docs.totalSize());
     }
 
@@ -347,7 +347,7 @@ public class TestTreeIndexing {
 
         nextTransactionWithWait();
 
-        DocumentModelList docs = oss.query(new NxQueryBuilder(session).nxql("select * FROM SysContent"));
+        DocumentModelList docs = oss.query(new OpenSearchQueryBuilder(session).hxql("select * FROM SysContent"));
         assertEquals(18, docs.totalSize());
     }
 

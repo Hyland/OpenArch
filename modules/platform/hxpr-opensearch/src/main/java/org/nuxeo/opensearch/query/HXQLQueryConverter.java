@@ -33,7 +33,6 @@ import static org.nuxeo.opensearch.OpenSearchConstants.OPENSEARCH_SCORE_FIELD;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -48,9 +47,8 @@ import org.nuxeo.ecm.core.api.IdRef;
 import org.nuxeo.ecm.core.api.query.QueryParameters;
 import org.nuxeo.ecm.core.query.QueryParseException;
 import org.nuxeo.ecm.core.query.nxql.SortInfo;
-import org.nuxeo.ecm.core.query.sql.HXQLParser;
 import org.nuxeo.ecm.core.query.sql.HXQL;
-import org.nuxeo.ecm.core.query.sql.model.FromClause;
+import org.nuxeo.ecm.core.query.sql.HXQLParser;
 import org.nuxeo.ecm.core.query.sql.model.FtHint;
 import org.nuxeo.ecm.core.query.sql.model.FtHint.FieldHint;
 import org.nuxeo.ecm.core.query.sql.model.Function;
@@ -64,7 +62,6 @@ import org.nuxeo.ecm.core.query.sql.model.OrderByExpr;
 import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Reference;
 import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
-import org.nuxeo.ecm.core.query.sql.model.SelectClause;
 import org.nuxeo.ecm.core.query.sql.model.StringLiteral;
 import org.nuxeo.ecm.core.schema.SchemaManager;
 import org.nuxeo.ecm.core.schema.types.Field;
@@ -83,16 +80,22 @@ import org.opensearch.client.opensearch._types.query_dsl.SimpleQueryStringQuery;
 import org.opensearch.client.util.ObjectBuilder;
 
 /**
- * Helper class that holds the conversion logic. Conversion is based on the existing NXQL Parser, we are just using a
- * visitor to build the ES request.
+ * Turns an HXQL query into an OpenSearch request, by parsing it and walking the resulting tree.
  */
-public final class NxqlQueryConverter {
+public final class HXQLQueryConverter {
 
     protected static final String SELECT_ALL = "SELECT * FROM SysContent";
 
     protected static final String SELECT_ALL_WHERE = "SELECT * FROM SysContent WHERE ";
 
     protected static final String SIMPLE_QUERY_PREFIX = "es: ";
+
+    /** The operators that combine predicates rather than compare values. */
+    private static final Set<Operator> BOOLEAN_OPERATORS = Set.of(Operator.AND, Operator.OR, Operator.NOT);
+
+    /** The operators a fulltext field can be searched with. */
+    private static final Set<Operator> FULLTEXT_OPERATORS = Set.of(Operator.EQ, Operator.NOTEQ, Operator.LIKE,
+            Operator.NOTLIKE);
 
     /** Keys for boolean system properties that are stored in db and also indexed as true or null (never false). */
     private static final Set<String> TRUE_OR_NULL_BOOLEAN_PROPS = Set.of( //
@@ -103,43 +106,38 @@ public final class NxqlQueryConverter {
 
     private final SchemaManager schemaManager;
 
-    public NxqlQueryConverter(SchemaManager schemaManager) {
+    public HXQLQueryConverter(SchemaManager schemaManager) {
         this.schemaManager = schemaManager;
     }
 
-    // public for tests
-    public ObjectBuilder<? extends QueryVariant> toESQueryBuilder(final String nxql) {
-        return toESQueryBuilder(nxql, null);
-    }
-
-    public ObjectBuilder<? extends QueryVariant> toESQueryBuilder(final String nxql, final CoreSession session) {
+    public ObjectBuilder<? extends QueryVariant> toESQueryBuilder(final SQLQuery hxqlQuery, final CoreSession session) {
         final LinkedList<ExpressionBuilder> builders = new LinkedList<>();
-        SQLQuery nxqlQuery = getSqlQuery(nxql);
+        SQLQuery query = hxqlQuery;
         if (session != null) {
             SecurityPolicyService securityPolicyService = Framework.getService(SecurityService.class)
                                                                    .getSecurityPolicyService(
                                                                            session.getRepositoryName());
             QueryParameters queryParams = new QueryParameters(session.getPrincipal(), 0, 0);
-            nxqlQuery = securityPolicyService.addSecurityPolicies(nxqlQuery, queryParams);
+            query = securityPolicyService.addSecurityPolicies(query, queryParams);
         }
         ExpressionBuilder ret = new ExpressionBuilder(null);
         builders.add(ret);
         List<String> fromList = new ArrayList<>();
-        for (String type : nxqlQuery.getFromClause().elements()) {
+        for (String type : query.getFromClause().elements()) {
             // Removed code for SYS_CONTENT optimization. See, HXCS-3121 Get rid of optimization until inconsistencies are fixed
             Set<String> types = schemaManager.getDocumentTypeNamesExtending(type);
             if (types != null) {
                 fromList.addAll(types);
             }
         }
-        if (nxqlQuery.getWhereClause() != null) {
-            walkPredicate(nxqlQuery.getWhereClause().predicate(), builders, session);
+        if (query.getWhereClause() != null) {
+            walkPredicate(query.getWhereClause().predicate(), builders, session);
         }
         ObjectBuilder<? extends QueryVariant> queryBuilder = ret.get();
         if (!fromList.isEmpty()) {
             return QueryBuilders.bool()
                                 .must(queryBuilder.build().toQuery())
-                                .filter(makeQueryFromSimpleExpression("IN", SYS_PRIMARY_TYPE, null,
+                                .filter(makeQueryFromSimpleExpression(Operator.IN, SYS_PRIMARY_TYPE, null,
                                         fromList.toArray(String[]::new), null, null).filter.build().toQuery());
         }
         return queryBuilder;
@@ -150,17 +148,17 @@ public final class NxqlQueryConverter {
      */
     protected void walkPredicate(Operand node, LinkedList<ExpressionBuilder> builders, CoreSession session) {
         switch (node) {
-            case MultiExpression multiExpression -> multiExpression.predicates.forEach(
-                    predicate -> walkPredicate(predicate, builders, session));
-            case Predicate expression -> walkExpression(expression, builders, session);
-            default -> throw new IllegalArgumentException("Not a predicate: " + node);
+        case MultiExpression multiExpression -> multiExpression.predicates.forEach(
+                predicate -> walkPredicate(predicate, builders, session));
+        case Predicate expression -> walkExpression(expression, builders, session);
+        default -> throw new IllegalArgumentException("Not a predicate: " + node);
         }
     }
 
     protected void walkExpression(Predicate node, LinkedList<ExpressionBuilder> builders, CoreSession session) {
         Operator op = node.operator;
-        if (op == Operator.AND || op == Operator.OR || op == Operator.NOT) {
-            builders.add(new ExpressionBuilder(op.toString()));
+        if (BOOLEAN_OPERATORS.contains(op)) {
+            builders.add(new ExpressionBuilder(op));
             walkPredicate(node.lvalue, builders, session);
             if (node.rvalue != null) {
                 walkPredicate(node.rvalue, builders, session);
@@ -202,50 +200,53 @@ public final class NxqlQueryConverter {
             }
         }
         // add expression to the last builder
-        if (ref.ftHint() != null) {
+        if (ref != null && ref.ftHint() != null) {
             throw new IllegalArgumentException("Query hint not supported: " + ref.ftHint());
         }
         FtHint hint = null;
-        builders.getLast().add(makeQueryFromSimpleExpression(op.toString(), name, value, values, hint, session));
+        builders.getLast().add(makeQueryFromSimpleExpression(op, name, value, values, hint, session));
     }
 
-    protected static SQLQuery getSqlQuery(String nxql) {
-        String query = completeQueryWithSelect(nxql);
-        SQLQuery nxqlQuery;
+    /**
+     * Parses a query, which may be a bare {@code WHERE} clause rather than a whole query.
+     * <p>
+     * This is the one place a query text becomes a tree: the tree is what the conversion methods take, so a query is
+     * parsed once however many of them are asked about it.
+     */
+    public static SQLQuery parse(String hxql) {
+        String query = completeQueryWithSelect(hxql);
         try {
-            nxqlQuery = HXQLParser.parse(query);
+            return HXQLParser.parse(query);
         } catch (QueryParseException e) {
             e.addInfo("Query: " + query);
             throw e;
         }
-        return nxqlQuery;
     }
 
-    protected static String completeQueryWithSelect(String nxql) {
-        String query = (nxql == null) ? "" : nxql.trim();
+    protected static String completeQueryWithSelect(String hxql) {
+        String query = (hxql == null) ? "" : hxql.trim();
         if (query.isEmpty()) {
             query = SELECT_ALL;
         } else if (!query.toLowerCase().startsWith("select ")) {
-            query = SELECT_ALL_WHERE + nxql;
+            query = SELECT_ALL_WHERE + hxql;
         }
         return query;
     }
 
-    protected QueryAndFilter makeQueryFromSimpleExpression(String op, String nxqlName, String value, String[] values,
-            FtHint hint, CoreSession session) {
+    protected QueryAndFilter makeQueryFromSimpleExpression(Operator op, String nxqlName, String value,
+            String[] values, FtHint hint, CoreSession session) {
         ObjectBuilder<? extends QueryVariant> query = null;
         ObjectBuilder<? extends QueryVariant> filter = null;
         String name = getFieldName(nxqlName, hint);
-        if (nxqlName.startsWith(SYS_FULLTEXT) && ("=".equals(op) || "!=".equals(op) || "<>".equals(op)
-                || "LIKE".equals(op) || "NOT LIKE".equals(op))) {
-            query = makeFulltextQuery(nxqlName, (String) value, hint);
-            if ("!=".equals(op) || "<>".equals(op) || "NOT LIKE".equals(op)) {
+        if (nxqlName.startsWith(SYS_FULLTEXT) && FULLTEXT_OPERATORS.contains(op)) {
+            query = makeFulltextQuery(nxqlName, value, hint);
+            if (isNegated(op)) {
                 filter = QueryBuilders.bool().mustNot(query.build().toQuery());
                 query = null;
             }
         } else if (nxqlName.startsWith(SYS_ANCESTOR_IDS)) {
             filter = makeAncestorIdFilter(value, session);
-            if ("!=".equals(op) || "<>".equals(op)) {
+            if (op == Operator.NOTEQ) {
                 filter = QueryBuilders.bool().mustNot(filter.build().toQuery());
             }
         } else if (nxqlName.equals(SYS_IS_TRASHED)) {
@@ -253,88 +254,75 @@ public final class NxqlQueryConverter {
 
         } else {
             switch (op) {
-            case "=":
+            case EQ -> {
                 FieldValue normval = checkBoolValue(nxqlName, value);
                 if (TRUE_OR_NULL_BOOLEAN_PROPS.contains(nxqlName) && normval == FieldValue.FALSE) {
                     filter = QueryBuilders.bool().mustNot(QueryBuilders.exists().field(name).build().toQuery());
                 } else {
                     filter = QueryBuilders.term().field(name).value(normval);
                 }
-                break;
-            case "<>":
-            case "!=":
-                FieldValue normval2 = checkBoolValue(nxqlName, value);
+            }
+            case NOTEQ -> {
+                FieldValue normval = checkBoolValue(nxqlName, value);
                 if (TRUE_OR_NULL_BOOLEAN_PROPS.contains(nxqlName)) {
-                    if (normval2 == FieldValue.TRUE) {
+                    if (normval == FieldValue.TRUE) {
                         filter = QueryBuilders.bool().mustNot(QueryBuilders.exists().field(name).build().toQuery());
                     } else {
                         filter = QueryBuilders.term().field(name).value(FieldValue.TRUE);
                     }
                 } else {
                     filter = QueryBuilders.bool()
-                                          .mustNot(QueryBuilders.term().field(name).value(normval2).build().toQuery());
+                                          .mustNot(QueryBuilders.term().field(name).value(normval).build().toQuery());
                 }
-                break;
-            case ">":
-                filter = QueryBuilders.range().field(name).gt(JsonData.of(value));
-                break;
-            case "<":
-                filter = QueryBuilders.range().field(name).lt(JsonData.of(value));
-                break;
-            case ">=":
-                filter = QueryBuilders.range().field(name).gte(JsonData.of(value));
-                break;
-            case "<=":
-                filter = QueryBuilders.range().field(name).lte(JsonData.of(value));
-                break;
-            case "BETWEEN":
-            case "NOT BETWEEN":
+            }
+            case GT -> filter = QueryBuilders.range().field(name).gt(JsonData.of(value));
+            case LT -> filter = QueryBuilders.range().field(name).lt(JsonData.of(value));
+            case GTEQ -> filter = QueryBuilders.range().field(name).gte(JsonData.of(value));
+            case LTEQ -> filter = QueryBuilders.range().field(name).lte(JsonData.of(value));
+            case BETWEEN, NOTBETWEEN -> {
                 filter = QueryBuilders.range().field(name).from(JsonData.of(values[0])).to(JsonData.of(values[1]));
-                if (op.startsWith("NOT")) {
+                if (isNegated(op)) {
                     filter = QueryBuilders.bool().mustNot(filter.build().toQuery());
                 }
-                break;
-            case "IN":
-            case "NOT IN":
+            }
+            case IN, NOTIN -> {
                 filter = QueryBuilders.terms()
                                       .field(name)
-                                      .terms(t -> t.value(
-                                              Arrays.stream(values).map(FieldValue::of).toList()));
-                if (op.startsWith("NOT")) {
+                                      .terms(t -> t.value(Arrays.stream(values).map(FieldValue::of).toList()));
+                if (isNegated(op)) {
                     filter = QueryBuilders.bool().mustNot(filter.build().toQuery());
                 }
-                break;
-            case "IS NULL":
-                filter = QueryBuilders.bool().mustNot(QueryBuilders.exists().field(name).build().toQuery());
-                break;
-            case "IS NOT NULL":
-                filter = QueryBuilders.exists().field(name);
-                break;
-            case "LIKE":
-            case "ILIKE":
-            case "NOT LIKE":
-            case "NOT ILIKE":
+            }
+            case ISNULL -> filter = QueryBuilders.bool()
+                                                 .mustNot(QueryBuilders.exists().field(name).build().toQuery());
+            case ISNOTNULL -> filter = QueryBuilders.exists().field(name);
+            case LIKE, ILIKE, NOTLIKE, NOTILIKE -> {
                 query = makeLikeQuery(op, name, value, hint);
-                if (op.startsWith("NOT")) {
+                if (isNegated(op)) {
                     filter = QueryBuilders.bool().mustNot(query.build().toQuery());
                     query = null;
                 }
-                break;
-            case "STARTSWITH":
-                filter = makeStartsWithQuery(name, value);
-                break;
-            default:
-                throw new UnsupportedOperationException("Operator: '" + op + "' is unknown");
+            }
+            case STARTSWITH -> filter = makeStartsWithQuery(name, value);
+            default -> throw new UnsupportedOperationException("Operator: '" + op + "' is unknown");
             }
         }
         return new QueryAndFilter(query, filter);
+    }
+
+    /** Whether an operator is the negation of another one, and so is rendered as its query wrapped in mustNot. */
+    protected static boolean isNegated(Operator op) {
+        return switch (op) {
+        case NOTEQ, NOTLIKE, NOTILIKE, NOTIN, NOTBETWEEN -> true;
+        default -> false;
+        };
     }
 
     protected FieldValue checkBoolValue(String nxqlName, String value) {
         if (value == null) {
             return FieldValue.NULL;
         }
-        // accept 0/1 (legacy NXQL int form) and true/false (BooleanLiteral.asString)
+        // accept 0/1 (legacy HXQL int form) and true/false (BooleanLiteral.asString)
         Boolean bool = parseBoolValue(value);
         if (bool == null) {
             return FieldValue.of(value);
@@ -357,7 +345,7 @@ public final class NxqlQueryConverter {
     }
 
     /**
-     * Parses a string representation of a boolean literal as it appears in an NXQL query: {@code "0"}/{@code "1"}
+     * Parses a string representation of a boolean literal as it appears in an HXQL query: {@code "0"}/{@code "1"}
      * (legacy integer form) or {@code "true"}/{@code "false"} (case-insensitive). Returns {@code null} if the value
      * is none of these.
      */
@@ -371,14 +359,14 @@ public final class NxqlQueryConverter {
         }
     }
 
-    protected static ObjectBuilder<? extends QueryVariant> makeTrashedFilter(String op, String name, String value) {
+    protected static ObjectBuilder<? extends QueryVariant> makeTrashedFilter(Operator op, String name, String value) {
         Boolean trashedRequested = parseBoolValue(value);
         if (trashedRequested == null) {
             throw new IllegalArgumentException(SYS_IS_TRASHED + " requires literal TRUE/FALSE (or 0/1) as right argument");
         }
         boolean equalsDeleted = switch (op) {
-        case "=" -> trashedRequested;
-        case "<>", "!=" -> !trashedRequested;
+        case EQ -> trashedRequested;
+        case NOTEQ -> !trashedRequested;
         default -> throw new IllegalArgumentException(SYS_IS_TRASHED + " requires = or <> operator");
         };
         ObjectBuilder<? extends QueryVariant> filter = QueryBuilders.term().field(name).value(FieldValue.of(true));
@@ -439,9 +427,10 @@ public final class NxqlQueryConverter {
         return makeStartsWithQuery(SYS_PATH, path);
     }
 
-    protected static ObjectBuilder<? extends QueryVariant> makeLikeQuery(String op, String name, String value, FtHint hint) {
+    protected static ObjectBuilder<? extends QueryVariant> makeLikeQuery(Operator op, String name, String value,
+            FtHint hint) {
         String fieldName = name;
-        if (op.contains("ILIKE")) {
+        if (op == Operator.ILIKE || op == Operator.NOTILIKE) {
             // ILIKE will work only with a correct mapping
             value = value.toLowerCase();
             fieldName = name + ".lowercase";
@@ -466,7 +455,7 @@ public final class NxqlQueryConverter {
     }
 
     /**
-     * Turns a NXQL LIKE pattern into a wildcard for WildcardQuery.
+     * Turns an HXQL LIKE pattern into a wildcard for WildcardQuery.
      * <p>
      * % and _ are standard wildcards, and \ escapes them.
      *
@@ -482,7 +471,7 @@ public final class NxqlQueryConverter {
             case '?':
                 wildcard.append("\\?");
                 break;
-            case '*': // compat, * = % in NXQL (for some backends)
+            case '*': // compat, * = % in HXQL (for some backends)
             case '%':
                 if (escape) {
                     wildcard.append(c);
@@ -565,9 +554,10 @@ public final class NxqlQueryConverter {
         return name;
     }
 
-    public List<SortInfo> getSortInfo(String nxql) {
+    /** The sorts the query's {@code ORDER BY} asks for, empty if it has none. */
+    public List<SortInfo> getSortInfo(SQLQuery query) {
         List<SortInfo> sortInfos = new ArrayList<>();
-        OrderByClause orderBy = getSqlQuery(nxql).getOrderByClause();
+        OrderByClause orderBy = query.getOrderByClause();
         if (orderBy != null) {
             for (OrderByExpr expr : orderBy.elements()) {
                 String name = getFieldName(expr.reference().name(), null);
@@ -580,9 +570,10 @@ public final class NxqlQueryConverter {
         return sortInfos;
     }
 
-    public Map<String, Type> getSelectClauseFields(String nxql) {
+    /** The fields the query projects, with their types, empty for {@code SELECT *}. */
+    public Map<String, Type> getSelectClauseFields(SQLQuery query) {
         Map<String, Type> fieldsAndTypes = new LinkedHashMap<>();
-        for (Operand op : getSqlQuery(nxql).getSelectClause().elements()) {
+        for (Operand op : query.getSelectClause().elements()) {
             if (op instanceof Reference reference) {
                 Field field = schemaManager.getField(reference.name());
                 fieldsAndTypes.put(reference.name(), field == null ? null : field.getType());
@@ -595,7 +586,7 @@ public final class NxqlQueryConverter {
      * Translates from Nuxeo syntax to OpenSearch simple_query_string syntax.
      */
     protected static String translateFulltextQuery(String query) {
-        // The AND operator does not exist in NXQL it is the default operator
+        // The AND operator does not exist in HXQL it is the default operator
         return query.replace(" OR ", " | ").replace(" or ", " | ");
     }
 
@@ -616,11 +607,12 @@ public final class NxqlQueryConverter {
 
     public static class ExpressionBuilder {
 
-        public final String operator;
+        /** The boolean operator this builder combines its parts with, or {@code null} at the top level. */
+        public final Operator operator;
 
         public ObjectBuilder<? extends QueryVariant> query;
 
-        public ExpressionBuilder(final String op) {
+        public ExpressionBuilder(final Operator op) {
             operator = op;
             query = null;
         }
@@ -652,18 +644,17 @@ public final class NxqlQueryConverter {
                     query = QueryBuilders.bool();
                 }
                 BoolQuery.Builder boolQuery = (BoolQuery.Builder) query;
-                if ("AND".equals(operator)) {
-                    boolQuery.must(inputQuery.build().toQuery());
-                } else if ("OR".equals(operator)) {
-                    boolQuery.should(inputQuery.build().toQuery());
-                } else if ("NOT".equals(operator)) {
-                    boolQuery.mustNot(inputQuery.build().toQuery());
+                switch (operator) {
+                case AND -> boolQuery.must(inputQuery.build().toQuery());
+                case OR -> boolQuery.should(inputQuery.build().toQuery());
+                case NOT -> boolQuery.mustNot(inputQuery.build().toQuery());
+                default -> throw new IllegalArgumentException("Not a boolean operator: " + operator);
                 }
             }
         }
 
         public void merge(ExpressionBuilder expr) {
-            if ((expr.operator != null) && expr.operator.equals(operator) && (query == null)) {
+            if (expr.operator != null && expr.operator == operator && query == null) {
                 query = expr.query;
             } else {
                 add(new QueryAndFilter(expr.query, null));

@@ -34,7 +34,7 @@ import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentModelList;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.opensearch.api.OpenSearchService;
-import org.nuxeo.opensearch.query.NxQueryBuilder;
+import org.nuxeo.opensearch.query.OpenSearchQueryBuilder;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesExtension;
@@ -113,41 +113,41 @@ public class TestMapping {
         nextTransactionWithWaitAssertNumberOfCommandProcessed(3);
 
         DocumentModelList ret = oss.query(
-                new NxQueryBuilder(session).nxql("SELECT * FROM SysContent WHERE sys_description ILIKE '%Case%'"));
+                new OpenSearchQueryBuilder(session).hxql("SELECT * FROM SysContent WHERE sys_description ILIKE '%Case%'"));
         assertEquals(3, ret.totalSize());
 
-        ret = oss.query(new NxQueryBuilder(session).nxql("SELECT * FROM SysContent WHERE sys_description ILIKE 'Upper%'"));
+        ret = oss.query(new OpenSearchQueryBuilder(session).hxql("SELECT * FROM SysContent WHERE sys_description ILIKE 'Upper%'"));
         assertEquals(1, ret.totalSize());
 
-        ret = oss.query(new NxQueryBuilder(session).nxql(
+        ret = oss.query(new OpenSearchQueryBuilder(session).hxql(
                 "SELECT * FROM SysContent WHERE sys_description ILIKE 'mixED case desc'"));
         assertEquals(1, ret.totalSize());
 
         ret = oss.query(
-                new NxQueryBuilder(session).nxql("SELECT * FROM SysContent WHERE sys_fulltext.sys_title LIKE 'case%'"));
+                new OpenSearchQueryBuilder(session).hxql("SELECT * FROM SysContent WHERE sys_fulltext.sys_title LIKE 'case%'"));
         assertEquals(3, ret.totalSize());
         ret = oss.query(
-                new NxQueryBuilder(session).nxql("SELECT * FROM SysContent WHERE sys_fulltext.sys_title LIKE 'Case%'"));
+                new OpenSearchQueryBuilder(session).hxql("SELECT * FROM SysContent WHERE sys_fulltext.sys_title LIKE 'Case%'"));
         assertEquals(3, ret.totalSize());
 
         // case sensitive for other operation
-        ret = oss.query(new NxQueryBuilder(session).nxql("SELECT * FROM SysContent WHERE sys_description LIKE '%Case%'"));
+        ret = oss.query(new OpenSearchQueryBuilder(session).hxql("SELECT * FROM SysContent WHERE sys_description LIKE '%Case%'"));
         assertEquals(0, ret.totalSize());
         try {
-            oss.query(new NxQueryBuilder(session).nxql("SELECT * FROM SysContent WHERE sys_description LIKE 'Upper%'"));
+            oss.query(new OpenSearchQueryBuilder(session).hxql("SELECT * FROM SysContent WHERE sys_description LIKE 'Upper%'"));
             fail("phrase prefix on keyword should raise error on Open 7.x");
         } catch (NuxeoException e) {
             assertEquals(
                     "Error performing OpenSearch query: failed to create query: Can only use phrase prefix queries on text fields - not on [sys_description] which is of type [keyword]",
                     e.getMessage());
         }
-        ret = oss.query(new NxQueryBuilder(session).nxql(
+        ret = oss.query(new OpenSearchQueryBuilder(session).hxql(
                 "SELECT * FROM SysContent WHERE sys_fulltext.sys_description LIKE '%Case%'"));
         assertEquals(3, ret.totalSize());
-        ret = oss.query(new NxQueryBuilder(session).nxql(
+        ret = oss.query(new OpenSearchQueryBuilder(session).hxql(
                 "SELECT * FROM SysContent WHERE sys_fulltext.sys_description LIKE 'Upper%'"));
         assertEquals(1, ret.totalSize());
-        ret = oss.query(new NxQueryBuilder(session).nxql(
+        ret = oss.query(new OpenSearchQueryBuilder(session).hxql(
                 "SELECT * FROM SysContent WHERE sys_fulltext.sys_description LIKE 'UPPER%'"));
         assertEquals(1, ret.totalSize());
 
@@ -172,34 +172,34 @@ public class TestMapping {
 
         nextTransactionWithWait();
 
-        DocumentModelList ret = oss.query(new NxQueryBuilder(session).nxql(
+        DocumentModelList ret = oss.query(new OpenSearchQueryBuilder(session).hxql(
                 "SELECT * FROM SysContent WHERE sys_fulltext.sys_title = 'new-york.jpg'"));
         assertEquals(1, ret.totalSize());
 
         // The standard tokenizer first split new-york.jpg in "new" "york.jpg"
         // then the word delimiter gives: "new" york" "jpg" "york.jpg"
-        ret = oss.query(new NxQueryBuilder(session).nxql(
+        ret = oss.query(new OpenSearchQueryBuilder(session).hxql(
                 "SELECT * FROM SysContent WHERE sys_fulltext.sys_title = 'new york jpg'"));
         assertEquals(1, ret.totalSize());
 
         ret = oss.query(
-                new NxQueryBuilder(session).nxql("SELECT * FROM SysContent WHERE sys_fulltext.sys_title = 'new-york'"));
+                new OpenSearchQueryBuilder(session).hxql("SELECT * FROM SysContent WHERE sys_fulltext.sys_title = 'new-york'"));
         assertEquals(1, ret.totalSize());
 
         ret = oss.query(
-                new NxQueryBuilder(session).nxql("SELECT * FROM SysContent WHERE sys_fulltext.sys_title = 'york new'"));
+                new OpenSearchQueryBuilder(session).hxql("SELECT * FROM SysContent WHERE sys_fulltext.sys_title = 'york new'"));
         assertEquals(1, ret.totalSize());
 
-        ret = oss.query(new NxQueryBuilder(session).nxql(
+        ret = oss.query(new OpenSearchQueryBuilder(session).hxql(
                 "SELECT * FROM SysContent WHERE sys_fulltext.sys_title = 'york -new-york'"));
         assertEquals(1, ret.totalSize());
         assertEquals("testDoc2", ret.get(0).getName());
 
         ret = oss.query(
-                new NxQueryBuilder(session).nxql("SELECT * FROM SysContent WHERE sys_fulltext.sys_title = 'NewYork'"));
+                new OpenSearchQueryBuilder(session).hxql("SELECT * FROM SysContent WHERE sys_fulltext.sys_title = 'NewYork'"));
         assertEquals(1, ret.totalSize());
 
-        ret = oss.query(new NxQueryBuilder(session).nxql("SELECT * FROM SysContent WHERE sys_fulltext.sys_title = 'jpg'"));
+        ret = oss.query(new OpenSearchQueryBuilder(session).hxql("SELECT * FROM SysContent WHERE sys_fulltext.sys_title = 'jpg'"));
         assertEquals(3, ret.totalSize());
 
     }
@@ -219,7 +219,7 @@ public class TestMapping {
 
         // Common left/right truncature with a ILIKE, translated into wilcard search *oba* with poor performance
         DocumentModelList ret = oss.query(
-                new NxQueryBuilder(session).nxql("SELECT * FROM SysContent WHERE sys_title ILIKE '%Oba%'"));
+                new OpenSearchQueryBuilder(session).hxql("SELECT * FROM SysContent WHERE sys_title ILIKE '%Oba%'"));
         assertEquals(2, ret.totalSize());
     }
 }

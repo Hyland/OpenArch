@@ -41,8 +41,8 @@ import org.nuxeo.ecm.core.query.sql.HXQL;
 import org.nuxeo.opensearch.api.OpenSearchClient;
 import org.nuxeo.opensearch.api.OpenSearchService;
 import org.nuxeo.opensearch.io.DocumentDTO;
-import org.nuxeo.opensearch.query.NxQueryBuilder;
-import org.nuxeo.opensearch.query.NxqlQueryConverter;
+import org.nuxeo.opensearch.query.HXQLQueryConverter;
+import org.nuxeo.opensearch.query.OpenSearchQueryBuilder;
 import org.nuxeo.opensearch.test.RepositoryOpenSearchFeature;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.test.runner.Features;
@@ -63,7 +63,7 @@ import org.skyscreamer.jsonassert.JSONAssert;
  */
 @ExtendWith(FeaturesExtension.class)
 @Features(RepositoryOpenSearchFeature.class)
-public class TestNxqlConversion {
+public class TestHXQLConversion {
 
     private static final String IDX_NAME = "nxutest";
 
@@ -73,11 +73,11 @@ public class TestNxqlConversion {
     @Inject
     protected OpenSearchService oss;
 
-    private NxqlQueryConverter nxqlQueryConverter;
+    private HXQLQueryConverter nxqlQueryConverter;
 
     @BeforeEach
     public void setUp() {
-        nxqlQueryConverter = new NxqlQueryConverter(session.getSchemaManager());
+        nxqlQueryConverter = new HXQLQueryConverter(session.getSchemaManager());
     }
 
     protected void buildDocs() throws Exception {
@@ -153,15 +153,15 @@ public class TestNxqlConversion {
         buildDocs();
 
         // limit does not change the total size, only the returned number of docs
-        DocumentModelList docs = oss.query(new NxQueryBuilder(session).nxql("select * FROM SysContent").limit(1));
+        DocumentModelList docs = oss.query(new OpenSearchQueryBuilder(session).hxql("select * FROM SysContent").limit(1));
         assertEquals(10, docs.totalSize());
         assertEquals(1, docs.size());
         // default is 10
-        docs = oss.query(new NxQueryBuilder(session).nxql("select * FROM SysContent"));
+        docs = oss.query(new OpenSearchQueryBuilder(session).hxql("select * FROM SysContent"));
         assertEquals(10, docs.totalSize());
         assertEquals(10, docs.size());
         // only interested about totalSize
-        docs = oss.query(new NxQueryBuilder(session).nxql("select * FROM SysContent").limit(0));
+        docs = oss.query(new OpenSearchQueryBuilder(session).hxql("select * FROM SysContent").limit(0));
         assertEquals(10, docs.totalSize());
         assertEquals(0, docs.size());
     }
@@ -179,7 +179,7 @@ public class TestNxqlConversion {
 
     protected void checkNXQL(String nxql, int expectedNumberOfHis) {
         // System.out.println(nxqlQueryConverter.toESQueryString(nxql));
-        DocumentModelList docs = oss.query(new NxQueryBuilder(session).nxql(nxql).limit(0));
+        DocumentModelList docs = oss.query(new OpenSearchQueryBuilder(session).hxql(nxql).limit(0));
         assertEquals(expectedNumberOfHis, docs.totalSize());
     }
 
@@ -2967,7 +2967,7 @@ public class TestNxqlConversion {
                }
              }
              """, es);
-        NxQueryBuilder qb = new NxQueryBuilder(session).nxql(nxql);
+        OpenSearchQueryBuilder qb = new OpenSearchQueryBuilder(session).hxql(nxql);
         qb.makeQuery();
         assertEquals(1, qb.getSortInfos().size());
         assertEquals("SortInfo [sortColumn=name, sortAscending=false]", qb.getSortInfos().get(0).toString());
@@ -2999,7 +2999,7 @@ public class TestNxqlConversion {
                   }
                 }
                 """, es);
-        NxQueryBuilder qb = new NxQueryBuilder(session).nxql(nxql);
+        OpenSearchQueryBuilder qb = new OpenSearchQueryBuilder(session).hxql(nxql);
         qb.makeQuery();
         assertEquals(1, qb.getSortInfos().size());
         assertEquals("SortInfo [sortColumn=sysfile_blob.filename, sortAscending=false]",
@@ -3011,7 +3011,9 @@ public class TestNxqlConversion {
     }
 
     private String toESQueryBuilder(String nxql, CoreSession session) {
-        Query query = nxqlQueryConverter.toESQueryBuilder(nxql, session).build().toQuery();
+        Query query = nxqlQueryConverter.toESQueryBuilder(HXQLQueryConverter.parse(nxql), session)
+                                        .build()
+                                        .toQuery();
         return toJsonString(query);
     }
 

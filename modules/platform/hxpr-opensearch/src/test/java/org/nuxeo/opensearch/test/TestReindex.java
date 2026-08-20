@@ -47,7 +47,7 @@ import org.nuxeo.ecm.core.api.trash.TrashService;
 import org.nuxeo.opensearch.OpenSearchServiceImpl;
 import org.nuxeo.opensearch.api.OpenSearchService;
 import org.nuxeo.opensearch.listener.OpenSearchInlineListener;
-import org.nuxeo.opensearch.query.NxQueryBuilder;
+import org.nuxeo.opensearch.query.OpenSearchQueryBuilder;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.test.runner.ConsoleLogLevelThreshold;
 import org.nuxeo.runtime.test.runner.Features;
@@ -121,7 +121,7 @@ public class TestReindex {
         String nxql = "SELECT * FROM SysContent, SysRelation order by sys_id";
         OpenSearchService ess = Framework.getService(OpenSearchService.class);
         DocumentModelList coreDocs = session.query(nxql);
-        DocumentModelList docs = ess.query(new NxQueryBuilder(session).nxql(nxql).limit(100));
+        DocumentModelList docs = ess.query(new OpenSearchQueryBuilder(session).hxql(nxql).limit(100));
 
         assertEquals(coreDocs.totalSize(), docs.totalSize());
         assertEquals(getDigest(coreDocs), getDigest(docs));
@@ -129,12 +129,12 @@ public class TestReindex {
         // Assert.assertEquals(getDigest(coreDocs), 42, docs.totalSize());
         oss.initIndexes(true);
         oss.refresh();
-        DocumentModelList docs2 = ess.query(new NxQueryBuilder(session).nxql("SELECT * FROM SysContent"));
+        DocumentModelList docs2 = ess.query(new OpenSearchQueryBuilder(session).hxql("SELECT * FROM SysContent"));
         assertEquals(0, docs2.totalSize());
         oss.runReindexingWorker(session.getRepositoryName(), "SELECT * FROM SysContent");
         oss.runReindexingWorker(session.getRepositoryName(), "SELECT * FROM SysRelation");
         waitForCompletion();
-        docs2 = ess.query(new NxQueryBuilder(session).nxql(nxql).limit(100));
+        docs2 = ess.query(new OpenSearchQueryBuilder(session).hxql(nxql).limit(100));
 
         assertEquals(getDigest(coreDocs), getDigest(docs2));
     }

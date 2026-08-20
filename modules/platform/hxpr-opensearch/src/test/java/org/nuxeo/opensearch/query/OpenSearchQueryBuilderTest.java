@@ -56,7 +56,7 @@ import tools.jackson.databind.json.JsonMapper;
 import jakarta.json.stream.JsonGenerator;
 
 @ExtendWith(MockitoExtension.class)
-public class NxQueryBuilderTest {
+public class OpenSearchQueryBuilderTest {
     private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder().build();
 
     private static final String EMBEDDING_TYPE = "embedding-type";
@@ -68,13 +68,13 @@ public class NxQueryBuilderTest {
     private SchemaManager schemaManager;
 
     @Mock
-    private NxqlQueryConverter nxqlQueryConverter;
+    private HXQLQueryConverter hxqlQueryConverter;
 
-    private NxQueryBuilder builder;
+    private OpenSearchQueryBuilder builder;
 
     @BeforeEach
     public void setup() {
-        builder = new NxQueryBuilder(session, "repositoryName", nxqlQueryConverter, schemaManager);
+        builder = new OpenSearchQueryBuilder(session, "repositoryName", hxqlQueryConverter, schemaManager);
     }
 
     @Test
@@ -141,7 +141,7 @@ public class NxQueryBuilderTest {
     @Test
     public void testMakeSelectStarQuery() {
         String nxql = "SELECT * FROM nuxeo";
-        builder.nxql(nxql);
+        builder.hxql(nxql);
         Query osQuery = prepareBuilderToReturnOSQuery(nxql);
 
         Query query = builder.makeQuery();
@@ -152,9 +152,9 @@ public class NxQueryBuilderTest {
     @Test
     public void testMakeSelectFieldQuery() {
         String nxql = "SELECT sys_name FROM nuxeo";
-        builder.nxql(nxql);
+        builder.hxql(nxql);
         Query osQuery = prepareBuilderToReturnOSQuery(nxql);
-        when(nxqlQueryConverter.getSelectClauseFields(nxql)).thenReturn(Map.of("sys_name", StringType.INSTANCE));
+        when(hxqlQueryConverter.getSelectClauseFields(HXQLQueryConverter.parse(nxql))).thenReturn(Map.of("sys_name", StringType.INSTANCE));
 
         Query query = builder.makeQuery();
 
@@ -304,7 +304,7 @@ public class NxQueryBuilderTest {
 
     private Query prepareBuilderToReturnOSQuery(String nxql) {
         ObjectBuilder esQueryBuilder = mock(ObjectBuilder.class);
-        when(nxqlQueryConverter.toESQueryBuilder(nxql, session)).thenReturn(esQueryBuilder);
+        when(hxqlQueryConverter.toESQueryBuilder(HXQLQueryConverter.parse(nxql), session)).thenReturn(esQueryBuilder);
         QueryVariant queryVariant = mock(QueryVariant.class);
         when(esQueryBuilder.build()).thenReturn(queryVariant);
         Query osQuery = mock(Query.class);

@@ -53,7 +53,7 @@ import org.nuxeo.ecm.core.model.LocationModel;
 import org.nuxeo.ecm.core.query.sql.HXQL;
 import org.nuxeo.opensearch.api.OpenSearchResult;
 import org.nuxeo.opensearch.api.OpenSearchService;
-import org.nuxeo.opensearch.query.NxQueryBuilder;
+import org.nuxeo.opensearch.query.OpenSearchQueryBuilder;
 import org.nuxeo.opensearch.query.WildcardUtils;
 import org.nuxeo.rest.document.DocumentDTO;
 import org.nuxeo.rest.document.DocumentMapper;
@@ -104,7 +104,7 @@ public class OpenSearchQueryManager extends AbstractQueryManager {
         DocumentQueryResultDTO result;
         String repositoryId = findRepositoryId(query.repositoryId());
         CoreSession session = CoreInstance.getCoreSession(repositoryId);
-        NxQueryBuilder nxQuery = new NxQueryBuilder(session).nxql(spec.query())
+        OpenSearchQueryBuilder nxQuery = new OpenSearchQueryBuilder(session).hxql(spec.query())
                                                             .offset((int) spec.offset())
                                                             .trackTotalCountUpTo(spec.trackTotalCountUpTo())
                                                             .trackTotalCount(spec.trackTotalCount());
@@ -174,7 +174,7 @@ public class OpenSearchQueryManager extends AbstractQueryManager {
 
         String repositoryId = findRepositoryId(repoId);
         CoreSession session = CoreInstance.getCoreSession(repositoryId);
-        NxQueryBuilder nxQuery = new NxQueryBuilder(session).embeddingIdQuery(embeddingId, nxql).offset(0).limit(1);
+        OpenSearchQueryBuilder nxQuery = new OpenSearchQueryBuilder(session).embeddingIdQuery(embeddingId, nxql).offset(0).limit(1);
 
         return getEmbeddingQueryResultDTO(session, repositoryId, spec, nxQuery, null);
     }
@@ -190,7 +190,7 @@ public class OpenSearchQueryManager extends AbstractQueryManager {
 
         String repositoryId = findRepositoryId(query.repositoryId());
         CoreSession session = CoreInstance.getCoreSession(repositoryId);
-        NxQueryBuilder nxQuery = new NxQueryBuilder(session)
+        OpenSearchQueryBuilder nxQuery = new OpenSearchQueryBuilder(session)
                                                             .embeddingQuery(query.embeddingType(), query.vector(),
                                                                     query.chunkFTS(), query.query())
                                                             .offset((int) query.offset())
@@ -205,7 +205,7 @@ public class OpenSearchQueryManager extends AbstractQueryManager {
     }
 
     private EmbeddingQueryResultDTO getEmbeddingQueryResultDTO(CoreSession session, String repositoryId,
-            QuerySpecification spec, NxQueryBuilder nxQuery, List<Double> vector) {
+            QuerySpecification spec, OpenSearchQueryBuilder nxQuery, List<Double> vector) {
         if (repositoryId == null || "*".equals(repositoryId)) {
             nxQuery.searchOnAllRepositories();
         }
@@ -252,7 +252,7 @@ public class OpenSearchQueryManager extends AbstractQueryManager {
         // build and execute the ES query
         String repositoryId = findRepositoryId(query.repositoryId());
         CoreSession session = CoreInstance.getCoreSession(repositoryId);
-        NxQueryBuilder nxQuery = new NxQueryBuilder(session).nxql(spec.query())
+        OpenSearchQueryBuilder nxQuery = new OpenSearchQueryBuilder(session).hxql(spec.query())
                                                             .offset((int) spec.offset())
                                                             .onlyOpenSearchResponse();
 
@@ -337,7 +337,7 @@ public class OpenSearchQueryManager extends AbstractQueryManager {
 
             // add the missing default sort field
             if (sortValues.size() > sortFields.size()) {
-                NxQueryBuilder.addDefaultSortField(sortFields);
+                OpenSearchQueryBuilder.addDefaultSortField(sortFields);
             }
 
             if (sortValues.size() != sortFields.size()) {

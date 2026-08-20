@@ -29,7 +29,7 @@ import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.impl.DocumentModelListImpl;
 import org.nuxeo.ecm.core.query.sql.HXQL;
 import org.nuxeo.opensearch.io.DocumentDTO;
-import org.nuxeo.opensearch.query.NxQueryBuilder.HitDocConsumer;
+import org.nuxeo.opensearch.query.OpenSearchQueryBuilder.HitDocConsumer;
 import org.opensearch.client.opensearch.core.SearchResponse;
 import org.opensearch.client.opensearch.core.search.Hit;
 

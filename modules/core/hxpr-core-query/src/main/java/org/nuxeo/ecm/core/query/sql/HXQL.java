@@ -149,7 +149,7 @@ public class HXQL {
      * @throws IllegalArgumentException if the period and duration cannot be parsed
      * @since 11.1
      */
-    // also used by NxqlQueryConverter
+    // also used by HXQLQueryConverter
     public static ZonedDateTime nowPlusPeriodAndDuration(String periodAndDurationText) {
         ZonedDateTime now;
         if (Framework.getProperty(TEST_HXQL_NOW) != null) {

@@ -18,22 +18,22 @@ package org.nuxeo.opensearch.api;
 import org.nuxeo.ecm.core.api.DocumentModelList;
 import org.nuxeo.ecm.core.api.IterableQueryResult;
 import org.nuxeo.opensearch.io.DocumentDTO;
-import org.nuxeo.opensearch.query.NxQueryBuilder;
+import org.nuxeo.opensearch.query.OpenSearchQueryBuilder;
 import org.opensearch.client.opensearch.core.SearchResponse;
 
 /**
  * Wrapper for the results of a scrollable search request.
  *
- * @see OpenSearchService#scroll(NxQueryBuilder, long)
+ * @see OpenSearchService#scroll(OpenSearchQueryBuilder, long)
  * @see OpenSearchService#scroll(OpenSearchScrollResult)
  * @since 8.3
  */
 public class OpenSearchScrollResult extends OpenSearchResult {
 
     /**
-     * {@link NxQueryBuilder} used for the initial search request.
+     * {@link OpenSearchQueryBuilder} used for the initial search request.
      */
-    protected final NxQueryBuilder queryBuilder;
+    protected final OpenSearchQueryBuilder queryBuilder;
 
     /**
      * Scroll id returned by the search request.
@@ -45,7 +45,7 @@ public class OpenSearchScrollResult extends OpenSearchResult {
      */
     protected final long keepAlive;
 
-    public OpenSearchScrollResult(DocumentModelList documents, SearchResponse<DocumentDTO> response, NxQueryBuilder queryBuilder,
+    public OpenSearchScrollResult(DocumentModelList documents, SearchResponse<DocumentDTO> response, OpenSearchQueryBuilder queryBuilder,
             String scrollId, long keepAlive) {
         super(documents, response);
         this.queryBuilder = queryBuilder;
@@ -53,7 +53,7 @@ public class OpenSearchScrollResult extends OpenSearchResult {
         this.keepAlive = keepAlive;
     }
 
-    public OpenSearchScrollResult(IterableQueryResult rows, SearchResponse<DocumentDTO> response, NxQueryBuilder queryBuilder,
+    public OpenSearchScrollResult(IterableQueryResult rows, SearchResponse<DocumentDTO> response, OpenSearchQueryBuilder queryBuilder,
             String scrollId, long keepAlive) {
         super(rows, response);
         this.queryBuilder = queryBuilder;
@@ -61,18 +61,18 @@ public class OpenSearchScrollResult extends OpenSearchResult {
         this.keepAlive = keepAlive;
     }
 
-    public OpenSearchScrollResult(SearchResponse<DocumentDTO> response, NxQueryBuilder queryBuilder, String scrollId, long keepAlive) {
+    public OpenSearchScrollResult(SearchResponse<DocumentDTO> response, OpenSearchQueryBuilder queryBuilder, String scrollId, long keepAlive) {
         super(response);
         this.queryBuilder = queryBuilder;
         this.scrollId = scrollId;
         this.keepAlive = keepAlive;
     }
 
-    public OpenSearchScrollResult(NxQueryBuilder queryBuilder, String scrollId, long keepAlive) {
+    public OpenSearchScrollResult(OpenSearchQueryBuilder queryBuilder, String scrollId, long keepAlive) {
         this(null, queryBuilder, scrollId, keepAlive);
     }
 
-    public NxQueryBuilder getQueryBuilder() {
+    public OpenSearchQueryBuilder getQueryBuilder() {
         return queryBuilder;
     }
 
