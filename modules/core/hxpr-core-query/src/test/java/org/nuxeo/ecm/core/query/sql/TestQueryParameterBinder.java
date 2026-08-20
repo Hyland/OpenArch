@@ -166,9 +166,8 @@ public class TestQueryParameterBinder {
 
     @Test
     public void testPreservesOtherClauses() {
-        check("SELECT sys_title FROM SysContent WHERE a = 'x' ORDER BY sys_title DESC LIMIT 10 OFFSET 5",
-                "SELECT sys_title FROM SysContent WHERE a = :p ORDER BY sys_title DESC LIMIT 10 OFFSET 5",
-                Map.of("p", "x"));
+        check("SELECT sys_title FROM SysContent WHERE a = 'x' ORDER BY sys_title DESC",
+                "SELECT sys_title FROM SysContent WHERE a = :p ORDER BY sys_title DESC", Map.of("p", "x"));
     }
 
 }

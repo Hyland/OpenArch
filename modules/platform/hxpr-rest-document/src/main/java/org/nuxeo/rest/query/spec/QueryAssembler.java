@@ -176,7 +176,7 @@ public class QueryAssembler {
         WhereClause where = query.getWhereClause() == null ? null
                 : new WhereClause((Predicate) rewrite(query.getWhereClause().predicate(), column));
         OrderByClause orderBy = rewriteOrderBy(query.getOrderByClause(), column);
-        return new SQLQuery(select, query.getFromClause(), where, orderBy, query.getLimit(), query.getOffset());
+        return new SQLQuery(select, query.getFromClause(), where, orderBy);
     }
 
     protected static SelectClause rewriteSelect(SelectClause select, Reference column) {

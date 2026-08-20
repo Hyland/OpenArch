@@ -150,6 +150,8 @@ public class TestQueryParser2 {
             // neither are HAVING and GROUP BY
             "SELECT p FROM t HAVING p = 1", "SELECT p FROM t WHERE q = 2 HAVING p = 1",
             "SELECT p FROM t GROUP BY p", "SELECT p, q FROM t GROUP BY p, q",
+            // nor are LIMIT and OFFSET, which no storage honours
+            "SELECT p FROM t LIMIT 10", "SELECT p FROM t WHERE q = 2 LIMIT 10 OFFSET 5",
             // nor is arithmetic, which no storage can execute
             "SELECT p FROM t WHERE p + 2 = 3", "SELECT p FROM t WHERE p - 2 = 3",
             "SELECT p FROM t WHERE p * 2 = 3", "SELECT p FROM t WHERE p / 2 = 3" };

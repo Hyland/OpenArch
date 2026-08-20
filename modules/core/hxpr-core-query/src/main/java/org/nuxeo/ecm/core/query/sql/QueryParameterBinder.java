@@ -63,8 +63,7 @@ public class QueryParameterBinder {
         SelectClause select = bindSelect(query.getSelectClause(), params);
         WhereClause where = query.getWhereClause() == null ? null
                 : new WhereClause((Predicate) bindPredicate(query.getWhereClause().predicate(), params));
-        return new SQLQuery(select, query.getFromClause(), where, query.getOrderByClause(),
-                query.getLimit(), query.getOffset());
+        return new SQLQuery(select, query.getFromClause(), where, query.getOrderByClause());
     }
 
     protected static SelectClause bindSelect(SelectClause select, Map<String, Object> params) {

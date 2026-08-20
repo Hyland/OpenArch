@@ -146,10 +146,6 @@ public class HXQLVisitor extends HXQLParserBaseVisitor<ASTNode> {
         }
     }
 
-    private static long parseLongOrZero(Token token) {
-        return token == null ? 0 : Long.parseLong(token.getText());
-    }
-
     private String parseString(Token token) {
         try {
             return parseString(token.getText());
@@ -225,9 +221,7 @@ public class HXQLVisitor extends HXQLParserBaseVisitor<ASTNode> {
         var from = (FromClause) ctx.from.accept(this);
         var where = ctx.where == null ? null : (WhereClause) ctx.where.accept(this);
         var orderBy = ctx.orderBy == null ? null : (OrderByClause) ctx.orderBy.accept(this);
-        long limit = parseLongOrZero(ctx.limit);
-        long offset = parseLongOrZero(ctx.offset);
-        return new SQLQuery(select, from, where, orderBy, limit, offset);
+        return new SQLQuery(select, from, where, orderBy);
     }
 
     @Override

@@ -56,8 +56,7 @@ parse_reference: r=reference EOF;
 
 query: select=select_clause from=from_clause
            where=where_clause?
-           orderBy=order_by_clause?
-	       (LIMIT limit=INTEGER (OFFSET offset=INTEGER)?)?;
+           orderBy=order_by_clause?;
 
 select_clause: SELECT list=select_list;
 

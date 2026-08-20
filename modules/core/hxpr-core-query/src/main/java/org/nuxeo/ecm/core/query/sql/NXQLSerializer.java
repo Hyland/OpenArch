@@ -73,12 +73,6 @@ public class NXQLSerializer {
         appendFrom(sb, query);
         appendWhere(sb, query.getWhereClause());
         appendOrderBy(sb, query.getOrderByClause());
-        if (query.getLimit() > 0) {
-            sb.append(" LIMIT ").append(query.getLimit());
-            if (query.getOffset() > 0) {
-                sb.append(" OFFSET ").append(query.getOffset());
-            }
-        }
         return sb.toString();
     }
 

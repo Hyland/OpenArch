@@ -66,8 +66,6 @@ ASC:        'ASC';
 DESC:       'DESC';
 DATE:       'DATE';
 TIMESTAMP:  'TIMESTAMP';
-LIMIT:      'LIMIT';
-OFFSET:     'OFFSET';
 STARTSWITH: 'STARTSWITH';
 TRUE:       'TRUE';
 FALSE:      'FALSE';

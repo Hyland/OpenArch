@@ -37,10 +37,6 @@ public final class SQLQuery implements ASTNode {
 
     private final OrderByClause orderBy;
 
-    private final long limit;
-
-    private final long offset;
-
     public SQLQuery() {
         this(new SelectClause(), new FromClause(), null, null);
     }
@@ -54,17 +50,10 @@ public final class SQLQuery implements ASTNode {
     }
 
     public SQLQuery(SelectClause select, FromClause from, WhereClause where, OrderByClause orderBy) {
-        this(select, from, where, orderBy, 0, 0);
-    }
-
-    public SQLQuery(SelectClause select, FromClause from, WhereClause where, OrderByClause orderBy, long limit,
-            long offset) {
         this.select = select;
         this.from = from;
         this.where = where;
         this.orderBy = orderBy;
-        this.limit = limit;
-        this.offset = offset;
     }
 
     public SelectClause getSelectClause() {
@@ -83,28 +72,19 @@ public final class SQLQuery implements ASTNode {
         return orderBy;
     }
 
-    public long getLimit() {
-        return limit;
-    }
-
-    public long getOffset() {
-        return offset;
-    }
-
     /** A copy of this query with the given projection. */
     public SQLQuery withSelectClause(SelectClause select) {
-        return new SQLQuery(select, from, where, orderBy, limit, offset);
+        return new SQLQuery(select, from, where, orderBy);
     }
 
     /** A copy of this query with the given predicate, or with no where clause if it is {@code null}. */
     public SQLQuery withPredicate(Predicate predicate) {
-        return new SQLQuery(select, from, predicate == null ? null : new WhereClause(predicate), orderBy, limit,
-                offset);
+        return new SQLQuery(select, from, predicate == null ? null : new WhereClause(predicate), orderBy);
     }
 
     /** A copy of this query with the given sort. */
     public SQLQuery withOrderByClause(OrderByClause orderBy) {
-        return new SQLQuery(select, from, where, orderBy, limit, offset);
+        return new SQLQuery(select, from, where, orderBy);
     }
 
     @Override
@@ -118,14 +98,12 @@ public final class SQLQuery implements ASTNode {
         return Objects.equals(select, other.select) //
                 && Objects.equals(from, other.from) //
                 && Objects.equals(where, other.where) //
-                && Objects.equals(orderBy, other.orderBy) //
-                && limit == other.limit //
-                && offset == other.offset;
+                && Objects.equals(orderBy, other.orderBy);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(select, from, where, orderBy, limit, offset);
+        return Objects.hash(select, from, where, orderBy);
     }
 
     @Override

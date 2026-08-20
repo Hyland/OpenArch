@@ -120,8 +120,6 @@ public class TestNXQLSerializer {
         checkIdentity("SELECT * FROM SysContent ORDER BY sys_title");
         checkIdentity("SELECT * FROM SysContent ORDER BY sys_title DESC");
         checkIdentity("SELECT * FROM SysContent ORDER BY sys_created DESC, sys_title");
-        checkIdentity("SELECT * FROM SysContent WHERE a = 1 ORDER BY sys_title LIMIT 10");
-        checkIdentity("SELECT * FROM SysContent WHERE a = 1 ORDER BY sys_title LIMIT 10 OFFSET 5");
     }
 
     @Test
