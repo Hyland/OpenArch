@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.time.Duration;
+import java.util.List;
 
 import jakarta.inject.Inject;
 import jakarta.json.stream.JsonGenerator;
@@ -38,6 +39,14 @@ import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentModelList;
 import org.nuxeo.ecm.core.query.sql.HXQL;
+import org.nuxeo.ecm.core.query.sql.model.FromClause;
+import org.nuxeo.ecm.core.query.sql.model.MultiExpression;
+import org.nuxeo.ecm.core.query.sql.model.Operator;
+import org.nuxeo.ecm.core.query.sql.model.Predicate;
+import org.nuxeo.ecm.core.query.sql.model.Predicates;
+import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
+import org.nuxeo.ecm.core.query.sql.model.SelectClause;
+import org.nuxeo.ecm.core.query.sql.model.WhereClause;
 import org.nuxeo.opensearch.api.OpenSearchClient;
 import org.nuxeo.opensearch.api.OpenSearchService;
 import org.nuxeo.opensearch.io.DocumentDTO;
@@ -3004,6 +3013,32 @@ public class TestHXQLConversion {
         assertEquals(1, qb.getSortInfos().size());
         assertEquals("SortInfo [sortColumn=sysfile_blob.filename, sortAscending=false]",
                 qb.getSortInfos().get(0).toString());
+    }
+
+    /**
+     * A MultiExpression combines its predicates with the operator it carries, rather than adding them to whatever
+     * encloses it. Only a tree built in memory has one, since a parsed query nests binary operators instead.
+     */
+    @Test
+    public void testMultiExpression() {
+        Predicate f1 = Predicates.eq("f1", "a");
+        Predicate f2 = Predicates.eq("f2", "b");
+        assertEqualsEvenUnderWindows("""
+                {"bool":{"should":[{"constant_score":{"filter":{"term":{"f1":{"value":"a"}}}}},\
+                {"constant_score":{"filter":{"term":{"f2":{"value":"b"}}}}}]}}
+                """, convert(new MultiExpression(Operator.OR, List.of(f1, f2))));
+        // nested under another operator it still keeps its own
+        Predicate f3 = Predicates.eq("f3", "c");
+        assertEqualsEvenUnderWindows("""
+                {"bool":{"must":[{"constant_score":{"filter":{"term":{"f3":{"value":"c"}}}}},\
+                {"bool":{"should":[{"constant_score":{"filter":{"term":{"f1":{"value":"a"}}}}},\
+                {"constant_score":{"filter":{"term":{"f2":{"value":"b"}}}}}]}}]}}
+                """, convert(Predicates.and(f3, new MultiExpression(Operator.OR, List.of(f1, f2)))));
+    }
+
+    private String convert(Predicate predicate) {
+        SQLQuery query = new SQLQuery(new SelectClause(), new FromClause(), new WhereClause(predicate));
+        return toJsonString(nxqlQueryConverter.toESQueryBuilder(query, null).build().toQuery());
     }
 
     private String toESQueryBuilder(String nxql) {

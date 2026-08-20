@@ -16,7 +16,6 @@
 package org.nuxeo.rest.query.spec;
 
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ID;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -146,7 +145,7 @@ public class QueryAssembler {
             return query;
         }
         List<OrderByExpr> orderBy = sortInfos.stream()
-                                             .map(sortInfo -> new OrderByExpr(fieldReference(sortInfo.sortColumn()),
+                                             .map(sortInfo -> new OrderByExpr(PredicateBuilder.reference(sortInfo.sortColumn()),
                                                      !sortInfo.sortAscending()))
                                              .toList();
         return query.withOrderByClause(new OrderByClause(orderBy));
@@ -154,19 +153,8 @@ public class QueryAssembler {
 
     /** The reference {@link #SORTED_COLUMN} stands for: the first sort column, or the id when there is no sort. */
     protected static Reference sortedColumn(List<SortInfo> sortInfos) {
-        return sortInfos.isEmpty() ? new Reference(SYS_ID) : fieldReference(sortInfos.get(0).sortColumn());
-    }
-
-    /**
-     * A field name goes into the query as an identifier, which NXQL has no way to quote, so one that is not a valid
-     * identifier has to be rejected rather than escaped. The grammar itself decides what is valid.
-     */
-    protected static Reference fieldReference(String name) {
-        try {
-            return HXQLParser.parseReference(name);
-        } catch (QueryParseException e) {
-            throw new NuxeoException("Not a valid field name: " + name, e, BAD_REQUEST.value());
-        }
+        return sortInfos.isEmpty() ? new Reference(SYS_ID)
+                : PredicateBuilder.reference(sortInfos.get(0).sortColumn());
     }
 
     // --- SORTED_COLUMN rewriting ---

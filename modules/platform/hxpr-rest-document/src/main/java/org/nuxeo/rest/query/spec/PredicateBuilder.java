@@ -26,7 +26,9 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.nuxeo.ecm.core.api.NuxeoException;
+import org.nuxeo.ecm.core.query.QueryParseException;
 import org.nuxeo.ecm.core.query.nxql.FulltextSanitizer;
+import org.nuxeo.ecm.core.query.sql.HXQLParser;
 import org.nuxeo.ecm.core.query.sql.model.Literal;
 import org.nuxeo.ecm.core.query.sql.model.LiteralList;
 import org.nuxeo.ecm.core.query.sql.model.Literals;
@@ -165,15 +167,24 @@ public class PredicateBuilder {
         return Optional.of(new MultiExpression(Operator.OR, alternatives));
     }
 
+    /**
+     * A field name goes into the query as an identifier, which HXQL has no way to quote, so one that is not a valid
+     * identifier has to be rejected rather than escaped: unchecked, a name such as {@code p = 'x' OR q} would go into
+     * the query as syntax rather than as a name. The grammar itself decides what is valid.
+     */
     protected static Reference reference(String field) {
-        return new Reference(field);
+        try {
+            return HXQLParser.parseReference(field);
+        } catch (QueryParseException e) {
+            throw new NuxeoException("Not a valid field name: " + field, e, BAD_REQUEST.value());
+        }
     }
 
     /**
      * A full-text predicate matches under {@code sys_fulltext}, so a plain field name is qualified with it.
      */
     protected static Reference fulltextReference(String field) {
-        return new Reference(field.startsWith(SYS_FULLTEXT) ? field : SYS_FULLTEXT + '.' + field);
+        return reference(field.startsWith(SYS_FULLTEXT) ? field : SYS_FULLTEXT + '.' + field);
     }
 
     /**

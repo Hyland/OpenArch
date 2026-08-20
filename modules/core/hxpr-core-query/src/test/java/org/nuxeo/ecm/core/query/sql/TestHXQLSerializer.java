@@ -139,6 +139,9 @@ public class TestHXQLSerializer {
         checkIdentity("SELECT * FROM SysContent WHERE sys_title = 'O\\'Brien'");
         checkIdentity("SELECT * FROM SysContent WHERE sys_title = 'back\\\\slash'");
         checkIdentity("SELECT * FROM SysContent WHERE sys_title = 'a\\nb'");
+        // the grammar has no raw line break inside a string, so both kinds have to be escaped on the way out
+        checkIdentity("SELECT * FROM SysContent WHERE sys_title = 'a\\rb'");
+        assertEquals("sys_title = 'a\\r\\nb'", HXQLSerializer.serialize(Predicates.eq("sys_title", "a\r\nb")));
         // a value that would break out of its literal if it were not escaped
         Predicate predicate = Predicates.eq("sys_title", "x' OR sys_title LIKE '%");
         assertEquals("sys_title = 'x\\' OR sys_title LIKE \\'%'", HXQLSerializer.serialize(predicate));

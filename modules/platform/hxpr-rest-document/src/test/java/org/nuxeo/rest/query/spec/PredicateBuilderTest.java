@@ -200,6 +200,27 @@ public class PredicateBuilderTest {
         assertEquals("sys_title IN ('a\\'b', 'c')", build("IN", List.of("a'b", "c")));
     }
 
+    /**
+     * Neither can a field name, which unlike a value has no quotes to break out of: it goes into the query as an
+     * identifier, so one that is not a valid identifier has to be refused.
+     */
+    @Test
+    public void testFieldNamesCannotInjectSyntax() {
+        RestPredicate predicate = RestPredicate.of("sys_title = 'public' OR sys_title", "=", "p");
+        var e = assertThrows(NuxeoException.class, () -> build(predicate, Map.of("p", "a")));
+        assertEquals("Not a valid field name: sys_title = 'public' OR sys_title", e.getMessage());
+        assertEquals(400, e.getStatusCode());
+    }
+
+    /** The names the grammar does allow are more than plain identifiers. */
+    @Test
+    public void testComplexFieldNames() {
+        assertEquals("mydc_subjects/* = 'a'", build(RestPredicate.of("mydc_subjects/*", "=", "p"), Map.of("p", "a")));
+        assertEquals("mydc_subjects/*1 = 'a'", build(RestPredicate.of("mydc_subjects/*1", "=", "p"), Map.of("p", "a")));
+        assertEquals("sysfile_blob/length >= 1",
+                build(RestPredicate.of("sysfile_blob/length", ">=", "p"), Map.of("p", 1)));
+    }
+
     @Test
     public void testBuildAll() {
         List<RestPredicate> predicates = List.of( //

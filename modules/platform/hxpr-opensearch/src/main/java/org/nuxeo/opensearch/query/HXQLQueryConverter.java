@@ -34,7 +34,6 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -111,7 +110,7 @@ public final class HXQLQueryConverter {
     }
 
     public ObjectBuilder<? extends QueryVariant> toESQueryBuilder(final SQLQuery hxqlQuery, final CoreSession session) {
-        final LinkedList<ExpressionBuilder> builders = new LinkedList<>();
+        final List<ExpressionBuilder> builders = new ArrayList<>();
         SQLQuery query = hxqlQuery;
         if (session != null) {
             SecurityPolicyService securityPolicyService = Framework.getService(SecurityService.class)
@@ -146,27 +145,33 @@ public final class HXQLQueryConverter {
     /**
      * Walks a predicate, pushing a builder for each boolean operator and adding a leaf query for everything else.
      */
-    protected void walkPredicate(Operand node, LinkedList<ExpressionBuilder> builders, CoreSession session) {
+    protected void walkPredicate(Operand node, List<ExpressionBuilder> builders, CoreSession session) {
         switch (node) {
-        case MultiExpression multiExpression -> multiExpression.predicates.forEach(
-                predicate -> walkPredicate(predicate, builders, session));
+        case MultiExpression multiExpression -> walkBoolean(multiExpression.operator, multiExpression.predicates,
+                builders, session);
         case Predicate expression -> walkExpression(expression, builders, session);
         default -> throw new IllegalArgumentException("Not a predicate: " + node);
         }
     }
 
-    protected void walkExpression(Predicate node, LinkedList<ExpressionBuilder> builders, CoreSession session) {
+    /**
+     * Walks what a boolean operator combines under a builder of its own, which is then merged into the enclosing one.
+     */
+    protected void walkBoolean(Operator operator, List<? extends Operand> operands,
+            List<ExpressionBuilder> builders, CoreSession session) {
+        builders.add(new ExpressionBuilder(operator));
+        operands.forEach(operand -> walkPredicate(operand, builders, session));
+        ExpressionBuilder expr = builders.removeLast();
+        if (!builders.isEmpty()) {
+            builders.getLast().merge(expr);
+        }
+    }
+
+    protected void walkExpression(Predicate node, List<ExpressionBuilder> builders, CoreSession session) {
         Operator op = node.operator;
         if (BOOLEAN_OPERATORS.contains(op)) {
-            builders.add(new ExpressionBuilder(op));
-            walkPredicate(node.lvalue, builders, session);
-            if (node.rvalue != null) {
-                walkPredicate(node.rvalue, builders, session);
-            }
-            ExpressionBuilder expr = builders.removeLast();
-            if (!builders.isEmpty()) {
-                builders.getLast().merge(expr);
-            }
+            List<Operand> operands = node.rvalue == null ? List.of(node.lvalue) : List.of(node.lvalue, node.rvalue);
+            walkBoolean(op, operands, builders, session);
             return;
         }
         Reference ref = node.lvalue instanceof Reference nodeRef ? nodeRef : null;

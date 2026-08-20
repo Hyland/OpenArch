@@ -128,7 +128,8 @@ public class HXQL {
     /**
      * Escapes a string (assumed to be single quoted) for HXQL.
      * <p>
-     * Any single quote or backslash characters are escaped with a backslash.
+     * Any single quote or backslash characters are escaped with a backslash, as are the line breaks the grammar does
+     * not allow raw inside a string.
      *
      * @param s the string to escape
      * @return the escaped string, without external quotes
@@ -138,7 +139,8 @@ public class HXQL {
         // backslash -> backslash backslash
         // quote -> backslash quote
         // newline -> backslash n
-        return s.replace("\\", "\\\\").replace("'", "\\\'").replace("\n", "\\n");
+        // carriage return -> backslash r
+        return s.replace("\\", "\\\\").replace("'", "\\\'").replace("\n", "\\n").replace("\r", "\\r");
     }
 
     /**

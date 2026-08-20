@@ -28,12 +28,15 @@ public class TestHXQLEscaping {
         assertEquals("a\\\\b", HXQL.escapeStringInner("a\\b"));
         assertEquals("a\\\\\\'b", HXQL.escapeStringInner("a\\'b"));
         assertEquals("a\\nb", HXQL.escapeStringInner("a\nb"));
+        assertEquals("a\\rb", HXQL.escapeStringInner("a\rb"));
+        assertEquals("a\\r\\nb", HXQL.escapeStringInner("a\r\nb"));
 
         assertEquals("''", HXQL.escapeString(""));
         assertEquals("'a\\'b'", HXQL.escapeString("a'b"));
         assertEquals("'a\\\\b'", HXQL.escapeString("a\\b"));
         assertEquals("'a\\\\\\'b'", HXQL.escapeString("a\\'b"));
         assertEquals("'a\\nb'", HXQL.escapeString("a\nb"));
+        assertEquals("'a\\rb'", HXQL.escapeString("a\rb"));
     }
 
 }
