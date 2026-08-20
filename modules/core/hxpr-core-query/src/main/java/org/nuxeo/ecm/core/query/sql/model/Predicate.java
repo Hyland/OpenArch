@@ -42,13 +42,6 @@ public sealed class Predicate implements Operand permits MultiExpression {
         this.operator = operator;
     }
 
-    /**
-     * Is the unary operator written after the operand?
-     */
-    public boolean isSuffix() {
-        return operator == Operator.ISNULL || operator == Operator.ISNOTNULL;
-    }
-
     @Override
     public String toString() {
         return NXQLSerializer.serialize(this);

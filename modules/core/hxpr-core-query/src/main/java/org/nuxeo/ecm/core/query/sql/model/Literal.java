@@ -29,4 +29,10 @@ public sealed interface Literal extends Operand
      */
     String asString();
 
+    /**
+     * Renders this literal as NXQL, quoted and escaped as needed.
+     */
+    @Override
+    String toString();
+
 }

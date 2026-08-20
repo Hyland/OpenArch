@@ -15,16 +15,10 @@
  */
 package org.nuxeo.ecm.core.query.sql;
 
-import static org.nuxeo.common.utils.DateUtils.formatISODateTime;
-
 import java.util.List;
 
 import org.nuxeo.ecm.core.query.QueryParseException;
-import org.nuxeo.ecm.core.query.sql.model.BooleanLiteral;
-import org.nuxeo.ecm.core.query.sql.model.DateLiteral;
-import org.nuxeo.ecm.core.query.sql.model.DoubleLiteral;
 import org.nuxeo.ecm.core.query.sql.model.Function;
-import org.nuxeo.ecm.core.query.sql.model.IntegerLiteral;
 import org.nuxeo.ecm.core.query.sql.model.Literal;
 import org.nuxeo.ecm.core.query.sql.model.LiteralList;
 import org.nuxeo.ecm.core.query.sql.model.MultiExpression;
@@ -39,16 +33,15 @@ import org.nuxeo.ecm.core.query.sql.model.Predicates;
 import org.nuxeo.ecm.core.query.sql.model.Reference;
 import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
 import org.nuxeo.ecm.core.query.sql.model.SelectClause;
-import org.nuxeo.ecm.core.query.sql.model.StringLiteral;
 import org.nuxeo.ecm.core.query.sql.model.WhereClause;
 
 /**
  * Renders an NXQL abstract syntax tree back to NXQL text.
  * <p>
- * This is the single place where NXQL text is produced from a tree, and the counterpart of
- * {@link SQLQueryParser#parse}: {@code parse(serialize(parse(q)))} is equal to {@code parse(q)} for any parsable
- * {@code q}. In particular string literals are escaped here and nowhere else, so a tree holding attacker-controlled
- * values cannot produce a query that means something other than the tree says.
+ * This is the counterpart of {@link SQLQueryParser#parse}: {@code parse(serialize(parse(q)))} is equal to
+ * {@code parse(q)} for any parsable {@code q}. Literals render themselves, quoted and escaped, in their own
+ * {@code toString}; there is no other way to put a value into a query, so a tree holding attacker-controlled values
+ * cannot produce a query that means something other than the tree says.
  * <p>
  * Parentheses are emitted only where operator precedence requires them.
  *
@@ -171,7 +164,7 @@ public class NXQLSerializer {
         } else if (operand instanceof LiteralList literalList) {
             appendList(sb, literalList.elements());
         } else if (operand instanceof Literal literal) {
-            appendLiteral(sb, literal);
+            sb.append(literal);
         } else if (operand instanceof Function function) {
             appendFunction(sb, function);
         } else if (operand instanceof OperandList operandList) {
@@ -221,7 +214,7 @@ public class NXQLSerializer {
         }
         if (expression.rvalue == null) {
             // unary
-            if (expression.isSuffix()) {
+            if (isSuffix(operator)) {
                 appendOperand(sb, expression.lvalue, PREC_ATOM);
                 sb.append(' ').append(operator);
             } else {
@@ -236,6 +229,11 @@ public class NXQLSerializer {
         // every binary operator is left-associative, so a right operand that binds equally tightly needs its own
         // parentheses to survive re-parsing; requiring one level tighter is what asks for them
         appendOperand(sb, expression.rvalue, precedence + 1);
+    }
+
+    /** Whether a unary operator is written after its operand rather than before it. */
+    protected static boolean isSuffix(Operator operator) {
+        return operator == Operator.ISNULL || operator == Operator.ISNOTNULL;
     }
 
     protected static void appendReference(StringBuilder sb, Reference reference) {
@@ -280,18 +278,6 @@ public class NXQLSerializer {
     /**
      * Renders every kind of literal explicitly, rather than leaning on their toString, which delegates back here.
      */
-    protected static void appendLiteral(StringBuilder sb, Literal literal) {
-        switch (literal) {
-            case StringLiteral(var value) -> sb.append(NXQL.escapeString(value));
-            case BooleanLiteral(var value) -> sb.append(value ? "TRUE" : "FALSE");
-            case IntegerLiteral(var value) -> sb.append(value);
-            case DoubleLiteral(var value) -> sb.append(value);
-            case DateLiteral(var value, var onlyDate) -> sb.append(onlyDate ? "DATE '" : "TIMESTAMP '")
-                                                           .append(formatISODateTime(value, onlyDate))
-                                                           .append('\'');
-        }
-    }
-
     /**
      * Whether the operand is an empty conjunction, which is vacuously true and so can be left out of a where clause
      * altogether. An empty disjunction cannot: it is vacuously false, and dropping it would turn a query matching
