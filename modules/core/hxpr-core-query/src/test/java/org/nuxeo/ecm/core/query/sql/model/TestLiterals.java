@@ -72,7 +72,8 @@ public class TestLiterals {
     public void testBooleanLiteral() {
         BooleanLiteral b = new BooleanLiteral(true);
         assertEquals("true", b.asString());
-        assertEquals("true", b.toString());
+        // toString is the NXQL spelling, which is uppercase like every other keyword
+        assertEquals("TRUE", b.toString());
         assertEquals(true, b.equals(b));
         assertEquals(true, b.equals(new BooleanLiteral(true)));
         assertNotEquals(true, b.equals(new BooleanLiteral(false)));

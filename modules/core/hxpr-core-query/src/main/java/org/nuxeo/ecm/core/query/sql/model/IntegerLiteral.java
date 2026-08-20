@@ -16,6 +16,8 @@
 
 package org.nuxeo.ecm.core.query.sql.model;
 
+import org.nuxeo.ecm.core.query.sql.NXQLSerializer;
+
 /**
  * @author <a href="mailto:bs@nuxeo.com">Bogdan Stefanescu</a>
  */
@@ -36,7 +38,7 @@ public record IntegerLiteral(long value) implements Literal {
 
     @Override
     public String toString() {
-        return String.valueOf(value);
+        return NXQLSerializer.serialize(this);
     }
 
 }

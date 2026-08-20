@@ -16,6 +16,8 @@
 
 package org.nuxeo.ecm.core.query.sql.model;
 
+import org.nuxeo.ecm.core.query.sql.NXQLSerializer;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,15 +38,7 @@ public final class OperandList extends ArrayList<Operand> implements Operand {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        if (isEmpty()) {
-            return "";
-        }
-        sb.append(get(0).toString());
-        for (int i = 1, size = size(); i < size; i++) {
-            sb.append(", ").append(get(i).toString());
-        }
-        return sb.toString();
+        return NXQLSerializer.serialize(this);
     }
 
 }

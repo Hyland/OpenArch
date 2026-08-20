@@ -139,8 +139,9 @@ public class TestDBSQueryOptimizer {
         query = optimizer.optimize(query);
         QueryAnnotations annotations = optimizer.getAnnotations();
         Predicate expr = query.getWhereClause().predicate();
-        assertEquals("(((sys_title = 'foo') AND (sys_primaryType = 't'))" //
-                + " AND ((sys_acl/*1/principal = 'bob') AND (sys_acl/*1/permission = 'Read')))", expr.toString());
+        // AND is associative, so the rendering is flat; the grouping is asserted structurally below
+        assertEquals("sys_title = 'foo' AND sys_primaryType = 't'" //
+                + " AND sys_acl/*1/principal = 'bob' AND sys_acl/*1/permission = 'Read'", expr.toString());
 
         MultiExpression me = (MultiExpression) expr;
         assertEquals(new PrefixInfo("", 0), annotations.getPrefixInfo(me));

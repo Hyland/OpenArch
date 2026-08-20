@@ -15,6 +15,8 @@
  */
 package org.nuxeo.ecm.core.query.sql.model;
 
+import org.nuxeo.ecm.core.query.sql.NXQLSerializer;
+
 /**
  * Boolean literal.
  */
@@ -31,7 +33,7 @@ public record BooleanLiteral(boolean value) implements Literal {
 
     @Override
     public String toString() {
-        return String.valueOf(value);
+        return NXQLSerializer.serialize(this);
     }
 
 }

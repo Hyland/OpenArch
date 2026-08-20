@@ -16,6 +16,8 @@
 
 package org.nuxeo.ecm.core.query.sql.model;
 
+import org.nuxeo.ecm.core.query.sql.NXQLSerializer;
+
 import org.nuxeo.ecm.core.query.sql.NXQL;
 
 /**
@@ -30,7 +32,7 @@ public record StringLiteral(String value) implements Literal {
 
     @Override
     public String toString() {
-        return NXQL.escapeString(value);
+        return NXQLSerializer.serialize(this);
     }
 
 }

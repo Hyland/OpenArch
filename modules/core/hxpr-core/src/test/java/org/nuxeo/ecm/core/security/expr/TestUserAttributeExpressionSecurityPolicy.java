@@ -72,7 +72,7 @@ public class TestUserAttributeExpressionSecurityPolicy {
         // corresponding HXQL
         QueryParameters params = new QueryParameters(alice, 0, 0);
         Operand clause = policy.getQueryClause(params, alices);
-        assertEquals("(testSecKeyword = '123')", clause.toString());
+        assertEquals("testSecKeyword = '123'", clause.toString());
 
         // bob cannot read due to the policy expression
         NuxeoPrincipal bob = new UserPrincipal("bob", null, false);
@@ -85,7 +85,7 @@ public class TestUserAttributeExpressionSecurityPolicy {
         // corresponding HXQL
         params = new QueryParameters(bob, 0, 0);
         clause = policy.getQueryClause(params, bobs);
-        assertEquals("('456' = testSecKeyword)", clause.toString());
+        assertEquals("'456' = testSecKeyword", clause.toString());
 
         // change test keyword on doc
         doReturn("456").when(idoc).getValue("testSecKeyword");
@@ -122,7 +122,7 @@ public class TestUserAttributeExpressionSecurityPolicy {
         // corresponding HXQL
         QueryParameters params = new QueryParameters(alice, 0, 0);
         Operand clause = policy.getQueryClause(params, alices);
-        assertEquals("((testSystemId <> 'mySysID') OR ((testSecKeyword = '123') AND (testSecKeyword2 = '456')))",
+        assertEquals("testSystemId <> 'mySysID' OR testSecKeyword = '123' AND testSecKeyword2 = '456'",
                 clause.toString());
 
         // bob cannot read due to the policy expression
@@ -136,7 +136,7 @@ public class TestUserAttributeExpressionSecurityPolicy {
         // corresponding HXQL
         params = new QueryParameters(bob, 0, 0);
         clause = policy.getQueryClause(params, bobs);
-        assertEquals("((testSystemId <> 'mySysID') OR ((testSecKeyword = '123') AND (testSecKeyword2 = '789')))",
+        assertEquals("testSystemId <> 'mySysID' OR testSecKeyword = '123' AND testSecKeyword2 = '789'",
                 clause.toString());
 
         // change test keyword on doc

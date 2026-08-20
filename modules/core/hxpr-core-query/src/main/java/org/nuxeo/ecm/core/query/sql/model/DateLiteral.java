@@ -16,6 +16,8 @@
 
 package org.nuxeo.ecm.core.query.sql.model;
 
+import org.nuxeo.ecm.core.query.sql.NXQLSerializer;
+
 import static org.nuxeo.common.utils.DateUtils.formatISODateTime;
 import static org.nuxeo.common.utils.DateUtils.parseISODateTime;
 
@@ -37,12 +39,7 @@ public record DateLiteral(ZonedDateTime value, boolean onlyDate) implements Lite
 
     @Override
     public String toString() {
-        String s = formatISODateTime(value, onlyDate);
-        if (onlyDate) {
-            return "DATE '" + s + "'";
-        } else {
-            return "TIMESTAMP '" + s + "'";
-        }
+        return NXQLSerializer.serialize(this);
     }
 
     @Override

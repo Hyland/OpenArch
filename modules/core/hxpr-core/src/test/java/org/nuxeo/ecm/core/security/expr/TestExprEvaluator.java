@@ -122,55 +122,55 @@ public class TestExprEvaluator {
     @Test
     public void testConstantFolding() {
         // negation
-        check("!false", "true", true);
-        check("!true", "false", false);
+        check("!false", "TRUE", true);
+        check("!true", "FALSE", false);
         check("!null", "null", null);
 
         // boolean constant folding
-        check("true || true", "true", true);
-        check("true || false", "true", true);
-        check("true || null", "true", true);
-        check("false || true", "true", true);
-        check("false || false", "false", false);
+        check("true || true", "TRUE", true);
+        check("true || false", "TRUE", true);
+        check("true || null", "TRUE", true);
+        check("false || true", "TRUE", true);
+        check("false || false", "FALSE", false);
         check("false || null", "null", null);
-        check("null || true", "true", true);
+        check("null || true", "TRUE", true);
         check("null || false", "null", null);
         check("null || null", "null", null);
-        check("true && true", "true", true);
-        check("true && false", "false", false);
+        check("true && true", "TRUE", true);
+        check("true && false", "FALSE", false);
         check("true && null", "null", null);
-        check("false && true", "false", false);
-        check("false && false", "false", false);
-        check("false && null", "false", false);
+        check("false && true", "FALSE", false);
+        check("false && false", "FALSE", false);
+        check("false && null", "FALSE", false);
         check("null && true", "null", null);
-        check("null && false", "false", false);
+        check("null && false", "FALSE", false);
         check("null && null", "null", null);
-        check("true == true", "true", true);
-        check("true == false", "false", false);
-        check("true == null", "false", false);
-        check("false == true", "false", false);
-        check("false == false", "true", true);
-        check("false == null", "false", false);
-        check("true != true", "false", false);
-        check("true != false", "true", true);
-        check("true != null", "true", true);
-        check("false != true", "true", true);
-        check("false != false", "false", false);
-        check("false != null", "true", true);
-        check("null != true", "true", true);
-        check("null != false", "true", true);
-        check("null != null", "false", false);
+        check("true == true", "TRUE", true);
+        check("true == false", "FALSE", false);
+        check("true == null", "FALSE", false);
+        check("false == true", "FALSE", false);
+        check("false == false", "TRUE", true);
+        check("false == null", "FALSE", false);
+        check("true != true", "FALSE", false);
+        check("true != false", "TRUE", true);
+        check("true != null", "TRUE", true);
+        check("false != true", "TRUE", true);
+        check("false != false", "FALSE", false);
+        check("false != null", "TRUE", true);
+        check("null != true", "TRUE", true);
+        check("null != false", "TRUE", true);
+        check("null != null", "FALSE", false);
 
         // long expressions
         check("100 / 2 * 1 + 5 - 13", "42", 42L);
-        check("1 == 1 && 1 != 2", "true", true);
-        check("1 != 1 || 1 == 2", "false", false);
-        check("1 < 2 && 3 > -5 && 1 <= 2 && 3 >= -5", "true", true);
-        check("1 > 2 || 3 < -5 || 1 >= 2 || 3 <= -5", "false", false);
-        check("1 == null", "false", false);
-        check("1 != null", "true", true);
-        check("null == 1", "false", false);
-        check("null != 1", "true", true);
+        check("1 == 1 && 1 != 2", "TRUE", true);
+        check("1 != 1 || 1 == 2", "FALSE", false);
+        check("1 < 2 && 3 > -5 && 1 <= 2 && 3 >= -5", "TRUE", true);
+        check("1 > 2 || 3 < -5 || 1 >= 2 || 3 <= -5", "FALSE", false);
+        check("1 == null", "FALSE", false);
+        check("1 != null", "TRUE", true);
+        check("null == 1", "FALSE", false);
+        check("null != 1", "TRUE", true);
         check("1 + null", "null", null);
         check("1 - null", "null", null);
         check("1 * null", "null", null);
@@ -178,31 +178,31 @@ public class TestExprEvaluator {
 
         // double expressions
         check("100.0 / 2.0 * 1.0 + 5.0 - 13.0", "42.0", 42.0);
-        check("1.0 == 1.0 && 1.0 != 2.0", "true", true);
-        check("1.0 != 1.0 || 1.0 == 2.0", "false", false);
-        check("1.0 < 2.0 && 3.0 > -5.0 && 1.0 <= 2.0 && 3.0 >= -5.0", "true", true);
-        check("1.0 > 2.0 || 3.0 < -5.0 || 1.0 >= 2.0 || 3.0 <= -5.0", "false", false);
-        check("1.0 == null", "false", false);
-        check("1.0 != null", "true", true);
-        check("null == 1.0", "false", false);
-        check("null != 1.0", "true", true);
+        check("1.0 == 1.0 && 1.0 != 2.0", "TRUE", true);
+        check("1.0 != 1.0 || 1.0 == 2.0", "FALSE", false);
+        check("1.0 < 2.0 && 3.0 > -5.0 && 1.0 <= 2.0 && 3.0 >= -5.0", "TRUE", true);
+        check("1.0 > 2.0 || 3.0 < -5.0 || 1.0 >= 2.0 || 3.0 <= -5.0", "FALSE", false);
+        check("1.0 == null", "FALSE", false);
+        check("1.0 != null", "TRUE", true);
+        check("null == 1.0", "FALSE", false);
+        check("null != 1.0", "TRUE", true);
         check("1.0 + null", "null", null);
         check("1.0 - null", "null", null);
         check("1.0 * null", "null", null);
         check("1.0 / null", "null", null);
 
         // promotion of long to double
-        check("1 + 2.0 == 1.0 + 2", "true", true);
+        check("1 + 2.0 == 1.0 + 2", "TRUE", true);
 
         // string comparisons
-        check("\"foo\" == \"foo\"", "true", true);
-        check("\"foo\" == \"bar\"", "false", false);
-        check("\"foo\" == null", "false", false);
-        check("null == \"foo\"", "false", false);
-        check("\"foo\" != \"foo\"", "false", false);
-        check("\"foo\" != \"bar\"", "true", true);
-        check("\"foo\" != null", "true", true);
-        check("null != \"foo\"", "true", true);
+        check("\"foo\" == \"foo\"", "TRUE", true);
+        check("\"foo\" == \"bar\"", "FALSE", false);
+        check("\"foo\" == null", "FALSE", false);
+        check("null == \"foo\"", "FALSE", false);
+        check("\"foo\" != \"foo\"", "FALSE", false);
+        check("\"foo\" != \"bar\"", "TRUE", true);
+        check("\"foo\" != null", "TRUE", true);
+        check("null != \"foo\"", "TRUE", true);
 
         // string concatenation
         check("\"foo\" + \"bar\"", "'foobar'", "foobar");
@@ -210,32 +210,32 @@ public class TestExprEvaluator {
         check("null + \"foo\"", "'nullfoo'", "nullfoo");
 
         // promotion of string to long for comparison
-        check("1 == \"1\"", "true", true);
-        check("1 != \"1\"", "false", false);
-        check("5 > \"1\"", "true", true);
-        check("5 >= \"1\"", "true", true);
-        check("10 < \"1\"", "false", false);
-        check("10 <= \"1\"", "false", false);
-        check("\"1\" == 1", "true", true);
-        check("\"1\" != 1", "false", false);
-        check("\"1\" < 5", "true", true);
-        check("\"1\" <= 5", "true", true);
-        check("\"1\" > 10", "false", false);
-        check("\"1\" >= 10", "false", false);
+        check("1 == \"1\"", "TRUE", true);
+        check("1 != \"1\"", "FALSE", false);
+        check("5 > \"1\"", "TRUE", true);
+        check("5 >= \"1\"", "TRUE", true);
+        check("10 < \"1\"", "FALSE", false);
+        check("10 <= \"1\"", "FALSE", false);
+        check("\"1\" == 1", "TRUE", true);
+        check("\"1\" != 1", "FALSE", false);
+        check("\"1\" < 5", "TRUE", true);
+        check("\"1\" <= 5", "TRUE", true);
+        check("\"1\" > 10", "FALSE", false);
+        check("\"1\" >= 10", "FALSE", false);
 
         // promotion of string to double for comparison
-        check("1 == \"1.0\"", "true", true);
-        check("1 != \"1.0\"", "false", false);
-        check("5 > \"1.0\"", "true", true);
-        check("5 >= \"1.0\"", "true", true);
-        check("10 < \"1.0\"", "false", false);
-        check("10 <= \"1.0\"", "false", false);
-        check("\"1.0\" == 1", "true", true);
-        check("\"1.0\" != 1", "false", false);
-        check("\"1.0\" < 5", "true", true);
-        check("\"1.0\" <= 5", "true", true);
-        check("\"1.0\" > 10", "false", false);
-        check("\"1.0\" >= 10", "false", false);
+        check("1 == \"1.0\"", "TRUE", true);
+        check("1 != \"1.0\"", "FALSE", false);
+        check("5 > \"1.0\"", "TRUE", true);
+        check("5 >= \"1.0\"", "TRUE", true);
+        check("10 < \"1.0\"", "FALSE", false);
+        check("10 <= \"1.0\"", "FALSE", false);
+        check("\"1.0\" == 1", "TRUE", true);
+        check("\"1.0\" != 1", "FALSE", false);
+        check("\"1.0\" < 5", "TRUE", true);
+        check("\"1.0\" <= 5", "TRUE", true);
+        check("\"1.0\" > 10", "FALSE", false);
+        check("\"1.0\" >= 10", "FALSE", false);
 
         // promotion of numeric to string for concatenation
         check("1 + \"foo\"", "'1foo'", "1foo");
@@ -279,17 +279,17 @@ public class TestExprEvaluator {
     @Test
     public void testContent() {
         check("content.sys_title == \"secret\" || content.sys_description == \"\"",
-                "((sys_title = 'secret') OR (sys_description = ''))", false);
+                "sys_title = 'secret' OR sys_description = ''", false);
         check("!content.sys_isFolderish", "NOT sys_isFolderish", true);
-        check("content.sys_isFolderish || true", "true", true);
+        check("content.sys_isFolderish || true", "TRUE", true);
         check("content.sys_isFolderish || false", "sys_isFolderish", false);
-        check("true || content.sys_isFolderish", "true", true);
+        check("true || content.sys_isFolderish", "TRUE", true);
         check("false || content.sys_isFolderish", "sys_isFolderish", false);
         check("content.sys_isFolderish && true", "sys_isFolderish", false);
-        check("content.sys_isFolderish && false", "false", false);
+        check("content.sys_isFolderish && false", "FALSE", false);
         check("true && content.sys_isFolderish", "sys_isFolderish", false);
-        check("false && content.sys_isFolderish", "false", false);
-        check("content.sys_title == \"foo\"", "(sys_title = 'foo')", false);
+        check("false && content.sys_isFolderish", "FALSE", false);
+        check("content.sys_title == \"foo\"", "sys_title = 'foo'", false);
         // arithmetic on a content property still evaluates against a document, but cannot become a query filter
         checkNoOperand("content.sys_title + \"foo\"",
                 "Cannot use arithmetic on a content property in a query: (content.sys_title + \"foo\")", "nullfoo");
@@ -298,7 +298,7 @@ public class TestExprEvaluator {
         check("content.sys_title == null", "sys_title IS NULL", true);
         check("content.sys_title != null", "sys_title IS NOT NULL", false);
         // promotion of string to long for comparison
-        check("content.sys_title < \"123\"", "(sys_title < 123)", false);
+        check("content.sys_title < \"123\"", "sys_title < 123", false);
     }
 
     @Test
@@ -311,32 +311,32 @@ public class TestExprEvaluator {
         // static object in context
         check(user, "user.foo", "null", null);
         check(user, "user.id", "'alice'", "alice");
-        check(user, "user.clearance > 5", "true", true);
-        check(user, "user.clearance < 5", "false", false);
+        check(user, "user.clearance > 5", "TRUE", true);
+        check(user, "user.clearance < 5", "FALSE", false);
         check(user, "user.int", "10", 10L);
         check(user, "user.float", "1.0", 1.0);
         check(user, "user.str", "'10'", "10");
 
         // both with constant folding
         check(user, "content.sys_title == \"secret\" || user.clearance < 5", //
-                "(sys_title = 'secret')", //
+                "sys_title = 'secret'", //
                 false);
 
         // contains
-        check(user, "user.groups.contains(\"auditors\")", "true", true);
-        check(user, "user.groups.contains(\"audi\" + \"tors\")", "true", true);
-        check(user, "user.groups.contains(\"foo\")", "false", false);
-        check(user, "user.groups.contains(\"auditors\", \"foo\")", "false", false);
-        check(user, "user.groups.contains(\"auditors\", \"folks\")", "true", true);
-        check(user, "user.groups.contains(123)", "false", false);
+        check(user, "user.groups.contains(\"auditors\")", "TRUE", true);
+        check(user, "user.groups.contains(\"audi\" + \"tors\")", "TRUE", true);
+        check(user, "user.groups.contains(\"foo\")", "FALSE", false);
+        check(user, "user.groups.contains(\"auditors\", \"foo\")", "FALSE", false);
+        check(user, "user.groups.contains(\"auditors\", \"folks\")", "TRUE", true);
+        check(user, "user.groups.contains(123)", "FALSE", false);
 
         // contains with property
-        check(user, content, "user.groups.contains(content.my_groups)", "(my_groups IN ('auditors', 'folks'))", true);
+        check(user, content, "user.groups.contains(content.my_groups)", "my_groups IN ('auditors', 'folks')", true);
         // contains with property on empty list
         user = new UserPrincipal("alice", List.of(), false);
-        check(user, content, "user.groups.contains(content.my_groups)", "false", false);
+        check(user, content, "user.groups.contains(content.my_groups)", "FALSE", false);
         // contains with nonexistent property (evaluated to null)
-        check(user, content, "user.groups.contains(content.non_existent)", "false", false);
+        check(user, content, "user.groups.contains(content.non_existent)", "FALSE", false);
     }
 
     @Test
@@ -344,19 +344,19 @@ public class TestExprEvaluator {
         UserPrincipal user = new UserPrincipal("", null, false);
         Map<String, Object> content = Map.of();
         // null values compare like if they were a regular value
-        check(user, content, "content.sys_title == 10", "(sys_title = 10)", false);
-        check(user, content, "content.sys_title != 10", "(sys_title <> 10)", true);
-        check(user, content, "content.sys_title > 10", "(sys_title > 10)", false);
-        check(user, content, "content.sys_title >= 10", "(sys_title >= 10)", false);
-        check(user, content, "content.sys_title < 10", "(sys_title < 10)", false);
-        check(user, content, "content.sys_title <= 10", "(sys_title <= 10)", false);
-        check(user, content, "content.sys_title == 1.0", "(sys_title = 1.0)", false);
-        check(user, content, "content.sys_title != 1.0", "(sys_title <> 1.0)", true);
-        check(user, content, "content.sys_title > 1.0", "(sys_title > 1.0)", false);
-        check(user, content, "content.sys_title >= 1.0", "(sys_title >= 1.0)", false);
-        check(user, content, "content.sys_title < 1.0", "(sys_title < 1.0)", false);
-        check(user, content, "content.sys_title <= 1.0", "(sys_title <= 1.0)", false);
-        check(user, content, "content.non_existent.sys_title == 10", "(non_existent/sys_title = 10)", false);
+        check(user, content, "content.sys_title == 10", "sys_title = 10", false);
+        check(user, content, "content.sys_title != 10", "sys_title <> 10", true);
+        check(user, content, "content.sys_title > 10", "sys_title > 10", false);
+        check(user, content, "content.sys_title >= 10", "sys_title >= 10", false);
+        check(user, content, "content.sys_title < 10", "sys_title < 10", false);
+        check(user, content, "content.sys_title <= 10", "sys_title <= 10", false);
+        check(user, content, "content.sys_title == 1.0", "sys_title = 1.0", false);
+        check(user, content, "content.sys_title != 1.0", "sys_title <> 1.0", true);
+        check(user, content, "content.sys_title > 1.0", "sys_title > 1.0", false);
+        check(user, content, "content.sys_title >= 1.0", "sys_title >= 1.0", false);
+        check(user, content, "content.sys_title < 1.0", "sys_title < 1.0", false);
+        check(user, content, "content.sys_title <= 1.0", "sys_title <= 1.0", false);
+        check(user, content, "content.non_existent.sys_title == 10", "non_existent/sys_title = 10", false);
     }
 
     @Test
@@ -383,20 +383,20 @@ public class TestExprEvaluator {
         Map<String, Object> content = Map.of("mapProperty", mapProperties);
 
         // Basic map property access
-        check(content, "content.mapProperty.Key1 == \"val1\"", "(mapProperty/Key1 = 'val1')", true);
-        check(content, "content.mapProperty.Key2 == \"val2\"", "(mapProperty/Key2 = 'val2')", true);
-        check(content, "content.mapProperty.Key1 == \"wrong\"", "(mapProperty/Key1 = 'wrong')", false);
+        check(content, "content.mapProperty.Key1 == \"val1\"", "mapProperty/Key1 = 'val1'", true);
+        check(content, "content.mapProperty.Key2 == \"val2\"", "mapProperty/Key2 = 'val2'", true);
+        check(content, "content.mapProperty.Key1 == \"wrong\"", "mapProperty/Key1 = 'wrong'", false);
 
         // Numeric values in map
-        check(content, "content.mapProperty.numKey == 123", "(mapProperty/numKey = 123)", true);
-        check(content, "content.mapProperty.numKey > 100", "(mapProperty/numKey > 100)", true);
+        check(content, "content.mapProperty.numKey == 123", "mapProperty/numKey = 123", true);
+        check(content, "content.mapProperty.numKey > 100", "mapProperty/numKey > 100", true);
 
         // Non-existent key (should return null and fail comparison)
-        check(content, "content.mapProperty.nonExistent == \"val\"", "(mapProperty/nonExistent = 'val')", false);
+        check(content, "content.mapProperty.nonExistent == \"val\"", "mapProperty/nonExistent = 'val'", false);
 
         // Combined expressions
         check(content, "content.mapProperty.Key1 == \"val1\" && content.mapProperty.Key2 == \"val2\"",
-                "((mapProperty/Key1 = 'val1') AND (mapProperty/Key2 = 'val2'))", true);
+                "mapProperty/Key1 = 'val1' AND mapProperty/Key2 = 'val2'", true);
     }
 
     @Test
@@ -408,7 +408,7 @@ public class TestExprEvaluator {
 
         // Nested map access
         check(content, "content.complexProperty.nested.innerKey == \"innerValue\"",
-                "(complexProperty/nested/innerKey = 'innerValue')", true);
+                "complexProperty/nested/innerKey = 'innerValue'", true);
     }
 
     @Test
@@ -417,15 +417,15 @@ public class TestExprEvaluator {
 
         // Test sys_primaryType evaluation
         Map<String, Object> content1 = Map.of("sys_primaryType", "SysFile");
-        check(user, content1, "content.sys_primaryType == \"SysFile\"", "(sys_primaryType = 'SysFile')", true);
+        check(user, content1, "content.sys_primaryType == \"SysFile\"", "sys_primaryType = 'SysFile'", true);
 
         // Test sys_isFolderish evaluation
         Map<String, Object> content2 = Map.of("sys_isFolderish", true);
-        check(user, content2, "content.sys_isFolderish == true", "(sys_isFolderish = true)", true);
+        check(user, content2, "content.sys_isFolderish == true", "sys_isFolderish = TRUE", true);
 
         // Test sys_isFolderish with null (not folderish) (this is a true-or-null boolean property)
         Map<String, Object> content3 = Map.of();
-        check(user, content3, "content.sys_isFolderish == false", "(sys_isFolderish = false)", true);
+        check(user, content3, "content.sys_isFolderish == false", "sys_isFolderish = FALSE", true);
     }
 
 }

@@ -16,8 +16,9 @@
 
 package org.nuxeo.ecm.core.query.sql.model;
 
+import org.nuxeo.ecm.core.query.sql.NXQLSerializer;
+
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -37,16 +38,7 @@ public final class LiteralList extends ArrayList<Literal> implements Operand {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append('(');
-        for (Iterator<Literal> it = iterator(); it.hasNext(); ) {
-            sb.append(it.next().toString());
-            if (it.hasNext()) {
-                sb.append(", ");
-            }
-        }
-        sb.append(')');
-        return sb.toString();
+        return NXQLSerializer.serialize(this);
     }
 
 }

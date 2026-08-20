@@ -15,11 +15,15 @@
  */
 package org.nuxeo.ecm.core.query.sql;
 
+import static org.nuxeo.common.utils.DateUtils.formatISODateTime;
+
 import java.util.List;
 
 import org.nuxeo.ecm.core.query.QueryParseException;
 import org.nuxeo.ecm.core.query.sql.model.BooleanLiteral;
 import org.nuxeo.ecm.core.query.sql.model.Predicate;
+import org.nuxeo.ecm.core.query.sql.model.DateLiteral;
+import org.nuxeo.ecm.core.query.sql.model.DoubleLiteral;
 import org.nuxeo.ecm.core.query.sql.model.Function;
 import org.nuxeo.ecm.core.query.sql.model.IntegerLiteral;
 import org.nuxeo.ecm.core.query.sql.model.Literal;
@@ -173,7 +177,7 @@ public class NXQLSerializer {
         } else if (operand instanceof OperandList operandList) {
             appendList(sb, operandList);
         } else if (operand instanceof Parameter parameter) {
-            sb.append(parameter);
+            sb.append(':').append(parameter.name());
         } else {
             throw new QueryParseException("Cannot serialize operand: " + operand);
         }
@@ -270,14 +274,18 @@ public class NXQLSerializer {
         sb.append(')');
     }
 
+    /**
+     * Renders every kind of literal explicitly, rather than leaning on their toString, which delegates back here.
+     */
     protected static void appendLiteral(StringBuilder sb, Literal literal) {
-        if (literal instanceof StringLiteral stringLiteral) {
-            sb.append(NXQL.escapeString(stringLiteral.value()));
-        } else if (literal instanceof BooleanLiteral booleanLiteral) {
-            sb.append(booleanLiteral.value() ? "TRUE" : "FALSE");
-        } else {
-            // integer, double and date literals have no escaping concern
-            sb.append(literal);
+        switch (literal) {
+            case StringLiteral(var value) -> sb.append(NXQL.escapeString(value));
+            case BooleanLiteral(var value) -> sb.append(value ? "TRUE" : "FALSE");
+            case IntegerLiteral(var value) -> sb.append(value);
+            case DoubleLiteral(var value) -> sb.append(value);
+            case DateLiteral(var value, var onlyDate) -> sb.append(onlyDate ? "DATE '" : "TIMESTAMP '")
+                                                           .append(formatISODateTime(value, onlyDate))
+                                                           .append('\'');
         }
     }
 

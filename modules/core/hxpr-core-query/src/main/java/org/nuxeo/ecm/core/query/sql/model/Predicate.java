@@ -15,6 +15,8 @@
  */
 package org.nuxeo.ecm.core.query.sql.model;
 
+import org.nuxeo.ecm.core.query.sql.NXQLSerializer;
+
 import java.util.Objects;
 
 /**
@@ -49,10 +51,7 @@ public sealed class Predicate implements Operand permits MultiExpression {
 
     @Override
     public String toString() {
-        if (rvalue == null) {
-            return isSuffix() ? lvalue + " " + operator : operator + " " + lvalue;
-        }
-        return "(" + lvalue + " " + operator + " " + rvalue + ")";
+        return NXQLSerializer.serialize(this);
     }
 
     @Override

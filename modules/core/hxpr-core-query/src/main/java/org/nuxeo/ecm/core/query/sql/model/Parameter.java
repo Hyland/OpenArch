@@ -15,6 +15,8 @@
  */
 package org.nuxeo.ecm.core.query.sql.model;
 
+import org.nuxeo.ecm.core.query.sql.NXQLSerializer;
+
 /**
  * A named query parameter, written {@code :name} in NXQL.
  * <p>
@@ -34,7 +36,7 @@ public record Parameter(String name) implements Operand {
 
     @Override
     public String toString() {
-        return ":" + name;
+        return NXQLSerializer.serialize(this);
     }
 
 }

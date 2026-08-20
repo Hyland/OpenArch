@@ -81,7 +81,7 @@ public class TestExpressionSecurityPolicy {
         // corresponding HXQL
         QueryParameters params = new QueryParameters(alice, 0, 0);
         Operand clause = policy.getQueryClause(params, alices);
-        assertEquals("true", clause.toString());
+        assertEquals("TRUE", clause.toString());
 
         // bob cannot read due to document high clearance level
         NuxeoPrincipal bob = new UserPrincipal("bob", null, false);
@@ -92,7 +92,7 @@ public class TestExpressionSecurityPolicy {
         // corresponding HXQL
         params = new QueryParameters(bob, 0, 0);
         clause = policy.getQueryClause(params, bobs);
-        assertEquals("(clearance_level < 10)", clause.toString());
+        assertEquals("clearance_level < 10", clause.toString());
 
         // lower clearance level on document
         when(idoc.getValue(CLEARANCE_LEVEL)).thenReturn(3L);

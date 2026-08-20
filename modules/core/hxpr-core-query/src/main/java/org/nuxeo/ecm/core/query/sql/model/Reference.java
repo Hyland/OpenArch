@@ -15,6 +15,8 @@
  */
 package org.nuxeo.ecm.core.query.sql.model;
 
+import org.nuxeo.ecm.core.query.sql.NXQLSerializer;
+
 /**
  * A reference to a field, optionally cast or carrying a full-text hint.
  * <p>
@@ -43,12 +45,7 @@ public record Reference(String name, String cast, FtHint ftHint) implements Oper
 
     @Override
     public String toString() {
-        if (cast != null) {
-            return cast + '(' + name + ')';
-        } else if (ftHint != null) {
-            return ftHint + " " + name;
-        }
-        return name;
+        return NXQLSerializer.serialize(this);
     }
 
 }

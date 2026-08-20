@@ -17,71 +17,77 @@ package org.nuxeo.ecm.core.query.sql.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.nuxeo.ecm.core.query.sql.NXQLSerializer;
 
 /**
- * {@link Predicate#toString} is used for debug so it should attempt to not be misleading, in particular in the way it
- * displays parentheses and operator priority.
- *
- * @since 11.4
+ * A node's {@link Object#toString} is its NXQL rendering, produced by {@link NXQLSerializer}: there is one renderer,
+ * so debug output cannot drift from what would actually be executed.
  */
 public class TestToString {
+
+    /** Asserts the expected NXQL, and that toString and the serializer agree on it. */
+    protected static void check(String expected, Operand operand) {
+        assertEquals(expected, operand.toString());
+        assertEquals(expected, NXQLSerializer.serialize(operand));
+    }
 
     @Test
     public void testAndOr() {
         var f = Predicates.eq("foo", "f1");
-        assertEquals("(foo = 'f1')", f.toString());
-        var b1 = Predicates.eq("bar", "b1");
-        var b2 = Predicates.eq("bar", "b2");
-        var b = Predicates.or(b1, b2);
-        assertEquals("((bar = 'b1') OR (bar = 'b2'))", b.toString());
-        var p = Predicates.and(f, b);
-        assertEquals("((foo = 'f1') AND ((bar = 'b1') OR (bar = 'b2')))", p.toString());
+        check("foo = 'f1'", f);
+        var b = Predicates.or(Predicates.eq("bar", "b1"), Predicates.eq("bar", "b2"));
+        check("bar = 'b1' OR bar = 'b2'", b);
+        // the disjunction keeps the parentheses it needs inside a conjunction
+        check("foo = 'f1' AND (bar = 'b1' OR bar = 'b2')", Predicates.and(f, b));
     }
 
     @Test
     public void testIn() {
-        var f = Predicates.in("foo", Collections.emptyList());
-        assertEquals("(foo IN ())", f.toString());
-        f = Predicates.in("foo", Arrays.asList("f1"));
-        assertEquals("(foo IN ('f1'))", f.toString());
-        f = Predicates.in("foo", Arrays.asList("f1", "f2"));
-        assertEquals("(foo IN ('f1', 'f2'))", f.toString());
+        check("foo IN ()", Predicates.in("foo", List.of()));
+        check("foo IN ('f1')", Predicates.in("foo", List.of("f1")));
+        check("foo IN ('f1', 'f2')", Predicates.in("foo", List.of("f1", "f2")));
     }
 
     @Test
     public void testIsNull() {
         var f = Predicates.isnull("foo");
-        assertEquals("foo IS NULL", f.toString());
+        check("foo IS NULL", f);
         var b = Predicates.isnotnull("bar");
-        assertEquals("bar IS NOT NULL", b.toString());
-        var p = Predicates.and(f, b);
-        assertEquals("(foo IS NULL AND bar IS NOT NULL)", p.toString());
+        check("bar IS NOT NULL", b);
+        check("foo IS NULL AND bar IS NOT NULL", Predicates.and(f, b));
     }
 
     @Test
     public void testNot() {
-        var f = Predicates.eq("foo", "f1");
-        var p = Predicates.not(f);
-        assertEquals("NOT (foo = 'f1')", p.toString());
+        check("NOT foo = 'f1'", Predicates.not(Predicates.eq("foo", "f1")));
+        check("NOT (foo = 'f1' AND bar = 'b1')",
+                Predicates.not(Predicates.and(Predicates.eq("foo", "f1"), Predicates.eq("bar", "b1"))));
     }
 
     @Test
     public void testMultiExpression() {
-        var p = new MultiExpression(Operator.AND, Collections.emptyList());
-        assertEquals("AND()", p.toString());
         var f = Predicates.eq("foo", "f1");
-        p = new MultiExpression(Operator.AND, Arrays.asList(f));
-        assertEquals("(foo = 'f1')", p.toString());
         var b = Predicates.eq("bar", "b1");
-        p = new MultiExpression(Operator.AND, Arrays.asList(f, b));
-        assertEquals("((foo = 'f1') AND (bar = 'b1'))", p.toString());
         var g = Predicates.eq("gee", "g1");
-        p = new MultiExpression(Operator.AND, Arrays.asList(f, b, g));
-        assertEquals("((foo = 'f1') AND (bar = 'b1') AND (gee = 'g1'))", p.toString());
+        // an empty conjunction is vacuously true
+        check("1 = 1", new MultiExpression(Operator.AND, List.of()));
+        check("foo = 'f1'", new MultiExpression(Operator.AND, List.of(f)));
+        check("foo = 'f1' AND bar = 'b1'", new MultiExpression(Operator.AND, List.of(f, b)));
+        check("foo = 'f1' AND bar = 'b1' AND gee = 'g1'", new MultiExpression(Operator.AND, List.of(f, b, g)));
+    }
+
+    @Test
+    public void testLeaves() {
+        check("sys_title", new Reference("sys_title"));
+        check("DATE(sys_created)", new Reference("sys_created", "DATE"));
+        check("'a\\'b'", new StringLiteral("a'b"));
+        check("TRUE", BooleanLiteral.LIT_TRUE);
+        check("42", new IntegerLiteral(42));
+        check(":param", new Parameter("param"));
+        check("COUNT(sys_id)", new Function("COUNT", new OperandList(List.of(new Reference("sys_id")))));
     }
 
 }
