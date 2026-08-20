@@ -13,23 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.nuxeo.ecm.core.query.sql.model;
 
 /**
- * The base of all query nodes.
+ * A node of an NXQL syntax tree.
  * <p>
- * An AST method accepts a visitor and that's all.
- *
- * @author <a href="mailto:bs@nuxeo.com">Bogdan Stefanescu</a>
+ * The hierarchy is sealed, so code that walks a tree can switch over it exhaustively and the compiler will point at
+ * every place that has to handle a new kind of node. There is no visitor: a walk is a recursive switch, which keeps
+ * the traversal next to the work it does instead of spread over a framework.
  */
-public interface ASTNode {
-
-    /**
-     * Accept the given visitor.
-     *
-     * @param visitor the AST node visitor
-     */
-    void accept(IVisitor visitor);
+public sealed interface ASTNode permits Operand, SQLQuery, SelectClause, SelectList, FromClause, FromList, WhereClause,
+        OrderByClause, OrderByList, OrderByExpr {
 
 }

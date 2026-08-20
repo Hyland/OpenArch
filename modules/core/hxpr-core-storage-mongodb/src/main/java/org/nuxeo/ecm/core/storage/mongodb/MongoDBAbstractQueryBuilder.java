@@ -47,7 +47,8 @@ import org.nuxeo.ecm.core.schema.types.Type;
 import org.nuxeo.ecm.core.schema.types.primitives.BooleanType;
 import org.nuxeo.ecm.core.schema.types.primitives.DateType;
 import org.nuxeo.ecm.core.storage.ExpressionEvaluator;
-import org.nuxeo.ecm.core.storage.QueryOptimizer.PrefixInfo;
+import org.nuxeo.ecm.core.storage.QueryAnnotations;
+import org.nuxeo.ecm.core.storage.QueryAnnotations.PrefixInfo;
 import org.nuxeo.runtime.mongodb.MongoDBOperators;
 
 /**
@@ -73,6 +74,9 @@ public abstract class MongoDBAbstractQueryBuilder {
 
     protected final Expression expression;
 
+    /** What the optimizer worked out about the query's nodes. */
+    protected final QueryAnnotations annotations;
+
     protected Document query;
 
     /**
@@ -80,9 +84,11 @@ public abstract class MongoDBAbstractQueryBuilder {
      */
     protected String elemMatchPrefix;
 
-    protected MongoDBAbstractQueryBuilder(MongoDBConverter converter, Expression expression) {
+    protected MongoDBAbstractQueryBuilder(MongoDBConverter converter, Expression expression,
+            QueryAnnotations annotations) {
         this.converter = converter;
         this.expression = expression;
+        this.annotations = annotations;
     }
 
     public void walk() {
@@ -107,8 +113,8 @@ public abstract class MongoDBAbstractQueryBuilder {
         Operand lvalue = expr.lvalue;
         Operand rvalue = expr.rvalue;
         Reference ref = lvalue instanceof Reference lvalueRef ? lvalueRef : null;
-        String name = ref != null ? ref.name : null;
-        String cast = ref != null ? ref.cast : null;
+        String name = ref != null ? ref.name() : null;
+        String cast = ref != null ? ref.cast() : null;
         if (DATE_CAST.equals(cast)) {
             checkDateLiteralForCast(op, rvalue, name);
         }
@@ -245,18 +251,18 @@ public abstract class MongoDBAbstractQueryBuilder {
         }
         boolean and = expr.operator == Operator.AND;
         String op = and ? MongoDBOperators.AND : MongoDBOperators.OR;
-        // PrefixInfo was computed by the QueryOptimizer for common AND predicates
-        PrefixInfo info = (PrefixInfo) expr.getInfo();
-        if (info == null || info.count < 2 || !and) {
+        // the prefix info was computed by the QueryOptimizer for common AND predicates
+        PrefixInfo info = annotations.getPrefixInfo(expr);
+        if (info == null || info.count() < 2 || !and) {
             List<Object> list = walkOperandList(values);
             return new Document(op, list);
         }
 
         // we have a common prefix for all underlying references, extract it into an $elemMatch node
 
-        // info.prefix is the DBS common prefix, ex: foo/bar/*1
+        // info.prefix() is the DBS common prefix, ex: foo/bar/*1
         // computes MongoDB prefix: foo.bar.
-        String prefix = SLASH_WILDCARD_SLASH.matcher(info.prefix).replaceAll(".");
+        String prefix = SLASH_WILDCARD_SLASH.matcher(info.prefix()).replaceAll(".");
         // remove current prefix and trailing . for actual field match
         String fieldBase = stripElemMatchPrefix(prefix.substring(0, prefix.length() - 1));
 
@@ -458,13 +464,13 @@ public abstract class MongoDBAbstractQueryBuilder {
     }
 
     public Object walkFunction(Function func) {
-        String name = func.name;
+        String name = func.name();
         if (NXQL.NOW_FUNCTION.equalsIgnoreCase(name)) {
             String periodAndDurationText;
-            if (func.args == null || func.args.size() != 1) {
+            if (func.args() == null || func.args().size() != 1) {
                 periodAndDurationText = null;
             } else {
-                periodAndDurationText = ((StringLiteral) func.args.get(0)).value();
+                periodAndDurationText = ((StringLiteral) func.args().get(0)).value();
             }
             try {
                 ZonedDateTime dateTime = NXQL.nowPlusPeriodAndDuration(periodAndDurationText);
@@ -521,12 +527,12 @@ public abstract class MongoDBAbstractQueryBuilder {
      * Returns the MongoDB field for this reference.
      */
     public FieldInfo walkReference(Reference ref) {
-        FieldInfo fieldInfo = walkReference(ref.name);
-        if (DATE_CAST.equals(ref.cast)) {
+        FieldInfo fieldInfo = walkReference(ref.name());
+        if (DATE_CAST.equals(ref.cast())) {
             Type type = fieldInfo.type;
             if (!(type instanceof DateType
                     || (type instanceof ListType listType && listType.getFieldType() instanceof DateType))) {
-                throw new QueryParseException("Cannot cast to " + ref.cast + ": " + ref.name);
+                throw new QueryParseException("Cannot cast to " + ref.cast() + ": " + ref.name());
             }
             // fieldInfo.isDateCast = true;
         }

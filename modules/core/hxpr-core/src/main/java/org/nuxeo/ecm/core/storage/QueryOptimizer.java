@@ -34,15 +34,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.nuxeo.ecm.core.query.QueryParseException;
-import org.nuxeo.ecm.core.query.sql.model.DefaultQueryVisitor;
 import org.nuxeo.ecm.core.query.sql.model.Expression;
 import org.nuxeo.ecm.core.query.sql.model.FromClause;
 import org.nuxeo.ecm.core.query.sql.model.FromList;
-import org.nuxeo.ecm.core.query.sql.model.IdentityQueryTransformer;
 import org.nuxeo.ecm.core.query.sql.model.Literal;
 import org.nuxeo.ecm.core.query.sql.model.LiteralList;
 import org.nuxeo.ecm.core.query.sql.model.MultiExpression;
@@ -52,11 +51,16 @@ import org.nuxeo.ecm.core.query.sql.model.OrderByClause;
 import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Reference;
 import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
+import org.nuxeo.ecm.core.query.sql.model.Function;
+import org.nuxeo.ecm.core.query.sql.model.OperandList;
+import org.nuxeo.ecm.core.query.sql.model.SelectList;
 import org.nuxeo.ecm.core.query.sql.model.SelectClause;
 import org.nuxeo.ecm.core.query.sql.model.StringLiteral;
 import org.nuxeo.ecm.core.query.sql.model.WhereClause;
 import org.nuxeo.ecm.core.schema.SchemaManager;
 import org.nuxeo.ecm.core.schema.types.Type;
+
+import org.nuxeo.ecm.core.storage.QueryAnnotations.PrefixInfo;
 
 /**
  * Generic optimizer for a NXQL query.
@@ -64,6 +68,7 @@ import org.nuxeo.ecm.core.schema.types.Type;
  * @since 5.9.4
  */
 public abstract class QueryOptimizer {
+
 
     protected static final int CORR_BASE = 100_000;
 
@@ -76,9 +81,8 @@ public abstract class QueryOptimizer {
     /** Do we match only relations? */
     protected boolean onlyRelations;
 
-    // group by prefix, keeping order
-    protected static Collector<Predicate, ?, Map<String, List<Predicate>>> GROUPING_BY_EXPR_PREFIX = groupingBy(
-            QueryOptimizer::getPredicatePrefix, LinkedHashMap::new, Collectors.toList());
+    /** What we work out about the query's nodes, kept beside the tree. */
+    protected final QueryAnnotations annotations = new QueryAnnotations();
 
     protected QueryOptimizer(SchemaManager schemaManager) {
         // schemaManager may be null in unit tests
@@ -92,6 +96,11 @@ public abstract class QueryOptimizer {
      * Optimizes a query to provide a WHERE clause containing mixin filters, primary and mixin types. In addition, the
      * top-level AND clauses are analyzed to provide prefix info.
      */
+    /** The annotations computed by the last {@link #optimize} call. */
+    public QueryAnnotations getAnnotations() {
+        return annotations;
+    }
+
     public SQLQuery optimize(SQLQuery query) {
         // rewrite some uncorrelated wildcards and add NOT NULL clauses for projection ones
         query = addWildcardNotNullClauses(query);
@@ -102,17 +111,18 @@ public abstract class QueryOptimizer {
         simplifyTypes(clauses);
         MultiExpression multiExpression = new MultiExpression(Operator.AND, clauses);
 
-        // collect information about common reference prefixes (stored on Reference and Expression)
-        new ReferencePrefixAnalyzer().visitMultiExpression(multiExpression);
+        // work out the common reference prefixes, recorded in the annotations
+        analyzePrefixes(multiExpression);
 
         Predicate whereExpr;
-        PrefixInfo info = (PrefixInfo) multiExpression.getInfo();
-        if (!info.prefix.isEmpty()) {
+        if (!annotations.getPrefix(multiExpression).isEmpty()) {
             // all references have a common prefix
             whereExpr = multiExpression;
         } else {
-            // do grouping by common prefix
-            Map<String, List<Predicate>> grouped = clauses.stream().collect(GROUPING_BY_EXPR_PREFIX);
+            // do grouping by common prefix, keeping order
+            Map<String, List<Predicate>> grouped = clauses.stream()
+                                                         .collect(groupingBy(this::getPredicatePrefix,
+                                                                 LinkedHashMap::new, Collectors.toList()));
             Map<String, Predicate> groupedExpressions = new LinkedHashMap<>();
             for (Entry<String, List<Predicate>> en : grouped.entrySet()) {
                 String prefix = en.getKey();
@@ -133,25 +143,23 @@ public abstract class QueryOptimizer {
     /**
      * Makes a single AND predicate from several expressions known to have a common prefix.
      */
-    public static Predicate makeSingleAndPredicate(String prefix, List<Predicate> predicates) {
+    public Predicate makeSingleAndPredicate(String prefix, List<Predicate> predicates) {
         if (predicates.size() == 1) {
             return predicates.get(0);
         } else {
-            int count = prefix.isEmpty() ? 0 : predicates.stream().mapToInt(QueryOptimizer::getExpressionCount).sum();
+            int count = prefix.isEmpty() ? 0 : predicates.stream().mapToInt(this::getExpressionCount).sum();
             Predicate e = new MultiExpression(Operator.AND, predicates);
-            e.setInfo(new PrefixInfo(prefix, count));
+            annotations.setPrefixInfo(e, new PrefixInfo(prefix, count));
             return e;
         }
     }
 
-    protected static String getPredicatePrefix(Predicate predicate) {
-        PrefixInfo info = (PrefixInfo) predicate.getInfo();
-        return info == null ? "" : info.prefix;
+    protected String getPredicatePrefix(Predicate predicate) {
+        return annotations.getPrefix(predicate);
     }
 
-    protected static int getExpressionCount(Expression expr) {
-        PrefixInfo info = (PrefixInfo) expr.getInfo();
-        return info == null ? 0 : info.count;
+    protected int getExpressionCount(Expression expr) {
+        return annotations.getCount(expr);
     }
 
     /**
@@ -159,7 +167,7 @@ public abstract class QueryOptimizer {
      *
      * @since 9.3
      */
-    public static void reorganizeGroupedExpressions(Map<String, Predicate> groupedExpressions) {
+    public void reorganizeGroupedExpressions(Map<String, Predicate> groupedExpressions) {
         if (groupedExpressions.size() > 1) {
             List<String> keys = new ArrayList<>(groupedExpressions.keySet());
             List<String> withPrefix = new ArrayList<>();
@@ -307,7 +315,7 @@ public abstract class QueryOptimizer {
      */
     protected void addWhere(List<Predicate> clauses, WhereClause where) {
         if (where != null) {
-            addWhere(clauses, where.predicate);
+            addWhere(clauses, where.predicate());
         }
     }
 
@@ -336,7 +344,7 @@ public abstract class QueryOptimizer {
             if (!(predicate.lvalue instanceof Reference)) {
                 continue;
             }
-            String name = ((Reference) predicate.lvalue).name;
+            String name = ((Reference) predicate.lvalue).name();
             Operator op = predicate.operator;
             Operand rvalue = predicate.rvalue;
             if (SYS_PRIMARY_TYPE.equals(name)) {
@@ -435,12 +443,18 @@ public abstract class QueryOptimizer {
      * uncorrelated ones.
      */
     protected SQLQuery addWildcardNotNullClauses(SQLQuery query) {
-        ProjectionWildcardsFinder finder = new ProjectionWildcardsFinder();
-        finder.visitQuery(query);
-
         // find wildcards in the projection
-        Set<String> wildcards = finder.projectionWildcards;
-        Set<String> uncorrelatedWildcards = finder.uncorrelatedProjectionWildcards;
+        Set<String> wildcards = new HashSet<>();
+        Set<String> uncorrelatedWildcards = new HashSet<>();
+        forEachProjectionReference(query, ref -> {
+            String name = ref.name();
+            if (name.endsWith("*")) {
+                wildcards.add(name);
+                if (name.endsWith("/*")) {
+                    uncorrelatedWildcards.add(name);
+                }
+            }
+        });
         if (!uncorrelatedWildcards.isEmpty()) {
             // rename uncorrelated wildcards to unique correlation names
             Map<String, String> map = new HashMap<>(uncorrelatedWildcards.size());
@@ -450,8 +464,8 @@ public abstract class QueryOptimizer {
                 wildcards.remove(name);
                 wildcards.add(newName);
             }
-            // rename them in the whole query
-            query = new ProjectionReferenceRenamer(map).transform(query);
+            // rename them in the projection, the only place they are looked for
+            query = renameProjectionReferences(query, map);
         }
 
         // add IS NOT NULL clauses for all projection wildcards (now all correlated)
@@ -466,159 +480,100 @@ public abstract class QueryOptimizer {
         List<Predicate> values = names.stream()
                                       .map(name -> new Predicate(new Reference(name), Operator.ISNOTNULL, null))
                                       .toList();
-        Predicate expr = new Predicate(query.where.predicate, Operator.AND, new MultiExpression(Operator.AND, values));
+        Predicate expr = new Predicate(query.where.predicate(), Operator.AND, new MultiExpression(Operator.AND, values));
         return query.withPredicate(expr);
     }
 
-    protected static class ProjectionWildcardsFinder extends DefaultQueryVisitor {
+    /** Runs the action on every reference of the projection, including inside function arguments. */
+    protected static void forEachProjectionReference(SQLQuery query, Consumer<Reference> action) {
+        query.getSelectClause().elements.forEach(operand -> forEachReference(operand, action));
+    }
 
-        protected final Set<String> projectionWildcards = new HashSet<>();
-
-        protected final Set<String> uncorrelatedProjectionWildcards = new HashSet<>();
-
-        protected boolean inProjection;
-
-        protected boolean inOrderBy;
-
-        @Override
-        public void visitSelectClause(SelectClause node) {
-            inProjection = true;
-            super.visitSelectClause(node);
-            inProjection = false;
-        }
-
-        @Override
-        public void visitOrderByClause(OrderByClause node) {
-            inOrderBy = true;
-            super.visitOrderByClause(node);
-            inOrderBy = false;
-        }
-
-        @Override
-        public void visitReference(Reference ref) {
-            if (inProjection) {
-                String name = ref.name;
-                if (name.endsWith("*")) {
-                    projectionWildcards.add(name);
-                    if (name.endsWith("/*")) {
-                        uncorrelatedProjectionWildcards.add(name);
-                    }
+    protected static void forEachReference(Operand operand, Consumer<Reference> action) {
+        switch (operand) {
+            case Reference reference -> action.accept(reference);
+            case Function function -> {
+                if (function.args() != null) {
+                    function.args().forEach(arg -> forEachReference(arg, action));
                 }
             }
+            default -> {
+                // a literal or a parameter holds no reference
+            }
         }
     }
 
     /**
-     * Renames references if they are in the projection part.
+     * Renames the references of the projection, which is the only place uncorrelated wildcards are looked for. The
+     * rest of the query is left as it is.
      */
-    protected static class ProjectionReferenceRenamer extends IdentityQueryTransformer {
+    protected SQLQuery renameProjectionReferences(SQLQuery query, Map<String, String> map) {
+        SelectList renamed = new SelectList();
+        query.getSelectClause().elements.forEach(operand -> renamed.add(renameReferences(operand, map)));
+        SQLQuery renamedQuery = new SQLQuery(query);
+        renamedQuery.setSelectClause(new SelectClause(renamed));
+        return renamedQuery;
+    }
 
-        protected final Map<String, String> map;
-
-        protected boolean inProjection;
-
-        public ProjectionReferenceRenamer(Map<String, String> map) {
-            this.map = map;
-        }
-
-        @Override
-        public SelectClause transform(SelectClause node) {
-            inProjection = true;
-            node = super.transform(node);
-            inProjection = false;
-            return node;
-        }
-
-        @Override
-        public Reference transform(Reference node) {
-            if (!inProjection) {
-                return node;
+    protected Operand renameReferences(Operand operand, Map<String, String> map) {
+        return switch (operand) {
+            case Reference reference -> {
+                String name = reference.name();
+                String newName = map.getOrDefault(name, name);
+                if (newName.equals(name)) {
+                    yield reference;
+                }
+                Reference renamed = new Reference(newName, reference.cast(), reference.ftHint());
+                // the evaluator needs the name the projection was asked for, to key the result by it
+                annotations.setOriginalName(renamed, name);
+                yield renamed;
             }
-            String name = node.name;
-            String newName = map.getOrDefault(name, name);
-            Reference newReference = new Reference(newName, node.cast, node.ftHint);
-            if (newReference.getOriginalName() == null) {
-                newReference.setOriginalName(name);
+            case Function function when function.args() != null -> {
+                OperandList args = new OperandList();
+                function.args().forEach(arg -> args.add(renameReferences(arg, map)));
+                yield new Function(function.name(), args);
             }
-            newReference.setInfo(node.getInfo());
-            return newReference;
-        }
+            default -> operand;
+        };
     }
 
     /**
-     * Info about a prefix: the prefix, and how many times it was encountered.
+     * Works out the common correlated wildcard prefix of every node under the given one, bottom up, and records it in
+     * the annotations so that a parent expression can later factor the references out.
      *
      * @since 9.3
      */
-    public static class PrefixInfo {
-
-        public static final PrefixInfo EMPTY = new PrefixInfo("", 0);
-
-        public final String prefix;
-
-        public final int count;
-
-        public PrefixInfo(String prefix, int count) {
-            this.prefix = prefix;
-            this.count = count;
-        }
+    public PrefixInfo analyzePrefixes(Operand node) {
+        PrefixInfo info = switch (node) {
+            case Reference reference -> {
+                String prefix = getCorrelatedWildcardPrefix(reference.name());
+                yield new PrefixInfo(prefix, prefix.isEmpty() ? 0 : 1);
+            }
+            case MultiExpression multiExpression -> commonPrefix(multiExpression.predicates);
+            case Expression expression -> commonPrefix(Arrays.asList(expression.lvalue, expression.rvalue));
+            default -> null;
+        };
+        annotations.setPrefixInfo(node, info);
+        return info;
     }
 
-    /**
-     * Analyzes references to compute common prefix info in order to later factor them in a parent expression.
-     *
-     * @since 9.3
-     */
-    public class ReferencePrefixAnalyzer extends DefaultQueryVisitor {
-
-        @Override
-        public void visitReference(Reference node) {
-            super.visitReference(node);
-            processReference(node);
-        }
-
-        @Override
-        public void visitMultiExpression(MultiExpression node) {
-            super.visitMultiExpression(node);
-            processExpression(node, node.predicates);
-        }
-
-        @Override
-        public void visitExpression(Expression node) {
-            super.visitExpression(node);
-            processExpression(node, Arrays.asList(node.lvalue, node.rvalue));
-        }
-
-        protected void processReference(Reference node) {
-            String prefix = getCorrelatedWildcardPrefix(node.name);
-            int count = prefix.isEmpty() ? 0 : 1;
-            node.setInfo(new PrefixInfo(prefix, count));
-        }
-
-        protected void processExpression(Expression node, List<? extends Operand> operands) {
-            PrefixInfo commonInfo = null;
-            for (Operand operand : operands) {
-                // find longest prefix for the operand
-                PrefixInfo info;
-                if (operand instanceof Reference reference) {
-                    info = (PrefixInfo) reference.getInfo();
-                } else if (operand instanceof Expression expression) {
-                    info = (PrefixInfo) expression.getInfo();
-                } else {
-                    info = null;
-                }
-                if (info != null) {
-                    if (commonInfo == null) {
-                        commonInfo = info;
-                    } else if (commonInfo.prefix.equals(info.prefix)) {
-                        commonInfo = new PrefixInfo(commonInfo.prefix, commonInfo.count + info.count);
-                    } else {
-                        commonInfo = PrefixInfo.EMPTY;
-                    }
-                }
+    /** The prefix shared by all the operands, or {@link PrefixInfo#EMPTY} if they do not all share one. */
+    protected PrefixInfo commonPrefix(List<? extends Operand> operands) {
+        PrefixInfo common = null;
+        for (Operand operand : operands) {
+            PrefixInfo info = operand == null ? null : analyzePrefixes(operand);
+            if (info == null) {
+                continue;
             }
-            node.setInfo(commonInfo);
+            if (common == null) {
+                common = info;
+            } else if (common.prefix().equals(info.prefix())) {
+                common = new PrefixInfo(common.prefix(), common.count() + info.count());
+            } else {
+                common = PrefixInfo.EMPTY;
+            }
         }
+        return common;
     }
 
     /**

@@ -61,6 +61,7 @@ import org.nuxeo.ecm.core.schema.types.Type;
 import org.nuxeo.ecm.core.schema.types.primitives.BooleanType;
 import org.nuxeo.ecm.core.schema.types.primitives.DateType;
 import org.nuxeo.ecm.core.storage.ExpressionEvaluator;
+import org.nuxeo.ecm.core.storage.QueryAnnotations;
 import org.nuxeo.ecm.core.storage.State;
 
 /**
@@ -263,11 +264,23 @@ public class DBSExpressionEvaluator extends ExpressionEvaluator {
     // which reference index is being visited, reset / updated during each pass
     protected int refCount;
 
+    // what the optimizer worked out about this query's nodes
+    protected final QueryAnnotations annotations;
+
     public DBSExpressionEvaluator(DBSSession session, SQLQuery query) {
+        this(session, query, QueryAnnotations.NONE);
+    }
+
+    public DBSExpressionEvaluator(DBSSession session, SQLQuery query, QueryAnnotations annotations) {
         super(session == null ? null : new DBSPathResolver(session));
         this.selectClause = query.getSelectClause();
-        this.expression = query.getWhereClause().predicate;
+        this.expression = query.getWhereClause().predicate();
         this.orderByClause = query.getOrderByClause();
+        this.annotations = annotations;
+    }
+
+    public QueryAnnotations getAnnotations() {
+        return annotations;
     }
 
     public SelectClause getSelectClause() {
@@ -379,16 +392,16 @@ public class DBSExpressionEvaluator extends ExpressionEvaluator {
         SelectList elements = selectClause.getSelectList();
         for (Operand op : elements) {
             if (op instanceof Reference ref) {
-                if (ref.name.equals(SYS_FULLTEXT_SCORE)) {
+                if (ref.name().equals(SYS_FULLTEXT_SCORE)) {
                     throw new QueryParseException("Fulltext search not available");
                 }
                 addProjection(ref, projection);
             }
         }
         if (orderByClause != null) {
-            for (OrderByExpr obe : orderByClause.elements) {
-                Reference ref = obe.reference;
-                if (ref.name.equals(SYS_FULLTEXT_SCORE)) {
+            for (OrderByExpr obe : orderByClause.elements()) {
+                Reference ref = obe.reference();
+                if (ref.name().equals(SYS_FULLTEXT_SCORE)) {
                     throw new QueryParseException("Fulltext search not available");
                 }
                 addProjection(ref, projection);
@@ -398,7 +411,7 @@ public class DBSExpressionEvaluator extends ExpressionEvaluator {
     }
 
     protected void addProjection(Reference ref, Map<String, Object> projection) {
-        String name = ref.name;
+        String name = ref.name();
         if (name.equals(SYS_PATH)) {
             // sys_path is special, computed and not stored in database
             if (!parsing) {
@@ -417,7 +430,7 @@ public class DBSExpressionEvaluator extends ExpressionEvaluator {
 
     public boolean hasWildcardProjection() {
         return selectClause.getSelectList().stream().anyMatch(
-                operand -> operand instanceof Reference ref && ref.name.contains("*"));
+                operand -> operand instanceof Reference ref && ref.name().contains("*"));
     }
 
     @Override
@@ -439,12 +452,12 @@ public class DBSExpressionEvaluator extends ExpressionEvaluator {
      * Parses and computes value and iterator information for a reference.
      */
     protected ValueInfo parseReference(Reference ref) {
-        ValueInfo parsed = parseReference(ref.name, ref.getOriginalName());
-        if (DATE_CAST.equals(ref.cast)) {
+        ValueInfo parsed = parseReference(ref.name(), annotations.getOriginalName(ref));
+        if (DATE_CAST.equals(ref.cast())) {
             Type type = parsed.type;
             if (!(type instanceof DateType
                     || (type instanceof ListType listType && listType.getFieldType() instanceof DateType))) {
-                throw new QueryParseException("Cannot cast to " + ref.cast + ": " + ref.name);
+                throw new QueryParseException("Cannot cast to " + ref.cast() + ": " + ref.name());
             }
             parsed.isDateCast = true;
         }

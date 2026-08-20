@@ -24,11 +24,6 @@ import org.nuxeo.ecm.core.query.sql.NXQL;
 public record StringLiteral(String value) implements Literal {
 
     @Override
-    public void accept(IVisitor visitor) {
-        visitor.visitStringLiteral(this);
-    }
-
-    @Override
     public String asString() {
         return value;
     }

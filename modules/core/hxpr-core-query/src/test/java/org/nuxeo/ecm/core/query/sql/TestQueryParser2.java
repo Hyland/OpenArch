@@ -211,11 +211,11 @@ public class TestQueryParser2 {
         // test double quoted strings
         SQLQuery query = SQLQueryParser.parse("SELECT p FROM t WHERE sys_path STARTSWITH '/test'");
         WhereClause whereClause = query.getWhereClause();
-        assertEquals(Operator.STARTSWITH, whereClause.predicate.operator);
+        assertEquals(Operator.STARTSWITH, whereClause.predicate().operator);
 
-        Reference sleft = (Reference) whereClause.predicate.lvalue;
-        assertEquals(SYS_PATH, sleft.name);
-        StringLiteral sright = (StringLiteral) whereClause.predicate.rvalue;
+        Reference sleft = (Reference) whereClause.predicate().lvalue;
+        assertEquals(SYS_PATH, sleft.name());
+        StringLiteral sright = (StringLiteral) whereClause.predicate().rvalue;
         assertEquals("/test", sright.value());
     }
 

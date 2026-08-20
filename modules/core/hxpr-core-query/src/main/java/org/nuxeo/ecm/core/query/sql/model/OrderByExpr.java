@@ -13,69 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.nuxeo.ecm.core.query.sql.model;
 
 /**
- * @author Florent Guillaume
+ * One entry of an {@code ORDER BY} clause: what to sort on, and in which direction.
  */
-public class OrderByExpr implements Operand {
-
-    public final Reference reference;
-
-    public final boolean isDescending;
-
-    public OrderByExpr(Reference reference, boolean isDescending) {
-        this.reference = reference;
-        this.isDescending = isDescending;
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + (isDescending ? 1231 : 1237);
-        result = prime * result + (reference == null ? 0 : reference.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        if (other == this) {
-            return true;
-        }
-        if (other instanceof OrderByExpr orderByExpr) {
-            return equals(orderByExpr);
-        }
-        return false;
-    }
-
-    private boolean equals(OrderByExpr other) {
-        if (isDescending != other.isDescending) {
-            return false;
-        }
-        if (reference == null) {
-            if (other.reference != null) {
-                return false;
-            }
-        } else if (!reference.equals(other.reference)) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public void accept(IVisitor visitor) {
-        visitor.visitOrderByExpr(this);
-    }
+public record OrderByExpr(Reference reference, boolean isDescending) implements ASTNode {
 
     @Override
     public String toString() {
-        if (isDescending) {
-            return reference.toString() + " DESC";
-        } else {
-            return reference.toString();
-        }
+        return isDescending ? reference + " DESC" : reference.toString();
     }
 
 }

@@ -136,26 +136,26 @@ public class NXQLSerializer {
     }
 
     protected static void appendWhere(StringBuilder sb, WhereClause where) {
-        if (where == null || where.predicate == null || isEmptyConjunction(where.predicate)) {
+        if (where == null || where.predicate() == null || isEmptyConjunction(where.predicate())) {
             return;
         }
         sb.append(" WHERE ");
-        appendOperand(sb, where.predicate, PREC_OR);
+        appendOperand(sb, where.predicate(), PREC_OR);
     }
 
     protected static void appendOrderBy(StringBuilder sb, OrderByClause orderBy) {
-        if (orderBy == null || orderBy.elements == null || orderBy.elements.isEmpty()) {
+        if (orderBy == null || orderBy.elements() == null || orderBy.elements().isEmpty()) {
             return;
         }
         sb.append(" ORDER BY ");
         boolean first = true;
-        for (OrderByExpr expr : orderBy.elements) {
+        for (OrderByExpr expr : orderBy.elements()) {
             if (!first) {
                 sb.append(", ");
             }
             first = false;
-            appendOperand(sb, expr.reference, PREC_ATOM);
-            if (expr.isDescending) {
+            appendOperand(sb, expr.reference(), PREC_ATOM);
+            if (expr.isDescending()) {
                 sb.append(" DESC");
             }
         }
@@ -244,21 +244,21 @@ public class NXQLSerializer {
     }
 
     protected static void appendReference(StringBuilder sb, Reference reference) {
-        if (reference.ftHint != null) {
-            sb.append(reference.ftHint).append(' ');
+        if (reference.ftHint() != null) {
+            sb.append(reference.ftHint()).append(' ');
         }
-        if (reference.cast != null) {
-            sb.append(reference.cast).append('(').append(reference.name).append(')');
+        if (reference.cast() != null) {
+            sb.append(reference.cast()).append('(').append(reference.name()).append(')');
         } else {
-            sb.append(reference.name);
+            sb.append(reference.name());
         }
     }
 
     protected static void appendFunction(StringBuilder sb, Function function) {
-        sb.append(function.name).append('(');
-        if (function.args != null) {
+        sb.append(function.name()).append('(');
+        if (function.args() != null) {
             boolean first = true;
-            for (Operand arg : function.args) {
+            for (Operand arg : function.args()) {
                 if (!first) {
                     sb.append(", ");
                 }

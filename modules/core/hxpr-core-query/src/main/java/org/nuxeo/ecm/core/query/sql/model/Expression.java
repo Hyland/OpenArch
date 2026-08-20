@@ -21,7 +21,7 @@ package org.nuxeo.ecm.core.query.sql.model;
  *
  * @author <a href="mailto:bs@nuxeo.com">Bogdan Stefanescu</a>
  */
-public class Expression implements Operand {
+public sealed class Expression implements Operand permits Predicate {
 
     public final Operator operator;
 
@@ -29,18 +29,10 @@ public class Expression implements Operand {
 
     public final Operand rvalue;
 
-    /** Arbitrary info associated to the expression. */
-    private Object info;
-
     public Expression(Operand lvalue, Operator operator, Operand rvalue) {
         this.lvalue = lvalue;
         this.rvalue = rvalue;
         this.operator = operator;
-    }
-
-    @Override
-    public void accept(IVisitor visitor) {
-        visitor.visitExpression(this);
     }
 
     /**
@@ -48,14 +40,6 @@ public class Expression implements Operand {
      */
     public boolean isSuffix() {
         return operator == Operator.ISNULL || operator == Operator.ISNOTNULL;
-    }
-
-    public void setInfo(Object info) {
-        this.info = info;
-    }
-
-    public Object getInfo() {
-        return info;
     }
 
     @Override

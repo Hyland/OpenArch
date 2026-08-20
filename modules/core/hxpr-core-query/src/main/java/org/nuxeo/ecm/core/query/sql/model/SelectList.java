@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class SelectList extends ArrayList<Operand> implements ASTNode {
+public final class SelectList extends ArrayList<Operand> implements ASTNode {
 
     private static final long serialVersionUID = 1L;
 
@@ -37,11 +37,6 @@ public class SelectList extends ArrayList<Operand> implements ASTNode {
             return "*";
         }
         return stream().map(Operand::toString).collect(Collectors.joining(", "));
-    }
-
-    @Override
-    public void accept(IVisitor visitor) {
-        visitor.visitSelectList(this);
     }
 
 }

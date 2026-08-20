@@ -19,6 +19,8 @@ package org.nuxeo.ecm.core.query.sql.parser;
 import java.util.List;
 import java.util.function.Function;
 
+import static java.util.stream.Collectors.joining;
+
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -37,7 +39,6 @@ import org.nuxeo.ecm.core.query.sql.model.Expression;
 import org.nuxeo.ecm.core.query.sql.model.FromClause;
 import org.nuxeo.ecm.core.query.sql.model.FromList;
 import org.nuxeo.ecm.core.query.sql.model.FtHint;
-import org.nuxeo.ecm.core.query.sql.model.FtIdentifierList;
 import org.nuxeo.ecm.core.query.sql.model.IntegerLiteral;
 import org.nuxeo.ecm.core.query.sql.model.Literal;
 import org.nuxeo.ecm.core.query.sql.model.LiteralList;
@@ -65,7 +66,6 @@ import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.From_listContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.Ft_hintContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.ParameterContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.Ft_identifier_listContext;
-import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.Ft_indexContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.FunctionContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.Function_argsContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.LiteralBooleanContext;
@@ -425,8 +425,7 @@ public class HXQLVisitor extends HXQLParserBaseVisitor<ASTNode> {
     @Override
     public ASTNode visitReferenceHint(ReferenceHintContext ctx) {
         var ref = (Reference) ctx.ref.accept(this);
-        var hint = (FtHint) ctx.hint.accept(this);
-        return new Reference(ref, hint);
+        return new Reference(ref, parseFtHint(ctx.hint));
     }
 
     @Override
@@ -525,9 +524,9 @@ public class HXQLVisitor extends HXQLParserBaseVisitor<ASTNode> {
         return new OperandList(list);
     }
 
-    @Override
-    public ASTNode visitFt_hint(Ft_hintContext ctx) {
-        var index = ctx.index == null ? null : (FtIdentifierList) ctx.index.accept(this);
+    /** A hint is not an AST node of its own, it decorates a reference, so it is built directly. */
+    protected FtHint parseFtHint(Ft_hintContext ctx) {
+        String index = ctx.index == null ? null : ftIdentifiers(ctx.index.ft_identifier_list());
         String analyzer = ctx.analyzer == null ? null : ctx.analyzer.id.getText();
         String operator = ctx.operator == null ? null : ctx.operator.id.getText();
         if (index == null && analyzer == null && operator == null) {
@@ -536,15 +535,9 @@ public class HXQLVisitor extends HXQLParserBaseVisitor<ASTNode> {
         return new FtHint(index, analyzer, operator);
     }
 
-    @Override
-    public ASTNode visitFt_index(Ft_indexContext ctx) {
-        return ctx.ft_identifier_list().accept(this);
-    }
-
-    @Override
-    public ASTNode visitFt_identifier_list(Ft_identifier_listContext ctx) {
-        List<String> list = ctx.ft_identifier().stream().map(c -> c.id.getText()).toList();
-        return new FtIdentifierList(list);
+    /** The comma-separated field names of a hint's INDEX(...). */
+    protected static String ftIdentifiers(Ft_identifier_listContext ctx) {
+        return ctx.ft_identifier().stream().map(c -> c.id.getText()).collect(joining(","));
     }
 
 }

@@ -83,8 +83,8 @@ public abstract class ExpressionEvaluator {
         Operand lvalue = expr.lvalue;
         Operand rvalue = expr.rvalue;
         Reference ref = lvalue instanceof Reference lvalueRef ? lvalueRef : null;
-        String name = ref != null ? ref.name : null;
-        String cast = ref != null ? ref.cast : null;
+        String name = ref != null ? ref.name() : null;
+        String cast = ref != null ? ref.cast() : null;
         if (DATE_CAST.equals(cast)) {
             checkDateLiteralForCast(rvalue, name);
         }
@@ -372,7 +372,7 @@ public abstract class ExpressionEvaluator {
         if (!(lvalue instanceof Reference)) {
             throw new QueryParseException("Invalid STARTSWITH query, left hand side must be a property: " + lvalue);
         }
-        String name = ((Reference) lvalue).name;
+        String name = ((Reference) lvalue).name();
         if (!(rvalue instanceof StringLiteral lit)) {
             throw new QueryParseException(
                     "Invalid STARTSWITH query, right hand side must be a literal path: " + rvalue);
@@ -437,7 +437,7 @@ public abstract class ExpressionEvaluator {
         if (!(op instanceof Reference)) {
             return false;
         }
-        return ((Reference) op).name.equals(SYS_MIXIN_TYPES);
+        return ((Reference) op).name().equals(SYS_MIXIN_TYPES);
     }
 
     protected Boolean bool(Object value) {

@@ -30,11 +30,6 @@ public record IntegerLiteral(long value) implements Literal {
     }
 
     @Override
-    public void accept(IVisitor visitor) {
-        visitor.visitIntegerLiteral(this);
-    }
-
-    @Override
     public String asString() {
         return String.valueOf(value);
     }

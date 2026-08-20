@@ -13,56 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.nuxeo.ecm.core.query.sql.model;
 
 /**
- * @author <a href="mailto:bs@nuxeo.com">Bogdan Stefanescu</a>
+ * A function call, with its arguments.
  */
-public class Function implements Operand {
-
-    public final String name;
-
-    public final OperandList args;
+public record Function(String name, OperandList args) implements Operand {
 
     public Function(String name) {
         this(name, null);
     }
 
-    public Function(String name, OperandList args) {
-        this.name = name;
-        this.args = args;
-    }
-
     @Override
     public String toString() {
         return args == null ? name + "()" : name + '(' + args + ')';
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj instanceof Function func) {
-            if (args == null) {
-                return func.args == null;
-            }
-            return name.equals(func.name) && args.equals(func.args);
-        }
-        return false;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = name.hashCode();
-        result = 31 * result + (args != null ? args.hashCode() : 0);
-        return result;
-    }
-
-    @Override
-    public void accept(IVisitor visitor) {
-        visitor.visitFunction(this);
     }
 
 }

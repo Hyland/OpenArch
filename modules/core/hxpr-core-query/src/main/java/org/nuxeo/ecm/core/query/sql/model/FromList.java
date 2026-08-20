@@ -18,7 +18,7 @@ package org.nuxeo.ecm.core.query.sql.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FromList extends ArrayList<String> implements ASTNode {
+public final class FromList extends ArrayList<String> implements ASTNode {
 
     private static final long serialVersionUID = 1L;
 
@@ -33,11 +33,6 @@ public class FromList extends ArrayList<String> implements ASTNode {
     @Override
     public String toString() {
         return String.join(", ", this);
-    }
-
-    @Override
-    public void accept(IVisitor visitor) {
-        visitor.visitFromList(this);
     }
 
 }

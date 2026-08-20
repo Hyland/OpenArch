@@ -600,7 +600,7 @@ public class MongoDBConnection extends DBSConnectionBase {
         // orderByClause may be null and different from evaluator.getOrderByClause() in case we want to post-filter
         MongoDBRepositoryQueryBuilder builder = new MongoDBRepositoryQueryBuilder((MongoDBRepository) repository,
                 evaluator.getExpression(), evaluator.getSelectClause(), orderByClause, evaluator.pathResolver,
-                getSchemaManager());
+                getSchemaManager(), evaluator.getAnnotations());
         builder.walk();
         Document filter = builder.getQuery();
         Bson orderBy = builder.getOrderBy();
@@ -691,7 +691,7 @@ public class MongoDBConnection extends DBSConnectionBase {
         cursorService.checkForTimedOutScroll();
         MongoDBRepositoryQueryBuilder builder = new MongoDBRepositoryQueryBuilder((MongoDBRepository) repository,
                 evaluator.getExpression(), evaluator.getSelectClause(), null, evaluator.pathResolver,
-                getSchemaManager());
+                getSchemaManager(), evaluator.getAnnotations());
         builder.walk();
         Document filter = builder.getQuery();
         Bson keys = builder.getProjection();

@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 /**
  * @author Florent Guillaume
  */
-public class OrderByList extends ArrayList<OrderByExpr> implements Operand {
+public final class OrderByList extends ArrayList<OrderByExpr> implements ASTNode {
 
     private static final long serialVersionUID = 1L;
 
@@ -45,11 +45,6 @@ public class OrderByList extends ArrayList<OrderByExpr> implements Operand {
 
     public OrderByList(OrderByExpr expr) {
         add(expr);
-    }
-
-    @Override
-    public void accept(IVisitor visitor) {
-        visitor.visitOrderByList(this);
     }
 
     @Override

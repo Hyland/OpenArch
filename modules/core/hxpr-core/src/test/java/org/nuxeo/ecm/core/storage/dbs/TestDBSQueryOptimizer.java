@@ -32,8 +32,8 @@ import org.nuxeo.ecm.core.query.sql.model.Expression;
 import org.nuxeo.ecm.core.query.sql.model.MultiExpression;
 import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
 import org.nuxeo.ecm.core.storage.QueryOptimizer;
-import org.nuxeo.ecm.core.storage.QueryOptimizer.PrefixInfo;
-import org.nuxeo.ecm.core.storage.QueryOptimizer.ReferencePrefixAnalyzer;
+import org.nuxeo.ecm.core.storage.QueryAnnotations;
+import org.nuxeo.ecm.core.storage.QueryAnnotations.PrefixInfo;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesExtension;
 import org.nuxeo.runtime.test.runner.RuntimeFeature;
@@ -103,13 +103,12 @@ public class TestDBSQueryOptimizer {
 
     protected void checkPrefixInfo(String clause, String prefix, int count) {
         SQLQuery query = SQLQueryParser.parse("SELECT p FROM t WHERE " + clause);
-        Expression predicate = query.getWhereClause().predicate;
-        ReferencePrefixAnalyzer visitor = getOptimizer().new ReferencePrefixAnalyzer();
-        predicate.accept(visitor);
-        PrefixInfo info = (PrefixInfo) predicate.getInfo();
+        Expression predicate = query.getWhereClause().predicate();
+        QueryOptimizer optimizer = getOptimizer();
+        PrefixInfo info = optimizer.analyzePrefixes(predicate);
         assertNotNull(info);
-        assertEquals(prefix, info.prefix);
-        assertEquals(count, info.count);
+        assertEquals(prefix, info.prefix());
+        assertEquals(count, info.count());
     }
 
     @Test
@@ -136,37 +135,27 @@ public class TestDBSQueryOptimizer {
     public void testPrefixGroupingInOptimizedQuery() {
         String clause = "sys_title = 'foo' AND sys_acl/*1/principal = 'bob' AND sys_acl/*1/permission = 'Read'";
         SQLQuery query = SQLQueryParser.parse("SELECT p FROM t WHERE " + clause);
-        query = getOptimizer().optimize(query);
-        Expression expr = query.getWhereClause().predicate;
+        QueryOptimizer optimizer = getOptimizer();
+        query = optimizer.optimize(query);
+        QueryAnnotations annotations = optimizer.getAnnotations();
+        Expression expr = query.getWhereClause().predicate();
         assertEquals("(((sys_title = 'foo') AND (sys_primaryType = 't'))" //
                 + " AND ((sys_acl/*1/principal = 'bob') AND (sys_acl/*1/permission = 'Read')))", expr.toString());
 
-        PrefixInfo info;
-
         MultiExpression me = (MultiExpression) expr;
-        info = (PrefixInfo) me.getInfo();
-        assertEquals("", info.prefix);
-        assertEquals(0, info.count);
+        assertEquals(new PrefixInfo("", 0), annotations.getPrefixInfo(me));
 
         MultiExpression me0 = (MultiExpression) me.predicates.get(0);
-        info = (PrefixInfo) me0.getInfo();
-        assertEquals("", info.prefix);
-        assertEquals(0, info.count);
+        assertEquals(new PrefixInfo("", 0), annotations.getPrefixInfo(me0));
 
         MultiExpression me1 = (MultiExpression) me.predicates.get(1);
-        info = (PrefixInfo) me1.getInfo();
-        assertEquals("sys_acl/*1", info.prefix);
-        assertEquals(2, info.count);
+        assertEquals(new PrefixInfo("sys_acl/*1", 2), annotations.getPrefixInfo(me1));
 
         Expression me10 = me1.predicates.get(0);
-        info = (PrefixInfo) me10.getInfo();
-        assertEquals("sys_acl/*1", info.prefix);
-        assertEquals(1, info.count);
+        assertEquals(new PrefixInfo("sys_acl/*1", 1), annotations.getPrefixInfo(me10));
 
         Expression me11 = me1.predicates.get(1);
-        info = (PrefixInfo) me11.getInfo();
-        assertEquals("sys_acl/*1", info.prefix);
-        assertEquals(1, info.count);
+        assertEquals(new PrefixInfo("sys_acl/*1", 1), annotations.getPrefixInfo(me11));
     }
 
 }

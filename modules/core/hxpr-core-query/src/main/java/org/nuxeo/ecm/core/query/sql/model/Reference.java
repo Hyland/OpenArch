@@ -15,71 +15,30 @@
  */
 package org.nuxeo.ecm.core.query.sql.model;
 
-import org.apache.commons.lang3.StringUtils;
-
 /**
- * A named reference to a variable (this can be a field or table).
+ * A reference to a field, optionally cast or carrying a full-text hint.
  * <p>
- * Can also include a cast.
+ * A reference never has both a cast and a hint: the grammar offers one or the other.
  */
-public class Reference implements Operand {
-
-    public final String name;
-
-    private String originalName;
-
-    public final String cast;
-
-    public final FtHint ftHint;
-
-    /** Arbitrary info associated to the reference. */
-    private Object info;
+public record Reference(String name, String cast, FtHint ftHint) implements Operand {
 
     public Reference(String name) {
-        this.name = name;
-        cast = null;
-        ftHint = null;
+        this(name, null, null);
     }
 
     /** @since 5.6 */
     public Reference(String name, String cast) {
-        this.name = name;
-        this.cast = cast;
-        ftHint = null;
-    }
-
-    /** @since 9.10 */
-    public Reference(String name, String cast, FtHint hint) {
-        this.name = name;
-        this.cast = cast;
-        this.ftHint = hint;
+        this(name, cast, null);
     }
 
     /** @since 5.6 */
     public Reference(Reference other, String cast) {
-        this.name = other.name;
-        this.cast = cast;
-        ftHint = null;
+        this(other.name, cast, null);
     }
 
     /** @since 7.3 */
     public Reference(Reference other, FtHint hint) {
-        this.name = other.name;
-        cast = null;
-        this.ftHint = hint;
-    }
-
-    @Override
-    public void accept(IVisitor visitor) {
-        visitor.visitReference(this);
-    }
-
-    public void setInfo(Object info) {
-        this.info = info;
-    }
-
-    public Object getInfo() {
-        return info;
+        this(other.name, null, hint);
     }
 
     @Override
@@ -87,53 +46,9 @@ public class Reference implements Operand {
         if (cast != null) {
             return cast + '(' + name + ')';
         } else if (ftHint != null) {
-            return ftHint.toString() + " " + name;
+            return ftHint + " " + name;
         }
         return name;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-        if (!(obj instanceof Reference)) {
-            return false;
-        }
-        return equals((Reference) obj);
-    }
-
-    private boolean equals(Reference other) {
-        if (!name.equals(other.name)) {
-            return false;
-        }
-        if (cast != null || other.cast != null) {
-            return StringUtils.equals(cast, other.cast);
-        }
-        if (ftHint != null) {
-            return ftHint.equals(other.ftHint);
-        } else if (other.ftHint != null) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = 31 + (cast == null ? 0 : cast.hashCode()) + (ftHint == null ? 0 : ftHint.hashCode());
-        return 31 * result + name.hashCode();
-    }
-
-    public boolean isPathReference() {
-        return false;
-    }
-
-    public String getOriginalName() {
-        return this.originalName;
-    }
-
-    public void setOriginalName(String originalName) {
-        this.originalName = originalName;
     }
 
 }

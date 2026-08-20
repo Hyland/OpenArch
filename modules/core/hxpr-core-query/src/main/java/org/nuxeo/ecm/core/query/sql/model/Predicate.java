@@ -21,7 +21,7 @@ package org.nuxeo.ecm.core.query.sql.model;
  *
  * @author <a href="mailto:bs@nuxeo.com">Bogdan Stefanescu</a>
  */
-public class Predicate extends Expression {
+public sealed class Predicate extends Expression permits MultiExpression {
 
     public Predicate(Operand lvalue, Operator operator, Operand rvalue) {
         super(lvalue, operator, rvalue);

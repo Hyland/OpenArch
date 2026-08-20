@@ -19,7 +19,7 @@ package org.nuxeo.ecm.core.query.sql.model;
 /**
  * @author <a href="mailto:bs@nuxeo.com">Bogdan Stefanescu</a>
  */
-public enum Operator implements ASTNode {
+public enum Operator {
 
     SUM("+"), //
     SUB("-"), //
@@ -55,11 +55,6 @@ public enum Operator implements ASTNode {
     @Override
     public String toString() {
         return string;
-    }
-
-    @Override
-    public void accept(IVisitor visitor) {
-        visitor.visitOperator(this);
     }
 
 }

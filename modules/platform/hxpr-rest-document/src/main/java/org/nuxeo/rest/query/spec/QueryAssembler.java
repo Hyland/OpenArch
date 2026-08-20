@@ -85,7 +85,7 @@ public class QueryAssembler {
             conjuncts.addAll(PredicateBuilder.build(clauseDef.predicates(), parameters));
         }
         if (parsed.getWhereClause() != null) {
-            conjuncts.add(parsed.getWhereClause().predicate);
+            conjuncts.add(parsed.getWhereClause().predicate());
         }
         for (String clause : query.quickFilterClauses()) {
             if (StringUtils.isNotBlank(clause)) {
@@ -179,7 +179,7 @@ public class QueryAssembler {
     protected static SQLQuery rewriteSortedColumn(SQLQuery query, Reference column) {
         SelectClause select = rewriteSelect(query.getSelectClause(), column);
         WhereClause where = query.getWhereClause() == null ? null
-                : new WhereClause((Predicate) rewrite(query.getWhereClause().predicate, column));
+                : new WhereClause((Predicate) rewrite(query.getWhereClause().predicate(), column));
         OrderByClause orderBy = rewriteOrderBy(query.getOrderByClause(), column);
         return new SQLQuery(select, query.getFromClause(), where, orderBy, query.getLimit(), query.getOffset());
     }
@@ -192,19 +192,19 @@ public class QueryAssembler {
     }
 
     protected static OrderByClause rewriteOrderBy(OrderByClause orderBy, Reference column) {
-        if (orderBy == null || orderBy.elements == null) {
+        if (orderBy == null || orderBy.elements() == null) {
             return orderBy;
         }
         OrderByList rewritten = new OrderByList();
-        for (OrderByExpr expr : orderBy.elements) {
-            rewritten.add(new OrderByExpr((Reference) rewrite(expr.reference, column), expr.isDescending));
+        for (OrderByExpr expr : orderBy.elements()) {
+            rewritten.add(new OrderByExpr((Reference) rewrite(expr.reference(), column), expr.isDescending()));
         }
         return new OrderByClause(rewritten);
     }
 
     protected static Operand rewrite(Operand operand, Reference column) {
         if (operand instanceof Reference reference) {
-            return SORTED_COLUMN.equals(reference.name) ? column : reference;
+            return SORTED_COLUMN.equals(reference.name()) ? column : reference;
         }
         if (operand instanceof MultiExpression multiExpression) {
             List<Predicate> predicates = multiExpression.predicates.stream()
@@ -220,9 +220,9 @@ public class QueryAssembler {
             }
             return new Predicate(lvalue, expression.operator, rvalue);
         }
-        if (operand instanceof Function function && function.args != null) {
-            List<Operand> args = function.args.stream().map(arg -> rewrite(arg, column)).toList();
-            return new Function(function.name, new OperandList(args));
+        if (operand instanceof Function function && function.args() != null) {
+            List<Operand> args = function.args().stream().map(arg -> rewrite(arg, column)).toList();
+            return new Function(function.name(), new OperandList(args));
         }
         return operand;
     }

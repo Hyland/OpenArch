@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2015-2026 Hyland (https://www.hyland.com/).
+ * (C) Copyright 2016-2026 Hyland (https://www.hyland.com/).
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,128 +13,57 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.nuxeo.ecm.core.query.sql.model;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
+/**
+ * A full-text hint attached to a {@link Reference}, written {@code /*+FT: ... *}{@code /} in NXQL.
+ * <p>
+ * This is not an operand: it decorates a reference rather than standing on its own.
+ */
+public record FtHint(String index, String analyzer, String operator) {
 
-public class FtHint implements Operand {
-
-    public final String index;
-
-    public final String analyzer;
-
-    public final String operator;
-
-    public FtHint(FtIdentifierList index, String analyzer, String operator) {
-        this.index = (index == null) ? null : index.toString();
-        this.analyzer = analyzer;
-        this.operator = operator;
+    /** The hinted index fields, parsed into names and boosts. */
+    public List<FieldHint> indexFields() {
+        if (index == null) {
+            return List.of();
+        }
+        return List.of(index.split(",")).stream().map(FieldHint::parse).toList();
     }
 
-    @Override
-    public void accept(IVisitor visitor) {
-        // nothing
+    /** The hinted index field names, without their boosts. */
+    public String[] indexFieldNames() {
+        return indexFields().stream().map(FieldHint::field).toArray(String[]::new);
     }
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("/*+FT: ");
+        StringBuilder sb = new StringBuilder("/*+FT: ");
         if (index != null) {
-            sb.append(String.format("INDEX(%s) ", index));
+            sb.append("INDEX(").append(index).append(") ");
         }
         if (analyzer != null) {
-            sb.append(String.format("ANALYZER(%s) ", analyzer));
+            sb.append("ANALYZER(").append(analyzer).append(") ");
         }
         if (operator != null) {
-            sb.append(String.format("OPERATOR(%s) ", operator));
+            sb.append("OPERATOR(").append(operator).append(") ");
         }
-        sb.append("*/");
-        return sb.toString();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-        if (!(obj instanceof FtHint)) {
-            return false;
-        }
-        return equals((FtHint) obj);
-    }
-
-    private boolean equals(FtHint other) {
-        return StringUtils.equals(index, other.index) && StringUtils.equals(analyzer, other.analyzer)
-                && StringUtils.equals(operator, other.operator);
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-
-        result = result * prime + ((index == null) ? 0 : index.hashCode());
-        result = result * prime + ((analyzer == null) ? 0 : analyzer.hashCode());
-        result = result * prime + ((operator == null) ? 0 : operator.hashCode());
-
-        return result;
+        return sb.append("*/").toString();
     }
 
     /**
-     * Get Index field hints
+     * A field named by a hint, with an optional boost.
      */
-    public List<FieldHint> getIndex() {
-        if (index == null) {
-            return Collections.emptyList();
-        }
-        String[] fields = index.split(",");
-        return Arrays.stream(fields).map(FieldHint::new).toList();
-    }
+    public record FieldHint(String field, float boost) {
 
-    /**
-     * Get Index field names (without boost)
-     */
-    public String[] getIndexFieldNames() {
-        return getIndex().stream().map(FieldHint::getField).toArray(String[]::new);
-    }
-
-    /**
-     * A field specified using a hint, with optional boost value
-     */
-    public static class FieldHint {
         public static final float DEFAULT_BOOST = 1.0F;
 
-        protected final String field;
-
-        protected final float boost;
-
-        public FieldHint(String indexField) {
+        /** Parses {@code field} or {@code field^boost}. */
+        public static FieldHint parse(String indexField) {
             String[] parsed = indexField.split("\\^");
-            this.field = parsed[0];
-            if (parsed.length > 1) {
-                this.boost = Float.parseFloat(parsed[1]);
-            } else {
-                this.boost = DEFAULT_BOOST;
-            }
-        }
-
-        public FieldHint(String field, Float boost) {
-            this.field = field;
-            this.boost = boost == null ? DEFAULT_BOOST : boost;
-        }
-
-        public String getField() {
-            return field;
-        }
-
-        public float getBoost() {
-            return boost;
+            return new FieldHint(parsed[0], parsed.length > 1 ? Float.parseFloat(parsed[1]) : DEFAULT_BOOST);
         }
     }
+
 }

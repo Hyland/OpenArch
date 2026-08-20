@@ -58,7 +58,6 @@ import org.nuxeo.ecm.core.query.QueryParseException;
 import org.nuxeo.ecm.core.query.nxql.SortInfo;
 import org.nuxeo.ecm.core.query.sql.NXQL;
 import org.nuxeo.ecm.core.query.sql.SQLQueryParser;
-import org.nuxeo.ecm.core.query.sql.model.DefaultQueryVisitor;
 import org.nuxeo.ecm.core.query.sql.model.FtHint;
 import org.nuxeo.ecm.core.query.sql.model.FtHint.FieldHint;
 import org.nuxeo.ecm.core.query.sql.model.Expression;
@@ -70,6 +69,7 @@ import org.nuxeo.ecm.core.query.sql.model.LiteralList;
 import org.nuxeo.ecm.core.query.sql.model.MultiExpression;
 import org.nuxeo.ecm.core.query.sql.model.Operand;
 import org.nuxeo.ecm.core.query.sql.model.Operator;
+import org.nuxeo.ecm.core.query.sql.model.OrderByClause;
 import org.nuxeo.ecm.core.query.sql.model.OrderByExpr;
 import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Reference;
@@ -124,90 +124,19 @@ public final class NxqlQueryConverter {
             QueryParameters queryParams = new QueryParameters(session.getPrincipal(), 0, 0);
             nxqlQuery = securityPolicyService.addSecurityPolicies(nxqlQuery, queryParams);
         }
-        final ExpressionBuilder ret = new ExpressionBuilder(null);
+        ExpressionBuilder ret = new ExpressionBuilder(null);
         builders.add(ret);
-        final ArrayList<String> fromList = new ArrayList<>();
-        nxqlQuery.accept(new DefaultQueryVisitor() {
-
-            @Override
-            public void visitFromClause(FromClause node) {
-                FromList elements = node.elements;
-
-                for (String type : elements) {
-                    // Removed code for SYS_CONTENT optimization. See, HXCS-3121 Get rid of optimization until inconsistencies are fixed
-                    Set<String> types = schemaManager.getDocumentTypeNamesExtending(type);
-                    if (types != null) {
-                        fromList.addAll(types);
-                    }
-                }
+        List<String> fromList = new ArrayList<>();
+        for (String type : nxqlQuery.getFromClause().elements) {
+            // Removed code for SYS_CONTENT optimization. See, HXCS-3121 Get rid of optimization until inconsistencies are fixed
+            Set<String> types = schemaManager.getDocumentTypeNamesExtending(type);
+            if (types != null) {
+                fromList.addAll(types);
             }
-
-            @Override
-            public void visitMultiExpression(MultiExpression node) {
-                for (Iterator<Predicate> it = node.predicates.iterator(); it.hasNext();) {
-                    it.next().accept(this);
-                    if (it.hasNext()) {
-                        node.operator.accept(this);
-                    }
-                }
-            }
-
-            @Override
-            public void visitSelectClause(SelectClause node) {
-                // NOP
-            }
-
-            @Override
-            public void visitExpression(Expression node) {
-                Operator op = node.operator;
-                if (op == Operator.AND || op == Operator.OR || op == Operator.NOT) {
-                    builders.add(new ExpressionBuilder(op.toString()));
-                    super.visitExpression(node);
-                    ExpressionBuilder expr = builders.removeLast();
-                    if (!builders.isEmpty()) {
-                        builders.getLast().merge(expr);
-                    }
-                } else {
-                    Reference ref = node.lvalue instanceof Reference nodeRef ? nodeRef : null;
-                    String name = ref != null ? ref.name : node.lvalue.toString();
-                    String value = null;
-                    if (node.rvalue instanceof Literal literal) {
-                        value = literal.asString();
-                    } else if (node.rvalue instanceof Function function) {
-                        String func = function.name;
-                        if (NXQL.NOW_FUNCTION.equalsIgnoreCase(func)) {
-                            String periodAndDurationText;
-                            if (function.args == null || function.args.size() != 1) {
-                                periodAndDurationText = null;
-                            } else {
-                                periodAndDurationText = ((StringLiteral) function.args.get(0)).value();
-                            }
-                            ZonedDateTime dateTime = NXQL.nowPlusPeriodAndDuration(periodAndDurationText);
-                            value = dateTime.toInstant().toString();
-                        } else {
-                            throw new IllegalArgumentException("Unknown function: " + func);
-                        }
-                    } else if (node.rvalue != null) {
-                        value = node.rvalue.toString();
-                    }
-                    String[] values = null;
-                    if (node.rvalue instanceof LiteralList items) {
-                        values = new String[items.size()];
-                        int i = 0;
-                        for (Literal item : items) {
-                            values[i++] = item.asString();
-                        }
-                    }
-                    // add expression to the last builder
-                    if (ref.ftHint != null) {
-                        throw new IllegalArgumentException("Query hint not supported: " + ref.ftHint);
-                    }
-                    FtHint hint = null;
-                    builders.getLast()
-                            .add(makeQueryFromSimpleExpression(op.toString(), name, value, values, hint, session));
-                }
-            }
-        });
+        }
+        if (nxqlQuery.getWhereClause() != null) {
+            walkPredicate(nxqlQuery.getWhereClause().predicate(), builders, session);
+        }
         ObjectBuilder<? extends QueryVariant> queryBuilder = ret.get();
         if (!fromList.isEmpty()) {
             return QueryBuilders.bool()
@@ -216,6 +145,70 @@ public final class NxqlQueryConverter {
                                         fromList.toArray(String[]::new), null, null).filter.build().toQuery());
         }
         return queryBuilder;
+    }
+
+    /**
+     * Walks a predicate, pushing a builder for each boolean operator and adding a leaf query for everything else.
+     */
+    protected void walkPredicate(Operand node, LinkedList<ExpressionBuilder> builders, CoreSession session) {
+        switch (node) {
+            case MultiExpression multiExpression -> multiExpression.predicates.forEach(
+                    predicate -> walkPredicate(predicate, builders, session));
+            case Expression expression -> walkExpression(expression, builders, session);
+            default -> throw new IllegalArgumentException("Not a predicate: " + node);
+        }
+    }
+
+    protected void walkExpression(Expression node, LinkedList<ExpressionBuilder> builders, CoreSession session) {
+        Operator op = node.operator;
+        if (op == Operator.AND || op == Operator.OR || op == Operator.NOT) {
+            builders.add(new ExpressionBuilder(op.toString()));
+            walkPredicate(node.lvalue, builders, session);
+            if (node.rvalue != null) {
+                walkPredicate(node.rvalue, builders, session);
+            }
+            ExpressionBuilder expr = builders.removeLast();
+            if (!builders.isEmpty()) {
+                builders.getLast().merge(expr);
+            }
+            return;
+        }
+        Reference ref = node.lvalue instanceof Reference nodeRef ? nodeRef : null;
+        String name = ref != null ? ref.name() : node.lvalue.toString();
+        String value = null;
+        if (node.rvalue instanceof Literal literal) {
+            value = literal.asString();
+        } else if (node.rvalue instanceof Function function) {
+            String func = function.name();
+            if (NXQL.NOW_FUNCTION.equalsIgnoreCase(func)) {
+                String periodAndDurationText;
+                if (function.args() == null || function.args().size() != 1) {
+                    periodAndDurationText = null;
+                } else {
+                    periodAndDurationText = ((StringLiteral) function.args().get(0)).value();
+                }
+                ZonedDateTime dateTime = NXQL.nowPlusPeriodAndDuration(periodAndDurationText);
+                value = dateTime.toInstant().toString();
+            } else {
+                throw new IllegalArgumentException("Unknown function: " + func);
+            }
+        } else if (node.rvalue != null) {
+            value = node.rvalue.toString();
+        }
+        String[] values = null;
+        if (node.rvalue instanceof LiteralList items) {
+            values = new String[items.size()];
+            int i = 0;
+            for (Literal item : items) {
+                values[i++] = item.asString();
+            }
+        }
+        // add expression to the last builder
+        if (ref.ftHint() != null) {
+            throw new IllegalArgumentException("Query hint not supported: " + ref.ftHint());
+        }
+        FtHint hint = null;
+        builders.getLast().add(makeQueryFromSimpleExpression(op.toString(), name, value, values, hint, session));
     }
 
     protected static SQLQuery getSqlQuery(String nxql) {
@@ -455,8 +448,8 @@ public final class NxqlQueryConverter {
             value = value.toLowerCase();
             fieldName = name + ".lowercase";
         }
-        if (hint != null && hint.index != null) {
-            fieldName = hint.index;
+        if (hint != null && hint.index() != null) {
+            fieldName = hint.index();
         }
         // convert the value to a wildcard query
         String wildcard = likeToWildcard(value);
@@ -466,8 +459,8 @@ public final class NxqlQueryConverter {
             MatchPhrasePrefixQuery.Builder query = QueryBuilders.matchPhrasePrefix()
                                                                 .field(fieldName)
                                                                 .query(wildcard.replace("*", ""));
-            if (hint != null && hint.analyzer != null) {
-                query.analyzer(hint.analyzer);
+            if (hint != null && hint.analyzer() != null) {
+                query.analyzer(hint.analyzer());
             }
             return query;
         }
@@ -544,17 +537,17 @@ public final class NxqlQueryConverter {
             queryString = translateFulltextQuery(queryString);
             defaultOperator = org.opensearch.client.opensearch._types.query_dsl.Operator.And;
         }
-        String analyzer = (hint != null && hint.analyzer != null) ? hint.analyzer : "fulltext";
+        String analyzer = (hint != null && hint.analyzer() != null) ? hint.analyzer() : "fulltext";
         SimpleQueryStringQuery.Builder query = QueryBuilders.simpleQueryString()
                                                             .query(queryString)
                                                             .analyzeWildcard(true)
                                                             .defaultOperator(defaultOperator)
                                                             .analyzer(analyzer);
-        if (hint != null && hint.index != null) {
-            for (FtHint.FieldHint fieldHint : hint.getIndex()) {
-                String field = fieldHint.getField();
-                if (fieldHint.getBoost() != FieldHint.DEFAULT_BOOST) {
-                    field += "^" + fieldHint.getBoost();
+        if (hint != null && hint.index() != null) {
+            for (FtHint.FieldHint fieldHint : hint.indexFields()) {
+                String field = fieldHint.field();
+                if (fieldHint.boost() != FieldHint.DEFAULT_BOOST) {
+                    field += "^" + fieldHint.boost();
                 }
                 query.fields(field);
             }
@@ -565,8 +558,8 @@ public final class NxqlQueryConverter {
     }
 
     public String getFieldName(String name, FtHint hint) {
-        if (hint != null && hint.index != null) {
-            return hint.index;
+        if (hint != null && hint.index() != null) {
+            return hint.index();
         }
         // complex field
         name = name.replace("/*", "");
@@ -575,41 +568,28 @@ public final class NxqlQueryConverter {
     }
 
     public List<SortInfo> getSortInfo(String nxql) {
-        final List<SortInfo> sortInfos = new ArrayList<>();
-        SQLQuery nxqlQuery = getSqlQuery(nxql);
-        nxqlQuery.accept(new DefaultQueryVisitor() {
-
-            @Override
-            public void visitOrderByExpr(OrderByExpr node) {
-                String name = getFieldName(node.reference.name, null);
+        List<SortInfo> sortInfos = new ArrayList<>();
+        OrderByClause orderBy = getSqlQuery(nxql).getOrderByClause();
+        if (orderBy != null) {
+            for (OrderByExpr expr : orderBy.elements()) {
+                String name = getFieldName(expr.reference().name(), null);
                 if (SYS_FULLTEXT_SCORE.equals(name)) {
                     name = OPENSEARCH_SCORE_FIELD;
                 }
-                sortInfos.add(new SortInfo(name, !node.isDescending));
+                sortInfos.add(new SortInfo(name, !expr.isDescending()));
             }
-        });
+        }
         return sortInfos;
     }
 
     public Map<String, Type> getSelectClauseFields(String nxql) {
-        final Map<String, Type> fieldsAndTypes = new LinkedHashMap<>();
-        SQLQuery nxqlQuery = getSqlQuery(nxql);
-        nxqlQuery.accept(new DefaultQueryVisitor() {
-
-            @Override
-            public void visitSelectClause(SelectClause selectClause) {
-                for (int i = 0; i < selectClause.getSelectList().size(); i++) {
-                    Operand op = selectClause.get(i);
-                    if (!(op instanceof Reference)) {
-                        // ignore it
-                        continue;
-                    }
-                    String name = ((Reference) op).name;
-                    Field field = schemaManager.getField(name);
-                    fieldsAndTypes.put(name, field == null ? null : field.getType());
-                }
+        Map<String, Type> fieldsAndTypes = new LinkedHashMap<>();
+        for (Operand op : getSqlQuery(nxql).getSelectClause().elements) {
+            if (op instanceof Reference reference) {
+                Field field = schemaManager.getField(reference.name());
+                fieldsAndTypes.put(reference.name(), field == null ? null : field.getType());
             }
-        });
+        }
         return fieldsAndTypes;
     }
 

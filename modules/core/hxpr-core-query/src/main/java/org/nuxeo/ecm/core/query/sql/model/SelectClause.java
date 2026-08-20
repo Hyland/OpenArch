@@ -17,7 +17,7 @@ package org.nuxeo.ecm.core.query.sql.model;
 
 import java.util.Collection;
 
-public class SelectClause extends Clause {
+public final class SelectClause implements ASTNode {
 
     public final SelectList elements;
 
@@ -26,7 +26,6 @@ public class SelectClause extends Clause {
     }
 
     public SelectClause(SelectList elements) {
-        super("SELECT");
         this.elements = elements;
     }
 
@@ -89,11 +88,6 @@ public class SelectClause extends Clause {
      */
     public boolean containsOperand(Object operand) {
         return elements.contains(operand);
-    }
-
-    @Override
-    public void accept(IVisitor visitor) {
-        visitor.visitSelectClause(this);
     }
 
     @Override

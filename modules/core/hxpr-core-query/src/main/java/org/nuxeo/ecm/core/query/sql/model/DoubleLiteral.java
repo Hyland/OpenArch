@@ -30,11 +30,6 @@ public record DoubleLiteral(double value) implements Literal {
     }
 
     @Override
-    public void accept(IVisitor visitor) {
-        visitor.visitDoubleLiteral(this);
-    }
-
-    @Override
     public String asString() {
         return String.valueOf(value);
     }

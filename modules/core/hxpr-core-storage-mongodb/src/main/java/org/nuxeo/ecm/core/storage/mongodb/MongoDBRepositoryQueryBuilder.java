@@ -63,6 +63,7 @@ import org.nuxeo.ecm.core.schema.types.ListType;
 import org.nuxeo.ecm.core.schema.types.Type;
 import org.nuxeo.ecm.core.schema.types.primitives.AnyType;
 import org.nuxeo.ecm.core.storage.ExpressionEvaluator.PathResolver;
+import org.nuxeo.ecm.core.storage.QueryAnnotations;
 import org.nuxeo.ecm.core.storage.dbs.DBSSession;
 import org.nuxeo.runtime.mongodb.MongoDBOperators;
 
@@ -94,7 +95,13 @@ public class MongoDBRepositoryQueryBuilder extends MongoDBAbstractQueryBuilder {
 
     public MongoDBRepositoryQueryBuilder(MongoDBRepository repository, Expression expression, SelectClause selectClause,
             OrderByClause orderByClause, PathResolver pathResolver, SchemaManager schemaManager) {
-        super(repository.getConverter(), expression);
+        this(repository, expression, selectClause, orderByClause, pathResolver, schemaManager, QueryAnnotations.NONE);
+    }
+
+    public MongoDBRepositoryQueryBuilder(MongoDBRepository repository, Expression expression, SelectClause selectClause,
+            OrderByClause orderByClause, PathResolver pathResolver, SchemaManager schemaManager,
+            QueryAnnotations annotations) {
+        super(repository.getConverter(), expression, annotations);
         this.schemaManager = schemaManager;
         this.selectClause = selectClause;
         this.orderByClause = orderByClause;
@@ -126,9 +133,9 @@ public class MongoDBRepositoryQueryBuilder extends MongoDBAbstractQueryBuilder {
             orderBy = null;
         } else {
             orderBy = new Document();
-            for (OrderByExpr ob : orderByClause.elements) {
-                Reference ref = ob.reference;
-                boolean desc = ob.isDescending;
+            for (OrderByExpr ob : orderByClause.elements()) {
+                Reference ref = ob.reference();
+                boolean desc = ob.isDescending();
                 String field = walkReference(ref).queryField;
                 if (!orderBy.containsKey(field)) {
                     Object value = desc ? MINUS_ONE : ONE;
@@ -167,7 +174,7 @@ public class MongoDBRepositoryQueryBuilder extends MongoDBAbstractQueryBuilder {
         Operand lvalue = expr.lvalue;
         Operand rvalue = expr.rvalue;
         Reference ref = lvalue instanceof Reference lvalueRef ? lvalueRef : null;
-        String name = ref != null ? ref.name : null;
+        String name = ref != null ? ref.name() : null;
         if (op == Operator.STARTSWITH) {
             return walkStartsWith(lvalue, rvalue);
         } else if (SYS_PATH.equals(name)) {
@@ -298,7 +305,7 @@ public class MongoDBRepositoryQueryBuilder extends MongoDBAbstractQueryBuilder {
         if (!(lvalue instanceof Reference ref)) {
             throw new QueryParseException("Invalid STARTSWITH query, left hand side must be a property: " + lvalue);
         }
-        String name = ref.name;
+        String name = ref.name();
         if (!(rvalue instanceof StringLiteral lit)) {
             throw new QueryParseException(
                     "Invalid STARTSWITH query, right hand side must be a literal path: " + rvalue);

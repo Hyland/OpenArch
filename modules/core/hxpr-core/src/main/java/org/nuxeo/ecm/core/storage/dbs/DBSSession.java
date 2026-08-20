@@ -1126,7 +1126,7 @@ public class DBSSession implements InternalSession {
         }
         if (idKeyHolder != null) {
             Operand operand = selectClause.operands().iterator().next();
-            String idKey = operand instanceof Reference ref ? ref.name : SYS_ID;
+            String idKey = operand instanceof Reference ref ? ref.name() : SYS_ID;
             idKeyHolder.setValue(idKey);
         }
 
@@ -1137,13 +1137,14 @@ public class DBSSession implements InternalSession {
 
         QueryOptimizer optimizer = new DBSQueryOptimizer(getSchemaManager());
         sqlQuery = optimizer.optimize(sqlQuery);
+
         sqlQuery = securityPolicyService.addSecurityPolicies(sqlQuery, queryParams);
         // if the where clause is false, no need to execute it, return an empty list
         WhereClause whereClause = sqlQuery.getWhereClause();
-        if (whereClause != null && whereClause.predicate == Predicates.PRED_FALSE) {
+        if (whereClause != null && whereClause.predicate() == Predicates.PRED_FALSE) {
             return new PartialList<>(List.of(), 0);
         }
-        DBSExpressionEvaluator evaluator = new DBSExpressionEvaluator(this, sqlQuery);
+        DBSExpressionEvaluator evaluator = new DBSExpressionEvaluator(this, sqlQuery, optimizer.getAnnotations());
 
         int limit = (int) queryParams.limit();
         int offset = (int) queryParams.offset();
@@ -1198,8 +1199,8 @@ public class DBSSession implements InternalSession {
         if (orderByClause == null) {
             return false;
         }
-        for (OrderByExpr ob : orderByClause.elements) {
-            if (ob.reference.name.equals(SYS_PATH)) {
+        for (OrderByExpr ob : orderByClause.elements()) {
+            if (ob.reference().name().equals(SYS_PATH)) {
                 return true;
             }
         }
@@ -1248,9 +1249,9 @@ public class DBSSession implements InternalSession {
             // (we don't want to allow sys_path to be usable anywhere else
             // and resolve to a null value)
             OrderByList obl = new OrderByList();
-            for (OrderByExpr ob : orderByClause.elements) {
-                if (ob.reference.name.equals(SYS_PATH)) {
-                    ob = new OrderByExpr(new Reference(ExpressionEvaluator.NXQL_SYS_PATH), ob.isDescending);
+            for (OrderByExpr ob : orderByClause.elements()) {
+                if (ob.reference().name().equals(SYS_PATH)) {
+                    ob = new OrderByExpr(new Reference(ExpressionEvaluator.NXQL_SYS_PATH), ob.isDescending());
                 }
                 obl.add(ob);
             }
@@ -1260,11 +1261,11 @@ public class DBSSession implements InternalSession {
         @Override
         @SuppressWarnings("unchecked")
         public int compare(Map<String, Object> map1, Map<String, Object> map2) {
-            for (OrderByExpr ob : orderByClause.elements) {
-                Reference ref = ob.reference;
-                boolean desc = ob.isDescending;
-                Object v1 = map1.get(ref.name);
-                Object v2 = map2.get(ref.name);
+            for (OrderByExpr ob : orderByClause.elements()) {
+                Reference ref = ob.reference();
+                boolean desc = ob.isDescending();
+                Object v1 = map1.get(ref.name());
+                Object v2 = map2.get(ref.name());
                 int cmp;
                 if (v1 == null) {
                     cmp = v2 == null ? 0 : -1;
@@ -1336,9 +1337,10 @@ public class DBSSession implements InternalSession {
         SQLQuery sqlQuery = SQLQueryParser.parse(query);
         SelectClause selectClause = sqlQuery.getSelectClause();
         selectClause.add(new Reference(SYS_ID));
-        sqlQuery = new DBSQueryOptimizer(getSchemaManager()).optimize(sqlQuery);
+        QueryOptimizer optimizer = new DBSQueryOptimizer(getSchemaManager());
+        sqlQuery = optimizer.optimize(sqlQuery);
         sqlQuery = securityPolicyService.addSecurityPolicies(sqlQuery, queryParams);
-        DBSExpressionEvaluator evaluator = new DBSExpressionEvaluator(this, sqlQuery);
+        DBSExpressionEvaluator evaluator = new DBSExpressionEvaluator(this, sqlQuery, optimizer.getAnnotations());
         return transaction.scroll(evaluator, batchSize, keepAliveSeconds);
     }
 
@@ -1613,7 +1615,7 @@ public class DBSSession implements InternalSession {
         // TODO better way to parse predicate directly
         String hxql = "SELECT * FROM Foo WHERE " + condition;
         SQLQuery sqlQuery = SQLQueryParser.parse(hxql);
-        Predicate predicate = sqlQuery.getWhereClause().predicate;
+        Predicate predicate = sqlQuery.getWhereClause().predicate();
         transaction.setUpdateConditionPredicate(id, predicate);
     }
 

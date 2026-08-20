@@ -50,9 +50,4 @@ public record DateLiteral(ZonedDateTime value, boolean onlyDate) implements Lite
         return formatISODateTime(value, onlyDate);
     }
 
-    @Override
-    public void accept(IVisitor visitor) {
-        visitor.visitDateLiteral(this);
-    }
-
 }

@@ -13,14 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.nuxeo.ecm.core.query.sql.model;
 
 /**
- * An operand may be a variable, a function, a literal, or an expression.
- *
- * @author <a href="mailto:bs@nuxeo.com">Bogdan Stefanescu</a>
+ * Something an expression can be built out of: a value, a reference to a field, or another expression.
  */
-public interface Operand extends ASTNode {
+public sealed interface Operand extends ASTNode
+        permits Expression, Reference, Function, Literal, Parameter, LiteralList, OperandList {
 
 }

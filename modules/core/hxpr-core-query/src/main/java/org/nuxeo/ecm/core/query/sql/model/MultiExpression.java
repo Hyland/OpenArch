@@ -28,7 +28,7 @@ import java.util.List;
  *
  * @author Florent Guillaume
  */
-public class MultiExpression extends Predicate {
+public final class MultiExpression extends Predicate {
 
     public final List<Predicate> predicates;
 
@@ -44,11 +44,6 @@ public class MultiExpression extends Predicate {
      */
     public MultiExpression(MultiExpression other) {
         this(other.operator, new ArrayList<>(other.predicates));
-    }
-
-    @Override
-    public void accept(IVisitor visitor) {
-        visitor.visitMultiExpression(this);
     }
 
     @Override

@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * @author <a href="mailto:bs@nuxeo.com">Bogdan Stefanescu</a>
  */
-public class OperandList extends ArrayList<Operand> implements Operand {
+public final class OperandList extends ArrayList<Operand> implements Operand {
 
     private static final long serialVersionUID = 1L;
 
@@ -32,11 +32,6 @@ public class OperandList extends ArrayList<Operand> implements Operand {
 
     public OperandList(List<Operand> list) {
         super(list);
-    }
-
-    @Override
-    public void accept(IVisitor visitor) {
-        visitor.visitOperandList(this);
     }
 
     @Override

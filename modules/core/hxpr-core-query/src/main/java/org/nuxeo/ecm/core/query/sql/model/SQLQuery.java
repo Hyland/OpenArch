@@ -20,7 +20,7 @@ package org.nuxeo.ecm.core.query.sql.model;
  * @author Bogdan Stefanescu
  * @author Florent Guillaume
  */
-public class SQLQuery implements ASTNode {
+public final class SQLQuery implements ASTNode {
 
     private String queryString;
 
@@ -101,11 +101,6 @@ public class SQLQuery implements ASTNode {
 
     public void setOrderByClause(OrderByClause orderBy) {
         this.orderBy = orderBy;
-    }
-
-    @Override
-    public void accept(IVisitor visitor) {
-        visitor.visitQuery(this);
     }
 
     @Override

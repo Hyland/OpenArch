@@ -18,7 +18,7 @@ package org.nuxeo.ecm.core.query.sql.model;
 /**
  * @author <a href="mailto:bs@nuxeo.com">Bogdan Stefanescu</a>
  */
-public class FromClause extends Clause {
+public final class FromClause implements ASTNode {
 
     public final FromList elements;
 
@@ -27,7 +27,6 @@ public class FromClause extends Clause {
     }
 
     public FromClause(FromList elements) {
-        super("FROM");
         this.elements = elements;
     }
 
@@ -41,11 +40,6 @@ public class FromClause extends Clause {
 
     public int count() {
         return elements.size();
-    }
-
-    @Override
-    public void accept(IVisitor visitor) {
-        visitor.visitFromClause(this);
     }
 
     @Override

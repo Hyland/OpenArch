@@ -215,7 +215,7 @@ public class ExprEvaluator {
                     // "content" properties are turned into HXQL references
                     value = new Reference(name);
                 } else if (left instanceof Reference ref) {
-                    value = new Reference(ref.name + "/" + name);
+                    value = new Reference(ref.name() + "/" + name);
                 } else if (left instanceof InternalDocument idoc) {
                     value = getInternalDocumentValue(idoc, name, expr);
                 } else if (left instanceof NuxeoPrincipal principal) {

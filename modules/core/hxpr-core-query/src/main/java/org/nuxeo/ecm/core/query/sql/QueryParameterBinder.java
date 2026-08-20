@@ -64,7 +64,7 @@ public class QueryParameterBinder {
         Map<String, Object> params = parameters == null ? Map.of() : parameters;
         SelectClause select = bindSelect(query.getSelectClause(), params);
         WhereClause where = query.getWhereClause() == null ? null
-                : new WhereClause((Predicate) bindPredicate(query.getWhereClause().predicate, params));
+                : new WhereClause((Predicate) bindPredicate(query.getWhereClause().predicate(), params));
         return new SQLQuery(select, query.getFromClause(), where, query.getOrderByClause(),
                 query.getLimit(), query.getOffset());
     }
@@ -139,11 +139,11 @@ public class QueryParameterBinder {
             return bindPredicate(expression, params);
         }
         if (operand instanceof Function function) {
-            if (function.args == null) {
+            if (function.args() == null) {
                 return function;
             }
-            List<Operand> args = function.args.stream().map(arg -> bindOperand(arg, params)).toList();
-            return new Function(function.name, new OperandList(args));
+            List<Operand> args = function.args().stream().map(arg -> bindOperand(arg, params)).toList();
+            return new Function(function.name(), new OperandList(args));
         }
         return operand;
     }

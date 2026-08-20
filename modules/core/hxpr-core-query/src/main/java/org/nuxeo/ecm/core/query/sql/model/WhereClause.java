@@ -13,48 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.nuxeo.ecm.core.query.sql.model;
 
 /**
- * @author <a href="mailto:bs@nuxeo.com">Bogdan Stefanescu</a>
+ * A {@code WHERE} clause: the predicate rows have to satisfy.
  */
-public class WhereClause extends Clause {
-
-    public final Predicate predicate;
-
-    public WhereClause(Predicate predicate) {
-        super("WHERE");
-        this.predicate = predicate;
-    }
-
-    @Override
-    public void accept(IVisitor visitor) {
-        visitor.visitWhereClause(this);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj instanceof WhereClause whereClause && predicate != null) {
-            return predicate.equals(whereClause.predicate);
-        }
-        return false;
-    }
-
-    @Override
-    public int hashCode() {
-        if (predicate == null) {
-            return 0;
-        }
-        return predicate.hashCode();
-    }
+public record WhereClause(Predicate predicate) implements ASTNode {
 
     @Override
     public String toString() {
-        return predicate.toString();
+        return String.valueOf(predicate);
     }
 
 }

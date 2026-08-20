@@ -33,11 +33,6 @@ public record Parameter(String name) implements Operand {
     }
 
     @Override
-    public void accept(IVisitor visitor) {
-        throw new UnsupportedOperationException("Unbound query parameter: " + this);
-    }
-
-    @Override
     public String toString() {
         return ":" + name;
     }

@@ -25,11 +25,6 @@ public record BooleanLiteral(boolean value) implements Literal {
     public static final BooleanLiteral LIT_FALSE = new BooleanLiteral(false);
 
     @Override
-    public void accept(IVisitor visitor) {
-        visitor.visitBooleanLiteral(this);
-    }
-
-    @Override
     public String asString() {
         return String.valueOf(value);
     }

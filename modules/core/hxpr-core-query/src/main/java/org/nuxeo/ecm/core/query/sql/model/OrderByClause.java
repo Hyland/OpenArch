@@ -13,42 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.nuxeo.ecm.core.query.sql.model;
 
 /**
- * @author Bogdan Stefanescu
- * @author Florent Guillaume
+ * An {@code ORDER BY} clause.
  */
-public class OrderByClause extends Clause {
-
-    public final OrderByList elements;
-
-    public OrderByClause(OrderByList orderBy) {
-        super("ORDER BY");
-        elements = orderBy;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj instanceof OrderByClause orderByClause) {
-            return elements.equals(orderByClause.elements);
-        }
-        return false;
-    }
-
-    @Override
-    public int hashCode() {
-        return elements.hashCode();
-    }
-
-    @Override
-    public void accept(IVisitor visitor) {
-        visitor.visitOrderByClause(this);
-    }
+public record OrderByClause(OrderByList elements) implements ASTNode {
 
     @Override
     public String toString() {

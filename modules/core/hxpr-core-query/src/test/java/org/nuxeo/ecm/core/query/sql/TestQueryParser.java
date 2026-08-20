@@ -29,7 +29,6 @@ import org.nuxeo.ecm.core.query.sql.model.BooleanLiteral;
 import org.nuxeo.ecm.core.query.sql.model.DateLiteral;
 import org.nuxeo.ecm.core.query.sql.model.DoubleLiteral;
 import org.nuxeo.ecm.core.query.sql.model.FtHint;
-import org.nuxeo.ecm.core.query.sql.model.FtIdentifierList;
 import org.nuxeo.ecm.core.query.sql.model.Expression;
 import org.nuxeo.ecm.core.query.sql.model.FromClause;
 import org.nuxeo.ecm.core.query.sql.model.Function;
@@ -67,82 +66,82 @@ public class TestQueryParser {
     public void testLiterals() {
         // test double quoted strings
         SQLQuery query = SQLQueryParser.parse("SELECT p FROM t WHERE title=\"%test\"");
-        StringLiteral sl = (StringLiteral) query.getWhereClause().predicate.rvalue;
+        StringLiteral sl = (StringLiteral) query.getWhereClause().predicate().rvalue;
         assertEquals("%test", sl.value());
 
         query = SQLQueryParser.parse("SELECT p FROM t WHERE title=\"%te\\\"s't\"");
-        sl = (StringLiteral) query.getWhereClause().predicate.rvalue;
+        sl = (StringLiteral) query.getWhereClause().predicate().rvalue;
         assertEquals("%te\"s't", sl.value());
 
         query = SQLQueryParser.parse("SELECT p FROM t WHERE title=\"te\\\\st\"");
-        sl = (StringLiteral) query.getWhereClause().predicate.rvalue;
+        sl = (StringLiteral) query.getWhereClause().predicate().rvalue;
         assertEquals("te\\st", sl.value());
 
         // test single quoted strings
         query = SQLQueryParser.parse("SELECT p FROM t WHERE title='%te\\'s\"t'");
-        sl = (StringLiteral) query.getWhereClause().predicate.rvalue;
+        sl = (StringLiteral) query.getWhereClause().predicate().rvalue;
         assertEquals("%te's\"t", sl.value());
 
         query = SQLQueryParser.parse("SELECT p FROM t WHERE title='te\\\\st'");
-        sl = (StringLiteral) query.getWhereClause().predicate.rvalue;
+        sl = (StringLiteral) query.getWhereClause().predicate().rvalue;
         assertEquals("te\\st", sl.value());
 
         // integers
         query = SQLQueryParser.parse("SELECT p FROM t WHERE title=12");
-        IntegerLiteral il = (IntegerLiteral) query.getWhereClause().predicate.rvalue;
+        IntegerLiteral il = (IntegerLiteral) query.getWhereClause().predicate().rvalue;
         assertEquals(12, il.value());
 
         // doubles
         query = SQLQueryParser.parse("SELECT p FROM t WHERE title=1.2");
-        DoubleLiteral dl = (DoubleLiteral) query.getWhereClause().predicate.rvalue;
+        DoubleLiteral dl = (DoubleLiteral) query.getWhereClause().predicate().rvalue;
         assertEquals(1.2, dl.value(), 1e-8);
 
         query = SQLQueryParser.parse("SELECT p FROM t WHERE title=.2");
-        dl = (DoubleLiteral) query.getWhereClause().predicate.rvalue;
+        dl = (DoubleLiteral) query.getWhereClause().predicate().rvalue;
         assertEquals(0.2, dl.value(), 1e-8);
 
         query = SQLQueryParser.parse("SELECT p FROM t WHERE title=-1.2");
-        dl = (DoubleLiteral) query.getWhereClause().predicate.rvalue;
+        dl = (DoubleLiteral) query.getWhereClause().predicate().rvalue;
         assertEquals(-1.2, dl.value(), 1e-8);
 
         // dates
         DateLiteral datel;
         query = SQLQueryParser.parse("SELECT p FROM t WHERE title = DATE '2007-01-30'");
-        datel = (DateLiteral) query.getWhereClause().predicate.rvalue;
+        datel = (DateLiteral) query.getWhereClause().predicate().rvalue;
         assertEquals("DATE '2007-01-30'", datel.toString());
         query = SQLQueryParser.parse("SELECT p FROM t WHERE title = TIMESTAMP '2007-01-30 01:02:03+04:00'");
-        datel = (DateLiteral) query.getWhereClause().predicate.rvalue;
+        datel = (DateLiteral) query.getWhereClause().predicate().rvalue;
         assertEquals("TIMESTAMP '2007-01-29T21:02:03.000Z'", datel.toString());
 
         // booleans
         query = SQLQueryParser.parse("SELECT p FROM t WHERE active = TRUE");
-        BooleanLiteral bl = (BooleanLiteral) query.getWhereClause().predicate.rvalue;
+        BooleanLiteral bl = (BooleanLiteral) query.getWhereClause().predicate().rvalue;
         assertEquals(true, bl.value());
         assertSame(BooleanLiteral.LIT_TRUE, bl);
 
         query = SQLQueryParser.parse("SELECT p FROM t WHERE active = FALSE");
-        bl = (BooleanLiteral) query.getWhereClause().predicate.rvalue;
+        bl = (BooleanLiteral) query.getWhereClause().predicate().rvalue;
         assertEquals(false, bl.value());
         assertSame(BooleanLiteral.LIT_FALSE, bl);
 
         // case-insensitive
         query = SQLQueryParser.parse("SELECT p FROM t WHERE active = true");
-        bl = (BooleanLiteral) query.getWhereClause().predicate.rvalue;
+        bl = (BooleanLiteral) query.getWhereClause().predicate().rvalue;
         assertEquals(true, bl.value());
 
         query = SQLQueryParser.parse("SELECT p FROM t WHERE active = False");
-        bl = (BooleanLiteral) query.getWhereClause().predicate.rvalue;
+        bl = (BooleanLiteral) query.getWhereClause().predicate().rvalue;
         assertEquals(false, bl.value());
     }
 
     @Test
     public void testDoubleBackslash() {
         SQLQuery query = SQLQueryParser.parse("SELECT p FROM t WHERE title='a\\\\b'");
-        StringLiteral sl = (StringLiteral) query.getWhereClause().predicate.rvalue;
+        StringLiteral sl = (StringLiteral) query.getWhereClause().predicate().rvalue;
         assertEquals("a\\b", sl.value());
 
         query = SQLQueryParser.parse("SELECT p FROM t WHERE title='a\\\\'");
-        sl = (StringLiteral) query.getWhereClause().predicate.rvalue;
+        sl = (StringLiteral) query.getWhereClause().predicate().rvalue;
         assertEquals("a\\", sl.value());
     }
 
@@ -150,7 +149,7 @@ public class TestQueryParser {
     public void testNamespace() {
         SQLQuery query = SQLQueryParser.parse("SELECT sys_title FROM SysContent WHERE sys_description = 'test'");
         SelectClause select = query.getSelectClause();
-        String v = ((Reference) select.operands().iterator().next()).name;
+        String v = ((Reference) select.operands().iterator().next()).name();
         assertEquals("sys_title", v);
     }
 
@@ -159,15 +158,15 @@ public class TestQueryParser {
         SQLQuery query = SQLQueryParser.parse("SELECT sys_foo/bar/baz FROM SysContent"
                 + " WHERE sys_foo/3/ho = sys_bar/*/bobby" + " OR sys_foo/5/gee = sys_foo/*6/hop");
         SelectClause select = query.getSelectClause();
-        String v = ((Reference) select.operands().iterator().next()).name;
+        String v = ((Reference) select.operands().iterator().next()).name();
         assertEquals("sys_foo/bar/baz", v);
-        Expression where = query.getWhereClause().predicate;
+        Expression where = query.getWhereClause().predicate();
         Expression p1 = (Expression) where.lvalue;
         Expression p2 = (Expression) where.rvalue;
-        assertEquals("sys_foo/3/ho", ((Reference) p1.lvalue).name);
-        assertEquals("sys_bar/*/bobby", ((Reference) p1.rvalue).name);
-        assertEquals("sys_foo/5/gee", ((Reference) p2.lvalue).name);
-        assertEquals("sys_foo/*6/hop", ((Reference) p2.rvalue).name);
+        assertEquals("sys_foo/3/ho", ((Reference) p1.lvalue).name());
+        assertEquals("sys_bar/*/bobby", ((Reference) p1.rvalue).name());
+        assertEquals("sys_foo/5/gee", ((Reference) p2.lvalue).name());
+        assertEquals("sys_foo/*6/hop", ((Reference) p2.rvalue).name());
 
         // check parsing of complex properties in other contexts
         SQLQueryParser.parse("SELECT x FROM SysContent" + " WHERE sys_foo/bar LIKE 'foo' OR sys_foo/bar IS NULL"
@@ -179,172 +178,172 @@ public class TestQueryParser {
         SQLQuery query = SQLQueryParser.parse("SELECT p1, $id, p3 FROM t1, t2 WHERE state=1 AND title = 'test'");
 
         SelectClause select = query.getSelectClause();
-        assertEquals("p1", select.getVariable(0).name);
-        assertEquals("$id", select.getVariable(1).name);
-        assertEquals("p3", select.getVariable(2).name);
+        assertEquals("p1", select.getVariable(0).name());
+        assertEquals("$id", select.getVariable(1).name());
+        assertEquals("p3", select.getVariable(2).name());
 
         FromClause from = query.getFromClause();
         assertEquals("t1", from.get(0));
         assertEquals("t2", from.get(1));
 
-        Expression e1 = (Expression) query.getWhereClause().predicate.lvalue;
-        Expression e2 = (Expression) query.getWhereClause().predicate.rvalue;
-        assertEquals("state", ((Reference) e1.lvalue).name);
-        assertEquals("title", ((Reference) e2.lvalue).name);
+        Expression e1 = (Expression) query.getWhereClause().predicate().lvalue;
+        Expression e2 = (Expression) query.getWhereClause().predicate().rvalue;
+        assertEquals("state", ((Reference) e1.lvalue).name());
+        assertEquals("title", ((Reference) e2.lvalue).name());
     }
 
     @Test
     public void testOperators() {
         SQLQuery query = SQLQueryParser.parse("SELECT p FROM t WHERE p = 'test'");
-        Operator op = query.getWhereClause().predicate.operator;
+        Operator op = query.getWhereClause().predicate().operator;
         assertEquals(Operator.EQ, op);
 
         query = SQLQueryParser.parse("SELECT p FROM t WHERE p > 1");
-        op = query.getWhereClause().predicate.operator;
+        op = query.getWhereClause().predicate().operator;
         assertEquals(Operator.GT, op);
 
         query = SQLQueryParser.parse("SELECT p FROM t WHERE p >= 1");
-        op = query.getWhereClause().predicate.operator;
+        op = query.getWhereClause().predicate().operator;
         assertEquals(Operator.GTEQ, op);
 
         query = SQLQueryParser.parse("SELECT p FROM t WHERE p < 1");
-        op = query.getWhereClause().predicate.operator;
+        op = query.getWhereClause().predicate().operator;
         assertEquals(Operator.LT, op);
 
         query = SQLQueryParser.parse("SELECT p FROM t WHERE p <= 1");
-        op = query.getWhereClause().predicate.operator;
+        op = query.getWhereClause().predicate().operator;
         assertEquals(Operator.LTEQ, op);
 
         query = SQLQueryParser.parse("SELECT p FROM t WHERE p <> 1");
-        op = query.getWhereClause().predicate.operator;
+        op = query.getWhereClause().predicate().operator;
         assertEquals(Operator.NOTEQ, op);
 
         query = SQLQueryParser.parse("SELECT p FROM t WHERE p != 1");
-        op = query.getWhereClause().predicate.operator;
+        op = query.getWhereClause().predicate().operator;
         assertEquals(Operator.NOTEQ, op);
 
         query = SQLQueryParser.parse("SELECT p FROM t WHERE p + 2 = 2");
-        op = ((Expression) query.getWhereClause().predicate.lvalue).operator;
+        op = ((Expression) query.getWhereClause().predicate().lvalue).operator;
         assertEquals(Operator.SUM, op);
 
         query = SQLQueryParser.parse("SELECT p FROM t WHERE p - 2 = 3");
-        op = ((Expression) query.getWhereClause().predicate.lvalue).operator;
+        op = ((Expression) query.getWhereClause().predicate().lvalue).operator;
         assertEquals(Operator.SUB, op);
 
         query = SQLQueryParser.parse("SELECT p FROM t WHERE p * 2 = 3");
-        op = ((Expression) query.getWhereClause().predicate.lvalue).operator;
+        op = ((Expression) query.getWhereClause().predicate().lvalue).operator;
         assertEquals(Operator.MUL, op);
 
         query = SQLQueryParser.parse("SELECT p FROM t WHERE p / 2 = 4");
-        op = ((Expression) query.getWhereClause().predicate.lvalue).operator;
+        op = ((Expression) query.getWhereClause().predicate().lvalue).operator;
         assertEquals(Operator.DIV, op);
     }
 
     @Test
     public void testLikeOperator() {
         SQLQuery query = SQLQueryParser.parse("SELECT p FROM t WHERE p LIKE '%test%'");
-        Operator op = query.getWhereClause().predicate.operator;
+        Operator op = query.getWhereClause().predicate().operator;
         assertEquals(Operator.LIKE, op);
 
         query = SQLQueryParser.parse("SELECT p FROM t WHERE p NOT LIKE '%test%'");
-        op = query.getWhereClause().predicate.operator;
+        op = query.getWhereClause().predicate().operator;
         assertEquals(Operator.NOTLIKE, op);
 
         query = SQLQueryParser.parse("SELECT p FROM t WHERE p ILIKE '%test%'");
-        op = query.getWhereClause().predicate.operator;
+        op = query.getWhereClause().predicate().operator;
         assertEquals(Operator.ILIKE, op);
 
         query = SQLQueryParser.parse("SELECT p FROM t WHERE p NOT ILIKE '%test%'");
-        op = query.getWhereClause().predicate.operator;
+        op = query.getWhereClause().predicate().operator;
         assertEquals(Operator.NOTILIKE, op);
     }
 
     @Test
     public void testInOperator() {
         SQLQuery query = SQLQueryParser.parse("SELECT p FROM t WHERE p IN (12, 13) AND q='test'");
-        Operator op = query.getWhereClause().predicate.operator;
+        Operator op = query.getWhereClause().predicate().operator;
         assertEquals(Operator.AND, op);
 
-        Expression e = (Expression) query.getWhereClause().predicate.lvalue;
+        Expression e = (Expression) query.getWhereClause().predicate().lvalue;
         assertEquals(Operator.IN, e.operator);
 
         LiteralList list = new LiteralList();
         list.add(new IntegerLiteral(12));
         list.add(new IntegerLiteral(13));
         assertEquals(list, e.rvalue);
-        assertEquals("p", ((Reference) e.lvalue).name);
+        assertEquals("p", ((Reference) e.lvalue).name());
 
         query = SQLQueryParser.parse("SELECT p FROM t WHERE p NOT IN (12, 13) AND q='test'");
-        op = query.getWhereClause().predicate.operator;
+        op = query.getWhereClause().predicate().operator;
         assertEquals(Operator.AND, op);
 
-        e = (Expression) query.getWhereClause().predicate.lvalue;
+        e = (Expression) query.getWhereClause().predicate().lvalue;
         assertEquals(Operator.NOTIN, e.operator);
 
         list = new LiteralList();
         list.add(new IntegerLiteral(12));
         list.add(new IntegerLiteral(13));
         assertEquals(list, e.rvalue);
-        assertEquals("p", ((Reference) e.lvalue).name);
+        assertEquals("p", ((Reference) e.lvalue).name());
     }
 
     @Test
     public void testBetweenOperator() {
         SQLQuery query = SQLQueryParser.parse("SELECT p FROM t WHERE p BETWEEN 10 AND 20 AND q='test'");
-        Operator op = query.getWhereClause().predicate.operator;
+        Operator op = query.getWhereClause().predicate().operator;
         assertEquals(Operator.AND, op);
 
-        Expression e = (Expression) query.getWhereClause().predicate.lvalue;
+        Expression e = (Expression) query.getWhereClause().predicate().lvalue;
         assertEquals(Operator.BETWEEN, e.operator);
 
         LiteralList list = new LiteralList();
         list.add(new IntegerLiteral(10));
         list.add(new IntegerLiteral(20));
         assertEquals(list, e.rvalue);
-        assertEquals("p", ((Reference) e.lvalue).name);
+        assertEquals("p", ((Reference) e.lvalue).name());
 
         query = SQLQueryParser.parse("SELECT p FROM t WHERE p NOT BETWEEN 10 AND 20 AND q='test'");
-        op = query.getWhereClause().predicate.operator;
+        op = query.getWhereClause().predicate().operator;
         assertEquals(Operator.AND, op);
 
-        e = (Expression) query.getWhereClause().predicate.lvalue;
+        e = (Expression) query.getWhereClause().predicate().lvalue;
         assertEquals(Operator.NOTBETWEEN, e.operator);
 
         list = new LiteralList();
         list.add(new IntegerLiteral(10));
         list.add(new IntegerLiteral(20));
         assertEquals(list, e.rvalue);
-        assertEquals("p", ((Reference) e.lvalue).name);
+        assertEquals("p", ((Reference) e.lvalue).name());
     }
 
     @Test
     public void testIsNull() {
         SQLQuery query = SQLQueryParser.parse("SELECT p FROM t WHERE p IS NULL");
-        Operator op = query.getWhereClause().predicate.operator;
+        Operator op = query.getWhereClause().predicate().operator;
         assertEquals(Operator.ISNULL, op);
 
         query = SQLQueryParser.parse("SELECT p FROM t WHERE p IS NOT NULL");
-        op = query.getWhereClause().predicate.operator;
+        op = query.getWhereClause().predicate().operator;
         assertEquals(Operator.ISNOTNULL, op);
 
         query = SQLQueryParser.parse("SELECT p FROM t WHERE p IS NULL OR p = 'abc'");
-        Predicate p = (Predicate) query.getWhereClause().predicate.lvalue;
+        Predicate p = (Predicate) query.getWhereClause().predicate().lvalue;
         assertEquals(Operator.ISNULL, p.operator);
     }
 
     @Test
     public void testFunction() {
         SQLQuery query = SQLQueryParser.parse("SELECT getDate(), p FROM t WHERE substring(title, 2) = 'test'");
-        Operator op = query.getWhereClause().predicate.operator;
+        Operator op = query.getWhereClause().predicate().operator;
         assertEquals(Operator.EQ, op);
 
-        Function fn = (Function) query.getWhereClause().predicate.lvalue;
-        assertEquals("substring", fn.name);
+        Function fn = (Function) query.getWhereClause().predicate().lvalue;
+        assertEquals("substring", fn.name());
 
         OperandList args = new OperandList();
         args.add(new Reference("title"));
         args.add(new IntegerLiteral(2));
-        assertEquals(args, fn.args);
+        assertEquals(args, fn.args());
     }
 
     @Test
@@ -363,7 +362,7 @@ public class TestQueryParser {
     public void testDateCast() {
         SQLQuery query = SQLQueryParser.parse("SELECT p FROM t WHERE DATE(sys_modified) = DATE '2010-01-01'");
 
-        Operand lvalue = query.getWhereClause().predicate.lvalue;
+        Operand lvalue = query.getWhereClause().predicate().lvalue;
         assertTrue(lvalue instanceof Reference); // with cast
         assertEquals(new Reference("sys_modified", "DATE"), lvalue);
     }
@@ -371,98 +370,98 @@ public class TestQueryParser {
     @Test
     public void testEsHintIndex() {
         SQLQuery query = SQLQueryParser.parse("SELECT p FROM t WHERE /*+FT: INDEX(sys_title.ngram) */ sys_title = 'foo'");
-        Operand lvalue = query.getWhereClause().predicate.lvalue;
+        Operand lvalue = query.getWhereClause().predicate().lvalue;
         assertTrue(lvalue instanceof Reference);
-        assertEquals(1, ((Reference) lvalue).ftHint.getIndex().size());
+        assertEquals(1, ((Reference) lvalue).ftHint().indexFields().size());
         assertEquals(new Reference(new Reference("sys_title"),
-                new FtHint(new FtIdentifierList("sys_title.ngram"), null, null)), lvalue);
+                new FtHint("sys_title.ngram", null, null)), lvalue);
     }
 
     @Test
     public void testEsHintIndexWithDash() {
         SQLQuery query = SQLQueryParser.parse(
                 "SELECT p FROM t WHERE /*+FT: INDEX(my-schema:article.author) */ my-schema:article/author = 'foo'");
-        Operand lvalue = query.getWhereClause().predicate.lvalue;
+        Operand lvalue = query.getWhereClause().predicate().lvalue;
         assertTrue(lvalue instanceof Reference);
-        assertEquals(1, ((Reference) lvalue).ftHint.getIndex().size());
+        assertEquals(1, ((Reference) lvalue).ftHint().indexFields().size());
         assertEquals(new Reference(new Reference("my-schema:article/author"),
-                new FtHint(new FtIdentifierList("my-schema:article.author"), null, null)), lvalue);
+                new FtHint("my-schema:article.author", null, null)), lvalue);
     }
 
     @Test
     public void testEsHintIndexBoost() {
         SQLQuery query = SQLQueryParser.parse(
                 "SELECT p FROM t WHERE /*+ft: INDEX(sys_title.ngram^3) */ sys_title = 'foo'");
-        Operand lvalue = query.getWhereClause().predicate.lvalue;
+        Operand lvalue = query.getWhereClause().predicate().lvalue;
         assertTrue(lvalue instanceof Reference);
-        assertEquals(1, ((Reference) lvalue).ftHint.getIndex().size());
+        assertEquals(1, ((Reference) lvalue).ftHint().indexFields().size());
         assertEquals(new Reference(new Reference("sys_title"),
-                new FtHint(new FtIdentifierList("sys_title.ngram^3"), null, null)), lvalue);
+                new FtHint("sys_title.ngram^3", null, null)), lvalue);
     }
 
     @Test
     public void testEsHintMultiIndex() {
         SQLQuery query = SQLQueryParser.parse(
                 "SELECT p FROM t WHERE /*+FT: INDEX(sys_title,sys_description) */ sys_fulltext = 'foo'");
-        Operand lvalue = query.getWhereClause().predicate.lvalue;
+        Operand lvalue = query.getWhereClause().predicate().lvalue;
         assertTrue(lvalue instanceof Reference);
-        assertEquals(2, ((Reference) lvalue).ftHint.getIndex().size());
+        assertEquals(2, ((Reference) lvalue).ftHint().indexFields().size());
         assertEquals(new Reference(new Reference(SYS_FULLTEXT),
-                new FtHint(new FtIdentifierList("sys_title,sys_description"), null, null)), lvalue);
+                new FtHint("sys_title,sys_description", null, null)), lvalue);
     }
 
     @Test
     public void testEsHintAnalyzer() {
         SQLQuery query = SQLQueryParser.parse("SELECT p FROM t WHERE /*+FT: ANALYZER(fulltext) */ sys_title LIKE 'foo'");
-        Operand lvalue = query.getWhereClause().predicate.lvalue;
+        Operand lvalue = query.getWhereClause().predicate().lvalue;
         assertTrue(lvalue instanceof Reference);
-        assertEquals(new Reference(new Reference("sys_title"), new FtHint(null, "fulltext", null)), lvalue);
+        assertEquals(new Reference(new Reference("sys_title"), new FtHint((String) null, "fulltext", null)), lvalue);
     }
 
     @Test
     public void testEsHintOperator() {
         SQLQuery query = SQLQueryParser.parse(
                 "SELECT p FROM t WHERE /*+FT: OPERATOR(regex) */ sys_title = 'foo|bar|ba*'");
-        Operand lvalue = query.getWhereClause().predicate.lvalue;
+        Operand lvalue = query.getWhereClause().predicate().lvalue;
         assertTrue(lvalue instanceof Reference);
-        assertEquals(new Reference(new Reference("sys_title"), new FtHint(null, null, "regex")), lvalue);
+        assertEquals(new Reference(new Reference("sys_title"), new FtHint((String) null, null, "regex")), lvalue);
     }
 
     @Test
     public void testEsHintIndexAndAnalyzer() {
         SQLQuery query = SQLQueryParser.parse(
                 "SELECT p FROM t WHERE /*+FT: Index(sys_title.ngram) analyzer(fulltext) */ sys_title = 'foo'");
-        Operand lvalue = query.getWhereClause().predicate.lvalue;
+        Operand lvalue = query.getWhereClause().predicate().lvalue;
         assertTrue(lvalue instanceof Reference);
         assertEquals(new Reference(new Reference("sys_title"),
-                new FtHint(new FtIdentifierList("sys_title.ngram"), "fulltext", null)), lvalue);
+                new FtHint("sys_title.ngram", "fulltext", null)), lvalue);
     }
 
     @Test
     public void testEsHintIndexAnalyzerAndOperator() {
         SQLQuery query = SQLQueryParser.parse(
                 "SELECT p FROM t WHERE /*+FT: Index(sys_title.ngram) analyzer(fulltext) operator(fuzzy)*/ sys_title = 'foo'");
-        Operand lvalue = query.getWhereClause().predicate.lvalue;
+        Operand lvalue = query.getWhereClause().predicate().lvalue;
         assertTrue(lvalue instanceof Reference);
         assertEquals(new Reference(new Reference("sys_title"),
-                new FtHint(new FtIdentifierList("sys_title.ngram"), "fulltext", "fuzzy")), lvalue);
+                new FtHint("sys_title.ngram", "fulltext", "fuzzy")), lvalue);
     }
 
     @Test
     public void testEsHintMultiClauses() {
         SQLQuery query = SQLQueryParser.parse("SELECT p FROM t WHERE /*+FT: INDEX(sys_title.ngram) */ sys_title = 'foo' "
                 + "AND /*+FT: ANALYZER(fulltext2) */ sys_description LIKE 'bar'");
-        Operand pred = query.getWhereClause().predicate.rvalue;
+        Operand pred = query.getWhereClause().predicate().rvalue;
         assertTrue(pred instanceof Predicate);
         Operand lvalue = ((Predicate) pred).lvalue;
         assertTrue(lvalue instanceof Reference);
-        assertEquals(new Reference(new Reference("sys_description"), new FtHint(null, "fulltext2", null)), lvalue);
+        assertEquals(new Reference(new Reference("sys_description"), new FtHint((String) null, "fulltext2", null)), lvalue);
     }
 
     @Test
     public void testEsHintEmpty() {
         SQLQuery query = SQLQueryParser.parse("SELECT p FROM t WHERE /*+FT: */ sys_title = 'foo'");
-        Operand lvalue = query.getWhereClause().predicate.lvalue;
+        Operand lvalue = query.getWhereClause().predicate().lvalue;
         assertTrue(lvalue instanceof Reference);
         assertEquals(new Reference(new Reference("sys_title"), (FtHint) null), lvalue);
     }
@@ -476,7 +475,7 @@ public class TestQueryParser {
     @Test
     public void testOperatorPrecedence() {
         SQLQuery query = SQLQueryParser.parse("SELECT p FROM t WHERE p * -2 / 3 + 4 - 5 = 2");
-        Expression pred = query.getWhereClause().predicate;
+        Expression pred = query.getWhereClause().predicate();
         assertEquals(Operator.EQ, pred.operator);
 
         Expression e = (Expression) pred.lvalue;
@@ -493,7 +492,7 @@ public class TestQueryParser {
         assertEquals(-2, ((IntegerLiteral) e.rvalue).value());
 
         query = SQLQueryParser.parse("SELECT p FROM t WHERE p=2 AND q=1 AND s=3 OR r = 4 OR w = 10");
-        pred = query.getWhereClause().predicate;
+        pred = query.getWhereClause().predicate();
         assertEquals(Operator.OR, pred.operator);
         assertEquals(Operator.EQ, ((Expression) pred.rvalue).operator);
 
@@ -511,7 +510,7 @@ public class TestQueryParser {
         assertEquals(Operator.EQ, ((Expression) e.lvalue).operator);
 
         query = SQLQueryParser.parse("SELECT p FROM t WHERE p=2 OR s=3 AND NOT q=4");
-        pred = query.getWhereClause().predicate;
+        pred = query.getWhereClause().predicate();
         assertEquals(Operator.OR, pred.operator);
         assertEquals(Operator.EQ, ((Expression) pred.lvalue).operator);
 
@@ -575,12 +574,12 @@ public class TestQueryParser {
         SelectList select = query.getSelectClause().elements;
         assertEquals(2, select.size());
 
-        Expression where = query.getWhereClause().predicate;
+        Expression where = query.getWhereClause().predicate();
         assertEquals(Operator.OR, where.operator);
 
         Expression expr = (Expression) where.lvalue;
         assertEquals(Operator.GT, expr.operator);
-        assertEquals("p1", ((Reference) expr.lvalue).name);
+        assertEquals("p1", ((Reference) expr.lvalue).name());
         assertEquals(0, ((IntegerLiteral) expr.rvalue).value());
 
         // root expr
@@ -589,7 +588,7 @@ public class TestQueryParser {
 
         Expression expr1 = (Expression) expr.lvalue;
         assertEquals(Operator.LTEQ, expr1.operator);
-        assertEquals("p2", ((Reference) expr1.lvalue).name);
+        assertEquals("p2", ((Reference) expr1.lvalue).name());
         assertEquals(10.2, ((DoubleLiteral) expr1.rvalue).value(), 1e-8);
 
         Expression expr2 = (Expression) expr.rvalue;
@@ -598,8 +597,8 @@ public class TestQueryParser {
 
         Expression expr3 = (Expression) expr2.lvalue;
         assertEquals(Operator.SUB, expr3.operator);
-        assertEquals("p1", ((Reference) expr3.lvalue).name);
-        assertEquals("p2", ((Reference) expr3.rvalue).name);
+        assertEquals("p1", ((Reference) expr3.lvalue).name());
+        assertEquals("p2", ((Reference) expr3.rvalue).name());
     }
 
     /**
@@ -683,11 +682,11 @@ public class TestQueryParser {
         assertEquals(expected, query.toString());
 
         OrderByClause clause = query.getOrderByClause();
-        OrderByList elements = clause.elements;
-        assertEquals("p", elements.get(0).reference.name);
-        assertFalse(elements.get(0).isDescending);
-        assertEquals("q", elements.get(1).reference.name);
-        assertFalse(elements.get(1).isDescending);
+        OrderByList elements = clause.elements();
+        assertEquals("p", elements.get(0).reference().name());
+        assertFalse(elements.get(0).isDescending());
+        assertEquals("q", elements.get(1).reference().name());
+        assertFalse(elements.get(1).isDescending());
         assertEquals(2, elements.size());
 
         query = SQLQueryParser.parse("SELECT p, q, r FROM t ORDER BY p, q ASC");
@@ -695,11 +694,11 @@ public class TestQueryParser {
         assertEquals(expected, query.toString());
 
         clause = query.getOrderByClause();
-        elements = clause.elements;
-        assertEquals("p", elements.get(0).reference.name);
-        assertFalse(elements.get(0).isDescending);
-        assertEquals("q", elements.get(1).reference.name);
-        assertFalse(elements.get(1).isDescending);
+        elements = clause.elements();
+        assertEquals("p", elements.get(0).reference().name());
+        assertFalse(elements.get(0).isDescending());
+        assertEquals("q", elements.get(1).reference().name());
+        assertFalse(elements.get(1).isDescending());
         assertEquals(2, elements.size());
 
         query = SQLQueryParser.parse("SELECT p, q, r FROM t ORDER BY p, q DESC");
@@ -707,11 +706,11 @@ public class TestQueryParser {
         assertEquals(expected, query.toString());
 
         clause = query.getOrderByClause();
-        elements = clause.elements;
-        assertEquals("p", elements.get(0).reference.name);
-        assertFalse(elements.get(0).isDescending);
-        assertEquals("q", elements.get(1).reference.name);
-        assertTrue(elements.get(1).isDescending);
+        elements = clause.elements();
+        assertEquals("p", elements.get(0).reference().name());
+        assertFalse(elements.get(0).isDescending());
+        assertEquals("q", elements.get(1).reference().name());
+        assertTrue(elements.get(1).isDescending());
         assertEquals(2, elements.size());
 
         query = SQLQueryParser.parse("SELECT p, q, r FROM t ORDER BY p DESC, q");
@@ -719,11 +718,11 @@ public class TestQueryParser {
         assertEquals(expected, query.toString());
 
         clause = query.getOrderByClause();
-        elements = clause.elements;
-        assertEquals("p", elements.get(0).reference.name);
-        assertTrue(elements.get(0).isDescending);
-        assertEquals("q", elements.get(1).reference.name);
-        assertFalse(elements.get(1).isDescending);
+        elements = clause.elements();
+        assertEquals("p", elements.get(0).reference().name());
+        assertTrue(elements.get(0).isDescending());
+        assertEquals("q", elements.get(1).reference().name());
+        assertFalse(elements.get(1).isDescending());
         assertEquals(2, elements.size());
     }
 

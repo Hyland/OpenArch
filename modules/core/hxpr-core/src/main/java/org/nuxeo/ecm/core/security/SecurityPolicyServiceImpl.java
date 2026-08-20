@@ -350,7 +350,7 @@ public class SecurityPolicyServiceImpl implements SecurityPolicyService {
             // no security check needed, including security policies
             return query;
         }
-        Predicate predicate = query.where == null ? null : query.where.predicate;
+        Predicate predicate = query.where == null ? null : query.where.predicate();
         predicate = addQueryClauses(predicate, queryParams);
         return query.withPredicate(predicate);
     }

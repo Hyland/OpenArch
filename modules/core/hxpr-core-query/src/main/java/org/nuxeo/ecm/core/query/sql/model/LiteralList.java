@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * @author <a href="mailto:bs@nuxeo.com">Bogdan Stefanescu</a>
  */
-public class LiteralList extends ArrayList<Literal> implements Operand {
+public final class LiteralList extends ArrayList<Literal> implements Operand {
 
     private static final long serialVersionUID = 1L;
 
@@ -33,11 +33,6 @@ public class LiteralList extends ArrayList<Literal> implements Operand {
 
     public LiteralList(List<Literal> list) {
         super(list);
-    }
-
-    @Override
-    public void accept(IVisitor visitor) {
-        visitor.visitLiteralList(this);
     }
 
     @Override
