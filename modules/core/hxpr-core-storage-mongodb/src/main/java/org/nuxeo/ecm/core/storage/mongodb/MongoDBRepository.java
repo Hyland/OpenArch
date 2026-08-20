@@ -27,6 +27,7 @@ import static org.nuxeo.ecm.core.api.DocumentConstants.SCHEMA_CINREMOTE;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SCHEMA_SYSEMB;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SCHEMA_SYSGRAPH;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_CHUNKS;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_EMBEDDINGS;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_PREFIX;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGRAPH_GRAPH_DB_IDS;
@@ -780,9 +781,10 @@ public class MongoDBRepository extends DBSRepositoryBase implements Configuratio
                                 CONSTRAINTS, Map.of(NULLABLE, false)))));
         Map<String, Object> embSchemaMap = (Map<String, Object>) schemas.get(SCHEMA_SYSEMB);
         Map<String, Object> embFields = (Map<String, Object>) embSchemaMap.get(FIELDS);
-        if (!embFields.containsKey(SYSEMB_CHUNKS)) {
+        if (!embFields.containsKey(SYSEMB_CHUNKS) || !embFields.containsKey(SYSEMB_RESIDENCY)) {
             Map<String, Object> newFields = new HashMap<>(embFields);
-            newFields.put(SYSEMB_CHUNKS, BLOB_TYPE);
+            newFields.putIfAbsent(SYSEMB_CHUNKS, BLOB_TYPE);
+            newFields.putIfAbsent(SYSEMB_RESIDENCY, StringType.ID);
             Map<String, Object> newSchema = new HashMap<>(embSchemaMap);
             newSchema.put(FIELDS, newFields);
             schemas.put(SCHEMA_SYSEMB, newSchema);

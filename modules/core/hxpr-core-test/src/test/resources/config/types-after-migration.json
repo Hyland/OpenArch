@@ -98,6 +98,9 @@
         "sysemb_chunks": {
           "type": "blob"
         },
+        "sysemb_residency": {
+          "type": "string"
+        },
         "sysemb_embeddings": {
           "extends": "blob",
           "constraints": {
