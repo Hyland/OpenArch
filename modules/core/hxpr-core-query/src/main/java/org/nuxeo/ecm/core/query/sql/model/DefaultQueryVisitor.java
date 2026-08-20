@@ -32,12 +32,6 @@ public class DefaultQueryVisitor implements IVisitor {
         if (node.getOrderByClause() != null) {
             node.getOrderByClause().accept(this);
         }
-        if (node.groupBy != null) {
-            node.groupBy.accept(this);
-        }
-        if (node.having != null) {
-            node.having.accept(this);
-        }
     }
 
     @Override
@@ -47,7 +41,7 @@ public class DefaultQueryVisitor implements IVisitor {
 
     @Override
     public void visitSelectList(SelectList node) {
-        node.forEach((alias, operand) -> operand.accept(this));
+        node.forEach(operand -> operand.accept(this));
     }
 
     @Override
@@ -63,18 +57,6 @@ public class DefaultQueryVisitor implements IVisitor {
     @Override
     public void visitWhereClause(WhereClause node) {
         node.predicate.accept(this);
-    }
-
-    @Override
-    public void visitGroupByClause(GroupByClause node) {
-        // nothing
-    }
-
-    @Override
-    public void visitHavingClause(HavingClause node) {
-        if (node.predicate != null) {
-            node.predicate.accept(this);
-        }
     }
 
     @Override

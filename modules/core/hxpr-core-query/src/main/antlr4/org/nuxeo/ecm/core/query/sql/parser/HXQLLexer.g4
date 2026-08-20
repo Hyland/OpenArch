@@ -69,7 +69,6 @@ TIMESTAMP:  'TIMESTAMP';
 LIMIT:      'LIMIT';
 OFFSET:     'OFFSET';
 STARTSWITH: 'STARTSWITH';
-AS:         'AS';
 TRUE:       'TRUE';
 FALSE:      'FALSE';
 
@@ -108,6 +107,7 @@ fragment Identifier: [a-z$_] [a-z0-9$_:.-]*;
 fragment IdentifierOrIndex: Identifier | Index | Identifier '[' Index ']';
 fragment Index: Digits | '*' | '*' Digits;
 IDENTIFIER:      Identifier;
+PARAM:           ':' Identifier;   // named query parameter, bound before execution
 FROM_IDENTIFIER: Identifier ('.' Identifier)*;
 PATH_IDENTIFIER: Identifier ('/' IdentifierOrIndex)+;
 FT_IDENTIFIER: [a-z] [a-z0-9_:.^-]*;                  // allow boost with ^

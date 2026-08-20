@@ -21,7 +21,7 @@ import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.nuxeo.ecm.core.api.local.DummyLoginFeature.TEST_ANONYMOUS_USER;
-import static org.nuxeo.ecm.core.query.nxql.NXQLQueryBuilder.DEFAULT_SELECT_STATEMENT;
+import static org.nuxeo.rest.query.spec.QueryAssembler.DEFAULT_SELECT_STATEMENT;
 import static org.nuxeo.rest.query.QueryAPI.PATH;
 import static org.nuxeo.rest.query.conf.NamedQueryHelper.TITLE_SORT;
 import static org.springframework.http.HttpMethod.GET;
@@ -61,8 +61,8 @@ public class NamedQueryDefinitionAPITest extends AbstractQueryAPITest {
     protected static final String API_PATH = PATH + "/named";
 
     protected static final String FOLDER_LISTING_QUERY = DEFAULT_SELECT_STATEMENT //
-            + " WHERE sys_parentId='00000000-0000-0000-0000-000000000000'" //
-            + " AND sysver_isVersion=0 ORDER BY sys_title";
+            + " WHERE sys_parentId = '00000000-0000-0000-0000-000000000000'" //
+            + " AND sysver_isVersion = 0 ORDER BY sys_title";
 
     protected ResultActions checkResponse(Status expectedStatus, Map<String, Object> queryParameters) throws Exception {
         return checkResponse(expectedStatus, API_PATH, POST, queryParameters);
@@ -110,7 +110,7 @@ public class NamedQueryDefinitionAPITest extends AbstractQueryAPITest {
                 Map.of("fulltext", "File*"), List.of(TITLE_SORT), null);
         DocumentQueryResultDTO r = manager.getResults(q);
         checkResult(r, REPO_ID,
-                DEFAULT_SELECT_STATEMENT + " WHERE sys_fulltext='File*' AND sysver_isVersion=0 ORDER BY sys_title",
+                DEFAULT_SELECT_STATEMENT + " WHERE sys_fulltext = 'File*' AND sysver_isVersion = 0 ORDER BY sys_title",
                 -1L, 0, 10, 10L);
         checkResultDocument(r, 0, "File0");
     }
@@ -121,7 +121,7 @@ public class NamedQueryDefinitionAPITest extends AbstractQueryAPITest {
         DocumentQueryResultDTO r = manager.getResults(q);;
         checkResult(r, REPO_ID, //
                 DEFAULT_SELECT_STATEMENT + " WHERE sys_fulltext = 'File*'" //
-                        + " AND (sys_parentId IS NOT NULL AND sys_id IS NOT NULL AND sysver_isVersion=0)" //
+                        + " AND sys_parentId IS NOT NULL AND sys_title IS NOT NULL AND sysver_isVersion = 0" //
                         + " ORDER BY sys_title", //
                 -1L, 0, 10, 10L);
         checkResultDocument(r, 0, "File0");

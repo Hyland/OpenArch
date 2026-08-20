@@ -133,7 +133,7 @@ public final class NxqlQueryConverter {
             public void visitFromClause(FromClause node) {
                 FromList elements = node.elements;
 
-                for (String type : elements.values()) {
+                for (String type : elements) {
                     // Removed code for SYS_CONTENT optimization. See, HXCS-3121 Get rid of optimization until inconsistencies are fixed
                     Set<String> types = schemaManager.getDocumentTypeNamesExtending(type);
                     if (types != null) {

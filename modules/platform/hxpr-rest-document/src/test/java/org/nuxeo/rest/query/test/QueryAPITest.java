@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.nuxeo.ecm.core.api.local.DummyLoginFeature.TEST_ANONYMOUS_USER;
-import static org.nuxeo.ecm.core.query.nxql.NXQLQueryBuilder.DEFAULT_SELECT_STATEMENT;
+import static org.nuxeo.rest.query.spec.QueryAssembler.DEFAULT_SELECT_STATEMENT;
 import static org.nuxeo.rest.query.QueryAPI.PATH;
 import static org.nuxeo.rest.query.conf.NamedQueryHelper.TITLE_SORT;
 import static org.nuxeo.rest.query.io.DocumentQueryDTO.DEFAULT_LIMIT_VALUE;

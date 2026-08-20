@@ -22,8 +22,8 @@ import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PARENT_ID;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PATH;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_POS;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
-import static org.nuxeo.ecm.core.query.nxql.NXQLQueryBuilder.DEFAULT_SELECT_STATEMENT;
-import static org.nuxeo.ecm.core.query.nxql.NXQLQueryBuilder.SORTED_COLUMN;
+import static org.nuxeo.rest.query.spec.QueryAssembler.DEFAULT_SELECT_STATEMENT;
+import static org.nuxeo.rest.query.spec.QueryAssembler.SORTED_COLUMN;
 
 import java.util.List;
 

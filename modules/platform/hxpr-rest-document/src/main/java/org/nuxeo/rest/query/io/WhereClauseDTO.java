@@ -19,11 +19,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
-import org.nuxeo.ecm.core.query.nxql.PredicateDefinition;
-import org.nuxeo.ecm.core.query.nxql.PredicateFieldDefinition;
-import org.nuxeo.ecm.core.query.nxql.WhereClauseDefinition;
-
 /**
  * Rest representation of a query where clause.
  */
@@ -31,8 +26,6 @@ import org.nuxeo.ecm.core.query.nxql.WhereClauseDefinition;
 public record WhereClauseDTO( //
         String query, //
         List<RestPredicate> predicates) {
-
-    protected static final String PARAM_PREFIX = ":";
 
     public static WhereClauseDTO of(String query, List<RestPredicate> predicates) {
         return new WhereClauseDTO(query, predicates);
@@ -42,19 +35,6 @@ public record WhereClauseDTO( //
         if (predicates == null) {
             predicates = List.of();
         }
-    }
-
-    public WhereClauseDefinition asWhereClauseDefinition() {
-        String query = query();
-        String selectStatement = query;
-        String fixedPart = "";
-        int i = StringUtils.indexOfIgnoreCase(query, " where ");
-        if (i != -1) {
-            selectStatement = query.substring(0, i);
-            fixedPart = query.substring(i + 7);
-        }
-        return new WhereClauseDefinition(selectStatement, fixedPart,
-                predicates.stream().map(RestPredicate::asPredicateDefinition).toList(), true);
     }
 
     /**
@@ -90,18 +70,6 @@ public record WhereClauseDTO( //
             this(searchParameter, operator, List.of(RestPredicateParameter.of(parameter, defaultValue)));
         }
 
-        public PredicateDefinition asPredicateDefinition() {
-            String operator = operator();
-            String operatorXPath = null;
-            if (operator != null && operator.startsWith(PARAM_PREFIX)) {
-                operatorXPath = StringUtils.removeStart(operator, PARAM_PREFIX);
-                operator = null;
-            }
-            return new PredicateDefinition(searchParameter(), operator, operatorXPath,
-                    PredicateDefinition.ATOMIC_PREDICATE,
-                    parameters().stream().map(RestPredicateParameter::asPredicateFieldDefinition).toList(), null);
-        }
-
     }
 
     /**
@@ -120,14 +88,6 @@ public record WhereClauseDTO( //
 
         public RestPredicateParameter(String parameter) {
             this(parameter, null);
-        }
-
-        public PredicateFieldDefinition asPredicateFieldDefinition() {
-            String param = name();
-            if (param != null && param.startsWith(PARAM_PREFIX)) {
-                param = StringUtils.removeStart(param, PARAM_PREFIX);
-            }
-            return new PredicateFieldDefinition(param, defaultValue());
         }
 
     }

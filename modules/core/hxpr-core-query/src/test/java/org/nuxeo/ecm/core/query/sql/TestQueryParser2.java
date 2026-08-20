@@ -60,7 +60,7 @@ public class TestQueryParser2 {
             "SELECT getDate(), p FROM t WHERE substring(title, 2) = 'test'",
             "SELECT sys_title FROM SysContent WHERE sys_description = 'test'",
             "SELECT name, title, description FROM SysFolder WHERE state = 2 AND created > \"20060523\"",
-            "SELECT p AS pp, q AS qq, r FROM t AS t1", "SELECT q FROM t WHERE q != 1",
+            "SELECT q FROM t WHERE q != 1",
             "SELECT p FROM t WHERE p * -2 / 3 + 4 - 5 = 2", "SELECT p FROM t WHERE p * 2 = 3",
             "SELECT p FROM t WHERE p + 2 = 2", "SELECT p FROM t WHERE p - 2 = 3", "SELECT p FROM t WHERE p / 2 = 4",
             "SELECT p FROM t WHERE p < 1", "SELECT p FROM t WHERE p <= 1", "SELECT p FROM t WHERE p <> 1",
@@ -135,10 +135,6 @@ public class TestQueryParser2 {
             "SELECT p FROM t WHERE title = TimeStamp '2007-01-30 01:02:03+04:00'",
             "SELECT p FROM t WHERE title = timestamp '2007-01-30 01:02:03+04:00'",
 
-            // Not parsed ?
-            // "SELECT p, q, r FROM t GROUP BY p, q",
-            // "SELECT p, q, r FROM t HAVING p = 1",
-
             "SELECT p, q, r FROM t order by p, q", "SELECT p, q, r FROM t Order By p, q",
             "SELECT p, q FROM t ORDER BY p, q Asc", "SELECT p, q FROM t ORDER BY p, q asc",
             "SELECT p, q FROM t ORDER BY p, q desc", "SELECT p, q FROM t ORDER BY p, q Desc",
@@ -151,7 +147,13 @@ public class TestQueryParser2 {
     static final String[] BAD_QUERIES = { "SELECT * FROM SysContent WHERE sys_path STARTSWITH",
             "SELECT * FROM SysContent WHERE sys_path STARTWITH '/'", "SELECT * WHERE sys_path STARTWITH '/'",
             "SELECT * WHERE sys_path STARTSWITH", "SELECT * WHERE sys_path STARTSWITH xxx",
-            "SELECT * FROM SysContent foo" };
+            "SELECT * FROM SysContent foo",
+            // aliasing is not part of the syntax
+            "SELECT p AS pp FROM t", "SELECT p, q AS qq FROM t", "SELECT * FROM t AS t1",
+            "SELECT p FROM t, u AS u1",
+            // neither are HAVING and GROUP BY
+            "SELECT p FROM t HAVING p = 1", "SELECT p FROM t WHERE q = 2 HAVING p = 1",
+            "SELECT p FROM t GROUP BY p", "SELECT p, q FROM t GROUP BY p, q" };
 
     static final String[] BAD_QUERIES_OLD = {
             "SELECT * WHERE location STARTWITH '/'",

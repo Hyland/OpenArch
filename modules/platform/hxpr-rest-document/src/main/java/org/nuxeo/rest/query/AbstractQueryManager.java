@@ -20,11 +20,9 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.time.StopWatch;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
@@ -36,8 +34,6 @@ import org.nuxeo.ecm.core.event.EventService;
 import org.nuxeo.ecm.core.event.impl.DocumentEventContext;
 import org.nuxeo.ecm.core.event.impl.EventContextImpl;
 import org.nuxeo.ecm.core.event.impl.query.QueryEvent;
-import org.nuxeo.ecm.core.query.nxql.NXQLQueryBuilder;
-import org.nuxeo.ecm.core.query.nxql.SortInfo;
 import org.nuxeo.rest.document.DocumentDTO;
 import org.nuxeo.rest.document.DocumentMapper;
 import org.nuxeo.rest.query.io.DocumentAdvancedQueryDTO;
@@ -47,10 +43,9 @@ import org.nuxeo.rest.query.io.DocumentQueryResultDTO;
 import org.nuxeo.rest.query.io.EmbeddingQueryDTO;
 import org.nuxeo.rest.query.io.EmbeddingQueryResultDTO;
 import org.nuxeo.rest.query.io.TermsAggregationQueryResultDTO;
-import org.nuxeo.rest.query.io.WhereClauseDTO;
-import org.nuxeo.rest.query.spec.MapDocumentModelProxy;
 import org.nuxeo.rest.query.spec.NamedQueryDefinition;
 import org.nuxeo.rest.query.spec.NamedQueryRegistry;
+import org.nuxeo.rest.query.spec.QueryAssembler;
 import org.nuxeo.rest.query.spec.QuerySpecification;
 import org.nuxeo.runtime.api.Framework;
 
@@ -105,15 +100,7 @@ public abstract class AbstractQueryManager implements QueryManager {
     }
 
     protected QuerySpecification initQuerySpecification(DocumentQueryDTO query) {
-        String queryPattern = query.query();
-        List<SortInfo> sortInfos = DocumentQueryDTO.getSortInfos(query.sort());
-        String queryString = NXQLQueryBuilder.getQuery(queryPattern, null, true, null,
-                sortInfos.toArray(new SortInfo[0]));
-        long limit = getLimit(query.limit());
-        long countUpTo = getCountUpTo();
-        int trackTotalCountUpTo = getTrackTotalCountUpTo(query.trackTotalCountUpTo());
-        boolean trackTotalCount = getTrackTotalCount(query.trackTotalCount());
-        return new QuerySpecification(query, queryString, limit, countUpTo, trackTotalCount, trackTotalCountUpTo, null);
+        return initQuerySpecification(new DocumentAdvancedQueryDTO(query));
     }
 
     protected QuerySpecification initQuerySpecification(DocumentAdvancedQueryDTO query) {
@@ -122,49 +109,11 @@ public abstract class AbstractQueryManager implements QueryManager {
         if (StringUtils.isBlank(query.searchAfter())) {
             checkResultWindow(limit, query.offset());
         }
-
-        String queryPattern = query.query();
-        WhereClauseDTO clauseDef = query.whereClauseDefinition();
-        if (clauseDef != null && !StringUtils.isBlank(clauseDef.query())) {
-            queryPattern = clauseDef.query();
-        }
-
-        // build search doc to handle parameters
-        Map<String, Object> parameters = query.parameters();
-        DocumentModel searchDoc = MapDocumentModelProxy.newDocumentModel(parameters);
-
-        // take into account predicates
-        if (clauseDef != null && !clauseDef.predicates().isEmpty()) {
-            queryPattern = NXQLQueryBuilder.getQuery(searchDoc,
-                    WhereClauseDTO.of(queryPattern, clauseDef.predicates()).asWhereClauseDefinition(), null);
-        }
-
-        // take into account quick filter clauses
-        String finalClause = "";
-        List<String> quickFilterClauses = query.quickFilterClauses();
-        if (!quickFilterClauses.isEmpty()) {
-            for (String clause : quickFilterClauses) {
-                if (!finalClause.isEmpty() && clause != null) {
-                    finalClause = NXQLQueryBuilder.appendClause(finalClause, clause);
-                } else {
-                    finalClause = clause != null ? clause : "";
-                }
-            }
-        }
-
-        queryPattern = finalClause.isEmpty() ? queryPattern
-                : Strings.CI.contains(queryPattern, " WHERE ")
-                        ? NXQLQueryBuilder.appendClause(queryPattern, finalClause)
-                        : queryPattern + " WHERE " + finalClause;
-
-        List<SortInfo> sortInfos = DocumentQueryDTO.getSortInfos(query.sort());
-        String queryString = NXQLQueryBuilder.getQuery(queryPattern, null, true, searchDoc,
-                sortInfos.toArray(new SortInfo[0]));
-
+        String queryString = QueryAssembler.assemble(query, DocumentQueryDTO.getSortInfos(query.sort()));
         long countUpTo = getCountUpTo();
         int trackTotalCountUpTo = getTrackTotalCountUpTo(query.trackTotalCountUpTo());
         boolean trackTotalCount = getTrackTotalCount(query.trackTotalCount());
-        return new QuerySpecification(query, queryString, limit, countUpTo, trackTotalCount, trackTotalCountUpTo, searchDoc);
+        return new QuerySpecification(query, queryString, limit, countUpTo, trackTotalCount, trackTotalCountUpTo);
     }
 
     protected NamedQueryDefinition getNamedQuery(String name) {

@@ -15,17 +15,14 @@
  */
 package org.nuxeo.ecm.core.query.sql.parser;
 
-import static java.util.stream.Collectors.toMap;
 
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collector;
 
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.RuleContext;
@@ -46,6 +43,7 @@ import org.nuxeo.ecm.core.query.sql.model.Literal;
 import org.nuxeo.ecm.core.query.sql.model.LiteralList;
 import org.nuxeo.ecm.core.query.sql.model.Operand;
 import org.nuxeo.ecm.core.query.sql.model.OperandList;
+import org.nuxeo.ecm.core.query.sql.model.Parameter;
 import org.nuxeo.ecm.core.query.sql.model.Operator;
 import org.nuxeo.ecm.core.query.sql.model.OrderByClause;
 import org.nuxeo.ecm.core.query.sql.model.OrderByExpr;
@@ -65,6 +63,7 @@ import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.ExpressionSumSubContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.From_clauseContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.From_listContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.Ft_hintContext;
+import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.ParameterContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.Ft_identifier_listContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.Ft_indexContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.FunctionContext;
@@ -75,12 +74,13 @@ import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.LiteralDoubleContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.LiteralIntegerContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.LiteralStringContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.LiteralTimestampContext;
-import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.Literal_listContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.OperandContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.Order_by_clauseContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.Order_by_exprContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.Order_by_listContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.ParseContext;
+import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.Parse_predicateContext;
+import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.Parse_referenceContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.PredicateAndContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.PredicateBetweenContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.PredicateCompareContext;
@@ -95,6 +95,8 @@ import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.PredicateStartsWithContext
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.QueryContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.ReferenceDateContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.ReferenceHintContext;
+import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.ValueContext;
+import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.Value_listContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.ReferenceSimpleContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.Select_clauseContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.Select_listContext;
@@ -116,6 +118,32 @@ public class HXQLVisitor extends HXQLParserBaseVisitor<ASTNode> {
     }
 
     public SQLQuery parse(String string) throws QueryParseException {
+        SQLQuery query = parse(string, HXQLParser::parse);
+        query.setQueryString(string);
+        return query;
+    }
+
+    /**
+     * Parses a bare {@code WHERE} clause fragment, without the {@code WHERE} keyword.
+     *
+     * @since 12.0
+     */
+    public Predicate parsePredicate(String string) throws QueryParseException {
+        return parse(string, HXQLParser::parse_predicate);
+    }
+
+    /**
+     * Parses a field name on its own.
+     *
+     * @since 12.0
+     */
+    public Reference parseReference(String string) throws QueryParseException {
+        return parse(string, HXQLParser::parse_reference);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T extends ASTNode> T parse(String string, Function<HXQLParser, ParserRuleContext> rule)
+            throws QueryParseException {
         try {
             HXQLLexer lexer = new HXQLLexer(CharStreams.fromString(string));
             lexer.removeErrorListeners();
@@ -123,9 +151,7 @@ public class HXQLVisitor extends HXQLParserBaseVisitor<ASTNode> {
             HXQLParser parser = new HXQLParser(new CommonTokenStream(lexer));
             parser.removeErrorListeners();
             parser.addErrorListener(ErrorListener.INSTANCE);
-            SQLQuery query = (SQLQuery) visit(parser.parse());
-            query.setQueryString(string);
-            return query;
+            return (T) visit(rule.apply(parser));
         } catch (ParseCancellationException e) {
             throw new QueryParseException(e.getMessage(), e);
         }
@@ -189,14 +215,19 @@ public class HXQLVisitor extends HXQLParserBaseVisitor<ASTNode> {
         return list.stream().map(ctx -> (T) ctx.accept(this)).toList();
     }
 
-    public static <T, K, U> Collector<T, ?, Map<K, U>> toLinkedMap(Function<? super T, ? extends K> keyMapper,
-            Function<? super T, ? extends U> valueMapper) {
-        return toMap(keyMapper, valueMapper, (u, v) -> v, LinkedHashMap::new);
-    }
-
     @Override
     public ASTNode visitParse(ParseContext ctx) {
         return ctx.q.accept(this);
+    }
+
+    @Override
+    public ASTNode visitParse_predicate(Parse_predicateContext ctx) {
+        return ctx.p.accept(this);
+    }
+
+    @Override
+    public ASTNode visitParse_reference(Parse_referenceContext ctx) {
+        return ctx.r.accept(this);
     }
 
     @Override
@@ -207,7 +238,7 @@ public class HXQLVisitor extends HXQLParserBaseVisitor<ASTNode> {
         var orderBy = ctx.orderBy == null ? null : (OrderByClause) ctx.orderBy.accept(this);
         long limit = parseLongOrZero(ctx.limit);
         long offset = parseLongOrZero(ctx.offset);
-        return new SQLQuery(select, from, where, null, null, orderBy, limit, offset);
+        return new SQLQuery(select, from, where, orderBy, limit, offset);
     }
 
     @Override
@@ -221,12 +252,7 @@ public class HXQLVisitor extends HXQLParserBaseVisitor<ASTNode> {
         if (ctx.MUL() != null) {
             return new SelectList();
         }
-        var map = ctx.select_elem()
-                     .stream()
-                     .collect(toLinkedMap( //
-                             c -> c.alias != null ? c.alias.getText() : c.o.getText(), //
-                             c -> (Operand) c.o.accept(this)));
-        return new SelectList(map);
+        return new SelectList(acceptList(ctx.operand()));
     }
 
     @Override
@@ -237,12 +263,7 @@ public class HXQLVisitor extends HXQLParserBaseVisitor<ASTNode> {
 
     @Override
     public ASTNode visitFrom_list(From_listContext ctx) {
-        var map = ctx.from_elem()
-                     .stream()
-                     .collect(toLinkedMap( //
-                             c -> c.alias != null ? c.alias.getText() : c.id.getText(), //
-                             c -> c.id.getText()));
-        return new FromList(map);
+        return new FromList(ctx.from_elem().stream().map(c -> c.id.getText()).toList());
     }
 
     @Override
@@ -290,7 +311,7 @@ public class HXQLVisitor extends HXQLParserBaseVisitor<ASTNode> {
     @Override
     public ASTNode visitPredicateIn(PredicateInContext ctx) {
         var ref = (Operand) ctx.ref.accept(this);
-        var list = (Operand) ctx.list.accept(this);
+        var list = (Operand) (ctx.list != null ? ctx.list.accept(this) : ctx.param.accept(this));
         Operator op = ctx.NOT() == null ? Operator.IN : Operator.NOTIN;
         return new Predicate(ref, op, list);
     }
@@ -298,17 +319,16 @@ public class HXQLVisitor extends HXQLParserBaseVisitor<ASTNode> {
     @Override
     public ASTNode visitPredicateBetween(PredicateBetweenContext ctx) {
         var ref = (Operand) ctx.ref.accept(this);
-        var min = (Literal) ctx.min.accept(this);
-        var max = (Literal) ctx.max.accept(this);
+        var min = (Operand) ctx.min.accept(this);
+        var max = (Operand) ctx.max.accept(this);
         Operator op = ctx.NOT() == null ? Operator.BETWEEN : Operator.NOTBETWEEN;
-        LiteralList range = new LiteralList(List.of(min, max));
-        return new Predicate(ref, op, range);
+        return new Predicate(ref, op, operandsToList(List.of(min, max)));
     }
 
     @Override
     public ASTNode visitPredicateLike(PredicateLikeContext ctx) {
         var ref = (Operand) ctx.ref.accept(this);
-        var s = (Operand) ctx.s.accept(this);
+        var s = (Operand) (ctx.s != null ? ctx.s.accept(this) : ctx.param.accept(this));
         boolean not = ctx.NOT() != null;
         boolean like = ctx.LIKE() != null;
         Operator op = not ? //
@@ -327,7 +347,7 @@ public class HXQLVisitor extends HXQLParserBaseVisitor<ASTNode> {
     @Override
     public ASTNode visitPredicateStartsWith(PredicateStartsWithContext ctx) {
         var ref = (Operand) ctx.ref.accept(this);
-        var s = (Operand) ctx.s.accept(this);
+        var s = (Operand) (ctx.s != null ? ctx.s.accept(this) : ctx.param.accept(this));
         return new Predicate(ref, Operator.STARTSWITH, s);
     }
 
@@ -420,9 +440,22 @@ public class HXQLVisitor extends HXQLParserBaseVisitor<ASTNode> {
             return ctx.v.accept(this);
         } else if (ctx.r != null) {
             return ctx.r.accept(this);
-        } else {
+        } else if (ctx.f != null) {
             return ctx.f.accept(this);
+        } else {
+            return ctx.p.accept(this);
         }
+    }
+
+    @Override
+    public ASTNode visitParameter(ParameterContext ctx) {
+        // strip the leading colon
+        return new Parameter(ctx.v.getText().substring(1));
+    }
+
+    @Override
+    public ASTNode visitValue(ValueContext ctx) {
+        return ctx.v != null ? ctx.v.accept(this) : ctx.p.accept(this);
     }
 
     @Override
@@ -463,9 +496,20 @@ public class HXQLVisitor extends HXQLParserBaseVisitor<ASTNode> {
     }
 
     @Override
-    public ASTNode visitLiteral_list(Literal_listContext ctx) {
-        List<Literal> list = acceptList(ctx.literal());
-        return new LiteralList(list);
+    public ASTNode visitValue_list(Value_listContext ctx) {
+        List<Operand> list = acceptList(ctx.value());
+        return operandsToList(list);
+    }
+
+    /**
+     * Wraps values in a {@link LiteralList} if they are all literals, and in an {@link OperandList} if any of them is
+     * still an unbound {@link Parameter}. Binding turns the latter back into a {@link LiteralList}.
+     */
+    protected static Operand operandsToList(List<Operand> operands) {
+        if (operands.stream().allMatch(Literal.class::isInstance)) {
+            return new LiteralList(operands.stream().map(Literal.class::cast).toList());
+        }
+        return new OperandList(operands);
     }
 
     @Override

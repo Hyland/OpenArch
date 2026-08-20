@@ -15,8 +15,6 @@
  */
 package org.nuxeo.ecm.core.query.sql.model;
 
-import com.google.common.collect.Iterables;
-
 /**
  * @author <a href="mailto:bs@nuxeo.com">Bogdan Stefanescu</a>
  */
@@ -33,24 +31,12 @@ public class FromClause extends Clause {
         this.elements = elements;
     }
 
-    public void add(String alias, String element) {
-        elements.put(alias, element);
-    }
-
     public void add(String element) {
-        elements.put(element, element);
+        elements.add(element);
     }
 
     public String get(int i) {
-        return Iterables.get(elements.values(), i);
-    }
-
-    public String get(String alias) {
-        return elements.get(alias);
-    }
-
-    public String getAlias(int i) {
-        return Iterables.get(elements.keySet(), i);
+        return elements.get(i);
     }
 
     public int count() {

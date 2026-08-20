@@ -50,6 +50,10 @@ options {
 
 parse: q=query EOF;
 
+// entry points for fragments written on their own: a bare where clause, and a field name
+parse_predicate: p=predicate EOF;
+parse_reference: r=reference EOF;
+
 query: select=select_clause from=from_clause
            where=where_clause?
            orderBy=order_by_clause?
@@ -58,16 +62,14 @@ query: select=select_clause from=from_clause
 select_clause: SELECT list=select_list;
 
 select_list: MUL
-           | select_elem (COMMA select_elem)*
+           | operand (COMMA operand)*
            ;
-
-select_elem: o=operand (AS alias=IDENTIFIER)?;
 
 from_clause: FROM list=from_list;
 
 from_list: from_elem (COMMA from_elem)*;
 
-from_elem: (id=IDENTIFIER | id=FROM_IDENTIFIER) (AS alias=IDENTIFIER)?;
+from_elem: id=(IDENTIFIER | FROM_IDENTIFIER);
 
 where_clause: WHERE e=predicate;
 
@@ -78,11 +80,11 @@ order_by_list: order_by_expr (COMMA order_by_expr)*;
 order_by_expr: ref=reference (ASC | DESC)?;
 
 predicate: l=expression op=(EQ | NOTEQ | NOTEQC | LT | GT | LTEQ | GTEQ) r=expression   # predicateCompare
-         | ref=reference NOT? IN LPAR list=literal_list RPAR        # predicateIn
-         | ref=reference NOT? BETWEEN min=literal AND max=literal   # predicateBetween
-         | ref=reference NOT? (LIKE | ILIKE) s=string               # predicateLike
+         | ref=reference NOT? IN (LPAR list=value_list RPAR | param=parameter)  # predicateIn
+         | ref=reference NOT? BETWEEN min=value AND max=value        # predicateBetween
+         | ref=reference NOT? (LIKE | ILIKE) (s=string | param=parameter)       # predicateLike
          | ref=reference IS NOT? NULL                               # predicateNull
-         | ref=reference STARTSWITH s=string                        # predicateStartsWith
+         | ref=reference STARTSWITH (s=string | param=parameter)     # predicateStartsWith
          | LPAR p=predicate RPAR                                    # predicateParen
          | NOT p=predicate                                          # predicateNot
          | l=predicate AND r=predicate                              # predicateAnd
@@ -105,7 +107,10 @@ simple_reference: v=(IDENTIFIER | PATH_IDENTIFIER);
 operand: v=literal
        | r=reference
        | f=function
+       | p=parameter
        ;
+
+parameter: v=PARAM;
 
 literal: v=string                                                   # literalString
        | v=(TRUE | FALSE)                                           # literalBoolean
@@ -117,7 +122,10 @@ literal: v=string                                                   # literalStr
 
 string: s=(STRING | SQ_STRING);
 
-literal_list: literal (COMMA literal)*;
+// a literal or a named parameter standing in for one
+value: v=literal | p=parameter;
+
+value_list: value (COMMA value)*;
 
 function: name=IDENTIFIER LPAR args=function_args? RPAR;
 

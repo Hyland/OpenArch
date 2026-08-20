@@ -16,6 +16,8 @@
 
 package org.nuxeo.ecm.core.query.sql.model;
 
+import org.nuxeo.ecm.core.query.sql.NXQL;
+
 /**
  * @author <a href="mailto:bs@nuxeo.com">Bogdan Stefanescu</a>
  */
@@ -33,7 +35,7 @@ public record StringLiteral(String value) implements Literal {
 
     @Override
     public String toString() {
-        return "\'" + value + "\'";
+        return NXQL.escapeString(value);
     }
 
 }

@@ -16,6 +16,7 @@
 package org.nuxeo.ecm.core.query.sql;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -178,16 +179,13 @@ public class TestQueryParser {
         SQLQuery query = SQLQueryParser.parse("SELECT p1, $id, p3 FROM t1, t2 WHERE state=1 AND title = 'test'");
 
         SelectClause select = query.getSelectClause();
-        assertEquals("p1", select.getAlias(0));
         assertEquals("p1", select.getVariable(0).name);
-        assertEquals("$id", select.getAlias(1));
         assertEquals("$id", select.getVariable(1).name);
-        assertEquals("p3", select.getAlias(2));
         assertEquals("p3", select.getVariable(2).name);
 
         FromClause from = query.getFromClause();
-        assertEquals("t1", from.getAlias(0));
         assertEquals("t1", from.get(0));
+        assertEquals("t2", from.get(1));
 
         Expression e1 = (Expression) query.getWhereClause().predicate.lvalue;
         Expression e2 = (Expression) query.getWhereClause().predicate.rvalue;
@@ -470,22 +468,9 @@ public class TestQueryParser {
     }
 
     @Test
-    public void testAlias() {
-        SQLQuery query = SQLQueryParser.parse("SELECT p AS pp, q AS qq, r FROM t AS t1");
-
-        SelectClause select = query.getSelectClause();
-
-        assertEquals("pp", select.getAlias(0));
-        assertEquals("p", select.getVariable(0).name);
-        assertEquals("qq", select.getAlias(1));
-        assertEquals("q", select.getVariable(1).name);
-        assertEquals("r", select.getAlias(2));
-        assertEquals("r", select.getVariable(2).name);
-
-        FromClause from = query.getFromClause();
-
-        assertEquals("t1", from.getAlias(0));
-        assertEquals("t", from.get(0));
+    public void testAliasIsNotSupported() {
+        assertThrows(QueryParseException.class, () -> SQLQueryParser.parse("SELECT p AS pp FROM t"));
+        assertThrows(QueryParseException.class, () -> SQLQueryParser.parse("SELECT p FROM t AS t1"));
     }
 
     @Test

@@ -16,6 +16,8 @@
 package org.nuxeo.ecm.core.query.sql;
 
 import org.nuxeo.ecm.core.query.QueryParseException;
+import org.nuxeo.ecm.core.query.sql.model.Predicate;
+import org.nuxeo.ecm.core.query.sql.model.Reference;
 import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLVisitor;
 
@@ -30,6 +32,29 @@ public final class SQLQueryParser {
 
     public static SQLQuery parse(String string) throws QueryParseException {
         return new HXQLVisitor().parse(string);
+    }
+
+    /**
+     * Parses a bare {@code WHERE} clause fragment, without the {@code WHERE} keyword.
+     * <p>
+     * This is how a clause written on its own, such as a query configuration's quick filter, gets into a tree.
+     *
+     * @since 12.0
+     */
+    public static Predicate parsePredicate(String clause) throws QueryParseException {
+        return new HXQLVisitor().parsePredicate(clause);
+    }
+
+    /**
+     * Parses a field name on its own.
+     * <p>
+     * A field name goes into a query as an identifier, which NXQL has no way to quote, so a name coming from a request
+     * has to be checked against the grammar rather than escaped.
+     *
+     * @since 12.0
+     */
+    public static Reference parseReference(String name) throws QueryParseException {
+        return new HXQLVisitor().parseReference(name);
     }
 
 }

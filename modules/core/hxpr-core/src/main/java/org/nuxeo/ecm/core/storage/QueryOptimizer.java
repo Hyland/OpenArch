@@ -286,7 +286,7 @@ public abstract class QueryOptimizer {
         onlyRelations = true;
         Set<String> fromTypes = new HashSet<>();
         FromList elements = node.elements;
-        for (String typeName : elements.values()) {
+        for (String typeName : elements) {
             if (SYS_CONTENT.equalsIgnoreCase(typeName)) {
                 typeName = SYS_CONTENT;
             }

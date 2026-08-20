@@ -15,7 +15,7 @@
  */
 package org.nuxeo.rest.query.test;
 
-import static org.nuxeo.ecm.core.query.nxql.NXQLQueryBuilder.DEFAULT_SELECT_STATEMENT;
+import static org.nuxeo.rest.query.spec.QueryAssembler.DEFAULT_SELECT_STATEMENT;
 import static org.nuxeo.rest.query.conf.NamedQueryHelper.BASIC_FILTER_CLAUSE;
 import static org.nuxeo.rest.query.conf.NamedQueryHelper.FULLTEXT_PREDICATE;
 import static org.nuxeo.rest.query.conf.NamedQueryHelper.TITLE_SORT;

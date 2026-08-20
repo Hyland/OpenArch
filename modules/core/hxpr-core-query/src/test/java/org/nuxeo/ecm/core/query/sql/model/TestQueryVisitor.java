@@ -21,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -56,7 +55,7 @@ public class TestQueryVisitor {
         String sql;
         String expected;
 
-        sql = "select p as p from t where title=\"%test\"";
+        sql = "select p from t where title=\"%test\"";
         expected = "SELECT p FROM t WHERE (title = '%test')";
         check(sql, expected);
 
@@ -64,11 +63,11 @@ public class TestQueryVisitor {
         expected = "SELECT p FROM t WHERE (foo IN (1, 2))";
         check(sql, expected);
 
-        sql = "SELECT p, q AS qq, f(x) FROM t, u, v" + //
+        sql = "SELECT p, q, f(x) FROM t, u, v" + //
                 " WHERE title = 'ab' AND des = 'cd'" + //
                 " ORDER BY x DESC,y,z  DESC" + //
                 " LIMIT 8   OFFSET 43";
-        expected = "SELECT p, q AS qq, f(x) FROM t, u, v" + //
+        expected = "SELECT p, q, f(x) FROM t, u, v" + //
                 " WHERE ((title = 'ab') AND (des = 'cd'))" + //
                 " ORDER BY x DESC, y, z DESC" + //
                 " LIMIT 8 OFFSET 43";
@@ -112,8 +111,8 @@ public class TestQueryVisitor {
         predicates.add((Predicate) ((Expression) pred.lvalue).lvalue);
         predicates.add((Predicate) ((Expression) pred.lvalue).rvalue);
         predicates.add((Predicate) pred.rvalue);
-        query = new SQLQuery(query.getSelectClause(), query.from, new WhereClause(new MultiExpression(Operator.AND, predicates)),
-                query.groupBy, query.having, query.getOrderByClause());
+        query = new SQLQuery(query.getSelectClause(), query.from,
+                new WhereClause(new MultiExpression(Operator.AND, predicates)), query.getOrderByClause());
         v = new PrintVisitor();
         v.visitQuery(query);
         assertEquals(expected, v.toString());
@@ -165,17 +164,11 @@ class PrintVisitor extends DefaultQueryVisitor {
             sb.append("*");
         } else {
             boolean first = true;
-            for (Entry<String, Operand> entry : elements.entrySet()) {
+            for (Operand op : elements) {
                 if (!first) {
                     sb.append(", ");
                 }
-                String alias = entry.getKey();
-                Operand op = entry.getValue();
                 op.accept(PrintVisitor.this);
-                if (!alias.equals(op.toString())) {
-                    sb.append(" AS ");
-                    sb.append(alias);
-                }
                 first = false;
             }
         }
@@ -186,7 +179,7 @@ class PrintVisitor extends DefaultQueryVisitor {
         sb.append(" FROM ");
         FromList elements = node.elements;
         boolean first = true;
-        for (String element : elements.values()) {
+        for (String element : elements) {
             if (!first) {
                 sb.append(", ");
             }
@@ -199,29 +192,6 @@ class PrintVisitor extends DefaultQueryVisitor {
     public void visitWhereClause(WhereClause node) {
         sb.append(" WHERE ");
         super.visitWhereClause(node);
-    }
-
-    @Override
-    public void visitGroupByClause(GroupByClause node) {
-        String[] elements = node.elements;
-        if (elements.length == 0) {
-            return;
-        }
-        sb.append(" GROUP BY ");
-        for (int i = 0; i < elements.length; i++) {
-            if (i != 0) {
-                sb.append(", ");
-            }
-            sb.append(elements[i]);
-        }
-    }
-
-    @Override
-    public void visitHavingClause(HavingClause node) {
-        if (node.predicate != null) {
-            sb.append(" HAVING ");
-            super.visitHavingClause(node);
-        }
     }
 
     @Override

@@ -140,7 +140,7 @@ public class MongoDBRepositoryQueryBuilder extends MongoDBAbstractQueryBuilder {
 
     protected void walkProjection() {
         projection = new Document();
-        for (Operand op : selectClause.getSelectList().values()) {
+        for (Operand op : selectClause.getSelectList()) {
             if (!(op instanceof Reference)) {
                 throw new QueryParseException("Projection not supported: " + op);
             }

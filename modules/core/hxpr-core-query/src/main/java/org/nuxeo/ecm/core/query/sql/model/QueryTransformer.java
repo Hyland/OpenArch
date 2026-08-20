@@ -34,10 +34,6 @@ public interface QueryTransformer {
 
     WhereClause transform(WhereClause node);
 
-    GroupByClause transform(GroupByClause node);
-
-    HavingClause transform(HavingClause node);
-
     OrderByClause transform(OrderByClause node);
 
     OrderByList transform(OrderByList node);

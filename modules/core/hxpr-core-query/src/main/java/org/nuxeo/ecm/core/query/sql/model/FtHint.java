@@ -44,7 +44,7 @@ public class FtHint implements Operand {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("/*+ES: ");
+        sb.append("/*+FT: ");
         if (index != null) {
             sb.append(String.format("INDEX(%s) ", index));
         }

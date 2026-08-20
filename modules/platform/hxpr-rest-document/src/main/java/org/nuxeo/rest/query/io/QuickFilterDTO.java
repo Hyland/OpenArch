@@ -19,8 +19,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;
 
-import org.nuxeo.ecm.core.query.nxql.QuickFilter;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
@@ -44,10 +42,6 @@ public record QuickFilterDTO(String name, //
         if (sort == null) {
             sort = List.of();
         }
-    }
-
-    public QuickFilter asQuickFilter() {
-        return new QuickFilter(name(), clause(), DocumentQueryDTO.getSortInfos(sort()));
     }
 
 }

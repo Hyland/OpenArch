@@ -29,6 +29,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.nuxeo.rest.query.io.DocumentAdvancedQueryDTO;
 import org.nuxeo.rest.query.io.DocumentQueryDTO;
 import org.nuxeo.rest.query.spec.QuerySpecification;
 
@@ -102,13 +103,15 @@ public class AbstractQueryManagerTest {
         DocumentQueryDTO dto = new DocumentQueryDTO(repositoryId, query, limit, offset, trackTotalCount, trackTotalCountUpTo, sort);
 
         when(queryManager.initQuerySpecification(any(DocumentQueryDTO.class))).thenCallRealMethod();
+        when(queryManager.initQuerySpecification(any(DocumentAdvancedQueryDTO.class))).thenCallRealMethod();
         when(queryManager.getLimit(anyLong())).thenCallRealMethod();
         when(queryManager.getCountUpTo()).thenReturn(countUpTo);
         when(queryManager.getTrackTotalCountUpTo(any(Integer.class))).thenCallRealMethod();
         when(queryManager.getTrackTotalCount(any(Boolean.class))).thenCallRealMethod();
         when(queryManager.getQueryConfig()).thenReturn(config);
 
-        QuerySpecification expected = new QuerySpecification(dto, query, limit, countUpTo, trackTotalCount, trackTotalCountUpTo, null);
+        QuerySpecification expected = new QuerySpecification(dto, query, limit, countUpTo, trackTotalCount,
+                trackTotalCountUpTo);
 
         QuerySpecification actual = queryManager.initQuerySpecification(dto);
 

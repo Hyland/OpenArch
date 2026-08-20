@@ -17,11 +17,6 @@ package org.nuxeo.ecm.core.query.sql.model;
 
 import java.util.Collection;
 
-import com.google.common.collect.Iterables;
-
-/**
- * @author <a href="mailto:bs@nuxeo.com">Bogdan Stefanescu</a>
- */
 public class SelectClause extends Clause {
 
     public final SelectList elements;
@@ -35,40 +30,23 @@ public class SelectClause extends Clause {
         this.elements = elements;
     }
 
-    public void add(String alias, Operand element) {
-        elements.put(alias, element);
-    }
-
     public void add(Operand element) {
-        elements.put(element.toString(), element);
+        elements.add(element);
     }
 
-    public Operand get(String alias) {
-        return elements.get(alias);
-    }
-
-    public Reference getVariable(String alias) {
-        return (Reference) elements.get(alias);
-    }
-
-    public Literal getLiteral(String alias) {
-        return (Literal) elements.get(alias);
-    }
-
-    public Function getFunction(String alias) {
-        return (Function) elements.get(alias);
-    }
-
-    public Expression getExpression(String alias) {
-        return (Expression) elements.get(alias);
+    /**
+     * Adds the operand unless it is already selected.
+     *
+     * @since 12.0
+     */
+    public void addIfAbsent(Operand element) {
+        if (!elements.contains(element)) {
+            elements.add(element);
+        }
     }
 
     public Operand get(int i) {
-        return Iterables.get(elements.values(), i);
-    }
-
-    public String getAlias(int i) {
-        return Iterables.get(elements.keySet(), i);
+        return elements.get(i);
     }
 
     public Reference getVariable(int i) {
@@ -103,14 +81,14 @@ public class SelectClause extends Clause {
      * @since 9.1
      */
     public Collection<Operand> operands() {
-        return elements.values();
+        return elements;
     }
 
     /**
      * @since 9.1
      */
     public boolean containsOperand(Object operand) {
-        return elements.containsValue(operand);
+        return elements.contains(operand);
     }
 
     @Override

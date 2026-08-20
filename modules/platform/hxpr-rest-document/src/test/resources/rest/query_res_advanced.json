@@ -162,7 +162,7 @@
   ],
   "limit": -1,
   "offset": 0,
-  "query": "SELECT * FROM SysContent WHERE mydc_coverage = 'Coverage0' AND mydc_nature != 'Nature0' AND mydc_coverage != 'Coverage1' ORDER BY sys_title",
+  "query": "SELECT * FROM SysContent WHERE mydc_coverage = 'Coverage0' AND mydc_nature <> 'Nature0' AND mydc_coverage <> 'Coverage1' ORDER BY sys_title",
   "repositoryId": "test",
   "totalCount": 2
 }

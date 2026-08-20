@@ -15,7 +15,7 @@
  */
 package org.nuxeo.rest.query.io;
 
-import static org.nuxeo.ecm.core.query.nxql.NXQLQueryBuilder.DEFAULT_SELECT_STATEMENT;
+import static org.nuxeo.rest.query.spec.QueryAssembler.DEFAULT_SELECT_STATEMENT;
 import static org.nuxeo.rest.query.io.DocumentQueryDTO.DEFAULT_LIMIT_VALUE;
 
 import io.swagger.v3.oas.annotations.media.Schema;

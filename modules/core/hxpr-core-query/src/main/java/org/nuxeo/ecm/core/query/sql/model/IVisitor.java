@@ -56,10 +56,6 @@ public interface IVisitor {
 
     void visitOrderByExpr(OrderByExpr node);
 
-    void visitGroupByClause(GroupByClause node);
-
-    void visitHavingClause(HavingClause node);
-
     void visitExpression(Expression node);
 
     void visitMultiExpression(MultiExpression node);

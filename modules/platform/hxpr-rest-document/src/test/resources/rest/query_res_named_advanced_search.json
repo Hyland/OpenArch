@@ -795,7 +795,7 @@
   "limit": -1,
   "nextSearchAfter": "ignored-by-test-comparator",
   "offset": 0,
-  "query": "SELECT * FROM SysContent WHERE sys_fulltext = 'File*' AND (sys_parentId IS NOT NULL AND sys_id IS NOT NULL AND sysver_isVersion=0) ORDER BY sys_title",
+  "query": "SELECT * FROM SysContent WHERE sys_fulltext = 'File*' AND sys_parentId IS NOT NULL AND sys_title IS NOT NULL AND sysver_isVersion = 0 ORDER BY sys_title",
   "repositoryId": "test",
   "totalCount": 10
 }

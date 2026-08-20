@@ -15,15 +15,10 @@
  */
 package org.nuxeo.ecm.core.query.sql.model;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
-/**
- * Here, key is holding the alias and value the document type.
- *
- * @author <a href="mailto:bs@nuxeo.com">Bogdan Stefanescu</a>
- */
-public class FromList extends LinkedHashMap<String, String> implements ASTNode {
+public class FromList extends ArrayList<String> implements ASTNode {
 
     private static final long serialVersionUID = 1L;
 
@@ -31,16 +26,13 @@ public class FromList extends LinkedHashMap<String, String> implements ASTNode {
         super();
     }
 
-    public FromList(Map<String, String> map) {
-        super(map);
+    public FromList(List<String> list) {
+        super(list);
     }
 
     @Override
     public String toString() {
-        if (isEmpty()) {
-            return "";
-        }
-        return String.join(", ", values());
+        return String.join(", ", this);
     }
 
     @Override

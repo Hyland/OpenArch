@@ -32,47 +32,31 @@ public class SQLQuery implements ASTNode {
 
     private OrderByClause orderBy;
 
-    public final GroupByClause groupBy;
-
-    public final HavingClause having;
-
     private long limit;
 
     private long offset;
 
     public SQLQuery() {
-        this(new SelectClause(), new FromClause(), null, null, null, null);
+        this(new SelectClause(), new FromClause(), null, null);
     }
 
     public SQLQuery(SelectClause select, FromClause from) {
-        this(select, from, null, null, null, null);
+        this(select, from, null, null);
     }
 
     public SQLQuery(SelectClause select, FromClause from, WhereClause where) {
-        this(select, from, where, null, null, null);
+        this(select, from, where, null);
     }
 
     public SQLQuery(SelectClause select, FromClause from, WhereClause where, OrderByClause orderBy) {
-        this(select, from, where, null, null, orderBy);
+        this(select, from, where, orderBy, 0, 0);
     }
 
-    public SQLQuery(SelectClause select, FromClause from, WhereClause where, GroupByClause groupBy,
-            HavingClause having, OrderByClause orderBy) {
+    public SQLQuery(SelectClause select, FromClause from, WhereClause where, OrderByClause orderBy, long limit,
+            long offset) {
         this.select = select;
         this.from = from;
         this.where = where;
-        this.groupBy = groupBy;
-        this.having = having;
-        this.orderBy = orderBy;
-    }
-
-    public SQLQuery(SelectClause select, FromClause from, WhereClause where, GroupByClause groupBy,
-            HavingClause having, OrderByClause orderBy, long limit, long offset) {
-        this.select = select;
-        this.from = from;
-        this.where = where;
-        this.groupBy = groupBy;
-        this.having = having;
         this.orderBy = orderBy;
         this.limit = limit;
         this.offset = offset;
@@ -86,15 +70,13 @@ public class SQLQuery implements ASTNode {
         from = other.from;
         where = other.where;
         orderBy = other.orderBy;
-        groupBy = other.groupBy;
-        having = other.having;
         limit = other.limit;
         offset = other.offset;
     }
 
     public SQLQuery withPredicate(Predicate predicate) {
         WhereClause where = predicate == null ? null : new WhereClause(predicate);
-        return new SQLQuery(select, from, where, groupBy, having, orderBy, limit, offset);
+        return new SQLQuery(select, from, where, orderBy, limit, offset);
     }
 
     public SelectClause getSelectClause() {
@@ -207,20 +189,6 @@ public class SQLQuery implements ASTNode {
         } else if (!orderBy.equals(other.orderBy)) {
             return false;
         }
-        if (groupBy == null) {
-            if (other.groupBy != null) {
-                return false;
-            }
-        } else if (!groupBy.equals(other.groupBy)) {
-            return false;
-        }
-        if (having == null) {
-            if (other.having != null) {
-                return false;
-            }
-        } else if (!having.equals(other.having)) {
-            return false;
-        }
         if (limit != other.limit) {
             return false;
         }
@@ -235,8 +203,6 @@ public class SQLQuery implements ASTNode {
         result = prime * result + (from == null ? 0 : from.hashCode());
         result = prime * result + (where == null ? 0 : where.hashCode());
         result = prime * result + (orderBy == null ? 0 : orderBy.hashCode());
-        result = prime * result + (groupBy == null ? 0 : groupBy.hashCode());
-        result = prime * result + (having == null ? 0 : having.hashCode());
         result = prime * result + (int) (limit ^ (limit >>> 32));
         result = prime * result + (int) (offset ^ (offset >>> 32));
         return result;

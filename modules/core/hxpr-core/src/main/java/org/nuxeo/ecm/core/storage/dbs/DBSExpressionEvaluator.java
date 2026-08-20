@@ -377,7 +377,7 @@ public class DBSExpressionEvaluator extends ExpressionEvaluator {
             OrderByClause orderByClause) {
         Map<String, Object> projection = new HashMap<>();
         SelectList elements = selectClause.getSelectList();
-        for (Operand op : elements.values()) {
+        for (Operand op : elements) {
             if (op instanceof Reference ref) {
                 if (ref.name.equals(SYS_FULLTEXT_SCORE)) {
                     throw new QueryParseException("Fulltext search not available");
@@ -416,7 +416,7 @@ public class DBSExpressionEvaluator extends ExpressionEvaluator {
     }
 
     public boolean hasWildcardProjection() {
-        return selectClause.getSelectList().values().stream().anyMatch(
+        return selectClause.getSelectList().stream().anyMatch(
                 operand -> operand instanceof Reference ref && ref.name.contains("*"));
     }
 

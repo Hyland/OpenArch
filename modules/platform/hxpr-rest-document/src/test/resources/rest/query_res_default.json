@@ -181,7 +181,7 @@
   ],
   "limit": 10,
   "offset": 0,
-  "query": "SELECT * from Foo",
+  "query": "SELECT * FROM Foo",
   "repositoryId": "test",
   "totalCount": 1
 }

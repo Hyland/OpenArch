@@ -1131,9 +1131,9 @@ public class DBSSession implements InternalSession {
         }
 
         // Add useful select clauses, used for order by path
-        selectClause.elements.putIfAbsent(SYS_ID, new Reference(SYS_ID));
-        selectClause.elements.putIfAbsent(SYS_PARENT_ID, new Reference(SYS_PARENT_ID));
-        selectClause.elements.putIfAbsent(SYS_NAME, new Reference(SYS_NAME));
+        selectClause.addIfAbsent(new Reference(SYS_ID));
+        selectClause.addIfAbsent(new Reference(SYS_PARENT_ID));
+        selectClause.addIfAbsent(new Reference(SYS_NAME));
 
         QueryOptimizer optimizer = new DBSQueryOptimizer(getSchemaManager());
         sqlQuery = optimizer.optimize(sqlQuery);

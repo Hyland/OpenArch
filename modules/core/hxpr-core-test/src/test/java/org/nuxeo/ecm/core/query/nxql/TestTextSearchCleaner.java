@@ -18,44 +18,51 @@ package org.nuxeo.ecm.core.query.nxql;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
+import org.nuxeo.ecm.core.query.sql.NXQLSerializer;
+import org.nuxeo.ecm.core.query.sql.model.StringLiteral;
 
 public class TestTextSearchCleaner {
 
+    /** A full-text predicate's right-hand side: the term sanitized, then escaped as a literal. */
+    protected static String serializeFullText(String value) {
+        return "= " + NXQLSerializer.serialize(new StringLiteral(FulltextSanitizer.sanitize(value)));
+    }
+
     @Test
     public void testCleaner() throws Exception {
-        assertEquals("= 'a'", NXQLQueryBuilder.serializeFullText("a"));
-        assertEquals("= 'a b'", NXQLQueryBuilder.serializeFullText("a b"));
-        assertEquals("= 'a b'", NXQLQueryBuilder.serializeFullText(" a b "));
-        assertEquals("= 'a b'", NXQLQueryBuilder.serializeFullText("a  b"));
-        assertEquals("= 'a b'", NXQLQueryBuilder.serializeFullText("a & b"));
-        assertEquals("= 'a b'", NXQLQueryBuilder.serializeFullText("a : b"));
-        assertEquals("= 'a b'", NXQLQueryBuilder.serializeFullText("a | b"));
+        assertEquals("= 'a'", serializeFullText("a"));
+        assertEquals("= 'a b'", serializeFullText("a b"));
+        assertEquals("= 'a b'", serializeFullText(" a b "));
+        assertEquals("= 'a b'", serializeFullText("a  b"));
+        assertEquals("= 'a b'", serializeFullText("a & b"));
+        assertEquals("= 'a b'", serializeFullText("a : b"));
+        assertEquals("= 'a b'", serializeFullText("a | b"));
 
-        assertEquals("= 'a b'", NXQLQueryBuilder.serializeFullText("a { b"));
+        assertEquals("= 'a b'", serializeFullText("a { b"));
 
-        assertEquals("= 'a b c d e f'", NXQLQueryBuilder.serializeFullText("a#b|c  d+e*f"));
-        assertEquals("= '\"a b\"'", NXQLQueryBuilder.serializeFullText("\"a b\""));
-        assertEquals("= '\"a b\"'", NXQLQueryBuilder.serializeFullText("\"a-b\""));
-        assertEquals("= '\"a -b \"'", NXQLQueryBuilder.serializeFullText("\"a -b \""));
+        assertEquals("= 'a b c d e f'", serializeFullText("a#b|c  d+e*f"));
+        assertEquals("= '\"a b\"'", serializeFullText("\"a b\""));
+        assertEquals("= '\"a b\"'", serializeFullText("\"a-b\""));
+        assertEquals("= '\"a -b \"'", serializeFullText("\"a -b \""));
 
-        assertEquals("= 'a* b'", NXQLQueryBuilder.serializeFullText("a* b-"));
+        assertEquals("= 'a* b'", serializeFullText("a* b-"));
 
-        assertEquals("= 'a b'", NXQLQueryBuilder.serializeFullText("a*b"));
+        assertEquals("= 'a b'", serializeFullText("a*b"));
 
-        assertEquals("= 'a  b'", NXQLQueryBuilder.serializeFullText("a*-b"));
+        assertEquals("= 'a  b'", serializeFullText("a*-b"));
 
-        assertEquals("= 'a -b'", NXQLQueryBuilder.serializeFullText("*a -b"));
+        assertEquals("= 'a -b'", serializeFullText("*a -b"));
 
-        assertEquals("= 'a -bc*'", NXQLQueryBuilder.serializeFullText("a | -bc*"));
+        assertEquals("= 'a -bc*'", serializeFullText("a | -bc*"));
 
-        assertEquals("= 'a b'", NXQLQueryBuilder.serializeFullText("a !#$%&()*+,-./:;<=>?@^`{|}~ b"));
+        assertEquals("= 'a b'", serializeFullText("a !#$%&()*+,-./:;<=>?@^`{|}~ b"));
 
         // raw sanitizeFulltextInput API that does not wrap the input with the
         // quote and the predicate operator
-        assertEquals("some stuff", NXQLQueryBuilder.sanitizeFulltextInput("some & stuff\\"));
+        assertEquals("some stuff", FulltextSanitizer.sanitize("some & stuff\\"));
 
         // test negative queries
-        assertEquals("= 'a -b'", NXQLQueryBuilder.serializeFullText("a !#$%&()*+,-./:;<=>?@^`{|}~ -b"));
+        assertEquals("= 'a -b'", serializeFullText("a !#$%&()*+,-./:;<=>?@^`{|}~ -b"));
     }
 
 }

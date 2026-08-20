@@ -1,6 +1,6 @@
 {
   "repositoryId": "test",
-  "query": "SELECT * FROM SysContent WHERE sys_description='source-2'",
+  "query": "SELECT * FROM SysContent WHERE sys_description = 'source-2'",
   "limit": 0,
   "offset": 0,
   "count": 0,

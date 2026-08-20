@@ -36,12 +36,10 @@ public class IdentityQueryTransformer implements QueryTransformer {
         SelectClause select = transform(node.getSelectClause());
         FromClause from = transform(node.from);
         WhereClause where = transform(node.where);
-        GroupByClause groupBy = transform(node.groupBy);
-        HavingClause having = transform(node.having);
         OrderByClause orderBy = transform(node.getOrderByClause());
         long limit = transformLimit(node.getLimit());
         long offset = transformOffset(node.getOffset());
-        return new SQLQuery(select, from, where, groupBy, having, orderBy, limit, offset);
+        return new SQLQuery(select, from, where, orderBy, limit, offset);
     }
 
     @Override
@@ -52,8 +50,8 @@ public class IdentityQueryTransformer implements QueryTransformer {
     @Override
     public SelectList transform(SelectList node) {
         SelectList list = new SelectList();
-        for (Entry<String, Operand> es : node.entrySet()) {
-            list.put(es.getKey(), transform(es.getValue()));
+        for (Operand operand : node) {
+            list.add(transform(operand));
         }
         return list;
     }
@@ -65,35 +63,12 @@ public class IdentityQueryTransformer implements QueryTransformer {
 
     @Override
     public FromList transform(FromList node) {
-        FromList list = new FromList();
-        list.putAll(node);
-        return list;
+        return new FromList(node);
     }
 
     @Override
     public WhereClause transform(WhereClause node) {
         return new WhereClause(transform(node.predicate));
-    }
-
-    @Override
-    public GroupByClause transform(GroupByClause node) {
-        if (node == null) {
-            return null;
-        }
-        String[] elements = node.elements;
-        if (elements != null) {
-            return new GroupByClause(Arrays.asList(elements));
-        } else {
-            return new GroupByClause();
-        }
-    }
-
-    @Override
-    public HavingClause transform(HavingClause node) {
-        if (node == null) {
-            return null;
-        }
-        return new HavingClause(transform(node.predicate));
     }
 
     @Override

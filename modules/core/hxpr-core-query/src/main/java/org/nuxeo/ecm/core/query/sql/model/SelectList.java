@@ -15,16 +15,11 @@
  */
 package org.nuxeo.ecm.core.query.sql.model;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Here, key is holding the alias and value the operand.
- *
- * @author <a href="mailto:bs@nuxeo.com">Bogdan Stefanescu</a>
- */
-public class SelectList extends LinkedHashMap<String, Operand> implements ASTNode {
+public class SelectList extends ArrayList<Operand> implements ASTNode {
 
     private static final long serialVersionUID = 1L;
 
@@ -32,8 +27,8 @@ public class SelectList extends LinkedHashMap<String, Operand> implements ASTNod
         super();
     }
 
-    public SelectList(Map<String, Operand> map) {
-        super(map);
+    public SelectList(List<Operand> list) {
+        super(list);
     }
 
     @Override
@@ -41,7 +36,7 @@ public class SelectList extends LinkedHashMap<String, Operand> implements ASTNod
         if (isEmpty()) {
             return "*";
         }
-        return values().stream().map(Operand::toString).collect(Collectors.joining(", "));
+        return stream().map(Operand::toString).collect(Collectors.joining(", "));
     }
 
     @Override
