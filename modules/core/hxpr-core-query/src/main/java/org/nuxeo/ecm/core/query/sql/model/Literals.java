@@ -48,7 +48,7 @@ public class Literals {
     }
 
     public static List<Object> valueOf(LiteralList litList) {
-        return litList.stream().map(Literals::valueOf).toList();
+        return litList.elements().stream().map(Literals::valueOf).toList();
     }
 
     public static Object valueOf(Literal lit) {

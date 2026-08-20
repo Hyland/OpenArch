@@ -22,7 +22,6 @@ package org.nuxeo.ecm.core.query.sql.model;
  * every place that has to handle a new kind of node. There is no visitor: a walk is a recursive switch, which keeps
  * the traversal next to the work it does instead of spread over a framework.
  */
-public sealed interface ASTNode permits Operand, SQLQuery, SelectClause, SelectList, FromClause, FromList, WhereClause,
-        OrderByClause, OrderByList, OrderByExpr {
+public sealed interface ASTNode permits Operand, SQLQuery, SelectClause, FromClause, WhereClause, OrderByClause, OrderByExpr {
 
 }

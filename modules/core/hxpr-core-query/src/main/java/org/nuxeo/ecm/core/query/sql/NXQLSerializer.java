@@ -109,12 +109,12 @@ public class NXQLSerializer {
 
     protected static void appendSelect(StringBuilder sb, SelectClause select) {
         sb.append("SELECT ");
-        if (select == null || select.elements.isEmpty()) {
+        if (select == null || select.elements().isEmpty()) {
             sb.append('*');
             return;
         }
         boolean first = true;
-        for (Operand operand : select.elements) {
+        for (Operand operand : select.elements()) {
             if (!first) {
                 sb.append(", ");
             }
@@ -124,7 +124,7 @@ public class NXQLSerializer {
     }
 
     protected static void appendFrom(StringBuilder sb, SQLQuery query) {
-        sb.append(" FROM ").append(String.join(", ", query.getFromClause().elements));
+        sb.append(" FROM ").append(String.join(", ", query.getFromClause().elements()));
     }
 
     protected static void appendWhere(StringBuilder sb, WhereClause where) {
@@ -169,13 +169,13 @@ public class NXQLSerializer {
         } else if (operand instanceof Reference reference) {
             appendReference(sb, reference);
         } else if (operand instanceof LiteralList literalList) {
-            appendList(sb, literalList);
+            appendList(sb, literalList.elements());
         } else if (operand instanceof Literal literal) {
             appendLiteral(sb, literal);
         } else if (operand instanceof Function function) {
             appendFunction(sb, function);
         } else if (operand instanceof OperandList operandList) {
-            appendList(sb, operandList);
+            appendList(sb, operandList.elements());
         } else if (operand instanceof Parameter parameter) {
             sb.append(':').append(parameter.name());
         } else {
@@ -207,8 +207,11 @@ public class NXQLSerializer {
     protected static void appendExpression(StringBuilder sb, Predicate expression) {
         Operator operator = expression.operator;
         if (operator == Operator.BETWEEN || operator == Operator.NOTBETWEEN) {
-            @SuppressWarnings("unchecked")
-            List<? extends Operand> bounds = (List<? extends Operand>) expression.rvalue;
+            List<? extends Operand> bounds = switch (expression.rvalue) {
+                case LiteralList literals -> literals.elements();
+                case OperandList operands -> operands.elements();
+                default -> throw new QueryParseException("Not a pair of bounds: " + expression.rvalue);
+            };
             appendOperand(sb, expression.lvalue, PREC_ATOM);
             sb.append(' ').append(operator).append(' ');
             appendOperand(sb, bounds.get(0), PREC_ATOM);

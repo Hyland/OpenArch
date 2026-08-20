@@ -15,52 +15,24 @@
  */
 package org.nuxeo.ecm.core.query.sql.model;
 
-/**
- * @author <a href="mailto:bs@nuxeo.com">Bogdan Stefanescu</a>
- */
-public final class FromClause implements ASTNode {
+import java.util.List;
 
-    public final FromList elements;
+/**
+ * The {@code FROM} clause: the document types a query looks at.
+ */
+public record FromClause(List<String> elements) implements ASTNode {
+
+    public FromClause {
+        elements = List.copyOf(elements);
+    }
 
     public FromClause() {
-        this(new FromList());
-    }
-
-    public FromClause(FromList elements) {
-        this.elements = elements;
-    }
-
-    public void add(String element) {
-        elements.add(element);
-    }
-
-    public String get(int i) {
-        return elements.get(i);
-    }
-
-    public int count() {
-        return elements.size();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj instanceof FromClause sc) {
-            return elements.equals(sc.elements);
-        }
-        return false;
-    }
-
-    @Override
-    public int hashCode() {
-        return elements.hashCode();
+        this(List.of());
     }
 
     @Override
     public String toString() {
-        return elements.toString();
+        return String.join(", ", elements);
     }
 
 }

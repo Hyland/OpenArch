@@ -56,7 +56,9 @@ import org.nuxeo.ecm.core.api.local.DummyLoginFeature;
 import org.nuxeo.ecm.core.api.query.QueryParameters;
 import org.nuxeo.ecm.core.model.InternalDocument;
 import org.nuxeo.ecm.core.model.InternalSession;
+import org.nuxeo.ecm.core.query.sql.model.FromClause;
 import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
+import org.nuxeo.ecm.core.query.sql.model.SelectClause;
 import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
 import org.nuxeo.ecm.core.security.config.SecurityLevelSecurityPolicyConfig;
 import org.nuxeo.ecm.core.security.config.SecurityPolicyConfig;
@@ -418,8 +420,7 @@ public class TestSecurityLevelSecurityPolicy {
      */
     private void assertIncludesPolicyQueryClause(boolean includesClause) {
         SecurityPolicyService securityPolicyService = securityService.getSecurityPolicyService(REPOSITORY);
-        SQLQuery query = new SQLQuery();
-        query.getFromClause().add(SYS_CONTENT);
+        SQLQuery query = new SQLQuery(new SelectClause(), new FromClause(List.of(SYS_CONTENT)));
         QueryParameters queryParameters = new QueryParameters(userLevel2, 0, 0);
         query = securityPolicyService.addSecurityPolicies(query, queryParameters);
         if (includesClause) {

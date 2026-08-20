@@ -13,27 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.nuxeo.ecm.core.query.sql.model;
+
+import java.util.Iterator;
+import java.util.List;
 
 import org.nuxeo.ecm.core.query.sql.NXQLSerializer;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * @author <a href="mailto:bs@nuxeo.com">Bogdan Stefanescu</a>
+ * A parenthesised list of values, as used by {@code IN} and {@code BETWEEN}.
  */
-public final class LiteralList extends ArrayList<Literal> implements Operand {
+public record LiteralList(List<Literal> elements) implements Operand, Iterable<Literal> {
 
-    private static final long serialVersionUID = 1L;
-
-    public LiteralList() {
-        super();
+    public LiteralList {
+        elements = List.copyOf(elements);
     }
 
-    public LiteralList(List<Literal> list) {
-        super(list);
+    public LiteralList() {
+        this(List.of());
+    }
+
+    public Literal get(int i) {
+        return elements.get(i);
+    }
+
+    public int size() {
+        return elements.size();
+    }
+
+    public boolean isEmpty() {
+        return elements.isEmpty();
+    }
+
+    @Override
+    public Iterator<Literal> iterator() {
+        return elements.iterator();
     }
 
     @Override

@@ -142,7 +142,6 @@ import org.nuxeo.ecm.core.query.sql.SQLQueryParser;
 import org.nuxeo.ecm.core.query.sql.model.Operand;
 import org.nuxeo.ecm.core.query.sql.model.OrderByClause;
 import org.nuxeo.ecm.core.query.sql.model.OrderByExpr;
-import org.nuxeo.ecm.core.query.sql.model.OrderByList;
 import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Predicates;
 import org.nuxeo.ecm.core.query.sql.model.Reference;
@@ -1115,25 +1114,29 @@ public class DBSSession implements InternalSession {
     protected PartialList<Map<String, Object>> doQueryAndFetch(String query, QueryParameters queryParams,
             boolean distinctDocuments, int countUpTo, Mutable<String> idKeyHolder) {
         SQLQuery sqlQuery = SQLQueryParser.parse(query);
-        SelectClause selectClause = sqlQuery.getSelectClause();
-        if (selectClause.isEmpty()) {
+        List<Operand> projection = new ArrayList<>(sqlQuery.getSelectClause().elements());
+        if (projection.isEmpty()) {
             // turned into SELECT sys_id
-            selectClause.add(new Reference(SYS_ID));
+            projection.add(new Reference(SYS_ID));
         }
-        boolean selectStar = selectClause.count() == 1 && (selectClause.containsOperand(new Reference(SYS_ID)));
+        boolean selectStar = projection.size() == 1 && projection.contains(new Reference(SYS_ID));
         if (selectStar) {
             distinctDocuments = true;
         }
         if (idKeyHolder != null) {
-            Operand operand = selectClause.operands().iterator().next();
+            Operand operand = projection.get(0);
             String idKey = operand instanceof Reference ref ? ref.name() : SYS_ID;
             idKeyHolder.setValue(idKey);
         }
 
         // Add useful select clauses, used for order by path
-        selectClause.addIfAbsent(new Reference(SYS_ID));
-        selectClause.addIfAbsent(new Reference(SYS_PARENT_ID));
-        selectClause.addIfAbsent(new Reference(SYS_NAME));
+        for (String name : List.of(SYS_ID, SYS_PARENT_ID, SYS_NAME)) {
+            Reference reference = new Reference(name);
+            if (!projection.contains(reference)) {
+                projection.add(reference);
+            }
+        }
+        sqlQuery = sqlQuery.withSelectClause(new SelectClause(projection));
 
         QueryOptimizer optimizer = new DBSQueryOptimizer(getSchemaManager());
         sqlQuery = optimizer.optimize(sqlQuery);
@@ -1248,7 +1251,7 @@ public class DBSSession implements InternalSession {
             // replace sys_path with sys___path for evaluation
             // (we don't want to allow sys_path to be usable anywhere else
             // and resolve to a null value)
-            OrderByList obl = new OrderByList();
+            List<OrderByExpr> obl = new ArrayList<>();
             for (OrderByExpr ob : orderByClause.elements()) {
                 if (ob.reference().name().equals(SYS_PATH)) {
                     ob = new OrderByExpr(new Reference(ExpressionEvaluator.NXQL_SYS_PATH), ob.isDescending());
@@ -1335,8 +1338,9 @@ public class DBSSession implements InternalSession {
     @Override
     public ScrollResult<String> scroll(String query, QueryParameters queryParams, int batchSize, int keepAliveSeconds) {
         SQLQuery sqlQuery = SQLQueryParser.parse(query);
-        SelectClause selectClause = sqlQuery.getSelectClause();
-        selectClause.add(new Reference(SYS_ID));
+        List<Operand> projection = new ArrayList<>(sqlQuery.getSelectClause().elements());
+        projection.add(new Reference(SYS_ID));
+        sqlQuery = sqlQuery.withSelectClause(new SelectClause(projection));
         QueryOptimizer optimizer = new DBSQueryOptimizer(getSchemaManager());
         sqlQuery = optimizer.optimize(sqlQuery);
         sqlQuery = securityPolicyService.addSecurityPolicies(sqlQuery, queryParams);

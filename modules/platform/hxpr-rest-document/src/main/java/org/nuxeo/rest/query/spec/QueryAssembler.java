@@ -36,12 +36,10 @@ import org.nuxeo.ecm.core.query.sql.model.OperandList;
 import org.nuxeo.ecm.core.query.sql.model.Operator;
 import org.nuxeo.ecm.core.query.sql.model.OrderByClause;
 import org.nuxeo.ecm.core.query.sql.model.OrderByExpr;
-import org.nuxeo.ecm.core.query.sql.model.OrderByList;
 import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Reference;
 import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
 import org.nuxeo.ecm.core.query.sql.model.SelectClause;
-import org.nuxeo.ecm.core.query.sql.model.SelectList;
 import org.nuxeo.ecm.core.query.sql.model.WhereClause;
 import org.nuxeo.rest.query.io.DocumentAdvancedQueryDTO;
 import org.nuxeo.rest.query.io.WhereClauseDTO;
@@ -147,10 +145,10 @@ public class QueryAssembler {
         if (sortInfos.isEmpty()) {
             return query;
         }
-        OrderByList orderBy = new OrderByList();
-        for (SortInfo sortInfo : sortInfos) {
-            orderBy.add(new OrderByExpr(fieldReference(sortInfo.sortColumn()), !sortInfo.sortAscending()));
-        }
+        List<OrderByExpr> orderBy = sortInfos.stream()
+                                             .map(sortInfo -> new OrderByExpr(fieldReference(sortInfo.sortColumn()),
+                                                     !sortInfo.sortAscending()))
+                                             .toList();
         return query.withOrderByClause(new OrderByClause(orderBy));
     }
 
@@ -182,20 +180,21 @@ public class QueryAssembler {
     }
 
     protected static SelectClause rewriteSelect(SelectClause select, Reference column) {
-        if (select == null || select.elements.isEmpty()) {
+        if (select == null || select.elements().isEmpty()) {
             return select;
         }
-        return new SelectClause(new SelectList(select.elements.stream().map(o -> rewrite(o, column)).toList()));
+        return new SelectClause(select.elements().stream().map(o -> rewrite(o, column)).toList());
     }
 
     protected static OrderByClause rewriteOrderBy(OrderByClause orderBy, Reference column) {
-        if (orderBy == null || orderBy.elements() == null) {
-            return orderBy;
+        if (orderBy == null) {
+            return null;
         }
-        OrderByList rewritten = new OrderByList();
-        for (OrderByExpr expr : orderBy.elements()) {
-            rewritten.add(new OrderByExpr((Reference) rewrite(expr.reference(), column), expr.isDescending()));
-        }
+        List<OrderByExpr> rewritten = orderBy.elements()
+                                             .stream()
+                                             .map(expr -> new OrderByExpr((Reference) rewrite(expr.reference(), column),
+                                                     expr.isDescending()))
+                                             .toList();
         return new OrderByClause(rewritten);
     }
 
@@ -218,7 +217,7 @@ public class QueryAssembler {
             return new Predicate(lvalue, expression.operator, rvalue);
         }
         if (operand instanceof Function function && function.args() != null) {
-            List<Operand> args = function.args().stream().map(arg -> rewrite(arg, column)).toList();
+            List<Operand> args = function.args().elements().stream().map(arg -> rewrite(arg, column)).toList();
             return new Function(function.name(), new OperandList(args));
         }
         return operand;

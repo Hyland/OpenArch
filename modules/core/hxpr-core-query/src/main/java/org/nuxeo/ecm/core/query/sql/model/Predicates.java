@@ -15,7 +15,7 @@
  */
 package org.nuxeo.ecm.core.query.sql.model;
 
-import java.util.stream.Collectors;
+import java.util.List;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -130,17 +130,13 @@ public class Predicates {
 
     /** @since 10.3 */
     public static Predicate between(String name, Object min, Object max) {
-        LiteralList range = new LiteralList();
-        range.add(Literals.toLiteral(min));
-        range.add(Literals.toLiteral(max));
+        LiteralList range = new LiteralList(List.of(Literals.toLiteral(min), Literals.toLiteral(max)));
         return new Predicate(new Reference(name), Operator.BETWEEN, range);
     }
 
     /** @since 10.3 */
     public static Predicate notbetween(String name, Object min, Object max) {
-        LiteralList range = new LiteralList();
-        range.add(Literals.toLiteral(min));
-        range.add(Literals.toLiteral(max));
+        LiteralList range = new LiteralList(List.of(Literals.toLiteral(min), Literals.toLiteral(max)));
         return new Predicate(new Reference(name), Operator.NOTBETWEEN, range);
     }
 
@@ -160,7 +156,7 @@ public class Predicates {
 
     private static Predicate createPredicate(String name, Operator operator, Stream<?> values) {
         return new Predicate(new Reference(name), operator,
-                values.map(Literals::toLiteral).collect(Collectors.toCollection(LiteralList::new)));
+                new LiteralList(values.map(Literals::toLiteral).toList()));
     }
 
 }

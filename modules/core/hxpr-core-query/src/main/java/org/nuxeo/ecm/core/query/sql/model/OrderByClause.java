@@ -15,14 +15,26 @@
  */
 package org.nuxeo.ecm.core.query.sql.model;
 
+import static java.util.stream.Collectors.joining;
+
+import java.util.List;
+
 /**
- * An {@code ORDER BY} clause.
+ * The {@code ORDER BY} clause.
  */
-public record OrderByClause(OrderByList elements) implements ASTNode {
+public record OrderByClause(List<OrderByExpr> elements) implements ASTNode {
+
+    public OrderByClause {
+        elements = List.copyOf(elements);
+    }
+
+    public OrderByClause() {
+        this(List.of());
+    }
 
     @Override
     public String toString() {
-        return elements.toString();
+        return elements.stream().map(OrderByExpr::toString).collect(joining(", "));
     }
 
 }

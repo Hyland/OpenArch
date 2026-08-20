@@ -23,6 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_FULLTEXT;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 import org.nuxeo.ecm.core.query.QueryParseException;
 import org.nuxeo.ecm.core.query.sql.model.BooleanLiteral;
@@ -37,12 +39,11 @@ import org.nuxeo.ecm.core.query.sql.model.Operand;
 import org.nuxeo.ecm.core.query.sql.model.OperandList;
 import org.nuxeo.ecm.core.query.sql.model.Operator;
 import org.nuxeo.ecm.core.query.sql.model.OrderByClause;
-import org.nuxeo.ecm.core.query.sql.model.OrderByList;
+import org.nuxeo.ecm.core.query.sql.model.OrderByExpr;
 import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Reference;
 import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
 import org.nuxeo.ecm.core.query.sql.model.SelectClause;
-import org.nuxeo.ecm.core.query.sql.model.SelectList;
 import org.nuxeo.ecm.core.query.sql.model.StringLiteral;
 import org.nuxeo.ecm.core.query.sql.model.WhereClause;
 
@@ -148,7 +149,7 @@ public class TestQueryParser {
     public void testNamespace() {
         SQLQuery query = SQLQueryParser.parse("SELECT sys_title FROM SysContent WHERE sys_description = 'test'");
         SelectClause select = query.getSelectClause();
-        String v = ((Reference) select.operands().iterator().next()).name();
+        String v = ((Reference) select.elements().get(0)).name();
         assertEquals("sys_title", v);
     }
 
@@ -157,7 +158,7 @@ public class TestQueryParser {
         SQLQuery query = SQLQueryParser.parse("SELECT sys_foo/bar/baz FROM SysContent"
                 + " WHERE sys_foo/3/ho = sys_bar/*/bobby" + " OR sys_foo/5/gee = sys_foo/*6/hop");
         SelectClause select = query.getSelectClause();
-        String v = ((Reference) select.operands().iterator().next()).name();
+        String v = ((Reference) select.elements().get(0)).name();
         assertEquals("sys_foo/bar/baz", v);
         Predicate where = query.getWhereClause().predicate();
         Predicate p1 = (Predicate) where.lvalue;
@@ -177,13 +178,13 @@ public class TestQueryParser {
         SQLQuery query = SQLQueryParser.parse("SELECT p1, $id, p3 FROM t1, t2 WHERE state=1 AND title = 'test'");
 
         SelectClause select = query.getSelectClause();
-        assertEquals("p1", select.getVariable(0).name());
-        assertEquals("$id", select.getVariable(1).name());
-        assertEquals("p3", select.getVariable(2).name());
+        assertEquals("p1", ((Reference) select.elements().get(0)).name());
+        assertEquals("$id", ((Reference) select.elements().get(1)).name());
+        assertEquals("p3", ((Reference) select.elements().get(2)).name());
 
         FromClause from = query.getFromClause();
-        assertEquals("t1", from.get(0));
-        assertEquals("t2", from.get(1));
+        assertEquals("t1", from.elements().get(0));
+        assertEquals("t2", from.elements().get(1));
 
         Predicate e1 = (Predicate) query.getWhereClause().predicate().lvalue;
         Predicate e2 = (Predicate) query.getWhereClause().predicate().rvalue;
@@ -251,9 +252,9 @@ public class TestQueryParser {
         Predicate e = (Predicate) query.getWhereClause().predicate().lvalue;
         assertEquals(Operator.IN, e.operator);
 
-        LiteralList list = new LiteralList();
-        list.add(new IntegerLiteral(12));
-        list.add(new IntegerLiteral(13));
+        LiteralList list = new LiteralList(List.of(
+                new IntegerLiteral(12),
+                new IntegerLiteral(13)));
         assertEquals(list, e.rvalue);
         assertEquals("p", ((Reference) e.lvalue).name());
 
@@ -264,9 +265,7 @@ public class TestQueryParser {
         e = (Predicate) query.getWhereClause().predicate().lvalue;
         assertEquals(Operator.NOTIN, e.operator);
 
-        list = new LiteralList();
-        list.add(new IntegerLiteral(12));
-        list.add(new IntegerLiteral(13));
+        list = new LiteralList(List.of(new IntegerLiteral(12), new IntegerLiteral(13)));
         assertEquals(list, e.rvalue);
         assertEquals("p", ((Reference) e.lvalue).name());
     }
@@ -280,9 +279,9 @@ public class TestQueryParser {
         Predicate e = (Predicate) query.getWhereClause().predicate().lvalue;
         assertEquals(Operator.BETWEEN, e.operator);
 
-        LiteralList list = new LiteralList();
-        list.add(new IntegerLiteral(10));
-        list.add(new IntegerLiteral(20));
+        LiteralList list = new LiteralList(List.of(
+                new IntegerLiteral(10),
+                new IntegerLiteral(20)));
         assertEquals(list, e.rvalue);
         assertEquals("p", ((Reference) e.lvalue).name());
 
@@ -293,9 +292,7 @@ public class TestQueryParser {
         e = (Predicate) query.getWhereClause().predicate().lvalue;
         assertEquals(Operator.NOTBETWEEN, e.operator);
 
-        list = new LiteralList();
-        list.add(new IntegerLiteral(10));
-        list.add(new IntegerLiteral(20));
+        list = new LiteralList(List.of(new IntegerLiteral(10), new IntegerLiteral(20)));
         assertEquals(list, e.rvalue);
         assertEquals("p", ((Reference) e.lvalue).name());
     }
@@ -324,9 +321,9 @@ public class TestQueryParser {
         Function fn = (Function) query.getWhereClause().predicate().lvalue;
         assertEquals("substring", fn.name());
 
-        OperandList args = new OperandList();
-        args.add(new Reference("title"));
-        args.add(new IntegerLiteral(2));
+        OperandList args = new OperandList(List.of(
+                new Reference("title"),
+                new IntegerLiteral(2)));
         assertEquals(args, fn.args());
     }
 
@@ -334,12 +331,11 @@ public class TestQueryParser {
     public void testFunctions() {
         SQLQuery query = SQLQueryParser.parse("SELECT COUNT(p), AVG(p) FROM t");
         SelectClause select = query.getSelectClause();
-        assertEquals(2, select.count());
+        assertEquals(2, select.elements().size());
 
-        OperandList ops = new OperandList();
-        ops.add(new Reference("p"));
-        assertEquals(new Function("COUNT", ops), select.get(0));
-        assertEquals(new Function("AVG", ops), select.get(1));
+        OperandList ops = new OperandList(List.of(new Reference("p")));
+        assertEquals(new Function("COUNT", ops), select.elements().get(0));
+        assertEquals(new Function("AVG", ops), select.elements().get(1));
     }
 
     @Test
@@ -551,7 +547,7 @@ public class TestQueryParser {
     public void testAST() {
         SQLQuery query = SQLQueryParser.parse("SELECT p1, p2 FROM table WHERE p1 > 0 OR p2 <= 10.2 AND p1 = 5");
 
-        SelectList select = query.getSelectClause().elements;
+        List<Operand> select = query.getSelectClause().elements();
         assertEquals(2, select.size());
 
         Predicate where = query.getWhereClause().predicate();
@@ -602,10 +598,9 @@ public class TestQueryParser {
         Predicate pred = new Predicate(expr2, Operator.OR, expr1);
 
         // create the query by hand
-        SQLQuery myquery = new SQLQuery(new SelectClause(), new FromClause(), new WhereClause(pred));
-        myquery.getSelectClause().add(new Reference("p1"));
-        myquery.getSelectClause().add(new Reference("p2"));
-        myquery.getFromClause().add("t");
+        SQLQuery myquery = new SQLQuery(
+                new SelectClause(List.of(new Reference("p1"), new Reference("p2"))), new FromClause(List.of("t")),
+                new WhereClause(pred));
 
         assertEquals(myquery, query);
     }
@@ -634,11 +629,9 @@ public class TestQueryParser {
 
         Predicate pred = new Predicate(expr1, Operator.AND, expr2);
 
-        SQLQuery myquery = new SQLQuery(new SelectClause(), new FromClause(), new WhereClause(pred));
-
-        myquery.getSelectClause().add(new Reference("p1"));
-        myquery.getSelectClause().add(new Reference("p2"));
-        myquery.getFromClause().add("t");
+        SQLQuery myquery = new SQLQuery(
+                new SelectClause(List.of(new Reference("p1"), new Reference("p2"))), new FromClause(List.of("t")),
+                new WhereClause(pred));
 
         assertEquals(myquery, query);
     }
@@ -646,7 +639,7 @@ public class TestQueryParser {
     @Test
     public void testSelectClause() {
         SQLQuery query = SQLQueryParser.parse("SELECT * FROM t");
-        assertTrue(query.getSelectClause().getSelectList().isEmpty());
+        assertTrue(query.getSelectClause().elements().isEmpty());
     }
 
     @Test
@@ -656,7 +649,7 @@ public class TestQueryParser {
         assertEquals(expected, query.toString());
 
         OrderByClause clause = query.getOrderByClause();
-        OrderByList elements = clause.elements();
+        List<OrderByExpr> elements = clause.elements();
         assertEquals("p", elements.get(0).reference().name());
         assertFalse(elements.get(0).isDescending());
         assertEquals("q", elements.get(1).reference().name());

@@ -15,100 +15,26 @@
  */
 package org.nuxeo.ecm.core.query.sql.model;
 
-import java.util.Collection;
+import static java.util.stream.Collectors.joining;
 
-public final class SelectClause implements ASTNode {
+import java.util.List;
 
-    public final SelectList elements;
+/**
+ * The projection: what a query returns. An empty projection means {@code SELECT *}.
+ */
+public record SelectClause(List<Operand> elements) implements ASTNode {
+
+    public SelectClause {
+        elements = List.copyOf(elements);
+    }
 
     public SelectClause() {
-        this(new SelectList());
-    }
-
-    public SelectClause(SelectList elements) {
-        this.elements = elements;
-    }
-
-    public void add(Operand element) {
-        elements.add(element);
-    }
-
-    /**
-     * Adds the operand unless it is already selected.
-     *
-     * @since 12.0
-     */
-    public void addIfAbsent(Operand element) {
-        if (!elements.contains(element)) {
-            elements.add(element);
-        }
-    }
-
-    public Operand get(int i) {
-        return elements.get(i);
-    }
-
-    public Reference getVariable(int i) {
-        return (Reference) get(i);
-    }
-
-    public Literal getLiteral(int i) {
-        return (Literal) get(i);
-    }
-
-    public Function getFunction(int i) {
-        return (Function) get(i);
-    }
-
-    public Predicate getExpression(int i) {
-        return (Predicate) get(i);
-    }
-
-    public SelectList getSelectList() {
-        return elements;
-    }
-
-    public int count() {
-        return elements.size();
-    }
-
-    public boolean isEmpty() {
-        return elements.isEmpty();
-    }
-
-    /**
-     * @since 9.1
-     */
-    public Collection<Operand> operands() {
-        return elements;
-    }
-
-    /**
-     * @since 9.1
-     */
-    public boolean containsOperand(Object operand) {
-        return elements.contains(operand);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj instanceof SelectClause sc) {
-            return elements.equals(sc.elements);
-        }
-        return false;
-    }
-
-    @Override
-    public int hashCode() {
-        return elements.hashCode();
+        this(List.of());
     }
 
     @Override
     public String toString() {
-        return elements.toString();
+        return elements.isEmpty() ? "*" : elements.stream().map(Operand::toString).collect(joining(", "));
     }
 
 }

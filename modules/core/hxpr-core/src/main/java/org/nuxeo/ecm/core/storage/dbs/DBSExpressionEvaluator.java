@@ -50,7 +50,6 @@ import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Reference;
 import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
 import org.nuxeo.ecm.core.query.sql.model.SelectClause;
-import org.nuxeo.ecm.core.query.sql.model.SelectList;
 import org.nuxeo.ecm.core.schema.DocumentType;
 import org.nuxeo.ecm.core.schema.SchemaManager;
 import org.nuxeo.ecm.core.schema.types.ComplexType;
@@ -388,8 +387,7 @@ public class DBSExpressionEvaluator extends ExpressionEvaluator {
     public Map<String, Object> walkSelectClauseAndOrderBy(SelectClause selectClause,
             OrderByClause orderByClause) {
         Map<String, Object> projection = new HashMap<>();
-        SelectList elements = selectClause.getSelectList();
-        for (Operand op : elements) {
+        for (Operand op : selectClause.elements()) {
             if (op instanceof Reference ref) {
                 if (ref.name().equals(SYS_FULLTEXT_SCORE)) {
                     throw new QueryParseException("Fulltext search not available");
@@ -428,7 +426,7 @@ public class DBSExpressionEvaluator extends ExpressionEvaluator {
     }
 
     public boolean hasWildcardProjection() {
-        return selectClause.getSelectList().stream().anyMatch(
+        return selectClause.elements().stream().anyMatch(
                 operand -> operand instanceof Reference ref && ref.name().contains("*"));
     }
 

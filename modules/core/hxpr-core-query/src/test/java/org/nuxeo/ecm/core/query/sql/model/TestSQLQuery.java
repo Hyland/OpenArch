@@ -27,10 +27,9 @@ public class TestSQLQuery {
 
     protected final SQLQuery sqlQuery = new SQLQuery();
 
-    protected final SelectClause selectClause = new SelectClause(new SelectList(List.of(new Reference("p"))));
+    protected final SelectClause selectClause = new SelectClause(List.of(new Reference("p")));
 
-    protected final OrderByClause orderByClause = new OrderByClause(
-            new OrderByList(List.of(new OrderByExpr(new Reference("p"), false))));
+    protected final OrderByClause orderByClause = new OrderByClause(List.of(new OrderByExpr(new Reference("p"), false)));
 
     @Test
     public void testWithSelect() {

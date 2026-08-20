@@ -28,6 +28,7 @@ import org.nuxeo.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.ecm.core.api.query.QueryParameters;
 import org.nuxeo.ecm.core.api.security.ACL;
 import org.nuxeo.ecm.core.model.InternalDocument;
+import org.nuxeo.ecm.core.query.sql.model.Literal;
 import org.nuxeo.ecm.core.query.sql.model.LiteralList;
 import org.nuxeo.ecm.core.query.sql.model.Operator;
 import org.nuxeo.ecm.core.query.sql.model.Predicate;
@@ -136,8 +137,7 @@ public class ACLSecurityPolicy extends AbstractSecurityPolicy {
 
     @Override
     public Predicate getQueryClause(QueryParameters queryParams, Set<String> principals) {
-        LiteralList list = new LiteralList();
-        principals.forEach(p -> list.add(new StringLiteral(p)));
+        LiteralList list = new LiteralList(principals.stream().map(p -> (Literal) new StringLiteral(p)).toList());
         return new Predicate(new Reference(SYS_READ_ACL), Operator.IN, list);
     }
 

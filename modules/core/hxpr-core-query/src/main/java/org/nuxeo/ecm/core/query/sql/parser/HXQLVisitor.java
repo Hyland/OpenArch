@@ -36,7 +36,6 @@ import org.nuxeo.ecm.core.query.sql.model.BooleanLiteral;
 import org.nuxeo.ecm.core.query.sql.model.DateLiteral;
 import org.nuxeo.ecm.core.query.sql.model.DoubleLiteral;
 import org.nuxeo.ecm.core.query.sql.model.FromClause;
-import org.nuxeo.ecm.core.query.sql.model.FromList;
 import org.nuxeo.ecm.core.query.sql.model.FtHint;
 import org.nuxeo.ecm.core.query.sql.model.IntegerLiteral;
 import org.nuxeo.ecm.core.query.sql.model.Literal;
@@ -46,20 +45,17 @@ import org.nuxeo.ecm.core.query.sql.model.OperandList;
 import org.nuxeo.ecm.core.query.sql.model.Operator;
 import org.nuxeo.ecm.core.query.sql.model.OrderByClause;
 import org.nuxeo.ecm.core.query.sql.model.OrderByExpr;
-import org.nuxeo.ecm.core.query.sql.model.OrderByList;
 import org.nuxeo.ecm.core.query.sql.model.Parameter;
 import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Reference;
 import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
 import org.nuxeo.ecm.core.query.sql.model.SelectClause;
-import org.nuxeo.ecm.core.query.sql.model.SelectList;
 import org.nuxeo.ecm.core.query.sql.model.StringLiteral;
 import org.nuxeo.ecm.core.query.sql.model.WhereClause;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.ExpressionContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.ExpressionOperandContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.ExpressionParenContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.From_clauseContext;
-import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.From_listContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.Ft_hintContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.Ft_identifier_listContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.FunctionContext;
@@ -73,7 +69,6 @@ import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.LiteralTimestampContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.OperandContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.Order_by_clauseContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.Order_by_exprContext;
-import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.Order_by_listContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.ParameterContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.ParseContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.Parse_predicateContext;
@@ -94,7 +89,6 @@ import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.ReferenceDateContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.ReferenceHintContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.ReferenceSimpleContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.Select_clauseContext;
-import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.Select_listContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.Simple_referenceContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.StringContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.ValueContext;
@@ -238,27 +232,14 @@ public class HXQLVisitor extends HXQLParserBaseVisitor<ASTNode> {
 
     @Override
     public ASTNode visitSelect_clause(Select_clauseContext ctx) {
-        var list = (SelectList) ctx.list.accept(this);
-        return new SelectClause(list);
-    }
-
-    @Override
-    public ASTNode visitSelect_list(Select_listContext ctx) {
-        if (ctx.MUL() != null) {
-            return new SelectList();
-        }
-        return new SelectList(acceptList(ctx.operand()));
+        // a MUL projection is SELECT *, which is an empty projection
+        List<Operand> operands = ctx.list.MUL() != null ? List.of() : acceptList(ctx.list.operand());
+        return new SelectClause(operands);
     }
 
     @Override
     public ASTNode visitFrom_clause(From_clauseContext ctx) {
-        var elements = (FromList) ctx.list.accept(this);
-        return new FromClause(elements);
-    }
-
-    @Override
-    public ASTNode visitFrom_list(From_listContext ctx) {
-        return new FromList(ctx.from_elem().stream().map(c -> c.id.getText()).toList());
+        return new FromClause(ctx.list.from_elem().stream().map(c -> c.id.getText()).toList());
     }
 
     @Override
@@ -269,14 +250,7 @@ public class HXQLVisitor extends HXQLParserBaseVisitor<ASTNode> {
 
     @Override
     public ASTNode visitOrder_by_clause(Order_by_clauseContext ctx) {
-        var orderByList = (OrderByList) ctx.list.accept(this);
-        return new OrderByClause(orderByList);
-    }
-
-    @Override
-    public ASTNode visitOrder_by_list(Order_by_listContext ctx) {
-        List<OrderByExpr> list = acceptList(ctx.order_by_expr());
-        return new OrderByList(list);
+        return new OrderByClause(acceptList(ctx.list.order_by_expr()));
     }
 
     @Override

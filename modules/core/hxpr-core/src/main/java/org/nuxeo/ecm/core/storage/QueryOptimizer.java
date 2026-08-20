@@ -40,7 +40,6 @@ import java.util.stream.Collectors;
 
 import org.nuxeo.ecm.core.query.QueryParseException;
 import org.nuxeo.ecm.core.query.sql.model.FromClause;
-import org.nuxeo.ecm.core.query.sql.model.FromList;
 import org.nuxeo.ecm.core.query.sql.model.Function;
 import org.nuxeo.ecm.core.query.sql.model.Literal;
 import org.nuxeo.ecm.core.query.sql.model.LiteralList;
@@ -53,7 +52,6 @@ import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Reference;
 import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
 import org.nuxeo.ecm.core.query.sql.model.SelectClause;
-import org.nuxeo.ecm.core.query.sql.model.SelectList;
 import org.nuxeo.ecm.core.query.sql.model.StringLiteral;
 import org.nuxeo.ecm.core.query.sql.model.WhereClause;
 import org.nuxeo.ecm.core.schema.SchemaManager;
@@ -292,8 +290,7 @@ public abstract class QueryOptimizer {
     protected void addTypes(List<Predicate> clauses, FromClause node) {
         onlyRelations = true;
         Set<String> fromTypes = new HashSet<>();
-        FromList elements = node.elements;
-        for (String typeName : elements) {
+        for (String typeName : node.elements()) {
             if (SYS_CONTENT.equalsIgnoreCase(typeName)) {
                 typeName = SYS_CONTENT;
             }
@@ -302,10 +299,7 @@ public abstract class QueryOptimizer {
             onlyRelations = onlyRelations && isRelation;
         }
         fromTypes.remove(SYS_ROOT);
-        LiteralList list = new LiteralList();
-        for (String type : fromTypes) {
-            list.add(new StringLiteral(type));
-        }
+        LiteralList list = new LiteralList(fromTypes.stream().map(t -> (Literal) new StringLiteral(t)).toList());
         clauses.add(new Predicate(new Reference(SYS_PRIMARY_TYPE), Operator.IN, list));
     }
 
@@ -409,10 +403,8 @@ public abstract class QueryOptimizer {
                 String pt = primaryTypes.iterator().next();
                 predicate = new Predicate(new Reference(SYS_PRIMARY_TYPE), Operator.EQ, new StringLiteral(pt));
             } else { // primaryTypes.size() > 1
-                LiteralList list = new LiteralList();
-                for (String pt : primaryTypes) {
-                    list.add(new StringLiteral(pt));
-                }
+                LiteralList list = new LiteralList(
+                        primaryTypes.stream().map(pt -> (Literal) new StringLiteral(pt)).toList());
                 predicate = new Predicate(new Reference(SYS_PRIMARY_TYPE), Operator.IN, list);
             }
             clauses.add(predicate);
@@ -486,7 +478,7 @@ public abstract class QueryOptimizer {
 
     /** Runs the action on every reference of the projection, including inside function arguments. */
     protected static void forEachProjectionReference(SQLQuery query, Consumer<Reference> action) {
-        query.getSelectClause().elements.forEach(operand -> forEachReference(operand, action));
+        query.getSelectClause().elements().forEach(operand -> forEachReference(operand, action));
     }
 
     protected static void forEachReference(Operand operand, Consumer<Reference> action) {
@@ -508,8 +500,11 @@ public abstract class QueryOptimizer {
      * rest of the query is left as it is.
      */
     protected SQLQuery renameProjectionReferences(SQLQuery query, Map<String, String> map) {
-        SelectList renamed = new SelectList();
-        query.getSelectClause().elements.forEach(operand -> renamed.add(renameReferences(operand, map)));
+        List<Operand> renamed = query.getSelectClause()
+                                     .elements()
+                                     .stream()
+                                     .map(operand -> renameReferences(operand, map))
+                                     .toList();
         return query.withSelectClause(new SelectClause(renamed));
     }
 
@@ -527,9 +522,12 @@ public abstract class QueryOptimizer {
                 yield renamed;
             }
             case Function function when function.args() != null -> {
-                OperandList args = new OperandList();
-                function.args().forEach(arg -> args.add(renameReferences(arg, map)));
-                yield new Function(function.name(), args);
+                List<Operand> args = function.args()
+                                             .elements()
+                                             .stream()
+                                             .map(arg -> renameReferences(arg, map))
+                                             .toList();
+                yield new Function(function.name(), new OperandList(args));
             }
             default -> operand;
         };

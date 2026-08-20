@@ -34,7 +34,6 @@ import org.nuxeo.ecm.core.query.sql.model.Parameter;
 import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
 import org.nuxeo.ecm.core.query.sql.model.SelectClause;
-import org.nuxeo.ecm.core.query.sql.model.SelectList;
 import org.nuxeo.ecm.core.query.sql.model.WhereClause;
 
 /**
@@ -69,10 +68,10 @@ public class QueryParameterBinder {
     }
 
     protected static SelectClause bindSelect(SelectClause select, Map<String, Object> params) {
-        if (select == null || select.elements.isEmpty()) {
+        if (select == null || select.elements().isEmpty()) {
             return select;
         }
-        return new SelectClause(new SelectList(select.elements.stream().map(o -> bindOperand(o, params)).toList()));
+        return new SelectClause(select.elements().stream().map(o -> bindOperand(o, params)).toList());
     }
 
     protected static Operand bindPredicate(Operand predicate, Map<String, Object> params) {
@@ -141,7 +140,7 @@ public class QueryParameterBinder {
             if (function.args() == null) {
                 return function;
             }
-            List<Operand> args = function.args().stream().map(arg -> bindOperand(arg, params)).toList();
+            List<Operand> args = function.args().elements().stream().map(arg -> bindOperand(arg, params)).toList();
             return new Function(function.name(), new OperandList(args));
         }
         return operand;

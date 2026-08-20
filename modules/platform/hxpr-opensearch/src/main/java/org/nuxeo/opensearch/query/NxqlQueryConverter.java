@@ -51,7 +51,6 @@ import org.nuxeo.ecm.core.query.nxql.SortInfo;
 import org.nuxeo.ecm.core.query.sql.NXQL;
 import org.nuxeo.ecm.core.query.sql.SQLQueryParser;
 import org.nuxeo.ecm.core.query.sql.model.FromClause;
-import org.nuxeo.ecm.core.query.sql.model.FromList;
 import org.nuxeo.ecm.core.query.sql.model.FtHint;
 import org.nuxeo.ecm.core.query.sql.model.FtHint.FieldHint;
 import org.nuxeo.ecm.core.query.sql.model.Function;
@@ -126,7 +125,7 @@ public final class NxqlQueryConverter {
         ExpressionBuilder ret = new ExpressionBuilder(null);
         builders.add(ret);
         List<String> fromList = new ArrayList<>();
-        for (String type : nxqlQuery.getFromClause().elements) {
+        for (String type : nxqlQuery.getFromClause().elements()) {
             // Removed code for SYS_CONTENT optimization. See, HXCS-3121 Get rid of optimization until inconsistencies are fixed
             Set<String> types = schemaManager.getDocumentTypeNamesExtending(type);
             if (types != null) {
@@ -583,7 +582,7 @@ public final class NxqlQueryConverter {
 
     public Map<String, Type> getSelectClauseFields(String nxql) {
         Map<String, Type> fieldsAndTypes = new LinkedHashMap<>();
-        for (Operand op : getSqlQuery(nxql).getSelectClause().elements) {
+        for (Operand op : getSqlQuery(nxql).getSelectClause().elements()) {
             if (op instanceof Reference reference) {
                 Field field = schemaManager.getField(reference.name());
                 fieldsAndTypes.put(reference.name(), field == null ? null : field.getType());
