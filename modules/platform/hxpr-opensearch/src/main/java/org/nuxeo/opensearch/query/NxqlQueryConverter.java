@@ -15,20 +15,20 @@
  */
 package org.nuxeo.opensearch.query;
 
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_HAS_LEGAL_HOLD;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_IS_RECORD;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_IS_CHECKED_IN;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_IS_VERSION;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ANCESTOR_IDS;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_FULLTEXT;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_FULLTEXT_SCORE;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_HAS_LEGAL_HOLD;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_IS_CHECKED_IN;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_IS_FOLDERISH;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_IS_RECORD;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_IS_TRASHED;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_IS_VERSION;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PARENT_ID;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PATH;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PRIMARY_TYPE;
-import static org.nuxeo.opensearch.OpenSearchConstants.OPENSEARCH_SCORE_FIELD;
 import static org.nuxeo.opensearch.OpenSearchConstants.FULLTEXT_FIELD;
+import static org.nuxeo.opensearch.OpenSearchConstants.OPENSEARCH_SCORE_FIELD;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -41,14 +41,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-import org.opensearch.client.json.JsonData;
-import org.opensearch.client.opensearch._types.FieldValue;
-import org.opensearch.client.opensearch._types.query_dsl.BoolQuery;
-import org.opensearch.client.opensearch._types.query_dsl.MatchPhrasePrefixQuery;
-import org.opensearch.client.opensearch._types.query_dsl.QueryBuilders;
-import org.opensearch.client.opensearch._types.query_dsl.QueryVariant;
-import org.opensearch.client.opensearch._types.query_dsl.SimpleQueryStringQuery;
-import org.opensearch.client.util.ObjectBuilder;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentNotFoundException;
@@ -58,11 +50,10 @@ import org.nuxeo.ecm.core.query.QueryParseException;
 import org.nuxeo.ecm.core.query.nxql.SortInfo;
 import org.nuxeo.ecm.core.query.sql.NXQL;
 import org.nuxeo.ecm.core.query.sql.SQLQueryParser;
-import org.nuxeo.ecm.core.query.sql.model.FtHint;
-import org.nuxeo.ecm.core.query.sql.model.FtHint.FieldHint;
-import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.FromClause;
 import org.nuxeo.ecm.core.query.sql.model.FromList;
+import org.nuxeo.ecm.core.query.sql.model.FtHint;
+import org.nuxeo.ecm.core.query.sql.model.FtHint.FieldHint;
 import org.nuxeo.ecm.core.query.sql.model.Function;
 import org.nuxeo.ecm.core.query.sql.model.Literal;
 import org.nuxeo.ecm.core.query.sql.model.LiteralList;
@@ -71,6 +62,7 @@ import org.nuxeo.ecm.core.query.sql.model.Operand;
 import org.nuxeo.ecm.core.query.sql.model.Operator;
 import org.nuxeo.ecm.core.query.sql.model.OrderByClause;
 import org.nuxeo.ecm.core.query.sql.model.OrderByExpr;
+import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Reference;
 import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
 import org.nuxeo.ecm.core.query.sql.model.SelectClause;
@@ -82,6 +74,14 @@ import org.nuxeo.ecm.core.schema.types.primitives.BooleanType;
 import org.nuxeo.ecm.core.security.SecurityPolicyService;
 import org.nuxeo.ecm.core.security.SecurityService;
 import org.nuxeo.runtime.api.Framework;
+import org.opensearch.client.json.JsonData;
+import org.opensearch.client.opensearch._types.FieldValue;
+import org.opensearch.client.opensearch._types.query_dsl.BoolQuery;
+import org.opensearch.client.opensearch._types.query_dsl.MatchPhrasePrefixQuery;
+import org.opensearch.client.opensearch._types.query_dsl.QueryBuilders;
+import org.opensearch.client.opensearch._types.query_dsl.QueryVariant;
+import org.opensearch.client.opensearch._types.query_dsl.SimpleQueryStringQuery;
+import org.opensearch.client.util.ObjectBuilder;
 
 /**
  * Helper class that holds the conversion logic. Conversion is based on the existing NXQL Parser, we are just using a

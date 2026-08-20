@@ -21,10 +21,10 @@ import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
 import static org.nuxeo.ecm.core.api.local.DummyLoginFeature.TEST_ANONYMOUS_USER;
-import static org.nuxeo.rest.query.spec.QueryAssembler.DEFAULT_SELECT_STATEMENT;
 import static org.nuxeo.rest.query.QueryAPI.PATH;
 import static org.nuxeo.rest.query.conf.NamedQueryHelper.TITLE_SORT;
 import static org.nuxeo.rest.query.io.DocumentQueryDTO.QUERY_STRING_PROP;
+import static org.nuxeo.rest.query.spec.QueryAssembler.DEFAULT_SELECT_STATEMENT;
 import static org.springframework.http.HttpMethod.POST;
 
 import java.util.List;
