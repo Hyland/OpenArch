@@ -139,8 +139,7 @@ public abstract class MongoDBAbstractQueryBuilder {
             case ISNOTNULL -> walkIsNotNull(lvalue);
             case BETWEEN -> walkBetween(lvalue, rvalue, true);
             case NOTBETWEEN -> walkBetween(lvalue, rvalue, false);
-            case SUM, SUB, MUL, DIV, STARTSWITH -> //
-                    throw new UnsupportedOperationException(op.toString());
+            case STARTSWITH -> throw new UnsupportedOperationException(op.toString());
         };
     }
 

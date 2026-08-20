@@ -98,32 +98,20 @@ public class TestNXQLSerializer {
         check("SELECT * FROM SysContent WHERE a = 1 OR b = 2 AND c = 3",
                 "SELECT * FROM SysContent WHERE a = 1 OR (b = 2 AND c = 3)");
         checkIdentity("SELECT * FROM SysContent WHERE NOT (a = 1 AND b = 2)");
-        checkIdentity("SELECT * FROM SysContent WHERE a = 1 + 2 * 3");
-        checkIdentity("SELECT * FROM SysContent WHERE a = (1 + 2) * 3");
     }
 
     /**
-     * Every binary operator is left-associative, so a right operand that binds equally tightly keeps its
+     * The remaining binary operators are left-associative, so a right operand that binds equally tightly keeps its
      * parentheses: without them the text would re-parse left-nested, which is a different tree.
      */
     @Test
     public void testRightNestedOperatorsKeepTheirParentheses() {
-        checkIdentity("SELECT * FROM SysContent WHERE a = 1 - (2 - 3)");
-        checkIdentity("SELECT * FROM SysContent WHERE a = 1 - (2 + 3)");
-        checkIdentity("SELECT * FROM SysContent WHERE a = 1 + (2 - 3)");
-        checkIdentity("SELECT * FROM SysContent WHERE a = 1 + (2 + 3)");
-        checkIdentity("SELECT * FROM SysContent WHERE a = 1 / (2 * 3)");
-        checkIdentity("SELECT * FROM SysContent WHERE a = 1 * (2 / 3)");
-        checkIdentity("SELECT * FROM SysContent WHERE a = 1 * (2 * 3)");
         checkIdentity("SELECT * FROM SysContent WHERE p = 1 AND (q = 2 AND r = 3)");
         checkIdentity("SELECT * FROM SysContent WHERE p = 1 OR (q = 2 OR r = 3)");
         // a left-nested chain needs none of them
-        check("SELECT * FROM SysContent WHERE a = 1 - 2 - 3", "SELECT * FROM SysContent WHERE a = (1 - 2) - 3");
-        check("SELECT * FROM SysContent WHERE a = 1 * 2 / 3", "SELECT * FROM SysContent WHERE a = (1 * 2) / 3");
         check("SELECT * FROM SysContent WHERE p = 1 AND q = 2 AND r = 3",
                 "SELECT * FROM SysContent WHERE (p = 1 AND q = 2) AND r = 3");
         // nor does a right operand that binds more tightly
-        checkIdentity("SELECT * FROM SysContent WHERE a = 1 - 2 * 3");
         checkIdentity("SELECT * FROM SysContent WHERE p = 1 OR q = 2 AND r = 3");
     }
 

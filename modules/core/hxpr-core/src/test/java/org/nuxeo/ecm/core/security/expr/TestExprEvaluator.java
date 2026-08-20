@@ -96,6 +96,15 @@ public class TestExprEvaluator {
         check(user, content, expression, expectedOperand, expectedValue);
     }
 
+    /**
+     * Checks an expression that cannot be turned into a query filter but still evaluates against a document.
+     */
+    private static void checkNoOperand(String expression, String expectedException, Object expectedValue) {
+        UserPrincipal user = new UserPrincipal("", null, false);
+        checkFailOperand(user, expression, expectedException);
+        assertEquals(expectedValue, evaluateValue(expression, user, Map.of()));
+    }
+
     private static void checkFailOperand(NuxeoPrincipal user, String expression, String expectedException) {
         try {
             Operand operand = evaluateOperand(expression, user);
@@ -281,8 +290,11 @@ public class TestExprEvaluator {
         check("true && content.sys_isFolderish", "sys_isFolderish", false);
         check("false && content.sys_isFolderish", "false", false);
         check("content.sys_title == \"foo\"", "(sys_title = 'foo')", false);
-        check("content.sys_title + \"foo\"", "(sys_title + 'foo')", "nullfoo");
-        check("\"foo\" + content.sys_title", "('foo' + sys_title)", "foonull");
+        // arithmetic on a content property still evaluates against a document, but cannot become a query filter
+        checkNoOperand("content.sys_title + \"foo\"",
+                "Cannot use arithmetic on a content property in a query: (content.sys_title + \"foo\")", "nullfoo");
+        checkNoOperand("\"foo\" + content.sys_title",
+                "Cannot use arithmetic on a content property in a query: (\"foo\" + content.sys_title)", "foonull");
         check("content.sys_title == null", "sys_title IS NULL", true);
         check("content.sys_title != null", "sys_title IS NOT NULL", false);
         // promotion of string to long for comparison

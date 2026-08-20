@@ -123,8 +123,6 @@ public abstract class ExpressionEvaluator {
             case ISNOTNULL -> walkIsNotNull(lvalue);
             case BETWEEN -> walkBetween(lvalue, rvalue, true);
             case NOTBETWEEN -> walkBetween(lvalue, rvalue, false);
-            case SUM, SUB, MUL, DIV -> //
-                    throw new UnsupportedOperationException(op.toString());
         };
     }
 

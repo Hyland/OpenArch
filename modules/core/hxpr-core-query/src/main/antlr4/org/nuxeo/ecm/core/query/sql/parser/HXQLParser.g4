@@ -93,8 +93,6 @@ predicate: l=expression op=(EQ | NOTEQ | NOTEQC | LT | GT | LTEQ | GTEQ) r=expre
 
 expression: o=operand                                               # expressionOperand
           | LPAR e=expression RPAR                                  # expressionParen
-          | l=expression op=(MUL | DIV) r=expression                # expressionMulDiv
-          | l=expression op=(SUM | SUB) r=expression                # expressionSumSub
           ;
 
 reference: ref=simple_reference                                     # referenceSimple

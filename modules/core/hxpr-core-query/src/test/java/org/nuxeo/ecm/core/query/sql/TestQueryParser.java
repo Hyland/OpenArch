@@ -222,21 +222,6 @@ public class TestQueryParser {
         op = query.getWhereClause().predicate().operator;
         assertEquals(Operator.NOTEQ, op);
 
-        query = SQLQueryParser.parse("SELECT p FROM t WHERE p + 2 = 2");
-        op = ((Expression) query.getWhereClause().predicate().lvalue).operator;
-        assertEquals(Operator.SUM, op);
-
-        query = SQLQueryParser.parse("SELECT p FROM t WHERE p - 2 = 3");
-        op = ((Expression) query.getWhereClause().predicate().lvalue).operator;
-        assertEquals(Operator.SUB, op);
-
-        query = SQLQueryParser.parse("SELECT p FROM t WHERE p * 2 = 3");
-        op = ((Expression) query.getWhereClause().predicate().lvalue).operator;
-        assertEquals(Operator.MUL, op);
-
-        query = SQLQueryParser.parse("SELECT p FROM t WHERE p / 2 = 4");
-        op = ((Expression) query.getWhereClause().predicate().lvalue).operator;
-        assertEquals(Operator.DIV, op);
     }
 
     @Test
@@ -473,30 +458,29 @@ public class TestQueryParser {
     }
 
     @Test
+    public void testArithmeticIsNotSupported() {
+        assertThrows(QueryParseException.class, () -> SQLQueryParser.parse("SELECT p FROM t WHERE p + 2 = 3"));
+        assertThrows(QueryParseException.class, () -> SQLQueryParser.parse("SELECT p FROM t WHERE p - 2 = 3"));
+        assertThrows(QueryParseException.class, () -> SQLQueryParser.parse("SELECT p FROM t WHERE p * 2 = 3"));
+        assertThrows(QueryParseException.class, () -> SQLQueryParser.parse("SELECT p FROM t WHERE p / 2 = 3"));
+        // a negative number is still a literal
+        assertEquals(-2L, ((IntegerLiteral) SQLQueryParser.parse("SELECT p FROM t WHERE p = -2")
+                                                          .getWhereClause()
+                                                          .predicate()
+                                                          .rvalue).value());
+    }
+
+    /**
+     * AND binds tighter than OR, NOT tighter than AND, and both AND and OR are left-associative.
+     */
+    @Test
     public void testOperatorPrecedence() {
-        SQLQuery query = SQLQueryParser.parse("SELECT p FROM t WHERE p * -2 / 3 + 4 - 5 = 2");
+        SQLQuery query = SQLQueryParser.parse("SELECT p FROM t WHERE p=2 AND q=1 AND s=3 OR r = 4 OR w = 10");
         Expression pred = query.getWhereClause().predicate();
-        assertEquals(Operator.EQ, pred.operator);
-
-        Expression e = (Expression) pred.lvalue;
-        assertEquals(Operator.SUB, e.operator);
-
-        e = (Expression) e.lvalue;
-        assertEquals(Operator.SUM, e.operator);
-
-        e = (Expression) e.lvalue;
-        assertEquals(Operator.DIV, e.operator);
-
-        e = (Expression) e.lvalue;
-        assertEquals(Operator.MUL, e.operator);
-        assertEquals(-2, ((IntegerLiteral) e.rvalue).value());
-
-        query = SQLQueryParser.parse("SELECT p FROM t WHERE p=2 AND q=1 AND s=3 OR r = 4 OR w = 10");
-        pred = query.getWhereClause().predicate();
         assertEquals(Operator.OR, pred.operator);
         assertEquals(Operator.EQ, ((Expression) pred.rvalue).operator);
 
-        e = (Expression) pred.lvalue;
+        Expression e = (Expression) pred.lvalue;
         assertEquals(Operator.OR, e.operator);
         assertEquals(Operator.EQ, ((Expression) e.rvalue).operator);
 
@@ -523,9 +507,6 @@ public class TestQueryParser {
         assertEquals(Operator.EQ, ((Expression) e.lvalue).operator);
     }
 
-    /**
-     * Tests that good queries (queries from GOOD_QUERIES array) are successfully parsed.
-     */
     @Test
     public void testGoodQueries() {
         int i = 0;
@@ -569,7 +550,7 @@ public class TestQueryParser {
      */
     @Test
     public void testAST() {
-        SQLQuery query = SQLQueryParser.parse("SELECT p1, p2 FROM table WHERE p1 > 0 OR p2 <= 10.2 AND p1 - p2 = 5");
+        SQLQuery query = SQLQueryParser.parse("SELECT p1, p2 FROM table WHERE p1 > 0 OR p2 <= 10.2 AND p1 = 5");
 
         SelectList select = query.getSelectClause().elements;
         assertEquals(2, select.size());
@@ -593,12 +574,8 @@ public class TestQueryParser {
 
         Expression expr2 = (Expression) expr.rvalue;
         assertEquals(Operator.EQ, expr2.operator);
+        assertEquals("p1", ((Reference) expr2.lvalue).name());
         assertEquals(5, ((IntegerLiteral) expr2.rvalue).value());
-
-        Expression expr3 = (Expression) expr2.lvalue;
-        assertEquals(Operator.SUB, expr3.operator);
-        assertEquals("p1", ((Reference) expr3.lvalue).name());
-        assertEquals("p2", ((Reference) expr3.rvalue).name());
     }
 
     /**
@@ -614,10 +591,9 @@ public class TestQueryParser {
     @Test
     public void testWhereClause() {
         SQLQuery query = SQLQueryParser.parse(
-                "SELECT p1, p2 FROM t WHERE title = \"test\" OR p2 >= 10.2 AND p1 + p2 < 5");
+                "SELECT p1, p2 FROM t WHERE title = \"test\" OR p2 >= 10.2 AND p1 < 5");
 
-        Expression expr1 = new Expression(new Reference("p1"), Operator.SUM, new Reference("p2"));
-        expr1 = new Expression(expr1, Operator.LT, new IntegerLiteral(5));
+        Expression expr1 = new Predicate(new Reference("p1"), Operator.LT, new IntegerLiteral(5));
 
         Predicate expr2 = new Predicate(new Reference("p2"), Operator.GTEQ, new DoubleLiteral(10.2));
         expr1 = new Expression(expr2, Operator.AND, expr1);
@@ -648,15 +624,14 @@ public class TestQueryParser {
     @Test
     public void testWhereClauseWithParenthesis() {
         SQLQuery query = SQLQueryParser.parse(
-                "SELECT p1, p2 FROM t WHERE (title = \"test\" OR p2 >= 10.2) AND p1 + p2 < 5");
+                "SELECT p1, p2 FROM t WHERE (title = \"test\" OR p2 >= 10.2) AND p1 < 5");
 
         // create the query by hand
         Predicate expr1 = new Predicate(new Reference("title"), Operator.EQ, new StringLiteral("test"));
         Expression expr2 = new Expression(new Reference("p2"), Operator.GTEQ, new DoubleLiteral(10.2));
         expr1 = new Predicate(expr1, Operator.OR, expr2);
 
-        expr2 = new Expression(new Reference("p1"), Operator.SUM, new Reference("p2"));
-        expr2 = new Expression(expr2, Operator.LT, new IntegerLiteral(5));
+        expr2 = new Predicate(new Reference("p1"), Operator.LT, new IntegerLiteral(5));
 
         Predicate pred = new Predicate(expr1, Operator.AND, expr2);
 

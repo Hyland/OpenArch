@@ -61,11 +61,7 @@ public class NXQLSerializer {
 
     protected static final int PREC_COMPARISON = 4;
 
-    protected static final int PREC_SUM = 5;
-
-    protected static final int PREC_MUL = 6;
-
-    protected static final int PREC_ATOM = 7;
+    protected static final int PREC_ATOM = 5;
 
     /** {@code 1 = 1}, used to render an empty conjunction. */
     protected static final Predicate ALWAYS_TRUE = new Predicate(new IntegerLiteral(1), Operator.EQ,
@@ -263,7 +259,7 @@ public class NXQLSerializer {
                     sb.append(", ");
                 }
                 first = false;
-                appendOperand(sb, arg, PREC_SUM);
+                appendOperand(sb, arg, PREC_ATOM);
             }
         }
         sb.append(')');
@@ -277,7 +273,7 @@ public class NXQLSerializer {
                 sb.append(", ");
             }
             first = false;
-            appendOperand(sb, operand, PREC_SUM);
+            appendOperand(sb, operand, PREC_ATOM);
         }
         sb.append(')');
     }
@@ -311,8 +307,6 @@ public class NXQLSerializer {
             case OR -> PREC_OR;
             case AND -> PREC_AND;
             case NOT -> PREC_NOT;
-            case SUM, SUB -> PREC_SUM;
-            case MUL, DIV -> PREC_MUL;
             default -> PREC_COMPARISON;
         };
     }

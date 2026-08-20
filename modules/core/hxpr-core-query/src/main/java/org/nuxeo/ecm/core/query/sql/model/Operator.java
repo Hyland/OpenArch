@@ -21,10 +21,6 @@ package org.nuxeo.ecm.core.query.sql.model;
  */
 public enum Operator {
 
-    SUM("+"), //
-    SUB("-"), //
-    MUL("*"), //
-    DIV("/"), //
     LT("<"), //
     GT(">"), //
     EQ("="), //

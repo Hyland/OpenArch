@@ -329,12 +329,14 @@ public class ExprEvaluator {
         throw new IllegalArgumentException("Cannot use contains on non-list: " + expr.toStringPretty());
     }
 
+    /**
+     * The HXQL operator an expression operator maps onto.
+     *
+     * @throws IllegalArgumentException for an arithmetic operator, which HXQL has none of
+     */
     private Operator visit(Op op) {
         return switch (op) {
-            case ADD -> Operator.SUM;
-            case SUB -> Operator.SUB;
-            case MUL -> Operator.MUL;
-            case DIV -> Operator.DIV;
+            case ADD, SUB, MUL, DIV -> throw new IllegalArgumentException("Not a query operator: " + op);
             case EQ -> Operator.EQ;
             case NOTEQ -> Operator.NOTEQ;
             case LT -> Operator.LT;
@@ -365,7 +367,7 @@ public class ExprEvaluator {
         if (left instanceof Operand || right instanceof Operand) {
             Operand lo = left instanceof Operand o ? o : toLiteral(left, expr);
             Operand ro = right instanceof Operand o ? o : toLiteral(right, expr);
-            return binary(lo, op, ro);
+            return binary(lo, op, ro, expr);
         } else if (left == CONTENT || right == CONTENT) {
             throw invalidExpr(expr);
         } else {
@@ -384,7 +386,7 @@ public class ExprEvaluator {
     }
 
     // string promotion and boolean constant folding
-    private Operand binary(Operand left, Op op, Operand right) {
+    private Operand binary(Operand left, Op op, Operand right, Expr expr) {
         // promote string to numeric for comparisons with Reference
         // TODO should do type check on reference, but this requires a full schema manager
         // (and then we'd be able to include EQ and NOTEQ here too)
@@ -428,6 +430,12 @@ public class ExprEvaluator {
             }
         }
 
+        if (op == Op.ADD || op == Op.SUB || op == Op.MUL || op == Op.DIV) {
+            // arithmetic is fine when evaluating against a document, but a query cannot express it: no storage
+            // supports it, so there is nothing to hand a filter built out of it to
+            throw new IllegalArgumentException(
+                    "Cannot use arithmetic on a content property in a query: " + expr.toStringPretty());
+        }
         Operator operator = visit(op);
         return switch (op) {
             case EQ, NOTEQ -> {
@@ -440,7 +448,7 @@ public class ExprEvaluator {
                 }
             }
             case AND, OR, GT, LT, GTEQ, LTEQ -> new Predicate(left, operator, right);
-            default -> new Expression(left, operator, right);
+            case ADD, SUB, MUL, DIV, NOT -> throw new IllegalStateException("Not a binary query operator: " + op);
         };
     }
 

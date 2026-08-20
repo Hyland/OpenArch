@@ -35,7 +35,6 @@ import org.nuxeo.ecm.core.query.sql.model.ASTNode;
 import org.nuxeo.ecm.core.query.sql.model.BooleanLiteral;
 import org.nuxeo.ecm.core.query.sql.model.DateLiteral;
 import org.nuxeo.ecm.core.query.sql.model.DoubleLiteral;
-import org.nuxeo.ecm.core.query.sql.model.Expression;
 import org.nuxeo.ecm.core.query.sql.model.FromClause;
 import org.nuxeo.ecm.core.query.sql.model.FromList;
 import org.nuxeo.ecm.core.query.sql.model.FtHint;
@@ -57,10 +56,8 @@ import org.nuxeo.ecm.core.query.sql.model.SelectList;
 import org.nuxeo.ecm.core.query.sql.model.StringLiteral;
 import org.nuxeo.ecm.core.query.sql.model.WhereClause;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.ExpressionContext;
-import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.ExpressionMulDivContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.ExpressionOperandContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.ExpressionParenContext;
-import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.ExpressionSumSubContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.From_clauseContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.From_listContext;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.Ft_hintContext;
@@ -386,29 +383,6 @@ public class HXQLVisitor extends HXQLParserBaseVisitor<ASTNode> {
     @Override
     public ASTNode visitExpressionParen(ExpressionParenContext ctx) {
         return ctx.e.accept(this);
-    }
-
-    @Override
-    public ASTNode visitExpressionMulDiv(ExpressionMulDivContext ctx) {
-        return visitExpressionArithmetic(ctx.l, ctx.op, ctx.r);
-    }
-
-    @Override
-    public ASTNode visitExpressionSumSub(ExpressionSumSubContext ctx) {
-        return visitExpressionArithmetic(ctx.l, ctx.op, ctx.r);
-    }
-
-    private ASTNode visitExpressionArithmetic(ExpressionContext l, Token optok, ExpressionContext r) {
-        var left = (Operand) l.accept(this);
-        var right = (Operand) r.accept(this);
-        Operator op = switch (optok.getType()) {
-        case HXQLParser.MUL -> Operator.MUL;
-        case HXQLParser.DIV -> Operator.DIV;
-        case HXQLParser.SUM -> Operator.SUM;
-        case HXQLParser.SUB -> Operator.SUB;
-        default -> throw new IllegalStateException("Unexpected case: " + optok);
-        };
-        return new Expression(left, op, right);
     }
 
     @Override

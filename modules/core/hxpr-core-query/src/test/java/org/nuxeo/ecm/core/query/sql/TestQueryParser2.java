@@ -41,8 +41,6 @@ public class TestQueryParser2 {
             "SELECT getDate(), p FROM t WHERE substring(title, 2) = 'test'",
             "SELECT sys_title FROM SysContent WHERE sys_description = 'test'",
             "SELECT name, title, description FROM SysFolder WHERE state = 2 AND created > '20060523'",
-            "SELECT p FROM t WHERE p * -2 / 3 + 4 - 5 = 2", "SELECT p FROM t WHERE p * 2 = 3",
-            "SELECT p FROM t WHERE p + 2 = 2", "SELECT p FROM t WHERE p - 2 = 3", "SELECT p FROM t WHERE p / 2 = 4",
             "SELECT p FROM t WHERE p < 1", "SELECT p FROM t WHERE p <= 1", "SELECT p FROM t WHERE p <> 1",
             "SELECT p FROM t WHERE p = 'test'", "SELECT p FROM t WHERE p > 1", "SELECT p FROM t WHERE p >= 1",
             "SELECT p FROM t WHERE p LIKE '%test%'", "SELECT p FROM t WHERE p NOT LIKE '%test%'",
@@ -61,8 +59,6 @@ public class TestQueryParser2 {
             "SELECT sys_title FROM SysContent WHERE sys_description = 'test'",
             "SELECT name, title, description FROM SysFolder WHERE state = 2 AND created > \"20060523\"",
             "SELECT q FROM t WHERE q != 1",
-            "SELECT p FROM t WHERE p * -2 / 3 + 4 - 5 = 2", "SELECT p FROM t WHERE p * 2 = 3",
-            "SELECT p FROM t WHERE p + 2 = 2", "SELECT p FROM t WHERE p - 2 = 3", "SELECT p FROM t WHERE p / 2 = 4",
             "SELECT p FROM t WHERE p < 1", "SELECT p FROM t WHERE p <= 1", "SELECT p FROM t WHERE p <> 1",
             "SELECT p FROM t WHERE p = 'test'", "SELECT p FROM t WHERE p > 1", "SELECT p FROM t WHERE p >= 1",
             "SELECT p FROM t WHERE p BETWEEN 10 AND 20 AND q='test'",
@@ -85,9 +81,9 @@ public class TestQueryParser2 {
             "SELECT p, q FROM t ORDER BY p, q ASC", "SELECT p, q FROM t ORDER BY p, q DESC",
             "SELECT p, q FROM t ORDER BY p DESC, q DESC", "SELECT p, q FROM t ORDER BY p DESC, q",
             "SELECT p, q, r FROM t1, t2, t3", "SELECT p1, $id, p3 FROM t1, t2 WHERE state=1 AND title = 'test'",
-            "SELECT p1, p2 FROM t WHERE (title = \"test\" OR p2 >= 10.2) AND p1 + p2 < 5",
-            "SELECT p1, p2 FROM t WHERE title = \"test\" OR p2 >= 10.2 AND p1 + p2 < 5",
-            "SELECT p1, p2 FROM table WHERE p1 > 0 OR p2 <= 10.2 AND p1 - p2 = 5",
+            "SELECT p1, p2 FROM t WHERE (title = \"test\" OR p2 >= 10.2) AND p1 < 5",
+            "SELECT p1, p2 FROM t WHERE title = \"test\" OR p2 >= 10.2 AND p1 < 5",
+            "SELECT p1, p2 FROM table WHERE p1 > 0 OR p2 <= 10.2 AND p1 = 5",
             "SELECT * FROM SysContent WHERE (sys_creator = 'Pedro' OR sys_creator = 'Piotr' OR sys_creator = 'Pierre')",
             "SELECT * FROM SysContent WHERE (sys_creator = 'default1' OR sys_creator = 'default2')",
             "SELECT * FROM SysContent WHERE sys_contributors = 'Administrator' AND sys_path STARTSWITH 'somelocation'",
@@ -153,7 +149,10 @@ public class TestQueryParser2 {
             "SELECT p FROM t, u AS u1",
             // neither are HAVING and GROUP BY
             "SELECT p FROM t HAVING p = 1", "SELECT p FROM t WHERE q = 2 HAVING p = 1",
-            "SELECT p FROM t GROUP BY p", "SELECT p, q FROM t GROUP BY p, q" };
+            "SELECT p FROM t GROUP BY p", "SELECT p, q FROM t GROUP BY p, q",
+            // nor is arithmetic, which no storage can execute
+            "SELECT p FROM t WHERE p + 2 = 3", "SELECT p FROM t WHERE p - 2 = 3",
+            "SELECT p FROM t WHERE p * 2 = 3", "SELECT p FROM t WHERE p / 2 = 3" };
 
     static final String[] BAD_QUERIES_OLD = {
             "SELECT * WHERE location STARTWITH '/'",

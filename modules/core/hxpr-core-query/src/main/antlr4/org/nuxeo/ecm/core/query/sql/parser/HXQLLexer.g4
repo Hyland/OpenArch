@@ -72,10 +72,7 @@ STARTSWITH: 'STARTSWITH';
 TRUE:       'TRUE';
 FALSE:      'FALSE';
 
-SUM:    '+';
-SUB:    '-';
-MUL:    '*';
-DIV:    '/';
+MUL:    '*';   // only as the SELECT * projection, there is no arithmetic in HXQL
 
 EQ:     '=';
 NOTEQ:  '<>';
