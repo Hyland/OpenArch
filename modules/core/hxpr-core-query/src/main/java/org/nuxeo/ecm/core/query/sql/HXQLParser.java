@@ -24,10 +24,10 @@ import org.nuxeo.ecm.core.query.sql.parser.HXQLVisitor;
 /**
  * @author <a href="mailto:bs@nuxeo.com">Bogdan Stefanescu</a>
  */
-public final class SQLQueryParser {
+public final class HXQLParser {
 
     // Utility class
-    private SQLQueryParser() {
+    private HXQLParser() {
     }
 
     public static SQLQuery parse(String string) throws QueryParseException {

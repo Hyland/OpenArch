@@ -33,7 +33,7 @@ import org.nuxeo.ecm.core.query.QueryParseException;
 public class TestQueryParameterBinder {
 
     protected static String bind(String query, Map<String, Object> parameters) {
-        return NXQLSerializer.serialize(QueryParameterBinder.bind(SQLQueryParser.parse(query), parameters));
+        return HXQLSerializer.serialize(QueryParameterBinder.bind(HXQLParser.parse(query), parameters));
     }
 
     protected static void check(String expected, String query, Map<String, Object> parameters) {

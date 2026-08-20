@@ -41,7 +41,7 @@ import org.nuxeo.ecm.core.api.PathRef;
 import org.nuxeo.ecm.core.api.local.DummyLoginFeature;
 import org.nuxeo.ecm.core.api.security.ACL;
 import org.nuxeo.ecm.core.api.validation.DocumentValidationException;
-import org.nuxeo.ecm.core.query.sql.NXQL;
+import org.nuxeo.ecm.core.query.sql.HXQL;
 import org.nuxeo.ecm.core.repository.RepositoryService;
 import org.nuxeo.ecm.core.test.annotations.Granularity;
 import org.nuxeo.ecm.core.test.annotations.RepositoryConfig;
@@ -246,7 +246,7 @@ public class CoreFeature implements RunnerFeature {
                 }
                 // remove remaining placeless documents
                 try (IterableQueryResult results = adminSession.queryAndFetch("SELECT sys_id FROM SysContent, SysRelation",
-                        NXQL.NXQL)) {
+                        HXQL.HXQL)) {
                     batchRemoveDocuments(adminSession, results);
                 }
                 adminSession.save();

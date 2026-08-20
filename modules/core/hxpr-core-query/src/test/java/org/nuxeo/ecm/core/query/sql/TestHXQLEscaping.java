@@ -19,21 +19,21 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-public class TestNXQLEscaping {
+public class TestHXQLEscaping {
 
     @Test
     public void testEscapeString() throws Exception {
-        assertEquals("", NXQL.escapeStringInner(""));
-        assertEquals("a\\'b", NXQL.escapeStringInner("a'b"));
-        assertEquals("a\\\\b", NXQL.escapeStringInner("a\\b"));
-        assertEquals("a\\\\\\'b", NXQL.escapeStringInner("a\\'b"));
-        assertEquals("a\\nb", NXQL.escapeStringInner("a\nb"));
+        assertEquals("", HXQL.escapeStringInner(""));
+        assertEquals("a\\'b", HXQL.escapeStringInner("a'b"));
+        assertEquals("a\\\\b", HXQL.escapeStringInner("a\\b"));
+        assertEquals("a\\\\\\'b", HXQL.escapeStringInner("a\\'b"));
+        assertEquals("a\\nb", HXQL.escapeStringInner("a\nb"));
 
-        assertEquals("''", NXQL.escapeString(""));
-        assertEquals("'a\\'b'", NXQL.escapeString("a'b"));
-        assertEquals("'a\\\\b'", NXQL.escapeString("a\\b"));
-        assertEquals("'a\\\\\\'b'", NXQL.escapeString("a\\'b"));
-        assertEquals("'a\\nb'", NXQL.escapeString("a\nb"));
+        assertEquals("''", HXQL.escapeString(""));
+        assertEquals("'a\\'b'", HXQL.escapeString("a'b"));
+        assertEquals("'a\\\\b'", HXQL.escapeString("a\\b"));
+        assertEquals("'a\\\\\\'b'", HXQL.escapeString("a\\'b"));
+        assertEquals("'a\\nb'", HXQL.escapeString("a\nb"));
     }
 
 }

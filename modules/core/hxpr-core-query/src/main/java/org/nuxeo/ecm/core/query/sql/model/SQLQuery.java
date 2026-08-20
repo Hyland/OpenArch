@@ -17,7 +17,7 @@ package org.nuxeo.ecm.core.query.sql.model;
 
 import java.util.Objects;
 
-import org.nuxeo.ecm.core.query.sql.NXQLSerializer;
+import org.nuxeo.ecm.core.query.sql.HXQLSerializer;
 
 /**
  * A whole NXQL query.
@@ -108,7 +108,7 @@ public final class SQLQuery implements ASTNode {
 
     @Override
     public String toString() {
-        return NXQLSerializer.serialize(this);
+        return HXQLSerializer.serialize(this);
     }
 
 }

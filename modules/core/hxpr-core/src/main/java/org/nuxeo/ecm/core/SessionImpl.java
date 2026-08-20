@@ -784,7 +784,7 @@ public class SessionImpl implements CoreSession {
     public ScrollResult<String> scroll(String query, int batchSize, int keepAliveSeconds) {
         Map<String, AttributeValue> map = new HashMap<>();
         Span span = Tracing.getTracer().getCurrentSpan();
-        map.put("nxql", AttributeValue.stringAttributeValue(query));
+        map.put("hxql", AttributeValue.stringAttributeValue(query));
         map.put("batchSize", AttributeValue.longAttributeValue(batchSize));
         map.put("keepAliveSeconds", AttributeValue.longAttributeValue(keepAliveSeconds));
         QueryParameters queryParams = new QueryParameters(principal, 0, 0);

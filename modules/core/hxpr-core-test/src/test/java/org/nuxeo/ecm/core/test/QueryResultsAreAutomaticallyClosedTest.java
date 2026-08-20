@@ -16,6 +16,7 @@
 package org.nuxeo.ecm.core.test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.nuxeo.ecm.core.query.sql.HXQL.HXQL;
 
 import jakarta.inject.Inject;
 
@@ -41,7 +42,7 @@ public class QueryResultsAreAutomaticallyClosedTest {
     @Test
     public void testTransactional() {
         CoreSession session = coreFeature.getCoreSessionSystem();
-        try (IterableQueryResult results = session.queryAndFetch("SELECT * FROM SysContent", "NXQL")) {
+        try (IterableQueryResult results = session.queryAndFetch("SELECT * FROM SysContent", HXQL)) {
             TransactionHelper.commitOrRollbackTransaction();
             TransactionHelper.startTransaction();
             assertFalse(results.mustBeClosed());
@@ -58,7 +59,7 @@ public class QueryResultsAreAutomaticallyClosedTest {
 
         @Override
         public void run() {
-            result = session.queryAndFetch("SELECT * FROM SysContent", "NXQL");
+            result = session.queryAndFetch("SELECT * FROM SysContent", HXQL);
         }
 
     }
@@ -69,7 +70,7 @@ public class QueryResultsAreAutomaticallyClosedTest {
         IterableQueryResult mainResults;
         CoreSession main = coreFeature.getCoreSessionSystem();
         NestedQueryRunner runner = new NestedQueryRunner(main.getRepositoryName());
-        mainResults = main.queryAndFetch("SELECT * FROM SysContent", "NXQL");
+        mainResults = main.queryAndFetch("SELECT * FROM SysContent", HXQL);
         runner.runUnrestricted();
         TransactionHelper.commitOrRollbackTransaction();
         TransactionHelper.startTransaction();

@@ -39,6 +39,7 @@ import static org.nuxeo.ecm.core.api.security.SecurityConstants.EVERYONE;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.EVERYTHING;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.READ;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.WRITE;
+import static org.nuxeo.ecm.core.query.sql.HXQL.HXQL;
 import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FILE;
 import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FOLDER;
 import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_ORDERED_FOLDER;
@@ -86,7 +87,7 @@ import org.nuxeo.ecm.core.api.security.impl.ACLImpl;
 import org.nuxeo.ecm.core.api.trash.TrashService;
 import org.nuxeo.ecm.core.blob.ManagedBlob;
 import org.nuxeo.ecm.core.query.QueryParseException;
-import org.nuxeo.ecm.core.query.sql.NXQL;
+import org.nuxeo.ecm.core.query.sql.HXQL;
 import org.nuxeo.ecm.core.test.CoreFeature;
 import org.nuxeo.ecm.core.test.StorageConfiguration;
 import org.nuxeo.ecm.core.test.annotations.Granularity;
@@ -1289,7 +1290,7 @@ public class TestSQLRepositoryQuery {
         session.save();
 
         CoreSession bobSession = openSessionAs("bob");
-        IterableQueryResult res = bobSession.queryAndFetch("SELECT * FROM SysContent", "NXQL");
+        IterableQueryResult res = bobSession.queryAndFetch("SELECT * FROM SysContent", HXQL);
         assertEquals(3, res.size());
         res.close();
     }
@@ -1406,7 +1407,7 @@ public class TestSQLRepositoryQuery {
         DocumentModelList dml = session.query(query);
         assertEquals(expected, dml.size());
 
-        IterableQueryResult res = session.queryAndFetch(query, "NXQL");
+        IterableQueryResult res = session.queryAndFetch(query, HXQL);
         long size = res.size();
         res.close();
         assertEquals(expected, size);
@@ -1447,7 +1448,7 @@ public class TestSQLRepositoryQuery {
         res = session.queryAndFetch(
                 "SELECT sys_id, sys_acl/*1/principal, sys_acl/*1/permission FROM SysContent WHERE "
                         + "sys_acl/*1/permission = 'Read' AND sys_acl/*1/grant = 1",
-                "NXQL");
+                HXQL);
         assertEquals(2, res.size());
         Set<String> set = new HashSet<>();
         for (Map<String, Object> map : res) {
@@ -1463,7 +1464,7 @@ public class TestSQLRepositoryQuery {
                         + "sys_acl/*1/creator, sys_acl/*1/begin, sys_acl/*1/end " //
                         + "FROM SysContent WHERE " //
                         + "sys_acl/*/principal = 'u:bob'",
-                "NXQL");
+                HXQL);
         assertEquals(5, res.size());
         set = new HashSet<>();
         for (Map<String, Object> map : res) {
@@ -1811,7 +1812,7 @@ public class TestSQLRepositoryQuery {
     public void testQueryIterable() {
         createDocs();
 
-        IterableQueryResult res = session.queryAndFetch("SELECT * FROM MyDocType", "NXQL");
+        IterableQueryResult res = session.queryAndFetch("SELECT * FROM MyDocType", HXQL);
         List<Map<String, Object>> l = new LinkedList<>();
         for (Map<String, Object> x : res) {
             l.add(x);
@@ -1820,7 +1821,7 @@ public class TestSQLRepositoryQuery {
         res.close();
 
         // cursor behavior
-        res = session.queryAndFetch("SELECT * FROM MyDocType", "NXQL");
+        res = session.queryAndFetch("SELECT * FROM MyDocType", HXQL);
         Iterator<Map<String, Object>> it = res.iterator();
         assertEquals(0, res.pos());
         it.next();
@@ -1847,7 +1848,7 @@ public class TestSQLRepositoryQuery {
         res.close();
 
         // checking size when at end
-        res = session.queryAndFetch("SELECT * FROM MyDocType", "NXQL");
+        res = session.queryAndFetch("SELECT * FROM MyDocType", HXQL);
         it = res.iterator();
         it.next();
         it.next();
@@ -1857,7 +1858,7 @@ public class TestSQLRepositoryQuery {
         res.close();
 
         // size when query returns nothing
-        res = session.queryAndFetch("SELECT * FROM MyDocType WHERE sys_title = 'zzz'", "NXQL");
+        res = session.queryAndFetch("SELECT * FROM MyDocType WHERE sys_title = 'zzz'", HXQL);
         it = res.iterator();
         assertFalse(it.hasNext());
         assertEquals(0, res.size());
@@ -1894,7 +1895,7 @@ public class TestSQLRepositoryQuery {
 
         // check proper tables are joined even if not in FROM
         query = "SELECT sys_id, sys_title FROM MyDocType";
-        res = session.queryAndFetch(query, "NXQL");
+        res = session.queryAndFetch(query, HXQL);
         assertEquals(3, res.size());
         map = res.iterator().next();
         assertTrue(map.containsKey(SYS_TITLE));
@@ -1903,7 +1904,7 @@ public class TestSQLRepositoryQuery {
 
         // check content
         query = "SELECT sys_id, sys_title FROM MyDocType ORDER BY sys_title";
-        res = session.queryAndFetch(query, "NXQL");
+        res = session.queryAndFetch(query, HXQL);
         assertEquals(3, res.size());
         it = res.iterator();
         map = it.next();
@@ -1929,7 +1930,7 @@ public class TestSQLRepositoryQuery {
         session.save();
 
         query = "SELECT tst2_title, sys_title FROM SysFile WHERE sys_title = 'title1'";
-        res = session.queryAndFetch(query, "NXQL");
+        res = session.queryAndFetch(query, HXQL);
         assertEquals(1, res.size());
         map = res.iterator().next();
         assertEquals("title1", map.get(SYS_TITLE));
@@ -1938,7 +1939,7 @@ public class TestSQLRepositoryQuery {
 
         // now with ORDER BY
         query = "SELECT tst2_title, sys_title FROM SysFile WHERE sys_title = 'title1' ORDER BY sys_id";
-        res = session.queryAndFetch(query, "NXQL");
+        res = session.queryAndFetch(query, HXQL);
         assertEquals(1, res.size());
         map = res.iterator().next();
         assertEquals("title1", map.get(SYS_TITLE));
@@ -1965,21 +1966,21 @@ public class TestSQLRepositoryQuery {
         session.save();
 
         query = "SELECT sys_title FROM MyDocType WHERE sys_title = 'special1' AND sysver_isVersion = TRUE";
-        try (IterableQueryResult res = session.queryAndFetch(query, "NXQL")) {
+        try (IterableQueryResult res = session.queryAndFetch(query, HXQL)) {
             assertEquals(1, res.size());
             Map<String, Object> map = res.iterator().next();
             assertEquals("special1", map.get(SYS_TITLE));
         }
 
         query = "SELECT sysver_version FROM MyDocType WHERE sys_title = 'special1' AND sysver_isVersion = TRUE";
-        try (IterableQueryResult res = session.queryAndFetch(query, "NXQL")) {
+        try (IterableQueryResult res = session.queryAndFetch(query, HXQL)) {
             assertEquals(1, res.size());
             Map<String, Object> map = res.iterator().next();
             assertEquals(1L, map.get(SYSVER_VERSION));
         }
 
         query = "SELECT sysfile_blob/filename, sysfile_blob/length FROM MyDocType WHERE sys_title = 'special1' AND sysver_isVersion = TRUE";
-        try (IterableQueryResult res = session.queryAndFetch(query, "NXQL")) {
+        try (IterableQueryResult res = session.queryAndFetch(query, HXQL)) {
             assertEquals(1, res.size());
             Map<String, Object> map = res.iterator().next();
             assertEquals("rucontent.txt", map.get("sysfile_blob/filename"));
@@ -2001,7 +2002,7 @@ public class TestSQLRepositoryQuery {
         makeComplexDoc();
 
         String query = "SELECT sys_id FROM TestDoc WHERE tst_friends/*/firstname = 'John'";
-        IterableQueryResult res = session.queryAndFetch(query, "NXQL");
+        IterableQueryResult res = session.queryAndFetch(query, HXQL);
         assertEquals(1, res.size());
         res.close();
     }
@@ -2115,7 +2116,7 @@ public class TestSQLRepositoryQuery {
     @Test
     public void testIdType() {
         createDocs();
-        IterableQueryResult res = session.queryAndFetch("SELECT sys_id, sys_parentId FROM MyDocType", NXQL.NXQL);
+        IterableQueryResult res = session.queryAndFetch("SELECT sys_id, sys_parentId FROM MyDocType", HXQL);
         assertEquals(3, res.size());
         for (Map<String, Object> map : res) {
             Object id = map.get(SYS_ID);
@@ -2221,7 +2222,7 @@ public class TestSQLRepositoryQuery {
         clause = "tst_owner/firstname = 'Bruce'";
         res = session.query(SELECT_WHERE + clause);
         assertEquals(Collections.singletonList(docId), getIds(res));
-        it = session.queryAndFetch("SELECT tst_title, tst_owner/lastname" + FROM_WHERE + clause, "NXQL");
+        it = session.queryAndFetch("SELECT tst_title, tst_owner/lastname" + FROM_WHERE + clause, HXQL);
         assertEquals(1, it.size());
         assertEquals("Willis", it.iterator().next().get("tst_owner/lastname"));
         it.close();
@@ -2250,7 +2251,7 @@ public class TestSQLRepositoryQuery {
         clause = "tst_couple/first/firstname = 'Steve'";
         res = session.query(SELECT_WHERE + clause);
         assertEquals(Collections.singletonList(docId), getIds(res));
-        it = session.queryAndFetch("SELECT tst_title, tst_couple/first/lastname" + FROM_WHERE + clause, "NXQL");
+        it = session.queryAndFetch("SELECT tst_title, tst_couple/first/lastname" + FROM_WHERE + clause, HXQL);
         assertEquals(1, it.size());
         assertEquals("Jobs", it.iterator().next().get("tst_couple/first/lastname"));
         it.close();
@@ -2263,7 +2264,7 @@ public class TestSQLRepositoryQuery {
         clause = "tst_friends/0/firstname = 'John'";
         res = session.query(SELECT_WHERE + clause);
         assertEquals(Collections.singletonList(docId), getIds(res));
-        it = session.queryAndFetch("SELECT tst_title, tst_friends/0/lastname" + FROM_WHERE + clause, "NXQL");
+        it = session.queryAndFetch("SELECT tst_title, tst_friends/0/lastname" + FROM_WHERE + clause, HXQL);
         assertEquals(1, it.size());
         assertEquals("Lennon", it.iterator().next().get("tst_friends/0/lastname"));
         it.close();
@@ -2276,7 +2277,7 @@ public class TestSQLRepositoryQuery {
         clause = "tst_friends/*/firstname = 'John'";
         res = session.query(SELECT_WHERE + clause);
         assertEquals(Collections.singletonList(docId), getIds(res));
-        it = session.queryAndFetch(SELECT_TITLE_WHERE + clause, "NXQL");
+        it = session.queryAndFetch(SELECT_TITLE_WHERE + clause, HXQL);
         // MongoDB query projecting on a non-wildcard values doesn't repeat matches
         // as this would entail re-evaluating the projection from the full state
         // just to get duplicated identical rows
@@ -2292,7 +2293,7 @@ public class TestSQLRepositoryQuery {
         clause = "tst_friends/*1/firstname = 'John'" + " AND tst_friends/*1/lastname = 'Smith'";
         res = session.query(SELECT_WHERE + clause);
         assertEquals(Collections.singletonList(docId), getIds(res));
-        it = session.queryAndFetch("SELECT tst_title, tst_friends/*1/lastname" + FROM_WHERE + clause, "NXQL");
+        it = session.queryAndFetch("SELECT tst_title, tst_friends/*1/lastname" + FROM_WHERE + clause, HXQL);
         assertEquals(1, it.size()); // correlated stars
         assertEquals("Smith", it.iterator().next().get("tst_friends/*1/lastname"));
         it.close();
@@ -2403,7 +2404,7 @@ public class TestSQLRepositoryQuery {
         clause = "tst_title = 'hello world'";
         res = session.query(SELECT_WHERE + clause);
         assertEquals(Collections.singletonList(docId), getIds(res));
-        it = session.queryAndFetch("SELECT tst_friends/*/lastname" + FROM_WHERE + clause, "NXQL");
+        it = session.queryAndFetch("SELECT tst_friends/*/lastname" + FROM_WHERE + clause, HXQL);
         assertEquals(2, it.size());
         set = new HashSet<>();
         for (Map<String, Object> map : it) {
@@ -2421,7 +2422,7 @@ public class TestSQLRepositoryQuery {
         res = session.query(SELECT_WHERE + clause);
         assertEquals(Collections.singletonList(docId), getIds(res));
         it = session.queryAndFetch("SELECT tst_friends/*1/firstname, tst_friends/*1/lastname" + FROM_WHERE + clause,
-                "NXQL");
+                HXQL);
         assertEquals(2, it.size());
         Set<String> fn = new HashSet<>();
         Set<String> ln = new HashSet<>();
@@ -2462,7 +2463,7 @@ public class TestSQLRepositoryQuery {
         // WHERE s.pos = 0
         // AND s.item = 'bar'
         clause = "tst_subjects/0 = 'foo'";
-        it = session.queryAndFetch("SELECT tst_subjects/0" + FROM_WHERE + clause, "NXQL");
+        it = session.queryAndFetch("SELECT tst_subjects/0" + FROM_WHERE + clause, HXQL);
         assertEquals(1, it.size());
         assertEquals("foo", it.iterator().next().get("tst_subjects/0"));
         it.close();
@@ -2476,7 +2477,7 @@ public class TestSQLRepositoryQuery {
         clause = "tst_subjects/0 LIKE 'foo%'";
         res = session.query(SELECT_WHERE + clause);
         assertEquals(Collections.singletonList(docId), getIds(res));
-        it = session.queryAndFetch("SELECT tst_subjects/1" + FROM_WHERE + clause, "NXQL");
+        it = session.queryAndFetch("SELECT tst_subjects/1" + FROM_WHERE + clause, HXQL);
         assertEquals(1, it.size());
         assertEquals("bar", it.iterator().next().get("tst_subjects/1"));
         it.close();
@@ -2488,7 +2489,7 @@ public class TestSQLRepositoryQuery {
         clause = "tst_subjects/*1 LIKE '%oo'";
         res = session.query(SELECT_WHERE + clause);
         assertEquals(Collections.singletonList(docId), getIds(res));
-        it = session.queryAndFetch("SELECT tst_subjects/*1" + FROM_WHERE + clause, "NXQL");
+        it = session.queryAndFetch("SELECT tst_subjects/*1" + FROM_WHERE + clause, HXQL);
         assertEquals(2, it.size());
         set = new HashSet<>();
         for (Map<String, Object> map : it) {
@@ -2501,7 +2502,7 @@ public class TestSQLRepositoryQuery {
         clause = "tst_title = 'hello world'";
         res = session.query(SELECT_WHERE + clause);
         assertEquals(Collections.singletonList(docId), getIds(res));
-        it = session.queryAndFetch("SELECT tst_subjects/*1" + FROM_WHERE + clause, "NXQL");
+        it = session.queryAndFetch("SELECT tst_subjects/*1" + FROM_WHERE + clause, HXQL);
         assertEquals(3, it.size());
         set = new HashSet<>();
         for (Map<String, Object> map : it) {
@@ -2514,7 +2515,7 @@ public class TestSQLRepositoryQuery {
         clause = "tst_title = 'nosuchtitle'";
         res = session.query(SELECT_WHERE + clause);
         assertEquals(Collections.emptyList(), getIds(res));
-        it = session.queryAndFetch("SELECT tst_subjects/*1" + FROM_WHERE + clause, "NXQL");
+        it = session.queryAndFetch("SELECT tst_subjects/*1" + FROM_WHERE + clause, HXQL);
         assertEquals(0, it.size());
         it.close();
 
@@ -2522,7 +2523,7 @@ public class TestSQLRepositoryQuery {
         clause = "tst_subjects/* LIKE '%oo'";
         res = session.query(SELECT_WHERE + clause);
         assertEquals(Collections.singletonList(docId), getIds(res));
-        it = session.queryAndFetch("SELECT tst_subjects/*" + FROM_WHERE + clause, "NXQL");
+        it = session.queryAndFetch("SELECT tst_subjects/*" + FROM_WHERE + clause, HXQL);
         // two uncorrelated stars, resulting in a cross join
         assertEquals(6, it.size());
         set = new HashSet<>();
@@ -2534,7 +2535,7 @@ public class TestSQLRepositoryQuery {
 
         // WHAT
         clause = "tst_title = 'hello world'";
-        it = session.queryAndFetch("SELECT tst_subjects/*" + FROM_WHERE + clause, "NXQL");
+        it = session.queryAndFetch("SELECT tst_subjects/*" + FROM_WHERE + clause, HXQL);
         assertEquals(3, it.size());
         set = new HashSet<>();
         for (Map<String, Object> map : it) {
@@ -2595,7 +2596,7 @@ public class TestSQLRepositoryQuery {
         }
 
         clause = "tst_title = 'hello world' ORDER BY tst_subjects/*1";
-        it = session.queryAndFetch("SELECT tst_title" + FROM_WHERE + clause, "NXQL");
+        it = session.queryAndFetch("SELECT tst_title" + FROM_WHERE + clause, HXQL);
         // MongoDB query projecting on a non-wildcard values doesn't repeat matches
         // as this would entail re-evaluating the projection from the full state
         // just to get duplicated identical rows
@@ -2866,7 +2867,7 @@ public class TestSQLRepositoryQuery {
         assertEquals(0, dml.size());
         assertEquals(0, dml.totalSize());
 
-        IterableQueryResult res = session.queryAndFetch(nxql, NXQL.NXQL);
+        IterableQueryResult res = session.queryAndFetch(nxql, HXQL);
         assertEquals(1, res.size());
         Map<String, Object> map = res.iterator().next();
         assertEquals("not-a-doc-id", map.get("mydc_source"));
@@ -2892,7 +2893,7 @@ public class TestSQLRepositoryQuery {
         assertEquals(0, dml.size());
         assertEquals(0, dml.totalSize());
 
-        IterableQueryResult res = session.queryAndFetch(nxql, NXQL.NXQL);
+        IterableQueryResult res = session.queryAndFetch(nxql, HXQL);
         assertEquals(0, res.size());
         res.close();
 
@@ -2969,7 +2970,7 @@ public class TestSQLRepositoryQuery {
         assertEquals(0, dml.size()); // null docs filtered out
         assertEquals(0, dml.totalSize());
 
-        IterableQueryResult res = session.queryAndFetch(nxql, NXQL.NXQL);
+        IterableQueryResult res = session.queryAndFetch(nxql, HXQL);
         assertEquals(1, res.size());
         Map<String, Object> map = res.iterator().next();
         assertNull(map.get("mydc_subjects/*1"));

@@ -15,7 +15,7 @@
  */
 package org.nuxeo.ecm.core.query.sql.model;
 
-import org.nuxeo.ecm.core.query.sql.NXQLSerializer;
+import org.nuxeo.ecm.core.query.sql.HXQLSerializer;
 
 import java.util.Objects;
 
@@ -44,7 +44,7 @@ public sealed class Predicate implements Operand permits MultiExpression {
 
     @Override
     public String toString() {
-        return NXQLSerializer.serialize(this);
+        return HXQLSerializer.serialize(this);
     }
 
     @Override

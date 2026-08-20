@@ -30,7 +30,7 @@ import jakarta.inject.Inject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.nuxeo.ecm.core.query.sql.SQLQueryParser;
+import org.nuxeo.ecm.core.query.sql.HXQLParser;
 import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
 import org.nuxeo.ecm.core.schema.SchemaManager;
 import org.nuxeo.ecm.core.schema.TypeService;
@@ -85,7 +85,7 @@ public class TestDBSExpressionEvaluator {
 
     @Test
     public void testMatch() throws Exception {
-        SQLQuery query = SQLQueryParser.parse("SELECT sys_id, cmp_addresses/*1/street FROM D WHERE " //
+        SQLQuery query = HXQLParser.parse("SELECT sys_id, cmp_addresses/*1/street FROM D WHERE " //
                 + "cmp_addresses/*1/city = 'Paris'");
         DBSExpressionEvaluator evaluator = new DBSExpressionEvaluator(null, query);
         evaluator.parse(schemaManager);
@@ -106,7 +106,7 @@ public class TestDBSExpressionEvaluator {
 
     @Test
     public void testMatch2() throws Exception {
-        SQLQuery query = SQLQueryParser.parse("SELECT sys_id, cmp_addresses/*1/street FROM D WHERE "
+        SQLQuery query = HXQLParser.parse("SELECT sys_id, cmp_addresses/*1/street FROM D WHERE "
                 + "cmp_addresses/*1/city = 'Paris' OR cmp_addresses/*1/number = 1");
         DBSExpressionEvaluator evaluator = new DBSExpressionEvaluator(null, query);
         evaluator.parse(schemaManager);
@@ -129,7 +129,7 @@ public class TestDBSExpressionEvaluator {
 
     @Test
     public void testWildcardCrossProduct() throws Exception {
-        SQLQuery query = SQLQueryParser.parse("SELECT cmp_addresses/*1/city, cmp_addresses/*2/city FROM D WHERE " //
+        SQLQuery query = HXQLParser.parse("SELECT cmp_addresses/*1/city, cmp_addresses/*2/city FROM D WHERE " //
                 + "sys_id <> 'nothing'");
         DBSExpressionEvaluator evaluator = new DBSExpressionEvaluator(null, query);
         evaluator.parse(schemaManager);

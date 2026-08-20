@@ -23,11 +23,11 @@ import org.nuxeo.common.utils.PeriodAndDuration;
 import org.nuxeo.runtime.api.Framework;
 
 /**
- * This defines the constants for NXQL queries.
+ * This defines the constants for HXQL queries.
  *
  * @author Florent Guillaume
  */
-public class NXQL {
+public class HXQL {
 
     /**
      * Property containing the test value of the current date for {@link #nowPlusPeriodAndDuration}.
@@ -36,14 +36,14 @@ public class NXQL {
      *
      * @since 11.1
      */
-    public static final String TEST_NXQL_NOW = "test.nxql.now";
+    public static final String TEST_HXQL_NOW = "test.hxql.now";
 
     // constant utility class
-    private NXQL() {
+    private HXQL() {
     }
 
-    /** The NXQL query type. */
-    public static final String NXQL = "NXQL";
+    /** The HXQL query type. */
+    public static final String HXQL = "HXQL";
 
     /**
      * Suffix for sys_acl, like in {@code sys_acl/}{@code *}{@code /principal}
@@ -113,7 +113,7 @@ public class NXQL {
     public static final String NOW_FUNCTION = "NOW";
 
     /**
-     * Escapes a string into a single-quoted string for NXQL.
+     * Escapes a string into a single-quoted string for HXQL.
      * <p>
      * Any single quote or backslash characters are escaped with a backslash.
      *
@@ -126,7 +126,7 @@ public class NXQL {
     }
 
     /**
-     * Escapes a string (assumed to be single quoted) for NXQL.
+     * Escapes a string (assumed to be single quoted) for HXQL.
      * <p>
      * Any single quote or backslash characters are escaped with a backslash.
      *
@@ -152,8 +152,8 @@ public class NXQL {
     // also used by NxqlQueryConverter
     public static ZonedDateTime nowPlusPeriodAndDuration(String periodAndDurationText) {
         ZonedDateTime now;
-        if (Framework.getProperty(TEST_NXQL_NOW) != null) {
-            now = ZonedDateTime.parse(Framework.getProperty(TEST_NXQL_NOW));
+        if (Framework.getProperty(TEST_HXQL_NOW) != null) {
+            now = ZonedDateTime.parse(Framework.getProperty(TEST_HXQL_NOW));
         } else {
             now = ZonedDateTime.now(ZoneOffset.UTC);
         }

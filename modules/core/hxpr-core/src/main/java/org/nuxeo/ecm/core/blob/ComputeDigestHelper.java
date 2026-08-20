@@ -33,7 +33,7 @@ import org.nuxeo.ecm.core.api.IdRef;
 import org.nuxeo.ecm.core.api.IterableQueryResult;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.api.repository.RepositoryManager;
-import org.nuxeo.ecm.core.query.sql.NXQL;
+import org.nuxeo.ecm.core.query.sql.HXQL;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.transaction.TransactionHelper;
 
@@ -152,9 +152,9 @@ public class ComputeDigestHelper {
         String prefixedKey = blobProviderId + ':' + key;
         String newPrefixedKey = blobProviderId + ':' + newKey;
         String query = "SELECT " + SYS_ID + " FROM SysContent, SysRelation WHERE "
-                + SYS_BLOB_KEYS + " IN (" + NXQL.escapeString(key) + ", " + NXQL.escapeString(prefixedKey) + ")";
+                + SYS_BLOB_KEYS + " IN (" + HXQL.escapeString(key) + ", " + HXQL.escapeString(prefixedKey) + ")";
         List<String> docIds = new ArrayList<>();
-        try (IterableQueryResult it = session.queryAndFetch(query, NXQL.NXQL)) {
+        try (IterableQueryResult it = session.queryAndFetch(query, HXQL.HXQL)) {
             it.forEach(map -> docIds.add(map.get(SYS_ID).toString()));
         }
         log.debug("Documents with this blob key: {}", docIds);

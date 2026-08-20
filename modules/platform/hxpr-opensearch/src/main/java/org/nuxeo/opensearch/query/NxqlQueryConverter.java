@@ -48,8 +48,8 @@ import org.nuxeo.ecm.core.api.IdRef;
 import org.nuxeo.ecm.core.api.query.QueryParameters;
 import org.nuxeo.ecm.core.query.QueryParseException;
 import org.nuxeo.ecm.core.query.nxql.SortInfo;
-import org.nuxeo.ecm.core.query.sql.NXQL;
-import org.nuxeo.ecm.core.query.sql.SQLQueryParser;
+import org.nuxeo.ecm.core.query.sql.HXQLParser;
+import org.nuxeo.ecm.core.query.sql.HXQL;
 import org.nuxeo.ecm.core.query.sql.model.FromClause;
 import org.nuxeo.ecm.core.query.sql.model.FtHint;
 import org.nuxeo.ecm.core.query.sql.model.FtHint.FieldHint;
@@ -178,14 +178,14 @@ public final class NxqlQueryConverter {
             value = literal.asString();
         } else if (node.rvalue instanceof Function function) {
             String func = function.name();
-            if (NXQL.NOW_FUNCTION.equalsIgnoreCase(func)) {
+            if (HXQL.NOW_FUNCTION.equalsIgnoreCase(func)) {
                 String periodAndDurationText;
                 if (function.args() == null || function.args().size() != 1) {
                     periodAndDurationText = null;
                 } else {
                     periodAndDurationText = ((StringLiteral) function.args().get(0)).value();
                 }
-                ZonedDateTime dateTime = NXQL.nowPlusPeriodAndDuration(periodAndDurationText);
+                ZonedDateTime dateTime = HXQL.nowPlusPeriodAndDuration(periodAndDurationText);
                 value = dateTime.toInstant().toString();
             } else {
                 throw new IllegalArgumentException("Unknown function: " + func);
@@ -213,7 +213,7 @@ public final class NxqlQueryConverter {
         String query = completeQueryWithSelect(nxql);
         SQLQuery nxqlQuery;
         try {
-            nxqlQuery = SQLQueryParser.parse(query);
+            nxqlQuery = HXQLParser.parse(query);
         } catch (QueryParseException e) {
             e.addInfo("Query: " + query);
             throw e;

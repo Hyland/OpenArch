@@ -20,10 +20,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-import org.nuxeo.ecm.core.query.sql.NXQLSerializer;
+import org.nuxeo.ecm.core.query.sql.HXQLSerializer;
 
 /**
- * A node's {@link Object#toString} is its NXQL rendering, produced by {@link NXQLSerializer}: there is one renderer,
+ * A node's {@link Object#toString} is its NXQL rendering, produced by {@link HXQLSerializer}: there is one renderer,
  * so debug output cannot drift from what would actually be executed.
  */
 public class TestToString {
@@ -31,7 +31,7 @@ public class TestToString {
     /** Asserts the expected NXQL, and that toString and the serializer agree on it. */
     protected static void check(String expected, Operand operand) {
         assertEquals(expected, operand.toString());
-        assertEquals(expected, NXQLSerializer.serialize(operand));
+        assertEquals(expected, HXQLSerializer.serialize(operand));
     }
 
     @Test

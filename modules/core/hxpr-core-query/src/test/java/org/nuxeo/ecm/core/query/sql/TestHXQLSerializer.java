@@ -29,16 +29,16 @@ import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
 /**
  * @since 12.0
  */
-public class TestNXQLSerializer {
+public class TestHXQLSerializer {
 
     /**
      * Asserts that the query serializes to the expected text, and that the text parses back to the same tree.
      */
     protected static void check(String expected, String query) {
-        SQLQuery parsed = SQLQueryParser.parse(query);
-        String serialized = NXQLSerializer.serialize(parsed);
+        SQLQuery parsed = HXQLParser.parse(query);
+        String serialized = HXQLSerializer.serialize(parsed);
         assertEquals(expected, serialized);
-        assertEquals(parsed, SQLQueryParser.parse(serialized), "does not round-trip: " + serialized);
+        assertEquals(parsed, HXQLParser.parse(serialized), "does not round-trip: " + serialized);
     }
 
     /** Asserts that the query serializes to itself, i.e. it is already in canonical form. */
@@ -141,8 +141,8 @@ public class TestNXQLSerializer {
         checkIdentity("SELECT * FROM SysContent WHERE sys_title = 'a\\nb'");
         // a value that would break out of its literal if it were not escaped
         Predicate predicate = Predicates.eq("sys_title", "x' OR sys_title LIKE '%");
-        assertEquals("sys_title = 'x\\' OR sys_title LIKE \\'%'", NXQLSerializer.serialize(predicate));
-        SQLQuery reparsed = SQLQueryParser.parse("SELECT * FROM SysContent WHERE " + NXQLSerializer.serialize(predicate));
+        assertEquals("sys_title = 'x\\' OR sys_title LIKE \\'%'", HXQLSerializer.serialize(predicate));
+        SQLQuery reparsed = HXQLParser.parse("SELECT * FROM SysContent WHERE " + HXQLSerializer.serialize(predicate));
         assertEquals(new org.nuxeo.ecm.core.query.sql.model.WhereClause(predicate), reparsed.getWhereClause());
     }
 
@@ -153,14 +153,14 @@ public class TestNXQLSerializer {
 
     @Test
     public void testSerializePredicate() {
-        assertEquals("foo = 'f1'", NXQLSerializer.serialize(Predicates.eq("foo", "f1")));
-        assertEquals("foo IS NULL", NXQLSerializer.serialize(Predicates.isnull("foo")));
-        assertEquals("foo IN ('f1', 'f2')", NXQLSerializer.serialize(Predicates.in("foo", List.of("f1", "f2"))));
-        assertEquals("foo BETWEEN 1 AND 3", NXQLSerializer.serialize(Predicates.between("foo", 1, 3)));
-        assertEquals("foo = 'f1' AND bar = 'b1'", NXQLSerializer.serialize(
+        assertEquals("foo = 'f1'", HXQLSerializer.serialize(Predicates.eq("foo", "f1")));
+        assertEquals("foo IS NULL", HXQLSerializer.serialize(Predicates.isnull("foo")));
+        assertEquals("foo IN ('f1', 'f2')", HXQLSerializer.serialize(Predicates.in("foo", List.of("f1", "f2"))));
+        assertEquals("foo BETWEEN 1 AND 3", HXQLSerializer.serialize(Predicates.between("foo", 1, 3)));
+        assertEquals("foo = 'f1' AND bar = 'b1'", HXQLSerializer.serialize(
                 new MultiExpression(Operator.AND, List.of(Predicates.eq("foo", "f1"), Predicates.eq("bar", "b1")))));
         assertEquals("foo = 'f1' AND (bar = 'b1' OR bar = 'b2')",
-                NXQLSerializer.serialize(new MultiExpression(Operator.AND,
+                HXQLSerializer.serialize(new MultiExpression(Operator.AND,
                         List.of(Predicates.eq("foo", "f1"),
                                 new MultiExpression(Operator.OR,
                                         List.of(Predicates.eq("bar", "b1"), Predicates.eq("bar", "b2")))))));
@@ -169,8 +169,8 @@ public class TestNXQLSerializer {
     @Test
     public void testEmptyMultiExpression() {
         // an empty conjunction is vacuously true, an empty disjunction vacuously false
-        assertEquals("1 = 1", NXQLSerializer.serialize(new MultiExpression(Operator.AND, List.of())));
-        assertEquals("1 = 0", NXQLSerializer.serialize(new MultiExpression(Operator.OR, List.of())));
+        assertEquals("1 = 1", HXQLSerializer.serialize(new MultiExpression(Operator.AND, List.of())));
+        assertEquals("1 = 0", HXQLSerializer.serialize(new MultiExpression(Operator.OR, List.of())));
     }
 
     /**
@@ -185,7 +185,7 @@ public class TestNXQLSerializer {
     }
 
     protected static String serializeWithPredicate(Predicate predicate) {
-        return NXQLSerializer.serialize(SQLQueryParser.parse("SELECT * FROM SysContent").withPredicate(predicate));
+        return HXQLSerializer.serialize(HXQLParser.parse("SELECT * FROM SysContent").withPredicate(predicate));
     }
 
 }

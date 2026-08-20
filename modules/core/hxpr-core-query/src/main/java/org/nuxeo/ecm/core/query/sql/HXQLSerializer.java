@@ -36,9 +36,9 @@ import org.nuxeo.ecm.core.query.sql.model.SelectClause;
 import org.nuxeo.ecm.core.query.sql.model.WhereClause;
 
 /**
- * Renders an NXQL abstract syntax tree back to NXQL text.
+ * Renders an HXQL abstract syntax tree back to HXQL text.
  * <p>
- * This is the counterpart of {@link SQLQueryParser#parse}: {@code parse(serialize(parse(q)))} is equal to
+ * This is the counterpart of {@link HXQLParser#parse}: {@code parse(serialize(parse(q)))} is equal to
  * {@code parse(q)} for any parsable {@code q}. Literals render themselves, quoted and escaped, in their own
  * {@code toString}; there is no other way to put a value into a query, so a tree holding attacker-controlled values
  * cannot produce a query that means something other than the tree says.
@@ -47,7 +47,7 @@ import org.nuxeo.ecm.core.query.sql.model.WhereClause;
  *
  * @since 12.0
  */
-public class NXQLSerializer {
+public class HXQLSerializer {
 
     // precedence levels, lowest binding first
     protected static final int PREC_OR = 1;
@@ -60,7 +60,7 @@ public class NXQLSerializer {
 
     protected static final int PREC_ATOM = 5;
 
-    private NXQLSerializer() {
+    private HXQLSerializer() {
         // utility class
     }
 

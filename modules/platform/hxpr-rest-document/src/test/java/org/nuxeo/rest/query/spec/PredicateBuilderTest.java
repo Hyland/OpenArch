@@ -27,7 +27,7 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.nuxeo.ecm.core.api.NuxeoException;
-import org.nuxeo.ecm.core.query.sql.NXQLSerializer;
+import org.nuxeo.ecm.core.query.sql.HXQLSerializer;
 import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.rest.query.io.WhereClauseDTO.RestPredicate;
 import org.nuxeo.rest.query.io.WhereClauseDTO.RestPredicateParameter;
@@ -37,7 +37,7 @@ public class PredicateBuilderTest {
     /** The predicate built for the given operator and parameter values, or null if it was dropped. */
     protected static String build(RestPredicate predicate, Map<String, Object> parameters) {
         Optional<Predicate> built = PredicateBuilder.build(predicate, parameters);
-        return built.map(NXQLSerializer::serialize).orElse(null);
+        return built.map(HXQLSerializer::serialize).orElse(null);
     }
 
     protected static String build(String operator, Object value) {
@@ -210,13 +210,13 @@ public class PredicateBuilderTest {
         assertEquals(List.of("sys_title LIKE 'bar'"),
                 PredicateBuilder.build(predicates, Map.of("title", "bar"))
                                 .stream()
-                                .map(NXQLSerializer::serialize)
+                                .map(HXQLSerializer::serialize)
                                 .toList());
         assertEquals(List.of("sys_title LIKE 'bar'", "sys_modified IS NULL", "mydc_subjects IN ('a', 'b')"),
                 PredicateBuilder.build(predicates,
                         Map.of("title", "bar", "isPresent", Boolean.TRUE, "subjects", List.of("a", "b")))
                                 .stream()
-                                .map(NXQLSerializer::serialize)
+                                .map(HXQLSerializer::serialize)
                                 .toList());
     }
 

@@ -37,7 +37,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentModelList;
-import org.nuxeo.ecm.core.query.sql.NXQL;
+import org.nuxeo.ecm.core.query.sql.HXQL;
 import org.nuxeo.opensearch.api.OpenSearchClient;
 import org.nuxeo.opensearch.api.OpenSearchService;
 import org.nuxeo.opensearch.io.DocumentDTO;
@@ -1418,7 +1418,7 @@ public class TestNxqlConversion {
     @Test
     public void testConverterNOW() {
         // force NXQL.nowPlusPeriodAndDuration to return a known date/time, for tests
-        Framework.getProperties().put(NXQL.TEST_NXQL_NOW, "2001-02-03T04:05:06.007Z");
+        Framework.getProperties().put(HXQL.TEST_HXQL_NOW, "2001-02-03T04:05:06.007Z");
         String es = toESQueryBuilder("SELECT * FROM SysContent WHERE f1 = NOW()");
         assertEqualsEvenUnderWindows("""
                 {
@@ -1505,7 +1505,7 @@ public class TestNxqlConversion {
                   }
                 }
                 """, es);
-        Framework.getProperties().remove(NXQL.TEST_NXQL_NOW);
+        Framework.getProperties().remove(HXQL.TEST_HXQL_NOW);
     }
 
     @Test

@@ -27,7 +27,7 @@ import org.nuxeo.ecm.core.api.CoreInstance;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.impl.DocumentModelListImpl;
-import org.nuxeo.ecm.core.query.sql.NXQL;
+import org.nuxeo.ecm.core.query.sql.HXQL;
 import org.nuxeo.opensearch.io.DocumentDTO;
 import org.nuxeo.opensearch.query.NxQueryBuilder.HitDocConsumer;
 import org.opensearch.client.opensearch.core.SearchResponse;
@@ -119,7 +119,7 @@ public class VcsFetcher extends Fetcher {
         sb.append("SELECT * FROM SysContent, SysRelation WHERE sys_id IN (");
         int size = hits.size();
         for (int i = 0; i < size; i++) {
-            sb.append(NXQL.escapeString(hits.get(i).id()));
+            sb.append(HXQL.escapeString(hits.get(i).id()));
             if (i < size - 1) {
                 sb.append(", ");
             }

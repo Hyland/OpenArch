@@ -39,7 +39,7 @@ import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.IterableQueryResult;
 import org.nuxeo.ecm.core.api.PathRef;
 import org.nuxeo.ecm.core.api.trash.TrashService;
-import org.nuxeo.ecm.core.query.sql.NXQL;
+import org.nuxeo.ecm.core.query.sql.HXQL;
 import org.nuxeo.opensearch.api.OpenSearchService;
 import org.nuxeo.opensearch.api.OpenSearchResult;
 import org.nuxeo.opensearch.core.OpenSearchResultSetImpl;
@@ -140,7 +140,7 @@ public class TestCompareQueryAndFetch {
     }
 
     protected void compareOpenSearchAndCore(String nxql) throws Exception {
-        IterableQueryResult coreResult = session.queryAndFetch(nxql, NXQL.NXQL);
+        IterableQueryResult coreResult = session.queryAndFetch(nxql, HXQL.HXQL);
         OpenSearchResult openSearchRes = oss.queryAndAggregate(new NxQueryBuilder(session).nxql(nxql).limit(20));
         try (IterableQueryResult openSearchResult = openSearchRes.getRows()) {
             assertSameDocumentLists(coreResult, openSearchResult);

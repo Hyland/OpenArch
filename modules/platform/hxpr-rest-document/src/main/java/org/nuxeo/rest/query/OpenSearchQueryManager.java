@@ -50,7 +50,7 @@ import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.api.repository.RepositoryManager;
 import org.nuxeo.ecm.core.query.nxql.SortInfo;
 import org.nuxeo.ecm.core.model.LocationModel;
-import org.nuxeo.ecm.core.query.sql.NXQL;
+import org.nuxeo.ecm.core.query.sql.HXQL;
 import org.nuxeo.opensearch.api.OpenSearchResult;
 import org.nuxeo.opensearch.api.OpenSearchService;
 import org.nuxeo.opensearch.query.NxQueryBuilder;
@@ -167,7 +167,7 @@ public class OpenSearchQueryManager extends AbstractQueryManager {
     protected EmbeddingQueryResultDTO executeEmbeddingQuery(String repoId, String docId, String embeddingId) {
         log.debug("Look up embedding with id '{}' for document '{}' in OpenSearch", embeddingId, docId);
 
-        String nxql = "SELECT * FROM %s WHERE %s = %s".formatted(SYS_CONTENT, SYS_ID, NXQL.escapeString(docId));
+        String nxql = "SELECT * FROM %s WHERE %s = %s".formatted(SYS_CONTENT, SYS_ID, HXQL.escapeString(docId));
 
         DocumentQueryDTO documentQuery = new DocumentQueryDTO(repoId, nxql, 1L, 0, List.of());
         QuerySpecification spec = initQuerySpecification(documentQuery);

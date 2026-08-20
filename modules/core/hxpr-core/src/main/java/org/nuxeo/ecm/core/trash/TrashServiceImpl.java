@@ -52,7 +52,7 @@ import org.nuxeo.ecm.core.api.trash.TrashService;
 import org.nuxeo.ecm.core.event.Event;
 import org.nuxeo.ecm.core.event.EventService;
 import org.nuxeo.ecm.core.event.impl.DocumentEventContext;
-import org.nuxeo.ecm.core.query.sql.NXQL;
+import org.nuxeo.ecm.core.query.sql.HXQL;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.model.DefaultComponent;
 
@@ -351,7 +351,7 @@ public class TrashServiceImpl extends DefaultComponent implements TrashService {
             return;
         }
         try (IterableQueryResult result = session.queryAndFetch(String.format(TRASHED_QUERY, parent.getId()),
-                NXQL.NXQL)) {
+                HXQL.HXQL)) {
             NuxeoPrincipal principal = session.getPrincipal();
             StreamSupport.stream(result.spliterator(), false)
                          .map(map -> map.get(SYS_ID).toString())

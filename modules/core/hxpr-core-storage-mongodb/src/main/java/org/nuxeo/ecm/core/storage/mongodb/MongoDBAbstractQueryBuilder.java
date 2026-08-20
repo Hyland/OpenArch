@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
 import org.bson.Document;
 import org.nuxeo.common.utils.DateUtils;
 import org.nuxeo.ecm.core.query.QueryParseException;
-import org.nuxeo.ecm.core.query.sql.NXQL;
+import org.nuxeo.ecm.core.query.sql.HXQL;
 import org.nuxeo.ecm.core.query.sql.model.BooleanLiteral;
 import org.nuxeo.ecm.core.query.sql.model.DateLiteral;
 import org.nuxeo.ecm.core.query.sql.model.DoubleLiteral;
@@ -464,7 +464,7 @@ public abstract class MongoDBAbstractQueryBuilder {
 
     public Object walkFunction(Function func) {
         String name = func.name();
-        if (NXQL.NOW_FUNCTION.equalsIgnoreCase(name)) {
+        if (HXQL.NOW_FUNCTION.equalsIgnoreCase(name)) {
             String periodAndDurationText;
             if (func.args() == null || func.args().size() != 1) {
                 periodAndDurationText = null;
@@ -472,7 +472,7 @@ public abstract class MongoDBAbstractQueryBuilder {
                 periodAndDurationText = ((StringLiteral) func.args().get(0)).value();
             }
             try {
-                ZonedDateTime dateTime = NXQL.nowPlusPeriodAndDuration(periodAndDurationText);
+                ZonedDateTime dateTime = HXQL.nowPlusPeriodAndDuration(periodAndDurationText);
                 return dateTime.toInstant();
             } catch (IllegalArgumentException e) {
                 throw new QueryParseException(e);

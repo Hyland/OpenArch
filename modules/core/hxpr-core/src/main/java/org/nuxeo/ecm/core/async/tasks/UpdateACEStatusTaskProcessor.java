@@ -37,7 +37,7 @@ import org.nuxeo.ecm.core.api.IterableQueryResult;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.api.security.ACE;
 import org.nuxeo.ecm.core.api.security.ACL;
-import org.nuxeo.ecm.core.query.sql.NXQL;
+import org.nuxeo.ecm.core.query.sql.HXQL;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.transaction.TransactionHelper;
 import org.nuxeo.runtime.transaction.TransactionRuntimeException;
@@ -117,7 +117,7 @@ public class UpdateACEStatusTaskProcessor implements TaskProcessor<RepositoryTas
         String formattedDate = FORMATTER.format(ZonedDateTime.now());
 
         IterableQueryResult result = session.queryAndFetch(String.format(QUERY, formattedDate, formattedDate),
-                NXQL.NXQL);
+                HXQL.HXQL);
         Map<String, List<ACE>> docIdsToACEs = new HashMap<>();
         try {
             for (Map<String, Object> map : result) {

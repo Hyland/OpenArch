@@ -137,8 +137,8 @@ import org.nuxeo.ecm.core.model.InternalDocument;
 import org.nuxeo.ecm.core.model.InternalSession;
 import org.nuxeo.ecm.core.model.Repository;
 import org.nuxeo.ecm.core.query.QueryParseException;
-import org.nuxeo.ecm.core.query.sql.NXQL;
-import org.nuxeo.ecm.core.query.sql.SQLQueryParser;
+import org.nuxeo.ecm.core.query.sql.HXQLParser;
+import org.nuxeo.ecm.core.query.sql.HXQL;
 import org.nuxeo.ecm.core.query.sql.model.Operand;
 import org.nuxeo.ecm.core.query.sql.model.OrderByClause;
 import org.nuxeo.ecm.core.query.sql.model.OrderByExpr;
@@ -1113,7 +1113,7 @@ public class DBSSession implements InternalSession {
 
     protected PartialList<Map<String, Object>> doQueryAndFetch(String query, QueryParameters queryParams,
             boolean distinctDocuments, int countUpTo, Mutable<String> idKeyHolder) {
-        SQLQuery sqlQuery = SQLQueryParser.parse(query);
+        SQLQuery sqlQuery = HXQLParser.parse(query);
         List<Operand> projection = new ArrayList<>(sqlQuery.getSelectClause().elements());
         if (projection.isEmpty()) {
             // turned into SELECT sys_id
@@ -1337,7 +1337,7 @@ public class DBSSession implements InternalSession {
 
     @Override
     public ScrollResult<String> scroll(String query, QueryParameters queryParams, int batchSize, int keepAliveSeconds) {
-        SQLQuery sqlQuery = SQLQueryParser.parse(query);
+        SQLQuery sqlQuery = HXQLParser.parse(query);
         List<Operand> projection = new ArrayList<>(sqlQuery.getSelectClause().elements());
         projection.add(new Reference(SYS_ID));
         sqlQuery = sqlQuery.withSelectClause(new SelectClause(projection));
@@ -1483,19 +1483,19 @@ public class DBSSession implements InternalSession {
 
     public static String convToInternalAce(String name) {
         switch (name) {
-        case NXQL.SYS_ACL_PRINCIPAL:
+        case HXQL.SYS_ACL_PRINCIPAL:
             return KEY_ACE_PRINCIPAL;
-        case NXQL.SYS_ACL_PERMISSION:
+        case HXQL.SYS_ACL_PERMISSION:
             return KEY_ACE_PERMISSION;
-        case NXQL.SYS_ACL_GRANT:
+        case HXQL.SYS_ACL_GRANT:
             return KEY_ACE_GRANT;
-        case NXQL.SYS_ACL_CREATOR:
+        case HXQL.SYS_ACL_CREATOR:
             return KEY_ACE_CREATOR;
-        case NXQL.SYS_ACL_BEGIN:
+        case HXQL.SYS_ACL_BEGIN:
             return KEY_ACE_BEGIN;
-        case NXQL.SYS_ACL_END:
+        case HXQL.SYS_ACL_END:
             return KEY_ACE_END;
-        case NXQL.SYS_ACL_STATUS:
+        case HXQL.SYS_ACL_STATUS:
             return KEY_ACE_STATUS;
         default:
             return null;
@@ -1618,7 +1618,7 @@ public class DBSSession implements InternalSession {
     public void setUpdateCondition(String id, String condition) {
         // TODO better way to parse predicate directly
         String hxql = "SELECT * FROM Foo WHERE " + condition;
-        SQLQuery sqlQuery = SQLQueryParser.parse(hxql);
+        SQLQuery sqlQuery = HXQLParser.parse(hxql);
         Predicate predicate = sqlQuery.getWhereClause().predicate();
         transaction.setUpdateConditionPredicate(id, predicate);
     }

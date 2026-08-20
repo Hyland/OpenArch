@@ -26,9 +26,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.query.QueryParseException;
 import org.nuxeo.ecm.core.query.nxql.SortInfo;
-import org.nuxeo.ecm.core.query.sql.NXQLSerializer;
+import org.nuxeo.ecm.core.query.sql.HXQLParser;
+import org.nuxeo.ecm.core.query.sql.HXQLSerializer;
 import org.nuxeo.ecm.core.query.sql.QueryParameterBinder;
-import org.nuxeo.ecm.core.query.sql.SQLQueryParser;
 import org.nuxeo.ecm.core.query.sql.model.Function;
 import org.nuxeo.ecm.core.query.sql.model.MultiExpression;
 import org.nuxeo.ecm.core.query.sql.model.Operand;
@@ -94,7 +94,7 @@ public class QueryAssembler {
         assembled = withSort(assembled, sortInfos);
         assembled = rewriteSortedColumn(assembled, sortedColumn(sortInfos));
         assembled = bind(assembled, parameters);
-        return NXQLSerializer.serialize(assembled);
+        return HXQLSerializer.serialize(assembled);
     }
 
     /** A where clause definition's own query wins over the request's, as it is the more specific one. */
@@ -112,7 +112,7 @@ public class QueryAssembler {
 
     protected static SQLQuery parse(String query) {
         try {
-            return SQLQueryParser.parse(query);
+            return HXQLParser.parse(query);
         } catch (NuxeoException e) {
             e.addInfo("Query: " + query);
             throw e;
@@ -121,7 +121,7 @@ public class QueryAssembler {
 
     protected static Predicate parsePredicate(String clause) {
         try {
-            return SQLQueryParser.parsePredicate(clause);
+            return HXQLParser.parsePredicate(clause);
         } catch (NuxeoException e) {
             e.addInfo("Clause: " + clause);
             throw e;
@@ -132,7 +132,7 @@ public class QueryAssembler {
         try {
             return QueryParameterBinder.bind(query, parameters);
         } catch (QueryParseException e) {
-            e.addInfo("Query: " + NXQLSerializer.serialize(query));
+            e.addInfo("Query: " + HXQLSerializer.serialize(query));
             throw e;
         }
     }
@@ -163,7 +163,7 @@ public class QueryAssembler {
      */
     protected static Reference fieldReference(String name) {
         try {
-            return SQLQueryParser.parseReference(name);
+            return HXQLParser.parseReference(name);
         } catch (QueryParseException e) {
             throw new NuxeoException("Not a valid field name: " + name, e, BAD_REQUEST.value());
         }

@@ -18,14 +18,14 @@ package org.nuxeo.ecm.core.query.nxql;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
-import org.nuxeo.ecm.core.query.sql.NXQLSerializer;
+import org.nuxeo.ecm.core.query.sql.HXQLSerializer;
 import org.nuxeo.ecm.core.query.sql.model.StringLiteral;
 
 public class TestTextSearchCleaner {
 
     /** A full-text predicate's right-hand side: the term sanitized, then escaped as a literal. */
     protected static String serializeFullText(String value) {
-        return "= " + NXQLSerializer.serialize(new StringLiteral(FulltextSanitizer.sanitize(value)));
+        return "= " + HXQLSerializer.serialize(new StringLiteral(FulltextSanitizer.sanitize(value)));
     }
 
     @Test

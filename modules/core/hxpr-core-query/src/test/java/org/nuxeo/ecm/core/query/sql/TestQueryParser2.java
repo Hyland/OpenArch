@@ -168,7 +168,7 @@ public class TestQueryParser2 {
         int i = 0;
         try {
             for (; i < GOOD_QUERIES.length; i++) {
-                SQLQueryParser.parse(GOOD_QUERIES[i]);
+                HXQLParser.parse(GOOD_QUERIES[i]);
             }
         } catch (QueryParseException e) {
             fail("Failed to parse a good query: \n" + GOOD_QUERIES[i] + "\nCause is:\n"
@@ -183,7 +183,7 @@ public class TestQueryParser2 {
     public void testBadQueries() {
         for (String badQuery : BAD_QUERIES) {
             try {
-                SQLQueryParser.parse(badQuery);
+                HXQLParser.parse(badQuery);
                 // Not so bad this query: bad query was successfully parsed ->
                 // error
                 fail("A bad Query has been successfully parsed: " + badQuery);
@@ -197,7 +197,7 @@ public class TestQueryParser2 {
     public void testBadQueriesOld() {
         for (String badQuery : BAD_QUERIES_OLD) {
             try {
-                SQLQueryParser.parse(badQuery);
+                HXQLParser.parse(badQuery);
                 // Not so bad this query: bad query was successfully parsed ->
                 // error
                 fail("A bad Query has been successfully parsed: " + badQuery);
@@ -210,7 +210,7 @@ public class TestQueryParser2 {
     @Test
     public void testLocationLiterals() {
         // test double quoted strings
-        SQLQuery query = SQLQueryParser.parse("SELECT p FROM t WHERE sys_path STARTSWITH '/test'");
+        SQLQuery query = HXQLParser.parse("SELECT p FROM t WHERE sys_path STARTSWITH '/test'");
         WhereClause whereClause = query.getWhereClause();
         assertEquals(Operator.STARTSWITH, whereClause.predicate().operator);
 
@@ -226,8 +226,8 @@ public class TestQueryParser2 {
     @Test
     public void testEquals() {
         for (String s : GOOD_QUERIES) {
-            SQLQuery query1 = SQLQueryParser.parse(s);
-            SQLQuery query2 = SQLQueryParser.parse(s);
+            SQLQuery query1 = HXQLParser.parse(s);
+            SQLQuery query2 = HXQLParser.parse(s);
             assertEquals(query1, query2, "Self equality test on " + s + ": ");
             assertEquals(query1.hashCode(), query2.hashCode());
             assertEquals(query1.toString(), query2.toString());
@@ -245,8 +245,8 @@ public class TestQueryParser2 {
                 if (s1.equals(s2)) {
                     continue;
                 }
-                SQLQuery query1 = SQLQueryParser.parse(s1);
-                SQLQuery query2 = SQLQueryParser.parse(s2);
+                SQLQuery query1 = HXQLParser.parse(s1);
+                SQLQuery query2 = HXQLParser.parse(s2);
                 // "Non-equality test on queries
                 assertNotEquals(query1, query2);
             }
@@ -256,7 +256,7 @@ public class TestQueryParser2 {
     @Test
     public void testToString() {
         for (String s : CANONICAL_QUERIES) {
-            SQLQuery query1 = SQLQueryParser.parse(s);
+            SQLQuery query1 = HXQLParser.parse(s);
             assertEquals(s, query1.toString());
         }
     }

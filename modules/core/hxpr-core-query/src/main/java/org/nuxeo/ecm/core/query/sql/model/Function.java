@@ -15,7 +15,7 @@
  */
 package org.nuxeo.ecm.core.query.sql.model;
 
-import org.nuxeo.ecm.core.query.sql.NXQLSerializer;
+import org.nuxeo.ecm.core.query.sql.HXQLSerializer;
 
 /**
  * A function call, with its arguments.
@@ -28,7 +28,7 @@ public record Function(String name, OperandList args) implements Operand {
 
     @Override
     public String toString() {
-        return NXQLSerializer.serialize(this);
+        return HXQLSerializer.serialize(this);
     }
 
 }

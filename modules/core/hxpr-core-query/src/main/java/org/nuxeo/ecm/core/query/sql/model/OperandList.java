@@ -18,7 +18,7 @@ package org.nuxeo.ecm.core.query.sql.model;
 import java.util.Iterator;
 import java.util.List;
 
-import org.nuxeo.ecm.core.query.sql.NXQLSerializer;
+import org.nuxeo.ecm.core.query.sql.HXQLSerializer;
 
 /**
  * A parenthesised list of values, as used by {@code IN} and {@code BETWEEN}.
@@ -52,7 +52,7 @@ public record OperandList(List<Operand> elements) implements Operand, Iterable<O
 
     @Override
     public String toString() {
-        return NXQLSerializer.serialize(this);
+        return HXQLSerializer.serialize(this);
     }
 
 }

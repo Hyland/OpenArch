@@ -30,7 +30,7 @@ import org.nuxeo.ecm.core.api.CoreInstance;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.NuxeoException;
-import org.nuxeo.ecm.core.query.sql.NXQL;
+import org.nuxeo.ecm.core.query.sql.HXQL;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.transaction.TransactionHelper;
 import org.slf4j.Logger;
@@ -87,7 +87,7 @@ public abstract class AbstractBatchTaskProcessor implements TaskProcessor<BatchT
 
     protected List<DocumentModel> loadDocuments(CoreSession session, List<String> documentIds) {
         String query = documentIds.stream()
-                                  .map(NXQL::escapeString)
+                                  .map(HXQL::escapeString)
                                   .collect(Collectors.joining(SELECT_SEP, SELECT_START, SELECT_END))
                                   .toString();
         // read invalidation
