@@ -1141,7 +1141,7 @@ public class DBSSession implements InternalSession {
         sqlQuery = securityPolicyService.addSecurityPolicies(sqlQuery, queryParams);
         // if the where clause is false, no need to execute it, return an empty list
         WhereClause whereClause = sqlQuery.getWhereClause();
-        if (whereClause != null && whereClause.predicate() == Predicates.PRED_FALSE) {
+        if (whereClause != null && Predicates.FALSE.equals(whereClause.predicate())) {
             return new PartialList<>(List.of(), 0);
         }
         DBSExpressionEvaluator evaluator = new DBSExpressionEvaluator(this, sqlQuery, optimizer.getAnnotations());

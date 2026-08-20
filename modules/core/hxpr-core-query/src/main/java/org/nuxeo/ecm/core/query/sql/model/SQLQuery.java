@@ -13,28 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.nuxeo.ecm.core.query.sql.model;
 
+import java.util.Objects;
+
+import org.nuxeo.ecm.core.query.sql.NXQLSerializer;
+
 /**
+ * A whole NXQL query.
+ * <p>
+ * Immutable: the {@code with} methods return a copy with one clause replaced.
+ *
  * @author Bogdan Stefanescu
  * @author Florent Guillaume
  */
 public final class SQLQuery implements ASTNode {
 
-    private String queryString;
+    private final SelectClause select;
 
-    private SelectClause select;
+    private final FromClause from;
 
-    public final FromClause from;
+    private final WhereClause where;
 
-    public final WhereClause where;
+    private final OrderByClause orderBy;
 
-    private OrderByClause orderBy;
+    private final long limit;
 
-    private long limit;
-
-    private long offset;
+    private final long offset;
 
     public SQLQuery() {
         this(new SelectClause(), new FromClause(), null, null);
@@ -62,23 +67,6 @@ public final class SQLQuery implements ASTNode {
         this.offset = offset;
     }
 
-    /**
-     * Copying constructor. Does not deep-copy the clauses though.
-     */
-    public SQLQuery(SQLQuery other) {
-        select = other.select;
-        from = other.from;
-        where = other.where;
-        orderBy = other.orderBy;
-        limit = other.limit;
-        offset = other.offset;
-    }
-
-    public SQLQuery withPredicate(Predicate predicate) {
-        WhereClause where = predicate == null ? null : new WhereClause(predicate);
-        return new SQLQuery(select, from, where, orderBy, limit, offset);
-    }
-
     public SelectClause getSelectClause() {
         return select;
     }
@@ -95,39 +83,6 @@ public final class SQLQuery implements ASTNode {
         return orderBy;
     }
 
-    public void setSelectClause(SelectClause select) {
-        this.select = select;
-    }
-
-    public void setOrderByClause(OrderByClause orderBy) {
-        this.orderBy = orderBy;
-    }
-
-    @Override
-    // FIXME: not finished
-    public String toString() {
-        if (queryString != null) {
-            return queryString;
-        }
-        StringBuilder sb = new StringBuilder();
-        sb.append("SELECT ").append(select).append(" FROM ").append(from);
-        if (where != null) {
-            sb.append(" WHERE ").append(where);
-        }
-        if (orderBy != null) {
-            sb.append(" ORDER BY ").append(orderBy);
-        }
-        return sb.toString();
-    }
-
-    public void setLimit(long limit) {
-        this.limit = limit;
-    }
-
-    public void setOffset(long offset) {
-        this.offset = offset;
-    }
-
     public long getLimit() {
         return limit;
     }
@@ -136,12 +91,20 @@ public final class SQLQuery implements ASTNode {
         return offset;
     }
 
-    public String getQueryString() {
-        return queryString;
+    /** A copy of this query with the given projection. */
+    public SQLQuery withSelectClause(SelectClause select) {
+        return new SQLQuery(select, from, where, orderBy, limit, offset);
     }
 
-    public void setQueryString(String queryString) {
-        this.queryString = queryString;
+    /** A copy of this query with the given predicate, or with no where clause if it is {@code null}. */
+    public SQLQuery withPredicate(Predicate predicate) {
+        return new SQLQuery(select, from, predicate == null ? null : new WhereClause(predicate), orderBy, limit,
+                offset);
+    }
+
+    /** A copy of this query with the given sort. */
+    public SQLQuery withOrderByClause(OrderByClause orderBy) {
+        return new SQLQuery(select, from, where, orderBy, limit, offset);
     }
 
     @Override
@@ -149,58 +112,25 @@ public final class SQLQuery implements ASTNode {
         if (this == obj) {
             return true;
         }
-        if (obj == null) {
+        if (!(obj instanceof SQLQuery other)) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        SQLQuery other = (SQLQuery) obj;
-        if (select == null) {
-            if (other.select != null) {
-                return false;
-            }
-        } else if (!select.equals(other.select)) {
-            return false;
-        }
-        if (from == null) {
-            if (other.from != null) {
-                return false;
-            }
-        } else if (!from.equals(other.from)) {
-            return false;
-        }
-        if (where == null) {
-            if (other.where != null) {
-                return false;
-            }
-        } else if (!where.equals(other.where)) {
-            return false;
-        }
-        if (orderBy == null) {
-            if (other.orderBy != null) {
-                return false;
-            }
-        } else if (!orderBy.equals(other.orderBy)) {
-            return false;
-        }
-        if (limit != other.limit) {
-            return false;
-        }
-        return offset == other.offset;
+        return Objects.equals(select, other.select) //
+                && Objects.equals(from, other.from) //
+                && Objects.equals(where, other.where) //
+                && Objects.equals(orderBy, other.orderBy) //
+                && limit == other.limit //
+                && offset == other.offset;
     }
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + (select == null ? 0 : select.hashCode());
-        result = prime * result + (from == null ? 0 : from.hashCode());
-        result = prime * result + (where == null ? 0 : where.hashCode());
-        result = prime * result + (orderBy == null ? 0 : orderBy.hashCode());
-        result = prime * result + (int) (limit ^ (limit >>> 32));
-        result = prime * result + (int) (offset ^ (offset >>> 32));
-        return result;
+        return Objects.hash(select, from, where, orderBy, limit, offset);
+    }
+
+    @Override
+    public String toString() {
+        return NXQLSerializer.serialize(this);
     }
 
 }

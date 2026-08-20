@@ -43,6 +43,7 @@ import org.nuxeo.ecm.core.query.sql.model.Operator;
 import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Predicates;
 import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
+import org.nuxeo.ecm.core.query.sql.model.WhereClause;
 import org.nuxeo.ecm.core.schema.SchemaManager;
 import org.nuxeo.ecm.core.schema.TypeService;
 import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
@@ -350,7 +351,8 @@ public class SecurityPolicyServiceImpl implements SecurityPolicyService {
             // no security check needed, including security policies
             return query;
         }
-        Predicate predicate = query.where == null ? null : query.where.predicate();
+        WhereClause where = query.getWhereClause();
+        Predicate predicate = where == null ? null : where.predicate();
         predicate = addQueryClauses(predicate, queryParams);
         return query.withPredicate(predicate);
     }
@@ -405,7 +407,7 @@ public class SecurityPolicyServiceImpl implements SecurityPolicyService {
             if (bl.value()) {
                 return null; // no WHERE clause
             } else {
-                return Predicates.PRED_FALSE; // always evaluate to false
+                return Predicates.FALSE; // always evaluate to false
             }
         } else if (current instanceof Predicate p) {
             return p;

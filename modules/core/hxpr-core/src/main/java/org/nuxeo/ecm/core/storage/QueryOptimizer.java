@@ -106,8 +106,8 @@ public abstract class QueryOptimizer {
         query = addWildcardNotNullClauses(query);
 
         List<Predicate> clauses = new ArrayList<>();
-        addTypes(clauses, query.from);
-        addWhere(clauses, query.where);
+        addTypes(clauses, query.getFromClause());
+        addWhere(clauses, query.getWhereClause());
         simplifyTypes(clauses);
         MultiExpression multiExpression = new MultiExpression(Operator.AND, clauses);
 
@@ -480,7 +480,8 @@ public abstract class QueryOptimizer {
         List<Predicate> values = names.stream()
                                       .map(name -> new Predicate(new Reference(name), Operator.ISNOTNULL, null))
                                       .toList();
-        Predicate expr = new Predicate(query.where.predicate(), Operator.AND, new MultiExpression(Operator.AND, values));
+        Predicate expr = new Predicate(query.getWhereClause().predicate(), Operator.AND,
+                new MultiExpression(Operator.AND, values));
         return query.withPredicate(expr);
     }
 
@@ -510,9 +511,7 @@ public abstract class QueryOptimizer {
     protected SQLQuery renameProjectionReferences(SQLQuery query, Map<String, String> map) {
         SelectList renamed = new SelectList();
         query.getSelectClause().elements.forEach(operand -> renamed.add(renameReferences(operand, map)));
-        SQLQuery renamedQuery = new SQLQuery(query);
-        renamedQuery.setSelectClause(new SelectClause(renamed));
-        return renamedQuery;
+        return query.withSelectClause(new SelectClause(renamed));
     }
 
     protected Operand renameReferences(Operand operand, Map<String, String> map) {

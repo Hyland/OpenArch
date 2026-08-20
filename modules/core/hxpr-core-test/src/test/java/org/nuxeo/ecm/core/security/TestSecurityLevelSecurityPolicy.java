@@ -419,7 +419,7 @@ public class TestSecurityLevelSecurityPolicy {
     private void assertIncludesPolicyQueryClause(boolean includesClause) {
         SecurityPolicyService securityPolicyService = securityService.getSecurityPolicyService(REPOSITORY);
         SQLQuery query = new SQLQuery();
-        query.from.add(SYS_CONTENT);
+        query.getFromClause().add(SYS_CONTENT);
         QueryParameters queryParameters = new QueryParameters(userLevel2, 0, 0);
         query = securityPolicyService.addSecurityPolicies(query, queryParameters);
         if (includesClause) {

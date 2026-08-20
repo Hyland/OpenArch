@@ -32,6 +32,7 @@ import org.nuxeo.ecm.core.query.sql.model.Parameter;
 import org.nuxeo.ecm.core.query.sql.model.OrderByClause;
 import org.nuxeo.ecm.core.query.sql.model.OrderByExpr;
 import org.nuxeo.ecm.core.query.sql.model.Predicate;
+import org.nuxeo.ecm.core.query.sql.model.Predicates;
 import org.nuxeo.ecm.core.query.sql.model.Reference;
 import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
 import org.nuxeo.ecm.core.query.sql.model.SelectClause;
@@ -62,14 +63,6 @@ public class NXQLSerializer {
     protected static final int PREC_COMPARISON = 4;
 
     protected static final int PREC_ATOM = 5;
-
-    /** {@code 1 = 1}, used to render an empty conjunction. */
-    protected static final Predicate ALWAYS_TRUE = new Predicate(new IntegerLiteral(1), Operator.EQ,
-            new IntegerLiteral(1));
-
-    /** {@code 1 = 0}, used to render an empty disjunction. */
-    protected static final Predicate ALWAYS_FALSE = new Predicate(new IntegerLiteral(1), Operator.EQ,
-            new IntegerLiteral(0));
 
     private NXQLSerializer() {
         // utility class
@@ -194,7 +187,7 @@ public class NXQLSerializer {
         List<Predicate> predicates = multiExpression.predicates;
         if (predicates.isEmpty()) {
             // an empty conjunction is vacuously true, an empty disjunction vacuously false
-            appendOperand(sb, multiExpression.operator == Operator.OR ? ALWAYS_FALSE : ALWAYS_TRUE, PREC_OR);
+            appendOperand(sb, multiExpression.operator == Operator.OR ? Predicates.FALSE : Predicates.TRUE, PREC_OR);
             return;
         }
         int precedence = precedenceOf(multiExpression);

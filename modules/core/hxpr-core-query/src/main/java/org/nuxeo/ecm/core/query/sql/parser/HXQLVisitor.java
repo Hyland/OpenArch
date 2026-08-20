@@ -115,9 +115,7 @@ public class HXQLVisitor extends HXQLParserBaseVisitor<ASTNode> {
     }
 
     public SQLQuery parse(String string) throws QueryParseException {
-        SQLQuery query = parse(string, HXQLParser::parse);
-        query.setQueryString(string);
-        return query;
+        return parse(string, HXQLParser::parse);
     }
 
     /**

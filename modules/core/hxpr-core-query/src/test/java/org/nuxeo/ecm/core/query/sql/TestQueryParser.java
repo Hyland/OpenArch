@@ -665,7 +665,8 @@ public class TestQueryParser {
         assertEquals(2, elements.size());
 
         query = SQLQueryParser.parse("SELECT p, q, r FROM t ORDER BY p, q ASC");
-        expected = "SELECT p, q, r FROM t ORDER BY p, q ASC";
+        // ASC is the default, so the canonical form leaves it out
+        expected = "SELECT p, q, r FROM t ORDER BY p, q";
         assertEquals(expected, query.toString());
 
         clause = query.getOrderByClause();

@@ -30,8 +30,11 @@ public class Predicates {
         // no instantiation allowed
     }
 
-    /** 1 = 0 */
-    public static final Predicate PRED_FALSE = new Predicate(Literals.toLiteral(1), Operator.EQ, Literals.toLiteral(0));
+    /** {@code 1 = 1}, a predicate that is always true. */
+    public static final Predicate TRUE = new Predicate(Literals.toLiteral(1), Operator.EQ, Literals.toLiteral(1));
+
+    /** {@code 1 = 0}, a predicate that is never true. */
+    public static final Predicate FALSE = new Predicate(Literals.toLiteral(1), Operator.EQ, Literals.toLiteral(0));
 
     /** @since 10.3 */
     public static Predicate and(Predicate left, Predicate right) {

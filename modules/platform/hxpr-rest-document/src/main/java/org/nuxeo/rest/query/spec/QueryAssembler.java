@@ -152,9 +152,7 @@ public class QueryAssembler {
         for (SortInfo sortInfo : sortInfos) {
             orderBy.add(new OrderByExpr(fieldReference(sortInfo.sortColumn()), !sortInfo.sortAscending()));
         }
-        SQLQuery sorted = new SQLQuery(query);
-        sorted.setOrderByClause(new OrderByClause(orderBy));
-        return sorted;
+        return query.withOrderByClause(new OrderByClause(orderBy));
     }
 
     /** The reference {@link #SORTED_COLUMN} stands for: the first sort column, or the id when there is no sort. */

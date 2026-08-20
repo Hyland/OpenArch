@@ -46,10 +46,10 @@ public class TestQueryParser2 {
             "SELECT p FROM t WHERE p LIKE '%test%'", "SELECT p FROM t WHERE p NOT LIKE '%test%'",
             "SELECT p FROM t WHERE p = 2 AND q = 1 AND s = 3 OR r = 4 OR w = 10",
             "SELECT p FROM t WHERE p = 2 OR s = 3 AND NOT q = 4", "SELECT p FROM t WHERE title = DATE '2007-01-30'",
-            "SELECT p FROM t WHERE title = TIMESTAMP '2007-01-30T01:02:03.000+04:00'",
+            "SELECT p FROM t WHERE title = TIMESTAMP '2007-01-29T21:02:03.000Z'",
             "SELECT p FROM t WHERE title = '%test'", "SELECT p FROM t WHERE title IS NULL",
             "SELECT p FROM t WHERE title IS NOT NULL", "SELECT p FROM t WHERE DATE(title) = DATE '2007-01-30'",
-            "SELECT p FROM t WHERE active = true", "SELECT p FROM t WHERE active = false", };
+            "SELECT p FROM t WHERE active = TRUE", "SELECT p FROM t WHERE active = FALSE", };
 
     static final String[] GOOD_QUERIES = { "SELECT * FROM SysContent", "SELECT title FROM SysContent",
             "SELECT title, author FROM SysContent", "SELECT title FROM SysContent WHERE created > \"20060523\"",
