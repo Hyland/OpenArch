@@ -19,7 +19,7 @@ import java.util.List;
 
 import org.nuxeo.ecm.core.query.QueryParseException;
 import org.nuxeo.ecm.core.query.sql.model.BooleanLiteral;
-import org.nuxeo.ecm.core.query.sql.model.Expression;
+import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Function;
 import org.nuxeo.ecm.core.query.sql.model.IntegerLiteral;
 import org.nuxeo.ecm.core.query.sql.model.Literal;
@@ -31,7 +31,6 @@ import org.nuxeo.ecm.core.query.sql.model.Operator;
 import org.nuxeo.ecm.core.query.sql.model.Parameter;
 import org.nuxeo.ecm.core.query.sql.model.OrderByClause;
 import org.nuxeo.ecm.core.query.sql.model.OrderByExpr;
-import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Predicates;
 import org.nuxeo.ecm.core.query.sql.model.Reference;
 import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
@@ -161,7 +160,7 @@ public class NXQLSerializer {
         }
         if (operand instanceof MultiExpression multiExpression) {
             appendMultiExpression(sb, multiExpression);
-        } else if (operand instanceof Expression expression) {
+        } else if (operand instanceof Predicate expression) {
             appendExpression(sb, expression);
         } else if (operand instanceof Reference reference) {
             appendReference(sb, reference);
@@ -201,7 +200,7 @@ public class NXQLSerializer {
         }
     }
 
-    protected static void appendExpression(StringBuilder sb, Expression expression) {
+    protected static void appendExpression(StringBuilder sb, Predicate expression) {
         Operator operator = expression.operator;
         if (operator == Operator.BETWEEN || operator == Operator.NOTBETWEEN) {
             @SuppressWarnings("unchecked")
@@ -293,7 +292,7 @@ public class NXQLSerializer {
     }
 
     protected static int precedenceOf(Operand operand) {
-        if (!(operand instanceof Expression expression)) {
+        if (!(operand instanceof Predicate expression)) {
             return PREC_ATOM;
         }
         return switch (expression.operator) {

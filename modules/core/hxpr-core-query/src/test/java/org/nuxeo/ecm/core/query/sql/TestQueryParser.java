@@ -29,7 +29,7 @@ import org.nuxeo.ecm.core.query.sql.model.BooleanLiteral;
 import org.nuxeo.ecm.core.query.sql.model.DateLiteral;
 import org.nuxeo.ecm.core.query.sql.model.DoubleLiteral;
 import org.nuxeo.ecm.core.query.sql.model.FtHint;
-import org.nuxeo.ecm.core.query.sql.model.Expression;
+import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.FromClause;
 import org.nuxeo.ecm.core.query.sql.model.Function;
 import org.nuxeo.ecm.core.query.sql.model.IntegerLiteral;
@@ -39,7 +39,6 @@ import org.nuxeo.ecm.core.query.sql.model.OperandList;
 import org.nuxeo.ecm.core.query.sql.model.Operator;
 import org.nuxeo.ecm.core.query.sql.model.OrderByClause;
 import org.nuxeo.ecm.core.query.sql.model.OrderByList;
-import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Reference;
 import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
 import org.nuxeo.ecm.core.query.sql.model.SelectClause;
@@ -160,9 +159,9 @@ public class TestQueryParser {
         SelectClause select = query.getSelectClause();
         String v = ((Reference) select.operands().iterator().next()).name();
         assertEquals("sys_foo/bar/baz", v);
-        Expression where = query.getWhereClause().predicate();
-        Expression p1 = (Expression) where.lvalue;
-        Expression p2 = (Expression) where.rvalue;
+        Predicate where = query.getWhereClause().predicate();
+        Predicate p1 = (Predicate) where.lvalue;
+        Predicate p2 = (Predicate) where.rvalue;
         assertEquals("sys_foo/3/ho", ((Reference) p1.lvalue).name());
         assertEquals("sys_bar/*/bobby", ((Reference) p1.rvalue).name());
         assertEquals("sys_foo/5/gee", ((Reference) p2.lvalue).name());
@@ -186,8 +185,8 @@ public class TestQueryParser {
         assertEquals("t1", from.get(0));
         assertEquals("t2", from.get(1));
 
-        Expression e1 = (Expression) query.getWhereClause().predicate().lvalue;
-        Expression e2 = (Expression) query.getWhereClause().predicate().rvalue;
+        Predicate e1 = (Predicate) query.getWhereClause().predicate().lvalue;
+        Predicate e2 = (Predicate) query.getWhereClause().predicate().rvalue;
         assertEquals("state", ((Reference) e1.lvalue).name());
         assertEquals("title", ((Reference) e2.lvalue).name());
     }
@@ -249,7 +248,7 @@ public class TestQueryParser {
         Operator op = query.getWhereClause().predicate().operator;
         assertEquals(Operator.AND, op);
 
-        Expression e = (Expression) query.getWhereClause().predicate().lvalue;
+        Predicate e = (Predicate) query.getWhereClause().predicate().lvalue;
         assertEquals(Operator.IN, e.operator);
 
         LiteralList list = new LiteralList();
@@ -262,7 +261,7 @@ public class TestQueryParser {
         op = query.getWhereClause().predicate().operator;
         assertEquals(Operator.AND, op);
 
-        e = (Expression) query.getWhereClause().predicate().lvalue;
+        e = (Predicate) query.getWhereClause().predicate().lvalue;
         assertEquals(Operator.NOTIN, e.operator);
 
         list = new LiteralList();
@@ -278,7 +277,7 @@ public class TestQueryParser {
         Operator op = query.getWhereClause().predicate().operator;
         assertEquals(Operator.AND, op);
 
-        Expression e = (Expression) query.getWhereClause().predicate().lvalue;
+        Predicate e = (Predicate) query.getWhereClause().predicate().lvalue;
         assertEquals(Operator.BETWEEN, e.operator);
 
         LiteralList list = new LiteralList();
@@ -291,7 +290,7 @@ public class TestQueryParser {
         op = query.getWhereClause().predicate().operator;
         assertEquals(Operator.AND, op);
 
-        e = (Expression) query.getWhereClause().predicate().lvalue;
+        e = (Predicate) query.getWhereClause().predicate().lvalue;
         assertEquals(Operator.NOTBETWEEN, e.operator);
 
         list = new LiteralList();
@@ -476,35 +475,35 @@ public class TestQueryParser {
     @Test
     public void testOperatorPrecedence() {
         SQLQuery query = SQLQueryParser.parse("SELECT p FROM t WHERE p=2 AND q=1 AND s=3 OR r = 4 OR w = 10");
-        Expression pred = query.getWhereClause().predicate();
+        Predicate pred = query.getWhereClause().predicate();
         assertEquals(Operator.OR, pred.operator);
-        assertEquals(Operator.EQ, ((Expression) pred.rvalue).operator);
+        assertEquals(Operator.EQ, ((Predicate) pred.rvalue).operator);
 
-        Expression e = (Expression) pred.lvalue;
+        Predicate e = (Predicate) pred.lvalue;
         assertEquals(Operator.OR, e.operator);
-        assertEquals(Operator.EQ, ((Expression) e.rvalue).operator);
+        assertEquals(Operator.EQ, ((Predicate) e.rvalue).operator);
 
-        e = (Expression) e.lvalue;
+        e = (Predicate) e.lvalue;
         assertEquals(Operator.AND, e.operator);
-        assertEquals(Operator.EQ, ((Expression) e.rvalue).operator);
+        assertEquals(Operator.EQ, ((Predicate) e.rvalue).operator);
 
-        e = (Expression) e.lvalue;
+        e = (Predicate) e.lvalue;
         assertEquals(Operator.AND, e.operator);
-        assertEquals(Operator.EQ, ((Expression) e.rvalue).operator);
-        assertEquals(Operator.EQ, ((Expression) e.lvalue).operator);
+        assertEquals(Operator.EQ, ((Predicate) e.rvalue).operator);
+        assertEquals(Operator.EQ, ((Predicate) e.lvalue).operator);
 
         query = SQLQueryParser.parse("SELECT p FROM t WHERE p=2 OR s=3 AND NOT q=4");
         pred = query.getWhereClause().predicate();
         assertEquals(Operator.OR, pred.operator);
-        assertEquals(Operator.EQ, ((Expression) pred.lvalue).operator);
+        assertEquals(Operator.EQ, ((Predicate) pred.lvalue).operator);
 
-        e = (Expression) pred.rvalue;
+        e = (Predicate) pred.rvalue;
         assertEquals(Operator.AND, e.operator);
-        assertEquals(Operator.EQ, ((Expression) e.lvalue).operator);
+        assertEquals(Operator.EQ, ((Predicate) e.lvalue).operator);
 
-        e = (Expression) e.rvalue;
+        e = (Predicate) e.rvalue;
         assertEquals(Operator.NOT, e.operator);
-        assertEquals(Operator.EQ, ((Expression) e.lvalue).operator);
+        assertEquals(Operator.EQ, ((Predicate) e.lvalue).operator);
     }
 
     @Test
@@ -555,24 +554,24 @@ public class TestQueryParser {
         SelectList select = query.getSelectClause().elements;
         assertEquals(2, select.size());
 
-        Expression where = query.getWhereClause().predicate();
+        Predicate where = query.getWhereClause().predicate();
         assertEquals(Operator.OR, where.operator);
 
-        Expression expr = (Expression) where.lvalue;
+        Predicate expr = (Predicate) where.lvalue;
         assertEquals(Operator.GT, expr.operator);
         assertEquals("p1", ((Reference) expr.lvalue).name());
         assertEquals(0, ((IntegerLiteral) expr.rvalue).value());
 
         // root expr
-        expr = (Expression) where.rvalue;
+        expr = (Predicate) where.rvalue;
         assertEquals(Operator.AND, expr.operator);
 
-        Expression expr1 = (Expression) expr.lvalue;
+        Predicate expr1 = (Predicate) expr.lvalue;
         assertEquals(Operator.LTEQ, expr1.operator);
         assertEquals("p2", ((Reference) expr1.lvalue).name());
         assertEquals(10.2, ((DoubleLiteral) expr1.rvalue).value(), 1e-8);
 
-        Expression expr2 = (Expression) expr.rvalue;
+        Predicate expr2 = (Predicate) expr.rvalue;
         assertEquals(Operator.EQ, expr2.operator);
         assertEquals("p1", ((Reference) expr2.lvalue).name());
         assertEquals(5, ((IntegerLiteral) expr2.rvalue).value());
@@ -593,10 +592,10 @@ public class TestQueryParser {
         SQLQuery query = SQLQueryParser.parse(
                 "SELECT p1, p2 FROM t WHERE title = \"test\" OR p2 >= 10.2 AND p1 < 5");
 
-        Expression expr1 = new Predicate(new Reference("p1"), Operator.LT, new IntegerLiteral(5));
+        Predicate expr1 = new Predicate(new Reference("p1"), Operator.LT, new IntegerLiteral(5));
 
         Predicate expr2 = new Predicate(new Reference("p2"), Operator.GTEQ, new DoubleLiteral(10.2));
-        expr1 = new Expression(expr2, Operator.AND, expr1);
+        expr1 = new Predicate(expr2, Operator.AND, expr1);
 
         expr2 = new Predicate(new Reference("title"), Operator.EQ, new StringLiteral("test"));
 
@@ -628,7 +627,7 @@ public class TestQueryParser {
 
         // create the query by hand
         Predicate expr1 = new Predicate(new Reference("title"), Operator.EQ, new StringLiteral("test"));
-        Expression expr2 = new Expression(new Reference("p2"), Operator.GTEQ, new DoubleLiteral(10.2));
+        Predicate expr2 = new Predicate(new Reference("p2"), Operator.GTEQ, new DoubleLiteral(10.2));
         expr1 = new Predicate(expr1, Operator.OR, expr2);
 
         expr2 = new Predicate(new Reference("p1"), Operator.LT, new IntegerLiteral(5));

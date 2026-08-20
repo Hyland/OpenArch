@@ -13,18 +13,64 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.nuxeo.ecm.core.query.sql.model;
 
+import java.util.Objects;
+
 /**
- * Predicates are boolean expressions.
+ * A boolean-valued expression: an operator applied to one or two operands.
+ * <p>
+ * Every expression in a query is a predicate, HXQL having no arithmetic, so this is the only expression node besides
+ * {@link MultiExpression}, which is an operator applied to a whole list of them.
  *
  * @author <a href="mailto:bs@nuxeo.com">Bogdan Stefanescu</a>
  */
-public sealed class Predicate extends Expression permits MultiExpression {
+public sealed class Predicate implements Operand permits MultiExpression {
+
+    public final Operator operator;
+
+    public final Operand lvalue;
+
+    /** {@code null} for a unary operator. */
+    public final Operand rvalue;
 
     public Predicate(Operand lvalue, Operator operator, Operand rvalue) {
-        super(lvalue, operator, rvalue);
+        this.lvalue = lvalue;
+        this.rvalue = rvalue;
+        this.operator = operator;
+    }
+
+    /**
+     * Is the unary operator written after the operand?
+     */
+    public boolean isSuffix() {
+        return operator == Operator.ISNULL || operator == Operator.ISNOTNULL;
+    }
+
+    @Override
+    public String toString() {
+        if (rvalue == null) {
+            return isSuffix() ? lvalue + " " + operator : operator + " " + lvalue;
+        }
+        return "(" + lvalue + " " + operator + " " + rvalue + ")";
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        // a MultiExpression is never equal to a plain predicate, it compares its own list too
+        if (!(obj instanceof Predicate other) || obj.getClass() != getClass()) {
+            return false;
+        }
+        return operator.equals(other.operator) && Objects.equals(lvalue, other.lvalue)
+                && Objects.equals(rvalue, other.rvalue);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(operator, lvalue, rvalue);
     }
 
 }

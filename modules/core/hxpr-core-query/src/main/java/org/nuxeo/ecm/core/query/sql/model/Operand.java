@@ -19,6 +19,6 @@ package org.nuxeo.ecm.core.query.sql.model;
  * Something an expression can be built out of: a value, a reference to a field, or another expression.
  */
 public sealed interface Operand extends ASTNode
-        permits Expression, Reference, Function, Literal, Parameter, LiteralList, OperandList {
+        permits Predicate, Reference, Function, Literal, Parameter, LiteralList, OperandList {
 
 }

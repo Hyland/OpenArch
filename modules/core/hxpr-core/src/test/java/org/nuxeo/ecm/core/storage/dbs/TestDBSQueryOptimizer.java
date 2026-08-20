@@ -28,7 +28,7 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.nuxeo.ecm.core.query.sql.SQLQueryParser;
-import org.nuxeo.ecm.core.query.sql.model.Expression;
+import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.MultiExpression;
 import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
 import org.nuxeo.ecm.core.storage.QueryOptimizer;
@@ -103,7 +103,7 @@ public class TestDBSQueryOptimizer {
 
     protected void checkPrefixInfo(String clause, String prefix, int count) {
         SQLQuery query = SQLQueryParser.parse("SELECT p FROM t WHERE " + clause);
-        Expression predicate = query.getWhereClause().predicate();
+        Predicate predicate = query.getWhereClause().predicate();
         QueryOptimizer optimizer = getOptimizer();
         PrefixInfo info = optimizer.analyzePrefixes(predicate);
         assertNotNull(info);
@@ -138,7 +138,7 @@ public class TestDBSQueryOptimizer {
         QueryOptimizer optimizer = getOptimizer();
         query = optimizer.optimize(query);
         QueryAnnotations annotations = optimizer.getAnnotations();
-        Expression expr = query.getWhereClause().predicate();
+        Predicate expr = query.getWhereClause().predicate();
         assertEquals("(((sys_title = 'foo') AND (sys_primaryType = 't'))" //
                 + " AND ((sys_acl/*1/principal = 'bob') AND (sys_acl/*1/permission = 'Read')))", expr.toString());
 
@@ -151,10 +151,10 @@ public class TestDBSQueryOptimizer {
         MultiExpression me1 = (MultiExpression) me.predicates.get(1);
         assertEquals(new PrefixInfo("sys_acl/*1", 2), annotations.getPrefixInfo(me1));
 
-        Expression me10 = me1.predicates.get(0);
+        Predicate me10 = me1.predicates.get(0);
         assertEquals(new PrefixInfo("sys_acl/*1", 1), annotations.getPrefixInfo(me10));
 
-        Expression me11 = me1.predicates.get(1);
+        Predicate me11 = me1.predicates.get(1);
         assertEquals(new PrefixInfo("sys_acl/*1", 1), annotations.getPrefixInfo(me11));
     }
 

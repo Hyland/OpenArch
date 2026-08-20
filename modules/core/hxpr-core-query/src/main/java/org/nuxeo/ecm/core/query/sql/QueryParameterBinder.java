@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.nuxeo.ecm.core.query.QueryParseException;
-import org.nuxeo.ecm.core.query.sql.model.Expression;
+import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Function;
 import org.nuxeo.ecm.core.query.sql.model.Literal;
 import org.nuxeo.ecm.core.query.sql.model.LiteralList;
@@ -32,7 +32,6 @@ import org.nuxeo.ecm.core.query.sql.model.Operand;
 import org.nuxeo.ecm.core.query.sql.model.OperandList;
 import org.nuxeo.ecm.core.query.sql.model.Operator;
 import org.nuxeo.ecm.core.query.sql.model.Parameter;
-import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
 import org.nuxeo.ecm.core.query.sql.model.SelectClause;
 import org.nuxeo.ecm.core.query.sql.model.SelectList;
@@ -83,7 +82,7 @@ public class QueryParameterBinder {
                                                                    .toList();
             return new MultiExpression(multiExpression.operator, predicates);
         }
-        if (!(predicate instanceof Expression expression)) {
+        if (!(predicate instanceof Predicate expression)) {
             return bindOperand(predicate, params);
         }
         Operand lvalue = bindPredicate(expression.lvalue, params);
@@ -98,7 +97,7 @@ public class QueryParameterBinder {
      * Binds the right-hand side of an expression, which is a list of values for {@code IN} and {@code BETWEEN} and a
      * single value otherwise.
      */
-    protected static Operand bindRvalue(Expression expression, Map<String, Object> params) {
+    protected static Operand bindRvalue(Predicate expression, Map<String, Object> params) {
         Operator operator = expression.operator;
         boolean wantsList = operator == Operator.IN || operator == Operator.NOTIN || operator == Operator.BETWEEN
                 || operator == Operator.NOTBETWEEN;
@@ -135,7 +134,7 @@ public class QueryParameterBinder {
             }
             return toLiteral(parameter, value);
         }
-        if (operand instanceof Expression expression) {
+        if (operand instanceof Predicate expression) {
             return bindPredicate(expression, params);
         }
         if (operand instanceof Function function) {

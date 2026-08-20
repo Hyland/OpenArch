@@ -34,7 +34,7 @@ import org.apache.commons.lang3.CharUtils;
 import org.nuxeo.ecm.core.query.QueryParseException;
 import org.nuxeo.ecm.core.query.sql.model.BooleanLiteral;
 import org.nuxeo.ecm.core.query.sql.model.DateLiteral;
-import org.nuxeo.ecm.core.query.sql.model.Expression;
+import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Function;
 import org.nuxeo.ecm.core.query.sql.model.IntegerLiteral;
 import org.nuxeo.ecm.core.query.sql.model.Literal;
@@ -43,12 +43,11 @@ import org.nuxeo.ecm.core.query.sql.model.Literals;
 import org.nuxeo.ecm.core.query.sql.model.MultiExpression;
 import org.nuxeo.ecm.core.query.sql.model.Operand;
 import org.nuxeo.ecm.core.query.sql.model.Operator;
-import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Reference;
 import org.nuxeo.ecm.core.query.sql.model.StringLiteral;
 
 /**
- * Evaluator for an {@link Expression}.
+ * Evaluator for a {@link Predicate}.
  *
  * @since 5.9.4
  */
@@ -78,7 +77,7 @@ public abstract class ExpressionEvaluator {
         this.pathResolver = pathResolver;
     }
 
-    public Object walkExpression(Expression expr) {
+    public Object walkExpression(Predicate expr) {
         Operator op = expr.operator;
         Operand lvalue = expr.lvalue;
         Operand rvalue = expr.rvalue;
@@ -332,7 +331,7 @@ public abstract class ExpressionEvaluator {
             return walkLiteralList(opLitList);
         } else if (op instanceof Function opFun) {
             return walkFunction(opFun);
-        } else if (op instanceof Expression opExp) {
+        } else if (op instanceof Predicate opExp) {
             return walkExpression(opExp);
         } else if (op instanceof Reference opRef) {
             return walkReference(opRef);

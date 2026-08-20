@@ -39,7 +39,7 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.nuxeo.ecm.core.query.QueryParseException;
-import org.nuxeo.ecm.core.query.sql.model.Expression;
+import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.FromClause;
 import org.nuxeo.ecm.core.query.sql.model.FromList;
 import org.nuxeo.ecm.core.query.sql.model.Literal;
@@ -48,7 +48,6 @@ import org.nuxeo.ecm.core.query.sql.model.MultiExpression;
 import org.nuxeo.ecm.core.query.sql.model.Operand;
 import org.nuxeo.ecm.core.query.sql.model.Operator;
 import org.nuxeo.ecm.core.query.sql.model.OrderByClause;
-import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Reference;
 import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
 import org.nuxeo.ecm.core.query.sql.model.Function;
@@ -158,7 +157,7 @@ public abstract class QueryOptimizer {
         return annotations.getPrefix(predicate);
     }
 
-    protected int getExpressionCount(Expression expr) {
+    protected int getExpressionCount(Predicate expr) {
         return annotations.getCount(expr);
     }
 
@@ -320,7 +319,7 @@ public abstract class QueryOptimizer {
     }
 
     protected void addWhere(List<Predicate> clauses, Predicate expr) {
-        if (expr.operator == Operator.AND && expr.lvalue instanceof Expression && expr.rvalue instanceof Expression) {
+        if (expr.operator == Operator.AND && expr.lvalue instanceof Predicate && expr.rvalue instanceof Predicate) {
             addWhere(clauses, (Predicate) expr.lvalue);
             addWhere(clauses, (Predicate) expr.rvalue);
         } else if (expr.operator == Operator.AND && expr instanceof MultiExpression multiExpression) {
@@ -549,7 +548,7 @@ public abstract class QueryOptimizer {
                 yield new PrefixInfo(prefix, prefix.isEmpty() ? 0 : 1);
             }
             case MultiExpression multiExpression -> commonPrefix(multiExpression.predicates);
-            case Expression expression -> commonPrefix(Arrays.asList(expression.lvalue, expression.rvalue));
+            case Predicate expression -> commonPrefix(Arrays.asList(expression.lvalue, expression.rvalue));
             default -> null;
         };
         annotations.setPrefixInfo(node, info);

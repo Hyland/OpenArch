@@ -45,7 +45,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.bson.Document;
 import org.nuxeo.ecm.core.query.QueryParseException;
 import org.nuxeo.ecm.core.query.sql.model.BooleanLiteral;
-import org.nuxeo.ecm.core.query.sql.model.Expression;
+import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.IntegerLiteral;
 import org.nuxeo.ecm.core.query.sql.model.Literal;
 import org.nuxeo.ecm.core.query.sql.model.Operand;
@@ -68,7 +68,7 @@ import org.nuxeo.ecm.core.storage.dbs.DBSSession;
 import org.nuxeo.runtime.mongodb.MongoDBOperators;
 
 /**
- * Query builder for a MongoDB query of the repository from an {@link Expression}.
+ * Query builder for a MongoDB query of the repository from a {@link Predicate}.
  *
  * @since 5.9.4
  */
@@ -93,12 +93,12 @@ public class MongoDBRepositoryQueryBuilder extends MongoDBAbstractQueryBuilder {
 
     boolean projectionHasWildcard;
 
-    public MongoDBRepositoryQueryBuilder(MongoDBRepository repository, Expression expression, SelectClause selectClause,
+    public MongoDBRepositoryQueryBuilder(MongoDBRepository repository, Predicate expression, SelectClause selectClause,
             OrderByClause orderByClause, PathResolver pathResolver, SchemaManager schemaManager) {
         this(repository, expression, selectClause, orderByClause, pathResolver, schemaManager, QueryAnnotations.NONE);
     }
 
-    public MongoDBRepositoryQueryBuilder(MongoDBRepository repository, Expression expression, SelectClause selectClause,
+    public MongoDBRepositoryQueryBuilder(MongoDBRepository repository, Predicate expression, SelectClause selectClause,
             OrderByClause orderByClause, PathResolver pathResolver, SchemaManager schemaManager,
             QueryAnnotations annotations) {
         super(repository.getConverter(), expression, annotations);
@@ -169,7 +169,7 @@ public class MongoDBRepositoryQueryBuilder extends MongoDBAbstractQueryBuilder {
     }
 
     @Override
-    public Document walkExpression(Expression expr) {
+    public Document walkExpression(Predicate expr) {
         Operator op = expr.operator;
         Operand lvalue = expr.lvalue;
         Operand rvalue = expr.rvalue;

@@ -23,7 +23,7 @@ import java.util.Collections;
 import org.junit.jupiter.api.Test;
 
 /**
- * {@link Expression#toString} is used for debug so it should attempt to not be misleading, in particular in the way it
+ * {@link Predicate#toString} is used for debug so it should attempt to not be misleading, in particular in the way it
  * displays parentheses and operator priority.
  *
  * @since 11.4

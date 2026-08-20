@@ -42,12 +42,11 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.nuxeo.ecm.core.query.QueryParseException;
-import org.nuxeo.ecm.core.query.sql.model.Expression;
+import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.MultiExpression;
 import org.nuxeo.ecm.core.query.sql.model.Operand;
 import org.nuxeo.ecm.core.query.sql.model.OrderByClause;
 import org.nuxeo.ecm.core.query.sql.model.OrderByExpr;
-import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Reference;
 import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
 import org.nuxeo.ecm.core.query.sql.model.SelectClause;
@@ -77,7 +76,7 @@ public class DBSExpressionEvaluator extends ExpressionEvaluator {
 
     protected final SelectClause selectClause;
 
-    protected final Expression expression;
+    protected final Predicate expression;
 
     protected final OrderByClause orderByClause;
 
@@ -287,7 +286,7 @@ public class DBSExpressionEvaluator extends ExpressionEvaluator {
         return selectClause;
     }
 
-    public Expression getExpression() {
+    public Predicate getExpression() {
         return expression;
     }
 

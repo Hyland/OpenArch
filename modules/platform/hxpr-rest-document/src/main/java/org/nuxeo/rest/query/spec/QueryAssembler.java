@@ -29,7 +29,7 @@ import org.nuxeo.ecm.core.query.nxql.SortInfo;
 import org.nuxeo.ecm.core.query.sql.NXQLSerializer;
 import org.nuxeo.ecm.core.query.sql.QueryParameterBinder;
 import org.nuxeo.ecm.core.query.sql.SQLQueryParser;
-import org.nuxeo.ecm.core.query.sql.model.Expression;
+import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Function;
 import org.nuxeo.ecm.core.query.sql.model.MultiExpression;
 import org.nuxeo.ecm.core.query.sql.model.Operand;
@@ -38,7 +38,6 @@ import org.nuxeo.ecm.core.query.sql.model.Operator;
 import org.nuxeo.ecm.core.query.sql.model.OrderByClause;
 import org.nuxeo.ecm.core.query.sql.model.OrderByExpr;
 import org.nuxeo.ecm.core.query.sql.model.OrderByList;
-import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Reference;
 import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
 import org.nuxeo.ecm.core.query.sql.model.SelectClause;
@@ -210,7 +209,7 @@ public class QueryAssembler {
                                                                    .toList();
             return new MultiExpression(multiExpression.operator, predicates);
         }
-        if (operand instanceof Expression expression) {
+        if (operand instanceof Predicate expression) {
             Operand lvalue = rewrite(expression.lvalue, column);
             Operand rvalue = expression.rvalue == null ? null : rewrite(expression.rvalue, column);
             if (lvalue == expression.lvalue && rvalue == expression.rvalue) {

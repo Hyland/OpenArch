@@ -60,8 +60,8 @@ public final class SelectClause implements ASTNode {
         return (Function) get(i);
     }
 
-    public Expression getExpression(int i) {
-        return (Expression) get(i);
+    public Predicate getExpression(int i) {
+        return (Predicate) get(i);
     }
 
     public SelectList getSelectList() {

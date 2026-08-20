@@ -60,7 +60,7 @@ import org.nuxeo.ecm.core.query.sql.NXQL;
 import org.nuxeo.ecm.core.query.sql.SQLQueryParser;
 import org.nuxeo.ecm.core.query.sql.model.FtHint;
 import org.nuxeo.ecm.core.query.sql.model.FtHint.FieldHint;
-import org.nuxeo.ecm.core.query.sql.model.Expression;
+import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.FromClause;
 import org.nuxeo.ecm.core.query.sql.model.FromList;
 import org.nuxeo.ecm.core.query.sql.model.Function;
@@ -71,7 +71,6 @@ import org.nuxeo.ecm.core.query.sql.model.Operand;
 import org.nuxeo.ecm.core.query.sql.model.Operator;
 import org.nuxeo.ecm.core.query.sql.model.OrderByClause;
 import org.nuxeo.ecm.core.query.sql.model.OrderByExpr;
-import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Reference;
 import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
 import org.nuxeo.ecm.core.query.sql.model.SelectClause;
@@ -154,12 +153,12 @@ public final class NxqlQueryConverter {
         switch (node) {
             case MultiExpression multiExpression -> multiExpression.predicates.forEach(
                     predicate -> walkPredicate(predicate, builders, session));
-            case Expression expression -> walkExpression(expression, builders, session);
+            case Predicate expression -> walkExpression(expression, builders, session);
             default -> throw new IllegalArgumentException("Not a predicate: " + node);
         }
     }
 
-    protected void walkExpression(Expression node, LinkedList<ExpressionBuilder> builders, CoreSession session) {
+    protected void walkExpression(Predicate node, LinkedList<ExpressionBuilder> builders, CoreSession session) {
         Operator op = node.operator;
         if (op == Operator.AND || op == Operator.OR || op == Operator.NOT) {
             builders.add(new ExpressionBuilder(op.toString()));

@@ -31,7 +31,7 @@ import org.nuxeo.ecm.core.query.sql.NXQL;
 import org.nuxeo.ecm.core.query.sql.model.BooleanLiteral;
 import org.nuxeo.ecm.core.query.sql.model.DateLiteral;
 import org.nuxeo.ecm.core.query.sql.model.DoubleLiteral;
-import org.nuxeo.ecm.core.query.sql.model.Expression;
+import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Function;
 import org.nuxeo.ecm.core.query.sql.model.IntegerLiteral;
 import org.nuxeo.ecm.core.query.sql.model.Literal;
@@ -52,7 +52,7 @@ import org.nuxeo.ecm.core.storage.QueryAnnotations.PrefixInfo;
 import org.nuxeo.runtime.mongodb.MongoDBOperators;
 
 /**
- * Abstract query builder for a MongoDB query from an {@link Expression}.
+ * Abstract query builder for a MongoDB query from a {@link Predicate}.
  * <p>
  * Must be customized by defining an implementation for the {@link #walkReference(String)} method.
  *
@@ -72,7 +72,7 @@ public abstract class MongoDBAbstractQueryBuilder {
 
     protected final MongoDBConverter converter;
 
-    protected final Expression expression;
+    protected final Predicate expression;
 
     /** What the optimizer worked out about the query's nodes. */
     protected final QueryAnnotations annotations;
@@ -84,7 +84,7 @@ public abstract class MongoDBAbstractQueryBuilder {
      */
     protected String elemMatchPrefix;
 
-    protected MongoDBAbstractQueryBuilder(MongoDBConverter converter, Expression expression,
+    protected MongoDBAbstractQueryBuilder(MongoDBConverter converter, Predicate expression,
             QueryAnnotations annotations) {
         this.converter = converter;
         this.expression = expression;
@@ -108,7 +108,7 @@ public abstract class MongoDBAbstractQueryBuilder {
         return query;
     }
 
-    public Document walkExpression(Expression expr) {
+    public Document walkExpression(Predicate expr) {
         Operator op = expr.operator;
         Operand lvalue = expr.lvalue;
         Operand rvalue = expr.rvalue;
@@ -238,13 +238,13 @@ public abstract class MongoDBAbstractQueryBuilder {
         return walkAndOr(expr, expr.predicates);
     }
 
-    public Document walkAndOr(Expression expr) {
+    public Document walkAndOr(Predicate expr) {
         return walkAndOr(expr, Arrays.asList(expr.lvalue, expr.rvalue));
     }
 
     protected static final Pattern SLASH_WILDCARD_SLASH = Pattern.compile("/\\*\\d+(/)?");
 
-    protected Document walkAndOr(Expression expr, List<? extends Operand> values) {
+    protected Document walkAndOr(Predicate expr, List<? extends Operand> values) {
         if (values.size() == 1) {
             return (Document) walkOperand(null, values.get(0));
         }
@@ -395,7 +395,7 @@ public abstract class MongoDBAbstractQueryBuilder {
             return walkLiteralList(fieldInfo, opLitList);
         } else if (op instanceof Function opFun) {
             return walkFunction(opFun);
-        } else if (op instanceof Expression opExp) {
+        } else if (op instanceof Predicate opExp) {
             return walkExpression(opExp);
         } else if (op instanceof Reference opRef) {
             return walkReference(opRef);
