@@ -22,6 +22,7 @@ import org.nuxeo.runtime.springboot.transaction.TransactionFilter;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Import;
+import org.springframework.retry.annotation.EnableRetry;
 
 /**
  * Auto-configuration for the Spring Boot runtime feature.
@@ -33,6 +34,7 @@ import org.springframework.context.annotation.Import;
  */
 @AutoConfiguration
 @EnableAspectJAutoProxy
+@EnableRetry
 @Import({
         NuxeoApplicationConfiguration.class,
         TransactionFilter.class,

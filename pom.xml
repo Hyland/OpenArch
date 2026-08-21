@@ -109,6 +109,8 @@
     <org.apache.log4j.version>2.26.1</org.apache.log4j.version>
     <org.slf4j.version>2.0.18</org.slf4j.version>
     <jna.version>5.19.1</jna.version>
+    <resilience4j.version>2.3.0</resilience4j.version>
+    <spring-retry.version>2.0.13</spring-retry.version>
 
     <!-- MongoDB -->
     <mongo.java.driver.version>5.10.0</mongo.java.driver.version>
@@ -717,6 +719,30 @@
             <artifactId>geronimo-j2ee-connector_1.6_spec</artifactId>
           </exclusion>
         </exclusions>
+      </dependency>
+
+      <!-- Resilience4j for resilience patterns -->
+      <dependency>
+        <groupId>io.github.resilience4j</groupId>
+        <artifactId>resilience4j-spring-boot3</artifactId>
+        <version>${resilience4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.github.resilience4j</groupId>
+        <artifactId>resilience4j-retry</artifactId>
+        <version>${resilience4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.github.resilience4j</groupId>
+        <artifactId>resilience4j-circuitbreaker</artifactId>
+        <version>${resilience4j.version}</version>
+      </dependency>
+
+      <!-- Spring Retry -->
+      <dependency>
+        <groupId>org.springframework.retry</groupId>
+        <artifactId>spring-retry</artifactId>
+        <version>${spring-retry.version}</version>
       </dependency>
 
       <!-- Woodstox XML processor -->
