@@ -121,7 +121,7 @@
 
     <!-- Apache -->
     <parquet.version>1.18.0</parquet.version>
-    <avro.version>1.12.1</avro.version>
+    <avro.version>1.12.2</avro.version>
 
     <!-- Test dependencies -->
     <mockito-inline.version>5.2.0</mockito-inline.version>
