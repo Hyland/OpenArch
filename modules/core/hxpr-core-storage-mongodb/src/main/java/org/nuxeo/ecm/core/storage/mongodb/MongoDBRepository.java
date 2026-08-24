@@ -280,8 +280,6 @@ public class MongoDBRepository extends DBSRepositoryBase implements Configuratio
 
     protected final MongoClient mongoClient;
 
-    protected final MongoDBConverter converter;
-
     protected final MongoDBCursorService cursorService;
 
     protected final MongoCollection<Document> coll;
@@ -310,8 +308,7 @@ public class MongoDBRepository extends DBSRepositoryBase implements Configuratio
         configColl = database.getCollection(repositoryName + ".config");
         maxTimeMS = MAX_TIME_DEFAULT.toMillis();
 
-        converter = new MongoDBConverter(DBSSession.TRUE_OR_NULL_BOOLEAN_KEYS);
-        cursorService = new MongoDBCursorService(converter);
+        cursorService = new MongoDBCursorService();
 
         registerConfigurationServiceIO();
         initialize(descriptor);
@@ -969,10 +966,6 @@ public class MongoDBRepository extends DBSRepositoryBase implements Configuratio
 
     protected MongoCollection<Document> getCollection() {
         return coll;
-    }
-
-    protected MongoDBConverter getConverter() {
-        return converter;
     }
 
     @Override

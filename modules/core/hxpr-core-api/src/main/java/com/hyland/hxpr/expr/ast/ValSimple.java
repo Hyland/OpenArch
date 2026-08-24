@@ -13,18 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.nuxeo.ecm.core.security.expr.ast;
+package com.hyland.hxpr.expr.ast;
 
-public record LitNum(Number num) implements Lit {
-
-    @Override
-    public Object toObject() {
-        return num;
-    }
-
-    @Override
-    public String toStringPretty() {
-        return num.toString();
-    }
+public sealed interface ValSimple extends Val permits ValId, ValCall {
 
 }

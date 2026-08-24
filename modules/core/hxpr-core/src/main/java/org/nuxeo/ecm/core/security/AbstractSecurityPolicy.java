@@ -240,10 +240,20 @@ public abstract class AbstractSecurityPolicy implements SecurityPolicy {
         return flattenedPermissions;
     }
 
+    /**
+     * Gets the schema manager for this policy's repository.
+     * <p>
+     * This must be called only at runtime, because at config time the content model may not be ready yet. It is
+     * deliberately not cached, as the content model may change.
+     */
+    protected SchemaManager getSchemaManager() {
+        return Framework.getService(TypeService.class).getSchemaManager(repositoryName);
+    }
+
     // this must be called only at runtime, because at config time the content model may not be ready yet
     private void cacheSecurityProperties() {
         Set<String> properties = new HashSet<>();
-        SchemaManager schemaManager = Framework.getService(TypeService.class).getSchemaManager(repositoryName);
+        SchemaManager schemaManager = getSchemaManager();
         String mixinName = config.getMixin();
         if (mixinName != null) {
             CompositeType mixin = schemaManager.getMixin(mixinName);

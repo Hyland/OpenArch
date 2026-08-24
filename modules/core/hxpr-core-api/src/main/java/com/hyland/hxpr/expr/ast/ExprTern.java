@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.nuxeo.ecm.core.security.expr.ast;
+package com.hyland.hxpr.expr.ast;
 
-public record ValId(String name) implements ValSimple {
+public record ExprTern(Expr pred, Expr iftrue, Expr iffalse) implements Expr {
 
     @Override
     public String toStringPretty() {
-        return name;
+        return "(" + pred.toStringPretty() + " ? " + iftrue.toStringPretty() + " : " + iffalse.toStringPretty() + ")";
     }
 
 }

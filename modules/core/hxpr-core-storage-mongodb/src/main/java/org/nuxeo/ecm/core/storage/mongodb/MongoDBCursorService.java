@@ -16,6 +16,7 @@
 package org.nuxeo.ecm.core.storage.mongodb;
 
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ID;
+import static org.nuxeo.ecm.core.storage.mongodb.MongoDBConverter.DEFAULT_CONVERTER;
 
 import org.bson.Document;
 import org.nuxeo.ecm.core.api.CursorService;
@@ -31,8 +32,10 @@ import com.mongodb.client.MongoCursor;
  */
 public class MongoDBCursorService extends CursorService<MongoCursor<Document>, Document, String> {
 
-    public MongoDBCursorService(MongoDBConverter converter) {
-        super(ob -> (String) converter.getFromBson(ob, converter.keyToBson(SYS_ID), SYS_ID));
+    public MongoDBCursorService() {
+        // the cursor service only extracts ids, which needs no schema-dependent conversion,
+        // so the default converter can be used
+        super(ob -> (String) DEFAULT_CONVERTER.getFromBson(ob, DEFAULT_CONVERTER.keyToBson(SYS_ID), SYS_ID));
     }
 
 }

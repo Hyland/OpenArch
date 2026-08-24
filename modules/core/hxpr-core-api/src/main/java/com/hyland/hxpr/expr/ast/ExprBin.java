@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.nuxeo.ecm.core.security.expr.ast;
+package com.hyland.hxpr.expr.ast;
 
-public record ValDot(Val left, ValSimple right) implements Val {
+public record ExprBin(Expr left, Op op, Expr right) implements Expr {
 
     @Override
     public String toStringPretty() {
-        return left.toStringPretty() + '.' + right.toStringPretty();
+        return "(" + left.toStringPretty() + " " + op.toStringPretty() + " " + right.toStringPretty() + ")";
     }
 
 }

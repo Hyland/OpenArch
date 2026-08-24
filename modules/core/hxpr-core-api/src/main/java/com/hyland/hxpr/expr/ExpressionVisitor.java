@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.nuxeo.ecm.core.security.expr;
+package com.hyland.hxpr.expr;
 
 import java.util.List;
 
@@ -24,39 +24,39 @@ import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
-import org.nuxeo.ecm.core.security.expr.ExpressionParser.ExpressionAddSubContext;
-import org.nuxeo.ecm.core.security.expr.ExpressionParser.ExpressionAndContext;
-import org.nuxeo.ecm.core.security.expr.ExpressionParser.ExpressionContext;
-import org.nuxeo.ecm.core.security.expr.ExpressionParser.ExpressionMulDivContext;
-import org.nuxeo.ecm.core.security.expr.ExpressionParser.ExpressionNotContext;
-import org.nuxeo.ecm.core.security.expr.ExpressionParser.ExpressionOperandContext;
-import org.nuxeo.ecm.core.security.expr.ExpressionParser.ExpressionOrContext;
-import org.nuxeo.ecm.core.security.expr.ExpressionParser.ExpressionParenContext;
-import org.nuxeo.ecm.core.security.expr.ExpressionParser.ExpressionRelOpContext;
-import org.nuxeo.ecm.core.security.expr.ExpressionParser.ExpressionTernaryContext;
-import org.nuxeo.ecm.core.security.expr.ExpressionParser.LiteralNumberContext;
-import org.nuxeo.ecm.core.security.expr.ExpressionParser.LiteralStringContext;
-import org.nuxeo.ecm.core.security.expr.ExpressionParser.OperandLiteralContext;
-import org.nuxeo.ecm.core.security.expr.ExpressionParser.OperandValueContext;
-import org.nuxeo.ecm.core.security.expr.ExpressionParser.ParseContext;
-import org.nuxeo.ecm.core.security.expr.ExpressionParser.SimpleIdentifierContext;
-import org.nuxeo.ecm.core.security.expr.ExpressionParser.SimpleMethodCallContext;
-import org.nuxeo.ecm.core.security.expr.ExpressionParser.ValueContext;
-import org.nuxeo.ecm.core.security.expr.ast.Expr;
-import org.nuxeo.ecm.core.security.expr.ast.ExprBin;
-import org.nuxeo.ecm.core.security.expr.ast.ExprTern;
-import org.nuxeo.ecm.core.security.expr.ast.ExprUn;
-import org.nuxeo.ecm.core.security.expr.ast.Lit;
-import org.nuxeo.ecm.core.security.expr.ast.LitBool;
-import org.nuxeo.ecm.core.security.expr.ast.LitNull;
-import org.nuxeo.ecm.core.security.expr.ast.LitNum;
-import org.nuxeo.ecm.core.security.expr.ast.LitStr;
-import org.nuxeo.ecm.core.security.expr.ast.Op;
-import org.nuxeo.ecm.core.security.expr.ast.Val;
-import org.nuxeo.ecm.core.security.expr.ast.ValCall;
-import org.nuxeo.ecm.core.security.expr.ast.ValDot;
-import org.nuxeo.ecm.core.security.expr.ast.ValId;
-import org.nuxeo.ecm.core.security.expr.ast.ValSimple;
+import com.hyland.hxpr.expr.ExpressionParser.ExpressionAddSubContext;
+import com.hyland.hxpr.expr.ExpressionParser.ExpressionAndContext;
+import com.hyland.hxpr.expr.ExpressionParser.ExpressionContext;
+import com.hyland.hxpr.expr.ExpressionParser.ExpressionMulDivContext;
+import com.hyland.hxpr.expr.ExpressionParser.ExpressionNotContext;
+import com.hyland.hxpr.expr.ExpressionParser.ExpressionOperandContext;
+import com.hyland.hxpr.expr.ExpressionParser.ExpressionOrContext;
+import com.hyland.hxpr.expr.ExpressionParser.ExpressionParenContext;
+import com.hyland.hxpr.expr.ExpressionParser.ExpressionRelOpContext;
+import com.hyland.hxpr.expr.ExpressionParser.ExpressionTernaryContext;
+import com.hyland.hxpr.expr.ExpressionParser.LiteralNumberContext;
+import com.hyland.hxpr.expr.ExpressionParser.LiteralStringContext;
+import com.hyland.hxpr.expr.ExpressionParser.OperandLiteralContext;
+import com.hyland.hxpr.expr.ExpressionParser.OperandValueContext;
+import com.hyland.hxpr.expr.ExpressionParser.ParseContext;
+import com.hyland.hxpr.expr.ExpressionParser.SimpleIdentifierContext;
+import com.hyland.hxpr.expr.ExpressionParser.SimpleMethodCallContext;
+import com.hyland.hxpr.expr.ExpressionParser.ValueContext;
+import com.hyland.hxpr.expr.ast.Expr;
+import com.hyland.hxpr.expr.ast.ExprBin;
+import com.hyland.hxpr.expr.ast.ExprTern;
+import com.hyland.hxpr.expr.ast.ExprUn;
+import com.hyland.hxpr.expr.ast.Lit;
+import com.hyland.hxpr.expr.ast.LitBool;
+import com.hyland.hxpr.expr.ast.LitNull;
+import com.hyland.hxpr.expr.ast.LitNum;
+import com.hyland.hxpr.expr.ast.LitStr;
+import com.hyland.hxpr.expr.ast.Op;
+import com.hyland.hxpr.expr.ast.Val;
+import com.hyland.hxpr.expr.ast.ValCall;
+import com.hyland.hxpr.expr.ast.ValDot;
+import com.hyland.hxpr.expr.ast.ValId;
+import com.hyland.hxpr.expr.ast.ValSimple;
 
 public class ExpressionVisitor extends ExpressionParserBaseVisitor<Expr> {
 

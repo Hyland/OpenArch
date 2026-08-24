@@ -13,10 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.nuxeo.ecm.core.security.expr.ast;
+package com.hyland.hxpr.expr.ast;
 
-public sealed interface Expr permits ExprUn, ExprBin, ExprTern, Lit, Val {
+public enum Op {
 
-    String toStringPretty();
+    ADD("+"), //
+    SUB("-"), //
+    MUL("*"), //
+    DIV("/"), //
+    EQ("=="), //
+    NOTEQ("!="), //
+    LT("<"), //
+    GT(">"), //
+    LTEQ("<="), //
+    GTEQ(">="), //
+    AND("&&"), //
+    OR("||"), //
+    NOT("!");
+
+    private final String pretty;
+
+    private Op(String pretty) {
+        this.pretty = pretty;
+    }
+
+    public String toStringPretty() {
+        return pretty;
+    }
 
 }

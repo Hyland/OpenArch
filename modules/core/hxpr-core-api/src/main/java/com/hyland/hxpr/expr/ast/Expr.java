@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2025-2026 Hyland (https://www.hyland.com/).
+ * (C) Copyright 2024-2026 Hyland (https://www.hyland.com/).
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,18 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.nuxeo.ecm.core.security.expr.ast;
+package com.hyland.hxpr.expr.ast;
 
-public record LitNull() implements Lit {
+public sealed interface Expr permits ExprUn, ExprBin, ExprTern, Lit, Val {
 
-    @Override
-    public Object toObject() {
-        return null;
-    }
-
-    @Override
-    public String toStringPretty() {
-        return "null";
-    }
+    String toStringPretty();
 
 }

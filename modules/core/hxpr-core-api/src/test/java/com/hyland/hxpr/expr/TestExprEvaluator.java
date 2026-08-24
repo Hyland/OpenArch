@@ -13,36 +13,56 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.nuxeo.ecm.core.security.expr;
+package com.hyland.hxpr.expr;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_HAS_LEGAL_HOLD;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_IS_RECORD;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_IS_CHECKED_IN;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_IS_VERSION;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_IS_FOLDERISH;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_IS_TRASHED;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PREFIX;
-import static org.nuxeo.ecm.core.security.expr.ExpressionSecurityPolicy.CONTEXT_CONTENT;
-import static org.nuxeo.ecm.core.security.expr.ExpressionSecurityPolicy.CONTEXT_USER;
+import static com.hyland.hxpr.expr.ExprEvaluator.CONTEXT_CONTENT;
+import static com.hyland.hxpr.expr.ExprEvaluator.CONTEXT_USER;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 import org.nuxeo.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.ecm.core.api.impl.UserPrincipal;
 import org.nuxeo.ecm.core.model.InternalDocument;
 import org.nuxeo.ecm.core.query.sql.model.Operand;
-import org.nuxeo.ecm.core.security.expr.ast.Expr;
+import org.nuxeo.ecm.core.schema.SchemaManager;
+import com.hyland.hxpr.expr.ExpressionVisitor;
+import com.hyland.hxpr.expr.ast.Expr;
 
 public class TestExprEvaluator {
 
     private static final String NOVAL_PREFIX = "NOVAL: ";
+
+    /** No runtime here, so the schema manager is mocked with the true-or-null booleans it knows about. */
+    private static final SchemaManager SCHEMA_MANAGER = mockSchemaManager();
+
+    private static SchemaManager mockSchemaManager() {
+        SchemaManager schemaManager = mock(SchemaManager.class);
+        Set.of(SYSVER_IS_VERSION, SYSVER_IS_CHECKED_IN, SYS_IS_FOLDERISH, SYS_IS_TRASHED, SYSGOV_IS_RECORD,
+                SYSGOV_HAS_LEGAL_HOLD)
+           .forEach(key -> when(schemaManager.isTrueOrNullBoolean(key)).thenReturn(true));
+        return schemaManager;
+    }
 
     private static Operand evaluateOperand(String string, NuxeoPrincipal principal) {
         Map<String, Object> context = Map.of( //
                 CONTEXT_CONTENT, ExprEvaluator.CONTENT, //
                 CONTEXT_USER, principal);
         Expr expr = new ExpressionVisitor().parse(string);
-        return new ExprEvaluator(context).evaluateOperand(expr);
+        return new ExprEvaluator(context, SCHEMA_MANAGER).evaluateOperand(expr);
     }
 
     private static Object evaluateValue(String string, NuxeoPrincipal principal, Map<String, Object> content) {
@@ -59,7 +79,7 @@ public class TestExprEvaluator {
                 CONTEXT_CONTENT, idoc, //
                 CONTEXT_USER, principal);
         Expr expr = new ExpressionVisitor().parse(string);
-        return new ExprEvaluator(context).evaluateValue(expr);
+        return new ExprEvaluator(context, SCHEMA_MANAGER).evaluateValue(expr);
     }
 
     private static void check(String expression, String expectedOperand, Object expectedValue) {

@@ -80,6 +80,15 @@ public interface SchemaManager {
      */
     Set<String> getDocumentTypeNamesExtendedBy(String docType);
 
+    /**
+     * Checks whether the given property holds a boolean whose value is only ever {@code true} or {@code null}, instead
+     * of {@code true} or {@code false}.
+     *
+     * @param name the property name
+     * @return {@code true} if the property is a true-or-null boolean
+     */
+    boolean isTrueOrNullBoolean(String name);
+
     /** The whole content model as a DTO. */
     ContentModelDTO toContentModel();
 

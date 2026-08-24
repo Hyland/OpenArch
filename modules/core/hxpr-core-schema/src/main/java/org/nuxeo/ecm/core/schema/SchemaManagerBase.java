@@ -250,6 +250,26 @@ public class SchemaManagerBase implements SchemaManager {
                 sortByKeyAndMapValue(documentTypes, this::toDocumentTypeDTO));
     }
 
+    /**
+     * The keys for booleans whose value is only ever true or null.
+     * <p>
+     * TODO this is hardcoded for now, it should become a characteristic of the fields of the schema.
+     * <p>
+     * These mirror the corresponding constants of {@code DocumentConstants}, which is not visible from this module.
+     */
+    private static final Set<String> TRUE_OR_NULL_BOOLEAN = Set.of( //
+            "sys_isFolderish", //
+            "sys_isTrashed", //
+            "sysgov_hasLegalHold", //
+            "sysgov_isRecord", //
+            "sysver_isCheckedIn", //
+            "sysver_isVersion");
+
+    @Override
+    public boolean isTrueOrNullBoolean(String name) {
+        return TRUE_OR_NULL_BOOLEAN.contains(name);
+    }
+
     private TypeDTO toTypeDTO(Entry<String, Type> e) {
         return e.getValue().toTypeDTO(this);
     }

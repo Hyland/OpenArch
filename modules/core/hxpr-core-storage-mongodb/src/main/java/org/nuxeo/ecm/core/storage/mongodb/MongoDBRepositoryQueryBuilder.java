@@ -93,15 +93,15 @@ public class MongoDBRepositoryQueryBuilder extends MongoDBAbstractQueryBuilder {
 
     boolean projectionHasWildcard;
 
-    public MongoDBRepositoryQueryBuilder(MongoDBRepository repository, Predicate expression, SelectClause selectClause,
+    public MongoDBRepositoryQueryBuilder(MongoDBConverter converter, Predicate expression, SelectClause selectClause,
             OrderByClause orderByClause, PathResolver pathResolver, SchemaManager schemaManager) {
-        this(repository, expression, selectClause, orderByClause, pathResolver, schemaManager, QueryAnnotations.NONE);
+        this(converter, expression, selectClause, orderByClause, pathResolver, schemaManager, QueryAnnotations.NONE);
     }
 
-    public MongoDBRepositoryQueryBuilder(MongoDBRepository repository, Predicate expression, SelectClause selectClause,
+    public MongoDBRepositoryQueryBuilder(MongoDBConverter converter, Predicate expression, SelectClause selectClause,
             OrderByClause orderByClause, PathResolver pathResolver, SchemaManager schemaManager,
             QueryAnnotations annotations) {
-        super(repository.getConverter(), expression, annotations);
+        super(converter, expression, annotations);
         this.schemaManager = schemaManager;
         this.selectClause = selectClause;
         this.orderByClause = orderByClause;

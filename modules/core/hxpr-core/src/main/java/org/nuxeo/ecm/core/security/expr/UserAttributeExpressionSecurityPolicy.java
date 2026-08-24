@@ -30,7 +30,9 @@ import org.nuxeo.ecm.core.query.sql.model.Operand;
 import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
 import org.nuxeo.ecm.core.security.AbstractSecurityPolicy;
-import org.nuxeo.ecm.core.security.expr.ast.Expr;
+import com.hyland.hxpr.expr.ExprEvaluator;
+import com.hyland.hxpr.expr.ExpressionVisitor;
+import com.hyland.hxpr.expr.ast.Expr;
 
 public class UserAttributeExpressionSecurityPolicy extends AbstractSecurityPolicy {
 
@@ -100,7 +102,7 @@ public class UserAttributeExpressionSecurityPolicy extends AbstractSecurityPolic
         }
         try {
             Expr extExpr = new ExpressionVisitor().parse(expressionString);
-            Object value = new ExprEvaluator(context).evaluateValue(extExpr);
+            Object value = new ExprEvaluator(context, getSchemaManager()).evaluateValue(extExpr);
             if (value == null) {
                 return false;
             } else if (value instanceof Boolean bool) {
@@ -124,7 +126,7 @@ public class UserAttributeExpressionSecurityPolicy extends AbstractSecurityPolic
         }
         try {
             Expr extExpr = new ExpressionVisitor().parse(expressionString);
-            Operand operand = new ExprEvaluator(context).evaluateOperand(extExpr);
+            Operand operand = new ExprEvaluator(context, getSchemaManager()).evaluateOperand(extExpr);
             if (operand instanceof Predicate || operand instanceof BooleanLiteral) {
                 return operand;
             }

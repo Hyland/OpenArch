@@ -15,6 +15,9 @@
  */
 package org.nuxeo.ecm.core.security.expr;
 
+import static com.hyland.hxpr.expr.ExprEvaluator.CONTEXT_CONTENT;
+import static com.hyland.hxpr.expr.ExprEvaluator.CONTEXT_USER;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,7 +35,9 @@ import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
 import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation.Type;
 import org.nuxeo.ecm.core.security.AbstractSecurityPolicy;
 import org.nuxeo.ecm.core.security.SecurityPolicyViolation;
-import org.nuxeo.ecm.core.security.expr.ast.Expr;
+import com.hyland.hxpr.expr.ExprEvaluator;
+import com.hyland.hxpr.expr.ExpressionVisitor;
+import com.hyland.hxpr.expr.ast.Expr;
 
 public class ExpressionSecurityPolicy extends AbstractSecurityPolicy {
 
@@ -42,9 +47,7 @@ public class ExpressionSecurityPolicy extends AbstractSecurityPolicy {
 
     public static final String EXPRESSION_POLICY_EXPRESSION_KEY = "expression";
 
-    public static final String CONTEXT_CONTENT = "content";
 
-    public static final String CONTEXT_USER = "user";
 
     private final String expressionString;
 
@@ -90,7 +93,7 @@ public class ExpressionSecurityPolicy extends AbstractSecurityPolicy {
             var context = Map.of( //
                     CONTEXT_CONTENT, doc, //
                     CONTEXT_USER, principal);
-            Object value = new ExprEvaluator(context).evaluateValue(expr);
+            Object value = new ExprEvaluator(context, getSchemaManager()).evaluateValue(expr);
             if (value == null) {
                 return false;
             } else if (value instanceof Boolean bool) {
@@ -109,7 +112,7 @@ public class ExpressionSecurityPolicy extends AbstractSecurityPolicy {
             var context = Map.of( //
                     CONTEXT_CONTENT, ExprEvaluator.CONTENT, //
                     CONTEXT_USER, queryParams.principal());
-            Operand operand = new ExprEvaluator(context).evaluateOperand(expr);
+            Operand operand = new ExprEvaluator(context, getSchemaManager()).evaluateOperand(expr);
             if (operand instanceof Predicate || operand instanceof BooleanLiteral) {
                 return operand;
             }

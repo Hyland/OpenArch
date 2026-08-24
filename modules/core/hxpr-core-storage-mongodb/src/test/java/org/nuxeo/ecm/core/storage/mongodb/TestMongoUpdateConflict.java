@@ -16,6 +16,7 @@
 package org.nuxeo.ecm.core.storage.mongodb;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.nuxeo.ecm.core.storage.mongodb.MongoDBConverter.DEFAULT_CONVERTER;
 import static org.nuxeo.ecm.core.storage.mongodb.MongoDBRepository.MONGODB_SET;
 
 import org.junit.jupiter.api.Test;
@@ -24,7 +25,7 @@ import org.nuxeo.ecm.core.storage.mongodb.MongoDBConverter.UpdateBuilder;
 public class TestMongoUpdateConflict {
 
     protected UpdateBuilder newUpdateBuilder() {
-        UpdateBuilder ub = new MongoDBConverter().new UpdateBuilder();
+        UpdateBuilder ub = DEFAULT_CONVERTER.new UpdateBuilder();
         ub.newUpdate();
         return ub;
     }

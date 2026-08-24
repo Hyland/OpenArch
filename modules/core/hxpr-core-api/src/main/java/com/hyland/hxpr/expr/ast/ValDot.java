@@ -13,18 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.nuxeo.ecm.core.security.expr.ast;
+package com.hyland.hxpr.expr.ast;
 
-public record LitBool(boolean bool) implements Lit {
-
-    @Override
-    public Object toObject() {
-        return bool;
-    }
+public record ValDot(Val left, ValSimple right) implements Val {
 
     @Override
     public String toStringPretty() {
-        return String.valueOf(bool);
+        return left.toStringPretty() + '.' + right.toStringPretty();
     }
 
 }

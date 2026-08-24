@@ -41,6 +41,7 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.Decimal128;
 import org.nuxeo.ecm.core.api.model.Delta;
+import org.nuxeo.ecm.core.schema.SchemaManager;
 import org.nuxeo.ecm.core.storage.State;
 import org.nuxeo.ecm.core.storage.State.ListDiff;
 import org.nuxeo.ecm.core.storage.State.StateDiff;
@@ -58,16 +59,19 @@ import com.mongodb.client.model.Filters;
  */
 public class MongoDBConverter {
 
-    /** The keys for booleans whose value is true or null (instead of false). */
-    protected final Set<String> trueOrNullBooleanKeys;
+    /** A shared converter doing no schema-dependent conversion. */
+    public static final MongoDBConverter DEFAULT_CONVERTER = new MongoDBConverter();
+
+    /** The schema manager, or {@code null} for a converter doing no schema-dependent conversion. */
+    protected final SchemaManager schemaManager;
 
     /**
-     * Constructor for a converter that does not map the MongoDB native "_id".
+     * Constructor for a converter doing no schema-dependent conversion.
      *
      * @since 10.3
      */
     public MongoDBConverter() {
-        this(Set.of());
+        this(null);
     }
 
     /**
@@ -75,12 +79,11 @@ public class MongoDBConverter {
      * <p>
      * When {@code idValuesKeys} are provided, the ids are stored as longs.
      *
-     * @param trueOrNullBooleanKeys the keys corresponding to boolean values that are only true or null (instead of
-     *            false)
+     * @param schemaManager the schema manager, or {@code null} for no schema-dependent conversion
      * @param idValuesKeys the keys corresponding to values that are ids
      */
-    public MongoDBConverter(Set<String> trueOrNullBooleanKeys) {
-        this.trueOrNullBooleanKeys = trueOrNullBooleanKeys;
+    public MongoDBConverter(SchemaManager schemaManager) {
+        this.schemaManager = schemaManager;
     }
 
     /**
@@ -224,7 +227,7 @@ public class MongoDBConverter {
         if (value instanceof Instant instant) {
             return Date.from(instant); // XXX TODO check if MongoDB accepts Instant directly
         }
-        if (FALSE.equals(value) && key != null && trueOrNullBooleanKeys.contains(key)) {
+        if (FALSE.equals(value) && key != null && schemaManager != null && schemaManager.isTrueOrNullBoolean(key)) {
             return null;
         }
         return value;

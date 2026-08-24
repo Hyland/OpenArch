@@ -16,6 +16,7 @@
 package org.nuxeo.ecm.core.storage.mongodb;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.nuxeo.ecm.core.storage.mongodb.MongoDBConverter.DEFAULT_CONVERTER;
 import static org.nuxeo.runtime.mongodb.MongoDBOperators.AND;
 
 import java.util.Date;
@@ -39,7 +40,7 @@ public class TestMongoDBConverter {
 
     @Test
     public void testAddToFilter() {
-        MongoDBConverter conv = new MongoDBConverter();
+        MongoDBConverter conv = DEFAULT_CONVERTER;
         Document filter;
 
         // add to empty filter
@@ -70,7 +71,7 @@ public class TestMongoDBConverter {
 
     @Test
     public void testBsonToState() {
-        MongoDBConverter conv = new MongoDBConverter();
+        MongoDBConverter conv = DEFAULT_CONVERTER;
 
         Document doc = new Document();
         doc.put("string", "value");

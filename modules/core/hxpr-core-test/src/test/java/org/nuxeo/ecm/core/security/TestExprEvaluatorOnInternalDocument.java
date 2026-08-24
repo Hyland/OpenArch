@@ -19,8 +19,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSFILE_BLOB;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
 import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FILE;
-import static org.nuxeo.ecm.core.security.expr.ExpressionSecurityPolicy.CONTEXT_CONTENT;
-import static org.nuxeo.ecm.core.security.expr.ExpressionSecurityPolicy.CONTEXT_USER;
+import static com.hyland.hxpr.expr.ExprEvaluator.CONTEXT_CONTENT;
+import static com.hyland.hxpr.expr.ExprEvaluator.CONTEXT_USER;
 
 import java.util.Map;
 
@@ -34,9 +34,9 @@ import org.nuxeo.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.ecm.core.api.impl.UserPrincipal;
 import org.nuxeo.ecm.core.model.InternalDocument;
 import org.nuxeo.ecm.core.model.InternalSession;
-import org.nuxeo.ecm.core.security.expr.ExprEvaluator;
-import org.nuxeo.ecm.core.security.expr.ExpressionVisitor;
-import org.nuxeo.ecm.core.security.expr.ast.Expr;
+import com.hyland.hxpr.expr.ExprEvaluator;
+import com.hyland.hxpr.expr.ExpressionVisitor;
+import com.hyland.hxpr.expr.ast.Expr;
 import org.nuxeo.ecm.core.storage.dbs.DBSDocument;
 import org.nuxeo.ecm.core.test.CoreFeature;
 import org.nuxeo.ecm.core.test.annotations.Granularity;

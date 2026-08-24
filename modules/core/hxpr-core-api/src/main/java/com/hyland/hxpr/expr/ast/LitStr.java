@@ -13,13 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.nuxeo.ecm.core.security.expr.ast;
+package com.hyland.hxpr.expr.ast;
 
-public record ExprBin(Expr left, Op op, Expr right) implements Expr {
+import org.apache.commons.text.StringEscapeUtils;
+
+public record LitStr(String str) implements Lit {
+
+    @Override
+    public Object toObject() {
+        return str;
+    }
 
     @Override
     public String toStringPretty() {
-        return "(" + left.toStringPretty() + " " + op.toStringPretty() + " " + right.toStringPretty() + ")";
+        return '"' + StringEscapeUtils.escapeJava(str) + '"';
     }
 
 }

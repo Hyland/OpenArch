@@ -28,6 +28,7 @@ import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ANCESTOR_IDS;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_BLOB_KEYS;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_FULLTEXT_JOB_ID;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ID;
+import static org.nuxeo.ecm.core.storage.mongodb.MongoDBConverter.DEFAULT_CONVERTER;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_IS_TRASHED;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_LOCK_CREATED;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_LOCK_OWNER;
@@ -122,7 +123,10 @@ public class MongoDBConnection extends DBSConnectionBase {
 
     protected final MongoCollection<Document> coll;
 
-    protected final MongoDBConverter converter;
+    /**
+     * Recomputed whenever the schema manager is, as it depends on it; the schema-less default outside a transaction.
+     */
+    protected MongoDBConverter converter = DEFAULT_CONVERTER;
 
     protected ClientSession clientSession;
 
@@ -132,7 +136,6 @@ public class MongoDBConnection extends DBSConnectionBase {
         super(repository);
         mongoDBRepository = repository;
         coll = repository.getCollection();
-        converter = repository.getConverter();
         if (repository.supportsSessions()) {
             clientSession = repository.getClient().startSession();
         } else {
@@ -162,9 +165,15 @@ public class MongoDBConnection extends DBSConnectionBase {
         return schemaManager;
     }
 
+    /** Sets the schema manager, and recomputes the converter which depends on it. */
+    private void setSchemaManager(SchemaManager schemaManager) {
+        this.schemaManager = schemaManager;
+        converter = schemaManager == null ? DEFAULT_CONVERTER : new MongoDBConverter(schemaManager);
+    }
+
     @Override
     public void begin() {
-        schemaManager = repository.getSchemaManager();
+        setSchemaManager(repository.getSchemaManager());
         if (clientSession != null) {
             clientSession.startTransaction();
             transactionStarted = true;
@@ -173,7 +182,7 @@ public class MongoDBConnection extends DBSConnectionBase {
 
     @Override
     public void commit() {
-        schemaManager = null;
+        setSchemaManager(null);
         if (clientSession != null) {
             try {
                 clientSession.commitTransaction();
@@ -185,7 +194,7 @@ public class MongoDBConnection extends DBSConnectionBase {
 
     @Override
     public void rollback() {
-        schemaManager = null;
+        setSchemaManager(null);
         if (clientSession != null) {
             try {
                 clientSession.abortTransaction();
@@ -199,7 +208,7 @@ public class MongoDBConnection extends DBSConnectionBase {
      * Initializes the MongoDB repository.
      */
     protected void initRepository() {
-        if (coll.countDocuments(converter.filterEq(SYS_ID, getRootId())) == 0) {
+        if (coll.countDocuments(DEFAULT_CONVERTER.filterEq(SYS_ID, getRootId())) == 0) {
             initRoot();
         }
         // always init indexes even if repository still exists, to allow migrations
@@ -369,7 +378,7 @@ public class MongoDBConnection extends DBSConnectionBase {
     }
 
     private Document predicateToDocument(Predicate predicate) {
-        MongoDBRepositoryQueryBuilder builder = new MongoDBRepositoryQueryBuilder((MongoDBRepository) repository,
+        MongoDBRepositoryQueryBuilder builder = new MongoDBRepositoryQueryBuilder(converter,
                 predicate, null, null, null, getSchemaManager());
         builder.walkTopLevelExpression();
         return builder.getQuery();
@@ -598,7 +607,7 @@ public class MongoDBConnection extends DBSConnectionBase {
     public PartialList<Map<String, Object>> queryAndFetch(DBSExpressionEvaluator evaluator,
             OrderByClause orderByClause, boolean distinctDocuments, int limit, int offset, int countUpTo) {
         // orderByClause may be null and different from evaluator.getOrderByClause() in case we want to post-filter
-        MongoDBRepositoryQueryBuilder builder = new MongoDBRepositoryQueryBuilder((MongoDBRepository) repository,
+        MongoDBRepositoryQueryBuilder builder = new MongoDBRepositoryQueryBuilder(converter,
                 evaluator.getExpression(), evaluator.getSelectClause(), orderByClause, evaluator.pathResolver,
                 getSchemaManager(), evaluator.getAnnotations());
         builder.walk();
@@ -689,7 +698,7 @@ public class MongoDBConnection extends DBSConnectionBase {
     public ScrollResult<String> scroll(DBSExpressionEvaluator evaluator, int batchSize, int keepAliveSeconds) {
         MongoDBCursorService cursorService = mongoDBRepository.getCursorService();
         cursorService.checkForTimedOutScroll();
-        MongoDBRepositoryQueryBuilder builder = new MongoDBRepositoryQueryBuilder((MongoDBRepository) repository,
+        MongoDBRepositoryQueryBuilder builder = new MongoDBRepositoryQueryBuilder(converter,
                 evaluator.getExpression(), evaluator.getSelectClause(), null, evaluator.pathResolver,
                 getSchemaManager(), evaluator.getAnnotations());
         builder.walk();

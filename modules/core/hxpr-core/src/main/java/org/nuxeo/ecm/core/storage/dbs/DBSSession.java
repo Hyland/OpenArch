@@ -60,8 +60,8 @@ import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_REMOVED;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.SYSTEM_USERNAME;
 import static org.nuxeo.ecm.core.async.tasks.DeleteBatchTaskProcessor.BATCH_DELETE_TASK_NAME;
 import static org.nuxeo.ecm.core.schema.MixinNames.SYS_VERSIONED_WITH_PARENT;
-import static org.nuxeo.ecm.core.security.expr.ExpressionSecurityPolicy.CONTEXT_CONTENT;
-import static org.nuxeo.ecm.core.security.expr.ExpressionSecurityPolicy.CONTEXT_USER;
+import static com.hyland.hxpr.expr.ExprEvaluator.CONTEXT_CONTENT;
+import static com.hyland.hxpr.expr.ExprEvaluator.CONTEXT_USER;
 import static org.nuxeo.ecm.core.storage.dbs.DBSDocument.KEY_ACE_BEGIN;
 import static org.nuxeo.ecm.core.storage.dbs.DBSDocument.KEY_ACE_CREATOR;
 import static org.nuxeo.ecm.core.storage.dbs.DBSDocument.KEY_ACE_END;
@@ -164,9 +164,9 @@ import org.nuxeo.ecm.core.schema.types.primitives.DateType;
 import org.nuxeo.ecm.core.schema.types.primitives.StringType;
 import org.nuxeo.ecm.core.security.SecurityPolicyService;
 import org.nuxeo.ecm.core.security.SecurityService;
-import org.nuxeo.ecm.core.security.expr.ExprEvaluator;
-import org.nuxeo.ecm.core.security.expr.ExpressionVisitor;
-import org.nuxeo.ecm.core.security.expr.ast.Expr;
+import com.hyland.hxpr.expr.ExprEvaluator;
+import com.hyland.hxpr.expr.ExpressionVisitor;
+import com.hyland.hxpr.expr.ast.Expr;
 import org.nuxeo.ecm.core.storage.ExpressionEvaluator;
 import org.nuxeo.ecm.core.storage.QueryOptimizer;
 import org.nuxeo.ecm.core.storage.State;
@@ -1596,19 +1596,6 @@ public class DBSSession implements InternalSession {
         }
     }
 
-    /**
-     * Keys for boolean values that are stored as true or null (never false).
-     *
-     * @since 11.1
-     */
-    public static final Set<String> TRUE_OR_NULL_BOOLEAN_KEYS = Set.of( //
-            SYSVER_IS_VERSION, //
-            SYSVER_IS_CHECKED_IN, //
-            SYS_IS_FOLDERISH, //
-            SYS_IS_TRASHED, //
-            SYSGOV_IS_RECORD, //
-            SYSGOV_HAS_LEGAL_HOLD);
-
     @Override
     public LockManager getLockManager() {
         return (DBSRepository) repository;
@@ -1653,7 +1640,7 @@ public class DBSSession implements InternalSession {
             Map<String, Object> context = Map.of( //
                     CONTEXT_CONTENT, ExprEvaluator.CONTENT, //
                     CONTEXT_USER, principal);
-            return new ExprEvaluator(context).evaluateOperand(parsed);
+            return new ExprEvaluator(context, getSchemaManager()).evaluateOperand(parsed);
         } catch (IllegalArgumentException e) {
             // both the parser and the evaluator signal errors this way
             throw new QueryParseException("Invalid expression: " + expr + ": " + e.getMessage(), e);

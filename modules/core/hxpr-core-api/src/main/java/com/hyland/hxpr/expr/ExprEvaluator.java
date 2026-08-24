@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.nuxeo.ecm.core.security.expr;
+package com.hyland.hxpr.expr;
 
-import static java.lang.Boolean.FALSE;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_HAS_LEGAL_HOLD;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_IS_RECORD;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_PREFIX;
@@ -48,7 +47,6 @@ import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_FILENAME;
 import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_KEY;
 import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_LENGTH;
 import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_MIME_TYPE;
-import static org.nuxeo.ecm.core.storage.dbs.DBSSession.TRUE_OR_NULL_BOOLEAN_KEYS;
 
 import java.util.HashMap;
 import java.util.List;
@@ -70,17 +68,20 @@ import org.nuxeo.ecm.core.query.sql.model.Operator;
 import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Reference;
 import org.nuxeo.ecm.core.query.sql.model.StringLiteral;
-import org.nuxeo.ecm.core.security.expr.ast.Expr;
-import org.nuxeo.ecm.core.security.expr.ast.ExprBin;
-import org.nuxeo.ecm.core.security.expr.ast.ExprTern;
-import org.nuxeo.ecm.core.security.expr.ast.ExprUn;
-import org.nuxeo.ecm.core.security.expr.ast.Lit;
-import org.nuxeo.ecm.core.security.expr.ast.Op;
-import org.nuxeo.ecm.core.security.expr.ast.Val;
-import org.nuxeo.ecm.core.security.expr.ast.ValCall;
-import org.nuxeo.ecm.core.security.expr.ast.ValDot;
-import org.nuxeo.ecm.core.security.expr.ast.ValId;
-import org.nuxeo.ecm.core.security.expr.ast.ValSimple;
+import org.nuxeo.ecm.core.schema.SchemaManager;
+import org.nuxeo.ecm.core.schema.TypeService;
+import org.nuxeo.runtime.api.Framework;
+import com.hyland.hxpr.expr.ast.Expr;
+import com.hyland.hxpr.expr.ast.ExprBin;
+import com.hyland.hxpr.expr.ast.ExprTern;
+import com.hyland.hxpr.expr.ast.ExprUn;
+import com.hyland.hxpr.expr.ast.Lit;
+import com.hyland.hxpr.expr.ast.Op;
+import com.hyland.hxpr.expr.ast.Val;
+import com.hyland.hxpr.expr.ast.ValCall;
+import com.hyland.hxpr.expr.ast.ValDot;
+import com.hyland.hxpr.expr.ast.ValId;
+import com.hyland.hxpr.expr.ast.ValSimple;
 
 /**
  * Converts an Expression Security Policy expression (represented as an {@link Expr} AST) into HXQL (represented as an
@@ -98,6 +99,12 @@ public class ExprEvaluator {
 
     /** Special marker representing the content object in the context, for Operand generation. */
     public static final Object CONTENT = new Object();
+
+    /** The context key for the content object being evaluated. */
+    public static final String CONTEXT_CONTENT = "content";
+
+    /** The context key for the current user. */
+    public static final String CONTEXT_USER = "user";
 
     private static final String USER_ID = "id";
 
@@ -133,8 +140,28 @@ public class ExprEvaluator {
 
     private final Map<String, Object> context;
 
+    /** SchemaManager required in order to know which fields are true-or-null booleans. */
+    private final SchemaManager schemaManager;
+
+    /**
+     * Constructor using the default {@link SchemaManager} from the runtime.
+     * <p>
+     * Note that schema managers are per-repository; prefer {@link #ExprEvaluator(Map, SchemaManager)} when the
+     * repository is known.
+     *
+     * @param context the context for the evaluation
+     */
     public ExprEvaluator(Map<String, Object> context) {
+        this(context, Framework.getService(TypeService.class).getDefaultSchemaManager());
+    }
+
+    /**
+     * @param context the context for the evaluation
+     * @param schemaManager the schema manager
+     */
+    public ExprEvaluator(Map<String, Object> context, SchemaManager schemaManager) {
         this.context = context;
+        this.schemaManager = schemaManager;
     }
 
     /**
@@ -277,7 +304,7 @@ public class ExprEvaluator {
             value = Long.valueOf(i);
         } else if (value instanceof Float f) {
             value = Double.valueOf(f);
-        } else if (value == null && TRUE_OR_NULL_BOOLEAN_KEYS.contains(name)) {
+        } else if (value == null && schemaManager.isTrueOrNullBoolean(name)) {
             value = false;
         } else if (value instanceof ManagedBlob blob) {
             Map<String, Object> map = new HashMap<>();

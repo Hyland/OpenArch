@@ -18,6 +18,7 @@ package org.nuxeo.ecm.core.storage.mongodb;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.nuxeo.ecm.core.storage.State.NOP;
+import static org.nuxeo.ecm.core.storage.mongodb.MongoDBConverter.DEFAULT_CONVERTER;
 import static org.nuxeo.ecm.core.storage.mongodb.MongoDBRepository.MONGODB_SET;
 import static org.nuxeo.ecm.core.storage.mongodb.MongoDBRepository.MONGODB_UNSET;
 import static org.nuxeo.ecm.core.storage.mongodb.MongoDBRepository.ONE;
@@ -41,7 +42,7 @@ public class TestMongoDBConverterUpdateBuilder {
     public void testUpdateStateDiff() {
         var docDiff = newStateDiff("primitive", "value");
 
-        var ub = new MongoDBConverter().new UpdateBuilder();
+        var ub = DEFAULT_CONVERTER.new UpdateBuilder();
         ConditionsAndUpdates conditionsAndUpdates = ub.build(docDiff);
 
         List<Document> updates = conditionsAndUpdates.updates;
@@ -60,7 +61,7 @@ public class TestMongoDBConverterUpdateBuilder {
     public void testUpdateStateDiffUnset() {
         var docDiff = newStateDiff("primitive", null);
 
-        var ub = new MongoDBConverter().new UpdateBuilder();
+        var ub = DEFAULT_CONVERTER.new UpdateBuilder();
         ConditionsAndUpdates conditionsAndUpdates = ub.build(docDiff);
 
         List<Document> updates = conditionsAndUpdates.updates;
@@ -79,7 +80,7 @@ public class TestMongoDBConverterUpdateBuilder {
     public void testUpdateListDiff() {
         var docDiff = newStateDiff("array", newListDiffDiff("value0"));
 
-        var ub = new MongoDBConverter().new UpdateBuilder();
+        var ub = DEFAULT_CONVERTER.new UpdateBuilder();
         ConditionsAndUpdates conditionsAndUpdates = ub.build(docDiff);
 
         List<Document> updates = conditionsAndUpdates.updates;
@@ -99,7 +100,7 @@ public class TestMongoDBConverterUpdateBuilder {
     public void testUpdateListDiffStateDiff() {
         var docDiff = newStateDiff("array", newListDiffDiff(newStateDiff("key", "value")));
 
-        var ub = new MongoDBConverter().new UpdateBuilder();
+        var ub = DEFAULT_CONVERTER.new UpdateBuilder();
         ConditionsAndUpdates conditionsAndUpdates = ub.build(docDiff);
 
         List<Document> updates = conditionsAndUpdates.updates;
@@ -120,7 +121,7 @@ public class TestMongoDBConverterUpdateBuilder {
         var docDiff = newStateDiff("array",
                 newListDiffDiff(newStateDiff("array", newListDiffDiff(NOP, newStateDiff("key", "value")))));
 
-        var ub = new MongoDBConverter().new UpdateBuilder();
+        var ub = DEFAULT_CONVERTER.new UpdateBuilder();
         ConditionsAndUpdates conditionsAndUpdates = ub.build(docDiff);
 
         List<Document> updates = conditionsAndUpdates.updates;
@@ -142,7 +143,7 @@ public class TestMongoDBConverterUpdateBuilder {
     public void testComplexPropNoConflict() throws Exception {
         var docDiff = newStateDiff("foo", newListDiffDiff(newStateDiff("bar", "val", "zoo", "val")));
 
-        var ub = new MongoDBConverter().new UpdateBuilder();
+        var ub = DEFAULT_CONVERTER.new UpdateBuilder();
         ConditionsAndUpdates conditionsAndUpdates = ub.build(docDiff);
 
         List<Document> updates = conditionsAndUpdates.updates;
@@ -157,7 +158,7 @@ public class TestMongoDBConverterUpdateBuilder {
     public void testComplexPropNoConflict2() throws Exception {
         var docDiff = newStateDiff("foo", newListDiffDiff(newStateDiff("zoo", newStateDiff("x", "val", "y", "val"))));
 
-        var ub = new MongoDBConverter().new UpdateBuilder();
+        var ub = DEFAULT_CONVERTER.new UpdateBuilder();
         ConditionsAndUpdates conditionsAndUpdates = ub.build(docDiff);
 
         List<Document> updates = conditionsAndUpdates.updates;
@@ -173,7 +174,7 @@ public class TestMongoDBConverterUpdateBuilder {
         var docDiff = newStateDiff("foo",
                 newListDiffDiff(newStateDiff("bar", newStateDiff("zoo", newStateDiff("x", "val"), "z", "val"))));
 
-        var ub = new MongoDBConverter().new UpdateBuilder();
+        var ub = DEFAULT_CONVERTER.new UpdateBuilder();
         ConditionsAndUpdates conditionsAndUpdates = ub.build(docDiff);
 
         List<Document> updates = conditionsAndUpdates.updates;
@@ -191,7 +192,7 @@ public class TestMongoDBConverterUpdateBuilder {
         listDiff.rpush = List.of(newStateDiff("bar", "val2"));
         var docDiff = newStateDiff("foo", listDiff);
 
-        var ub = new MongoDBConverter().new UpdateBuilder();
+        var ub = DEFAULT_CONVERTER.new UpdateBuilder();
         ConditionsAndUpdates conditionsAndUpdates = ub.build(docDiff);
 
         List<Document> updates = conditionsAndUpdates.updates;
@@ -209,7 +210,7 @@ public class TestMongoDBConverterUpdateBuilder {
         listDiff.pull = List.of(newStateDiff("bar", "val2"));
         var docDiff = newStateDiff("foo", listDiff);
 
-        var ub = new MongoDBConverter().new UpdateBuilder();
+        var ub = DEFAULT_CONVERTER.new UpdateBuilder();
         ConditionsAndUpdates conditionsAndUpdates = ub.build(docDiff);
 
         List<Document> updates = conditionsAndUpdates.updates;
@@ -227,7 +228,7 @@ public class TestMongoDBConverterUpdateBuilder {
         listDiff.pull = List.of(newStateDiff("bar", "val2"));
         var docDiff = newStateDiff("foo", listDiff);
 
-        var ub = new MongoDBConverter().new UpdateBuilder();
+        var ub = DEFAULT_CONVERTER.new UpdateBuilder();
         ConditionsAndUpdates conditionsAndUpdates = ub.build(docDiff);
 
         List<Document> updates = conditionsAndUpdates.updates;
@@ -242,7 +243,7 @@ public class TestMongoDBConverterUpdateBuilder {
         var docDiff = new StateDiff();
         IntStream.range(0, 10_000).forEach(i -> docDiff.put("foo." + i + ".bar.zoo", "val"));
 
-        var ub = new MongoDBConverter().new UpdateBuilder();
+        var ub = DEFAULT_CONVERTER.new UpdateBuilder();
         ConditionsAndUpdates conditionsAndUpdates = ub.build(docDiff);
 
         List<Document> updates = conditionsAndUpdates.updates;

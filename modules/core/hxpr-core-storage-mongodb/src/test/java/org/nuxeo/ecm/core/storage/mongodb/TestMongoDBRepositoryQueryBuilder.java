@@ -18,6 +18,7 @@ package org.nuxeo.ecm.core.storage.mongodb;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.nuxeo.ecm.core.storage.mongodb.MongoDBConverter.DEFAULT_CONVERTER;
 
 import org.bson.Document;
 import org.junit.jupiter.api.Test;
@@ -41,8 +42,6 @@ public class TestMongoDBRepositoryQueryBuilder {
     @Test
     public void testWalkReference_SubPropertyOfAny() {
         // Given a repository query builder with mocked dependencies
-        MongoDBRepository repository = mock(MongoDBRepository.class);
-        doReturn(new MongoDBConverter()).when(repository).getConverter();
 
         SchemaManager schemaManager = mock(SchemaManager.class);
         PathResolver pathResolver = mock(PathResolver.class);
@@ -58,7 +57,7 @@ public class TestMongoDBRepositoryQueryBuilder {
         StringLiteral right = new StringLiteral("val1");
         Predicate expr = new Predicate(left, Operator.EQ, right);
 
-        MongoDBRepositoryQueryBuilder qb = new MongoDBRepositoryQueryBuilder(repository, expr, /* select */ null,
+        MongoDBRepositoryQueryBuilder qb = new MongoDBRepositoryQueryBuilder(DEFAULT_CONVERTER, expr, /* select */ null,
                 /* order */ null, pathResolver, schemaManager);
 
         // When walking equality on that reference
@@ -73,8 +72,6 @@ public class TestMongoDBRepositoryQueryBuilder {
     @Test
     public void testWalkBooleanLiteral_OnBooleanField() {
         // Given a repository query builder with a Boolean-typed schema field
-        MongoDBRepository repository = mock(MongoDBRepository.class);
-        doReturn(new MongoDBConverter()).when(repository).getConverter();
 
         SchemaManager schemaManager = mock(SchemaManager.class);
         PathResolver pathResolver = mock(PathResolver.class);
@@ -88,13 +85,13 @@ public class TestMongoDBRepositoryQueryBuilder {
 
         // Predicate: active = TRUE
         Predicate exprTrue = new Predicate(left, Operator.EQ, BooleanLiteral.LIT_TRUE);
-        MongoDBRepositoryQueryBuilder qbTrue = new MongoDBRepositoryQueryBuilder(repository, exprTrue, null, null,
-                pathResolver, schemaManager);
+        MongoDBRepositoryQueryBuilder qbTrue = new MongoDBRepositoryQueryBuilder(DEFAULT_CONVERTER, exprTrue, null,
+                null, pathResolver, schemaManager);
         Document docTrue = qbTrue.walkEq(left, BooleanLiteral.LIT_TRUE);
 
         // Predicate: active = 1 (legacy form, must produce same query)
         Predicate exprOne = new Predicate(left, Operator.EQ, new IntegerLiteral(1L));
-        MongoDBRepositoryQueryBuilder qbOne = new MongoDBRepositoryQueryBuilder(repository, exprOne, null, null,
+        MongoDBRepositoryQueryBuilder qbOne = new MongoDBRepositoryQueryBuilder(DEFAULT_CONVERTER, exprOne, null, null,
                 pathResolver, schemaManager);
         Document docOne = qbOne.walkEq(left, new IntegerLiteral(1L));
 
@@ -103,14 +100,14 @@ public class TestMongoDBRepositoryQueryBuilder {
 
         // Predicate: active = FALSE
         Predicate exprFalse = new Predicate(left, Operator.EQ, BooleanLiteral.LIT_FALSE);
-        MongoDBRepositoryQueryBuilder qbFalse = new MongoDBRepositoryQueryBuilder(repository, exprFalse, null, null,
-                pathResolver, schemaManager);
+        MongoDBRepositoryQueryBuilder qbFalse = new MongoDBRepositoryQueryBuilder(DEFAULT_CONVERTER, exprFalse, null,
+                null, pathResolver, schemaManager);
         Document docFalse = qbFalse.walkEq(left, BooleanLiteral.LIT_FALSE);
 
         // Predicate: active = 0
         Predicate exprZero = new Predicate(left, Operator.EQ, new IntegerLiteral(0L));
-        MongoDBRepositoryQueryBuilder qbZero = new MongoDBRepositoryQueryBuilder(repository, exprZero, null, null,
-                pathResolver, schemaManager);
+        MongoDBRepositoryQueryBuilder qbZero = new MongoDBRepositoryQueryBuilder(DEFAULT_CONVERTER, exprZero, null,
+                null, pathResolver, schemaManager);
         Document docZero = qbZero.walkEq(left, new IntegerLiteral(0L));
 
         assertEquals(docZero, docFalse);
