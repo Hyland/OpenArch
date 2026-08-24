@@ -16,6 +16,10 @@
 package org.nuxeo.opensearch.io;
 
 import static java.util.stream.Collectors.joining;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY_CLOUD;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY_ON_PREM;
 import static org.nuxeo.ecm.core.model.EmbeddingModel.VECTOR_SIZE;
 
 import java.io.StringWriter;
@@ -65,7 +69,7 @@ public class EmbeddingOSDTOTest {
         List<Double> vector = IntStream.range(0, VECTOR_SIZE).mapToObj(Double::valueOf).toList();
         EmbeddingModel embedding = new EmbeddingModel(embeddingId, "repository", "docId", "type", vector, "text",
                 new LocationModel(1, 1), null);
-        EmbeddingOSDTO embeddingOSDTO = new EmbeddingOSDTO(embedding, createTestParentDoc());
+        EmbeddingOSDTO embeddingOSDTO = new EmbeddingOSDTO(embedding, createTestParentDoc(), null);
 
         // Call the method under test.
         embeddingOSDTO.serialize(jg, null);
@@ -100,7 +104,7 @@ public class EmbeddingOSDTOTest {
         List<Double> vector = IntStream.range(0, VECTOR_SIZE).mapToObj(Double::valueOf).toList();
         EmbeddingModel embedding = new EmbeddingModel(embeddingId, "repository", "docId", "type", vector, "text",
                 new LocationModel(10, 20, 100, 200), null);
-        EmbeddingOSDTO embeddingOSDTO = new EmbeddingOSDTO(embedding, createTestParentDoc());
+        EmbeddingOSDTO embeddingOSDTO = new EmbeddingOSDTO(embedding, createTestParentDoc(), null);
 
         embeddingOSDTO.serialize(jg, null);
         jg.flush();
@@ -134,7 +138,7 @@ public class EmbeddingOSDTOTest {
         List<Double> vector = IntStream.range(0, VECTOR_SIZE).mapToObj(Double::valueOf).toList();
         EmbeddingModel embedding = new EmbeddingModel(embeddingId, "repository", "docId", "type", vector, "text",
                 new LocationModel(15.5, 30.75), null);
-        EmbeddingOSDTO embeddingOSDTO = new EmbeddingOSDTO(embedding, createTestParentDoc());
+        EmbeddingOSDTO embeddingOSDTO = new EmbeddingOSDTO(embedding, createTestParentDoc(), null);
 
         embeddingOSDTO.serialize(jg, null);
         jg.flush();
@@ -166,7 +170,7 @@ public class EmbeddingOSDTOTest {
         List<Double> vector = IntStream.range(0, VECTOR_SIZE).mapToObj(Double::valueOf).toList();
         EmbeddingModel embedding = new EmbeddingModel(embeddingId, "repository", "docId", "type", vector, "text",
                 new LocationModel("Sheet1", 5, 3), null);
-        EmbeddingOSDTO embeddingOSDTO = new EmbeddingOSDTO(embedding, createTestParentDoc());
+        EmbeddingOSDTO embeddingOSDTO = new EmbeddingOSDTO(embedding, createTestParentDoc(), null);
 
         embeddingOSDTO.serialize(jg, null);
         jg.flush();
@@ -198,7 +202,7 @@ public class EmbeddingOSDTOTest {
 
         List<Double> vector = IntStream.range(0, VECTOR_SIZE).mapToObj(Double::valueOf).toList();
         EmbeddingModel embedding = new EmbeddingModel(embeddingId, "repository", "docId", "type", vector, "text", null, null);
-        EmbeddingOSDTO embeddingOSDTO = new EmbeddingOSDTO(embedding, createTestParentDoc());
+        EmbeddingOSDTO embeddingOSDTO = new EmbeddingOSDTO(embedding, createTestParentDoc(), null);
 
         embeddingOSDTO.serialize(jg, null);
         jg.flush();
@@ -236,7 +240,7 @@ public class EmbeddingOSDTOTest {
                 blobRef        // blobref set
         );
 
-        EmbeddingOSDTO embeddingOSDTO = new EmbeddingOSDTO(embedding, createTestParentDoc());
+        EmbeddingOSDTO embeddingOSDTO = new EmbeddingOSDTO(embedding, createTestParentDoc(), null);
 
         embeddingOSDTO.serialize(jg, null);
         jg.flush();
@@ -275,7 +279,7 @@ public class EmbeddingOSDTOTest {
                 null                     // blobref = null
         );
 
-        EmbeddingOSDTO embeddingOSDTO = new EmbeddingOSDTO(embedding, createTestParentDoc());
+        EmbeddingOSDTO embeddingOSDTO = new EmbeddingOSDTO(embedding, createTestParentDoc(), null);
 
         embeddingOSDTO.serialize(jg, null);
         jg.flush();
@@ -297,5 +301,44 @@ public class EmbeddingOSDTOTest {
             """.formatted(embeddingId, vectorAsString);
 
         JSONAssert.assertEquals("Unexpected JSON when blobref is null", expected, writer.toString(), false);
+    }
+
+    @Test
+    public void testSerializeOnPremOmitsChunkText() {
+        StringWriter writer = new StringWriter();
+        JsonGenerator jg = JacksonJsonProvider.provider().createGenerator(writer);
+        String embeddingId = UUID.randomUUID().toString();
+
+        List<Double> vector = IntStream.range(0, VECTOR_SIZE).mapToObj(Double::valueOf).toList();
+        EmbeddingModel embedding = new EmbeddingModel(embeddingId, "repository", "docId", "type", vector, "secret text",
+                new LocationModel(1, 1), null);
+        EmbeddingOSDTO embeddingOSDTO = new EmbeddingOSDTO(embedding, createTestParentDoc(), SYSEMB_RESIDENCY_ON_PREM);
+
+        embeddingOSDTO.serialize(jg, null);
+        jg.flush();
+
+        String actual = writer.toString();
+        assertFalse(actual.contains("sysembed_text"), "onPrem _source must not carry sysembed_text: " + actual);
+        assertFalse(actual.contains("secret text"), "onPrem _source must not leak chunk text: " + actual);
+        assertTrue(actual.contains("sysembed_vector"), "onPrem _source must still carry the vector");
+        assertTrue(actual.contains(embeddingId), "onPrem _source must still carry the embedding id");
+    }
+
+    @Test
+    public void testSerializeCloudIncludesChunkText() {
+        StringWriter writer = new StringWriter();
+        JsonGenerator jg = JacksonJsonProvider.provider().createGenerator(writer);
+        String embeddingId = UUID.randomUUID().toString();
+
+        List<Double> vector = IntStream.range(0, VECTOR_SIZE).mapToObj(Double::valueOf).toList();
+        EmbeddingModel embedding = new EmbeddingModel(embeddingId, "repository", "docId", "type", vector, "text",
+                new LocationModel(1, 1), null);
+        EmbeddingOSDTO embeddingOSDTO = new EmbeddingOSDTO(embedding, createTestParentDoc(), SYSEMB_RESIDENCY_CLOUD);
+
+        embeddingOSDTO.serialize(jg, null);
+        jg.flush();
+
+        assertTrue(writer.toString().contains("\"sysembed_text\""),
+                "cloud _source must carry sysembed_text: " + writer);
     }
 }

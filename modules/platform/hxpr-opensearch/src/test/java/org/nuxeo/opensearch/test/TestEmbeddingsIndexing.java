@@ -23,9 +23,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_CHUNKS;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_EMBEDDINGS;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY_CLOUD;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY_ON_PREM;
 import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_BLOB_REF;
 import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_TEXT;
 import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_TYPE;
+import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_VECTOR;
 import static org.nuxeo.opensearch.OpenSearchConstants.INDEX_BULK_MAX_SIZE_PROPERTY;
 
 import java.io.IOException;
@@ -738,6 +742,103 @@ class TestEmbeddingsIndexing {
                                 .filter(h -> h.source().getProperties().get(EMBEDDING_PROPERTY_TEXT) != null)
                                 .count();
         assertEquals(2, withText, "Only the two ids covered by the chunk file should have text");
+    }
+
+    @Test
+    void testOnPremResidencyOmitsChunkTextFromSource() throws Exception {
+        DocumentModel parent = createParent("parentDoc");
+        String childSuffix = "onprem_child";
+        String embType = SysEmbeddingsPolicies.getEmbeddingsTypeFromName(
+                SysEmbeddingsPolicies.ensureEmbeddingsNamePrefix(childSuffix));
+        int count = 3;
+
+        Blob embeddingsBlob = new ParquetBlobGenerator().generate(count, embType);
+        Blob chunksBlob = new ParquetBlobGenerator().generateChunkTexts(count, i -> "onprem-secret-" + (i + 1));
+
+        DocumentModel emb = session.createDocumentModel(parent.getPathAsString(),
+                SysEmbeddingsPolicies.ensureEmbeddingsNamePrefix(childSuffix), TypeConstants.SYS_EMBEDDINGS);
+        emb.setPropertyValue(SYSEMB_EMBEDDINGS, embeddingsBlob);
+        emb.setPropertyValue(SYSEMB_CHUNKS, chunksBlob);
+        emb.setPropertyValue(SYSEMB_RESIDENCY, SYSEMB_RESIDENCY_ON_PREM);
+        emb.create();
+        session.save();
+
+        saveAndAssertForEmbeddingsIndexCommands(1);
+
+        SearchResponse<DocumentDTO> response = searchEmbeddingsForParentByTypeInEmbeddingsIndex(parent, embType);
+        assertEquals(count, response.hits().total().value(),
+                "onPrem doc must still land in the index for vector search");
+        response.hits().hits().forEach(hit -> {
+            Map<String, Object> src = hit.source().getProperties();
+            assertNull(src.get(EMBEDDING_PROPERTY_TEXT),
+                    "onPrem _source must not carry sysembed_text: " + src);
+            assertNotNull(src.get(DocumentConstants.SYS_ID),
+                    "onPrem _source must still carry denormalized parent sys_id");
+            Object vector = src.get(EMBEDDING_PROPERTY_VECTOR);
+            assertTrue(vector instanceof List<?> v && !v.isEmpty(),
+                    "onPrem _source must still carry sysembed_vector for vector search: " + vector);
+        });
+    }
+
+    /**
+     * onPrem re-index must not touch the chunks blob at all: the parser is called with a null chunksBlob so
+     * no chunk text is materialized. Locks in the efficiency and no-EV-Store-fetch invariants during
+     * metadata / ACL re-indexing.
+     */
+    @Test
+    void testOnPremSkipsChunksBlobDuringParse() throws Exception {
+        DocumentModel parent = createParent("parentDoc");
+        String childSuffix = "onprem_reindex_child";
+        String embType = SysEmbeddingsPolicies.getEmbeddingsTypeFromName(
+                SysEmbeddingsPolicies.ensureEmbeddingsNamePrefix(childSuffix));
+        int count = 2;
+
+        Blob embeddingsBlob = new ParquetBlobGenerator().generate(count, embType);
+        Blob chunksBlob = new ParquetBlobGenerator().generateChunkTexts(count, i -> "should-never-be-read-" + i);
+
+        DocumentModel emb = session.createDocumentModel(parent.getPathAsString(),
+                SysEmbeddingsPolicies.ensureEmbeddingsNamePrefix(childSuffix), TypeConstants.SYS_EMBEDDINGS);
+        emb.setPropertyValue(SYSEMB_EMBEDDINGS, embeddingsBlob);
+        emb.setPropertyValue(SYSEMB_CHUNKS, chunksBlob);
+        emb.setPropertyValue(SYSEMB_RESIDENCY, SYSEMB_RESIDENCY_ON_PREM);
+        emb.create();
+        session.save();
+
+        saveAndAssertForEmbeddingsIndexCommands(1);
+
+        SearchResponse<DocumentDTO> response = searchEmbeddingsForParentByTypeInEmbeddingsIndex(parent, embType);
+        assertEquals(count, response.hits().total().value());
+        response.hits().hits().forEach(hit -> assertNull(
+                hit.source().getProperties().get(EMBEDDING_PROPERTY_TEXT),
+                "onPrem _source must not carry chunk text even when a chunks blob is present"));
+    }
+
+    @Test
+    void testCloudResidencyKeepsChunkTextInSource() throws Exception {
+        DocumentModel parent = createParent("parentDoc");
+        String childSuffix = "cloud_child";
+        String embType = SysEmbeddingsPolicies.getEmbeddingsTypeFromName(
+                SysEmbeddingsPolicies.ensureEmbeddingsNamePrefix(childSuffix));
+        int count = 3;
+
+        Blob embeddingsBlob = new ParquetBlobGenerator().generate(count, embType);
+        Blob chunksBlob = new ParquetBlobGenerator().generateChunkTexts(count, i -> "cloud-text-" + (i + 1));
+
+        DocumentModel emb = session.createDocumentModel(parent.getPathAsString(),
+                SysEmbeddingsPolicies.ensureEmbeddingsNamePrefix(childSuffix), TypeConstants.SYS_EMBEDDINGS);
+        emb.setPropertyValue(SYSEMB_EMBEDDINGS, embeddingsBlob);
+        emb.setPropertyValue(SYSEMB_CHUNKS, chunksBlob);
+        emb.setPropertyValue(SYSEMB_RESIDENCY, SYSEMB_RESIDENCY_CLOUD);
+        emb.create();
+        session.save();
+
+        saveAndAssertForEmbeddingsIndexCommands(1);
+
+        SearchResponse<DocumentDTO> response = searchEmbeddingsForParentByTypeInEmbeddingsIndex(parent, embType);
+        assertEquals(count, response.hits().total().value());
+        response.hits().hits().forEach(hit -> assertNotNull(
+                hit.source().getProperties().get(EMBEDDING_PROPERTY_TEXT),
+                "cloud _source must still carry sysembed_text"));
     }
 
     /* ---------------- Helpers ---------------- */

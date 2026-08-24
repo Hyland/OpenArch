@@ -19,6 +19,8 @@ import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_MIXIN_TYPES;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_NAME;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PARENT_ID;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PRIMARY_TYPE;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY_ON_PREM;
 import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_TYPE;
 import static org.nuxeo.ecm.core.schema.MixinNames.SYS_HAS_EMBEDDINGS;
 import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_EMBEDDINGS;
@@ -118,7 +120,7 @@ public class EmbeddingsIndexer {
             log.debug("Embeddings differential for command {} -> deletes={}, upserts={}", cmd.getId(), idsToDelete.size(), newEmbeddings.size());
 
             // Build and execute with byte-size based batching - writes to embeddings index
-            executeWithBatching(cmd.getRepositoryName(), ctx.parentDoc(), newEmbeddings, idsToDelete, isReindexing, maxBulkSize);
+            executeWithBatching(cmd.getRepositoryName(), ctx.parentDoc(), ctx.residency(), newEmbeddings, idsToDelete, isReindexing, maxBulkSize);
         }
     }
 
@@ -258,13 +260,14 @@ public class EmbeddingsIndexer {
      *
      * @param repositoryName the repository name
      * @param parentDoc      the parent document (used for denormalization)
+     * @param residency      {@code sysemb_residency} from the child; {@code onPrem} omits chunk text
      * @param newEmbeddings  embeddings to upsert
      * @param idsToDelete    IDs of embeddings to delete
      * @param isReindexing   whether this is part of a reindexing operation
      * @param maxBulkSize    maximum byte size per bulk request
      */
-    private void executeWithBatching(String repositoryName, DocumentModel parentDoc, Collection<EmbeddingModel> newEmbeddings,
-            Set<String> idsToDelete, boolean isReindexing, int maxBulkSize) {
+    private void executeWithBatching(String repositoryName, DocumentModel parentDoc, String residency,
+            Collection<EmbeddingModel> newEmbeddings, Set<String> idsToDelete, boolean isReindexing, int maxBulkSize) {
         var jsonProvider = service.getClient().getJsonProvider();
         List<BulkOperation> currentBatch = new ArrayList<>();
         int bulkSize = 0;
@@ -279,7 +282,7 @@ public class EmbeddingsIndexer {
 
         // Add upsert operations with size tracking - write to embeddings index with denormalized parent data
         for (EmbeddingModel embedding : newEmbeddings) {
-            EmbeddingOSDTO denormalizedDto = new EmbeddingOSDTO(embedding, parentDoc);
+            EmbeddingOSDTO denormalizedDto = new EmbeddingOSDTO(embedding, parentDoc, residency);
             int denormalizedDtoSize = denormalizedDto.size(jsonProvider);
 
             // Check if adding this operation would exceed the limit
@@ -338,7 +341,9 @@ public class EmbeddingsIndexer {
                 log.debug("Null blob for command {}, will delete {} embeddings", cmd.getId(), ctx.existingIds().size());
                 return List.of();
             }
-            Blob chunksBlob = (Blob) ctx.embeddingsDoc().getPropertyValue(DocumentConstants.SYSEMB_CHUNKS);
+            // onPrem: chunk text is never indexed, so skip the chunks overlay to avoid parsing text we discard.
+            Blob chunksBlob = SYSEMB_RESIDENCY_ON_PREM.equals(ctx.residency()) ? null
+                    : (Blob) ctx.embeddingsDoc().getPropertyValue(DocumentConstants.SYSEMB_CHUNKS);
             log.debug("Parsing embeddings blob (length={}, chunksBlob={}) for command {} (type={} parentId={})",
                     embeddingsBlob.getLength(), chunksBlob == null ? "absent" : "present (length=" + chunksBlob.getLength() + ")",
                     cmd.getId(), ctx.embeddingsType(), ctx.parentDoc().getId());
@@ -395,10 +400,12 @@ public class EmbeddingsIndexer {
      * @param embeddingsDoc  the embeddings document model
      * @param parentDoc      the parent document model
      * @param embeddingsType the resolved embeddings type
+     * @param residency      {@code sysemb_residency} on the child; {@code onPrem} omits chunk text, null defaults to cloud
      * @param existingIds    the existing embeddings ids already indexed for this parent/type
      */
     record ProcessingContext(DocumentModel embeddingsDoc, DocumentModel parentDoc,
             String embeddingsType,
+            String residency,
             Set<String> existingIds) {
 
         static ProcessingContext fromCommand(EmbeddingsIndexer indexer, IndexingCommand cmd) {
@@ -414,8 +421,9 @@ public class EmbeddingsIndexer {
                 return null;
             }
             String embeddingsType = SysEmbeddingsPolicies.getEmbeddingsTypeFromName(embeddingsDoc.getName());
+            String residency = (String) embeddingsDoc.getPropertyValue(SYSEMB_RESIDENCY);
             Set<String> existingIds = indexer.fetchExistingIds(cmd.getRepositoryName(), parentDoc.getId(), Optional.of(embeddingsType));
-            return new ProcessingContext(embeddingsDoc, parentDoc, embeddingsType, existingIds);
+            return new ProcessingContext(embeddingsDoc, parentDoc, embeddingsType, residency, existingIds);
         }
     }
 

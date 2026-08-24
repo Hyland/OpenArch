@@ -35,6 +35,7 @@ import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_ID;
 import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_LOCATION;
 import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_TEXT;
 import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_TYPE;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY_ON_PREM;
 import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_VECTOR;
 
 import java.io.IOException;
@@ -63,15 +64,17 @@ public class EmbeddingOSDTO implements JsonpSerializable {
 
     private final DocumentModel parentDoc;
 
+    private final String residency;
+
     /**
-     * Constructor for embedding with denormalized parent document metadata.
-     *
-     * @param embedding the embedding model
-     * @param parentDoc the parent document (required for denormalization)
+     * @param embedding the embedding to index
+     * @param parentDoc the parent document, used for denormalized metadata and ACLs
+     * @param residency raw {@code sysemb_residency} value; {@code onPrem} keeps chunk text out of the index
      */
-    public EmbeddingOSDTO(EmbeddingModel embedding, DocumentModel parentDoc) {
+    public EmbeddingOSDTO(EmbeddingModel embedding, DocumentModel parentDoc, String residency) {
         this.embedding = embedding;
         this.parentDoc = parentDoc;
+        this.residency = residency;
     }
 
     /**
@@ -112,7 +115,8 @@ public class EmbeddingOSDTO implements JsonpSerializable {
         jg.write(EMBEDDING_PROPERTY_ID, embedding.id());
         jg.write(EMBEDDING_PROPERTY_TYPE, embedding.type());
 
-        if (embedding.text() != null) {
+        // onPrem: chunk text lives in the EV Store, fetched on the read path.
+        if (embedding.text() != null && !SYSEMB_RESIDENCY_ON_PREM.equals(residency)) {
             jg.writeKey(EMBEDDING_PROPERTY_TEXT);
             jg.write(embedding.text());
         }

@@ -254,6 +254,8 @@ public class DocumentConstants {
     public static final String SYSEMB_EMBEDDINGS = "sysemb_embeddings";
     public static final String SYSEMB_CHUNKS = "sysemb_chunks";
     public static final String SYSEMB_RESIDENCY = "sysemb_residency";
+    public static final String SYSEMB_RESIDENCY_ON_PREM = "onPrem";
+    public static final String SYSEMB_RESIDENCY_CLOUD = "cloud";
 
     // SysGraphable (ontology routing)
     public static final String SCHEMA_SYSGRAPH = "sysgraph";
