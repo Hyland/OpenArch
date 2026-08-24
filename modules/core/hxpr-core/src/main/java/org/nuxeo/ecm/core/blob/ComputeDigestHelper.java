@@ -17,6 +17,7 @@ package org.nuxeo.ecm.core.blob;
 
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_BLOB_KEYS;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ID;
+import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_CONTENT;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -33,7 +34,12 @@ import org.nuxeo.ecm.core.api.IdRef;
 import org.nuxeo.ecm.core.api.IterableQueryResult;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.api.repository.RepositoryManager;
-import org.nuxeo.ecm.core.query.sql.HXQL;
+import org.nuxeo.ecm.core.query.sql.model.FromClause;
+import org.nuxeo.ecm.core.query.sql.model.Predicates;
+import org.nuxeo.ecm.core.query.sql.model.Reference;
+import org.nuxeo.ecm.core.query.sql.model.SelectClause;
+import org.nuxeo.ecm.core.query.sql.model.Statement;
+import org.nuxeo.ecm.core.query.sql.model.WhereClause;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.transaction.TransactionHelper;
 
@@ -151,10 +157,11 @@ public class ComputeDigestHelper {
         // we need a variant with the prefixed key if a blob dispatcher is used
         String prefixedKey = blobProviderId + ':' + key;
         String newPrefixedKey = blobProviderId + ':' + newKey;
-        String query = "SELECT " + SYS_ID + " FROM SysContent, SysRelation WHERE "
-                + SYS_BLOB_KEYS + " IN (" + HXQL.escapeString(key) + ", " + HXQL.escapeString(prefixedKey) + ")";
+        Statement query = new Statement(new SelectClause(List.of(new Reference(SYS_ID))),
+                new FromClause(List.of(SYS_CONTENT)),
+                new WhereClause(Predicates.in(SYS_BLOB_KEYS, List.of(key, prefixedKey))));
         List<String> docIds = new ArrayList<>();
-        try (IterableQueryResult it = session.queryAndFetch(query, HXQL.HXQL)) {
+        try (IterableQueryResult it = session.queryAndFetch(query)) {
             it.forEach(map -> docIds.add(map.get(SYS_ID).toString()));
         }
         log.debug("Documents with this blob key: {}", docIds);

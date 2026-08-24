@@ -1073,9 +1073,9 @@ public class DBSSession implements InternalSession {
     }
 
     @Override
-    public PartialList<InternalDocument> query(String query, QueryParameters queryParams, long countUpTo) {
+    public PartialList<InternalDocument> query(Statement statement, QueryParameters queryParams, long countUpTo) {
         // query
-        PartialList<String> pl = doQuery(query, queryParams, (int) countUpTo);
+        PartialList<String> pl = doQuery(statement, queryParams, (int) countUpTo);
 
         // get Documents in bulk
         List<InternalDocument> docs = getDocuments(pl);
@@ -1084,11 +1084,12 @@ public class DBSSession implements InternalSession {
     }
 
     @SuppressWarnings("resource") // Time.Context closed by stop()
-    protected PartialList<String> doQuery(String query, QueryParameters queryParams, int countUpTo) {
+    protected PartialList<String> doQuery(Statement statement, QueryParameters queryParams, int countUpTo) {
         final Timer.Context timerContext = queryTimer.time();
         try {
             Mutable<String> idKeyHolder = new MutableObject<>();
-            PartialList<Map<String, Object>> pl = doQueryAndFetch(query, queryParams, false, countUpTo, idKeyHolder);
+            PartialList<Map<String, Object>> pl = doQueryAndFetch(statement, queryParams, false, countUpTo,
+                    idKeyHolder);
             @SuppressWarnings("deprecation") // legacy Mutable API used in existing query path
             String idKey = idKeyHolder.getValue();
             List<String> ids = new ArrayList<>(pl.size());
@@ -1101,7 +1102,7 @@ public class DBSSession implements InternalSession {
             long duration = timerContext.stop();
             if (logMinDurationNs >= 0 && duration > logMinDurationNs) {
                 String msg = String.format("duration_ms:\t%.2f\t%s %s\tquery\t%s", duration / 1000000.0, queryParams,
-                        countUpToAsString(countUpTo), query);
+                        countUpToAsString(countUpTo), statement);
                 if (log.isTraceEnabled()) {
                     log.info(msg, new Throwable("Slow query stack trace"));
                 } else {
@@ -1111,9 +1112,8 @@ public class DBSSession implements InternalSession {
         }
     }
 
-    protected PartialList<Map<String, Object>> doQueryAndFetch(String query, QueryParameters queryParams,
+    protected PartialList<Map<String, Object>> doQueryAndFetch(Statement statement, QueryParameters queryParams,
             boolean distinctDocuments, int countUpTo, Mutable<String> idKeyHolder) {
-        Statement statement = HXQLParser.parse(query, queryParams.parameters());
         List<Operand> projection = new ArrayList<>(statement.getSelectClause().elements());
         if (projection.isEmpty()) {
             // turned into SELECT sys_id
@@ -1293,16 +1293,16 @@ public class DBSSession implements InternalSession {
     }
 
     @Override
-    public IterableQueryResult queryAndFetch(String query, QueryParameters queryParams, Object[] params) {
+    public IterableQueryResult queryAndFetch(Statement statement, QueryParameters queryParams) {
         final Timer.Context timerContext = queryTimer.time();
         try { // NOSONAR
-            PartialList<Map<String, Object>> pl = doQueryAndFetch(query, queryParams, false, -1, null);
+            PartialList<Map<String, Object>> pl = doQueryAndFetch(statement, queryParams, false, -1, null);
             return new DBSQueryResult(pl);
         } finally {
             long duration = timerContext.stop();
             if (logMinDurationNs >= 0 && duration > logMinDurationNs) {
                 String msg = String.format("duration_ms:\t%.2f\t%s\tqueryAndFetch\t%s", duration / 1000000.0,
-                        queryParams, query);
+                        queryParams, statement);
                 if (log.isTraceEnabled()) {
                     log.info(msg, new Throwable("Slow query stack trace"));
                 } else {
@@ -1315,16 +1315,16 @@ public class DBSSession implements InternalSession {
 
     @SuppressWarnings("resource") // Time.Context closed by stop()
     @Override
-    public PartialList<Map<String, Object>> queryProjection(String query, QueryParameters queryParams,
-            boolean distinctDocuments, long countUpTo, Object[] params) {
+    public PartialList<Map<String, Object>> queryProjection(Statement statement, QueryParameters queryParams,
+            boolean distinctDocuments, long countUpTo) {
         final Timer.Context timerContext = queryTimer.time();
         try {
-            return doQueryAndFetch(query, queryParams, distinctDocuments, (int) countUpTo, null);
+            return doQueryAndFetch(statement, queryParams, distinctDocuments, (int) countUpTo, null);
         } finally {
             long duration = timerContext.stop();
             if (logMinDurationNs >= 0 && duration > logMinDurationNs) {
                 String msg = String.format("duration_ms:\t%.2f\t%s\tqueryProjection\t%s", duration / 1000000.0,
-                        queryParams, query);
+                        queryParams, statement);
                 if (log.isTraceEnabled()) {
                     log.info(msg, new Throwable("Slow query stack trace"));
                 } else {
@@ -1336,8 +1336,8 @@ public class DBSSession implements InternalSession {
     }
 
     @Override
-    public ScrollResult<String> scroll(String query, QueryParameters queryParams, int batchSize, int keepAliveSeconds) {
-        Statement statement = HXQLParser.parse(query, queryParams.parameters());
+    public ScrollResult<String> scroll(Statement statement, QueryParameters queryParams, int batchSize,
+            int keepAliveSeconds) {
         List<Operand> projection = new ArrayList<>(statement.getSelectClause().elements());
         projection.add(new Reference(SYS_ID));
         statement = statement.withSelectClause(new SelectClause(projection));

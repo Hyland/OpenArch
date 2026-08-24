@@ -17,6 +17,9 @@ package org.nuxeo.ecm.core.trash;
 
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ID;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_IS_TRASHED;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PARENT_ID;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_IS_VERSION;
+import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_CONTENT;
 import static org.nuxeo.ecm.core.event.async.TrashBatchTaskProcessor.PARAM_NAME;
 import static org.nuxeo.ecm.core.event.async.TrashBatchTaskProcessor.BATCH_TRASH_TASK_NAME;
 
@@ -52,7 +55,13 @@ import org.nuxeo.ecm.core.api.trash.TrashService;
 import org.nuxeo.ecm.core.event.Event;
 import org.nuxeo.ecm.core.event.EventService;
 import org.nuxeo.ecm.core.event.impl.DocumentEventContext;
-import org.nuxeo.ecm.core.query.sql.HXQL;
+import org.nuxeo.ecm.core.query.sql.model.FromClause;
+import org.nuxeo.ecm.core.query.sql.model.MultiExpression;
+import org.nuxeo.ecm.core.query.sql.model.Operator;
+import org.nuxeo.ecm.core.query.sql.model.Predicates;
+import org.nuxeo.ecm.core.query.sql.model.SelectClause;
+import org.nuxeo.ecm.core.query.sql.model.Statement;
+import org.nuxeo.ecm.core.query.sql.model.WhereClause;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.model.DefaultComponent;
 
@@ -63,7 +72,14 @@ public class TrashServiceImpl extends DefaultComponent implements TrashService {
 
     private static final Logger log = LogManager.getLogger(TrashServiceImpl.class);
 
-    private static final String TRASHED_QUERY = "SELECT * FROM SysContent WHERE sysver_isVersion = FALSE AND sys_isTrashed = TRUE AND sys_parentId = '%s'";
+    /** The documents in the trash directly under a parent. */
+    private static Statement trashedQuery(String parentId) {
+        return new Statement(new SelectClause(), new FromClause(List.of(SYS_CONTENT)),
+                new WhereClause(new MultiExpression(Operator.AND,
+                        List.of(Predicates.eq(SYSVER_IS_VERSION, Boolean.FALSE),
+                                Predicates.eq(SYS_IS_TRASHED, Boolean.TRUE),
+                                Predicates.eq(SYS_PARENT_ID, parentId)))));
+    }
 
     private static final String PATH_SEPARATOR = "/";
 
@@ -350,8 +366,7 @@ public class TrashServiceImpl extends DefaultComponent implements TrashService {
         if (!session.hasPermission(parent.getRef(), SecurityConstants.DELETE_CHILD)) {
             return;
         }
-        try (IterableQueryResult result = session.queryAndFetch(String.format(TRASHED_QUERY, parent.getId()),
-                HXQL.HXQL)) {
+        try (IterableQueryResult result = session.queryAndFetch(trashedQuery(parent.getId()))) {
             NuxeoPrincipal principal = session.getPrincipal();
             StreamSupport.stream(result.spliterator(), false)
                          .map(map -> map.get(SYS_ID).toString())

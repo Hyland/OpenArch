@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+import org.nuxeo.ecm.core.query.sql.HXQLParser;
+import org.nuxeo.ecm.core.query.sql.model.Statement;
 import org.nuxeo.rest.query.io.DocumentAdvancedQueryDTO;
 import org.nuxeo.rest.query.io.DocumentQueryDTO;
 import org.nuxeo.rest.query.spec.QueryAssembler.AssembledQuery;
@@ -48,17 +50,21 @@ public class QuerySpecificationTest {
 
     private static final String BOUND_QUERY = "SELECT * FROM SysContent WHERE sys_title = 'a'";
 
+    private static final Statement BOUND_STATEMENT = HXQLParser.parse(BOUND_QUERY);
+
     private static final DocumentQueryDTO documentQueryDTO = new DocumentQueryDTO(REPO_ID, QUERY, LIMIT, OFFSET,
             SEARCH_AFTER, TRACK_TOTAL_COUNT, TRACK_TOTAL_COUNT_UPTO, SORT);
 
     @Test
     public void createQuerySpecification() {
-        QuerySpecification querySpecification = new QuerySpecification(REPO_ID, QUERY, Map.of("p", "a"), BOUND_QUERY,
-                LIMIT, OFFSET, SEARCH_AFTER, COUNT_UPTO, TRACK_TOTAL_COUNT, TRACK_TOTAL_COUNT_UPTO, SORT);
+        QuerySpecification querySpecification = new QuerySpecification(REPO_ID, QUERY, Map.of("p", "a"),
+                BOUND_STATEMENT, LIMIT, OFFSET, SEARCH_AFTER, COUNT_UPTO, TRACK_TOTAL_COUNT, TRACK_TOTAL_COUNT_UPTO,
+                SORT);
 
         assertEquals("test", querySpecification.repositoryId());
         assertEquals("SELECT * FROM SysContent", querySpecification.query());
         assertEquals(Map.of("p", "a"), querySpecification.parameters());
+        assertEquals(BOUND_STATEMENT, querySpecification.statement());
         assertEquals(BOUND_QUERY, querySpecification.boundQuery());
         assertEquals(-1, querySpecification.limit());
         assertEquals(0, querySpecification.offset());
@@ -79,6 +85,7 @@ public class QuerySpecificationTest {
         // a plain query has no parameters to carry, so it is echoed as it is
         assertEquals(Map.of(), querySpecification.parameters());
         assertEquals(QUERY, querySpecification.boundQuery());
+        assertEquals(HXQLParser.parse(QUERY), querySpecification.statement());
         assertEquals(-1, querySpecification.limit());
         assertEquals(0, querySpecification.offset());
         assertEquals("token", querySpecification.searchAfter());
@@ -93,13 +100,15 @@ public class QuerySpecificationTest {
         DocumentAdvancedQueryDTO documentAdvancedQueryDTO = new DocumentAdvancedQueryDTO(REPO_ID, QUERY, LIMIT,
                 OFFSET, SEARCH_AFTER, TRACK_TOTAL_COUNT, TRACK_TOTAL_COUNT_UPTO, SORT, Map.of("p", "a"), null, null);
         QuerySpecification querySpecification = new QuerySpecification(documentAdvancedQueryDTO,
-                new AssembledQuery(QUERY, BOUND_QUERY), LIMIT, COUNT_UPTO, TRACK_TOTAL_COUNT, TRACK_TOTAL_COUNT_UPTO);
+                new AssembledQuery(BOUND_STATEMENT, QUERY), LIMIT, COUNT_UPTO, TRACK_TOTAL_COUNT,
+                TRACK_TOTAL_COUNT_UPTO);
 
         assertEquals("test", querySpecification.repositoryId());
         assertEquals("SELECT * FROM SysContent", querySpecification.query());
         // the values for the query's parameters travel with it, to be bound where it runs, and the echoed form of
         // the query has them bound already
         assertEquals(Map.of("p", "a"), querySpecification.parameters());
+        assertEquals(BOUND_STATEMENT, querySpecification.statement());
         assertEquals(BOUND_QUERY, querySpecification.boundQuery());
         assertEquals(-1, querySpecification.limit());
         assertEquals(0, querySpecification.offset());
@@ -113,8 +122,9 @@ public class QuerySpecificationTest {
     /** Sorts and parameters default to empty rather than being null. */
     @Test
     public void createQuerySpecificationWithoutSort() {
-        QuerySpecification querySpecification = new QuerySpecification(REPO_ID, QUERY, null, QUERY, LIMIT, OFFSET,
-                null, COUNT_UPTO, TRACK_TOTAL_COUNT, TRACK_TOTAL_COUNT_UPTO, null);
+        QuerySpecification querySpecification = new QuerySpecification(REPO_ID, QUERY, null,
+                HXQLParser.parse(QUERY), LIMIT, OFFSET, null, COUNT_UPTO, TRACK_TOTAL_COUNT, TRACK_TOTAL_COUNT_UPTO,
+                null);
         assertEquals(List.of(), querySpecification.sort());
         assertEquals(Map.of(), querySpecification.parameters());
     }

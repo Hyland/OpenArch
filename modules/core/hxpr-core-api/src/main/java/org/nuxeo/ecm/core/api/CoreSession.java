@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.nuxeo.ecm.core.api.DocumentModel.DocumentModelRefresh;
 import org.nuxeo.ecm.core.api.security.ACL;
+import org.nuxeo.ecm.core.query.sql.model.Statement;
 import org.nuxeo.ecm.core.schema.SchemaManager;
 
 /**
@@ -455,14 +456,39 @@ public interface CoreSession {
     DocumentModelList query(String query, Map<String, Object> parameters, long limit, long offset, long countUpTo);
 
     /**
+     * Executes an already parsed query and returns the result that matches the filter.
+     * <p>
+     * A caller holding a {@link Statement} does not have to render it as text for it to be executed, which is what
+     * lets a query be written in something other than HXQL.
+     *
+     * @param statement the query to execute, with its parameters already bound
+     * @param limit the maximum number of documents to retrieve, or 0 for all of them
+     * @param offset the offset (starting at 0) into the list of documents
+     * @param countUpTo if {@code -1}, count the total size without offset/limit.<br>
+     *            If {@code 0}, don't count the total size.<br>
+     *            If {@code n}, count the total number if there are less than n documents otherwise set the size to
+     *            {@code -1}.
+     * @return the query result
+     */
+    DocumentModelList query(Statement statement, long limit, long offset, long countUpTo);
+
+    /**
      * Executes the given query and returns an iterable of maps containing the requested properties (which must be
      * closed when done).
      *
      * @param query the query to execute
-     * @param params optional query-type-dependent parameters
      * @return an {@link IterableQueryResult}, which <b>must</b> be closed after use
      */
-    IterableQueryResult queryAndFetch(String query, Object... params);
+    IterableQueryResult queryAndFetch(String query);
+
+    /**
+     * Executes an already parsed query and returns an iterable of maps containing the requested properties (which
+     * must be closed when done).
+     *
+     * @param statement the query to execute, with its parameters already bound
+     * @return an {@link IterableQueryResult}, which <b>must</b> be closed after use
+     */
+    IterableQueryResult queryAndFetch(Statement statement);
 
     /**
      * Executes the given NXQL query and returns the result that matches the filter.
@@ -481,7 +507,15 @@ public interface CoreSession {
      * @since 7.10-HF25, 8.10-HF06, 9.2
      */
     PartialList<Map<String, Object>> queryProjection(String query, boolean distinctDocuments, long limit, long offset,
-            long countUpTo, Object... params);
+            long countUpTo);
+
+    /**
+     * Executes an already parsed query and returns the requested properties.
+     *
+     * @param statement the query to execute, with its parameters already bound
+     */
+    PartialList<Map<String, Object>> queryProjection(Statement statement, boolean distinctDocuments, long limit,
+            long offset, long countUpTo);
 
     /**
      * Executes the given query and returns the first batch of results containing id of documents, next batch must be
@@ -496,6 +530,13 @@ public interface CoreSession {
      * @since 8.4
      */
     ScrollResult<String> scroll(String query, int batchSize, int keepAliveSeconds);
+
+    /**
+     * Executes an already parsed query and returns the first batch of results containing id of documents.
+     *
+     * @param statement the query to execute, with its parameters already bound
+     */
+    ScrollResult<String> scroll(Statement statement, int batchSize, int keepAliveSeconds);
 
     /**
      * Get the next batch of results containing id of documents, the {@code scrollId} is part of the previous

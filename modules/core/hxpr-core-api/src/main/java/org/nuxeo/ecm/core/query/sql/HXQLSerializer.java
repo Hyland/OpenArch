@@ -38,7 +38,7 @@ import org.nuxeo.ecm.core.query.sql.model.WhereClause;
 /**
  * Renders an HXQL abstract syntax tree back to HXQL text.
  * <p>
- * This is the counterpart of {@link HXQLParser#parse}: {@code parse(serialize(parse(q)))} is equal to
+ * This is the counterpart of {@code HXQLParser.parse}: {@code parse(serialize(parse(q)))} is equal to
  * {@code parse(q)} for any parsable {@code q}. Literals render themselves, quoted and escaped, in their own
  * {@code toString}; there is no other way to put a value into a query, so a tree holding attacker-controlled values
  * cannot produce a query that means something other than the tree says.

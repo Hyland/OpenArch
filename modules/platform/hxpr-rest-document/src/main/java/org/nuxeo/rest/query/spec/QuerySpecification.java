@@ -18,6 +18,8 @@ package org.nuxeo.rest.query.spec;
 import java.util.List;
 import java.util.Map;
 
+import org.nuxeo.ecm.core.query.sql.HXQLParser;
+import org.nuxeo.ecm.core.query.sql.model.Statement;
 import org.nuxeo.rest.query.io.DocumentAdvancedQueryDTO;
 import org.nuxeo.rest.query.io.DocumentQueryDTO;
 import org.nuxeo.rest.query.spec.QueryAssembler.AssembledQuery;
@@ -27,15 +29,15 @@ import org.nuxeo.rest.query.spec.QueryAssembler.AssembledQuery;
  * it.
  * <p>
  * This is what a query manager works from. The parts of the request that only mattered while the query was being
- * built — predicates, the where clause definition — are not here, having already been folded into {@link #query}. The
- * parameters are, since they are bound where the query is executed; {@link #boundQuery} is the same query with them
- * bound, which is what the result DTOs echo back to the caller.
+ * built — predicates, the where clause definition — are not here, having already been folded in. A manager executing
+ * a tree uses {@link #statement}, which has its parameters bound; one that takes a query as text uses {@link #query}
+ * along with {@link #parameters}. {@link #boundQuery()} is what the result DTOs echo back to the caller.
  */
 public record QuerySpecification( //
         String repositoryId, //
         String query, //
         Map<String, Object> parameters, //
-        String boundQuery, //
+        Statement statement, //
         long limit, //
         long offset, //
         String searchAfter, //
@@ -51,15 +53,20 @@ public record QuerySpecification( //
         parameters = parameters == null ? Map.of() : Map.copyOf(parameters);
     }
 
+    /** The query with its parameters bound, which is what a response echoes back to the caller. */
+    public String boundQuery() {
+        return statement.toString();
+    }
+
     public QuerySpecification(DocumentQueryDTO query, String queryString, long limit, long countUpTo,
             boolean trackTotalCount, int trackTotalCountUpTo) {
-        this(query.repositoryId(), queryString, Map.of(), queryString, limit, query.offset(), query.searchAfter(),
-                countUpTo, trackTotalCount, trackTotalCountUpTo, query.sort());
+        this(query.repositoryId(), queryString, Map.of(), HXQLParser.parse(queryString), limit, query.offset(),
+                query.searchAfter(), countUpTo, trackTotalCount, trackTotalCountUpTo, query.sort());
     }
 
     public QuerySpecification(DocumentAdvancedQueryDTO query, AssembledQuery assembled, long limit, long countUpTo,
             boolean trackTotalCount, int trackTotalCountUpTo) {
-        this(query.repositoryId(), assembled.query(), query.parameters(), assembled.boundQuery(), limit,
+        this(query.repositoryId(), assembled.query(), query.parameters(), assembled.statement(), limit,
                 query.offset(), query.searchAfter(), countUpTo, trackTotalCount, trackTotalCountUpTo, query.sort());
     }
 

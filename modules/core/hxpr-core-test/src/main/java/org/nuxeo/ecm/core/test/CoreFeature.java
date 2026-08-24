@@ -41,7 +41,6 @@ import org.nuxeo.ecm.core.api.PathRef;
 import org.nuxeo.ecm.core.api.local.DummyLoginFeature;
 import org.nuxeo.ecm.core.api.security.ACL;
 import org.nuxeo.ecm.core.api.validation.DocumentValidationException;
-import org.nuxeo.ecm.core.query.sql.HXQL;
 import org.nuxeo.ecm.core.repository.RepositoryService;
 import org.nuxeo.ecm.core.test.annotations.Granularity;
 import org.nuxeo.ecm.core.test.annotations.RepositoryConfig;
@@ -245,8 +244,7 @@ public class CoreFeature implements RunnerFeature {
                     Framework.getProperties().remove(PROP_ALLOW_DELETE_UNDELETABLE_DOCUMENTS);
                 }
                 // remove remaining placeless documents
-                try (IterableQueryResult results = adminSession.queryAndFetch("SELECT sys_id FROM SysContent, SysRelation",
-                        HXQL.HXQL)) {
+                try (IterableQueryResult results = adminSession.queryAndFetch("SELECT sys_id FROM SysContent, SysRelation")) {
                     batchRemoveDocuments(adminSession, results);
                 }
                 adminSession.save();

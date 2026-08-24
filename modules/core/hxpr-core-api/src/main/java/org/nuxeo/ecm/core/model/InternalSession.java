@@ -30,6 +30,7 @@ import org.nuxeo.ecm.core.api.security.SecurityConstants;
 import org.nuxeo.ecm.core.schema.SchemaManager;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.ecm.core.api.query.QueryParameters;
+import org.nuxeo.ecm.core.query.sql.model.Statement;
 
 /**
  * Internal Session accessing the low-level storage.
@@ -45,23 +46,26 @@ public interface InternalSession {
 
     /**
      * Does a query.
+     * <p>
+     * A query arrives here as a {@link Statement}, parsed and with its parameters bound, rather than as text: what
+     * syntax it was written in is settled above this level.
      *
      * @since 5.9.4
      */
-    PartialList<InternalDocument> query(String query, QueryParameters queryParams, long countUpTo);
+    PartialList<InternalDocument> query(Statement statement, QueryParameters queryParams, long countUpTo);
 
     /**
      * Does a query and fetch the individual results as maps.
      */
-    IterableQueryResult queryAndFetch(String query, QueryParameters queryParams, Object[] params);
+    IterableQueryResult queryAndFetch(Statement statement, QueryParameters queryParams);
 
     /**
      * Does a query and fetch the individual results as maps.
      *
      * @since 7.10-HF25, 8.10-HF06, 9.2
      */
-    PartialList<Map<String, Object>> queryProjection(String query, QueryParameters queryParams, boolean distinctDocuments,
-            long countUpTo, Object[] params);
+    PartialList<Map<String, Object>> queryProjection(Statement statement, QueryParameters queryParams,
+            boolean distinctDocuments, long countUpTo);
 
     /**
      * Executes the given query and returns the first batch of results containing id of documents, next batch must be
@@ -69,7 +73,7 @@ public interface InternalSession {
      *
      * @since 10.3
      */
-    ScrollResult<String> scroll(String query, QueryParameters queryParams, int batchSize, int keepAliveSeconds);
+    ScrollResult<String> scroll(Statement statement, QueryParameters queryParams, int batchSize, int keepAliveSeconds);
 
     /**
      * Get the next batch of result containing id of documents.

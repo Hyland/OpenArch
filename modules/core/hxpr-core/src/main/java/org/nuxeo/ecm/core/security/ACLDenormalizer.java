@@ -45,6 +45,7 @@ import java.util.stream.Stream;
 
 import org.nuxeo.ecm.core.api.SystemPrincipal;
 import org.nuxeo.ecm.core.api.query.QueryParameters;
+import org.nuxeo.ecm.core.query.sql.HXQLParser;
 import org.nuxeo.ecm.core.storage.State;
 import org.nuxeo.ecm.core.storage.State.StateDiff;
 import org.nuxeo.ecm.core.storage.StateHelper;
@@ -156,7 +157,7 @@ public class ACLDenormalizer {
             // update the direct children (with a limit in case it's too big)
             String nxql = "SELECT sys_id FROM SysContent WHERE sys_parentId = '%s'".formatted(id);
             QueryParameters queryParams = new QueryParameters(new SystemPrincipal(), limit, 0);
-            var res = session.queryProjection(nxql, queryParams, false, 0, new Object[0]);
+            var res = session.queryProjection(HXQLParser.parse(nxql), queryParams, false, 0);
             for (Map<String, Object> map : res) {
                 String childId = (String) map.get(SYS_ID);
                 updateReadACLs(childId);

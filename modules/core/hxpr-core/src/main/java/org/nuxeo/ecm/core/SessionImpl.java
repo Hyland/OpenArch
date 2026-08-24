@@ -93,6 +93,11 @@ import org.nuxeo.ecm.core.model.InternalDocument;
 import org.nuxeo.ecm.core.model.InternalSession;
 import org.nuxeo.ecm.core.model.PathComparator;
 import org.nuxeo.ecm.core.query.QueryParseException;
+import org.nuxeo.ecm.core.query.sql.HXQLParser;
+import org.nuxeo.ecm.core.query.sql.model.Operand;
+import org.nuxeo.ecm.core.query.sql.model.Reference;
+import org.nuxeo.ecm.core.query.sql.model.SelectClause;
+import org.nuxeo.ecm.core.query.sql.model.Statement;
 import org.nuxeo.ecm.core.repository.RepositoryService;
 import org.nuxeo.ecm.core.schema.SchemaManager;
 import org.nuxeo.ecm.core.security.LockSecurityPolicy;
@@ -672,6 +677,15 @@ public class SessionImpl implements CoreSession {
         return readModel(pwc);
     }
 
+    /**
+     * Whether a projection returns documents, which is what lets the backend do the filtering and the paging: an empty
+     * projection is {@code SELECT *}, and the id alone is enough to read a document too.
+     */
+    protected static boolean isDocumentProjection(SelectClause select) {
+        List<Operand> elements = select.elements();
+        return elements.isEmpty() || (elements.size() == 1 && elements.contains(new Reference(SYS_ID)));
+    }
+
     @Override
     public DocumentModelList query(String query) {
         return query(query, 0, 0, 0);
@@ -685,15 +699,20 @@ public class SessionImpl implements CoreSession {
     @Override
     public DocumentModelList query(String query, Map<String, Object> parameters, long limit, long offset,
             long countUpTo) {
+        return query(parse(query, parameters), limit, offset, countUpTo);
+    }
+
+    @Override
+    public DocumentModelList query(Statement statement, long limit, long offset, long countUpTo) {
         Span span = Tracing.getTracer().getCurrentSpan();
         Map<String, AttributeValue> map = new HashMap<>();
-        map.put("nxql", AttributeValue.stringAttributeValue(query));
+        map.put("hxql", AttributeValue.stringAttributeValue(statement.toString()));
         map.put("limit", AttributeValue.longAttributeValue(limit));
         map.put("offset", AttributeValue.longAttributeValue(offset));
         map.put("countUpTo", AttributeValue.longAttributeValue(countUpTo));
         span.addAnnotation("AbstractSession#query", map);
 
-        DocumentModelList ret = tracedQuery(query, parameters, limit, offset, countUpTo);
+        DocumentModelList ret = tracedQuery(statement, limit, offset, countUpTo);
 
         map.clear();
         map.put("totalSize", AttributeValue.longAttributeValue(ret.totalSize()));
@@ -701,18 +720,26 @@ public class SessionImpl implements CoreSession {
         return ret;
     }
 
-    private DocumentModelList tracedQuery(String query, Map<String, Object> parameters, long limit, long offset,
-            long countUpTo) {
+    /** Parses a query, reporting the text that could not be parsed. */
+    protected static Statement parse(String query, Map<String, Object> parameters) {
+        try {
+            return HXQLParser.parse(query, parameters);
+        } catch (QueryParseException e) {
+            e.addInfo("Failed to parse query: " + query);
+            throw e;
+        }
+    }
+
+    private DocumentModelList tracedQuery(Statement statement, long limit, long offset, long countUpTo) {
         try {
             // force post-filtering if we SELECT something different than '*' or 'sys_id'
             // as the backend won't do the filtering (see NXP-30434)
-            String[] querySplit = query.split("\\s");
-            boolean postFilter = !("*".equals(querySplit[1]) || SYS_ID.equals(querySplit[1]));
+            boolean postFilter = !isDocumentProjection(statement.getSelectClause());
             QueryParameters queryParams = new QueryParameters(principal, postFilter ? 0 : limit,
-                    postFilter ? 0 : offset, parameters);
+                    postFilter ? 0 : offset);
 
             // get document list with total size
-            PartialList<InternalDocument> pl = getSession().query(query, queryParams, postFilter ? -1 : countUpTo);
+            PartialList<InternalDocument> pl = getSession().query(statement, queryParams, postFilter ? -1 : countUpTo);
             // convert to DocumentModelList
             DocumentModelListImpl dms = new DocumentModelListImpl(pl.size());
             dms.setTotalSize(pl.totalSize());
@@ -756,49 +783,65 @@ public class SessionImpl implements CoreSession {
             }
             return docs;
         } catch (QueryParseException e) {
-            e.addInfo("Failed to execute query: " + query);
+            e.addInfo("Failed to execute query: " + statement);
             throw e;
         }
     }
 
     @Override
-    public IterableQueryResult queryAndFetch(String query, Object... params) {
+    public IterableQueryResult queryAndFetch(String query) {
+        return queryAndFetch(parse(query, Map.of()));
+    }
+
+    @Override
+    public IterableQueryResult queryAndFetch(Statement statement) {
         Span span = Tracing.getTracer().getCurrentSpan();
         Map<String, AttributeValue> map = new HashMap<>();
-        map.put("nxql", AttributeValue.stringAttributeValue(query));
+        map.put("hxql", AttributeValue.stringAttributeValue(statement.toString()));
         span.addAnnotation("AbstractSession#queryAndFetch", map);
         try {
             QueryParameters queryParams = new QueryParameters(principal, 0, 0);
-            IterableQueryResult result = getSession().queryAndFetch(query, queryParams, params);
+            IterableQueryResult result = getSession().queryAndFetch(statement, queryParams);
 
             map.clear();
             map.put("totalSize", AttributeValue.longAttributeValue(result.size()));
             span.addAnnotation("AbstractSession#queryAndFetch.done", map);
             return result;
         } catch (QueryParseException e) {
-            e.addInfo("Failed to execute query: " + query);
+            e.addInfo("Failed to execute query: " + statement);
             throw e;
         }
     }
 
     @Override
     public PartialList<Map<String, Object>> queryProjection(String query, boolean distinctDocuments, long limit,
-            long offset, long countUpTo, Object... params) {
+            long offset, long countUpTo) {
+        return queryProjection(parse(query, Map.of()), distinctDocuments, limit, offset, countUpTo);
+    }
+
+    @Override
+    public PartialList<Map<String, Object>> queryProjection(Statement statement, boolean distinctDocuments,
+            long limit, long offset, long countUpTo) {
         QueryParameters queryParams = new QueryParameters(principal, limit, offset);
-        return getSession().queryProjection(query, queryParams, distinctDocuments, countUpTo, params);
+        return getSession().queryProjection(statement, queryParams, distinctDocuments, countUpTo);
     }
 
     @Override
     public ScrollResult<String> scroll(String query, int batchSize, int keepAliveSeconds) {
+        return scroll(parse(query, Map.of()), batchSize, keepAliveSeconds);
+    }
+
+    @Override
+    public ScrollResult<String> scroll(Statement statement, int batchSize, int keepAliveSeconds) {
         Map<String, AttributeValue> map = new HashMap<>();
         Span span = Tracing.getTracer().getCurrentSpan();
-        map.put("hxql", AttributeValue.stringAttributeValue(query));
+        map.put("hxql", AttributeValue.stringAttributeValue(statement.toString()));
         map.put("batchSize", AttributeValue.longAttributeValue(batchSize));
         map.put("keepAliveSeconds", AttributeValue.longAttributeValue(keepAliveSeconds));
         QueryParameters queryParams = new QueryParameters(principal, 0, 0);
         map.put("queryParams", AttributeValue.stringAttributeValue(queryParams.toString()));
         span.addAnnotation("AbstractSession#scroll", map);
-        return getSession().scroll(query, queryParams, batchSize, keepAliveSeconds);
+        return getSession().scroll(statement, queryParams, batchSize, keepAliveSeconds);
     }
 
     @Override

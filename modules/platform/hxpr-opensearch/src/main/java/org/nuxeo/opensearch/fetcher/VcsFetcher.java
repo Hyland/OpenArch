@@ -17,6 +17,9 @@ package org.nuxeo.opensearch.fetcher;
 
 import static java.util.stream.Collectors.toMap;
 
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ID;
+import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_CONTENT;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -27,7 +30,11 @@ import org.nuxeo.ecm.core.api.CoreInstance;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.impl.DocumentModelListImpl;
-import org.nuxeo.ecm.core.query.sql.HXQL;
+import org.nuxeo.ecm.core.query.sql.model.FromClause;
+import org.nuxeo.ecm.core.query.sql.model.Predicates;
+import org.nuxeo.ecm.core.query.sql.model.SelectClause;
+import org.nuxeo.ecm.core.query.sql.model.Statement;
+import org.nuxeo.ecm.core.query.sql.model.WhereClause;
 import org.nuxeo.opensearch.io.DocumentDTO;
 import org.nuxeo.opensearch.query.OpenSearchQueryBuilder.HitDocConsumer;
 import org.opensearch.client.opensearch.core.SearchResponse;
@@ -115,17 +122,10 @@ public class VcsFetcher extends Fetcher {
     }
 
     private List<DocumentModel> fetchFromVcsChunk(List<Hit<DocumentDTO>> hits, CoreSession session) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("SELECT * FROM SysContent, SysRelation WHERE sys_id IN (");
-        int size = hits.size();
-        for (int i = 0; i < size; i++) {
-            sb.append(HXQL.escapeString(hits.get(i).id()));
-            if (i < size - 1) {
-                sb.append(", ");
-            }
-        }
-        sb.append(")");
-        return session.query(sb.toString());
+        List<String> ids = hits.stream().map(Hit::id).toList();
+        Statement statement = new Statement(new SelectClause(), new FromClause(List.of(SYS_CONTENT)),
+                new WhereClause(Predicates.in(SYS_ID, ids)));
+        return session.query(statement, 0, 0, 0);
     }
 
     private void sortResults(List<DocumentModel> docs) {

@@ -19,7 +19,6 @@ import static com.hyland.hxpr.async.tasks.TaskStatus.State.COMPLETED;
 import static java.util.Objects.requireNonNullElse;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ID;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PARENT_ID;
-import static org.nuxeo.ecm.core.query.sql.HXQL.HXQL;
 
 import com.hyland.hxpr.async.tasks.TaskProcessor;
 import com.hyland.hxpr.async.tasks.TaskService;
@@ -60,7 +59,7 @@ public class CleanupOrphansTaskProcessor implements TaskProcessor<CleanupOrphans
         TransactionHelper.runInTransaction(timeout, () -> {
             try (var __ = Framework.loginSystem()) {
                 CoreSession sysSession = CoreInstance.getCoreSessionSystem(task.getRepository());
-                try (var result = sysSession.queryAndFetch(SEARCH_QUERY, HXQL)) {
+                try (var result = sysSession.queryAndFetch(SEARCH_QUERY)) {
                     batchRemoveDocuments(sysSession, result, task);
                 }
             }

@@ -65,10 +65,16 @@ public class QueryAssembler {
     }
 
     /**
-     * A query as assembled: the text to execute, which keeps its {@code :name} parameters, and the same query with
-     * those parameters bound, which is what a response echoes back to the caller.
+     * A query as assembled: the tree, with its {@code :name} parameters bound, which is what is executed and what a
+     * response echoes back; and the text it came from, parameters and all, for the backends that take a query as
+     * text.
      */
-    public record AssembledQuery(String query, String boundQuery) {
+    public record AssembledQuery(Statement statement, String query) {
+
+        /** The query with its parameters bound, which is what a response echoes back to the caller. */
+        public String boundQuery() {
+            return statement.toString();
+        }
     }
 
     /**
@@ -101,8 +107,7 @@ public class QueryAssembler {
         assembled = rewriteSortedColumn(assembled, sortedColumn(sortInfos));
         // the query to execute keeps its :name parameters, which are bound where it is executed; the response echoes
         // the query with them bound, which the tree in hand renders without having to be parsed again
-        return new AssembledQuery(HXQLSerializer.serialize(assembled),
-                HXQLSerializer.serialize(bind(assembled, parameters)));
+        return new AssembledQuery(bind(assembled, parameters), HXQLSerializer.serialize(assembled));
     }
 
     /** A where clause definition's own query wins over the request's, as it is the more specific one. */
@@ -127,7 +132,7 @@ public class QueryAssembler {
         }
     }
 
-    /** Binds the parameters, for the echoed form of the query; what is executed carries them instead. */
+    /** Binds the parameters, which is what makes the query executable. */
     protected static Statement bind(Statement query, Map<String, Object> parameters) {
         try {
             return QueryParameterBinder.bind(query, parameters);

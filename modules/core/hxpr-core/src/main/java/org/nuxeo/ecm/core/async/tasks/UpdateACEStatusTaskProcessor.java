@@ -18,15 +18,15 @@ package org.nuxeo.ecm.core.async.tasks;
 import static com.hyland.hxpr.async.tasks.TaskStatus.State.COMPLETED;
 import static java.util.Objects.requireNonNullElse;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ID;
+import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_CONTENT;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import com.hyland.hxpr.async.tasks.message.RepositoryTask;
 import org.nuxeo.ecm.core.api.CoreInstance;
@@ -37,7 +37,13 @@ import org.nuxeo.ecm.core.api.IterableQueryResult;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.api.security.ACE;
 import org.nuxeo.ecm.core.api.security.ACL;
-import org.nuxeo.ecm.core.query.sql.HXQL;
+import org.nuxeo.ecm.core.query.sql.model.FromClause;
+import org.nuxeo.ecm.core.query.sql.model.Operand;
+import org.nuxeo.ecm.core.query.sql.model.Predicates;
+import org.nuxeo.ecm.core.query.sql.model.Reference;
+import org.nuxeo.ecm.core.query.sql.model.SelectClause;
+import org.nuxeo.ecm.core.query.sql.model.Statement;
+import org.nuxeo.ecm.core.query.sql.model.WhereClause;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.transaction.TransactionHelper;
 import org.nuxeo.runtime.transaction.TransactionRuntimeException;
@@ -57,12 +63,31 @@ public class UpdateACEStatusTaskProcessor implements TaskProcessor<RepositoryTas
 
     public static final int DEFAULT_BATCH_SIZE = 20;
 
-    public static final String QUERY = "SELECT sys_id, sys_acl/*1/principal, sys_acl/*1/permission,"
-            + " sys_acl/*1/grant, sys_acl/*1/creator, sys_acl/*1/begin, sys_acl/*1/end FROM SysContent"
-            + " WHERE (sys_acl/*1/status = 0 AND sys_acl/*1/begin <= TIMESTAMP '%s')"
-            + " OR (sys_acl/*1/status = 1 AND sys_acl/*1/end <= TIMESTAMP '%s')";
+    protected static final String ACL_PRINCIPAL = "sys_acl/*1/principal";
 
-    public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    protected static final String ACL_PERMISSION = "sys_acl/*1/permission";
+
+    protected static final String ACL_GRANT = "sys_acl/*1/grant";
+
+    protected static final String ACL_CREATOR = "sys_acl/*1/creator";
+
+    protected static final String ACL_BEGIN = "sys_acl/*1/begin";
+
+    protected static final String ACL_END = "sys_acl/*1/end";
+
+    protected static final String ACL_STATUS = "sys_acl/*1/status";
+
+    /** The ACEs that have become effective, or have expired, by the given time. */
+    protected static Statement query(Instant now) {
+        List<Operand> projection = Stream.of(SYS_ID, ACL_PRINCIPAL, ACL_PERMISSION, ACL_GRANT, ACL_CREATOR, ACL_BEGIN,
+                ACL_END).map(name -> (Operand) new Reference(name)).toList();
+        return new Statement(new SelectClause(projection), new FromClause(List.of(SYS_CONTENT)),
+                new WhereClause(Predicates.or( //
+                        Predicates.and(Predicates.eq(ACL_STATUS, ACE.Status.PENDING.ordinal()),
+                                Predicates.lte(ACL_BEGIN, now)),
+                        Predicates.and(Predicates.eq(ACL_STATUS, ACE.Status.EFFECTIVE.ordinal()),
+                                Predicates.lte(ACL_END, now)))));
+    }
 
     protected int batchSize = DEFAULT_BATCH_SIZE;
 
@@ -114,10 +139,7 @@ public class UpdateACEStatusTaskProcessor implements TaskProcessor<RepositoryTas
     }
 
     private int executeTask(CoreSession session) {
-        String formattedDate = FORMATTER.format(ZonedDateTime.now());
-
-        IterableQueryResult result = session.queryAndFetch(String.format(QUERY, formattedDate, formattedDate),
-                HXQL.HXQL);
+        IterableQueryResult result = session.queryAndFetch(query(Instant.now()));
         Map<String, List<ACE>> docIdsToACEs = new HashMap<>();
         try {
             for (Map<String, Object> map : result) {

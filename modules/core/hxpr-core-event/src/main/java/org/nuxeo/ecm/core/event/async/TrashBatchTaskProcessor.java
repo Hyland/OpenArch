@@ -23,7 +23,6 @@ import static org.nuxeo.ecm.core.api.event.CoreEventConstants.REPOSITORY_NAME;
 import static org.nuxeo.ecm.core.api.event.DocumentEventCategories.EVENT_DOCUMENT_CATEGORY;
 import static org.nuxeo.ecm.core.api.trash.TrashService.DOCUMENT_TRASHED;
 import static org.nuxeo.ecm.core.api.trash.TrashService.DOCUMENT_UNTRASHED;
-import static org.nuxeo.ecm.core.query.sql.HXQL.HXQL;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -72,7 +71,7 @@ public class TrashBatchTaskProcessor extends AbstractBatchTaskProcessor {
     public void setSystemProperty(CoreSession session, List<String> ids, boolean value) {
         List<DocumentRef> updatedRefs = new ArrayList<>(ids.size());
         String query = String.format(SYSPROP_QUERY_TEMPLATE, value ? "0" : "1", String.join("', '", ids));
-        try (IterableQueryResult result = session.queryAndFetch(query, HXQL)) {
+        try (IterableQueryResult result = session.queryAndFetch(query)) {
             TrashService trashService = Framework.getService(TrashService.class);
             for (Map<String, Object> map : result) {
                 DocumentRef ref = new IdRef((String) map.get(SYS_ID));
