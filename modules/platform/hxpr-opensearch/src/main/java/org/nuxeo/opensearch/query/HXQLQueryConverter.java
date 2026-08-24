@@ -56,6 +56,7 @@ import org.nuxeo.ecm.core.query.sql.model.LiteralList;
 import org.nuxeo.ecm.core.query.sql.model.MultiExpression;
 import org.nuxeo.ecm.core.query.sql.model.Operand;
 import org.nuxeo.ecm.core.query.sql.model.Operator;
+import org.nuxeo.ecm.core.query.sql.model.Parameter;
 import org.nuxeo.ecm.core.query.sql.model.OrderByClause;
 import org.nuxeo.ecm.core.query.sql.model.OrderByExpr;
 import org.nuxeo.ecm.core.query.sql.model.Predicate;
@@ -174,6 +175,11 @@ public final class HXQLQueryConverter {
             walkBoolean(op, operands, builders, session);
             return;
         }
+        if (node.lvalue instanceof Parameter || node.rvalue instanceof Parameter) {
+            // a parameter is bound when the query is parsed, so one reaching here was never given a value; without
+            // this it would be rendered as its own text and searched for as if it were the value
+            throw new QueryParseException("Unbound query parameter in: " + node);
+        }
         Reference ref = node.lvalue instanceof Reference nodeRef ? nodeRef : null;
         String name = ref != null ? ref.name() : node.lvalue.toString();
         String value = null;
@@ -219,9 +225,16 @@ public final class HXQLQueryConverter {
      * parsed once however many of them are asked about it.
      */
     public static SQLQuery parse(String hxql) {
+        return parse(hxql, Map.of());
+    }
+
+    /**
+     * Parses a query, binding the values of its {@code :name} parameters.
+     */
+    public static SQLQuery parse(String hxql, Map<String, Object> parameters) {
         String query = completeQueryWithSelect(hxql);
         try {
-            return HXQLParser.parse(query);
+            return HXQLParser.parse(query, parameters);
         } catch (QueryParseException e) {
             e.addInfo("Query: " + query);
             throw e;

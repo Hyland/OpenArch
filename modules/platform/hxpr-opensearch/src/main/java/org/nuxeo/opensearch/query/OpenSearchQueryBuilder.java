@@ -87,6 +87,8 @@ public class OpenSearchQueryBuilder {
 
     private String hxql;
 
+    private Map<String, Object> parameters = Map.of();
+
     private Query osQuery;
 
     private boolean searchOnAllRepo = false;
@@ -179,6 +181,15 @@ public class OpenSearchQueryBuilder {
     }
 
     /**
+     * The values for the {@code :name} parameters of the query, bound when it is parsed.
+     */
+    public OpenSearchQueryBuilder parameters(Map<String, Object> parameters) {
+        this.parameters = parameters == null ? Map.of() : parameters;
+        osQuery = null;
+        return this;
+    }
+
+    /**
      * If search results are found, use this SearchHit and DocumentModel consumer on each hit.
      *
      * @since 10.2
@@ -258,7 +269,7 @@ public class OpenSearchQueryBuilder {
      */
     public Query makeQuery() {
         if (osQuery == null && hxql != null) {
-            SQLQuery parsedHxql = HXQLQueryConverter.parse(hxql);
+            SQLQuery parsedHxql = HXQLQueryConverter.parse(hxql, parameters);
             osQuery = hxqlQueryConverter.toESQueryBuilder(parsedHxql, session).build().toQuery();
             // the query's own ORDER BY, if it has one, follows whatever sort was set on this builder
             sortInfos.addAll(hxqlQueryConverter.getSortInfo(parsedHxql));

@@ -15,11 +15,23 @@
  */
 package org.nuxeo.ecm.core.api.query;
 
+import java.util.Map;
+
 import org.nuxeo.ecm.core.api.NuxeoPrincipal;
 
 /**
  * Parameters that can be passed when executing a query.
+ *
+ * @param parameters the values for the query's {@code :name} parameters, bound when it is parsed
  */
-public record QueryParameters(NuxeoPrincipal principal, long limit, long offset) {
+public record QueryParameters(NuxeoPrincipal principal, long limit, long offset, Map<String, Object> parameters) {
+
+    public QueryParameters {
+        parameters = parameters == null ? Map.of() : Map.copyOf(parameters);
+    }
+
+    public QueryParameters(NuxeoPrincipal principal, long limit, long offset) {
+        this(principal, limit, offset, Map.of());
+    }
 
 }

@@ -72,7 +72,8 @@ public class RepositoryQueryManager extends AbstractQueryManager {
             repositoryId = Framework.getService(RepositoryManager.class).getDefaultRepositoryName();
         }
         CoreSession session = CoreInstance.getCoreSession(repositoryId);
-        DocumentModelList docs = session.query(spec.query(), spec.limit(), spec.offset(), spec.countUpTo());
+        DocumentModelList docs = session.query(spec.query(), spec.parameters(), spec.limit(), spec.offset(),
+                spec.countUpTo());
         long totalSize = 0;
         if (docs != null) {
             totalSize = docs.totalSize();

@@ -15,6 +15,8 @@
  */
 package org.nuxeo.ecm.core.query.sql;
 
+import java.util.Map;
+
 import org.nuxeo.ecm.core.query.QueryParseException;
 import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Reference;
@@ -32,6 +34,20 @@ public final class HXQLParser {
 
     public static SQLQuery parse(String string) throws QueryParseException {
         return new HXQLVisitor().parse(string);
+    }
+
+    /**
+     * Parses a query and binds its named parameters, the {@code :name} placeholders standing in for values.
+     * <p>
+     * Binding belongs with parsing: a parameter is bound on the tree, where a value cannot be read as syntax, and a
+     * tree that kept its parameters is not executable. So whoever holds the values parses with them.
+     *
+     * @throws QueryParseException if the query references a parameter that has no value, or a value cannot be used
+     *             where its parameter appears
+     * @since 12.0
+     */
+    public static SQLQuery parse(String string, Map<String, Object> parameters) throws QueryParseException {
+        return QueryParameterBinder.bind(parse(string), parameters);
     }
 
     /**

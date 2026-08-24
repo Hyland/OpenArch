@@ -679,6 +679,12 @@ public class SessionImpl implements CoreSession {
 
     @Override
     public DocumentModelList query(String query, long limit, long offset, long countUpTo) {
+        return query(query, Map.of(), limit, offset, countUpTo);
+    }
+
+    @Override
+    public DocumentModelList query(String query, Map<String, Object> parameters, long limit, long offset,
+            long countUpTo) {
         Span span = Tracing.getTracer().getCurrentSpan();
         Map<String, AttributeValue> map = new HashMap<>();
         map.put("nxql", AttributeValue.stringAttributeValue(query));
@@ -687,7 +693,7 @@ public class SessionImpl implements CoreSession {
         map.put("countUpTo", AttributeValue.longAttributeValue(countUpTo));
         span.addAnnotation("AbstractSession#query", map);
 
-        DocumentModelList ret = tracedQuery(query, limit, offset, countUpTo);
+        DocumentModelList ret = tracedQuery(query, parameters, limit, offset, countUpTo);
 
         map.clear();
         map.put("totalSize", AttributeValue.longAttributeValue(ret.totalSize()));
@@ -695,13 +701,15 @@ public class SessionImpl implements CoreSession {
         return ret;
     }
 
-    private DocumentModelList tracedQuery(String query, long limit, long offset, long countUpTo) {
+    private DocumentModelList tracedQuery(String query, Map<String, Object> parameters, long limit, long offset,
+            long countUpTo) {
         try {
             // force post-filtering if we SELECT something different than '*' or 'sys_id'
             // as the backend won't do the filtering (see NXP-30434)
             String[] querySplit = query.split("\\s");
             boolean postFilter = !("*".equals(querySplit[1]) || SYS_ID.equals(querySplit[1]));
-            QueryParameters queryParams = new QueryParameters(principal, postFilter ? 0 : limit, postFilter ? 0 : offset);
+            QueryParameters queryParams = new QueryParameters(principal, postFilter ? 0 : limit,
+                    postFilter ? 0 : offset, parameters);
 
             // get document list with total size
             PartialList<InternalDocument> pl = getSession().query(query, queryParams, postFilter ? -1 : countUpTo);

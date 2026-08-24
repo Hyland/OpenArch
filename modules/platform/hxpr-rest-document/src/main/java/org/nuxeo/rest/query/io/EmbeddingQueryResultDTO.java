@@ -81,7 +81,7 @@ public record EmbeddingQueryResultDTO( //
 
     public EmbeddingQueryResultDTO(QuerySpecification spec, List<Double> vector, List<EmbeddingRestDTO> embeddings, Long totalCount,
                                    Boolean totalCountTruncated) {
-        this(spec.repositoryId(), vector, spec.query(), spec.limit(), spec.offset(), spec.trackTotalCount(),
+        this(spec.repositoryId(), vector, spec.boundQuery(), spec.limit(), spec.offset(), spec.trackTotalCount(),
                 totalCountTruncated, embeddings, totalCount);
     }
 

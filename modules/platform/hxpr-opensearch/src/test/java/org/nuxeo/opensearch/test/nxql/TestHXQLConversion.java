@@ -20,11 +20,13 @@ import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
 import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FILE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 
 import jakarta.inject.Inject;
 import jakarta.json.stream.JsonGenerator;
@@ -39,11 +41,14 @@ import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentModelList;
 import org.nuxeo.ecm.core.query.sql.HXQL;
+import org.nuxeo.ecm.core.query.QueryParseException;
 import org.nuxeo.ecm.core.query.sql.model.FromClause;
 import org.nuxeo.ecm.core.query.sql.model.MultiExpression;
 import org.nuxeo.ecm.core.query.sql.model.Operator;
+import org.nuxeo.ecm.core.query.sql.model.Parameter;
 import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Predicates;
+import org.nuxeo.ecm.core.query.sql.model.Reference;
 import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
 import org.nuxeo.ecm.core.query.sql.model.SelectClause;
 import org.nuxeo.ecm.core.query.sql.model.WhereClause;
@@ -3034,6 +3039,22 @@ public class TestHXQLConversion {
                 {"bool":{"should":[{"constant_score":{"filter":{"term":{"f1":{"value":"a"}}}}},\
                 {"constant_score":{"filter":{"term":{"f2":{"value":"b"}}}}}]}}]}}
                 """, convert(Predicates.and(f3, new MultiExpression(Operator.OR, List.of(f1, f2)))));
+    }
+
+    /**
+     * A parameter is bound when the query is parsed, so one reaching the conversion never had a value: it is an error
+     * rather than something to search for the text of.
+     */
+    @Test
+    public void testUnboundParameter() {
+        Predicate predicate = new Predicate(new Reference("f1"), Operator.EQ, new Parameter("p"));
+        var e = assertThrows(QueryParseException.class, () -> convert(predicate));
+        assertTrue(e.getMessage().contains("Unbound query parameter"), e.getMessage());
+        // whereas parsing with the value binds it
+        SQLQuery bound = HXQLQueryConverter.parse("SELECT * FROM SysContent WHERE f1 = :p", Map.of("p", "a"));
+        assertEqualsEvenUnderWindows("""
+                {"constant_score":{"filter":{"term":{"f1":{"value":"a"}}}}}
+                """, convert(bound.getWhereClause().predicate()));
     }
 
     private String convert(Predicate predicate) {

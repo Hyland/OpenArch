@@ -29,17 +29,24 @@ import org.nuxeo.ecm.core.query.QueryParseException;
 import org.nuxeo.rest.query.io.DocumentAdvancedQueryDTO;
 import org.nuxeo.rest.query.io.DocumentQueryDTO;
 import org.nuxeo.rest.query.io.WhereClauseDTO;
+import org.nuxeo.rest.query.spec.QueryAssembler.AssembledQuery;
 import org.nuxeo.rest.query.io.WhereClauseDTO.RestPredicate;
 
 public class QueryAssemblerTest {
 
     protected static final String REPO_ID = "test";
 
-    protected static String assemble(String query, List<String> sort, Map<String, Object> parameters,
+    protected static AssembledQuery assembleQuery(String query, List<String> sort, Map<String, Object> parameters,
             WhereClauseDTO whereClause, List<String> quickFilterClauses) {
         DocumentAdvancedQueryDTO dto = new DocumentAdvancedQueryDTO(REPO_ID, query, null, 0, true, -1, sort,
                 parameters, whereClause, quickFilterClauses);
         return QueryAssembler.assemble(dto, DocumentQueryDTO.getSortInfos(sort));
+    }
+
+    /** The query to execute, which keeps its parameters. */
+    protected static String assemble(String query, List<String> sort, Map<String, Object> parameters,
+            WhereClauseDTO whereClause, List<String> quickFilterClauses) {
+        return assembleQuery(query, sort, parameters, whereClause, quickFilterClauses).query();
     }
 
     protected static String assemble(String query) {
@@ -80,11 +87,32 @@ public class QueryAssemblerTest {
         assertEquals(400, e.getStatusCode());
     }
 
+    /**
+     * The query to execute keeps its {@code :name} parameters, bound where it runs; the echoed form has them bound
+     * here, since that is what a response shows the caller.
+     */
     @Test
     public void testParameters() {
-        assertEquals("SELECT * FROM SysContent WHERE sys_title = 'File3'",
-                assemble("SELECT * FROM SysContent WHERE sys_title = :byTitle", null, Map.of("byTitle", "File3"), null,
-                        null));
+        AssembledQuery assembled = assembleQuery("SELECT * FROM SysContent WHERE sys_title = :byTitle", null,
+                Map.of("byTitle", "File3"), null, null);
+        assertEquals("SELECT * FROM SysContent WHERE sys_title = :byTitle", assembled.query());
+        assertEquals("SELECT * FROM SysContent WHERE sys_title = 'File3'", assembled.boundQuery());
+    }
+
+    @Test
+    public void testMissingParameter() {
+        var e = assertThrows(QueryParseException.class,
+                () -> assemble("SELECT * FROM SysContent WHERE sys_title = :byTitle"));
+        assertTrue(e.getMessage().contains("No value for query parameter :byTitle"), e.getMessage());
+        assertEquals(400, e.getStatusCode());
+    }
+
+    /** Values reach the echoed query as literals, so nothing they contain can be read as syntax. */
+    @Test
+    public void testValuesCannotInjectSyntax() {
+        assertEquals("SELECT * FROM SysContent WHERE sys_title = 'x\\' OR sys_title LIKE \\'%'",
+                assembleQuery("SELECT * FROM SysContent WHERE sys_title = :byTitle", null,
+                        Map.of("byTitle", "x' OR sys_title LIKE '%"), null, null).boundQuery());
     }
 
     @Test
@@ -124,8 +152,11 @@ public class QueryAssemblerTest {
 
     @Test
     public void testQuickFilters() {
-        assertEquals("SELECT * FROM SysContent WHERE sys_title = 'File3'",
+        assertEquals("SELECT * FROM SysContent WHERE sys_title = :byTitle",
                 assemble(null, null, Map.of("byTitle", "File3"), null, List.of("sys_title = :byTitle")));
+        assertEquals("SELECT * FROM SysContent WHERE sys_title = 'File3'",
+                assembleQuery(null, null, Map.of("byTitle", "File3"), null, List.of("sys_title = :byTitle"))
+                        .boundQuery());
         assertEquals("SELECT * FROM SysContent WHERE a = 1 AND b = 2",
                 assemble(null, null, null, null, List.of("a = 1", "b = 2")));
         // blank clauses are skipped, and do not discard the ones already gathered
@@ -168,22 +199,6 @@ public class QueryAssemblerTest {
         var e = assertThrows(QueryParseException.class,
                 () -> assemble(null, null, null, null, List.of("this is not a clause")));
         assertTrue(e.getMessage().contains("Clause: this is not a clause"), e.getMessage());
-    }
-
-    @Test
-    public void testMissingParameter() {
-        var e = assertThrows(QueryParseException.class,
-                () -> assemble("SELECT * FROM SysContent WHERE sys_title = :byTitle"));
-        assertTrue(e.getMessage().contains("No value for query parameter :byTitle"), e.getMessage());
-        assertEquals(400, e.getStatusCode());
-    }
-
-    /** Values reach the query as literals, so nothing they contain can be read as syntax. */
-    @Test
-    public void testValuesCannotInjectSyntax() {
-        assertEquals("SELECT * FROM SysContent WHERE sys_title = 'x\\' OR sys_title LIKE \\'%'",
-                assemble("SELECT * FROM SysContent WHERE sys_title = :byTitle", null,
-                        Map.of("byTitle", "x' OR sys_title LIKE '%"), null, null));
     }
 
     /** A full-text hint written in the query text survives assembly. */

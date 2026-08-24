@@ -46,6 +46,7 @@ import org.nuxeo.rest.query.io.TermsAggregationQueryResultDTO;
 import org.nuxeo.rest.query.spec.NamedQueryDefinition;
 import org.nuxeo.rest.query.spec.NamedQueryRegistry;
 import org.nuxeo.rest.query.spec.QueryAssembler;
+import org.nuxeo.rest.query.spec.QueryAssembler.AssembledQuery;
 import org.nuxeo.rest.query.spec.QuerySpecification;
 import org.nuxeo.runtime.api.Framework;
 
@@ -109,11 +110,11 @@ public abstract class AbstractQueryManager implements QueryManager {
         if (StringUtils.isBlank(query.searchAfter())) {
             checkResultWindow(limit, query.offset());
         }
-        String queryString = QueryAssembler.assemble(query, DocumentQueryDTO.getSortInfos(query.sort()));
+        AssembledQuery assembled = QueryAssembler.assemble(query, DocumentQueryDTO.getSortInfos(query.sort()));
         long countUpTo = getCountUpTo();
         int trackTotalCountUpTo = getTrackTotalCountUpTo(query.trackTotalCountUpTo());
         boolean trackTotalCount = getTrackTotalCount(query.trackTotalCount());
-        return new QuerySpecification(query, queryString, limit, countUpTo, trackTotalCount, trackTotalCountUpTo);
+        return new QuerySpecification(query, assembled, limit, countUpTo, trackTotalCount, trackTotalCountUpTo);
     }
 
     protected NamedQueryDefinition getNamedQuery(String name) {

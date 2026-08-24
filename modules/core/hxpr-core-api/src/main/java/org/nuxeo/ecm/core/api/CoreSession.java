@@ -438,6 +438,23 @@ public interface CoreSession {
     DocumentModelList query(String query, long limit, long offset, long countUpTo);
 
     /**
+     * Executes the given HXQL query, binding the values of its {@code :name} parameters, and returns the result that
+     * matches the filter.
+     *
+     * @param query the query to execute, which may contain {@code :name} parameters
+     * @param parameters the values for those parameters
+     * @param limit the maximum number of documents to retrieve, or 0 for all of them
+     * @param offset the offset (starting at 0) into the list of documents
+     * @param countUpTo if {@code -1}, count the total size without offset/limit.<br>
+     *            If {@code 0}, don't count the total size.<br>
+     *            If {@code n}, count the total number if there are less than n documents otherwise set the size to
+     *            {@code -1}.
+     * @return the query result
+     * @since 12.0
+     */
+    DocumentModelList query(String query, Map<String, Object> parameters, long limit, long offset, long countUpTo);
+
+    /**
      * Executes the given query and returns an iterable of maps containing the requested properties (which must be
      * closed when done).
      *

@@ -26,6 +26,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.nuxeo.ecm.core.query.QueryParseException;
+import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
 
 /**
  * @since 12.0
@@ -168,6 +169,17 @@ public class TestQueryParameterBinder {
     public void testPreservesOtherClauses() {
         check("SELECT sys_title FROM SysContent WHERE a = 'x' ORDER BY sys_title DESC",
                 "SELECT sys_title FROM SysContent WHERE a = :p ORDER BY sys_title DESC", Map.of("p", "x"));
+    }
+
+    /** Parsing with values binds them, which is how a query holding parameters is made executable. */
+    @Test
+    public void testParseBinds() {
+        SQLQuery query = HXQLParser.parse("SELECT * FROM SysContent WHERE sys_title = :p AND a IN :values",
+                Map.of("p", "File3", "values", List.of(1, 2)));
+        assertEquals("SELECT * FROM SysContent WHERE sys_title = 'File3' AND a IN (1, 2)",
+                HXQLSerializer.serialize(query));
+        assertThrows(QueryParseException.class,
+                () -> HXQLParser.parse("SELECT * FROM SysContent WHERE sys_title = :p", Map.of()));
     }
 
 }

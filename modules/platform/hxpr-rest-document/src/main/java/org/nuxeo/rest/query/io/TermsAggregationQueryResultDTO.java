@@ -80,7 +80,7 @@ public record TermsAggregationQueryResultDTO(
 
     public TermsAggregationQueryResultDTO(QuerySpecification spec, List<DocumentDTO> documents, Long totalCount,
                                           Boolean totalCountIsTruncated, List<StringTermsBucket> aggregationsBuckets) {
-        this(spec.repositoryId(), spec.query(), spec.limit(), spec.offset(), spec.trackTotalCount(),
+        this(spec.repositoryId(), spec.boundQuery(), spec.limit(), spec.offset(), spec.trackTotalCount(),
                 totalCountIsTruncated, documents, totalCount, aggregationsBuckets);
     }
 

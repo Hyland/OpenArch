@@ -65,13 +65,20 @@ public class QueryAssembler {
     }
 
     /**
+     * A query as assembled: the text to execute, which keeps its {@code :name} parameters, and the same query with
+     * those parameters bound, which is what a response echoes back to the caller.
+     */
+    public record AssembledQuery(String query, String boundQuery) {
+    }
+
+    /**
      * Builds the query text for a request.
      *
      * @param query the request
      * @param sortInfos the sorts to apply, which replace any {@code ORDER BY} the query text already has
-     * @return the NXQL to execute
+     * @return the HXQL to execute and the same query with its parameters bound
      */
-    public static String assemble(DocumentAdvancedQueryDTO query, List<SortInfo> sortInfos) {
+    public static AssembledQuery assemble(DocumentAdvancedQueryDTO query, List<SortInfo> sortInfos) {
         SQLQuery parsed = parse(baseQuery(query));
         Map<String, Object> parameters = query.parameters();
 
@@ -92,8 +99,10 @@ public class QueryAssembler {
         SQLQuery assembled = parsed.withPredicate(conjuncts.isEmpty() ? null : conjunction(conjuncts));
         assembled = withSort(assembled, sortInfos);
         assembled = rewriteSortedColumn(assembled, sortedColumn(sortInfos));
-        assembled = bind(assembled, parameters);
-        return HXQLSerializer.serialize(assembled);
+        // the query to execute keeps its :name parameters, which are bound where it is executed; the response echoes
+        // the query with them bound, which the tree in hand renders without having to be parsed again
+        return new AssembledQuery(HXQLSerializer.serialize(assembled),
+                HXQLSerializer.serialize(bind(assembled, parameters)));
     }
 
     /** A where clause definition's own query wins over the request's, as it is the more specific one. */
@@ -118,20 +127,21 @@ public class QueryAssembler {
         }
     }
 
-    protected static Predicate parsePredicate(String clause) {
-        try {
-            return HXQLParser.parsePredicate(clause);
-        } catch (NuxeoException e) {
-            e.addInfo("Clause: " + clause);
-            throw e;
-        }
-    }
-
+    /** Binds the parameters, for the echoed form of the query; what is executed carries them instead. */
     protected static SQLQuery bind(SQLQuery query, Map<String, Object> parameters) {
         try {
             return QueryParameterBinder.bind(query, parameters);
         } catch (QueryParseException e) {
             e.addInfo("Query: " + HXQLSerializer.serialize(query));
+            throw e;
+        }
+    }
+
+    protected static Predicate parsePredicate(String clause) {
+        try {
+            return HXQLParser.parsePredicate(clause);
+        } catch (NuxeoException e) {
+            e.addInfo("Clause: " + clause);
             throw e;
         }
     }

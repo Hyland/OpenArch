@@ -105,6 +105,7 @@ public class OpenSearchQueryManager extends AbstractQueryManager {
         String repositoryId = findRepositoryId(query.repositoryId());
         CoreSession session = CoreInstance.getCoreSession(repositoryId);
         OpenSearchQueryBuilder nxQuery = new OpenSearchQueryBuilder(session).hxql(spec.query())
+                                                                       .parameters(spec.parameters())
                                                             .offset((int) spec.offset())
                                                             .trackTotalCountUpTo(spec.trackTotalCountUpTo())
                                                             .trackTotalCount(spec.trackTotalCount());
@@ -253,6 +254,7 @@ public class OpenSearchQueryManager extends AbstractQueryManager {
         String repositoryId = findRepositoryId(query.repositoryId());
         CoreSession session = CoreInstance.getCoreSession(repositoryId);
         OpenSearchQueryBuilder nxQuery = new OpenSearchQueryBuilder(session).hxql(spec.query())
+                                                                       .parameters(spec.parameters())
                                                             .offset((int) spec.offset())
                                                             .onlyOpenSearchResponse();
 

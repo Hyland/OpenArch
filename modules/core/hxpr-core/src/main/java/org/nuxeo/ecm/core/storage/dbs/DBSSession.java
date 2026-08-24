@@ -1113,7 +1113,7 @@ public class DBSSession implements InternalSession {
 
     protected PartialList<Map<String, Object>> doQueryAndFetch(String query, QueryParameters queryParams,
             boolean distinctDocuments, int countUpTo, Mutable<String> idKeyHolder) {
-        SQLQuery sqlQuery = HXQLParser.parse(query);
+        SQLQuery sqlQuery = HXQLParser.parse(query, queryParams.parameters());
         List<Operand> projection = new ArrayList<>(sqlQuery.getSelectClause().elements());
         if (projection.isEmpty()) {
             // turned into SELECT sys_id
@@ -1337,7 +1337,7 @@ public class DBSSession implements InternalSession {
 
     @Override
     public ScrollResult<String> scroll(String query, QueryParameters queryParams, int batchSize, int keepAliveSeconds) {
-        SQLQuery sqlQuery = HXQLParser.parse(query);
+        SQLQuery sqlQuery = HXQLParser.parse(query, queryParams.parameters());
         List<Operand> projection = new ArrayList<>(sqlQuery.getSelectClause().elements());
         projection.add(new Reference(SYS_ID));
         sqlQuery = sqlQuery.withSelectClause(new SelectClause(projection));

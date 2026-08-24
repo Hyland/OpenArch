@@ -317,6 +317,29 @@ public class TestSQLRepositoryQuery {
         assertEquals(1, dml.size());
     }
 
+    /** Named parameters are bound where the query is executed, so a query text can carry them all the way down. */
+    @Test
+    public void testQueryParameters() {
+        createDocs();
+
+        DocumentModelList dml = session.query("SELECT * FROM MyDocType WHERE sys_title = :title",
+                Map.of("title", "testfile1_Title"), 0, 0, 0);
+        assertEquals(1, dml.size());
+
+        dml = session.query("SELECT * FROM MyDocType WHERE sys_title IN :titles",
+                Map.of("titles", List.of("testfile1_Title", "testfile2_Title")), 0, 0, 0);
+        assertEquals(2, dml.size());
+
+        // a value cannot be read as syntax, being bound as a literal
+        dml = session.query("SELECT * FROM MyDocType WHERE sys_title = :title",
+                Map.of("title", "x' OR sys_title LIKE '%"), 0, 0, 0);
+        assertEquals(0, dml.size());
+
+        // a parameter with no value is an error, wherever the query is run
+        assertThrows(QueryParseException.class,
+                () -> session.query("SELECT * FROM MyDocType WHERE sys_title = :title", Map.of(), 0, 0, 0));
+    }
+
     @Test
     public void testQueryBasic2() {
         createDocs();

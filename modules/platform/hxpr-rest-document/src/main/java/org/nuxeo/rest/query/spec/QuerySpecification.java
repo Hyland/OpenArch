@@ -16,20 +16,26 @@
 package org.nuxeo.rest.query.spec;
 
 import java.util.List;
+import java.util.Map;
 
 import org.nuxeo.rest.query.io.DocumentAdvancedQueryDTO;
 import org.nuxeo.rest.query.io.DocumentQueryDTO;
+import org.nuxeo.rest.query.spec.QueryAssembler.AssembledQuery;
 
 /**
- * A query ready to run: the NXQL to execute, plus how to page and count it.
+ * A query ready to run: the HXQL to execute, the values for its {@code :name} parameters, and how to page and count
+ * it.
  * <p>
- * This is what a query manager works from, and what the result DTOs echo back to the caller. The parts of the request
- * that only mattered while the query was being built — predicates, parameters, the where clause definition — are not
- * here, having already been folded into {@link #query}.
+ * This is what a query manager works from. The parts of the request that only mattered while the query was being
+ * built — predicates, the where clause definition — are not here, having already been folded into {@link #query}. The
+ * parameters are, since they are bound where the query is executed; {@link #boundQuery} is the same query with them
+ * bound, which is what the result DTOs echo back to the caller.
  */
 public record QuerySpecification( //
         String repositoryId, //
         String query, //
+        Map<String, Object> parameters, //
+        String boundQuery, //
         long limit, //
         long offset, //
         String searchAfter, //
@@ -42,18 +48,19 @@ public record QuerySpecification( //
         if (sort == null) {
             sort = List.of();
         }
+        parameters = parameters == null ? Map.of() : Map.copyOf(parameters);
     }
 
     public QuerySpecification(DocumentQueryDTO query, String queryString, long limit, long countUpTo,
             boolean trackTotalCount, int trackTotalCountUpTo) {
-        this(query.repositoryId(), queryString, limit, query.offset(), query.searchAfter(), countUpTo, trackTotalCount,
-                trackTotalCountUpTo, query.sort());
+        this(query.repositoryId(), queryString, Map.of(), queryString, limit, query.offset(), query.searchAfter(),
+                countUpTo, trackTotalCount, trackTotalCountUpTo, query.sort());
     }
 
-    public QuerySpecification(DocumentAdvancedQueryDTO query, String queryString, long limit, long countUpTo,
+    public QuerySpecification(DocumentAdvancedQueryDTO query, AssembledQuery assembled, long limit, long countUpTo,
             boolean trackTotalCount, int trackTotalCountUpTo) {
-        this(query.repositoryId(), queryString, limit, query.offset(), query.searchAfter(), countUpTo, trackTotalCount,
-                trackTotalCountUpTo, query.sort());
+        this(query.repositoryId(), assembled.query(), query.parameters(), assembled.boundQuery(), limit,
+                query.offset(), query.searchAfter(), countUpTo, trackTotalCount, trackTotalCountUpTo, query.sort());
     }
 
 }

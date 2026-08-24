@@ -89,7 +89,7 @@ public record DocumentQueryResultDTO( //
 
     public DocumentQueryResultDTO(QuerySpecification spec, List<DocumentDTO> documents, long totalCount,
             boolean totalCountTruncated, String nextSearchAfter) {
-        this(spec.repositoryId(), spec.query(), spec.limit(), spec.offset(), spec.trackTotalCount(),
+        this(spec.repositoryId(), spec.boundQuery(), spec.limit(), spec.offset(), spec.trackTotalCount(),
                 totalCountTruncated, documents, totalCount, nextSearchAfter);
     }
 
