@@ -50,7 +50,9 @@ public record QuerySpecification( //
         if (sort == null) {
             sort = List.of();
         }
-        parameters = parameters == null ? Map.of() : Map.copyOf(parameters);
+        if (parameters == null) {
+            parameters = Map.of();
+        }
     }
 
     /** The query with its parameters bound, which is what a response echoes back to the caller. */

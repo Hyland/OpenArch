@@ -131,6 +131,23 @@ public class TestDBSQueryOptimizer {
         assertEquals(Arrays.asList("foo/bar"), withPrefix);
     }
 
+    /**
+     * A projection wildcard adds a NOT NULL clause for itself, which is the whole where clause when the query had
+     * none.
+     */
+    @Test
+    public void testProjectionWildcard() {
+        Statement query = getOptimizer().optimize(HXQLParser.parse("SELECT mydc_subjects/* FROM SysFile"));
+        // the uncorrelated wildcard is correlated on the way
+        assertEquals("mydc_subjects/*100000", query.getSelectClause().toString());
+        assertEquals("mydc_subjects/*100000 IS NOT NULL AND sys_primaryType = 'SysFile'",
+                query.getWhereClause().predicate().toString());
+
+        query = getOptimizer().optimize(HXQLParser.parse("SELECT mydc_subjects/* FROM SysFile WHERE sys_title = 'x'"));
+        assertEquals("sys_title = 'x' AND mydc_subjects/*100000 IS NOT NULL AND sys_primaryType = 'SysFile'",
+                query.getWhereClause().predicate().toString());
+    }
+
     @Test
     public void testPrefixGroupingInOptimizedQuery() {
         String clause = "sys_title = 'foo' AND sys_acl/*1/principal = 'bob' AND sys_acl/*1/permission = 'Read'";

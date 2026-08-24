@@ -471,9 +471,10 @@ public abstract class QueryOptimizer {
         List<Predicate> values = names.stream()
                                       .map(name -> new Predicate(new Reference(name), Operator.ISNOTNULL, null))
                                       .toList();
-        Predicate expr = new Predicate(query.getWhereClause().predicate(), Operator.AND,
-                new MultiExpression(Operator.AND, values));
-        return query.withPredicate(expr);
+        Predicate notNull = new MultiExpression(Operator.AND, values);
+        WhereClause where = query.getWhereClause();
+        Predicate predicate = where == null ? notNull : new Predicate(where.predicate(), Operator.AND, notNull);
+        return query.withPredicate(predicate);
     }
 
     /** Runs the action on every reference of the projection, including inside function arguments. */

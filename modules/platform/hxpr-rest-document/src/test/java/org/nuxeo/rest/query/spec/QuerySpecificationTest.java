@@ -16,8 +16,11 @@
 package org.nuxeo.rest.query.spec;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.nuxeo.rest.query.conf.NamedQueryHelper.TITLE_SORT;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -117,6 +120,21 @@ public class QuerySpecificationTest {
         assertEquals(10, querySpecification.trackTotalCountUpTo());
         assertEquals(true, querySpecification.trackTotalCount());
         assertEquals(List.of(TITLE_SORT), querySpecification.sort());
+    }
+
+    /**
+     * A parameter of an optional predicate that the request left unfilled is a null value in the map, which
+     * PredicateBuilder reads as "not supplied" rather than as an error.
+     */
+    @Test
+    public void createQuerySpecificationWithUnsuppliedParameter() {
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("byTitle", null);
+        QuerySpecification querySpecification = new QuerySpecification(REPO_ID, QUERY, parameters, BOUND_STATEMENT,
+                LIMIT, OFFSET, SEARCH_AFTER, COUNT_UPTO, TRACK_TOTAL_COUNT, TRACK_TOTAL_COUNT_UPTO, SORT);
+
+        assertTrue(querySpecification.parameters().containsKey("byTitle"));
+        assertNull(querySpecification.parameters().get("byTitle"));
     }
 
     /** Sorts and parameters default to empty rather than being null. */
