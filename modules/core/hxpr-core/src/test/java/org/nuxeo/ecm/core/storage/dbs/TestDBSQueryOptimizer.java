@@ -30,7 +30,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.nuxeo.ecm.core.query.sql.HXQLParser;
 import org.nuxeo.ecm.core.query.sql.model.MultiExpression;
 import org.nuxeo.ecm.core.query.sql.model.Predicate;
-import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
+import org.nuxeo.ecm.core.query.sql.model.Statement;
 import org.nuxeo.ecm.core.storage.QueryAnnotations;
 import org.nuxeo.ecm.core.storage.QueryAnnotations.PrefixInfo;
 import org.nuxeo.ecm.core.storage.QueryOptimizer;
@@ -102,7 +102,7 @@ public class TestDBSQueryOptimizer {
     }
 
     protected void checkPrefixInfo(String clause, String prefix, int count) {
-        SQLQuery query = HXQLParser.parse("SELECT p FROM t WHERE " + clause);
+        Statement query = HXQLParser.parse("SELECT p FROM t WHERE " + clause);
         Predicate predicate = query.getWhereClause().predicate();
         QueryOptimizer optimizer = getOptimizer();
         PrefixInfo info = optimizer.analyzePrefixes(predicate);
@@ -134,7 +134,7 @@ public class TestDBSQueryOptimizer {
     @Test
     public void testPrefixGroupingInOptimizedQuery() {
         String clause = "sys_title = 'foo' AND sys_acl/*1/principal = 'bob' AND sys_acl/*1/permission = 'Read'";
-        SQLQuery query = HXQLParser.parse("SELECT p FROM t WHERE " + clause);
+        Statement query = HXQLParser.parse("SELECT p FROM t WHERE " + clause);
         QueryOptimizer optimizer = getOptimizer();
         query = optimizer.optimize(query);
         QueryAnnotations annotations = optimizer.getAnnotations();

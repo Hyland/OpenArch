@@ -26,7 +26,7 @@ import org.nuxeo.ecm.core.api.DocumentSecurityException;
 import org.nuxeo.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.ecm.core.api.query.QueryParameters;
 import org.nuxeo.ecm.core.model.InternalDocument;
-import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
+import org.nuxeo.ecm.core.query.sql.model.Statement;
 import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
 import org.nuxeo.ecm.core.security.config.SecurityPolicyConfig;
 import org.nuxeo.ecm.core.storage.dbs.DBSSession;
@@ -125,7 +125,7 @@ public interface SecurityPolicyService {
      * @param queryParams the query parameters
      * @return the new query
      */
-    SQLQuery addSecurityPolicies(SQLQuery query, QueryParameters queryParams);
+    Statement addSecurityPolicies(Statement query, QueryParameters queryParams);
 
     // these denormalizers will be moved out of the SecurityPolicyService later
 

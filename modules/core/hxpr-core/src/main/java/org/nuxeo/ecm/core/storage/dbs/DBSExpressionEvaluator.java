@@ -48,8 +48,8 @@ import org.nuxeo.ecm.core.query.sql.model.OrderByClause;
 import org.nuxeo.ecm.core.query.sql.model.OrderByExpr;
 import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Reference;
-import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
 import org.nuxeo.ecm.core.query.sql.model.SelectClause;
+import org.nuxeo.ecm.core.query.sql.model.Statement;
 import org.nuxeo.ecm.core.schema.DocumentType;
 import org.nuxeo.ecm.core.schema.SchemaManager;
 import org.nuxeo.ecm.core.schema.types.ComplexType;
@@ -265,11 +265,11 @@ public class DBSExpressionEvaluator extends ExpressionEvaluator {
     // what the optimizer worked out about this query's nodes
     protected final QueryAnnotations annotations;
 
-    public DBSExpressionEvaluator(DBSSession session, SQLQuery query) {
+    public DBSExpressionEvaluator(DBSSession session, Statement query) {
         this(session, query, QueryAnnotations.NONE);
     }
 
-    public DBSExpressionEvaluator(DBSSession session, SQLQuery query, QueryAnnotations annotations) {
+    public DBSExpressionEvaluator(DBSSession session, Statement query, QueryAnnotations annotations) {
         super(session == null ? null : new DBSPathResolver(session));
         this.selectClause = query.getSelectClause();
         this.expression = query.getWhereClause().predicate();

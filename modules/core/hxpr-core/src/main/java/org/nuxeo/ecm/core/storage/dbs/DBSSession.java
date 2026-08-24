@@ -145,8 +145,8 @@ import org.nuxeo.ecm.core.query.sql.model.OrderByExpr;
 import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Predicates;
 import org.nuxeo.ecm.core.query.sql.model.Reference;
-import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
 import org.nuxeo.ecm.core.query.sql.model.SelectClause;
+import org.nuxeo.ecm.core.query.sql.model.Statement;
 import org.nuxeo.ecm.core.query.sql.model.WhereClause;
 import org.nuxeo.ecm.core.schema.DocumentType;
 import org.nuxeo.ecm.core.schema.MixinNames;
@@ -1113,8 +1113,8 @@ public class DBSSession implements InternalSession {
 
     protected PartialList<Map<String, Object>> doQueryAndFetch(String query, QueryParameters queryParams,
             boolean distinctDocuments, int countUpTo, Mutable<String> idKeyHolder) {
-        SQLQuery sqlQuery = HXQLParser.parse(query, queryParams.parameters());
-        List<Operand> projection = new ArrayList<>(sqlQuery.getSelectClause().elements());
+        Statement statement = HXQLParser.parse(query, queryParams.parameters());
+        List<Operand> projection = new ArrayList<>(statement.getSelectClause().elements());
         if (projection.isEmpty()) {
             // turned into SELECT sys_id
             projection.add(new Reference(SYS_ID));
@@ -1136,18 +1136,18 @@ public class DBSSession implements InternalSession {
                 projection.add(reference);
             }
         }
-        sqlQuery = sqlQuery.withSelectClause(new SelectClause(projection));
+        statement = statement.withSelectClause(new SelectClause(projection));
 
         QueryOptimizer optimizer = new DBSQueryOptimizer(getSchemaManager());
-        sqlQuery = optimizer.optimize(sqlQuery);
+        statement = optimizer.optimize(statement);
 
-        sqlQuery = securityPolicyService.addSecurityPolicies(sqlQuery, queryParams);
+        statement = securityPolicyService.addSecurityPolicies(statement, queryParams);
         // if the where clause is false, no need to execute it, return an empty list
-        WhereClause whereClause = sqlQuery.getWhereClause();
+        WhereClause whereClause = statement.getWhereClause();
         if (whereClause != null && Predicates.FALSE.equals(whereClause.predicate())) {
             return new PartialList<>(List.of(), 0);
         }
-        DBSExpressionEvaluator evaluator = new DBSExpressionEvaluator(this, sqlQuery, optimizer.getAnnotations());
+        DBSExpressionEvaluator evaluator = new DBSExpressionEvaluator(this, statement, optimizer.getAnnotations());
 
         int limit = (int) queryParams.limit();
         int offset = (int) queryParams.offset();
@@ -1161,7 +1161,7 @@ public class DBSSession implements InternalSession {
         int repoLimit;
         int repoOffset;
         OrderByClause repoOrderByClause;
-        OrderByClause orderByClause = sqlQuery.getOrderByClause();
+        OrderByClause orderByClause = statement.getOrderByClause();
         boolean postFilter = isOrderByPath(orderByClause);
         if (postFilter) {
             // we have to merge ordering and batching between memory and
@@ -1337,14 +1337,14 @@ public class DBSSession implements InternalSession {
 
     @Override
     public ScrollResult<String> scroll(String query, QueryParameters queryParams, int batchSize, int keepAliveSeconds) {
-        SQLQuery sqlQuery = HXQLParser.parse(query, queryParams.parameters());
-        List<Operand> projection = new ArrayList<>(sqlQuery.getSelectClause().elements());
+        Statement statement = HXQLParser.parse(query, queryParams.parameters());
+        List<Operand> projection = new ArrayList<>(statement.getSelectClause().elements());
         projection.add(new Reference(SYS_ID));
-        sqlQuery = sqlQuery.withSelectClause(new SelectClause(projection));
+        statement = statement.withSelectClause(new SelectClause(projection));
         QueryOptimizer optimizer = new DBSQueryOptimizer(getSchemaManager());
-        sqlQuery = optimizer.optimize(sqlQuery);
-        sqlQuery = securityPolicyService.addSecurityPolicies(sqlQuery, queryParams);
-        DBSExpressionEvaluator evaluator = new DBSExpressionEvaluator(this, sqlQuery, optimizer.getAnnotations());
+        statement = optimizer.optimize(statement);
+        statement = securityPolicyService.addSecurityPolicies(statement, queryParams);
+        DBSExpressionEvaluator evaluator = new DBSExpressionEvaluator(this, statement, optimizer.getAnnotations());
         return transaction.scroll(evaluator, batchSize, keepAliveSeconds);
     }
 
@@ -1618,8 +1618,8 @@ public class DBSSession implements InternalSession {
     public void setUpdateCondition(String id, String condition) {
         // TODO better way to parse predicate directly
         String hxql = "SELECT * FROM Foo WHERE " + condition;
-        SQLQuery sqlQuery = HXQLParser.parse(hxql);
-        Predicate predicate = sqlQuery.getWhereClause().predicate();
+        Statement statement = HXQLParser.parse(hxql);
+        Predicate predicate = statement.getWhereClause().predicate();
         transaction.setUpdateConditionPredicate(id, predicate);
     }
 

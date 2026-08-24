@@ -48,8 +48,8 @@ import org.nuxeo.ecm.core.api.lock.LockManager;
 import org.nuxeo.ecm.core.api.model.Delta;
 import org.nuxeo.ecm.core.query.sql.model.OrderByClause;
 import org.nuxeo.ecm.core.query.sql.model.Predicate;
-import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
 import org.nuxeo.ecm.core.query.sql.model.SelectClause;
+import org.nuxeo.ecm.core.query.sql.model.Statement;
 import org.nuxeo.ecm.core.query.sql.model.WhereClause;
 import org.nuxeo.ecm.core.schema.SchemaManager;
 import org.nuxeo.ecm.core.storage.State;
@@ -191,7 +191,7 @@ public class MemConnection extends DBSConnectionBase {
                 // conditional updates from user predicate
                 Predicate conditionPredicate = conditionalUpdates.getConditionPredicate();
                 if (conditionPredicate != null) {
-                    SQLQuery query = new SQLQuery(new SelectClause(), null, new WhereClause(conditionPredicate));
+                    Statement query = new Statement(new SelectClause(), null, new WhereClause(conditionPredicate));
                     DBSExpressionEvaluator evaluator = new DBSExpressionEvaluator(null, query);
                     evaluator.parse(getSchemaManager());
                     if (evaluator.matches(state).isEmpty()) {

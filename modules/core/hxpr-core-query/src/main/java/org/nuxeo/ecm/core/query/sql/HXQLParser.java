@@ -20,7 +20,7 @@ import java.util.Map;
 import org.nuxeo.ecm.core.query.QueryParseException;
 import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Reference;
-import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
+import org.nuxeo.ecm.core.query.sql.model.Statement;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLVisitor;
 
 /**
@@ -32,7 +32,7 @@ public final class HXQLParser {
     private HXQLParser() {
     }
 
-    public static SQLQuery parse(String string) throws QueryParseException {
+    public static Statement parse(String string) throws QueryParseException {
         return new HXQLVisitor().parse(string);
     }
 
@@ -46,7 +46,7 @@ public final class HXQLParser {
      *             where its parameter appears
      * @since 12.0
      */
-    public static SQLQuery parse(String string, Map<String, Object> parameters) throws QueryParseException {
+    public static Statement parse(String string, Map<String, Object> parameters) throws QueryParseException {
         return QueryParameterBinder.bind(parse(string), parameters);
     }
 

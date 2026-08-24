@@ -50,8 +50,8 @@ import org.nuxeo.ecm.core.query.sql.model.Operator;
 import org.nuxeo.ecm.core.query.sql.model.OrderByClause;
 import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Reference;
-import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
 import org.nuxeo.ecm.core.query.sql.model.SelectClause;
+import org.nuxeo.ecm.core.query.sql.model.Statement;
 import org.nuxeo.ecm.core.query.sql.model.StringLiteral;
 import org.nuxeo.ecm.core.query.sql.model.WhereClause;
 import org.nuxeo.ecm.core.schema.SchemaManager;
@@ -98,7 +98,7 @@ public abstract class QueryOptimizer {
         return annotations;
     }
 
-    public SQLQuery optimize(SQLQuery query) {
+    public Statement optimize(Statement query) {
         // rewrite some uncorrelated wildcards and add NOT NULL clauses for projection ones
         query = addWildcardNotNullClauses(query);
 
@@ -433,7 +433,7 @@ public abstract class QueryOptimizer {
      * must artificially correlated them. This requires rewriting the query with correlated wildcards instead of
      * uncorrelated ones.
      */
-    protected SQLQuery addWildcardNotNullClauses(SQLQuery query) {
+    protected Statement addWildcardNotNullClauses(Statement query) {
         // find wildcards in the projection
         Set<String> wildcards = new HashSet<>();
         Set<String> uncorrelatedWildcards = new HashSet<>();
@@ -467,7 +467,7 @@ public abstract class QueryOptimizer {
         return query;
     }
 
-    protected SQLQuery addIsNotNullClauses(SQLQuery query, Collection<String> names) {
+    protected Statement addIsNotNullClauses(Statement query, Collection<String> names) {
         List<Predicate> values = names.stream()
                                       .map(name -> new Predicate(new Reference(name), Operator.ISNOTNULL, null))
                                       .toList();
@@ -477,7 +477,7 @@ public abstract class QueryOptimizer {
     }
 
     /** Runs the action on every reference of the projection, including inside function arguments. */
-    protected static void forEachProjectionReference(SQLQuery query, Consumer<Reference> action) {
+    protected static void forEachProjectionReference(Statement query, Consumer<Reference> action) {
         query.getSelectClause().elements().forEach(operand -> forEachReference(operand, action));
     }
 
@@ -499,7 +499,7 @@ public abstract class QueryOptimizer {
      * Renames the references of the projection, which is the only place uncorrelated wildcards are looked for. The
      * rest of the query is left as it is.
      */
-    protected SQLQuery renameProjectionReferences(SQLQuery query, Map<String, String> map) {
+    protected Statement renameProjectionReferences(Statement query, Map<String, String> map) {
         List<Operand> renamed = query.getSelectClause()
                                      .elements()
                                      .stream()

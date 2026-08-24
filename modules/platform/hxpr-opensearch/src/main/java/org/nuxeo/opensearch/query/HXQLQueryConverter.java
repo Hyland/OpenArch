@@ -56,12 +56,12 @@ import org.nuxeo.ecm.core.query.sql.model.LiteralList;
 import org.nuxeo.ecm.core.query.sql.model.MultiExpression;
 import org.nuxeo.ecm.core.query.sql.model.Operand;
 import org.nuxeo.ecm.core.query.sql.model.Operator;
-import org.nuxeo.ecm.core.query.sql.model.Parameter;
 import org.nuxeo.ecm.core.query.sql.model.OrderByClause;
 import org.nuxeo.ecm.core.query.sql.model.OrderByExpr;
+import org.nuxeo.ecm.core.query.sql.model.Parameter;
 import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Reference;
-import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
+import org.nuxeo.ecm.core.query.sql.model.Statement;
 import org.nuxeo.ecm.core.query.sql.model.StringLiteral;
 import org.nuxeo.ecm.core.schema.SchemaManager;
 import org.nuxeo.ecm.core.schema.types.Field;
@@ -110,9 +110,9 @@ public final class HXQLQueryConverter {
         this.schemaManager = schemaManager;
     }
 
-    public ObjectBuilder<? extends QueryVariant> toESQueryBuilder(final SQLQuery hxqlQuery, final CoreSession session) {
+    public ObjectBuilder<? extends QueryVariant> toESQueryBuilder(final Statement hxqlQuery, final CoreSession session) {
         final List<ExpressionBuilder> builders = new ArrayList<>();
-        SQLQuery query = hxqlQuery;
+        Statement query = hxqlQuery;
         if (session != null) {
             SecurityPolicyService securityPolicyService = Framework.getService(SecurityService.class)
                                                                    .getSecurityPolicyService(
@@ -224,14 +224,14 @@ public final class HXQLQueryConverter {
      * This is the one place a query text becomes a tree: the tree is what the conversion methods take, so a query is
      * parsed once however many of them are asked about it.
      */
-    public static SQLQuery parse(String hxql) {
+    public static Statement parse(String hxql) {
         return parse(hxql, Map.of());
     }
 
     /**
      * Parses a query, binding the values of its {@code :name} parameters.
      */
-    public static SQLQuery parse(String hxql, Map<String, Object> parameters) {
+    public static Statement parse(String hxql, Map<String, Object> parameters) {
         String query = completeQueryWithSelect(hxql);
         try {
             return HXQLParser.parse(query, parameters);
@@ -573,7 +573,7 @@ public final class HXQLQueryConverter {
     }
 
     /** The sorts the query's {@code ORDER BY} asks for, empty if it has none. */
-    public List<SortInfo> getSortInfo(SQLQuery query) {
+    public List<SortInfo> getSortInfo(Statement query) {
         List<SortInfo> sortInfos = new ArrayList<>();
         OrderByClause orderBy = query.getOrderByClause();
         if (orderBy != null) {
@@ -589,7 +589,7 @@ public final class HXQLQueryConverter {
     }
 
     /** The fields the query projects, with their types, empty for {@code SELECT *}. */
-    public Map<String, Type> getSelectClauseFields(SQLQuery query) {
+    public Map<String, Type> getSelectClauseFields(Statement query) {
         Map<String, Type> fieldsAndTypes = new LinkedHashMap<>();
         for (Operand op : query.getSelectClause().elements()) {
             if (op instanceof Reference reference) {

@@ -48,8 +48,8 @@ import org.nuxeo.ecm.core.query.sql.model.OrderByExpr;
 import org.nuxeo.ecm.core.query.sql.model.Parameter;
 import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Reference;
-import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
 import org.nuxeo.ecm.core.query.sql.model.SelectClause;
+import org.nuxeo.ecm.core.query.sql.model.Statement;
 import org.nuxeo.ecm.core.query.sql.model.StringLiteral;
 import org.nuxeo.ecm.core.query.sql.model.WhereClause;
 import org.nuxeo.ecm.core.query.sql.parser.HXQLParser.ExpressionContext;
@@ -108,7 +108,7 @@ public class HXQLVisitor extends HXQLParserBaseVisitor<ASTNode> {
         }
     }
 
-    public SQLQuery parse(String string) throws QueryParseException {
+    public Statement parse(String string) throws QueryParseException {
         return parse(string, HXQLParser::parse);
     }
 
@@ -221,7 +221,7 @@ public class HXQLVisitor extends HXQLParserBaseVisitor<ASTNode> {
         var from = (FromClause) ctx.from.accept(this);
         var where = ctx.where == null ? null : (WhereClause) ctx.where.accept(this);
         var orderBy = ctx.orderBy == null ? null : (OrderByClause) ctx.orderBy.accept(this);
-        return new SQLQuery(select, from, where, orderBy);
+        return new Statement(select, from, where, orderBy);
     }
 
     @Override

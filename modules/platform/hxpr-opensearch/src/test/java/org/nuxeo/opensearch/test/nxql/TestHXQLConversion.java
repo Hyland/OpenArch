@@ -40,8 +40,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentModelList;
-import org.nuxeo.ecm.core.query.sql.HXQL;
 import org.nuxeo.ecm.core.query.QueryParseException;
+import org.nuxeo.ecm.core.query.sql.HXQL;
 import org.nuxeo.ecm.core.query.sql.model.FromClause;
 import org.nuxeo.ecm.core.query.sql.model.MultiExpression;
 import org.nuxeo.ecm.core.query.sql.model.Operator;
@@ -49,8 +49,8 @@ import org.nuxeo.ecm.core.query.sql.model.Parameter;
 import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Predicates;
 import org.nuxeo.ecm.core.query.sql.model.Reference;
-import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
 import org.nuxeo.ecm.core.query.sql.model.SelectClause;
+import org.nuxeo.ecm.core.query.sql.model.Statement;
 import org.nuxeo.ecm.core.query.sql.model.WhereClause;
 import org.nuxeo.opensearch.api.OpenSearchClient;
 import org.nuxeo.opensearch.api.OpenSearchService;
@@ -3051,14 +3051,14 @@ public class TestHXQLConversion {
         var e = assertThrows(QueryParseException.class, () -> convert(predicate));
         assertTrue(e.getMessage().contains("Unbound query parameter"), e.getMessage());
         // whereas parsing with the value binds it
-        SQLQuery bound = HXQLQueryConverter.parse("SELECT * FROM SysContent WHERE f1 = :p", Map.of("p", "a"));
+        Statement bound = HXQLQueryConverter.parse("SELECT * FROM SysContent WHERE f1 = :p", Map.of("p", "a"));
         assertEqualsEvenUnderWindows("""
                 {"constant_score":{"filter":{"term":{"f1":{"value":"a"}}}}}
                 """, convert(bound.getWhereClause().predicate()));
     }
 
     private String convert(Predicate predicate) {
-        SQLQuery query = new SQLQuery(new SelectClause(), new FromClause(), new WhereClause(predicate));
+        Statement query = new Statement(new SelectClause(), new FromClause(), new WhereClause(predicate));
         return toJsonString(nxqlQueryConverter.toESQueryBuilder(query, null).build().toQuery());
     }
 

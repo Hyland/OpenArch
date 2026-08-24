@@ -23,9 +23,9 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-public class TestSQLQuery {
+public class TestStatement {
 
-    protected final SQLQuery sqlQuery = new SQLQuery();
+    protected final Statement statement = new Statement();
 
     protected final SelectClause selectClause = new SelectClause(List.of(new Reference("p")));
 
@@ -33,27 +33,27 @@ public class TestSQLQuery {
 
     @Test
     public void testWithSelect() {
-        SQLQuery query = sqlQuery.withSelectClause(selectClause);
+        Statement query = statement.withSelectClause(selectClause);
         assertEquals(selectClause, query.getSelectClause());
         // the original is untouched
-        assertNotSame(sqlQuery, query);
-        assertEquals(new SelectClause(), sqlQuery.getSelectClause());
+        assertNotSame(statement, query);
+        assertEquals(new SelectClause(), statement.getSelectClause());
     }
 
     @Test
     public void testWithOrderBy() {
-        SQLQuery query = sqlQuery.withOrderByClause(orderByClause);
+        Statement query = statement.withOrderByClause(orderByClause);
         assertEquals(orderByClause, query.getOrderByClause());
-        assertNotSame(sqlQuery, query);
-        assertNull(sqlQuery.getOrderByClause());
+        assertNotSame(statement, query);
+        assertNull(statement.getOrderByClause());
     }
 
     @Test
     public void testWithPredicate() {
         Predicate predicate = Predicates.eq("p", "v");
-        SQLQuery query = sqlQuery.withPredicate(predicate);
+        Statement query = statement.withPredicate(predicate);
         assertEquals(predicate, query.getWhereClause().predicate());
-        assertNull(sqlQuery.getWhereClause());
+        assertNull(statement.getWhereClause());
         // a null predicate drops the where clause
         assertNull(query.withPredicate(null).getWhereClause());
     }
@@ -61,7 +61,7 @@ public class TestSQLQuery {
     /** The other clauses survive a with call. */
     @Test
     public void testWithKeepsTheRest() {
-        SQLQuery query = sqlQuery.withSelectClause(selectClause).withOrderByClause(orderByClause);
+        Statement query = statement.withSelectClause(selectClause).withOrderByClause(orderByClause);
         assertEquals(selectClause, query.getSelectClause());
         assertEquals(orderByClause, query.getOrderByClause());
     }

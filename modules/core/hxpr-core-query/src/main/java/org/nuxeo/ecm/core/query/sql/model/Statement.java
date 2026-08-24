@@ -27,7 +27,7 @@ import org.nuxeo.ecm.core.query.sql.HXQLSerializer;
  * @author Bogdan Stefanescu
  * @author Florent Guillaume
  */
-public final class SQLQuery implements ASTNode {
+public final class Statement implements ASTNode {
 
     private final SelectClause select;
 
@@ -37,19 +37,19 @@ public final class SQLQuery implements ASTNode {
 
     private final OrderByClause orderBy;
 
-    public SQLQuery() {
+    public Statement() {
         this(new SelectClause(), new FromClause(), null, null);
     }
 
-    public SQLQuery(SelectClause select, FromClause from) {
+    public Statement(SelectClause select, FromClause from) {
         this(select, from, null, null);
     }
 
-    public SQLQuery(SelectClause select, FromClause from, WhereClause where) {
+    public Statement(SelectClause select, FromClause from, WhereClause where) {
         this(select, from, where, null);
     }
 
-    public SQLQuery(SelectClause select, FromClause from, WhereClause where, OrderByClause orderBy) {
+    public Statement(SelectClause select, FromClause from, WhereClause where, OrderByClause orderBy) {
         this.select = select;
         this.from = from;
         this.where = where;
@@ -73,18 +73,18 @@ public final class SQLQuery implements ASTNode {
     }
 
     /** A copy of this query with the given projection. */
-    public SQLQuery withSelectClause(SelectClause select) {
-        return new SQLQuery(select, from, where, orderBy);
+    public Statement withSelectClause(SelectClause select) {
+        return new Statement(select, from, where, orderBy);
     }
 
     /** A copy of this query with the given predicate, or with no where clause if it is {@code null}. */
-    public SQLQuery withPredicate(Predicate predicate) {
-        return new SQLQuery(select, from, predicate == null ? null : new WhereClause(predicate), orderBy);
+    public Statement withPredicate(Predicate predicate) {
+        return new Statement(select, from, predicate == null ? null : new WhereClause(predicate), orderBy);
     }
 
     /** A copy of this query with the given sort. */
-    public SQLQuery withOrderByClause(OrderByClause orderBy) {
-        return new SQLQuery(select, from, where, orderBy);
+    public Statement withOrderByClause(OrderByClause orderBy) {
+        return new Statement(select, from, where, orderBy);
     }
 
     @Override
@@ -92,7 +92,7 @@ public final class SQLQuery implements ASTNode {
         if (this == obj) {
             return true;
         }
-        if (!(obj instanceof SQLQuery other)) {
+        if (!(obj instanceof Statement other)) {
             return false;
         }
         return Objects.equals(select, other.select) //

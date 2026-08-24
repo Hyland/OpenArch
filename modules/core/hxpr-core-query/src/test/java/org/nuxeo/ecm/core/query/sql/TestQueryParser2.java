@@ -26,7 +26,7 @@ import org.nuxeo.common.utils.ExceptionUtils;
 import org.nuxeo.ecm.core.query.QueryParseException;
 import org.nuxeo.ecm.core.query.sql.model.Operator;
 import org.nuxeo.ecm.core.query.sql.model.Reference;
-import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
+import org.nuxeo.ecm.core.query.sql.model.Statement;
 import org.nuxeo.ecm.core.query.sql.model.StringLiteral;
 import org.nuxeo.ecm.core.query.sql.model.WhereClause;
 
@@ -210,7 +210,7 @@ public class TestQueryParser2 {
     @Test
     public void testLocationLiterals() {
         // test double quoted strings
-        SQLQuery query = HXQLParser.parse("SELECT p FROM t WHERE sys_path STARTSWITH '/test'");
+        Statement query = HXQLParser.parse("SELECT p FROM t WHERE sys_path STARTSWITH '/test'");
         WhereClause whereClause = query.getWhereClause();
         assertEquals(Operator.STARTSWITH, whereClause.predicate().operator);
 
@@ -221,13 +221,13 @@ public class TestQueryParser2 {
     }
 
     /**
-     * Tests equals method on SQLQuery.
+     * Tests equals method on Statement.
      */
     @Test
     public void testEquals() {
         for (String s : GOOD_QUERIES) {
-            SQLQuery query1 = HXQLParser.parse(s);
-            SQLQuery query2 = HXQLParser.parse(s);
+            Statement query1 = HXQLParser.parse(s);
+            Statement query2 = HXQLParser.parse(s);
             assertEquals(query1, query2, "Self equality test on " + s + ": ");
             assertEquals(query1.hashCode(), query2.hashCode());
             assertEquals(query1.toString(), query2.toString());
@@ -245,8 +245,8 @@ public class TestQueryParser2 {
                 if (s1.equals(s2)) {
                     continue;
                 }
-                SQLQuery query1 = HXQLParser.parse(s1);
-                SQLQuery query2 = HXQLParser.parse(s2);
+                Statement query1 = HXQLParser.parse(s1);
+                Statement query2 = HXQLParser.parse(s2);
                 // "Non-equality test on queries
                 assertNotEquals(query1, query2);
             }
@@ -256,7 +256,7 @@ public class TestQueryParser2 {
     @Test
     public void testToString() {
         for (String s : CANONICAL_QUERIES) {
-            SQLQuery query1 = HXQLParser.parse(s);
+            Statement query1 = HXQLParser.parse(s);
             assertEquals(s, query1.toString());
         }
     }

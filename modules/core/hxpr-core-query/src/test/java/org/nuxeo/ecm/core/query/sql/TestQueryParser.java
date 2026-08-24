@@ -42,8 +42,8 @@ import org.nuxeo.ecm.core.query.sql.model.OrderByClause;
 import org.nuxeo.ecm.core.query.sql.model.OrderByExpr;
 import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Reference;
-import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
 import org.nuxeo.ecm.core.query.sql.model.SelectClause;
+import org.nuxeo.ecm.core.query.sql.model.Statement;
 import org.nuxeo.ecm.core.query.sql.model.StringLiteral;
 import org.nuxeo.ecm.core.query.sql.model.WhereClause;
 
@@ -65,7 +65,7 @@ public class TestQueryParser {
     @Test
     public void testLiterals() {
         // test double quoted strings
-        SQLQuery query = HXQLParser.parse("SELECT p FROM t WHERE title=\"%test\"");
+        Statement query = HXQLParser.parse("SELECT p FROM t WHERE title=\"%test\"");
         StringLiteral sl = (StringLiteral) query.getWhereClause().predicate().rvalue;
         assertEquals("%test", sl.value());
 
@@ -136,7 +136,7 @@ public class TestQueryParser {
 
     @Test
     public void testDoubleBackslash() {
-        SQLQuery query = HXQLParser.parse("SELECT p FROM t WHERE title='a\\\\b'");
+        Statement query = HXQLParser.parse("SELECT p FROM t WHERE title='a\\\\b'");
         StringLiteral sl = (StringLiteral) query.getWhereClause().predicate().rvalue;
         assertEquals("a\\b", sl.value());
 
@@ -147,7 +147,7 @@ public class TestQueryParser {
 
     @Test
     public void testNamespace() {
-        SQLQuery query = HXQLParser.parse("SELECT sys_title FROM SysContent WHERE sys_description = 'test'");
+        Statement query = HXQLParser.parse("SELECT sys_title FROM SysContent WHERE sys_description = 'test'");
         SelectClause select = query.getSelectClause();
         String v = ((Reference) select.elements().get(0)).name();
         assertEquals("sys_title", v);
@@ -155,7 +155,7 @@ public class TestQueryParser {
 
     @Test
     public void testComplexProperties() {
-        SQLQuery query = HXQLParser.parse("SELECT sys_foo/bar/baz FROM SysContent"
+        Statement query = HXQLParser.parse("SELECT sys_foo/bar/baz FROM SysContent"
                 + " WHERE sys_foo/3/ho = sys_bar/*/bobby" + " OR sys_foo/5/gee = sys_foo/*6/hop");
         SelectClause select = query.getSelectClause();
         String v = ((Reference) select.elements().get(0)).name();
@@ -175,7 +175,7 @@ public class TestQueryParser {
 
     @Test
     public void testVariables() {
-        SQLQuery query = HXQLParser.parse("SELECT p1, $id, p3 FROM t1, t2 WHERE state=1 AND title = 'test'");
+        Statement query = HXQLParser.parse("SELECT p1, $id, p3 FROM t1, t2 WHERE state=1 AND title = 'test'");
 
         SelectClause select = query.getSelectClause();
         assertEquals("p1", ((Reference) select.elements().get(0)).name());
@@ -194,7 +194,7 @@ public class TestQueryParser {
 
     @Test
     public void testOperators() {
-        SQLQuery query = HXQLParser.parse("SELECT p FROM t WHERE p = 'test'");
+        Statement query = HXQLParser.parse("SELECT p FROM t WHERE p = 'test'");
         Operator op = query.getWhereClause().predicate().operator;
         assertEquals(Operator.EQ, op);
 
@@ -226,7 +226,7 @@ public class TestQueryParser {
 
     @Test
     public void testLikeOperator() {
-        SQLQuery query = HXQLParser.parse("SELECT p FROM t WHERE p LIKE '%test%'");
+        Statement query = HXQLParser.parse("SELECT p FROM t WHERE p LIKE '%test%'");
         Operator op = query.getWhereClause().predicate().operator;
         assertEquals(Operator.LIKE, op);
 
@@ -245,7 +245,7 @@ public class TestQueryParser {
 
     @Test
     public void testInOperator() {
-        SQLQuery query = HXQLParser.parse("SELECT p FROM t WHERE p IN (12, 13) AND q='test'");
+        Statement query = HXQLParser.parse("SELECT p FROM t WHERE p IN (12, 13) AND q='test'");
         Operator op = query.getWhereClause().predicate().operator;
         assertEquals(Operator.AND, op);
 
@@ -272,7 +272,7 @@ public class TestQueryParser {
 
     @Test
     public void testBetweenOperator() {
-        SQLQuery query = HXQLParser.parse("SELECT p FROM t WHERE p BETWEEN 10 AND 20 AND q='test'");
+        Statement query = HXQLParser.parse("SELECT p FROM t WHERE p BETWEEN 10 AND 20 AND q='test'");
         Operator op = query.getWhereClause().predicate().operator;
         assertEquals(Operator.AND, op);
 
@@ -299,7 +299,7 @@ public class TestQueryParser {
 
     @Test
     public void testIsNull() {
-        SQLQuery query = HXQLParser.parse("SELECT p FROM t WHERE p IS NULL");
+        Statement query = HXQLParser.parse("SELECT p FROM t WHERE p IS NULL");
         Operator op = query.getWhereClause().predicate().operator;
         assertEquals(Operator.ISNULL, op);
 
@@ -314,7 +314,7 @@ public class TestQueryParser {
 
     @Test
     public void testFunction() {
-        SQLQuery query = HXQLParser.parse("SELECT getDate(), p FROM t WHERE substring(title, 2) = 'test'");
+        Statement query = HXQLParser.parse("SELECT getDate(), p FROM t WHERE substring(title, 2) = 'test'");
         Operator op = query.getWhereClause().predicate().operator;
         assertEquals(Operator.EQ, op);
 
@@ -329,7 +329,7 @@ public class TestQueryParser {
 
     @Test
     public void testFunctions() {
-        SQLQuery query = HXQLParser.parse("SELECT COUNT(p), AVG(p) FROM t");
+        Statement query = HXQLParser.parse("SELECT COUNT(p), AVG(p) FROM t");
         SelectClause select = query.getSelectClause();
         assertEquals(2, select.elements().size());
 
@@ -340,7 +340,7 @@ public class TestQueryParser {
 
     @Test
     public void testDateCast() {
-        SQLQuery query = HXQLParser.parse("SELECT p FROM t WHERE DATE(sys_modified) = DATE '2010-01-01'");
+        Statement query = HXQLParser.parse("SELECT p FROM t WHERE DATE(sys_modified) = DATE '2010-01-01'");
 
         Operand lvalue = query.getWhereClause().predicate().lvalue;
         assertTrue(lvalue instanceof Reference); // with cast
@@ -349,7 +349,7 @@ public class TestQueryParser {
 
     @Test
     public void testEsHintIndex() {
-        SQLQuery query = HXQLParser.parse("SELECT p FROM t WHERE /*+FT: INDEX(sys_title.ngram) */ sys_title = 'foo'");
+        Statement query = HXQLParser.parse("SELECT p FROM t WHERE /*+FT: INDEX(sys_title.ngram) */ sys_title = 'foo'");
         Operand lvalue = query.getWhereClause().predicate().lvalue;
         assertTrue(lvalue instanceof Reference);
         assertEquals(1, ((Reference) lvalue).ftHint().indexFields().size());
@@ -359,7 +359,7 @@ public class TestQueryParser {
 
     @Test
     public void testEsHintIndexWithDash() {
-        SQLQuery query = HXQLParser.parse(
+        Statement query = HXQLParser.parse(
                 "SELECT p FROM t WHERE /*+FT: INDEX(my-schema:article.author) */ my-schema:article/author = 'foo'");
         Operand lvalue = query.getWhereClause().predicate().lvalue;
         assertTrue(lvalue instanceof Reference);
@@ -370,7 +370,7 @@ public class TestQueryParser {
 
     @Test
     public void testEsHintIndexBoost() {
-        SQLQuery query = HXQLParser.parse(
+        Statement query = HXQLParser.parse(
                 "SELECT p FROM t WHERE /*+ft: INDEX(sys_title.ngram^3) */ sys_title = 'foo'");
         Operand lvalue = query.getWhereClause().predicate().lvalue;
         assertTrue(lvalue instanceof Reference);
@@ -381,7 +381,7 @@ public class TestQueryParser {
 
     @Test
     public void testEsHintMultiIndex() {
-        SQLQuery query = HXQLParser.parse(
+        Statement query = HXQLParser.parse(
                 "SELECT p FROM t WHERE /*+FT: INDEX(sys_title,sys_description) */ sys_fulltext = 'foo'");
         Operand lvalue = query.getWhereClause().predicate().lvalue;
         assertTrue(lvalue instanceof Reference);
@@ -392,7 +392,7 @@ public class TestQueryParser {
 
     @Test
     public void testEsHintAnalyzer() {
-        SQLQuery query = HXQLParser.parse("SELECT p FROM t WHERE /*+FT: ANALYZER(fulltext) */ sys_title LIKE 'foo'");
+        Statement query = HXQLParser.parse("SELECT p FROM t WHERE /*+FT: ANALYZER(fulltext) */ sys_title LIKE 'foo'");
         Operand lvalue = query.getWhereClause().predicate().lvalue;
         assertTrue(lvalue instanceof Reference);
         assertEquals(new Reference(new Reference("sys_title"), new FtHint((String) null, "fulltext", null)), lvalue);
@@ -400,7 +400,7 @@ public class TestQueryParser {
 
     @Test
     public void testEsHintOperator() {
-        SQLQuery query = HXQLParser.parse(
+        Statement query = HXQLParser.parse(
                 "SELECT p FROM t WHERE /*+FT: OPERATOR(regex) */ sys_title = 'foo|bar|ba*'");
         Operand lvalue = query.getWhereClause().predicate().lvalue;
         assertTrue(lvalue instanceof Reference);
@@ -409,7 +409,7 @@ public class TestQueryParser {
 
     @Test
     public void testEsHintIndexAndAnalyzer() {
-        SQLQuery query = HXQLParser.parse(
+        Statement query = HXQLParser.parse(
                 "SELECT p FROM t WHERE /*+FT: Index(sys_title.ngram) analyzer(fulltext) */ sys_title = 'foo'");
         Operand lvalue = query.getWhereClause().predicate().lvalue;
         assertTrue(lvalue instanceof Reference);
@@ -419,7 +419,7 @@ public class TestQueryParser {
 
     @Test
     public void testEsHintIndexAnalyzerAndOperator() {
-        SQLQuery query = HXQLParser.parse(
+        Statement query = HXQLParser.parse(
                 "SELECT p FROM t WHERE /*+FT: Index(sys_title.ngram) analyzer(fulltext) operator(fuzzy)*/ sys_title = 'foo'");
         Operand lvalue = query.getWhereClause().predicate().lvalue;
         assertTrue(lvalue instanceof Reference);
@@ -429,7 +429,7 @@ public class TestQueryParser {
 
     @Test
     public void testEsHintMultiClauses() {
-        SQLQuery query = HXQLParser.parse("SELECT p FROM t WHERE /*+FT: INDEX(sys_title.ngram) */ sys_title = 'foo' "
+        Statement query = HXQLParser.parse("SELECT p FROM t WHERE /*+FT: INDEX(sys_title.ngram) */ sys_title = 'foo' "
                 + "AND /*+FT: ANALYZER(fulltext2) */ sys_description LIKE 'bar'");
         Operand pred = query.getWhereClause().predicate().rvalue;
         assertTrue(pred instanceof Predicate);
@@ -440,7 +440,7 @@ public class TestQueryParser {
 
     @Test
     public void testEsHintEmpty() {
-        SQLQuery query = HXQLParser.parse("SELECT p FROM t WHERE /*+FT: */ sys_title = 'foo'");
+        Statement query = HXQLParser.parse("SELECT p FROM t WHERE /*+FT: */ sys_title = 'foo'");
         Operand lvalue = query.getWhereClause().predicate().lvalue;
         assertTrue(lvalue instanceof Reference);
         assertEquals(new Reference(new Reference("sys_title"), (FtHint) null), lvalue);
@@ -470,7 +470,7 @@ public class TestQueryParser {
      */
     @Test
     public void testOperatorPrecedence() {
-        SQLQuery query = HXQLParser.parse("SELECT p FROM t WHERE p=2 AND q=1 AND s=3 OR r = 4 OR w = 10");
+        Statement query = HXQLParser.parse("SELECT p FROM t WHERE p=2 AND q=1 AND s=3 OR r = 4 OR w = 10");
         Predicate pred = query.getWhereClause().predicate();
         assertEquals(Operator.OR, pred.operator);
         assertEquals(Operator.EQ, ((Predicate) pred.rvalue).operator);
@@ -545,7 +545,7 @@ public class TestQueryParser {
      */
     @Test
     public void testAST() {
-        SQLQuery query = HXQLParser.parse("SELECT p1, p2 FROM table WHERE p1 > 0 OR p2 <= 10.2 AND p1 = 5");
+        Statement query = HXQLParser.parse("SELECT p1, p2 FROM table WHERE p1 > 0 OR p2 <= 10.2 AND p1 = 5");
 
         List<Operand> select = query.getSelectClause().elements();
         assertEquals(2, select.size());
@@ -585,7 +585,7 @@ public class TestQueryParser {
      */
     @Test
     public void testWhereClause() {
-        SQLQuery query = HXQLParser.parse(
+        Statement query = HXQLParser.parse(
                 "SELECT p1, p2 FROM t WHERE title = \"test\" OR p2 >= 10.2 AND p1 < 5");
 
         Predicate expr1 = new Predicate(new Reference("p1"), Operator.LT, new IntegerLiteral(5));
@@ -598,7 +598,7 @@ public class TestQueryParser {
         Predicate pred = new Predicate(expr2, Operator.OR, expr1);
 
         // create the query by hand
-        SQLQuery myquery = new SQLQuery(
+        Statement myquery = new Statement(
                 new SelectClause(List.of(new Reference("p1"), new Reference("p2"))), new FromClause(List.of("t")),
                 new WhereClause(pred));
 
@@ -617,7 +617,7 @@ public class TestQueryParser {
      */
     @Test
     public void testWhereClauseWithParenthesis() {
-        SQLQuery query = HXQLParser.parse(
+        Statement query = HXQLParser.parse(
                 "SELECT p1, p2 FROM t WHERE (title = \"test\" OR p2 >= 10.2) AND p1 < 5");
 
         // create the query by hand
@@ -629,7 +629,7 @@ public class TestQueryParser {
 
         Predicate pred = new Predicate(expr1, Operator.AND, expr2);
 
-        SQLQuery myquery = new SQLQuery(
+        Statement myquery = new Statement(
                 new SelectClause(List.of(new Reference("p1"), new Reference("p2"))), new FromClause(List.of("t")),
                 new WhereClause(pred));
 
@@ -638,13 +638,13 @@ public class TestQueryParser {
 
     @Test
     public void testSelectClause() {
-        SQLQuery query = HXQLParser.parse("SELECT * FROM t");
+        Statement query = HXQLParser.parse("SELECT * FROM t");
         assertTrue(query.getSelectClause().elements().isEmpty());
     }
 
     @Test
     public void testOrderByClause() {
-        SQLQuery query = HXQLParser.parse("SELECT p, q, r FROM t ORDER BY p, q");
+        Statement query = HXQLParser.parse("SELECT p, q, r FROM t ORDER BY p, q");
         String expected = "SELECT p, q, r FROM t ORDER BY p, q";
         assertEquals(expected, query.toString());
 

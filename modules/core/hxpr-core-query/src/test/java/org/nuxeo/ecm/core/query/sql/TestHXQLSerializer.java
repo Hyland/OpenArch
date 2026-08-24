@@ -24,7 +24,7 @@ import org.nuxeo.ecm.core.query.sql.model.MultiExpression;
 import org.nuxeo.ecm.core.query.sql.model.Operator;
 import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Predicates;
-import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
+import org.nuxeo.ecm.core.query.sql.model.Statement;
 
 /**
  * @since 12.0
@@ -35,7 +35,7 @@ public class TestHXQLSerializer {
      * Asserts that the query serializes to the expected text, and that the text parses back to the same tree.
      */
     protected static void check(String expected, String query) {
-        SQLQuery parsed = HXQLParser.parse(query);
+        Statement parsed = HXQLParser.parse(query);
         String serialized = HXQLSerializer.serialize(parsed);
         assertEquals(expected, serialized);
         assertEquals(parsed, HXQLParser.parse(serialized), "does not round-trip: " + serialized);
@@ -145,7 +145,7 @@ public class TestHXQLSerializer {
         // a value that would break out of its literal if it were not escaped
         Predicate predicate = Predicates.eq("sys_title", "x' OR sys_title LIKE '%");
         assertEquals("sys_title = 'x\\' OR sys_title LIKE \\'%'", HXQLSerializer.serialize(predicate));
-        SQLQuery reparsed = HXQLParser.parse("SELECT * FROM SysContent WHERE " + HXQLSerializer.serialize(predicate));
+        Statement reparsed = HXQLParser.parse("SELECT * FROM SysContent WHERE " + HXQLSerializer.serialize(predicate));
         assertEquals(new org.nuxeo.ecm.core.query.sql.model.WhereClause(predicate), reparsed.getWhereClause());
     }
 

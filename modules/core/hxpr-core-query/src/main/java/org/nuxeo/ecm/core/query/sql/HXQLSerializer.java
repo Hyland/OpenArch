@@ -31,8 +31,8 @@ import org.nuxeo.ecm.core.query.sql.model.Parameter;
 import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Predicates;
 import org.nuxeo.ecm.core.query.sql.model.Reference;
-import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
 import org.nuxeo.ecm.core.query.sql.model.SelectClause;
+import org.nuxeo.ecm.core.query.sql.model.Statement;
 import org.nuxeo.ecm.core.query.sql.model.WhereClause;
 
 /**
@@ -67,7 +67,7 @@ public class HXQLSerializer {
     /**
      * Renders a complete query.
      */
-    public static String serialize(SQLQuery query) {
+    public static String serialize(Statement query) {
         StringBuilder sb = new StringBuilder();
         appendSelect(sb, query.getSelectClause());
         appendFrom(sb, query);
@@ -110,7 +110,7 @@ public class HXQLSerializer {
         }
     }
 
-    protected static void appendFrom(StringBuilder sb, SQLQuery query) {
+    protected static void appendFrom(StringBuilder sb, Statement query) {
         sb.append(" FROM ").append(String.join(", ", query.getFromClause().elements()));
     }
 

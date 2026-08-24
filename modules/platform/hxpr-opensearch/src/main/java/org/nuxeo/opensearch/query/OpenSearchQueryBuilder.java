@@ -40,7 +40,7 @@ import org.nuxeo.ecm.core.api.CoreInstance;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.query.nxql.SortInfo;
-import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
+import org.nuxeo.ecm.core.query.sql.model.Statement;
 import org.nuxeo.ecm.core.schema.SchemaManager;
 import org.nuxeo.ecm.core.schema.types.Type;
 import org.nuxeo.opensearch.OpenSearchConstants;
@@ -269,7 +269,7 @@ public class OpenSearchQueryBuilder {
      */
     public Query makeQuery() {
         if (osQuery == null && hxql != null) {
-            SQLQuery parsedHxql = HXQLQueryConverter.parse(hxql, parameters);
+            Statement parsedHxql = HXQLQueryConverter.parse(hxql, parameters);
             osQuery = hxqlQueryConverter.toESQueryBuilder(parsedHxql, session).build().toQuery();
             // the query's own ORDER BY, if it has one, follows whatever sort was set on this builder
             sortInfos.addAll(hxqlQueryConverter.getSortInfo(parsedHxql));

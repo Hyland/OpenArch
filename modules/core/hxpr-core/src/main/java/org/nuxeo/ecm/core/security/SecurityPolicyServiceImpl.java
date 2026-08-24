@@ -42,7 +42,7 @@ import org.nuxeo.ecm.core.query.sql.model.Operand;
 import org.nuxeo.ecm.core.query.sql.model.Operator;
 import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Predicates;
-import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
+import org.nuxeo.ecm.core.query.sql.model.Statement;
 import org.nuxeo.ecm.core.query.sql.model.WhereClause;
 import org.nuxeo.ecm.core.schema.SchemaManager;
 import org.nuxeo.ecm.core.schema.TypeService;
@@ -345,7 +345,7 @@ public class SecurityPolicyServiceImpl implements SecurityPolicyService {
     }
 
     @Override
-    public SQLQuery addSecurityPolicies(SQLQuery query, QueryParameters queryParams) {
+    public Statement addSecurityPolicies(Statement query, QueryParameters queryParams) {
         NuxeoPrincipal principal = queryParams.principal();
         if (principal.isAdministrator()) {
             // no security check needed, including security policies

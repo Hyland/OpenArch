@@ -32,8 +32,8 @@ import org.nuxeo.ecm.core.query.sql.model.OperandList;
 import org.nuxeo.ecm.core.query.sql.model.Operator;
 import org.nuxeo.ecm.core.query.sql.model.Parameter;
 import org.nuxeo.ecm.core.query.sql.model.Predicate;
-import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
 import org.nuxeo.ecm.core.query.sql.model.SelectClause;
+import org.nuxeo.ecm.core.query.sql.model.Statement;
 import org.nuxeo.ecm.core.query.sql.model.WhereClause;
 
 /**
@@ -58,12 +58,12 @@ public class QueryParameterBinder {
      * @throws QueryParseException if the query references a parameter that has no value, or if a value cannot be used
      *             where the parameter appears
      */
-    public static SQLQuery bind(SQLQuery query, Map<String, Object> parameters) {
+    public static Statement bind(Statement query, Map<String, Object> parameters) {
         Map<String, Object> params = parameters == null ? Map.of() : parameters;
         SelectClause select = bindSelect(query.getSelectClause(), params);
         WhereClause where = query.getWhereClause() == null ? null
                 : new WhereClause((Predicate) bindPredicate(query.getWhereClause().predicate(), params));
-        return new SQLQuery(select, query.getFromClause(), where, query.getOrderByClause());
+        return new Statement(select, query.getFromClause(), where, query.getOrderByClause());
     }
 
     protected static SelectClause bindSelect(SelectClause select, Map<String, Object> params) {

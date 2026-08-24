@@ -37,8 +37,8 @@ import org.nuxeo.ecm.core.query.sql.model.OrderByClause;
 import org.nuxeo.ecm.core.query.sql.model.OrderByExpr;
 import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Reference;
-import org.nuxeo.ecm.core.query.sql.model.SQLQuery;
 import org.nuxeo.ecm.core.query.sql.model.SelectClause;
+import org.nuxeo.ecm.core.query.sql.model.Statement;
 import org.nuxeo.ecm.core.query.sql.model.WhereClause;
 import org.nuxeo.rest.query.io.DocumentAdvancedQueryDTO;
 import org.nuxeo.rest.query.io.WhereClauseDTO;
@@ -79,7 +79,7 @@ public class QueryAssembler {
      * @return the HXQL to execute and the same query with its parameters bound
      */
     public static AssembledQuery assemble(DocumentAdvancedQueryDTO query, List<SortInfo> sortInfos) {
-        SQLQuery parsed = parse(baseQuery(query));
+        Statement parsed = parse(baseQuery(query));
         Map<String, Object> parameters = query.parameters();
 
         List<Predicate> conjuncts = new ArrayList<>();
@@ -96,7 +96,7 @@ public class QueryAssembler {
             }
         }
 
-        SQLQuery assembled = parsed.withPredicate(conjuncts.isEmpty() ? null : conjunction(conjuncts));
+        Statement assembled = parsed.withPredicate(conjuncts.isEmpty() ? null : conjunction(conjuncts));
         assembled = withSort(assembled, sortInfos);
         assembled = rewriteSortedColumn(assembled, sortedColumn(sortInfos));
         // the query to execute keeps its :name parameters, which are bound where it is executed; the response echoes
@@ -118,7 +118,7 @@ public class QueryAssembler {
         return conjuncts.size() == 1 ? conjuncts.get(0) : new MultiExpression(Operator.AND, conjuncts);
     }
 
-    protected static SQLQuery parse(String query) {
+    protected static Statement parse(String query) {
         try {
             return HXQLParser.parse(query);
         } catch (NuxeoException e) {
@@ -128,7 +128,7 @@ public class QueryAssembler {
     }
 
     /** Binds the parameters, for the echoed form of the query; what is executed carries them instead. */
-    protected static SQLQuery bind(SQLQuery query, Map<String, Object> parameters) {
+    protected static Statement bind(Statement query, Map<String, Object> parameters) {
         try {
             return QueryParameterBinder.bind(query, parameters);
         } catch (QueryParseException e) {
@@ -150,7 +150,7 @@ public class QueryAssembler {
      * Applies the request's sorts, which replace any {@code ORDER BY} the query text already carries. A request with no
      * sorts leaves it alone.
      */
-    protected static SQLQuery withSort(SQLQuery query, List<SortInfo> sortInfos) {
+    protected static Statement withSort(Statement query, List<SortInfo> sortInfos) {
         if (sortInfos.isEmpty()) {
             return query;
         }
@@ -169,12 +169,12 @@ public class QueryAssembler {
 
     // --- SORTED_COLUMN rewriting ---
 
-    protected static SQLQuery rewriteSortedColumn(SQLQuery query, Reference column) {
+    protected static Statement rewriteSortedColumn(Statement query, Reference column) {
         SelectClause select = rewriteSelect(query.getSelectClause(), column);
         WhereClause where = query.getWhereClause() == null ? null
                 : new WhereClause((Predicate) rewrite(query.getWhereClause().predicate(), column));
         OrderByClause orderBy = rewriteOrderBy(query.getOrderByClause(), column);
-        return new SQLQuery(select, query.getFromClause(), where, orderBy);
+        return new Statement(select, query.getFromClause(), where, orderBy);
     }
 
     protected static SelectClause rewriteSelect(SelectClause select, Reference column) {
