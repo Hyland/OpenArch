@@ -15,32 +15,7 @@
  */
 package com.hyland.hxpr.expr;
 
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_HAS_LEGAL_HOLD;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_IS_RECORD;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_PREFIX;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_RETAIN_UNTIL;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_CREATED;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_CREATOR;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_DESCRIPTION;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_IS_CHECKED_IN;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_IS_TEMP;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_IS_VERSION;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_MINOR_VERSION;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_PREFIX;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_TITLE;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_VERSION;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_CONTRIBUTORS;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_CREATED;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_CREATOR;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_DESCRIPTION;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_IS_FOLDERISH;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_LAST_CONTRIBUTOR;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_LIFECYCLE_STATE;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_MODIFIED;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_NAME;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PREFIX;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PRIMARY_TYPE;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
 import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_DIGEST;
 import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_ENCODING;
 import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_FILENAME;
@@ -69,8 +44,6 @@ import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Reference;
 import org.nuxeo.ecm.core.query.sql.model.StringLiteral;
 import org.nuxeo.ecm.core.schema.SchemaManager;
-import org.nuxeo.ecm.core.schema.TypeService;
-import org.nuxeo.runtime.api.Framework;
 import com.hyland.hxpr.expr.ast.Expr;
 import com.hyland.hxpr.expr.ast.ExprBin;
 import com.hyland.hxpr.expr.ast.ExprTern;
@@ -112,48 +85,10 @@ public class ExprEvaluator {
 
     private static final String CONTAINS = "contains";
 
-    /** Allowed system properties accessible for evaluation. */
-    private static final Set<String> ALLOWED_SYS = Set.of( //
-            SYS_CONTRIBUTORS, //
-            SYS_CREATED, //
-            SYS_CREATOR, //
-            SYS_DESCRIPTION, //
-            SYS_IS_FOLDERISH, //
-            SYS_LAST_CONTRIBUTOR, //
-            SYS_LIFECYCLE_STATE, //
-            SYS_MODIFIED, //
-            SYS_NAME, //
-            SYS_PRIMARY_TYPE, //
-            SYS_TITLE, //
-            SYSGOV_RETAIN_UNTIL, //
-            SYSGOV_HAS_LEGAL_HOLD, //
-            SYSGOV_IS_RECORD, //
-            SYSVER_CREATED, //
-            SYSVER_CREATOR, //
-            SYSVER_DESCRIPTION, //
-            SYSVER_IS_CHECKED_IN, //
-            SYSVER_IS_TEMP, //
-            SYSVER_IS_VERSION, //
-            SYSVER_MINOR_VERSION, //
-            SYSVER_TITLE, //
-            SYSVER_VERSION);
-
     private final Map<String, Object> context;
 
     /** SchemaManager required in order to know which fields are true-or-null booleans. */
     private final SchemaManager schemaManager;
-
-    /**
-     * Constructor using the default {@link SchemaManager} from the runtime.
-     * <p>
-     * Note that schema managers are per-repository; prefer {@link #ExprEvaluator(Map, SchemaManager)} when the
-     * repository is known.
-     *
-     * @param context the context for the evaluation
-     */
-    public ExprEvaluator(Map<String, Object> context) {
-        this(context, Framework.getService(TypeService.class).getDefaultSchemaManager());
-    }
 
     /**
      * @param context the context for the evaluation
@@ -239,6 +174,7 @@ public class ExprEvaluator {
                     value = null;
                 } else if (left == CONTENT) {
                     // "content" properties are turned into HXQL references
+                    checkAllowedProperty(name, expr);
                     value = new Reference(name);
                 } else if (left instanceof Reference ref) {
                     value = new Reference(ref.name() + "/" + name);
@@ -264,13 +200,23 @@ public class ExprEvaluator {
         };
     }
 
+    /**
+     * Checks that the given property of the content is allowed for evaluation.
+     *
+     * @param name the property name
+     * @param expr the expression, for error reporting
+     * @throws IllegalArgumentException if the property is a disallowed system property
+     */
+    private void checkAllowedProperty(String name, Expr expr) {
+        if (schemaManager.isForbiddenInExpr(name)) {
+            throw new IllegalArgumentException(
+                    "Disallowed system property: " + name + " in: " + expr.toStringPretty());
+        }
+    }
+
     private Object getInternalDocumentValue(InternalDocument idoc, String name, Expr expr) {
+        checkAllowedProperty(name, expr);
         try {
-            if ((name.startsWith(SYS_PREFIX) || name.startsWith(SYSGOV_PREFIX) || name.startsWith(SYSVER_PREFIX))
-                    && !ALLOWED_SYS.contains(name)) {
-                throw new IllegalArgumentException(
-                        "Disallowed system property: " + name + " in: " + expr.toStringPretty());
-            }
             return name.startsWith(SYS_PREFIX)
                     ? idoc.getPropertyValue(name)
                     : idoc.getValue(name);

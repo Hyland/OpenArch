@@ -17,6 +17,7 @@ package org.nuxeo.ecm.core.schema;
 
 import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -28,6 +29,8 @@ import java.util.Set;
 import jakarta.inject.Inject;
 
 import org.junit.jupiter.api.BeforeEach;
+import java.util.stream.Stream;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.nuxeo.ecm.core.schema.types.ComplexType;
@@ -51,6 +54,43 @@ public class TestSchemaManager {
     @BeforeEach
     public void setUp() {
         schemaManager = typeService.getDefaultSchemaManager();
+    }
+
+    @Test
+    public void testIsForbiddenInExpr() {
+        // non-system properties are never forbidden
+        assertFalse(schemaManager.isForbiddenInExpr("dc_title"));
+        assertFalse(schemaManager.isForbiddenInExpr("mydc_source"));
+        // allowed system properties, across the three system prefixes
+        assertFalse(schemaManager.isForbiddenInExpr("sys_title"));
+        assertFalse(schemaManager.isForbiddenInExpr("sysgov_isRecord"));
+        assertFalse(schemaManager.isForbiddenInExpr("sysver_isVersion"));
+        // every true-or-null boolean must be usable in an expression, or its normalization is unreachable
+        assertFalse(schemaManager.isForbiddenInExpr("sys_isTrashed"));
+        assertFalse(schemaManager.isForbiddenInExpr("sysver_isCheckedIn"));
+        assertFalse(schemaManager.isForbiddenInExpr("sysgov_hasLegalHold"));
+        // forbidden system properties
+        assertTrue(schemaManager.isForbiddenInExpr("sys_acl"));
+        assertTrue(schemaManager.isForbiddenInExpr("sys_racl"));
+        assertTrue(schemaManager.isForbiddenInExpr("sys_ancestorIds"));
+        assertTrue(schemaManager.isForbiddenInExpr("sysver_versionSeriesId"));
+    }
+
+    @Test
+    public void testTrueOrNullBooleansAreUsableInExpressions() {
+        // the two hardcoded sets must not drift apart
+        Stream.of("sys_isFolderish", "sys_isTrashed", "sysgov_hasLegalHold", "sysgov_isRecord", "sysver_isCheckedIn",
+                "sysver_isVersion")
+              .filter(schemaManager::isTrueOrNullBoolean)
+              .forEach(key -> assertFalse(schemaManager.isForbiddenInExpr(key), key));
+    }
+
+    @Test
+    public void testIsTrueOrNullBoolean() {
+        assertTrue(schemaManager.isTrueOrNullBoolean("sys_isFolderish"));
+        assertTrue(schemaManager.isTrueOrNullBoolean("sysgov_hasLegalHold"));
+        assertFalse(schemaManager.isTrueOrNullBoolean("sys_title"));
+        assertFalse(schemaManager.isTrueOrNullBoolean("dc_title"));
     }
 
     @Test

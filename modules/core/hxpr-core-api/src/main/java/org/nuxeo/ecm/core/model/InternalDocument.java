@@ -23,7 +23,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import org.nuxeo.ecm.core.api.Blob;
-import org.nuxeo.ecm.core.api.ConcurrentUpdateException;
+import org.nuxeo.ecm.core.api.ConditionFailedException;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentNotFoundException;
 import org.nuxeo.ecm.core.api.ValuesVisitor;
@@ -421,8 +421,9 @@ public interface InternalDocument {
     /**
      * Sets the condition under which the document is updated on {@link InternalSession#save save}.
      * <p>
-     * A {@link ConcurrentUpdateException} will be thrown at {@link InternalSession#save save} time if the condition is
-     * not met, after which the transaction must be rolled back.
+     * A {@link ConditionFailedException} is thrown immediately when an expression is statically false; otherwise it is
+     * thrown at {@link InternalSession#save save} time if the condition is not met. After either failure, the
+     * transaction must be rolled back.
      *
      * @param condition the condition
      */

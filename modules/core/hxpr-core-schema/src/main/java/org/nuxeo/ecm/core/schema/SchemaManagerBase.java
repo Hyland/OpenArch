@@ -251,6 +251,47 @@ public class SchemaManagerBase implements SchemaManager {
     }
 
     /**
+     * The system properties that are allowed to be used in an expression.
+     * <p>
+     * TODO this is hardcoded for now, it should become a characteristic of the fields of the schema.
+     * <p>
+     * These mirror the corresponding constants of {@code DocumentConstants}, which is not visible from this module.
+     */
+    private static final Set<String> ALLOWED_SYS = Set.of( //
+            "sys_contributors", //
+            "sys_created", //
+            "sys_creator", //
+            "sys_description", //
+            "sys_isFolderish", //
+            "sys_isTrashed", //
+            "sys_lastContributor", //
+            "sys_lifecycleState", //
+            "sys_modified", //
+            "sys_name", //
+            "sys_primaryType", //
+            "sys_title", //
+            "sysgov_retainUntil", //
+            "sysgov_hasLegalHold", //
+            "sysgov_isRecord", //
+            "sysver_created", //
+            "sysver_creator", //
+            "sysver_description", //
+            "sysver_isCheckedIn", //
+            "sysver_isTemp", //
+            "sysver_isVersion", //
+            "sysver_minorVersion", //
+            "sysver_title", //
+            "sysver_version");
+
+    /** The prefixes of the system properties. */
+    private static final List<String> SYS_PREFIXES = List.of("sys_", "sysgov_", "sysver_");
+
+    @Override
+    public boolean isForbiddenInExpr(String name) {
+        return SYS_PREFIXES.stream().anyMatch(name::startsWith) && !ALLOWED_SYS.contains(name);
+    }
+
+    /**
      * The keys for booleans whose value is only ever true or null.
      * <p>
      * TODO this is hardcoded for now, it should become a characteristic of the fields of the schema.

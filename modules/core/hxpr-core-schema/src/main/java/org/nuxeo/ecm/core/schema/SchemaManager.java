@@ -81,6 +81,17 @@ public interface SchemaManager {
     Set<String> getDocumentTypeNamesExtendedBy(String docType);
 
     /**
+     * Checks whether the given property is forbidden from being used in an expression.
+     * <p>
+     * System properties are forbidden unless they are part of a known safe subset; other properties are never
+     * forbidden.
+     *
+     * @param name the property name
+     * @return {@code true} if the property is forbidden in an expression
+     */
+    boolean isForbiddenInExpr(String name);
+
+    /**
      * Checks whether the given property holds a boolean whose value is only ever {@code true} or {@code null}, instead
      * of {@code true} or {@code false}.
      *

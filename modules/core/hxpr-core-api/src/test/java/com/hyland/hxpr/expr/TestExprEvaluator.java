@@ -16,10 +16,13 @@
 package com.hyland.hxpr.expr;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_HAS_LEGAL_HOLD;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ACL;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_IS_RECORD;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_IS_CHECKED_IN;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_IS_VERSION;
@@ -54,6 +57,8 @@ public class TestExprEvaluator {
         Set.of(SYSVER_IS_VERSION, SYSVER_IS_CHECKED_IN, SYS_IS_FOLDERISH, SYS_IS_TRASHED, SYSGOV_IS_RECORD,
                 SYSGOV_HAS_LEGAL_HOLD)
            .forEach(key -> when(schemaManager.isTrueOrNullBoolean(key)).thenReturn(true));
+        // the actual forbidden properties are the schema manager's business, here only sys_acl is forbidden
+        when(schemaManager.isForbiddenInExpr(SYS_ACL)).thenReturn(true);
         return schemaManager;
     }
 
@@ -446,6 +451,21 @@ public class TestExprEvaluator {
         // Test sys_isFolderish with null (not folderish) (this is a true-or-null boolean property)
         Map<String, Object> content3 = Map.of();
         check(user, content3, "content.sys_isFolderish == false", "sys_isFolderish = FALSE", true);
+    }
+
+    @Test
+    public void testDisallowedProperty() {
+        UserPrincipal user = new UserPrincipal("", null, false);
+        // sys_acl is a forbidden property (see mockSchemaManager)
+        String expression = "content." + SYS_ACL + " == null";
+
+        // the check is done in the same way whether an operand or a value is computed
+        var operandException = assertThrows(IllegalArgumentException.class, () -> evaluateOperand(expression, user));
+        var valueException = assertThrows(IllegalArgumentException.class,
+                () -> evaluateValue(expression, user, Map.of()));
+        assertEquals(operandException.getMessage(), valueException.getMessage());
+        assertTrue(operandException.getMessage().startsWith("Disallowed system property: sys_acl"),
+                operandException.getMessage());
     }
 
 }

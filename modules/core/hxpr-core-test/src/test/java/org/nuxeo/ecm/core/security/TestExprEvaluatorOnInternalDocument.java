@@ -74,7 +74,7 @@ public class TestExprEvaluatorOnInternalDocument {
                 CONTEXT_CONTENT, idoc, //
                 CONTEXT_USER, principal);
         Expr expr = new ExpressionVisitor().parse(string);
-        return new ExprEvaluator(context).evaluateValue(expr);
+        return new ExprEvaluator(context, internalSession.getSchemaManager()).evaluateValue(expr);
     }
 
     private void check(String expression, Object expectedValue) {
