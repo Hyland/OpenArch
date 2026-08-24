@@ -15,10 +15,7 @@
  */
 package org.nuxeo.rest.interceptor;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import static com.hyland.hxpr.logging.LogMarkers.BYPASS_CONDENSING;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -27,8 +24,6 @@ import java.util.concurrent.TimeUnit;
 import org.nuxeo.runtime.springboot.auth.NuxeoLoginFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.Marker;
-import org.slf4j.MarkerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -36,6 +31,10 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.HandlerMapping;
 
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Interceptor class to log the execution time of all authenticated REST endpoints.
@@ -59,14 +58,6 @@ public class APILatencyLoggingInterceptor extends OncePerRequestFilter implement
     public static final String REQUEST_START_TIME_ATTRIBUTE = "APILatencyLoggingInterceptor.startTime";
 
     public static final String REQUEST_END_TIME_ATTRIBUTE = "APILatencyLoggingInterceptor.endTime";
-
-    /**
-     * Marker that bypasses the {@code CondensingDuplicateMessageFilter} so every occurrence is logged. If more
-     * callers need this marker, then we should move it to a shared logging utility in hxpr-community-internal.
-     */
-    public static final String BYPASS_CONDENSING_MARKER_NAME = "BYPASS_CONDENSING";
-
-    private static final Marker BYPASS_CONDENSING = MarkerFactory.getMarker(BYPASS_CONDENSING_MARKER_NAME);
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)

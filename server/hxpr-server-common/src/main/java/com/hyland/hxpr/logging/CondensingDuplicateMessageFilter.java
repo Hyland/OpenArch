@@ -15,14 +15,7 @@
  */
 package com.hyland.hxpr.logging;
 
-import static org.nuxeo.rest.interceptor.APILatencyLoggingInterceptor.BYPASS_CONDENSING_MARKER_NAME;
-
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.turbo.TurboFilter;
-import ch.qos.logback.core.spi.FilterReply;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Marker;
+import static com.hyland.hxpr.logging.LogMarkers.BYPASS_CONDENSING_MARKER_NAME;
 
 import java.util.Comparator;
 import java.util.Map;
@@ -31,6 +24,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.slf4j.LoggerFactory;
+import org.slf4j.Marker;
+
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.turbo.TurboFilter;
+import ch.qos.logback.core.spi.FilterReply;
 
 /**
  * A Logback {@link TurboFilter} that suppresses repeated log messages within a rolling time window.

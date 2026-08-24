@@ -33,6 +33,10 @@
       <artifactId>hxpr-core-query</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-runtime-cluster-api</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-collections4</artifactId>
     </dependency>

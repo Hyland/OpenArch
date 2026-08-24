@@ -37,6 +37,7 @@ import org.nuxeo.common.xmap.registry.SingleRegistry;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.api.repository.RepositoryManager;
 import org.nuxeo.runtime.api.Framework;
+import org.nuxeo.runtime.cluster.ClusterService;
 import org.nuxeo.runtime.kv.KeyValueService;
 import org.nuxeo.runtime.kv.KeyValueStore;
 import org.nuxeo.runtime.kv.KeyValueStoreProvider;
@@ -45,12 +46,14 @@ import org.nuxeo.runtime.model.DefaultComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hyland.hxpr.async.tasks.message.AbstractTask;
+import com.hyland.hxpr.async.tasks.message.ScrollerTask;
+import com.hyland.hxpr.async.tasks.message.Task;
+
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.json.JsonMapper;
-import com.hyland.hxpr.async.tasks.message.ScrollerTask;
-import com.hyland.hxpr.async.tasks.message.Task;
 
 public class TaskServiceImpl extends DefaultComponent implements TaskService, ComponentManager.Listener {
 
@@ -74,6 +77,12 @@ public class TaskServiceImpl extends DefaultComponent implements TaskService, Co
 
     // How long we keep the command and its status in the kv store once completed with an error
     private static final long COMPLETED_IN_ERROR_TTL_SECONDS = 86_400;
+
+    // A pod can have a couple dozen runners (one per queue); each runner's stopRunner() already bounds
+    // its own wait, but stopping them one after another would still multiply that bound by the runner
+    // count and can exceed the pod's termination grace period. Stop them concurrently instead, with this
+    // as an overall safety net.
+    private static final long STOP_RUNNERS_TIMEOUT_MS = Duration.ofSeconds(15).toMillis();
 
     private static final Pattern UUID_REGEX =
             Pattern.compile("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$");
@@ -106,9 +115,58 @@ public class TaskServiceImpl extends DefaultComponent implements TaskService, Co
         return descriptor.orElseThrow(() -> new NuxeoException("No Async Tasks runner has been defined"));
     }
 
+    /**
+     * Stops all task runners in parallel, bounding the total wait to {@link #STOP_RUNNERS_TIMEOUT_MS} so the shutdown
+     * time doesn't scale with the number of runners.
+     */
     @Override
     public void beforeRuntimeStop(ComponentManager mgr) {
-        runners.values().forEach(TaskRunner::stopRunner);
+        List<Thread> stoppers = runners.entrySet().stream().map(this::startStopperThread).toList();
+        joinAllWithDeadline(stoppers, System.currentTimeMillis() + STOP_RUNNERS_TIMEOUT_MS);
+    }
+
+    /**
+     * Starts a daemon thread that stops the given runner. Any failure is logged rather than propagated, so one runner's
+     * error doesn't stop the others from being processed.
+     *
+     * @param entry the queue name and runner to stop
+     * @return the started, not-yet-joined thread
+     */
+    private Thread startStopperThread(Map.Entry<String, TaskRunner<?>> entry) {
+        Thread thread = new Thread(() -> {
+            try {
+                entry.getValue().stopRunner();
+            } catch (RuntimeException e) {
+                log.warn("Error stopping task runner for queue {}", entry.getKey(), e);
+            }
+        }, "task-runner-stopper-" + entry.getKey());
+        thread.setDaemon(true);
+        thread.start();
+        return thread;
+    }
+
+    /**
+     * Joins each thread in turn, without letting the total wait exceed {@code deadline}. Returns early, leaving any
+     * remaining threads running as daemons, if the deadline is reached or the wait is interrupted.
+     *
+     * @param stoppers the threads to join, in order
+     * @param deadline the {@link System#currentTimeMillis()} time after which to stop waiting
+     */
+    private void joinAllWithDeadline(List<Thread> stoppers, long deadline) {
+        for (Thread thread : stoppers) {
+            long remaining = deadline - System.currentTimeMillis();
+            if (remaining <= 0) {
+                log.warn("Timed out waiting for all task runners to stop, {} may still be shutting down",
+                        thread.getName());
+                return;
+            }
+            try {
+                thread.join(remaining);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return;
+            }
+        }
     }
 
     private List<TaskProcessorDescriptor> getEnabledDescriptors() {
@@ -364,6 +422,11 @@ public class TaskServiceImpl extends DefaultComponent implements TaskService, Co
 
     @Override
     public void addExtraInfoToTaskMessage(Task task) {
-        // By default, no extra info are added
+        if (task.getNodeId() == null && task instanceof AbstractTask abstractTask) {
+            var clusterService = Framework.getService(ClusterService.class);
+            if (clusterService != null) {
+                abstractTask.setNodeId(clusterService.getNodeId());
+            }
+        }
     }
 }
