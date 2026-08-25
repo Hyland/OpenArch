@@ -18,6 +18,8 @@ package org.nuxeo.rest.query.spec;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
 
 import java.util.List;
@@ -25,12 +27,19 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.nuxeo.ecm.core.api.NuxeoException;
+import org.nuxeo.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.ecm.core.query.QueryParseException;
+import org.nuxeo.ecm.core.query.QuerySyntax;
+import org.nuxeo.ecm.core.query.nxql.SortInfo;
+import org.nuxeo.ecm.core.query.sql.model.Predicate;
+import org.nuxeo.ecm.core.schema.SchemaManager;
 import org.nuxeo.rest.query.io.DocumentAdvancedQueryDTO;
 import org.nuxeo.rest.query.io.DocumentQueryDTO;
 import org.nuxeo.rest.query.io.WhereClauseDTO;
 import org.nuxeo.rest.query.spec.QueryAssembler.AssembledQuery;
 import org.nuxeo.rest.query.io.WhereClauseDTO.RestPredicate;
+
+import com.hyland.hxpr.expr.ExprPredicates;
 
 public class QueryAssemblerTest {
 
@@ -40,7 +49,7 @@ public class QueryAssemblerTest {
             WhereClauseDTO whereClause, List<String> quickFilterClauses) {
         DocumentAdvancedQueryDTO dto = new DocumentAdvancedQueryDTO(REPO_ID, query, null, 0, true, -1, sort,
                 parameters, whereClause, quickFilterClauses);
-        return QueryAssembler.assemble(dto, DocumentQueryDTO.getSortInfos(sort));
+        return QueryAssembler.assemble(dto, DocumentQueryDTO.getSortInfos(sort), QueryAssemblerTest::toPredicate);
     }
 
     /** The query to execute, which keeps its parameters. */
@@ -199,6 +208,132 @@ public class QueryAssemblerTest {
         var e = assertThrows(QueryParseException.class,
                 () -> assemble(null, null, null, null, List.of("this is not a clause")));
         assertTrue(e.getMessage().contains("Clause: this is not a clause"), e.getMessage());
+    }
+
+    // --- expr syntax ---
+
+    protected static final NuxeoPrincipal PRINCIPAL = principal();
+
+    protected static final SchemaManager SCHEMA_MANAGER = schemaManager();
+
+    protected static NuxeoPrincipal principal() {
+        NuxeoPrincipal principal = mock(NuxeoPrincipal.class);
+        when(principal.getId()).thenReturn("bob");
+        when(principal.getGroups()).thenReturn(List.of("members", "readers"));
+        return principal;
+    }
+
+    protected static SchemaManager schemaManager() {
+        SchemaManager schemaManager = mock(SchemaManager.class);
+        when(schemaManager.isForbiddenInExpr("sys_acl")).thenReturn(true);
+        return schemaManager;
+    }
+
+    protected static AssembledQuery assembleExprQuery(String expr, List<String> sort, WhereClauseDTO whereClause,
+            List<String> quickFilterClauses) {
+        DocumentAdvancedQueryDTO dto = new DocumentAdvancedQueryDTO(REPO_ID, expr, QuerySyntax.EXPR, null, 0, null,
+                true, -1, sort, null, whereClause, quickFilterClauses);
+        List<SortInfo> sortInfos = DocumentQueryDTO.getSortInfos(sort);
+        return QueryAssembler.assemble(dto, sortInfos, QueryAssemblerTest::toPredicate);
+    }
+
+    protected static Predicate toPredicate(String expr) {
+        return ExprPredicates.toPredicate(expr, PRINCIPAL, SCHEMA_MANAGER);
+    }
+
+    protected static String assembleExpr(String expr) {
+        return assembleExprQuery(expr, null, null, null).query();
+    }
+
+    /** An expression is a filter on top of a statement, which it does not itself provide. */
+    @Test
+    public void testExpr() {
+        assertEquals("SELECT * FROM SysContent WHERE sys_title = 'a'", assembleExpr("content.sys_title == \"a\""));
+        assertEquals("SELECT * FROM SysContent WHERE sys_title <> 'a' AND tp_int > 3",
+                assembleExpr("content.sys_title != \"a\" && content.tp_int > 3"));
+        // a dotted property is a path into a complex property
+        assertEquals("SELECT * FROM SysContent WHERE cpx_complex/foo = 'a'",
+                assembleExpr("content.cpx_complex.foo == \"a\""));
+        // no expression filters nothing out
+        assertEquals("SELECT * FROM SysContent", assembleExpr(null));
+        assertEquals("SELECT * FROM SysContent", assembleExpr("  "));
+    }
+
+    /**
+     * The current user is available to the expression, and an expression that does not depend on the content is
+     * reduced to a constant.
+     */
+    @Test
+    public void testExprUser() {
+        assertEquals("SELECT * FROM SysContent WHERE sys_lastContributor = 'bob'",
+                assembleExpr("content.sys_lastContributor == user.id"));
+        // an always true constant filters nothing out
+        assertEquals("SELECT * FROM SysContent", assembleExpr("user.id == \"bob\""));
+        assertEquals("SELECT * FROM SysContent WHERE sys_title = 'a'",
+                assembleExpr("user.id == \"bob\" && content.sys_title == \"a\""));
+        // an always false one matches no document at all
+        assertEquals("SELECT * FROM SysContent WHERE 1 = 0", assembleExpr("user.id == \"alice\""));
+        assertEquals("SELECT * FROM SysContent WHERE 1 = 0",
+                assembleExpr("user.id == \"alice\" && content.sys_title == \"a\""));
+    }
+
+    /** A list the expression knows statically becomes an IN. */
+    @Test
+    public void testExprContains() {
+        assertEquals("SELECT * FROM SysContent WHERE sys_lastContributor IN ('members', 'readers')",
+                assembleExpr("user.groups.contains(content.sys_lastContributor)"));
+    }
+
+    /** An expression combines with everything else the request carries. */
+    @Test
+    public void testExprWithSortAndQuickFiltersAndWhereClause() {
+        assertEquals("SELECT * FROM SysContent WHERE sys_title = 'a' AND b = 2 ORDER BY sys_title",
+                assembleExprQuery("content.sys_title == \"a\"", List.of("sys_title"), null, List.of("b = 2")).query());
+        // a where clause definition provides the statement the expression filters
+        WhereClauseDTO whereClause = WhereClauseDTO.of("SELECT * FROM Note WHERE a = 1", List.of());
+        assertEquals("SELECT * FROM Note WHERE a = 1 AND sys_title = 'a'",
+                assembleExprQuery("content.sys_title == \"a\"", null, whereClause, null).query());
+    }
+
+    /** A where clause definition can filter with an expression instead of providing the statement. */
+    @Test
+    public void testExprWhereClause() {
+        WhereClauseDTO whereClause = WhereClauseDTO.ofExpr("content.sys_title == \"a\"", null);
+        // the statement to select from is then the request's own, which the definition only filters
+        assertEquals("SELECT * FROM Note WHERE sys_title = 'a' AND b = 2",
+                assemble("SELECT * FROM Note WHERE b = 2", null, null, whereClause, null));
+        // or the default statement when the request has none
+        assertEquals("SELECT * FROM SysContent WHERE sys_title = 'a'", assemble(null, null, null, whereClause, null));
+        // and the request may be an expression too
+        assertEquals("SELECT * FROM SysContent WHERE sys_title = 'a' AND tp_int > 3",
+                assembleExprQuery("content.tp_int > 3", null, whereClause, null).query());
+        // the definition's predicates come first, then its expression
+        whereClause = WhereClauseDTO.ofExpr("content.sys_title == \"a\"",
+                List.of(RestPredicate.ofStatic(SYS_TITLE, "LIKE", "b%")));
+        assertEquals("SELECT * FROM SysContent WHERE sys_title LIKE 'b%' AND sys_title = 'a'",
+                assemble(null, null, null, whereClause, null));
+    }
+
+    @Test
+    public void testInvalidExpr() {
+        var e = assertThrows(QueryParseException.class, () -> assembleExpr("this is not an expression"));
+        assertTrue(e.getMessage().startsWith("Invalid expression: this is not an expression: "), e.getMessage());
+        assertEquals(400, e.getStatusCode());
+    }
+
+    /** An expression that is not a predicate cannot filter anything. */
+    @Test
+    public void testExprIsNotAPredicate() {
+        var e = assertThrows(QueryParseException.class, () -> assembleExpr("content.sys_title"));
+        assertEquals("Expression is not a predicate: content.sys_title", e.getMessage());
+        assertEquals(400, e.getStatusCode());
+    }
+
+    /** Disallowed system properties are as out of reach in a query as they are anywhere else. */
+    @Test
+    public void testExprDisallowedProperty() {
+        var e = assertThrows(QueryParseException.class, () -> assembleExpr("content.sys_acl == \"x\""));
+        assertTrue(e.getMessage().contains("Disallowed system property: sys_acl"), e.getMessage());
     }
 
     /** A full-text hint written in the query text survives assembly. */

@@ -23,7 +23,9 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.nuxeo.ecm.core.api.NuxeoException;
+import org.nuxeo.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.ecm.core.query.QueryParseException;
+import org.nuxeo.ecm.core.query.QuerySyntax;
 import org.nuxeo.ecm.core.query.nxql.SortInfo;
 import org.nuxeo.ecm.core.query.sql.HXQLParser;
 import org.nuxeo.ecm.core.query.sql.HXQLSerializer;
@@ -40,8 +42,13 @@ import org.nuxeo.ecm.core.query.sql.model.Reference;
 import org.nuxeo.ecm.core.query.sql.model.SelectClause;
 import org.nuxeo.ecm.core.query.sql.model.Statement;
 import org.nuxeo.ecm.core.query.sql.model.WhereClause;
+import org.nuxeo.ecm.core.schema.SchemaManager;
+import org.nuxeo.ecm.core.schema.TypeService;
 import org.nuxeo.rest.query.io.DocumentAdvancedQueryDTO;
 import org.nuxeo.rest.query.io.WhereClauseDTO;
+import org.nuxeo.runtime.api.Framework;
+
+import com.hyland.hxpr.expr.ExprPredicates;
 
 /**
  * Builds the NXQL a query request asks for.
@@ -62,6 +69,12 @@ public class QueryAssembler {
 
     private QueryAssembler() {
         // utility class
+    }
+
+    /** Converts an expression into the predicate it means, or {@code null} if it filters nothing out. */
+    public interface ExprConverter {
+
+        Predicate toPredicate(String expr);
     }
 
     /**
@@ -85,6 +98,21 @@ public class QueryAssembler {
      * @return the HXQL to execute and the same query with its parameters bound
      */
     public static AssembledQuery assemble(DocumentAdvancedQueryDTO query, List<SortInfo> sortInfos) {
+        return assemble(query, sortInfos, expr -> exprPredicate(expr, query.repositoryId()));
+    }
+
+    /**
+     * Builds the query text for a request, with the conversion of an expression into a predicate passed in rather than
+     * done through the runtime services.
+     *
+     * @param query the request
+     * @param sortInfos the sorts to apply, which replace any {@code ORDER BY} the query text already has
+     * @param exprConverter converts an expression into the predicate it means, or {@code null} if it filters nothing
+     *            out
+     * @return the HXQL to execute and the same query with its parameters bound
+     */
+    public static AssembledQuery assemble(DocumentAdvancedQueryDTO query, List<SortInfo> sortInfos,
+            ExprConverter exprConverter) {
         Statement parsed = parse(baseQuery(query));
         Map<String, Object> parameters = query.parameters();
 
@@ -92,10 +120,12 @@ public class QueryAssembler {
         WhereClauseDTO clauseDef = query.whereClauseDefinition();
         if (clauseDef != null) {
             conjuncts.addAll(PredicateBuilder.build(clauseDef.predicates(), parameters));
+            addExprPredicate(conjuncts, clauseDef.syntax(), clauseDef.query(), exprConverter);
         }
         if (parsed.getWhereClause() != null) {
             conjuncts.add(parsed.getWhereClause().predicate());
         }
+        addExprPredicate(conjuncts, query.syntax(), query.query(), exprConverter);
         for (String clause : query.quickFilterClauses()) {
             if (StringUtils.isNotBlank(clause)) {
                 conjuncts.add(parsePredicate(clause));
@@ -110,13 +140,40 @@ public class QueryAssembler {
         return new AssembledQuery(bind(assembled, parameters), HXQLSerializer.serialize(assembled));
     }
 
-    /** A where clause definition's own query wins over the request's, as it is the more specific one. */
+    /** Adds the predicate an expression means, if that is what the query is and it filters something out. */
+    protected static void addExprPredicate(List<Predicate> conjuncts, QuerySyntax syntax, String query,
+            ExprConverter exprConverter) {
+        // a null syntax is really hxql, the default; an HXQL query is the statement itself, not a filter on top of it
+        if (QuerySyntax.defaulted(syntax) == QuerySyntax.HXQL || StringUtils.isBlank(query)) {
+            return;
+        }
+        // an expression is a filter on top of the statement, which it doesn't itself provide
+        Predicate predicate = exprConverter.toPredicate(query);
+        if (predicate != null) {
+            conjuncts.add(predicate);
+        }
+    }
+
+    /**
+     * The statement to select from: a where clause definition's own statement wins over the request's, as it is the
+     * more specific one, and an expression provides none.
+     */
     protected static String baseQuery(DocumentAdvancedQueryDTO query) {
         WhereClauseDTO clauseDef = query.whereClauseDefinition();
-        if (clauseDef != null && StringUtils.isNotBlank(clauseDef.query())) {
+        if (clauseDef != null && clauseDef.hasStatement()) {
             return clauseDef.query();
         }
-        return StringUtils.isNotBlank(query.query()) ? query.query() : DEFAULT_SELECT_STATEMENT;
+        if (query.syntax() == QuerySyntax.HXQL && StringUtils.isNotBlank(query.query())) {
+            return query.query();
+        }
+        return DEFAULT_SELECT_STATEMENT;
+    }
+
+    /** The predicate an expression means for the current user, or {@code null} if it filters nothing out. */
+    protected static Predicate exprPredicate(String expr, String repositoryId) {
+        // the content model is per repository, and is not cached as it may change
+        SchemaManager schemaManager = Framework.getService(TypeService.class).getSchemaManager(repositoryId);
+        return ExprPredicates.toPredicate(expr, NuxeoPrincipal.getCurrent(), schemaManager);
     }
 
     protected static Predicate conjunction(List<Predicate> conjuncts) {

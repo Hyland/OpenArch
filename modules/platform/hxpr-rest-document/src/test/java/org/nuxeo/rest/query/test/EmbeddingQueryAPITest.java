@@ -20,6 +20,7 @@ import static java.util.stream.Collectors.toList;
 import static org.nuxeo.ecm.core.model.EmbeddingModel.VECTOR_SIZE;
 import static org.nuxeo.rest.query.test.RestQueryMultipleEmbeddingsFeature.EMBEDDING_TYPE;
 import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import java.util.List;
 import java.util.Map;
@@ -157,6 +158,19 @@ public class EmbeddingQueryAPITest extends AbstractQueryAPITest {
                 "vector", VECTOR, "limit", 1);
         var result = checkResponse(OK, POST, postBodyData);
         checkQueryResponseBody("rest/query_res_embedding.json", result);
+    }
+
+    /** The document filter can be given as an expression, which the response echoes back as it was given. */
+    @Test
+    public void testEmbeddingQueryWithExprSyntax() throws Exception {
+        Map<String, Object> postBodyData = Map.of("query", "content.sys_title != \"nosuchtitle\"", "syntax", "expr",
+                "vector", VECTOR, "limit", 1);
+        var result = checkResponse(OK, POST, postBodyData);
+        checkQueryResponseBody("rest/query_res_embedding_expr.json", result);
+        // the filter really applies to the documents the embeddings belong to
+        postBodyData = Map.of("query", "content.sys_title == \"nosuchtitle\"", "syntax", "expr", "vector", VECTOR,
+                "limit", 1);
+        checkResponse(OK, POST, postBodyData).andExpect(jsonPath("count").value(0));
     }
 
     @Test

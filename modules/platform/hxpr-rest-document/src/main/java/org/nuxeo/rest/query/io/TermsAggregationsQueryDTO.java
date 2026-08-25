@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Schema(name = "TermsAggregationsQuery", description = "Represents a terms aggregations query.")
 public record TermsAggregationsQueryDTO( //
-                                         @Schema(name = "query", description = "The HXQL query to filter the documents on which to run the terms aggregation.")
+                                         @Schema(name = "query", description = "The query to filter the documents on which to run the terms aggregation.")
                                          DocumentQueryDTO query,
                                          @Schema(name = "limit", description = "Max number of aggregation buckets retrieved by the given query.", example = "100", defaultValue = "10") //
                                          int limit,

@@ -17,21 +17,17 @@ package org.nuxeo.ecm.core.api;
 
 import static java.util.Objects.requireNonNull;
 
+import org.nuxeo.ecm.core.query.QuerySyntax;
+
 /**
  * A condition under which a document update or move is done.
+ * <p>
+ * A {@link QuerySyntax#HXQL} condition is a predicate, for instance {@code sys_title = 'foo'}.
  *
  * @param syntax the syntax in which the condition is expressed
  * @param condition the condition
  */
-public record UpdateCondition(Syntax syntax, String condition) {
-
-    /** The syntax in which an {@link UpdateCondition} is expressed. */
-    public enum Syntax {
-        /** HXQL predicate, for instance {@code sys_title = 'foo'}. */
-        HXQL,
-        /** Expression syntax, for instance {@code content.sys_title == "foo"}. */
-        EXPR,
-    }
+public record UpdateCondition(QuerySyntax syntax, String condition) {
 
     public UpdateCondition {
         requireNonNull(syntax, "syntax");
@@ -44,7 +40,7 @@ public record UpdateCondition(Syntax syntax, String condition) {
      * @param hxql the HXQL predicate
      */
     public static UpdateCondition hxql(String hxql) {
-        return new UpdateCondition(Syntax.HXQL, hxql);
+        return new UpdateCondition(QuerySyntax.HXQL, hxql);
     }
 
     /**
@@ -53,6 +49,6 @@ public record UpdateCondition(Syntax syntax, String condition) {
      * @param expr the expression
      */
     public static UpdateCondition expr(String expr) {
-        return new UpdateCondition(Syntax.EXPR, expr);
+        return new UpdateCondition(QuerySyntax.EXPR, expr);
     }
 }

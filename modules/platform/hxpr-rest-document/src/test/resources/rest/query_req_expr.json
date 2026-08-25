@@ -1,0 +1,8 @@
+{
+  "repositoryId": "test",
+  "query": "content.sys_title == \"title\"",
+  "syntax": "expr",
+  "sort": [
+    "sys_title"
+  ]
+}

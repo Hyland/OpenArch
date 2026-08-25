@@ -22,6 +22,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;
 
+import org.nuxeo.ecm.core.query.QuerySyntax;
 import org.nuxeo.rest.document.DocumentDTO;
 import org.nuxeo.rest.query.io.serializer.AggregationsBucketSerializer;
 import org.nuxeo.rest.query.spec.QuerySpecification;
@@ -35,8 +36,11 @@ import tools.jackson.databind.annotation.JsonSerialize;
 public record TermsAggregationQueryResultDTO(
         @Schema(name = "repositoryId", description = "The id of the internal repository.", defaultValue = "default") //
         String repositoryId, //
-        @Schema(name = "query", description = "The HXQL query.", example = "SELECT * FROM SysContent") //
+        @Schema(name = "query", description = "The query, in the syntax it was expressed in.", example = "SELECT * FROM SysContent") //
         String query, //
+        @Schema(name = "syntax", description = "The syntax the query is expressed in; absent for the default hxql syntax.", //
+                allowableValues = { QuerySyntax.HXQL_VALUE, QuerySyntax.EXPR_VALUE }) //
+        @JsonInclude(JsonInclude.Include.NON_NULL) QuerySyntax syntax, //
         @Schema(name = "limit", description = "Max number of documents retrieved by the given query.", example = "100", defaultValue = "0") //
         long limit, //
         @Schema(name = "offset", description = "Actual document offset; for pagination support.", example = "0", defaultValue = "0") //
@@ -54,6 +58,8 @@ public record TermsAggregationQueryResultDTO(
         @JsonSerialize(using = AggregationsBucketSerializer.class) List<StringTermsBucket> aggregationsBuckets) {
 
     public TermsAggregationQueryResultDTO {
+        // the default syntax needs no mention in the response
+        syntax = QuerySyntax.nonDefault(syntax);
 
         if (documents == null) {
             documents = List.of();
@@ -80,8 +86,8 @@ public record TermsAggregationQueryResultDTO(
 
     public TermsAggregationQueryResultDTO(QuerySpecification spec, List<DocumentDTO> documents, Long totalCount,
                                           Boolean totalCountIsTruncated, List<StringTermsBucket> aggregationsBuckets) {
-        this(spec.repositoryId(), spec.boundQuery(), spec.limit(), spec.offset(), spec.trackTotalCount(),
-                totalCountIsTruncated, documents, totalCount, aggregationsBuckets);
+        this(spec.repositoryId(), spec.boundQuery(), spec.syntax(), spec.limit(), spec.offset(),
+                spec.trackTotalCount(), totalCountIsTruncated, documents, totalCount, aggregationsBuckets);
     }
 
     @JsonProperty("count")

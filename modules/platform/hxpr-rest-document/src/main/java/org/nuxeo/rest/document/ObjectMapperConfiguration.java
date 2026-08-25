@@ -23,7 +23,6 @@ import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.cfg.DateTimeFeature;
-import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.cfg.JsonNodeFeature;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -43,8 +42,7 @@ public class ObjectMapperConfiguration implements JsonMapperBuilderCustomizer, O
                .configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false)
                .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS, true)
                .configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true)
-               .configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true)
-               .configure(EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL, true);
+               .configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
         // dates written as timestamps will be converted to long (not Calendar) when converting back to DocumentDTO
     }
 

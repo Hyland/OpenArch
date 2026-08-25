@@ -29,8 +29,6 @@ import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_IS_VERSION;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_IS_FOLDERISH;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_IS_TRASHED;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PREFIX;
-import static com.hyland.hxpr.expr.ExprEvaluator.CONTEXT_CONTENT;
-import static com.hyland.hxpr.expr.ExprEvaluator.CONTEXT_USER;
 
 import java.util.List;
 import java.util.Map;
@@ -63,9 +61,7 @@ public class TestExprEvaluator {
     }
 
     private static Operand evaluateOperand(String string, NuxeoPrincipal principal) {
-        Map<String, Object> context = Map.of( //
-                CONTEXT_CONTENT, ExprEvaluator.CONTENT, //
-                CONTEXT_USER, principal);
+        Map<String, Object> context = ExprEvaluator.queryContext(principal);
         Expr expr = new ExpressionVisitor().parse(string);
         return new ExprEvaluator(context, SCHEMA_MANAGER).evaluateOperand(expr);
     }
@@ -80,9 +76,7 @@ public class TestExprEvaluator {
                 when(idoc.getValue(key)).thenReturn(value);
             }
         });
-        Map<String, Object> context = Map.of( //
-                CONTEXT_CONTENT, idoc, //
-                CONTEXT_USER, principal);
+        Map<String, Object> context = ExprEvaluator.documentContext(idoc, principal);
         Expr expr = new ExpressionVisitor().parse(string);
         return new ExprEvaluator(context, SCHEMA_MANAGER).evaluateValue(expr);
     }

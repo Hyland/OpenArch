@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
 
 import org.junit.jupiter.api.Test;
+import org.nuxeo.ecm.core.query.QuerySyntax;
 
 public class DocumentQueryDTOTest extends AbstractQueryIOTest {
 
@@ -35,6 +36,25 @@ public class DocumentQueryDTOTest extends AbstractQueryIOTest {
         assertEquals(0, queryDTO.trackTotalCountUpTo());
         assertEquals(1, queryDTO.sort().size());
         assertEquals(SYS_TITLE, queryDTO.sort().get(0));
+    }
+
+    /** The default syntax is HXQL, whose default query is a statement selecting everything. */
+    @Test
+    public void createDocumentQueryDTOSyntax() {
+        DocumentQueryDTO queryDTO = new DocumentQueryDTO(REPO_ID, null, LIMIT, OFFSET, SORT);
+        assertEquals(QuerySyntax.HXQL, queryDTO.syntax());
+        assertEquals(DEFAULT_SELECT_STATEMENT, queryDTO.query());
+
+        String expr = "content.sys_title == \"a\"";
+        queryDTO = new DocumentQueryDTO(REPO_ID, expr, QuerySyntax.EXPR, LIMIT, OFFSET, null, TRACK_TOTAL_COUNT,
+                TRACK_TOTAL_COUNT_UPTO, SORT);
+        assertEquals(QuerySyntax.EXPR, queryDTO.syntax());
+        assertEquals(expr, queryDTO.query());
+
+        // an expression is a filter, so no expression means no filter rather than a default statement
+        queryDTO = new DocumentQueryDTO(REPO_ID, "  ", QuerySyntax.EXPR, LIMIT, OFFSET, null, TRACK_TOTAL_COUNT,
+                TRACK_TOTAL_COUNT_UPTO, SORT);
+        assertNull(queryDTO.query());
     }
 
     @Test

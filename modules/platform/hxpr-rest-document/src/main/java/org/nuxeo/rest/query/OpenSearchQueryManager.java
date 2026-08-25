@@ -185,15 +185,16 @@ public class OpenSearchQueryManager extends AbstractQueryManager {
         log.debug("Perform OpenSearch embedding query '{}' with limit={}, offset={}", query.query(), query.limit(),
                 query.offset());
 
-        DocumentQueryDTO documentQuery = new DocumentQueryDTO(query.repositoryId(), query.query(), query.limit(),
-                query.offset(), List.of());
+        DocumentQueryDTO documentQuery = new DocumentQueryDTO(query.repositoryId(), query.query(), query.syntax(),
+                query.limit(), query.offset(), null, Boolean.TRUE, null, List.of());
         QuerySpecification spec = initQuerySpecification(documentQuery);
 
         String repositoryId = findRepositoryId(query.repositoryId());
         CoreSession session = CoreInstance.getCoreSession(repositoryId);
+        // the assembled query, not the request's own, as the request may have expressed it as an expression
         OpenSearchQueryBuilder nxQuery = new OpenSearchQueryBuilder(session)
                                                             .embeddingQuery(query.embeddingType(), query.vector(),
-                                                                    query.chunkFTS(), query.query())
+                                                                    query.chunkFTS(), spec.query())
                                                             .offset((int) query.offset())
                                                             .trackTotalCountUpTo(query.trackTotalCountUpTo())
                                                             .trackTotalCount(query.trackTotalCount());

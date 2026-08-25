@@ -57,16 +57,17 @@ import com.hyland.hxpr.expr.ast.ValId;
 import com.hyland.hxpr.expr.ast.ValSimple;
 
 /**
- * Converts an Expression Security Policy expression (represented as an {@link Expr} AST) into HXQL (represented as an
- * {@link Operand} AST).
+ * Converts an Expression Security Policy expression (represented as an {@link Expr} AST) into a query operand
+ * (represented as an {@link Operand} AST).
  * <p>
  * The conversion is aware of the {@code context} for the evaluation, which contains the set of "toplevel" names
  * recognized in the expression. One name (e.g., "content") is mapped to {@link #CONTENT} to represent the content
- * object being the subject of the HXQL statement, and usually one or more other names are mapped to static objects
+ * object being the subject of the statement, and usually one or more other names are mapped to static objects
  * (e.g., the current user).
  * <p>
  * The conversion attempts to short-circuit evaluation when all arguments of an operator are statically known or for
- * boolean expressions. This allows detection of trivial expressions and bypassing of HXQL generation is some cases.
+ * boolean expressions. This allows detection of trivial expressions and bypassing of operand generation is some
+ * cases.
  */
 public class ExprEvaluator {
 
@@ -99,11 +100,52 @@ public class ExprEvaluator {
         this.schemaManager = schemaManager;
     }
 
+    /** The context for evaluating an expression against the content a query selects, with no user. */
+    public static Map<String, Object> queryContext() {
+        return context(CONTENT, null);
+    }
+
     /**
-     * Converts the expression into an HXQL operand.
+     * The context for evaluating an expression against the content a query selects, for the given user.
+     *
+     * @param principal the user, or {@code null} if there is none
+     */
+    public static Map<String, Object> queryContext(NuxeoPrincipal principal) {
+        return context(CONTENT, principal);
+    }
+
+    /**
+     * The context for evaluating an expression against a given document, with no user.
+     *
+     * @param document the document, or {@code null} if there is none
+     */
+    public static Map<String, Object> documentContext(InternalDocument document) {
+        return context(document, null);
+    }
+
+    /**
+     * The context for evaluating an expression against a given document, for the given user.
+     *
+     * @param document the document, or {@code null} if there is none
+     * @param principal the user, or {@code null} if there is none
+     */
+    public static Map<String, Object> documentContext(InternalDocument document, NuxeoPrincipal principal) {
+        return context(document, principal);
+    }
+
+    private static Map<String, Object> context(Object content, NuxeoPrincipal principal) {
+        // a HashMap and not a Map.of, as the content or the user may be missing
+        Map<String, Object> context = new HashMap<>();
+        context.put(CONTEXT_CONTENT, content);
+        context.put(CONTEXT_USER, principal);
+        return context;
+    }
+
+    /**
+     * Converts the expression into a query operand.
      *
      * @param expr the expression
-     * @return the HXQL operand
+     * @return the operand
      * @throws IllegalArgumentException if there's an error
      */
     public Operand evaluateOperand(Expr expr) throws IllegalArgumentException {
@@ -173,7 +215,7 @@ public class ExprEvaluator {
                 if (left == null) {
                     value = null;
                 } else if (left == CONTENT) {
-                    // "content" properties are turned into HXQL references
+                    // "content" properties are turned into query references
                     checkAllowedProperty(name, expr);
                     value = new Reference(name);
                 } else if (left instanceof Reference ref) {

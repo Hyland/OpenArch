@@ -15,11 +15,7 @@
  */
 package org.nuxeo.ecm.core.security.expr;
 
-import static com.hyland.hxpr.expr.ExprEvaluator.CONTEXT_CONTENT;
-import static com.hyland.hxpr.expr.ExprEvaluator.CONTEXT_USER;
-
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -90,9 +86,7 @@ public class ExpressionSecurityPolicy extends AbstractSecurityPolicy {
     public boolean hasPermission(InternalDocument doc, NuxeoPrincipal principal, Set<String> principals,
             String permission, Set<String> permissions) {
         try {
-            var context = Map.of( //
-                    CONTEXT_CONTENT, doc, //
-                    CONTEXT_USER, principal);
+            var context = ExprEvaluator.documentContext(doc, principal);
             Object value = new ExprEvaluator(context, getSchemaManager()).evaluateValue(expr);
             if (value == null) {
                 return false;
@@ -109,9 +103,7 @@ public class ExpressionSecurityPolicy extends AbstractSecurityPolicy {
     @Override
     public Operand getQueryClause(QueryParameters queryParams, Set<String> principals) {
         try {
-            var context = Map.of( //
-                    CONTEXT_CONTENT, ExprEvaluator.CONTENT, //
-                    CONTEXT_USER, queryParams.principal());
+            var context = ExprEvaluator.queryContext(queryParams.principal());
             Operand operand = new ExprEvaluator(context, getSchemaManager()).evaluateOperand(expr);
             if (operand instanceof Predicate || operand instanceof BooleanLiteral) {
                 return operand;

@@ -43,10 +43,12 @@ import java.util.regex.Pattern;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.nuxeo.ecm.core.api.local.WithUser;
+import org.nuxeo.ecm.core.query.QuerySyntax;
 import org.nuxeo.rest.document.test.ContentTestHelper;
 import org.nuxeo.rest.query.OpenSearchQueryManager;
 import org.nuxeo.rest.query.QueryAPI;
 import org.nuxeo.rest.query.QueryManager;
+import org.nuxeo.rest.query.RepositoryQueryManager;
 import org.nuxeo.rest.query.io.DocumentQueryDTO;
 import org.nuxeo.rest.query.io.DocumentQueryResultDTO;
 import org.nuxeo.rest.query.io.EmbeddingQueryDTO;
@@ -277,6 +279,7 @@ public class QueryAPITest extends AbstractQueryAPITest {
                 null,
                 null,
                 null,
+                null,
                 0L,
                 false,
                 null
@@ -284,6 +287,115 @@ public class QueryAPITest extends AbstractQueryAPITest {
 
         assertEquals(DEFAULT_LIMIT_VALUE, dto.limit());
         assertEquals(DEFAULT_SELECT_STATEMENT, dto.query());
+    }
+
+    // --- expr syntax ---
+
+    protected static final String SYNTAX_PROP = "syntax";
+
+    protected static final String EXPR = "expr";
+
+    @Autowired
+    RepositoryQueryManager rqm;
+
+    protected ResultActions checkPostResponse(Status expectedStatus, String referencePostBody, Object... args)
+            throws Exception {
+        return checkResponseWithReferencePayload(expectedStatus, PATH, POST, referencePostBody, args);
+    }
+
+    /** A full request and response, with the query expressed as an expression. */
+    @Test
+    public void testExprQueryReferencePOST() throws Exception {
+        var result = checkPostResponse(OK, "rest/query_req_expr.json");
+        checkQueryResponseBody("rest/query_res_expr.json", result);
+    }
+
+    /** The document of this test is titled "title". */
+    @Test
+    public void testExprQueryPOST() throws Exception {
+        String expr = "content.sys_title == \"title\"";
+        checkResponse(OK, POST, Map.of(QUERY_STRING_PROP, expr, SYNTAX_PROP, EXPR)) //
+                .andExpect(jsonPath("count").value(1))
+                // the response echoes the query as the caller expressed it
+                .andExpect(jsonPath("query").value(expr))
+                .andExpect(jsonPath("syntax").value(EXPR));
+        checkResponse(OK, POST, Map.of(QUERY_STRING_PROP, "content.sys_title == \"foo\"", SYNTAX_PROP, EXPR))
+                .andExpect(jsonPath("count").value(0));
+        // no expression filters nothing out, and there is then no query to echo back
+        checkResponse(OK, POST, Map.of(SYNTAX_PROP, EXPR)).andExpect(jsonPath("count").value(1))
+                                                          .andExpect(jsonPath("query").isEmpty())
+                                                          .andExpect(jsonPath("syntax").value(EXPR));
+    }
+
+    /** An unsupported syntax is rejected rather than silently read as the default. */
+    @Test
+    public void testUnknownQuerySyntaxPOST() throws Exception {
+        var result = checkResponse(BAD_REQUEST, POST,
+                Map.of(QUERY_STRING_PROP, DEFAULT_SELECT_STATEMENT, SYNTAX_PROP, "exrp"));
+        ContentTestHelper.checkErrorResponse(BAD_REQUEST,
+                Pattern.compile(".*not one of the values accepted for Enum class.*"), result);
+    }
+
+    /** The default syntax is HXQL, which the response has no need to mention. */
+    @Test
+    public void testQuerySyntaxDefaultsToHxqlPOST() throws Exception {
+        checkResponse(OK, POST, Map.of(QUERY_STRING_PROP, DEFAULT_SELECT_STATEMENT))
+                .andExpect(jsonPath("query").value(DEFAULT_SELECT_STATEMENT))
+                .andExpect(jsonPath("syntax").doesNotExist());
+        // asking for it explicitly is the same thing
+        checkResponse(OK, POST, Map.of(QUERY_STRING_PROP, DEFAULT_SELECT_STATEMENT, SYNTAX_PROP, "hxql"))
+                .andExpect(jsonPath("syntax").doesNotExist());
+    }
+
+    /** The expression sees the current user, and what does not depend on the content folds into a constant. */
+    @Test
+    public void testExprQueryWithUserPOST() throws Exception {
+        String expr = "content.sys_title == \"title\" && user.id == \"" + ADMIN + "\"";
+        checkResponse(OK, POST, Map.of(QUERY_STRING_PROP, expr, SYNTAX_PROP, EXPR))
+                .andExpect(jsonPath("count").value(1));
+        // an always false constant makes the whole query match nothing
+        expr = "content.sys_title == \"title\" && user.id == \"nobody\"";
+        checkResponse(OK, POST, Map.of(QUERY_STRING_PROP, expr, SYNTAX_PROP, EXPR))
+                .andExpect(jsonPath("count").value(0));
+    }
+
+    @Test
+    public void testInvalidExprQueryPOST() throws Exception {
+        String expr = "this is not an expression";
+        var result = checkResponse(BAD_REQUEST, POST, Map.of(QUERY_STRING_PROP, expr, SYNTAX_PROP, EXPR));
+        ContentTestHelper.checkErrorResponse(BAD_REQUEST, Pattern.compile("Invalid expression: " + expr + ": .*"),
+                result);
+    }
+
+    /** An expression is a filter, so an HXQL statement is not one, and neither is a lone property. */
+    @Test
+    public void testExprQueryIsNotAStatementPOST() throws Exception {
+        checkResponse(BAD_REQUEST, POST, Map.of(QUERY_STRING_PROP, DEFAULT_SELECT_STATEMENT, SYNTAX_PROP, EXPR));
+        var result = checkResponse(BAD_REQUEST, POST, Map.of(QUERY_STRING_PROP, "content.sys_title", SYNTAX_PROP, EXPR));
+        ContentTestHelper.checkErrorResponse(BAD_REQUEST, "Expression is not a predicate: content.sys_title", result);
+    }
+
+    /** Disallowed system properties are as out of reach in a query as they are anywhere else. */
+    @Test
+    public void testExprQueryDisallowedPropertyPOST() throws Exception {
+        var result = checkResponse(BAD_REQUEST, POST,
+                Map.of(QUERY_STRING_PROP, "content.sys_acl == \"x\"", SYNTAX_PROP, EXPR));
+        ContentTestHelper.checkErrorResponse(BAD_REQUEST,
+                Pattern.compile(".*Disallowed system property: sys_acl.*"), result);
+    }
+
+    /** Both backends run an expression, and both echo it back. */
+    @Test
+    public void testExprQueryManagers() {
+        String expr = "content.sys_title == \"title\"";
+        for (QueryManager manager : List.of(osqm, rqm)) {
+            DocumentQueryDTO q = new DocumentQueryDTO(REPO_ID, expr, QuerySyntax.EXPR, null, 0, null, true, null,
+                    List.of());
+            DocumentQueryResultDTO r = manager.getResults(q);
+            assertEquals(1, r.count());
+            assertEquals(expr, r.query());
+            assertEquals(QuerySyntax.EXPR, r.syntax());
+        }
     }
 
     @Test

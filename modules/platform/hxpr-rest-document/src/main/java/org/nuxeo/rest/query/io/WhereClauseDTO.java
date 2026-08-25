@@ -19,22 +19,48 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+import org.nuxeo.ecm.core.query.QuerySyntax;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
 /**
  * Rest representation of a query where clause.
  */
 @Schema(name = "WhereClause", title = "Query Where Clause", description = "Represents an advanced query where clause definition.")
 public record WhereClauseDTO( //
+        @Schema(name = "query", description = "The query, in the syntax given by the syntax field. An hxql query provides the statement the request selects from, an expr query only filters it.", example = "SELECT * FROM SysContent") //
         String query, //
+        @Schema(name = "syntax", description = "The syntax the query is expressed in; absent for the default hxql syntax.", //
+                allowableValues = { QuerySyntax.HXQL_VALUE, QuerySyntax.EXPR_VALUE }) //
+        @JsonInclude(Include.NON_NULL) QuerySyntax syntax, //
         List<RestPredicate> predicates) {
 
     public static WhereClauseDTO of(String query, List<RestPredicate> predicates) {
-        return new WhereClauseDTO(query, predicates);
+        return new WhereClauseDTO(query, null, predicates);
+    }
+
+    /** A definition whose query is an expression, filtering whatever statement the request selects from. */
+    public static WhereClauseDTO ofExpr(String expr, List<RestPredicate> predicates) {
+        return new WhereClauseDTO(expr, QuerySyntax.EXPR, predicates);
     }
 
     public WhereClauseDTO {
+        // the default syntax needs no mention
+        syntax = QuerySyntax.nonDefault(syntax);
         if (predicates == null) {
             predicates = List.of();
         }
+    }
+
+    /**
+     * Whether this definition provides the statement to select from, which only an HXQL query does; an expression is
+     * just one more filter.
+     */
+    public boolean hasStatement() {
+        // a null syntax is really hxql, the default the constructor leaves unmentioned
+        return QuerySyntax.defaulted(syntax) == QuerySyntax.HXQL && StringUtils.isNotBlank(query);
     }
 
     /**

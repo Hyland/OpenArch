@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
+import org.nuxeo.ecm.core.query.QuerySyntax;
 import org.nuxeo.rest.query.spec.NamedQueryDefinition;
 
 /**
@@ -45,8 +46,11 @@ import org.nuxeo.rest.query.spec.NamedQueryDefinition;
 public record DocumentAdvancedQueryDTO( //
         @Schema(name = "repositoryId", description = "The id of the internal repository", defaultValue = "default") //
         String repositoryId, //
-        @Schema(name = "query", description = "The HXQL query.", example = "SELECT * FROM SysContent") //
+        @Schema(name = "query", description = "The query, in the syntax given by the syntax field.", example = "SELECT * FROM SysContent") //
         String query, //
+        @Schema(name = "syntax", description = "The syntax the query is expressed in. The default hxql syntax expects a full HXQL statement, the expr syntax an expression used as a filter.", //
+                allowableValues = { QuerySyntax.HXQL_VALUE, QuerySyntax.EXPR_VALUE }, defaultValue = QuerySyntax.HXQL_VALUE) //
+        QuerySyntax syntax, //
         @Schema(name = "limit", description = "Max number of documents retrieved by the given query.", example = "100", defaultValue = "10") //
         Long limit, //
         @Schema(name = "offset", description = "The initial document offset; for pagination support.", example = "0", defaultValue = "0") //
@@ -73,9 +77,13 @@ public record DocumentAdvancedQueryDTO( //
     public static final String SEARCH_AFTER_PROP = "searchAfter";
 
     public DocumentAdvancedQueryDTO {
-        if (StringUtils.isBlank(query)
-                && (whereClauseDefinition == null || StringUtils.isBlank(whereClauseDefinition.query()))) {
-            query = DEFAULT_SELECT_STATEMENT;
+        syntax = QuerySyntax.defaulted(syntax);
+        if (StringUtils.isBlank(query)) {
+            // HXQL needs a statement to select from, unless the where clause definition already provides one,
+            // whereas an expression filters nothing out when there is none
+            boolean needsStatement = syntax == QuerySyntax.HXQL
+                    && (whereClauseDefinition == null || !whereClauseDefinition.hasStatement());
+            query = needsStatement ? DEFAULT_SELECT_STATEMENT : null;
         }
         if (sort == null) {
             sort = List.of();
@@ -92,28 +100,36 @@ public record DocumentAdvancedQueryDTO( //
     }
 
     public DocumentAdvancedQueryDTO(String repositoryId) {
-        this(repositoryId, DEFAULT_SELECT_STATEMENT, null, 0, null, true, null, null, null, null, null);
+        this(repositoryId, DEFAULT_SELECT_STATEMENT, null, null, 0, null, true, null, null, null, null, null);
     }
 
     public DocumentAdvancedQueryDTO(DocumentQueryDTO query) {
-        this(query.repositoryId(), query.query(), query.limit(), query.offset(), query.searchAfter(),
+        this(query.repositoryId(), query.query(), query.syntax(), query.limit(), query.offset(), query.searchAfter(),
                 query.trackTotalCount(), query.trackTotalCountUpTo(), query.sort(), null, null, null);
     }
 
     public DocumentAdvancedQueryDTO(String repositoryId, String query, Long limit, long offset, Boolean trackTotalCount,
             Integer trackTotalCountUpTo, List<String> sort) {
-        this(repositoryId, query, limit, offset, null, trackTotalCount, trackTotalCountUpTo, sort, null, null, null);
+        this(repositoryId, query, null, limit, offset, null, trackTotalCount, trackTotalCountUpTo, sort, null, null,
+                null);
     }
 
     public DocumentAdvancedQueryDTO(String repositoryId, String query, Long limit, long offset, boolean trackTotalCount, int trackTotalCountUpTo, List<String> sort, Map<String, Object> parameters, WhereClauseDTO whereClauseDefinition,
             List<String> quickFilterClauses) {
-        this(repositoryId, query, limit, offset, null, trackTotalCount, trackTotalCountUpTo, sort, parameters, whereClauseDefinition,
+        this(repositoryId, query, null, limit, offset, null, trackTotalCount, trackTotalCountUpTo, sort, parameters, whereClauseDefinition,
                 quickFilterClauses);
     }
 
+    public DocumentAdvancedQueryDTO(String repositoryId, String query, Long limit, long offset, String searchAfter,
+            Boolean trackTotalCount, Integer trackTotalCountUpTo, List<String> sort, Map<String, Object> parameters,
+            WhereClauseDTO whereClauseDefinition, List<String> quickFilterClauses) {
+        this(repositoryId, query, null, limit, offset, searchAfter, trackTotalCount, trackTotalCountUpTo, sort,
+                parameters, whereClauseDefinition, quickFilterClauses);
+    }
+
     public DocumentAdvancedQueryDTO(DocumentNamedQueryDTO query, NamedQueryDefinition definition) {
-        this(query.repositoryId(), null, query.limit(), query.offset(), query.searchAfter(), query.trackTotalCount(),
-                query.trackTotalCountUpTo(),
+        this(query.repositoryId(), null, null, query.limit(), query.offset(), query.searchAfter(),
+                query.trackTotalCount(), query.trackTotalCountUpTo(),
                 buildSort(query, definition),
                 query.parameters(),
                 definition.whereClauseDefinition(),

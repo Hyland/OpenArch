@@ -22,6 +22,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;
 
+import org.nuxeo.ecm.core.query.QuerySyntax;
 import org.nuxeo.rest.embedding.EmbeddingRestDTO;
 import org.nuxeo.rest.query.spec.QuerySpecification;
 
@@ -38,8 +39,12 @@ public record EmbeddingQueryResultDTO( //
                                        String repositoryId,
                                        @Schema(name = "vector", description = "The supplied vector") //
                                        List<Double> vector,
-                                       @Schema(name = "query", description = "The HXQL query.", example = "SELECT * FROM SysContent") //
+                                       @Schema(name = "query", description = "The query, in the syntax it was expressed in.", example = "SELECT * FROM SysContent") //
                                        String query,
+                                       @Schema(name = "syntax", description = "The syntax the query is expressed in; absent for the default hxql syntax.", //
+                                               allowableValues = { QuerySyntax.HXQL_VALUE, QuerySyntax.EXPR_VALUE }) //
+                                       @JsonInclude(Include.NON_NULL) //
+                                       QuerySyntax syntax,
                                        @Schema(name = "limit", description = "Max number of embeddings retrieved by the given query.", example = "100", defaultValue = "0") //
                                        long limit,
                                        @Schema(name = "offset", description = "Actual embedding offset; for pagination support.", example = "0", defaultValue = "0") //
@@ -60,6 +65,8 @@ public record EmbeddingQueryResultDTO( //
                                        Long totalCount) {
 
     public EmbeddingQueryResultDTO {
+        // the default syntax needs no mention in the response
+        syntax = QuerySyntax.nonDefault(syntax);
         if (embeddings == null) {
             embeddings = List.of();
         }
@@ -81,8 +88,8 @@ public record EmbeddingQueryResultDTO( //
 
     public EmbeddingQueryResultDTO(QuerySpecification spec, List<Double> vector, List<EmbeddingRestDTO> embeddings, Long totalCount,
                                    Boolean totalCountTruncated) {
-        this(spec.repositoryId(), vector, spec.boundQuery(), spec.limit(), spec.offset(), spec.trackTotalCount(),
-                totalCountTruncated, embeddings, totalCount);
+        this(spec.repositoryId(), vector, spec.boundQuery(), spec.syntax(), spec.limit(), spec.offset(),
+                spec.trackTotalCount(), totalCountTruncated, embeddings, totalCount);
     }
 
     @JsonProperty("count")

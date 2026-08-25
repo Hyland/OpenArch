@@ -19,8 +19,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSFILE_BLOB;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
 import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FILE;
-import static com.hyland.hxpr.expr.ExprEvaluator.CONTEXT_CONTENT;
-import static com.hyland.hxpr.expr.ExprEvaluator.CONTEXT_USER;
 
 import java.util.Map;
 
@@ -70,9 +68,7 @@ public class TestExprEvaluatorOnInternalDocument {
         idoc.setValue("mydc_source", "internal");
 
         NuxeoPrincipal principal = new UserPrincipal("", null, false);
-        Map<String, Object> context = Map.of( //
-                CONTEXT_CONTENT, idoc, //
-                CONTEXT_USER, principal);
+        Map<String, Object> context = ExprEvaluator.documentContext(idoc, principal);
         Expr expr = new ExpressionVisitor().parse(string);
         return new ExprEvaluator(context, internalSession.getSchemaManager()).evaluateValue(expr);
     }

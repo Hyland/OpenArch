@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.nuxeo.ecm.core.query.QuerySyntax;
 
 /**
  * Represents a vector search query.
@@ -37,8 +38,11 @@ public record EmbeddingQueryDTO( //
                                  List<Double> vector,
                                  @Schema(name = "chunkFTS", description = "An optional space-separated list of terms to search for in the chunk.") //
                                  String chunkFTS,
-                                 @Schema(name = "query", description = "The HXQL query used to filter the embeddings by the corresponding document.", example = DEFAULT_SELECT_STATEMENT, defaultValue = DEFAULT_SELECT_STATEMENT) //
+                                 @Schema(name = "query", description = "The query used to filter the embeddings by the corresponding document, in the syntax given by the syntax field.", example = DEFAULT_SELECT_STATEMENT, defaultValue = DEFAULT_SELECT_STATEMENT) //
                                  String query,
+                                 @Schema(name = "syntax", description = "The syntax the query is expressed in. The default hxql syntax expects a full HXQL statement, the expr syntax an expression used as a filter.", //
+                                         allowableValues = { QuerySyntax.HXQL_VALUE, QuerySyntax.EXPR_VALUE }, defaultValue = QuerySyntax.HXQL_VALUE) //
+                                 QuerySyntax syntax,
                                  @Schema(name = "limit", description = "Max number of embeddings retrieved by the given query.", example = "100", defaultValue = "10") //
                                  Long limit,
                                  @Schema(name = "offset", description = "The initial embedding offset; for pagination support.", example = "0", defaultValue = "0") //
@@ -48,8 +52,10 @@ public record EmbeddingQueryDTO( //
                                  @Schema(name = "trackTotalCountUpTo", description = "Max number of embeddings to count. This can be set to -1 to remove the limit but it will be expensive on large indexes.", example = "100") //
                                  Integer trackTotalCountUpTo) {
     public EmbeddingQueryDTO {
+        syntax = QuerySyntax.defaulted(syntax);
         if (StringUtils.isBlank(query)) {
-            query = DEFAULT_SELECT_STATEMENT;
+            // HXQL needs a statement to select from, whereas an expression filters nothing out when there is none
+            query = syntax == QuerySyntax.HXQL ? DEFAULT_SELECT_STATEMENT : null;
         }
         if (limit == null) {
             limit = DEFAULT_LIMIT_VALUE;
@@ -57,6 +63,6 @@ public record EmbeddingQueryDTO( //
     }
 
     public EmbeddingQueryDTO(String repositoryId, String embeddingType, List<Double> vector, String chunkFTS, String query, long limit, long offset) {
-        this(repositoryId, embeddingType, vector, chunkFTS, query, limit, offset, true, null);
+        this(repositoryId, embeddingType, vector, chunkFTS, query, null, limit, offset, true, null);
     }
 }

@@ -42,10 +42,6 @@ public class UserAttributeExpressionSecurityPolicy extends AbstractSecurityPolic
 
     public static final String SECURITY_EXPRESSION_ATTRIBUTE_NAME = "_SecurityExpression";
 
-    public static final String CONTEXT_CONTENT = "content";
-
-    public static final String CONTEXT_USER = "user";
-
     private static final String FAILED_TO_EVALUATE_ON_SECURITY_POLICY = "Failed to evaluate: {} on security policy: {}: {}";
 
     private static final String USER_ATTRIBUTE_EXPRESSION_POLICY_NAME = "userAttributeExpression";
@@ -92,9 +88,7 @@ public class UserAttributeExpressionSecurityPolicy extends AbstractSecurityPolic
             return true;
         }
 
-        var context = Map.of( //
-                CONTEXT_CONTENT, doc, //
-                CONTEXT_USER, principal);
+        var context = ExprEvaluator.documentContext(doc, principal);
 
         Object extSecExpr = getUserAttributeSecurityExpression(principal);
         if (!(extSecExpr instanceof String expressionString)) {
@@ -117,9 +111,7 @@ public class UserAttributeExpressionSecurityPolicy extends AbstractSecurityPolic
 
     @Override
     public Operand getQueryClause(QueryParameters queryParams, Set<String> principals) {
-        var context = Map.of( //
-                CONTEXT_CONTENT, ExprEvaluator.CONTENT, //
-                CONTEXT_USER, queryParams.principal());
+        var context = ExprEvaluator.queryContext(queryParams.principal());
         Object extSecExpr = getUserAttributeSecurityExpression(queryParams.principal());
         if (!(extSecExpr instanceof String expressionString)) {
             return BooleanLiteral.LIT_TRUE;

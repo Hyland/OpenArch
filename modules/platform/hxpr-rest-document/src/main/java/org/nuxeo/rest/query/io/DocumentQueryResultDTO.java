@@ -20,6 +20,7 @@ import static org.apache.commons.lang3.BooleanUtils.isTrue;
 
 import java.util.List;
 
+import org.nuxeo.ecm.core.query.QuerySyntax;
 import org.nuxeo.rest.document.DocumentDTO;
 import org.nuxeo.rest.query.spec.QuerySpecification;
 
@@ -40,8 +41,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public record DocumentQueryResultDTO( //
         @Schema(name = "repositoryId", description = "The id of the internal repository.", defaultValue = "default") //
         String repositoryId, //
-        @Schema(name = "query", description = "The HXQL query.", example = "SELECT * FROM SysContent") //
+        @Schema(name = "query", description = "The query, in the syntax it was expressed in.", example = "SELECT * FROM SysContent") //
         String query, //
+        @Schema(name = "syntax", description = "The syntax the query is expressed in; absent for the default hxql syntax.", //
+                allowableValues = { QuerySyntax.HXQL_VALUE, QuerySyntax.EXPR_VALUE }) //
+        @JsonInclude(Include.NON_NULL) QuerySyntax syntax, //
         @Schema(name = "limit", description = "Max number of documents retrieved by the given query.", example = "100", defaultValue = "10") //
         Long limit, //
         @Schema(name = "offset", description = "Actual document offset; for pagination support.", example = "0", defaultValue = "0") //
@@ -58,6 +62,8 @@ public record DocumentQueryResultDTO( //
         @JsonInclude(Include.NON_NULL) String nextSearchAfter) {
 
     public DocumentQueryResultDTO {
+        // the default syntax needs no mention in the response
+        syntax = QuerySyntax.nonDefault(syntax);
         if (documents == null) {
             documents = List.of();
         }
@@ -75,7 +81,8 @@ public record DocumentQueryResultDTO( //
 
     public DocumentQueryResultDTO(String repositoryId, String query, long limit, long offset, Boolean trackTotalCount,
             Boolean totalCountIsTruncated, List<DocumentDTO> documents, Long totalCount) {
-        this(repositoryId, query, limit, offset, trackTotalCount, totalCountIsTruncated, documents, totalCount, null);
+        this(repositoryId, query, null, limit, offset, trackTotalCount, totalCountIsTruncated, documents, totalCount,
+                null);
     }
 
     public DocumentQueryResultDTO(QuerySpecification spec, List<DocumentDTO> documents, long totalCount) {
@@ -89,8 +96,8 @@ public record DocumentQueryResultDTO( //
 
     public DocumentQueryResultDTO(QuerySpecification spec, List<DocumentDTO> documents, long totalCount,
             boolean totalCountTruncated, String nextSearchAfter) {
-        this(spec.repositoryId(), spec.boundQuery(), spec.limit(), spec.offset(), spec.trackTotalCount(),
-                totalCountTruncated, documents, totalCount, nextSearchAfter);
+        this(spec.repositoryId(), spec.boundQuery(), spec.syntax(), spec.limit(), spec.offset(),
+                spec.trackTotalCount(), totalCountTruncated, documents, totalCount, nextSearchAfter);
     }
 
     @JsonProperty("count")

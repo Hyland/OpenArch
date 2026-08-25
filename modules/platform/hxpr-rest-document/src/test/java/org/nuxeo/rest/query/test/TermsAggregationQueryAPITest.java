@@ -41,6 +41,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.nuxeo.ecm.core.api.local.WithUser;
+import org.nuxeo.ecm.core.query.QuerySyntax;
 import org.nuxeo.rest.document.test.ContentTestHelper;
 import org.nuxeo.rest.query.OpenSearchQueryManager;
 import org.nuxeo.rest.query.QueryAPI;
@@ -82,6 +83,23 @@ public class TermsAggregationQueryAPITest extends AbstractQueryAPITest {
              }
             """;
 
+    static final String JSON_PAYLOAD_WITH_SYNTAX = """
+             {
+               "termsAggregationProperty": "%s",
+               "limit": "%s",
+               "searchTerm": %s,
+               "query": {
+                 "limit": 0,
+                 "offset": 0,
+                 "query": "%s",
+                 "syntax": "%s",
+                 "repositoryId": "%s",
+                 "trackTotalCount": true,
+                 "trackTotalCountUpTo": -1
+               }
+             }
+            """;
+
     @Autowired
     OpenSearchQueryManager openSearchQueryManager;
 
@@ -111,6 +129,15 @@ public class TermsAggregationQueryAPITest extends AbstractQueryAPITest {
             String searchTerm, int aggregationLimit, String hxqlQuery) throws Exception {
         String searchString = searchTerm == null ? null : '"' + searchTerm + '"';
         String payload = JSON_PAYLOAD.formatted(propertyField, aggregationLimit, searchString, hxqlQuery, REPO_ID);
+        return checkResponseWithPayload(expectedStatus, POST, REPO_ID, payload, API_PATH);
+    }
+
+    /** Same, with the documents to aggregate over filtered by a query in the given syntax. */
+    protected ResultActions checkTermsAggregationResponse(Response.StatusType expectedStatus, String propertyField,
+            String searchTerm, int aggregationLimit, String query, String syntax) throws Exception {
+        String searchString = searchTerm == null ? null : '"' + searchTerm + '"';
+        String payload = JSON_PAYLOAD_WITH_SYNTAX.formatted(propertyField, aggregationLimit, searchString, query,
+                syntax, REPO_ID);
         return checkResponseWithPayload(expectedStatus, POST, REPO_ID, payload, API_PATH);
     }
 
@@ -232,6 +259,14 @@ public class TermsAggregationQueryAPITest extends AbstractQueryAPITest {
         void testHxqlFilteredQueries(String query, String expectedJsonPath) throws Exception {
             ResultActions results = checkTermsAggregationResponse(STRING_LIST_PROP_PATH, "so", DEFAULT_LIMIT, query);
             checkResponseBody(expectedJsonPath, results);
+        }
+
+        /** The documents to aggregate over can be filtered with an expression instead of HXQL. */
+        @Test
+        void testExprFilteredQuery() throws Exception {
+            ResultActions results = checkTermsAggregationResponse(OK, STRING_LIST_PROP_PATH, "so", DEFAULT_LIMIT,
+                    "content.sys_description == \\\"source-1\\\"", QuerySyntax.EXPR_VALUE);
+            checkResponseBody("rest/terms_aggregation_query_res_expr_source_1.json", results);
         }
 
         @Test

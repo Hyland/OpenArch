@@ -1,0 +1,13 @@
+{
+  "repositoryId": "test",
+  "query": "content.mydc_coverage == \"Coverage0\" && content.mydc_nature != \"Nature0\"",
+  "syntax": "expr",
+  "limit": -1,
+  "offset": 0,
+  "sort": [
+    "sys_title"
+  ],
+  "quickFilterClauses": [
+    "mydc_coverage != 'Coverage1'"
+  ]
+}

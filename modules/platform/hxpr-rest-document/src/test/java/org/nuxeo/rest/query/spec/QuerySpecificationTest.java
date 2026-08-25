@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Test;
 import org.nuxeo.ecm.core.query.sql.HXQLParser;
 import org.nuxeo.ecm.core.query.sql.model.Statement;
 import org.nuxeo.rest.query.io.DocumentAdvancedQueryDTO;
+import org.nuxeo.ecm.core.query.QuerySyntax;
 import org.nuxeo.rest.query.io.DocumentQueryDTO;
 import org.nuxeo.rest.query.spec.QueryAssembler.AssembledQuery;
 
@@ -60,7 +61,7 @@ public class QuerySpecificationTest {
 
     @Test
     public void createQuerySpecification() {
-        QuerySpecification querySpecification = new QuerySpecification(REPO_ID, QUERY, Map.of("p", "a"),
+        QuerySpecification querySpecification = new QuerySpecification(REPO_ID, QUERY, null, QUERY, Map.of("p", "a"),
                 BOUND_STATEMENT, LIMIT, OFFSET, SEARCH_AFTER, COUNT_UPTO, TRACK_TOTAL_COUNT, TRACK_TOTAL_COUNT_UPTO,
                 SORT);
 
@@ -98,6 +99,26 @@ public class QuerySpecificationTest {
         assertEquals(List.of(TITLE_SORT), querySpecification.sort());
     }
 
+    /** An expr request echoes its expression, and no expression echoes as none rather than as the statement. */
+    @Test
+    public void createQuerySpecificationWithExprSyntax() {
+        String expr = "content.sys_title == \"a\"";
+        DocumentAdvancedQueryDTO dto = new DocumentAdvancedQueryDTO(REPO_ID, expr, QuerySyntax.EXPR, LIMIT, OFFSET,
+                null, TRACK_TOTAL_COUNT, TRACK_TOTAL_COUNT_UPTO, SORT, null, null, null);
+        QuerySpecification querySpecification = new QuerySpecification(dto,
+                new AssembledQuery(BOUND_STATEMENT, BOUND_QUERY), LIMIT, COUNT_UPTO, TRACK_TOTAL_COUNT,
+                TRACK_TOTAL_COUNT_UPTO);
+        assertEquals(BOUND_QUERY, querySpecification.query());
+        assertEquals(QuerySyntax.EXPR, querySpecification.syntax());
+        assertEquals(expr, querySpecification.boundQuery());
+
+        dto = new DocumentAdvancedQueryDTO(REPO_ID, null, QuerySyntax.EXPR, LIMIT, OFFSET, null, TRACK_TOTAL_COUNT,
+                TRACK_TOTAL_COUNT_UPTO, SORT, null, null, null);
+        querySpecification = new QuerySpecification(dto, new AssembledQuery(BOUND_STATEMENT, BOUND_QUERY), LIMIT,
+                COUNT_UPTO, TRACK_TOTAL_COUNT, TRACK_TOTAL_COUNT_UPTO);
+        assertNull(querySpecification.boundQuery());
+    }
+
     @Test
     public void createQuerySpecificationWithDocumentAdvancedQueryDTO() {
         DocumentAdvancedQueryDTO documentAdvancedQueryDTO = new DocumentAdvancedQueryDTO(REPO_ID, QUERY, LIMIT,
@@ -130,8 +151,9 @@ public class QuerySpecificationTest {
     public void createQuerySpecificationWithUnsuppliedParameter() {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("byTitle", null);
-        QuerySpecification querySpecification = new QuerySpecification(REPO_ID, QUERY, parameters, BOUND_STATEMENT,
-                LIMIT, OFFSET, SEARCH_AFTER, COUNT_UPTO, TRACK_TOTAL_COUNT, TRACK_TOTAL_COUNT_UPTO, SORT);
+        QuerySpecification querySpecification = new QuerySpecification(REPO_ID, QUERY, null, QUERY, parameters,
+                BOUND_STATEMENT, LIMIT, OFFSET, SEARCH_AFTER, COUNT_UPTO, TRACK_TOTAL_COUNT, TRACK_TOTAL_COUNT_UPTO,
+                SORT);
 
         assertTrue(querySpecification.parameters().containsKey("byTitle"));
         assertNull(querySpecification.parameters().get("byTitle"));
@@ -140,7 +162,7 @@ public class QuerySpecificationTest {
     /** Sorts and parameters default to empty rather than being null. */
     @Test
     public void createQuerySpecificationWithoutSort() {
-        QuerySpecification querySpecification = new QuerySpecification(REPO_ID, QUERY, null,
+        QuerySpecification querySpecification = new QuerySpecification(REPO_ID, QUERY, null, QUERY, null,
                 HXQLParser.parse(QUERY), LIMIT, OFFSET, null, COUNT_UPTO, TRACK_TOTAL_COUNT, TRACK_TOTAL_COUNT_UPTO,
                 null);
         assertEquals(List.of(), querySpecification.sort());

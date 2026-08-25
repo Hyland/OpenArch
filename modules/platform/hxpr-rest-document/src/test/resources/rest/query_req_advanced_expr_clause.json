@@ -1,0 +1,29 @@
+{
+  "repositoryId": "test",
+  "query": "SELECT * FROM SysContent",
+  "limit": -1,
+  "offset": 0,
+  "sort": [
+    "sys_title"
+  ],
+  "parameters": {
+    "searchCoverages": [
+      "Coverage0"
+    ]
+  },
+  "whereClauseDefinition": {
+    "query": "content.mydc_nature != \"Nature0\"",
+    "syntax": "expr",
+    "predicates": [
+      {
+        "searchParameter": "mydc_coverage",
+        "operator": "IN",
+        "parameters": [
+          {
+            "name": "searchCoverages"
+          }
+        ]
+      }
+    ]
+  }
+}

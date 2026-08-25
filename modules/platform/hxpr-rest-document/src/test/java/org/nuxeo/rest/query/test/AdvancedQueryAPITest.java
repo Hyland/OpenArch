@@ -206,6 +206,20 @@ public class AdvancedQueryAPITest extends AbstractQueryAPITest {
         checkQueryResponseBody("rest/query_res_advanced.json", result);
     }
 
+    /** A full request and response, with the query expressed as an expression next to a quick filter clause. */
+    @Test
+    public void testQueryWithExprSyntax() throws Exception {
+        var result = checkPostResponse(OK, "rest/query_req_advanced_expr.json");
+        checkQueryResponseBody("rest/query_res_advanced_expr.json", result);
+    }
+
+    /** A where clause definition can filter with an expression, on top of the statement the request selects from. */
+    @Test
+    public void testQueryWithExprWhereClause() throws Exception {
+        var result = checkPostResponse(OK, "rest/query_req_advanced_expr_clause.json");
+        checkQueryResponseBody("rest/query_res_advanced_expr_clause.json", result);
+    }
+
     @Test
     public void testQueryNull() throws Exception {
         checkPostResponse(OK, "rest/query_req_advanced_null.json", (Object[]) null);

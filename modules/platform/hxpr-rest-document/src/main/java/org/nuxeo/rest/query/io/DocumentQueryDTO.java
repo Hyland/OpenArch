@@ -24,6 +24,7 @@ import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
+import org.nuxeo.ecm.core.query.QuerySyntax;
 import org.nuxeo.ecm.core.query.nxql.SortInfo;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -39,8 +40,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public record DocumentQueryDTO( //
         @Schema(name = "repositoryId", description = "The id of the internal repository.", defaultValue = "default") //
         String repositoryId, //
-        @Schema(name = "query", description = "The HXQL query.", example = "SELECT * FROM SysContent") //
+        @Schema(name = "query", description = "The query, in the syntax given by the syntax field.", example = "SELECT * FROM SysContent") //
         String query, //
+        @Schema(name = "syntax", description = "The syntax the query is expressed in. The default hxql syntax expects a full HXQL statement, the expr syntax an expression used as a filter.", //
+                allowableValues = { QuerySyntax.HXQL_VALUE, QuerySyntax.EXPR_VALUE }, defaultValue = QuerySyntax.HXQL_VALUE) //
+        QuerySyntax syntax, //
         @Schema(name = "limit", description = "Max number of documents retrieved by the given query.", example = "100", defaultValue = "10") //
         Long limit, //
         @Schema(name = "offset", description = "The initial document offset; for pagination support.", example = "0", defaultValue = "0") //
@@ -67,8 +71,10 @@ public record DocumentQueryDTO( //
     public static final Long DEFAULT_LIMIT_VALUE = 10L;
 
     public DocumentQueryDTO {
+        syntax = QuerySyntax.defaulted(syntax);
         if (StringUtils.isBlank(query)) {
-            query = DEFAULT_SELECT_STATEMENT;
+            // HXQL needs a statement to select from, whereas an expression filters nothing out when there is none
+            query = syntax == QuerySyntax.HXQL ? DEFAULT_SELECT_STATEMENT : null;
         }
         if (sort == null) {
             sort = List.of();
@@ -79,16 +85,21 @@ public record DocumentQueryDTO( //
     }
 
     public DocumentQueryDTO(String repositoryId) {
-        this(repositoryId, null, null, 0, null, true, null, null);
+        this(repositoryId, null, null, null, 0, null, true, null, null);
     }
 
     public DocumentQueryDTO(String repositoryId, String query, Long limit, long offset, List<String> sort) {
-        this(repositoryId, query, limit, offset, null, true, null, sort);
+        this(repositoryId, query, null, limit, offset, null, true, null, sort);
     }
 
     public DocumentQueryDTO(String repositoryId, String query, Long limit, long offset, Boolean trackTotalCount,
             Integer trackTotalCountUpTo, List<String> sort) {
-        this(repositoryId, query, limit, offset, null, trackTotalCount, trackTotalCountUpTo, sort);
+        this(repositoryId, query, null, limit, offset, null, trackTotalCount, trackTotalCountUpTo, sort);
+    }
+
+    public DocumentQueryDTO(String repositoryId, String query, Long limit, long offset, String searchAfter,
+            Boolean trackTotalCount, Integer trackTotalCountUpTo, List<String> sort) {
+        this(repositoryId, query, null, limit, offset, searchAfter, trackTotalCount, trackTotalCountUpTo, sort);
     }
 
     public static List<SortInfo> getSortInfos(List<String> sort) {
