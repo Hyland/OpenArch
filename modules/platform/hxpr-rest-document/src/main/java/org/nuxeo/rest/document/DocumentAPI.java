@@ -22,6 +22,7 @@ import static org.nuxeo.rest.utils.Headers.HXCS_REPOSITORY;
 import static org.nuxeo.rest.utils.QueryParameters.CONDITION;
 import static org.nuxeo.rest.utils.QueryParameters.ENFORCE_SYS_NAME;
 import static org.nuxeo.rest.utils.QueryParameters.IF;
+import static org.nuxeo.rest.utils.QueryParameters.UPSERT;
 import static org.nuxeo.rest.utils.Versions.APP_HXCS_JSON;
 import static org.nuxeo.rest.utils.Versions.APP_HXCS_JSON_V1;
 import static org.springframework.http.MediaType.ALL_VALUE;
@@ -34,10 +35,15 @@ import io.swagger.v3.oas.annotations.links.LinkParameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.nuxeo.ecm.core.api.IdRef;
+import org.nuxeo.ecm.core.api.NuxeoException;
+import org.nuxeo.ecm.core.api.PathRef;
 import org.nuxeo.ecm.core.api.PathRefUtils;
 import org.nuxeo.rest.swagger.annotation.ApiResponse200;
 import org.nuxeo.rest.swagger.annotation.ApiResponse404DocumentNotFound;
+import org.nuxeo.rest.swagger.annotation.ApiResponse409;
 import org.nuxeo.rest.swagger.annotation.ApiResponse412;
 import org.nuxeo.rest.swagger.annotation.Authenticated;
 import org.nuxeo.rest.swagger.annotation.ParameterCondition;
@@ -46,7 +52,9 @@ import org.nuxeo.rest.swagger.annotation.ParameterDocId;
 import org.nuxeo.rest.swagger.annotation.ParameterDocPath;
 import org.nuxeo.rest.swagger.annotation.ParameterEnforceSysName;
 import org.nuxeo.rest.swagger.annotation.ParameterRepoId;
+import org.nuxeo.rest.swagger.annotation.ParameterUpsert;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -122,7 +130,7 @@ public class DocumentAPI extends AbstractDocumentAPI {
             @PathVariable("docId") @Parameter(description = "The parent document id.") String parentId,
             @RequestParam(name = ENFORCE_SYS_NAME, defaultValue = "false") @ParameterEnforceSysName boolean enforceSysName,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId,
-            @RequestBody(required = false) DocumentDTO doc) {
+            @RequestBody DocumentDTO doc) {
         return documentManager.createDocument(repoId, new IdRef(parentId), doc, enforceSysName);
     }
 
@@ -134,38 +142,72 @@ public class DocumentAPI extends AbstractDocumentAPI {
             @RequestParam(name = ENFORCE_SYS_NAME, defaultValue = "false") @ParameterEnforceSysName boolean enforceSysName,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId,
             @PathVariable() @ParameterDocPath String docPath,
-            @RequestBody(required = false) DocumentDTO doc) {
+            @RequestBody DocumentDTO doc) {
         return documentManager.createDocument(repoId, PathRefUtils.getPathRef(docPath), doc, enforceSysName);
     }
 
     @PutMapping(path = "/{docId}", consumes = APPLICATION_JSON_VALUE)
-    @Operation(summary = "Updates the document with given id.", operationId = "updateDocumentById")
+    @Operation(summary = "Updates, or creates-or-updates, the document with given id.", operationId = "updateDocumentById")
     @ApiResponse200Document
+    @ApiResponse201Document
     @ApiResponse400SingleAcePerPrincipal
     @ApiResponse404DocumentNotFound
+    @ApiResponse409(description = "Upsert conflict: re-parenting attempted, or a concurrent modification.")
     @ApiResponse412(description = "Condition evaluated to false.")
-    public DocumentDTO updateDocumentById(@PathVariable("docId") @ParameterDocId String docId,
+    public ResponseEntity<DocumentDTO> updateDocumentById(@PathVariable("docId") @ParameterDocId String docId,
             @RequestParam(name = CONDITION, defaultValue = "") @ParameterCondition String hxql,
             @RequestParam(name = IF, defaultValue = "") @ParameterIf String expr,
+            @RequestParam(name = UPSERT, defaultValue = "false") @ParameterUpsert boolean upsert,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId,
-            @RequestBody(required = false) DocumentDTO doc) {
-        return documentManager.updateDocument(repoId, new IdRef(docId), doc, toUpdateCondition(hxql, expr));
+            @RequestBody DocumentDTO doc) {
+        if (upsert) {
+            rejectConditionWithUpsert(hxql, expr);
+            // create-or-update matched by id; creating one needs the parent id and the name from the body
+            doc.setId(docId);
+            UpsertDocumentResult result = documentManager.upsertDocument(repoId, new IdRef(doc.getParentId()), doc,
+                    true);
+            return ResponseEntity.status(result.created() ? HttpStatus.CREATED : HttpStatus.OK).body(result.document());
+        } else {
+            return ResponseEntity.ok(
+                    documentManager.updateDocument(repoId, new IdRef(docId), doc, toUpdateCondition(hxql, expr)));
+        }
     }
 
     @PutMapping(path = DOC_PATH + "/{*docPath}", consumes = APPLICATION_JSON_VALUE)
-    @Operation(summary = "Updates the document with given path.", operationId = "updateDocumentByPath")
+    @Operation(summary = "Updates, or creates-or-updates, the document with given path.", operationId = "updateDocumentByPath")
     @ApiResponse200Document
+    @ApiResponse201Document
     @ApiResponse400SingleAcePerPrincipal
     @ApiResponse404DocumentNotFound
+    @ApiResponse409(description = "Upsert conflict: re-parenting attempted, or a concurrent modification.")
     @ApiResponse412(description = "Condition evaluated to false.")
-    public DocumentDTO updateDocumentByPath(
+    public ResponseEntity<DocumentDTO> updateDocumentByPath(
             @RequestParam(name = CONDITION, defaultValue = "") @ParameterCondition String hxql,
             @RequestParam(name = IF, defaultValue = "") @ParameterIf String expr,
+            @RequestParam(name = UPSERT, defaultValue = "false") @ParameterUpsert boolean upsert,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId,
             @PathVariable() @ParameterDocPath String docPath,
-            @RequestBody(required = false) DocumentDTO doc) {
-        return documentManager.updateDocument(repoId, PathRefUtils.getPathRef(docPath), doc,
-                toUpdateCondition(hxql, expr));
+            @RequestBody DocumentDTO doc) {
+        if (upsert) {
+            rejectConditionWithUpsert(hxql, expr);
+            // create-or-update matched by path: the path is the target document's path (parent + name);
+            // ensure a leading slash and tolerate a trailing one before splitting off the name
+            String path = StringUtils.isBlank(docPath) ? "/" : Strings.CS.prependIfMissing(docPath, "/");
+            path = StringUtils.stripEnd(path, "/"); // becomes empty for root, which will be rejected below
+            String parentPath = StringUtils.substringBeforeLast(path, "/");
+            String name = StringUtils.substringAfterLast(path, "/");
+            if (StringUtils.isBlank(name)) {
+                throw new NuxeoException("A document name is required in the path for upsert.",
+                        HttpStatus.BAD_REQUEST.value());
+            }
+            doc.setName(name);
+            PathRef parentRef = PathRefUtils.getPathRef(parentPath);
+            UpsertDocumentResult result = documentManager.upsertDocument(repoId, parentRef, doc, false);
+            return ResponseEntity.status(result.created() ? HttpStatus.CREATED : HttpStatus.OK).body(result.document());
+        } else {
+            return ResponseEntity.ok(documentManager.updateDocument(repoId, PathRefUtils.getPathRef(docPath), doc,
+                    toUpdateCondition(hxql, expr)));
+        }
     }
 
     @PatchMapping(path = "/{docId}", consumes = APPLICATION_JSON_PATCH_JSON)
@@ -179,7 +221,7 @@ public class DocumentAPI extends AbstractDocumentAPI {
             @RequestParam(name = CONDITION, defaultValue = "") @ParameterCondition String hxql,
             @RequestParam(name = IF, defaultValue = "") @ParameterIf String expr,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId,
-            @RequestBody(required = false) Object patch) throws JacksonException {
+            @RequestBody Object patch) throws JacksonException {
         return documentManager.patchDocument(repoId, new IdRef(docId), mapper.writeValueAsString(patch),
                 toUpdateCondition(hxql, expr));
     }
@@ -196,7 +238,7 @@ public class DocumentAPI extends AbstractDocumentAPI {
             @RequestParam(name = IF, defaultValue = "") @ParameterIf String expr,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId,
             @PathVariable() @ParameterDocPath String docPath,
-            @RequestBody(required = false) Object patch) throws JacksonException {
+            @RequestBody Object patch) throws JacksonException {
         return documentManager.patchDocument(repoId, PathRefUtils.getPathRef(docPath),
                 mapper.writeValueAsString(patch), toUpdateCondition(hxql, expr));
     }

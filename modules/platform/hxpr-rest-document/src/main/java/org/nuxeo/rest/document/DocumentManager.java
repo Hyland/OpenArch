@@ -34,12 +34,16 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.nuxeo.ecm.core.api.ConcurrentUpdateException;
 import org.nuxeo.ecm.core.api.CoreInstance;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
+import org.nuxeo.ecm.core.api.DocumentNotFoundException;
 import org.nuxeo.ecm.core.api.DocumentRef;
+import org.nuxeo.ecm.core.api.IdRef;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.api.NuxeoPrincipal;
+import org.nuxeo.ecm.core.api.PathRef;
 import org.nuxeo.ecm.core.api.UpdateCondition;
 import org.nuxeo.ecm.core.api.event.CoreEventConstants;
 import org.nuxeo.ecm.core.event.Event;
@@ -56,6 +60,7 @@ import org.nuxeo.rest.upload.UploadDTO;
 import org.nuxeo.rest.upload.UploadService;
 import org.nuxeo.rest.upload.handler.UploadHandler;
 import org.nuxeo.runtime.api.Framework;
+import org.nuxeo.runtime.transaction.TransactionHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -185,6 +190,109 @@ public class DocumentManager {
         session.save();
         docModel.refresh();
         return documentMapper.documentModelToDocumentDTO(docModel);
+    }
+
+    /**
+     * Atomically creates-or-updates a document, reusing the standard create and update paths so that all their
+     * semantics apply (validation, enrichers, fulltext, denormalization, events).
+     * <p>
+     * The target is matched by its id (when {@code matchById}) or by parent id and name. It is created if absent or
+     * updated (merge) if present. A concurrent create is arbitrated by the unique index: the loser gets a
+     * {@link ConcurrentUpdateException} and is retried as an update. Records and documents under retention or legal
+     * hold cannot be updated this way, and re-parenting (by id) is rejected.
+     * <p>
+     * Must be called with an ambient transaction, which the retry replaces with a fresh one; the caller finalizes
+     * whatever transaction is active when this returns (which is what the request transaction filter does).
+     */
+    public UpsertDocumentResult upsertDocument(String repoId, DocumentRef parentRef, DocumentDTO doc,
+            boolean matchById) {
+        try {
+            return upsertDocumentOnce(repoId, parentRef, doc, matchById);
+        } catch (ConcurrentUpdateException e) {
+            // a concurrent create won the race and doomed this transaction
+            // restart it and retry: the document now exists, so this resolves to an update
+            TransactionHelper.setTransactionRollbackOnly();
+            TransactionHelper.commitOrRollbackTransaction();
+            TransactionHelper.startTransaction();
+            return upsertDocumentOnce(repoId, parentRef, doc, matchById);
+        }
+    }
+
+    // runs within the upsertDocument transaction (self-invoked createDocument/updateDocument are not re-wrapped)
+    private UpsertDocumentResult upsertDocumentOnce(String repoId, DocumentRef parentRef, DocumentDTO doc,
+            boolean matchById) {
+        if (doc == null || StringUtils.isBlank(doc.getPrimaryType())) {
+            throw new NuxeoException("Missing sys_primaryType for upsert", Response.Status.BAD_REQUEST.getStatusCode());
+        }
+        DocumentRef targetRef;
+        if (matchById) {
+            if (StringUtils.isBlank(doc.getId())) {
+                throw new NuxeoException("Missing sys_id for upsert by id",
+                        Response.Status.BAD_REQUEST.getStatusCode());
+            }
+            if (!documentMapper.allowSetIdOnCreation) {
+                // otherwise a create would assign a server-generated id, so the next upsert with the same client id
+                // would not find the document and would create a duplicate; refuse rather than silently misbehave
+                throw new NuxeoException("Upsert by id is not enabled (requires "
+                        + DocumentMapper.ALLOW_SET_ID_ON_CREATION + ")", Response.Status.BAD_REQUEST.getStatusCode());
+            }
+            targetRef = new IdRef(doc.getId());
+        } else {
+            if (StringUtils.isBlank(doc.getName())) {
+                throw new NuxeoException("Missing document name for upsert by path",
+                        Response.Status.BAD_REQUEST.getStatusCode());
+            }
+            targetRef = childRef(parentRef, doc.getName());
+        }
+        DocumentModel existing = getIfExists(repoId, targetRef);
+        if (existing != null) {
+            // re-parenting must be rejected explicitly: the update path updates in place and would silently
+            // ignore a changed parent in the request; an unmentioned parent is not a re-parenting request
+            if (matchById && StringUtils.isNotBlank(doc.getParentId())) {
+                String existingParentId = existing.getParentRef() == null ? null : existing.getParentRef().toString();
+                if (!doc.getParentId().equals(existingParentId)) {
+                    throw new NuxeoException("Cannot re-parent via upsert: " + existing.getId(),
+                            Response.Status.CONFLICT.getStatusCode());
+                }
+            }
+            return new UpsertDocumentResult(updateDocument(repoId, targetRef, doc, null), false);
+        } else {
+            if (matchById) {
+                // unlike the update, the create needs to know where to put the document and how to name it
+                if (StringUtils.isBlank(doc.getParentId())) {
+                    throw new NuxeoException("Missing sys_parentId for upsert by id creating a document",
+                            Response.Status.BAD_REQUEST.getStatusCode());
+                }
+                if (StringUtils.isBlank(doc.getName())) {
+                    throw new NuxeoException("Missing sys_name for upsert by id creating a document",
+                            Response.Status.BAD_REQUEST.getStatusCode());
+                }
+            }
+            // create: enforce the requested name so a concurrent create surfaces as a ConcurrentUpdateException
+            return new UpsertDocumentResult(createDocument(repoId, parentRef, doc, true), true);
+        }
+    }
+
+    /**
+     * Gets the document, or {@code null} if there is none. Unlike {@link CoreSession#exists}, a document that exists
+     * but is not readable by the current user is not reported as absent, which would send the upsert into a create
+     * that can only fail on the unique index.
+     */
+    protected DocumentModel getIfExists(String repoId, DocumentRef docRef) {
+        try {
+            return getSession(repoId).getDocument(docRef);
+        } catch (DocumentNotFoundException e) {
+            return null;
+        }
+    }
+
+    /** Builds the reference of the child named {@code name} under the given parent path. */
+    protected DocumentRef childRef(DocumentRef parentRef, String name) {
+        if (parentRef instanceof PathRef pathRef) {
+            // the two-argument constructor deals with the slash and refuses a name that contains one
+            return new PathRef(StringUtils.stripEnd(pathRef.value, "/"), name);
+        }
+        throw new IllegalStateException("Upsert by path requires a PathRef parent, got: " + parentRef);
     }
 
     public DocumentDTO patchDocument(String repoId, DocumentRef docRef, String patchString, UpdateCondition condition)

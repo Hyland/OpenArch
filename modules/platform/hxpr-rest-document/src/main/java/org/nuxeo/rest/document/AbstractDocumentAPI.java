@@ -18,6 +18,7 @@ package org.nuxeo.rest.document;
 import static jakarta.ws.rs.core.MediaType.MULTIPART_FORM_DATA;
 import static org.nuxeo.rest.utils.QueryParameters.CONDITION;
 import static org.nuxeo.rest.utils.QueryParameters.IF;
+import static org.nuxeo.rest.utils.QueryParameters.UPSERT;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 import io.swagger.v3.oas.annotations.media.Content;
@@ -34,11 +35,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.api.UpdateCondition;
 import org.nuxeo.rest.swagger.annotation.ApiResponse200;
+import org.nuxeo.rest.swagger.annotation.ApiResponse201;
 import org.nuxeo.rest.swagger.annotation.ApiResponse204;
 import org.nuxeo.rest.swagger.annotation.ApiResponse400;
 import org.nuxeo.rest.swagger.annotation.ApiResponse404;
 import org.nuxeo.rest.swagger.annotation.SwaggerRequestBody;
 import org.springframework.core.annotation.AliasFor;
+import org.springframework.http.HttpStatus;
 
 public abstract class AbstractDocumentAPI {
 
@@ -82,6 +85,14 @@ public abstract class AbstractDocumentAPI {
         }
     }
 
+    /** A condition (optimistic concurrency) is not supported together with upsert; reject it rather than ignore it. */
+    protected void rejectConditionWithUpsert(String hxql, String expr) {
+        if (StringUtils.isNotBlank(hxql) || StringUtils.isNotBlank(expr)) {
+            throw new NuxeoException("Cannot use " + CONDITION + " or " + IF + " parameters with " + UPSERT,
+                    HttpStatus.BAD_REQUEST.value());
+        }
+    }
+
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
     @Inherited
@@ -97,6 +108,15 @@ public abstract class AbstractDocumentAPI {
     @ApiResponse200()
     public @interface ApiResponse200DocumentPost {
         @AliasFor(annotation = ApiResponse200.class, attribute = "description")
+        String description() default "Returns the created document.";
+    }
+
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Inherited
+    @ApiResponse201(useReturnTypeSchema = true)
+    public @interface ApiResponse201Document {
+        @AliasFor(annotation = ApiResponse201.class, attribute = "description")
         String description() default "Returns the created document.";
     }
 

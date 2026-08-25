@@ -45,4 +45,10 @@ public class QueryParameters {
      */
     public static final String IF = "if";
 
+    /**
+     * Create-or-update flag for PUT: when {@code true}, the document is created if it does not exist, or updated if it
+     * does, in a single atomic operation.
+     */
+    public static final String UPSERT = "upsert";
+
 }
