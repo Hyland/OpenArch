@@ -15,11 +15,14 @@
  */
 package org.nuxeo.opensearch.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.nuxeo.opensearch.client.OpenSearchRestClientFactory.ADDRESS_LIST_PROP;
 import static org.nuxeo.opensearch.client.OpenSearchRestClientFactory.PASSWORD_PROP;
+import static org.nuxeo.opensearch.client.OpenSearchRestClientFactory.RETRY_MAX_ATTEMPTS_PROP;
+import static org.nuxeo.opensearch.client.OpenSearchRestClientFactory.RETRY_WAIT_DURATION_MS_PROP;
 import static org.nuxeo.opensearch.client.OpenSearchRestClientFactory.TRUST_STORE_PASSWORD_PROP;
 import static org.nuxeo.opensearch.client.OpenSearchRestClientFactory.TRUST_STORE_PATH_PROP;
 import static org.nuxeo.opensearch.client.OpenSearchRestClientFactory.TRUST_STORE_TYPE_PROP;
@@ -83,6 +86,19 @@ public class TestOpenSearchRestClientFactory {
         // the transport is created lazily on first request.
         OpenSearchClient osClient = factory.create();
         assertNotNull(osClient);
+        OpenSearchRestClient restClient = assertInstanceOf(OpenSearchRestClient.class, osClient);
+        assertNotNull(restClient.retry);
+        assertEquals(OpenSearchRetryFactory.DEFAULT_MAX_ATTEMPTS, restClient.retry.getRetryConfig().getMaxAttempts());
+    }
+
+    @Test
+    @WithFrameworkProperty(name = RETRY_MAX_ATTEMPTS_PROP, value = "5")
+    @WithFrameworkProperty(name = RETRY_WAIT_DURATION_MS_PROP, value = "10")
+    public void testCreateWiresConfiguredRetry() {
+        // Covers reading opensearch.restClient.retry.* Framework properties in create().
+        OpenSearchRestClient restClient = assertInstanceOf(OpenSearchRestClient.class, factory.create());
+        assertNotNull(restClient.retry);
+        assertEquals(5, restClient.retry.getRetryConfig().getMaxAttempts());
     }
 
     @Test

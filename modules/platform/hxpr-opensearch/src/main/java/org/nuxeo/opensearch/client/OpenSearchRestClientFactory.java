@@ -55,6 +55,7 @@ import org.opensearch.client.json.jackson3.JacksonJsonpMapper;
 import org.opensearch.client.transport.OpenSearchTransport;
 import org.opensearch.client.transport.httpclient5.ApacheHttpClient5TransportBuilder;
 
+import io.github.resilience4j.retry.Retry;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.json.JsonMapper;
@@ -79,6 +80,10 @@ public class OpenSearchRestClientFactory {
     private static final String MAX_CONN_PER_ROUTE_PROP = "opensearch.restClient.maxConnPerRoute";
 
     private static final String MAX_CONN_TOTAL_PROP = "opensearch.restClient.maxConnTotal";
+
+    static final String RETRY_MAX_ATTEMPTS_PROP = "opensearch.restClient.retry.maxAttempts";
+
+    static final String RETRY_WAIT_DURATION_MS_PROP = "opensearch.restClient.retry.waitDurationMs";
 
     static final String USERNAME_PROP = "opensearch.restClient.username";
 
@@ -107,6 +112,11 @@ public class OpenSearchRestClientFactory {
     private static final String MAX_CONN_PER_ROUTE_DEFAULT = "10";
 
     private static final String MAX_CONN_TOTAL_DEFAULT = "30";
+
+    private static final String RETRY_MAX_ATTEMPTS_DEFAULT = String.valueOf(OpenSearchRetryFactory.DEFAULT_MAX_ATTEMPTS);
+
+    private static final String RETRY_WAIT_DURATION_MS_DEFAULT = String.valueOf(
+            OpenSearchRetryFactory.DEFAULT_WAIT_DURATION_MS);
 
     private static final String TRUST_STORE_PATH_DEFAULT = "";
 
@@ -159,7 +169,10 @@ public class OpenSearchRestClientFactory {
         addClientCallback(builder, connectTimeoutMs);
         builder.setMapper(newJsonpMapper());
         OpenSearchTransport transport = builder.build();
-        return new OpenSearchRestClient(newJsonProvider(), newJsonpMapper(), transport);
+        int retryMaxAttempts = Integer.parseInt(prop(RETRY_MAX_ATTEMPTS_PROP, RETRY_MAX_ATTEMPTS_DEFAULT));
+        long retryWaitDurationMs = Long.parseLong(prop(RETRY_WAIT_DURATION_MS_PROP, RETRY_WAIT_DURATION_MS_DEFAULT));
+        Retry retry = OpenSearchRetryFactory.create(retryMaxAttempts, retryWaitDurationMs);
+        return new OpenSearchRestClient(newJsonProvider(), newJsonpMapper(), transport, retry);
     }
 
     protected JsonProvider newJsonProvider() {

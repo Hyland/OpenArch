@@ -21,8 +21,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -37,6 +38,7 @@ import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.opensearch.io.DocumentDTO;
 import org.opensearch.client.json.jackson3.JacksonJsonpMapper;
 import org.opensearch.client.opensearch.OpenSearchClient;
+import org.opensearch.client.opensearch._types.ErrorResponse;
 import org.opensearch.client.opensearch._types.OpenSearchException;
 import org.opensearch.client.opensearch.core.IndexRequest;
 import org.opensearch.client.opensearch.core.IndexResponse;
@@ -58,9 +60,29 @@ class OpenSearchRestClientTest {
 
     @BeforeEach
     void setUp() {
-        restClient = spy(new OpenSearchRestClient(null, new JacksonJsonpMapper(), null));
+        // Fast retry config (2 attempts, 1ms wait) keeps retry-related tests quick while still exercising the
+        // real Resilience4j retry loop.
+        restClient = spy(new OpenSearchRestClient(null, new JacksonJsonpMapper(), null,
+                OpenSearchRetryFactory.create(2, 1)));
         // Inject the mock client
         restClient.client = mockClient;
+    }
+
+    /**
+     * Builds a real, spied {@link OpenSearchException} with the given message, so its message can be overridden
+     * while its {@link Throwable} internals (e.g. captured stack trace) stay properly initialized.
+     * <p>
+     * A raw {@code mock(OpenSearchException.class)} bypasses {@link Throwable}'s constructor entirely, leaving
+     * its internal state incomplete; wrapping a genuinely constructed instance in a spy keeps that state intact
+     * while still allowing {@link OpenSearchException#getMessage()} (and, via {@code statusCode}, {@code status()})
+     * to be overridden for the test.
+     */
+    private static OpenSearchException newOpenSearchException(String message, int statusCode) {
+        ErrorResponse response = ErrorResponse.of(
+                b -> b.error(e -> e.type("exception").reason("original reason")).status(statusCode));
+        OpenSearchException exception = spy(new OpenSearchException(response));
+        doReturn(message).when(exception).getMessage();
+        return exception;
     }
 
     @Test
@@ -103,8 +125,7 @@ class OpenSearchRestClientTest {
                 b -> b.index(TEST_INDEX).id(DOC_ID).document(new DocumentDTO()));
 
         String originalMessage = "failed to parse. Preview of field's value: '{phone=123-456-7890, email=test@example.com}'";
-        OpenSearchException osException = mock(OpenSearchException.class);
-        when(osException.getMessage()).thenReturn(originalMessage);
+        OpenSearchException osException = newOpenSearchException(originalMessage, 0);
 
         when(mockClient.index(any(IndexRequest.class))).thenThrow(osException);
 
@@ -123,8 +144,7 @@ class OpenSearchRestClientTest {
                 b -> b.index(TEST_INDEX).id(DOC_ID).document(new DocumentDTO()));
 
         String normalMessage = "Connection timeout error";
-        OpenSearchException osException = mock(OpenSearchException.class);
-        when(osException.getMessage()).thenReturn(normalMessage);
+        OpenSearchException osException = newOpenSearchException(normalMessage, 0);
 
         when(mockClient.index(any(IndexRequest.class))).thenThrow(osException);
 
@@ -143,6 +163,43 @@ class OpenSearchRestClientTest {
         when(mockClient.index(any(IndexRequest.class))).thenThrow(ioException);
 
         assertThrows(NuxeoException.class, () -> restClient.index(request));
+
+        // IOException is retryable: with the test's 2-attempt retry config, the mock is invoked twice
+        // (initial attempt + 1 retry) before the retries are exhausted and NuxeoException is thrown.
+        verify(mockClient, times(2)).index(any(IndexRequest.class));
+    }
+
+    @Test
+    void testIndexRetriesTransientIOExceptionThenSucceeds() throws Exception {
+        // Given
+        IndexRequest<DocumentDTO> request = IndexRequest.of(
+                b -> b.index(TEST_INDEX).id(DOC_ID).document(new DocumentDTO()));
+
+        when(mockClient.index(any(IndexRequest.class))).thenThrow(new IOException("transient network error"))
+                                                        .thenReturn(mockIndexResponse);
+
+        // When
+        IndexResponse response = restClient.index(request);
+
+        // Then
+        assertEquals(mockIndexResponse, response);
+        verify(mockClient, times(2)).index(any(IndexRequest.class));
+    }
+
+    @Test
+    void testIndexDoesNotRetryNonTransientOpenSearchStatus() throws Exception {
+        // Given
+        IndexRequest<DocumentDTO> request = IndexRequest.of(
+                b -> b.index(TEST_INDEX).id(DOC_ID).document(new DocumentDTO()));
+
+        OpenSearchException osException = newOpenSearchException("Not found", 404);
+        when(mockClient.index(any(IndexRequest.class))).thenThrow(osException);
+
+        // When/Then
+        assertThrows(NuxeoException.class, () -> restClient.index(request));
+
+        // 404 is not part of the transient status set, so the call is not retried.
+        verify(mockClient, times(1)).index(any(IndexRequest.class));
     }
 
     @Test
@@ -151,8 +208,7 @@ class OpenSearchRestClientTest {
         IndexRequest<DocumentDTO> request = IndexRequest.of(
                 b -> b.index(TEST_INDEX).id(DOC_ID).document(new DocumentDTO()));
 
-        OpenSearchException osException = mock(OpenSearchException.class);
-        when(osException.getMessage()).thenReturn(null);
+        OpenSearchException osException = newOpenSearchException(null, 0);
 
         when(mockClient.index(any(IndexRequest.class))).thenThrow(osException);
 
@@ -166,8 +222,7 @@ class OpenSearchRestClientTest {
                 b -> b.index(TEST_INDEX).id(DOC_ID).document(new DocumentDTO()));
 
         String originalMessage = "Error 1. Preview of field's value: 'sensitive1'. Error 2. Preview of field's value: 'sensitive2'";
-        OpenSearchException osException = mock(OpenSearchException.class);
-        when(osException.getMessage()).thenReturn(originalMessage);
+        OpenSearchException osException = newOpenSearchException(originalMessage, 0);
 
         when(mockClient.index(any(IndexRequest.class))).thenThrow(osException);
 

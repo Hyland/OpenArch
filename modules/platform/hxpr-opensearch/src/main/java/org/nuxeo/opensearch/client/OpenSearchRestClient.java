@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.github.resilience4j.retry.Retry;
 import io.opencensus.common.Scope;
 import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.Span;
@@ -30,6 +31,7 @@ import jakarta.json.spi.JsonProvider;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.nuxeo.common.function.ThrowableSupplier;
 import org.nuxeo.ecm.core.api.ConcurrentUpdateException;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.opensearch.api.OpenSearchIndexStoreStats;
@@ -78,12 +80,20 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
 
     protected final OpenSearchTransport transport;
 
+    protected final Retry retry;
+
     protected OpenSearchClient client;
 
     public OpenSearchRestClient(JsonProvider jsonProvider, JsonpMapper jsonpMapper, OpenSearchTransport transport) {
+        this(jsonProvider, jsonpMapper, transport, OpenSearchRetryFactory.createDefault());
+    }
+
+    public OpenSearchRestClient(JsonProvider jsonProvider, JsonpMapper jsonpMapper, OpenSearchTransport transport,
+            Retry retry) {
         this.jsonProvider = jsonProvider;
         this.jsonpMapper = jsonpMapper;
         this.transport = transport;
+        this.retry = retry;
 
         open();
     }
@@ -103,6 +113,24 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
         // Reuse the transport's configured mapper (FAIL_ON_TRAILING_TOKENS / date handling set up in
         // OpenSearchRestClientFactory) rather than a bare mapper, so response parsing stays consistent.
         return ((JacksonJsonpMapper) jsonpMapper).objectMapper();
+    }
+
+    /**
+     * Executes the given call through {@link #retry}, retrying it on transient failures (see
+     * {@link OpenSearchRetryFactory#isRetryable}) up to the configured number of attempts.
+     * <p>
+     * Uses {@link Retry#executeCheckedSupplier} (not {@code executeSupplier}/{@code decorateSupplier}): the
+     * latter's retry loop only catches {@link RuntimeException}, so a checked {@link IOException} would never
+     * be intercepted and retried.
+     */
+    protected <T> T withRetry(ThrowableSupplier<T, IOException> call) throws IOException {
+        try {
+            return retry.executeCheckedSupplier(call::get);
+        } catch (IOException | RuntimeException e) {
+            throw e;
+        } catch (Throwable t) { // NOSONAR - CheckedSupplier#get declares Throwable
+            throw new NuxeoException(t);
+        }
     }
 
     @Override
@@ -304,7 +332,7 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
 
     protected Response performRequest(Request request) {
         try {
-            return client.generic().execute(request);
+            return withRetry(() -> client.generic().execute(request));
         } catch (IOException | OpenSearchException e) {
             throw new NuxeoException(e);
         }
@@ -410,7 +438,8 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
                 // use a longer timeout than the default one
                 request = request.toBuilder().timeout(tb -> tb.time(LONG_TIMEOUT)).build();
             }
-            return client.bulk(request);
+            BulkRequest finalRequest = request;
+            return withRetry(() -> client.bulk(finalRequest));
         } catch (IOException | OpenSearchException e) {
             throw new NuxeoException(e);
         }
@@ -419,9 +448,9 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
     @Override
     public void delete(String indexName, String docId) {
         try {
-            client.delete(b -> b.index(indexName) //
-                                .id(docId)
-                                .timeout(tb -> tb.time(LONG_TIMEOUT)));
+            withRetry(() -> client.delete(b -> b.index(indexName) //
+                                                 .id(docId)
+                                                 .timeout(tb -> tb.time(LONG_TIMEOUT))));
         } catch (IOException | OpenSearchException e) {
             throw new NuxeoException(e);
         }
@@ -434,7 +463,8 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
                 // use a longer timeout than the default one
                 request = request.toBuilder().timeout(tb -> tb.time(LONG_TIMEOUT)).build();
             }
-            return client.deleteByQuery(request);
+            DeleteByQueryRequest finalRequest = request;
+            return withRetry(() -> client.deleteByQuery(finalRequest));
         } catch (IOException | OpenSearchException e) {
             throw new NuxeoException(e);
         }
@@ -444,7 +474,7 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
     public SearchResponse<DocumentDTO> search(SearchRequest request) {
         try (Scope ignored = getScopedSpan("open/_search", request.toJsonString())) {
             log.debug("OpenSearch search request (raw): {}", request::toJsonString);
-            return client.search(request, DocumentDTO.class);
+            return withRetry(() -> client.search(request, DocumentDTO.class));
         } catch (OpenSearchException e) {
             String message;
             try {
@@ -462,7 +492,7 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
     public SearchResponse<DocumentDTO> searchScroll(ScrollRequest request) {
         try (Scope ignored = getScopedSpan("open/_scroll", request.toString())) {
             log.debug("OpenSearch search scroll request (raw): {}", request::toJsonString);
-            return client.scroll(request, DocumentDTO.class);
+            return withRetry(() -> client.scroll(request, DocumentDTO.class));
         } catch (IOException | OpenSearchException e) {
             throw new NuxeoException(e);
         }
@@ -471,7 +501,7 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
     @Override
     public GetResponse<DocumentDTO> get(GetRequest request) {
         try (Scope ignored = getScopedSpan("open/_get", request.toString())) {
-            return client.get(request, DocumentDTO.class);
+            return withRetry(() -> client.get(request, DocumentDTO.class));
         } catch (IOException | OpenSearchException e) {
             throw new NuxeoException(e);
         }
@@ -484,7 +514,8 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
                 // use a longer timeout than the default one
                 request = request.toBuilder().timeout(tb -> tb.time(LONG_TIMEOUT)).build();
             }
-            return client.index(request);
+            IndexRequest<? extends JsonpSerializable> finalRequest = request;
+            return withRetry(() -> client.index(finalRequest));
         } catch (ResponseException e) {
             if (e.status() == HttpStatus.SC_CONFLICT) {
                 throw new ConcurrentUpdateException(e);
@@ -516,7 +547,7 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
             if (log.isDebugEnabled()) {
                 log.debug("Clearing scroll id: {}", scrollId);
             }
-            client.clearScroll(b -> b.scrollId(scrollId));
+            withRetry(() -> client.clearScroll(b -> b.scrollId(scrollId)));
         } catch (OpenSearchException e) {
             if (e.status() == HttpStatus.SC_NOT_FOUND) {
                 if (log.isDebugEnabled()) {
@@ -554,7 +585,8 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
     @Override
     public long getOpenScrollContexts() {
         try {
-            var searchStats = client.indices().stats(r -> r.metric(IndicesStatsMetric.Search)).all().total().search();
+            var searchStats = withRetry(
+                    () -> client.indices().stats(r -> r.metric(IndicesStatsMetric.Search)).all().total().search());
             return searchStats != null ? searchStats.scrollCurrent() : 0L;
         } catch (IOException | RuntimeException e) {
             log.debug("Failed to retrieve open scroll context count", e);
