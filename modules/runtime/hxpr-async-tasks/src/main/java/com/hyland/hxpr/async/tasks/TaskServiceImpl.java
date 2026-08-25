@@ -32,6 +32,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.nuxeo.common.utils.TooLargeException;
 import org.nuxeo.common.xmap.registry.MapRegistry;
 import org.nuxeo.common.xmap.registry.SingleRegistry;
 import org.nuxeo.ecm.core.api.NuxeoException;
@@ -232,14 +233,26 @@ public class TaskServiceImpl extends DefaultComponent implements TaskService, Co
             getRunner(taskName).submitTask(taskId, serializeTask(task), throwOnError);
             status.setPublishedToTopic(true);
             setStatus(status);
+        } catch (TooLargeException e) {
+            // Rethrow as-is (not wrapped) so that callers such as BatchUtils#tryWithSplit can catch it by type
+            // and retry with a smaller batch instead of aborting the whole task.
+            abortTask(status, taskId, taskName, e);
+            throw e;
         } catch (Exception e) {
-            log.error("Failed to submit task {} to runner {}: {}", taskId, taskName, e.getMessage(), e);
-            status.setErrorMessage(e.getMessage());
-            status.setState(ABORTED);
-            setStatus(status);
+            if (e instanceof InterruptedException) { // NOSONAR
+                Thread.currentThread().interrupt();
+            }
+            abortTask(status, taskId, taskName, e);
             throw new NuxeoException(e);
         }
         return taskId;
+    }
+
+    private void abortTask(TaskStatus status, String taskId, String taskName, Exception e) {
+        log.error("Failed to submit task {} to runner {}: {}", taskId, taskName, e.getMessage(), e);
+        status.setErrorMessage(e.getMessage());
+        status.setState(ABORTED);
+        setStatus(status);
     }
 
     @Override
