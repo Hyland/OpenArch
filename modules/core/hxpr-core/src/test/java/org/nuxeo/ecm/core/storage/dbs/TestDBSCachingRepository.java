@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -32,6 +33,8 @@ import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PARENT_ID;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.AfterEach;
@@ -233,6 +236,70 @@ public class TestDBSCachingRepository {
 
         // Verify that begin was called on the underlying connection
         verify(subConnection, times(1)).begin();
+    }
+
+    /**
+     * Read-repopulates-stale race, deterministic version. A concurrent reader (t1) reads V1 from the repository
+     * <em>before</em> a committing update (t2) writes V2 and evicts the cache; t1's {@code putInCache(V1)} then lands
+     * <em>after</em> t2's eviction, so the stale V1 sticks in the shared cache and every later reader (e.g. the async
+     * indexing loader) reads it.
+     * <p>
+     * The interleaving is forced with two latches so no thread-timing luck is needed:
+     * <ol>
+     * <li>t1 enters {@code readState}, misses the cache, and blocks inside the repository read holding V1;</li>
+     * <li>t2 runs {@code updateState} (writes V2 + evicts the cache) to completion;</li>
+     * <li>t1 is released and finishes its {@code putInCache(V1)}.</li>
+     * </ol>
+     * With the write clock guard, t1 must detect that an invalidation happened since it started reading and must
+     * <em>not</em> repopulate the cache with V1; the next read must then miss and load fresh V2. Without the guard the
+     * assertion fails: the cache serves the stale V1.
+     */
+    @Test
+    public void testConcurrentReadDoesNotRepopulateStaleAfterInvalidate() throws InterruptedException {
+        String id = "ID";
+        String key = "my_title";
+
+        CountDownLatch readerHoldsV1 = new CountDownLatch(1);
+        CountDownLatch updateDone = new CountDownLatch(1);
+        AtomicReference<String> title = new AtomicReference<>("title-v1");
+
+        // the repository serves V1 while t1 holds it (blocked until the update evicts), then V2 afterwards; t1's
+        // read blocks until t2 has committed V2 and evicted the cache to force the put-after-evict interleaving
+        doAnswer(invocation -> {
+            State state = newState(id);
+            state.put(key, title.get());
+            if (readerHoldsV1.getCount() > 0) {
+                readerHoldsV1.countDown();
+                await(updateDone);
+            }
+            return state;
+        }).when(subConnection).readState(eq(id));
+
+        Thread t1 = new Thread(() -> connection.readState(id));
+        t1.start();
+
+        // wait until t1 is inside the repository read holding V1, then commit V2 and evict
+        readerHoldsV1.await();
+        title.set("title-v2");
+        connection.updateState(id, mock(StateDiff.class), null);
+        updateDone.countDown();
+
+        t1.join();
+
+        // next reader must NOT see the stale V1: t1's putInCache must have been denied by the write clock guard,
+        // so this read misses the cache and reloads fresh V2 from the repository
+        State afterRace = connection.readState(id);
+        assertEquals("title-v2", afterRace.get(key),
+                "stale V1 repopulated the cache after the invalidate (read-repopulates-stale race)");
+    }
+
+    private static void await(CountDownLatch latch) {
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
+        }
     }
 
     private State newState(String id) {

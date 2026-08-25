@@ -24,8 +24,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.nuxeo.ecm.core.api.Lock;
 import org.nuxeo.ecm.core.api.PartialList;
 import org.nuxeo.ecm.core.api.ScrollResult;
@@ -47,11 +50,21 @@ import org.nuxeo.runtime.cluster.ClusterService;
  */
 public class DBSCachingConnection implements DBSConnection {
 
+    private static final Logger log = LogManager.getLogger(DBSCachingConnection.class);
+
     protected final DBSConnection connection;
 
     private final Cache<String, State> cache;
 
     private final Cache<String, String> childCache;
+
+    /**
+     * Monotonic write clock guarding {@link #putInCache} against the read-repopulates-stale race: a reader that
+     * repopulates the cache with a value written concurrently drops its own put. Bumped by every write and received
+     * invalidation. Global (not per-id): coarser but strictly safe. Same scope as {@link #cache}: repository-wide for a
+     * non-transactional backend (MongoDB), connection-local otherwise.
+     */
+    private final AtomicLong writeClock;
 
     /**
      * The local invalidations, due to writes to this connection, that should be propagated to other connections (and
@@ -89,10 +102,12 @@ public class DBSCachingConnection implements DBSConnection {
             // connection-local cache
             cache = repository.newCache(false);
             childCache = repository.newChildCache(false);
+            writeClock = new AtomicLong();
         } else {
             // no transaction, use a repository-wide cache
             cache = repository.getCache();
             childCache = repository.getChildCache();
+            writeClock = repository.getWriteClock();
         }
         // local invalidations
         invalidationsPropagator = repository.getInvalidationsPropagator();
@@ -166,9 +181,12 @@ public class DBSCachingConnection implements DBSConnection {
     public State readState(String id) {
         State state = cache.getIfPresent(id);
         if (state == null) {
+            // snapshot the write clock BEFORE reading committed state, so a write concurrent with the read makes
+            // putInCache drop the possibly-stale value instead of poisoning the shared cache
+            long stamp = writeClock.get();
             state = connection.readState(id);
             if (state != null) {
-                putInCache(state);
+                putInCache(state, stamp);
             }
         }
         return state;
@@ -185,10 +203,12 @@ public class DBSCachingConnection implements DBSConnection {
         ImmutableMap<String, State> statesMap = cache.getAllPresent(ids);
         List<String> idsToRetrieve = new ArrayList<>(ids);
         idsToRetrieve.removeAll(statesMap.keySet());
+        // snapshot the write clock BEFORE reading committed state (see readState)
+        long stamp = writeClock.get();
         // Read missing states from repository
         List<State> states = connection.readStates(idsToRetrieve);
         // Cache them
-        states.forEach(this::putInCache);
+        states.forEach(state -> putInCache(state, stamp));
         // Add previous cached one
         states.addAll(statesMap.values());
         return states;
@@ -237,19 +257,45 @@ public class DBSCachingConnection implements DBSConnection {
                 }
             }
         }
+        // snapshot the write clock BEFORE reading committed state, so a write concurrent with the read makes
+        // putInCache drop the possibly-stale value instead of poisoning the shared cache (see readState)
+        long stamp = writeClock.get();
         State state = connection.readChildState(parentId, name, ignored);
-        putInCache(state);
+        putInCache(state, stamp);
         return state;
     }
 
-    private void putInCache(State state) {
-        if (state != null) {
-            String stateId = state.get(SYS_ID).toString();
-            cache.put(stateId, state);
-            Object stateParentId = state.get(SYS_PARENT_ID);
-            if (stateParentId != null) {
-                childCache.put(computeChildCacheKey(stateParentId.toString(), state.get(SYS_NAME).toString()), stateId);
-            }
+    /**
+     * Puts a state read from the backend into the cache, then drops it again if a write happened during the read, so a
+     * concurrent write is never masked by a stale repopulated entry (the read-repopulates-stale race). The state is
+     * still returned to the caller; only the shared cache is protected.
+     * <p>
+     * Correctness relies on {@link #evictAndBumpWriteClock} evicting <em>before</em> bumping the clock, so a put that
+     * lands after a concurrent eviction observes the moved clock and removes its entry.
+     *
+     * @param state the state to cache, may be {@code null}
+     * @param readStamp the write clock snapshotted before the backend read
+     */
+    private void putInCache(State state, long readStamp) {
+        if (state == null) {
+            return;
+        }
+        String stateId = state.get(SYS_ID).toString();
+        doPutInCache(stateId, state);
+        long current = writeClock.get();
+        if (current != readStamp) {
+            // a write occurred between the read and this put: the value may be stale, do not leave it in the cache
+            cache.invalidate(stateId);
+            log.debug("Write eviction detected between read and putInCache for id={}, dropping possibly "
+                    + "stale cache entry (readStamp={}, writeClock={})", stateId, readStamp, current);
+        }
+    }
+
+    private void doPutInCache(String stateId, State state) {
+        cache.put(stateId, state);
+        Object stateParentId = state.get(SYS_PARENT_ID);
+        if (stateParentId != null) {
+            childCache.put(computeChildCacheKey(stateParentId.toString(), state.get(SYS_NAME).toString()), stateId);
         }
     }
 
@@ -262,12 +308,27 @@ public class DBSCachingConnection implements DBSConnection {
     }
 
     private void invalidate(Set<String> ids) {
-        cache.invalidateAll(ids);
+        evictAndBumpWriteClock(ids);
         if (invalidations != null) {
             var invalidation = new DBSInvalidations();
             invalidation.addAll(ids);
             invalidation.setClusterProperties();
             invalidations.add(invalidation);
+        }
+    }
+
+    /** Evicts the given ids from the cache and bumps the write clock, closing the read-repopulates-stale race. */
+    private void evictAndBumpWriteClock(Collection<String> ids) {
+        // evict BEFORE bumping so a putInCache landing after this eviction observes the higher clock and drops its
+        // entry
+        cache.invalidateAll(ids);
+        bumpWriteClock();
+    }
+
+    /** Bumps the write clock, if any, so in-flight reads that snapshotted an earlier value drop their put. */
+    private void bumpWriteClock() {
+        if (writeClock != null) {
+            writeClock.incrementAndGet();
         }
     }
 
@@ -285,42 +346,53 @@ public class DBSCachingConnection implements DBSConnection {
         }
     }
 
+    /**
+     * Drains the invalidations received from other connections and cluster nodes and evicts them from the cache.
+     */
     protected void processReceivedInvalidations() {
-        DBSInvalidationsList invals;
-        // invalidations from other cluster nodes
-        if (clusterInvalidator != null) {
-            invals = clusterInvalidator.receiveInvalidations();
-            // send cluster invalidations to all other connections
-            if (invals != null && !invals.isEmpty() && invalidationsPropagator != null) {
-                invalidationsPropagator.propagateInvalidations(invals, invalidationsQueue);
-            }
-        } else {
-            invals = null;
-        }
-        // invalidations from other connections
-        if (invalidationsQueue != null) {
-            DBSInvalidationsList inv = invalidationsQueue.getInvalidations();
-            if (invals == null) {
-                invals = new DBSInvalidationsList();
-            }
-            invals.add(inv);
-        }
-        // apply invalidations to the cache (connection-local or repository-wide)
-        if (invals != null && !invals.isEmpty()) {
-            invals.getInvalidations().forEach(inv -> {
-                if (inv.all) {
-                    cache.invalidateAll();
-                    childCache.invalidateAll();
-                } else if (inv.ids != null) {
-                    cache.invalidateAll(inv.ids);
+        // serialize claim+apply against other drainers on the cache monitor: without it a drainer could claim ids from
+        // the buffer, be descheduled before evicting, and another drainer find the buffer empty and never evict them.
+        // This does NOT make the drain atomic against readers (lock-free getIfPresent/getAllPresent); that reader race
+        // is handled by the write-clock guard in putInCache.
+        synchronized (cache) {
+            DBSInvalidationsList invals;
+            // invalidations from other cluster nodes
+            if (clusterInvalidator != null) {
+                invals = clusterInvalidator.receiveInvalidations();
+                // send cluster invalidations to all other connections
+                if (invals != null && !invals.isEmpty() && invalidationsPropagator != null) {
+                    invalidationsPropagator.propagateInvalidations(invals, invalidationsQueue);
                 }
-                // persist the status of the invalidations
-                var nodeId = inv.nodeId;
-                if (nodeId != null) {
-                    Framework.getService(ClusterService.class).updateCachesStatusPerNode(nodeId, inv.timestamp);
+            } else {
+                invals = null;
+            }
+            // invalidations from other connections
+            if (invalidationsQueue != null) {
+                DBSInvalidationsList inv = invalidationsQueue.getInvalidations();
+                if (invals == null) {
+                    invals = new DBSInvalidationsList();
                 }
-            });
+                invals.add(inv);
+            }
+            // apply invalidations to the cache (connection-local or repository-wide)
+            if (invals != null && !invals.isEmpty()) {
+                invals.getInvalidations().forEach(inv -> {
+                    if (inv.all) {
+                        cache.invalidateAll();
+                        childCache.invalidateAll();
+                        // bump so any in-flight read that snapshotted an earlier clock drops its put
+                        bumpWriteClock();
+                    } else if (inv.ids != null) {
+                        evictAndBumpWriteClock(inv.ids);
+                    }
+                    // persist the status of the invalidations
+                    var nodeId = inv.nodeId;
+                    if (nodeId != null) {
+                        Framework.getService(ClusterService.class).updateCachesStatusPerNode(nodeId, inv.timestamp);
+                    }
+                });
 
+            }
         }
     }
 

@@ -17,6 +17,7 @@ package org.nuxeo.ecm.core.storage.dbs;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
 
 import org.apache.logging.log4j.LogManager;
@@ -57,6 +58,14 @@ public class DBSCachingRepository implements DBSRepository {
 
     protected final Cache<String, String> childCache;
 
+    /**
+     * Monotonic write clock guarding {@code putInCache} against the read-repopulates-stale race (a reader snapshots it
+     * before reading committed state and drops its cache entry if the clock moved meanwhile). Shared repository-wide
+     * when the cache is (non-transactional backend such as MongoDB); {@code null} when each connection has its own
+     * cache (transactional backend), in which case each connection creates its own.
+     */
+    protected final AtomicLong writeClock;
+
     protected final DBSRepositoryDescriptor descriptor;
 
     protected final DBSInvalidationsPropagator invalidationsPropagator;
@@ -73,10 +82,12 @@ public class DBSCachingRepository implements DBSRepository {
             // each connection will have its own cache
             cache = null;
             childCache = null;
+            writeClock = null;
         } else {
             // one global cache held by the repository
             cache = newCache(true);
             childCache = newChildCache(true);
+            writeClock = new AtomicLong();
         }
         if (log.isInfoEnabled()) {
             log.info(String.format("DBS cache activated on '%s' repository", getName()));
@@ -91,6 +102,14 @@ public class DBSCachingRepository implements DBSRepository {
 
     protected Cache<String, String> getChildCache() {
         return childCache;
+    }
+
+    /**
+     * The repository-wide write clock, or {@code null} for a transactional backend where each connection owns its cache
+     * and its own clock.
+     */
+    protected AtomicLong getWriteClock() {
+        return writeClock;
     }
 
     protected DBSInvalidationsPropagator getInvalidationsPropagator() {
