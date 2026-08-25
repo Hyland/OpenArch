@@ -1,26 +1,20 @@
-name: Continuous Integration - Build and release the HXPR Community project. Trigger the CD workflow.
+name: Continuous Integration - Build and test the HXPR Community project and its Docker image.
 
 on:
   push:
     branches:
       - main
   pull_request:
-    types: [ opened, synchronize ]
+    types: [ opened, synchronize, reopened, ready_for_review ]
     branches:
       - main
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 permissions:
-  actions: read
-  contents: write
+  contents: read
   packages: write
-  id-token: write
-  security-events: write
-  pull-requests: write
 env:
-  GH_ACTOR: hxpcscicduser
-  GHCR: ghcr.io/hylandsoftware/
   IMAGE_NAME: hxpr-community-internal-app-jvm
 
 jobs:
@@ -46,11 +40,9 @@ jobs:
     needs:
       - prepare_build
     env:
-      VERSION_BUILD: ${{ needs.prepare_build.outputs.version }}
+      VERSION: ${{ needs.prepare_build.outputs.version }}
       BRUNO_TEST_DIR: "./ftests/bruno-tests"
       BRUNO_REPORTS_DIR: "localTestResults"
-    outputs:
-      version: ${{ env.VERSION }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -76,57 +68,13 @@ jobs:
         with:
           java-version: '25'
           distribution: 'corretto'
-          server-id: hylandsoftware-github
-          server-username: MAVEN_USERNAME
-          server-password: MAVEN_PASSWORD
       - name: Maven Settings (inc Nexus)
         uses: ./.github/actions/setup-maven
         with:
           nexus-username: ${{ secrets.NEXUS_USERNAME }}
           nexus-password: ${{ secrets.NEXUS_PASSWORD }}
-      - name: Read current pom version
-        # Captures the SNAPSHOT version from pom.xml; release.sh (when run on main)
-        # will strip the -SNAPSHOT suffix to produce the released version.
-        run: echo "POM_VERSION=$(mvn -B -q -DforceStdout -Dexpression=project.version help:evaluate)" >> $GITHUB_ENV
       - name: Compile project
         run: mvn clean install -DskipTests
-      - name: Set BRANCH_NAME and GITHUB_PR
-        shell: bash
-        run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            echo "BRANCH_NAME=${GITHUB_HEAD_REF}" >> $GITHUB_ENV
-            echo "GITHUB_PR=true" >> $GITHUB_ENV
-          else
-            echo "BRANCH_NAME=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
-            echo "GITHUB_PR=false" >> $GITHUB_ENV
-          fi
-      - name: Release new HxPR version
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        env:
-          RELEASE_USERNAME: ${{ env.GH_ACTOR }}
-          RELEASE_USER_PAT: ${{ secrets.GH_CI_CD_PAT }}
-          RELEASE_USER_EMAIL: "noreply@hyland.com"
-          RELEASE_PREPARE: true
-          RELEASE_PERFORM: true
-          DISTRIBUTION_REPO_URL: https://maven.pkg.github.com/HylandSoftware/hxpr-community-internal
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: _ci/release.sh
-
-      - name: Rebuild modules after release version bump
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: mvn clean install -DskipTests
-      - name: Resolve VERSION from release.sh / pom
-        # On push to main, release.sh strips -SNAPSHOT to compute the released version
-        # and bumps the pom to the next SNAPSHOT. On PRs / other events, fall back to
-        # the SNAPSHOT version read from the pom (release.sh did not run).
-        run: |
-          if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.ref }}" = "refs/heads/main" ]; then
-            VERSION="${POM_VERSION%-SNAPSHOT}"
-          else
-            VERSION="${VERSION_BUILD}"
-          fi
-          echo "VERSION=${VERSION}" >> $GITHUB_ENV
-
       - name: Set Product version to current build
         run: sed -i 's/^org\.nuxeo\.ecm\.product\.version=.*$/org\.nuxeo\.ecm\.product\.version=${{ env.VERSION }}/g' ./server/hxpr-community-internal-app/src/main/resources/application.properties
       - name: Set up QEMU
@@ -151,28 +99,9 @@ jobs:
           -Dnuxeo.mongodb.dbname=unittests \
           ${{ github.event_name == 'pull_request' && '-Dnuxeo.skip.enforcer=true' || '' }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # use localhost for the host here because we are running the job on the VM.
           MONGODB_HOST: localhost
           MONGODB_PORT: 27017
-      - name: Replace SNAPSHOT JAR with released artifact for Docker
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: |
-          RELEASE_VERSION="${POM_VERSION%-SNAPSHOT}"
-          TARGET_DIR="server/hxpr-community-internal-app/target"
-          # Remove the next-SNAPSHOT jar produced by mvn verify (e.g. 0.0.72-SNAPSHOT)
-          rm -f "${TARGET_DIR}"/hxpr-community-internal-app-*-SNAPSHOT.jar
-          # Copy the released jar (e.g. 0.0.71) from the local Maven repository,
-          # populated by release:perform during the release.sh step
-          cp ~/.m2/repository/com/hyland/hxpr/hxpr-community-internal-app/${RELEASE_VERSION}/hxpr-community-internal-app-${RELEASE_VERSION}.jar \
-             "${TARGET_DIR}/hxpr-community-internal-app-${RELEASE_VERSION}.jar"
-
-      - name: Login to ghcr.io in read only mode
-        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GH_HS_HX_RO_CLASSIC_TOKEN }}
 
       - name: "Run mvn license plugin"
         run: mvn -nsu org.codehaus.mojo:license-maven-plugin:aggregate-add-third-party
@@ -191,7 +120,7 @@ jobs:
         with:
           context: ./server/hxpr-community-internal-app
           file: ./server/hxpr-community-internal-app/src/main/docker/Dockerfile
-          tags: ghcr.io/hylandsoftware/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
+          tags: ghcr.io/hyland/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
           platforms: linux/amd64,linux/arm64
           push: false
           build-args: |
@@ -211,7 +140,7 @@ jobs:
         with:
           context: ./server/hxpr-community-internal-app
           file: ./server/hxpr-community-internal-app/src/main/docker/Dockerfile
-          tags: ghcr.io/hylandsoftware/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
+          tags: ghcr.io/hyland/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
           platforms: linux/amd64,linux/arm64
           push: true
 
@@ -220,7 +149,7 @@ jobs:
           docker run --rm -d -p 8080:8080 --name=HXPR_COMMUNITY_APP --network="host" \
           -e NUXEO_MONGODB_SERVER=$MONGODB_HOST:$MONGODB_PORT \
           -e NUXEO_DATA_DIR=/tmp \
-          ghcr.io/hylandsoftware/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
+          ghcr.io/hyland/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
         env:
           # use localhost for the host here because we are running the job on the VM.
           MONGODB_HOST: localhost
@@ -235,22 +164,22 @@ jobs:
         working-directory: ${{ env.BRUNO_TEST_DIR }}
         run: mkdir -p ${BRUNO_REPORTS_DIR}
       - name: Run Bruno collection
-        if: github.event_name == 'pull_request'
         working-directory: ${{ env.BRUNO_TEST_DIR }}
         run: |
           bru run --env-file environments/community.localhost.json \
             --reporter-html ${BRUNO_REPORTS_DIR}/bruno_test_report.html
       - name: Retrieve Docker Logs
-        if: github.event_name == 'pull_request'
+        if: always()
         working-directory: ${{ env.BRUNO_TEST_DIR }}
         run: docker logs HXPR_COMMUNITY_APP >> ${BRUNO_REPORTS_DIR}/hxpr_docker_logs.txt
       - name: Dump docker logs on failure
-        if: github.event_name == 'pull_request' && failure()
+        if: failure()
         uses: jwalton/gh-docker-logs@2741064ab9d7af54b0b1ffb6076cf64c16f0220e # v2.2.2
       - name: Stop Docker Image
+        if: always()
         run: docker stop HXPR_COMMUNITY_APP
       - name: Docker Compose Down
-        if: steps.compose.conclusion == 'success'
+        if: always() && steps.compose.conclusion == 'success'
         working-directory: server/hxpr-community-internal-app
         run: docker compose down
       # Upload the contents of test results directory to workspace
@@ -260,34 +189,3 @@ jobs:
         with:
           name: Local_Bruno_Test_Report
           path: ${{ env.BRUNO_TEST_DIR }}/${{ env.BRUNO_REPORTS_DIR }}
-
-
-  trigger_hxpr_version_update:
-    name: Trigger hxpr-community-internal version update on HxPR
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-slim
-    needs:
-      - build
-    steps:
-      - name: Trigger version update on HxPR
-        uses: benc-uk/workflow-dispatch@31e2b3319479a63f0ab15bf800eff9e913504e26 # v1.3.2
-        with:
-          repo: 'HylandSoftware/hxpr'
-          ref: 'master'
-          workflow: 'update-community-internal-version.yml'
-          token: ${{ secrets.GH_CI_CD_PAT }}
-          wait-for-completion: false
-          sync-status: true
-          inputs: >
-            { "actor": "${{ env.GH_ACTOR }}", "communityInternalVersion": "${{ needs.build.outputs.version }}" }
-
-  notify:
-    runs-on: ubuntu-slim
-    needs:
-      - build
-    if: always() && failure() && github.event_name == 'push'
-    steps:
-      - name: Teams Notification
-        uses: Alfresco/alfresco-build-tools/.github/actions/send-teams-notification@5177eca5d3d71342d7f7e0a2a4d74cc16b1eeb1b # v18.21.3
-        with:
-          webhook-url: ${{ secrets.TEAMS_GA_NOTIFS_WEBHOOK_URL }}

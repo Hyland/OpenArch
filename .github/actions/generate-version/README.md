@@ -36,7 +36,7 @@ To manually increment the major or minor version, follow these steps:
 
 1. **For Minor Version Increment** (e.g., 2.1.x → 2.2.x):
    ```yaml
-   # In both continuous_integration.yaml and test-and-scan.yml
+   # In continuous_integration.yaml
    - name: Generate Version
      uses: ./.github/actions/generate-version
      with:
@@ -45,7 +45,7 @@ To manually increment the major or minor version, follow these steps:
 
 2. **For Major Version Increment** (e.g., 2.1.x → 3.0.x):
    ```yaml
-   # In both continuous_integration.yaml and test-and-scan.yml
+   # In continuous_integration.yaml
    - name: Generate Version
      uses: ./.github/actions/generate-version
      with:

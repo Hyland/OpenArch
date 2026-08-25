@@ -1,15 +1,13 @@
-name: Test and Scan
+name: Test
 
 on:
   push:
     branches:
       - main
-      - internal
   pull_request:
-    types: [opened, synchronize, ready_for_review]
+    types: [ opened, synchronize, reopened, ready_for_review ]
     branches:
       - main
-      - internal
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
@@ -18,8 +16,6 @@ env:
   INTEGRATION_COMMON_TEST_COVERAGE_UPLOAD: integration-common-coverage-execs
   COVERAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}/jacoco
   SERVER_TEST_COVERAGE_UPLOAD: test-server-coverage-execs
-  MAVEN_USERNAME: ${{ github.actor }}
-  MAVEN_PASSWORD: ${{ secrets.GH_HS_HX_RO_CLASSIC_TOKEN }}
 jobs:
   setup-test-matrices:
     name: Setup test matrices from JSON files
@@ -275,7 +271,7 @@ jobs:
           -f server/hxpr-community-internal-app \
           -Dnuxeo.mongodb.server=$MONGODB_HOST:$MONGODB_PORT \
           -Dnuxeo.mongodb.dbname=unittests \
-          -Pcoverage,enterprise \
+          -Pcoverage \
           -Dcoverage.reporting.outputDirectory=${COVERAGE_OUTPUT_DIRECTORY} \
           ${{ github.event_name == 'pull_request' && '-Dnuxeo.skip.enforcer=true' || '' }}
       - name: Dump docker logs on failure
@@ -294,77 +290,13 @@ jobs:
     steps:
       - name: Check integration test results
         run: |
-          # This job succeeds only if all enterprise integration shards succeeded
+          # This job succeeds only if all integration shards succeeded
           # It provides a single status check that branch protection can depend on
           if [[ "${{ needs.integration-test-suite-common.result }}" == "success" ]]; then
-            echo "✅ All enterprise integration test shards completed successfully"
+            echo "✅ All integration test shards completed successfully"
             exit 0
           else
             echo "❌ One or more integration test shards failed"
-            echo "Enterprise integration result: ${{ needs.integration-test-suite-common.result }}"
+            echo "Common integration result: ${{ needs.integration-test-suite-common.result }}"
             exit 1
           fi
-
-  sonar-scan:
-    name: "Scan project with sonar"
-    runs-on: ubuntu-latest
-    if: ${{ github.actor != 'dependabot[bot]' }}
-    needs:
-      - build-artifacts
-      - test-maven-enforcer
-      - lightweight-test-suite
-      - all-integration-tests-finished
-      - test-hxpr-community-internal-server
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0 # full history required for scan
-      - name: Restore workflow artifacts cache
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ~/.m2/repository
-          key: ${{ needs.build-artifacts.outputs.cache-key }}
-          fail-on-cache-miss: true
-      - name: Set up JDK 25
-        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
-        with:
-          java-version: '25'
-          distribution: 'corretto'
-          server-id: hylandsoftware-github
-          server-username: MAVEN_USERNAME
-          server-password: MAVEN_PASSWORD
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
-        with:
-          path: ${{ env.COVERAGE_OUTPUT_DIRECTORY }}
-      - name: Generate Version
-        id: version
-        uses: ./.github/actions/generate-version
-        with:
-          base-version: '0.1'
-      - name: Maven Settings (inc Nexus)
-        uses: ./.github/actions/setup-maven
-        with:
-          nexus-username: ${{ secrets.NEXUS_USERNAME }}
-          nexus-password: ${{ secrets.NEXUS_PASSWORD }}
-      - name: Sonar scan
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          XML_REPORT_RELATIVE_PATH: sonarcloud/report-aggregate/target/site/jacoco-aggregate/jacoco.xml
-        run: |
-          mvn --no-transfer-progress install -DskipTests -Pcoverage \
-          -Dcoverage.reporting.outputDirectory=${{ env.COVERAGE_OUTPUT_DIRECTORY }} \
-          org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-          -Dsonar.coverage.jacoco.xmlReportPaths=${{ github.workspace }}/${{ env.XML_REPORT_RELATIVE_PATH }} \
-          -Dsonar.projectName=hxcs \
-          -Dsonar.projectKey=hxcs
-
-  notify:
-    runs-on: ubuntu-slim
-    needs:
-      - sonar-scan
-    if: always() && failure() && github.event_name == 'push'
-    steps:
-      - name: Teams Notification
-        uses: Alfresco/alfresco-build-tools/.github/actions/send-teams-notification@5177eca5d3d71342d7f7e0a2a4d74cc16b1eeb1b # v18.21.3
-        with:
-          webhook-url: ${{ secrets.TEAMS_GA_NOTIFS_WEBHOOK_URL }}
