@@ -32,8 +32,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 public record WhereClauseDTO( //
         @Schema(name = "query", description = "The query, in the syntax given by the syntax field. An hxql query provides the statement the request selects from, an expr query only filters it.", example = "SELECT * FROM SysContent") //
         String query, //
-        @Schema(name = "syntax", description = "The syntax the query is expressed in; absent for the default hxql syntax.", //
-                allowableValues = { QuerySyntax.HXQL_VALUE, QuerySyntax.EXPR_VALUE }) //
+        @Schema(name = "syntax", description = "The syntax the query is expressed in; absent for the default hxql syntax.") //
         @JsonInclude(Include.NON_NULL) QuerySyntax syntax, //
         List<RestPredicate> predicates) {
 

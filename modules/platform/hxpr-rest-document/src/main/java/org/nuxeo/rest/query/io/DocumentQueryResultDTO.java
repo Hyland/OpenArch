@@ -43,8 +43,7 @@ public record DocumentQueryResultDTO( //
         String repositoryId, //
         @Schema(name = "query", description = "The query, in the syntax it was expressed in.", example = "SELECT * FROM SysContent") //
         String query, //
-        @Schema(name = "syntax", description = "The syntax the query is expressed in; absent for the default hxql syntax.", //
-                allowableValues = { QuerySyntax.HXQL_VALUE, QuerySyntax.EXPR_VALUE }) //
+        @Schema(name = "syntax", description = "The syntax the query is expressed in; absent for the default hxql syntax.") //
         @JsonInclude(Include.NON_NULL) QuerySyntax syntax, //
         @Schema(name = "limit", description = "Max number of documents retrieved by the given query.", example = "100", defaultValue = "10") //
         Long limit, //

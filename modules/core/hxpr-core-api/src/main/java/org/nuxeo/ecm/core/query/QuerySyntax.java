@@ -16,10 +16,12 @@
 package org.nuxeo.ecm.core.query;
 
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * The syntax a query, or a condition, is expressed in.
  */
+@Schema(enumAsRef = true)
 public enum QuerySyntax {
 
     /** HXQL, for instance {@code SELECT * FROM SysContent WHERE sys_title = 'foo'}. */

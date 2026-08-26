@@ -41,7 +41,7 @@ public record EmbeddingQueryDTO( //
                                  @Schema(name = "query", description = "The query used to filter the embeddings by the corresponding document, in the syntax given by the syntax field.", example = DEFAULT_SELECT_STATEMENT, defaultValue = DEFAULT_SELECT_STATEMENT) //
                                  String query,
                                  @Schema(name = "syntax", description = "The syntax the query is expressed in. The default hxql syntax expects a full HXQL statement, the expr syntax an expression used as a filter.", //
-                                         allowableValues = { QuerySyntax.HXQL_VALUE, QuerySyntax.EXPR_VALUE }, defaultValue = QuerySyntax.HXQL_VALUE) //
+                                         defaultValue = QuerySyntax.HXQL_VALUE) //
                                  QuerySyntax syntax,
                                  @Schema(name = "limit", description = "Max number of embeddings retrieved by the given query.", example = "100", defaultValue = "10") //
                                  Long limit,
