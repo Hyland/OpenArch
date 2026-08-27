@@ -322,6 +322,8 @@ public class EmbeddingOSDTOTest {
         assertFalse(actual.contains("secret text"), "onPrem _source must not leak chunk text: " + actual);
         assertTrue(actual.contains("sysembed_vector"), "onPrem _source must still carry the vector");
         assertTrue(actual.contains(embeddingId), "onPrem _source must still carry the embedding id");
+        assertTrue(actual.contains("\"sysemb_residency\":\"onPrem\""),
+                "onPrem _source must carry sysemb_residency so the read path can route: " + actual);
     }
 
     @Test
@@ -338,7 +340,27 @@ public class EmbeddingOSDTOTest {
         embeddingOSDTO.serialize(jg, null);
         jg.flush();
 
-        assertTrue(writer.toString().contains("\"sysembed_text\""),
-                "cloud _source must carry sysembed_text: " + writer);
+        String actual = writer.toString();
+        assertTrue(actual.contains("\"sysembed_text\""), "cloud _source must carry sysembed_text: " + actual);
+        assertTrue(actual.contains("\"sysemb_residency\":\"cloud\""),
+                "cloud _source must carry sysemb_residency: " + actual);
+    }
+
+    @Test
+    public void testSerializeNullResidencyDefaultsToCloud() {
+        StringWriter writer = new StringWriter();
+        JsonGenerator jg = JacksonJsonProvider.provider().createGenerator(writer);
+        String embeddingId = UUID.randomUUID().toString();
+
+        List<Double> vector = IntStream.range(0, VECTOR_SIZE).mapToObj(Double::valueOf).toList();
+        EmbeddingModel embedding = new EmbeddingModel(embeddingId, "repository", "docId", "type", vector, "text",
+                new LocationModel(1, 1), null);
+        EmbeddingOSDTO embeddingOSDTO = new EmbeddingOSDTO(embedding, createTestParentDoc(), null);
+
+        embeddingOSDTO.serialize(jg, null);
+        jg.flush();
+
+        assertTrue(writer.toString().contains("\"sysemb_residency\":\"cloud\""),
+                "null residency must default to cloud in _source: " + writer);
     }
 }

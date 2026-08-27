@@ -35,6 +35,8 @@ import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_ID;
 import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_LOCATION;
 import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_TEXT;
 import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_TYPE;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY_CLOUD;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY_ON_PREM;
 import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_VECTOR;
 
@@ -120,6 +122,8 @@ public class EmbeddingOSDTO implements JsonpSerializable {
             jg.writeKey(EMBEDDING_PROPERTY_TEXT);
             jg.write(embedding.text());
         }
+
+        jg.write(SYSEMB_RESIDENCY, residency != null ? residency : SYSEMB_RESIDENCY_CLOUD);
 
         if (embedding.blobRef() != null) {
             jg.writeKey(EMBEDDING_PROPERTY_BLOB_REF);

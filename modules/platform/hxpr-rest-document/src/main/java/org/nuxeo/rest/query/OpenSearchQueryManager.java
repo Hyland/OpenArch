@@ -16,7 +16,10 @@
 package org.nuxeo.rest.query;
 
 import static java.lang.Long.max;
+import static org.nuxeo.ecm.core.api.DocumentConstants.CIN_SOURCE_ID;
 import static org.nuxeo.ecm.core.api.DocumentConstants.FULLTEXT_EXTRACTOR_TASK_NAME;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY_ON_PREM;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ID;
 import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_BLOB_REF;
 import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_LOCATION;
@@ -29,6 +32,7 @@ import static org.nuxeo.opensearch.OpenSearchServiceImpl.TERMS_AGGREGATION_NAME;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +46,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.nuxeo.common.utils.ExceptionUtils;
+import org.nuxeo.ecm.core.api.EmbeddingChunkTextFetcher;
 import org.nuxeo.ecm.core.api.CoreInstance;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModelList;
@@ -73,12 +78,18 @@ import org.opensearch.client.opensearch._types.aggregations.StringTermsBucket;
 import org.opensearch.client.opensearch.core.search.Hit;
 import org.opensearch.client.opensearch.core.search.HitsMetadata;
 import org.opensearch.client.opensearch.core.search.TotalHits;
+import org.nuxeo.runtime.metrics.MetricsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 import com.hyland.hxpr.async.tasks.TaskService;
+
+import io.dropwizard.metrics5.Counter;
+import io.dropwizard.metrics5.MetricName;
+import io.dropwizard.metrics5.SharedMetricRegistries;
 
 /**
  * {@link QueryManager} implementation targeting the OpenSearch API.
@@ -89,9 +100,15 @@ public class OpenSearchQueryManager extends AbstractQueryManager {
 
     private static final Logger log = LoggerFactory.getLogger(OpenSearchQueryManager.class);
 
+    private final ObjectProvider<EmbeddingChunkTextFetcher> chunkTextFetcher;
+
+    private final Counter omittedOnPremChunksCounter = SharedMetricRegistries.getOrCreate(MetricsService.class.getName())
+                                                                              .counter(MetricName.build("nuxeo.opensearch.embedding.omitted-onprem-chunks"));
+
     public OpenSearchQueryManager(QueryConfig queryConfig, NamedQueryRegistry namedQueryRegistry,
-            DocumentMapper translator) {
+            DocumentMapper translator, ObjectProvider<EmbeddingChunkTextFetcher> chunkTextFetcher) {
         super(queryConfig, namedQueryRegistry, translator);
+        this.chunkTextFetcher = chunkTextFetcher;
     }
 
     @Override
@@ -226,14 +243,46 @@ public class OpenSearchQueryManager extends AbstractQueryManager {
         return result;
     }
 
-    private List<EmbeddingRestDTO> getEmbeddingRestDTOs(HitsMetadata<org.nuxeo.opensearch.io.DocumentDTO> hits,
+    List<EmbeddingRestDTO> getEmbeddingRestDTOs(HitsMetadata<org.nuxeo.opensearch.io.DocumentDTO> hits,
             CoreSession session) {
+        Set<String> onPremIds = new HashSet<>();
+        Map<String, List<String>> onPremIdsBySource = new HashMap<>();
+        List<EmbeddingRestDTO> pending = new ArrayList<>(hits.hits().size());
+        for (var hit : hits.hits()) {
+            EmbeddingRestDTO dto = embeddingFromHit(hit);
+            pending.add(dto);
+            Map<String, Object> props = hit.source().getProperties();
+            if (SYSEMB_RESIDENCY_ON_PREM.equals(props.get(SYSEMB_RESIDENCY))) {
+                onPremIds.add(dto.id());
+                String sourceId = (String) props.get(CIN_SOURCE_ID);
+                if (sourceId != null) {
+                    onPremIdsBySource.computeIfAbsent(sourceId, k -> new ArrayList<>()).add(dto.id());
+                }
+            }
+        }
+        Map<String, String> onPremText = fetchOnPremChunkText(onPremIdsBySource);
+
         Set<String> docIds = new HashSet<>();
-        List<EmbeddingRestDTO> embeddings = new ArrayList<>();
-        for (Hit<org.nuxeo.opensearch.io.DocumentDTO> hit : hits.hits()) {
-            EmbeddingRestDTO embedding = embeddingFromHit(hit);
-            docIds.add(embedding.docId());
-            embeddings.add(embedding);
+        List<String> omittedIds = new ArrayList<>();
+        List<EmbeddingRestDTO> embeddings = new ArrayList<>(pending.size());
+        for (EmbeddingRestDTO dto : pending) {
+            if (onPremIds.contains(dto.id())) {
+                String text = onPremText.get(dto.id());
+                if (text == null) {
+                    omittedIds.add(dto.id());
+                    continue;
+                }
+                dto = new EmbeddingRestDTO(dto.id(), dto.docId(), dto.type(), dto.vector(), text, dto.blobref(),
+                        dto.location(), dto.score());
+            }
+            docIds.add(dto.docId());
+            embeddings.add(dto);
+        }
+        if (!omittedIds.isEmpty()) {
+            omittedOnPremChunksCounter.inc(omittedIds.size());
+            log.warn("Missing onPrem chunk text: {} of {} onPrem id(s) omitted",
+                    omittedIds.size(), onPremIds.size());
+            log.debug("Omitted onPrem chunk ids: {}", omittedIds);
         }
 
         if (!docIds.isEmpty()) {
@@ -242,6 +291,21 @@ public class OpenSearchQueryManager extends AbstractQueryManager {
             docs.forEach(doc -> fireDocumentQueriedEvent(session, doc, queryId));
         }
         return embeddings;
+    }
+
+    private Map<String, String> fetchOnPremChunkText(Map<String, List<String>> onPremIdsBySource) {
+        if (onPremIdsBySource.isEmpty()) {
+            return Map.of();
+        }
+        EmbeddingChunkTextFetcher fetcher = chunkTextFetcher == null ? null : chunkTextFetcher.getIfAvailable();
+        if (fetcher == null) {
+            return Map.of();
+        }
+        Map<String, String> merged = new HashMap<>();
+        for (var entry : onPremIdsBySource.entrySet()) {
+            merged.putAll(fetcher.fetchTexts(entry.getKey(), entry.getValue()));
+        }
+        return merged;
     }
 
     @Override

@@ -190,6 +190,10 @@
       "type": "keyword",
       "ignore_above": 256
     },
+    "sysemb_residency": {
+      "type": "keyword",
+      "ignore_above": 32
+    },
     "sysembed_location": {
       "type": "object",
       "properties": {

@@ -268,6 +268,7 @@ public class DocumentConstants {
     public static final String CINREMOTE_PREFIX = "cin";
     public static final String CINREMOTE_INGEST_EVENT_VERSION = "cin_ingestEventVersion";
     public static final String CINREMOTE_INGEST_RAW = "cin_ingestRaw";
+    public static final String CIN_SOURCE_ID = "cin_sourceId";
 
     public static final String SCHEMA_CINCONTEXT = "cincontext";
     public static final String CINCONTEXT_PREFIX = "cinctx";

@@ -15,7 +15,9 @@
  */
 package org.nuxeo.opensearch.query;
 
+import static org.nuxeo.ecm.core.api.DocumentConstants.CIN_SOURCE_ID;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ID;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY;
 import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_BLOB_REF;
 import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_DOCUMENT_ID;
 import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_ID;
@@ -342,7 +344,8 @@ public class OpenSearchQueryBuilder {
 
                 selectFields = ArrayUtils.addAll(selectFields, EMBEDDING_PROPERTY_ID, EMBEDDING_PROPERTY_DOCUMENT_ID,
                         EMBEDDING_PROPERTY_TYPE, EMBEDDING_PROPERTY_VECTOR, EMBEDDING_PROPERTY_TEXT,
-                        EMBEDDING_PROPERTY_LOCATION, EMBEDDING_PROPERTY_BLOB_REF, SYS_ID);
+                        EMBEDDING_PROPERTY_LOCATION, EMBEDDING_PROPERTY_BLOB_REF, SYS_ID, SYSEMB_RESIDENCY,
+                        CIN_SOURCE_ID);
             }
         }
         return osQuery;
