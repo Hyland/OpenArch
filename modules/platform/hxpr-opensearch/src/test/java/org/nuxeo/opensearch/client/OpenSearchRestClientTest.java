@@ -29,6 +29,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -60,10 +61,11 @@ class OpenSearchRestClientTest {
 
     @BeforeEach
     void setUp() {
-        // Fast retry config (2 attempts, 1ms wait) keeps retry-related tests quick while still exercising the
-        // real Resilience4j retry loop.
+        // Fast retry config (2 attempts, 1ms wait) and fast-tripping circuit breaker config (window/min calls of
+        // 2) keep retry- and circuit-breaker-related tests quick while still exercising the real Resilience4j
+        // retry loop and circuit breaker.
         restClient = spy(new OpenSearchRestClient(null, new JacksonJsonpMapper(), null,
-                OpenSearchRetryFactory.create(2, 1)));
+                OpenSearchRetryFactory.create(2, 1), OpenSearchCircuitBreakerFactory.create(50.0f, 2, 2, 1)));
         // Inject the mock client
         restClient.client = mockClient;
     }
@@ -229,5 +231,46 @@ class OpenSearchRestClientTest {
         NuxeoException exception = assertThrows(NuxeoException.class, () -> restClient.index(request));
         assertFalse(exception.getMessage().contains("sensitive1"));
         assertFalse(exception.getMessage().contains("sensitive2"));
+    }
+
+    @Test
+    void testCircuitBreakerOpensAfterRepeatedFailuresAndFailsFast() throws Exception {
+        // Given: a long wait-in-open-state (unlike the fast-tripping one from setUp()) so the breaker stays open
+        // for the whole test instead of racing into HALF_OPEN before the second call below is made.
+        restClient = spy(new OpenSearchRestClient(null, new JacksonJsonpMapper(), null,
+                OpenSearchRetryFactory.create(2, 1), OpenSearchCircuitBreakerFactory.create(50.0f, 2, 2, 60_000)));
+        restClient.client = mockClient;
+
+        IndexRequest<DocumentDTO> request = IndexRequest.of(
+                b -> b.index(TEST_INDEX).id(DOC_ID).document(new DocumentDTO()));
+
+        when(mockClient.index(any(IndexRequest.class))).thenThrow(new IOException("Network error"));
+
+        // When: the first call exhausts its 2 retry attempts, both recorded as failures by the circuit breaker
+        // (window size 2, minimum calls 2), tripping it open.
+        assertThrows(NuxeoException.class, () -> restClient.index(request));
+        verify(mockClient, times(2)).index(any(IndexRequest.class));
+
+        // Then: the circuit breaker is now open, so a second call fails fast without reaching the transport again.
+        NuxeoException exception = assertThrows(NuxeoException.class, () -> restClient.index(request));
+        assertTrue(exception.getCause() instanceof CallNotPermittedException);
+        verify(mockClient, times(2)).index(any(IndexRequest.class));
+    }
+
+    @Test
+    void testCircuitBreakerIgnoresNonRetryableStatusForFailureRate() throws Exception {
+        // Given
+        IndexRequest<DocumentDTO> request = IndexRequest.of(
+                b -> b.index(TEST_INDEX).id(DOC_ID).document(new DocumentDTO()));
+
+        OpenSearchException notFound = newOpenSearchException("Not found", 404);
+        when(mockClient.index(any(IndexRequest.class))).thenThrow(notFound);
+
+        // When/Then: a 404 is not a transient failure (see OpenSearchRetryFactory#isRetryable), so repeated
+        // occurrences must never trip the circuit breaker.
+        for (int i = 0; i < 5; i++) {
+            assertThrows(NuxeoException.class, () -> restClient.index(request));
+        }
+        verify(mockClient, times(5)).index(any(IndexRequest.class));
     }
 }

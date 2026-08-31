@@ -55,6 +55,7 @@ import org.opensearch.client.json.jackson3.JacksonJsonpMapper;
 import org.opensearch.client.transport.OpenSearchTransport;
 import org.opensearch.client.transport.httpclient5.ApacheHttpClient5TransportBuilder;
 
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.retry.Retry;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.cfg.DateTimeFeature;
@@ -84,6 +85,18 @@ public class OpenSearchRestClientFactory {
     static final String RETRY_MAX_ATTEMPTS_PROP = "opensearch.restClient.retry.maxAttempts";
 
     static final String RETRY_WAIT_DURATION_MS_PROP = "opensearch.restClient.retry.waitDurationMs";
+
+    static final String CIRCUIT_BREAKER_FAILURE_RATE_THRESHOLD_PROP =
+            "opensearch.restClient.circuitBreaker.failureRateThreshold";
+
+    static final String CIRCUIT_BREAKER_SLIDING_WINDOW_SIZE_PROP =
+            "opensearch.restClient.circuitBreaker.slidingWindowSize";
+
+    static final String CIRCUIT_BREAKER_MINIMUM_NUMBER_OF_CALLS_PROP =
+            "opensearch.restClient.circuitBreaker.minimumNumberOfCalls";
+
+    static final String CIRCUIT_BREAKER_WAIT_DURATION_IN_OPEN_STATE_MS_PROP =
+            "opensearch.restClient.circuitBreaker.waitDurationInOpenStateMs";
 
     static final String USERNAME_PROP = "opensearch.restClient.username";
 
@@ -117,6 +130,18 @@ public class OpenSearchRestClientFactory {
 
     private static final String RETRY_WAIT_DURATION_MS_DEFAULT = String.valueOf(
             OpenSearchRetryFactory.DEFAULT_WAIT_DURATION_MS);
+
+    private static final String CIRCUIT_BREAKER_FAILURE_RATE_THRESHOLD_DEFAULT = String.valueOf(
+            OpenSearchCircuitBreakerFactory.DEFAULT_FAILURE_RATE_THRESHOLD);
+
+    private static final String CIRCUIT_BREAKER_SLIDING_WINDOW_SIZE_DEFAULT = String.valueOf(
+            OpenSearchCircuitBreakerFactory.DEFAULT_SLIDING_WINDOW_SIZE);
+
+    private static final String CIRCUIT_BREAKER_MINIMUM_NUMBER_OF_CALLS_DEFAULT = String.valueOf(
+            OpenSearchCircuitBreakerFactory.DEFAULT_MINIMUM_NUMBER_OF_CALLS);
+
+    private static final String CIRCUIT_BREAKER_WAIT_DURATION_IN_OPEN_STATE_MS_DEFAULT = String.valueOf(
+            OpenSearchCircuitBreakerFactory.DEFAULT_WAIT_DURATION_IN_OPEN_STATE_MS);
 
     private static final String TRUST_STORE_PATH_DEFAULT = "";
 
@@ -172,7 +197,21 @@ public class OpenSearchRestClientFactory {
         int retryMaxAttempts = Integer.parseInt(prop(RETRY_MAX_ATTEMPTS_PROP, RETRY_MAX_ATTEMPTS_DEFAULT));
         long retryWaitDurationMs = Long.parseLong(prop(RETRY_WAIT_DURATION_MS_PROP, RETRY_WAIT_DURATION_MS_DEFAULT));
         Retry retry = OpenSearchRetryFactory.create(retryMaxAttempts, retryWaitDurationMs);
-        return new OpenSearchRestClient(newJsonProvider(), newJsonpMapper(), transport, retry);
+
+        float circuitBreakerFailureRateThreshold = Float.parseFloat(
+                prop(CIRCUIT_BREAKER_FAILURE_RATE_THRESHOLD_PROP, CIRCUIT_BREAKER_FAILURE_RATE_THRESHOLD_DEFAULT));
+        int circuitBreakerSlidingWindowSize = Integer.parseInt(
+                prop(CIRCUIT_BREAKER_SLIDING_WINDOW_SIZE_PROP, CIRCUIT_BREAKER_SLIDING_WINDOW_SIZE_DEFAULT));
+        int circuitBreakerMinimumNumberOfCalls = Integer.parseInt(
+                prop(CIRCUIT_BREAKER_MINIMUM_NUMBER_OF_CALLS_PROP, CIRCUIT_BREAKER_MINIMUM_NUMBER_OF_CALLS_DEFAULT));
+        long circuitBreakerWaitDurationInOpenStateMs = Long.parseLong(
+                prop(CIRCUIT_BREAKER_WAIT_DURATION_IN_OPEN_STATE_MS_PROP,
+                        CIRCUIT_BREAKER_WAIT_DURATION_IN_OPEN_STATE_MS_DEFAULT));
+        CircuitBreaker circuitBreaker = OpenSearchCircuitBreakerFactory.create(circuitBreakerFailureRateThreshold,
+                circuitBreakerSlidingWindowSize, circuitBreakerMinimumNumberOfCalls,
+                circuitBreakerWaitDurationInOpenStateMs);
+
+        return new OpenSearchRestClient(newJsonProvider(), newJsonpMapper(), transport, retry, circuitBreaker);
     }
 
     protected JsonProvider newJsonProvider() {

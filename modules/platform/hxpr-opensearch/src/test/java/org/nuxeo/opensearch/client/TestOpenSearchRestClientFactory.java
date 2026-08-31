@@ -20,6 +20,10 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.nuxeo.opensearch.client.OpenSearchRestClientFactory.ADDRESS_LIST_PROP;
+import static org.nuxeo.opensearch.client.OpenSearchRestClientFactory.CIRCUIT_BREAKER_FAILURE_RATE_THRESHOLD_PROP;
+import static org.nuxeo.opensearch.client.OpenSearchRestClientFactory.CIRCUIT_BREAKER_MINIMUM_NUMBER_OF_CALLS_PROP;
+import static org.nuxeo.opensearch.client.OpenSearchRestClientFactory.CIRCUIT_BREAKER_SLIDING_WINDOW_SIZE_PROP;
+import static org.nuxeo.opensearch.client.OpenSearchRestClientFactory.CIRCUIT_BREAKER_WAIT_DURATION_IN_OPEN_STATE_MS_PROP;
 import static org.nuxeo.opensearch.client.OpenSearchRestClientFactory.PASSWORD_PROP;
 import static org.nuxeo.opensearch.client.OpenSearchRestClientFactory.RETRY_MAX_ATTEMPTS_PROP;
 import static org.nuxeo.opensearch.client.OpenSearchRestClientFactory.RETRY_WAIT_DURATION_MS_PROP;
@@ -89,6 +93,9 @@ public class TestOpenSearchRestClientFactory {
         OpenSearchRestClient restClient = assertInstanceOf(OpenSearchRestClient.class, osClient);
         assertNotNull(restClient.retry);
         assertEquals(OpenSearchRetryFactory.DEFAULT_MAX_ATTEMPTS, restClient.retry.getRetryConfig().getMaxAttempts());
+        assertNotNull(restClient.circuitBreaker);
+        assertEquals(OpenSearchCircuitBreakerFactory.DEFAULT_SLIDING_WINDOW_SIZE,
+                restClient.circuitBreaker.getCircuitBreakerConfig().getSlidingWindowSize());
     }
 
     @Test
@@ -99,6 +106,22 @@ public class TestOpenSearchRestClientFactory {
         OpenSearchRestClient restClient = assertInstanceOf(OpenSearchRestClient.class, factory.create());
         assertNotNull(restClient.retry);
         assertEquals(5, restClient.retry.getRetryConfig().getMaxAttempts());
+    }
+
+    @Test
+    @WithFrameworkProperty(name = CIRCUIT_BREAKER_FAILURE_RATE_THRESHOLD_PROP, value = "75")
+    @WithFrameworkProperty(name = CIRCUIT_BREAKER_SLIDING_WINDOW_SIZE_PROP, value = "20")
+    @WithFrameworkProperty(name = CIRCUIT_BREAKER_MINIMUM_NUMBER_OF_CALLS_PROP, value = "8")
+    @WithFrameworkProperty(name = CIRCUIT_BREAKER_WAIT_DURATION_IN_OPEN_STATE_MS_PROP, value = "5000")
+    public void testCreateWiresConfiguredCircuitBreaker() {
+        // Covers reading opensearch.restClient.circuitBreaker.* Framework properties in create().
+        OpenSearchRestClient restClient = assertInstanceOf(OpenSearchRestClient.class, factory.create());
+        assertNotNull(restClient.circuitBreaker);
+        assertEquals(75.0f, restClient.circuitBreaker.getCircuitBreakerConfig().getFailureRateThreshold());
+        assertEquals(20, restClient.circuitBreaker.getCircuitBreakerConfig().getSlidingWindowSize());
+        assertEquals(8, restClient.circuitBreaker.getCircuitBreakerConfig().getMinimumNumberOfCalls());
+        assertEquals(5000L,
+                restClient.circuitBreaker.getCircuitBreakerConfig().getWaitIntervalFunctionInOpenState().apply(1));
     }
 
     @Test

@@ -56,7 +56,7 @@ public final class OpenSearchRetryFactory {
 
     // HTTP statuses considered transient and therefore worth retrying, mirroring the idempotent set used by
     // org.nuxeo.common.httpclient.JitteredExponentialBackoffRetryHandler
-    private static final Set<Integer> RETRIABLE_STATUS = Set.of(408, 425, 429, 500, 502, 503, 504);
+    private static final Set<Integer> RETRYABLE_STATUS = Set.of(408, 425, 429, 500, 502, 503, 504);
 
     private OpenSearchRetryFactory() {
         // utility class
@@ -103,7 +103,7 @@ public final class OpenSearchRetryFactory {
         if (t instanceof IOException) {
             return true;
         }
-        return RETRIABLE_STATUS.contains(extractStatus(t));
+        return RETRYABLE_STATUS.contains(extractStatus(t));
     }
 
     private static int extractStatus(Throwable t) {

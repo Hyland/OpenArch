@@ -44,10 +44,12 @@ public class JitteredExponentialBackoffRetryHandler implements HttpRequestRetryH
 
     @Override
     public boolean retryRequest(IOException ex, int executionCount, HttpContext ctx) {
-        if (executionCount > MAX_TRY)
+        if (executionCount > MAX_TRY) {
             return false;
-        if (ex.getCause() instanceof CallNotPermittedException)
+        }
+        if (ex.getCause() instanceof CallNotPermittedException) {
             return false;
+        }
         if (ex instanceof HttpResponseException hre) {
             HttpRequest req = HttpClientContext.adapt(ctx).getRequest();
             Set<Integer> allowed = isIdempotentMethod(req) ? RETRIABLE_STATUS_IDEMPOTENT

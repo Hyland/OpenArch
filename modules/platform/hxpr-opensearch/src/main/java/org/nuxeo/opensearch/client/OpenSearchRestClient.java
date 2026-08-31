@@ -22,6 +22,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.retry.Retry;
 import io.opencensus.common.Scope;
 import io.opencensus.trace.AttributeValue;
@@ -82,18 +84,17 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
 
     protected final Retry retry;
 
+    protected final CircuitBreaker circuitBreaker;
+
     protected OpenSearchClient client;
 
-    public OpenSearchRestClient(JsonProvider jsonProvider, JsonpMapper jsonpMapper, OpenSearchTransport transport) {
-        this(jsonProvider, jsonpMapper, transport, OpenSearchRetryFactory.createDefault());
-    }
-
     public OpenSearchRestClient(JsonProvider jsonProvider, JsonpMapper jsonpMapper, OpenSearchTransport transport,
-            Retry retry) {
+            Retry retry, CircuitBreaker circuitBreaker) {
         this.jsonProvider = jsonProvider;
         this.jsonpMapper = jsonpMapper;
         this.transport = transport;
         this.retry = retry;
+        this.circuitBreaker = circuitBreaker;
 
         open();
     }
@@ -116,8 +117,13 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
     }
 
     /**
-     * Executes the given call through {@link #retry}, retrying it on transient failures (see
-     * {@link OpenSearchRetryFactory#isRetryable}) up to the configured number of attempts.
+     * Executes the given call through {@link #circuitBreaker} and {@link #retry}, retrying it on transient
+     * failures (see {@link OpenSearchRetryFactory#isRetryable}) up to the configured number of attempts, unless
+     * the circuit breaker is open.
+     * <p>
+     * The circuit breaker is nested inside the retry loop so that it gates each individual attempt: once it
+     * opens, the {@link CallNotPermittedException} it throws is not retryable, so the retry loop stops
+     * immediately instead of burning through its remaining attempts against a service known to be down.
      * <p>
      * Uses {@link Retry#executeCheckedSupplier} (not {@code executeSupplier}/{@code decorateSupplier}): the
      * latter's retry loop only catches {@link RuntimeException}, so a checked {@link IOException} would never
@@ -125,9 +131,14 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
      */
     protected <T> T withRetry(ThrowableSupplier<T, IOException> call) throws IOException {
         try {
-            return retry.executeCheckedSupplier(call::get);
+            return retry.executeCheckedSupplier(() -> circuitBreaker.executeCheckedSupplier(call::get));
+        } catch (CallNotPermittedException e) {
+            throw new NuxeoException("OpenSearch is unavailable (circuit breaker open)", e);
         } catch (IOException | RuntimeException e) {
             throw e;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new NuxeoException(e);
         } catch (Throwable t) { // NOSONAR - CheckedSupplier#get declares Throwable
             throw new NuxeoException(t);
         }
