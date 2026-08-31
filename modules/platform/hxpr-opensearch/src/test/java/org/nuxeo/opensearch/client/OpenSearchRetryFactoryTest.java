@@ -64,6 +64,16 @@ class OpenSearchRetryFactoryTest {
     }
 
     @Test
+    void isRetryableReturnsFalseForNonTransientResponseExceptionStatus() {
+        // ResponseException extends IOException: the HTTP status must be checked before the generic IOException
+        // fallback, otherwise a non-transient status like a 409 version conflict would be misclassified as
+        // retryable (regression test for HXCS-8624).
+        ResponseException e = mock(ResponseException.class);
+        when(e.status()).thenReturn(409);
+        assertThat(OpenSearchRetryFactory.isRetryable(e)).isFalse();
+    }
+
+    @Test
     void isRetryableReturnsFalseForUnrelatedException() {
         assertThat(OpenSearchRetryFactory.isRetryable(new IllegalArgumentException("nope"))).isFalse();
     }

@@ -95,15 +95,20 @@ public final class OpenSearchRetryFactory {
     }
 
     /**
-     * @return {@code true} if the given exception is considered transient and worth retrying: any
-     *         {@link IOException} (network/connection failures), or an {@link OpenSearchException} /
-     *         {@link ResponseException} carrying a transient HTTP status.
+     * @return {@code true} if the given exception is considered transient and worth retrying: an
+     *         {@link OpenSearchException} / {@link ResponseException} carrying a transient HTTP status, or any
+     *         other {@link IOException} (network/connection failures) that carries no HTTP status at all.
+     *         <p>
+     *         {@link ResponseException} itself extends {@link IOException}, so the HTTP status must be checked
+     *         first: otherwise every {@link ResponseException} - including non-transient ones like a 404 or a
+     *         409 version conflict - would be misclassified as a transient network failure.
      */
     static boolean isRetryable(Throwable t) {
-        if (t instanceof IOException) {
-            return true;
+        int status = extractStatus(t);
+        if (status != -1) {
+            return RETRYABLE_STATUS.contains(status);
         }
-        return RETRYABLE_STATUS.contains(extractStatus(t));
+        return t instanceof IOException;
     }
 
     private static int extractStatus(Throwable t) {

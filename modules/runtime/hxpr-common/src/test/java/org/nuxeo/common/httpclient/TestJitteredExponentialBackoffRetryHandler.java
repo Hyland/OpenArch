@@ -134,6 +134,18 @@ public class TestJitteredExponentialBackoffRetryHandler {
         assertEquals(executionCount, handler.getRetryInterval(executionCount));
     }
 
+    @Test
+    public void retryIntervalStaysWithinPredictedJitterBoundsForCounts1To10() {
+        for (int executionCount = 1; executionCount <= 10; executionCount++) {
+            long min = (long) (executionCount * 0.5);
+            long max = (long) (executionCount * 1.5);
+            long actual = handler.getRetryInterval(executionCount);
+            assertTrue(actual >= min && actual <= max,
+                    "expected interval for executionCount=" + executionCount + " to be between " + min + " and "
+                            + max + " but was " + actual);
+        }
+    }
+
     private HttpContext contextFor(String method) {
         HttpRequest request = mock(HttpRequest.class);
         RequestLine requestLine = mock(RequestLine.class);

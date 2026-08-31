@@ -17,11 +17,14 @@ package org.nuxeo.opensearch.client;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.Test;
+import org.opensearch.client.transport.httpclient5.ResponseException;
 
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
@@ -60,6 +63,21 @@ class OpenSearchCircuitBreakerFactoryTest {
 
         for (int i = 0; i < 5; i++) {
             triggerFailure(circuitBreaker, new IllegalArgumentException("not retryable"));
+        }
+
+        assertThat(circuitBreaker.getState()).isEqualTo(CircuitBreaker.State.CLOSED);
+    }
+
+    @Test
+    void ignoresNonTransientResponseExceptionStatusForFailureRate() {
+        // ResponseException extends IOException: a non-transient status like a 409 version conflict must not
+        // be recorded as a circuit breaker failure.
+        CircuitBreaker circuitBreaker = OpenSearchCircuitBreakerFactory.create(50.0f, 2, 2, 60_000);
+
+        for (int i = 0; i < 5; i++) {
+            ResponseException e = mock(ResponseException.class);
+            when(e.status()).thenReturn(409);
+            triggerFailure(circuitBreaker, e);
         }
 
         assertThat(circuitBreaker.getState()).isEqualTo(CircuitBreaker.State.CLOSED);
