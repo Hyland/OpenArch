@@ -17,7 +17,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>4.1.0</version>
+    <version>4.1.1</version>
   </parent>
 
   <modules>
@@ -118,6 +118,7 @@
     <!-- OpenSearch -->
     <opensearch.version>3.9.0</opensearch.version>
     <opensearch.rest.version>3.8.0</opensearch.rest.version>
+    <parsson.version>1.1.9</parsson.version>
 
     <!-- Apache -->
     <parquet.version>1.18.0</parquet.version>
@@ -592,6 +593,11 @@
             <artifactId>commons-logging</artifactId>
           </exclusion>
         </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.parsson</groupId>
+        <artifactId>parsson</artifactId>
+        <version>${parsson.version}</version>
       </dependency>
       <!-- Apache dependencies -->
       <dependency>
