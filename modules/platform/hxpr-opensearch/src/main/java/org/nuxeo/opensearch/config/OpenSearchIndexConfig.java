@@ -39,6 +39,10 @@ import org.nuxeo.common.xmap.registry.XRegistry;
 import org.nuxeo.common.xmap.registry.XRegistryId;
 import org.nuxeo.opensearch.core.IncrementalIndexNameGenerator;
 import org.nuxeo.runtime.api.Framework;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 /**
  * XMap descriptor for configuring an index
@@ -54,6 +58,10 @@ public class OpenSearchIndexConfig {
     public static final String DEFAULT_DYNAMIC_SETTING_FILE = "default-doc-dynamic-settings.json";
 
     public static final String DEFAULT_MAPPING_FILE = "default-doc-mapping.json";
+
+    protected static final String NUMBER_OF_SHARDS = "number_of_shards";
+
+    protected static final ObjectMapper MAPPER = new ObjectMapper();
 
     protected static final String DEFAULT_REPOSITORY_NAME = "default";
 
@@ -83,6 +91,15 @@ public class OpenSearchIndexConfig {
 
     @XNode("@create")
     protected boolean create = true;
+
+    /**
+     * Number of primary shards for this index, overriding {@code number_of_shards} from the settings file.
+     * <p>
+     * Lets each index use a shard count matching its data volume while sharing a single settings file. When unset, the
+     * value from the settings file applies.
+     */
+    @XNode("@numberOfShards")
+    protected Integer numberOfShards;
 
     @XNode("settings")
     protected String settings;
@@ -139,12 +156,47 @@ public class OpenSearchIndexConfig {
     }
 
     public String getSettings() {
+        String content;
         if (settingsFile != null) {
-            return contentOfFile(settingsFile);
+            content = contentOfFile(settingsFile);
         } else if (settings != null && !settings.isEmpty()) {
-            return settings;
+            content = settings;
+        } else {
+            content = contentOfFile(DEFAULT_SETTING_FILE);
         }
-        return contentOfFile(DEFAULT_SETTING_FILE);
+        return overrideNumberOfShards(content);
+    }
+
+    public Integer getNumberOfShards() {
+        return numberOfShards;
+    }
+
+    /**
+     * Applies the {@code numberOfShards} descriptor attribute on top of the resolved settings, so that indexes sharing
+     * a settings file can still use different shard counts.
+     *
+     * @return the settings with {@code number_of_shards} overridden, unchanged when no attribute is configured
+     */
+    protected String overrideNumberOfShards(String settingsJson) {
+        if (numberOfShards == null) {
+            return settingsJson;
+        }
+        if (numberOfShards < 1) {
+            throw new IllegalArgumentException("Invalid " + NUMBER_OF_SHARDS + " for index: " + name + ", must be at"
+                    + " least 1 but is: " + numberOfShards);
+        }
+        try {
+            JsonNode tree = MAPPER.readTree(settingsJson);
+            if (!(tree instanceof ObjectNode node)) {
+                throw new IllegalArgumentException(
+                        "Cannot override " + NUMBER_OF_SHARDS + " for index: " + name
+                                + ", settings is not a JSON object: " + settingsJson);
+            }
+            node.put(NUMBER_OF_SHARDS, numberOfShards);
+            return MAPPER.writeValueAsString(node);
+        } catch (JacksonException e) {
+            throw new IllegalArgumentException("Cannot override " + NUMBER_OF_SHARDS + " for index: " + name, e);
+        }
     }
 
     public String getDynamicSettings() {

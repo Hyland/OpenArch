@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2024-2026 Hyland (https://www.hyland.com/).
+ * (C) Copyright 2026 Hyland (https://www.hyland.com/).
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,8 +32,6 @@ import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import jakarta.inject.Inject;
-
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,6 +43,7 @@ import org.nuxeo.opensearch.api.OpenSearchService;
 import org.nuxeo.opensearch.client.OpenSearchRestClient;
 import org.nuxeo.opensearch.listener.OpenSearchInlineListener;
 import org.nuxeo.opensearch.test.RepositoryOpenSearchFeature;
+import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesExtension;
 import org.nuxeo.runtime.test.runner.LogCaptureFeature;
@@ -54,12 +53,14 @@ import org.opensearch.client.opensearch.generic.Request;
 import org.opensearch.client.opensearch.generic.Requests;
 import org.opensearch.client.opensearch.generic.Response;
 
-import tools.jackson.databind.JsonNode;
 import com.hyland.hxpr.async.tasks.TaskService;
+
+import jakarta.inject.Inject;
+import tools.jackson.databind.JsonNode;
 
 @ExtendWith(FeaturesExtension.class)
 @Features({ RepositoryOpenSearchFeature.class, LogCaptureFeature.class })
-public class OpenSearchComponentTest {
+class OpenSearchComponentTest {
 
     private static final int TIMEOUT_DELETE_SECOND = 300;
 
@@ -132,9 +133,7 @@ public class OpenSearchComponentTest {
 
         // Then, the mapping should not have been overridden
         Request request = Requests.builder() //
-                                  .method("GET")
-                                  .endpoint("/%s/_mapping".formatted(indexRepo))
-                                  .build();
+                                  .method("GET").endpoint("/%s/_mapping".formatted(indexRepo)).build();
         try (Response response = client.performRequestWithTracing(request)) {
             // unfortunately JacksonJsonProvider.createReader is unimplemented, so use Jackson directly
             JsonNode jsonNode = client.getObjectMapper().readTree(response.getBody().get().body());
@@ -143,7 +142,7 @@ public class OpenSearchComponentTest {
                                   .get("properties")
                                   .get(SYS_CREATED)
                                   .get("type")
-                                  .asText();
+                                  .asString();
             assertThat(type).isEqualTo("text");
         }
     }
@@ -163,27 +162,28 @@ public class OpenSearchComponentTest {
         JsonNode createIndexSettings = getApiResponse(client, indexRepo, "settings");
         String totalFieldsLimit;
         totalFieldsLimit = createIndexSettings.get(indexRepo)
-                        .get("settings")
-                        .get("index")
-                        .get("mapping")
-                        .get("total_fields")
-                        .get("limit")
-                        .asText();
+                                              .get("settings")
+                                              .get("index")
+                                              .get("mapping")
+                                              .get("total_fields")
+                                              .get("limit")
+                                              .asString();
 
         assertThat(totalFieldsLimit).isEqualTo("1000");
 
         // update the index with opensearch dynamic settings
-        File dynamicSettingsJsonFile = org.nuxeo.common.utils.FileUtils.getResourceFileFromContext("test-dynamic-settings.json");
+        File dynamicSettingsJsonFile = org.nuxeo.common.utils.FileUtils.getResourceFileFromContext(
+                "test-dynamic-settings.json");
         var dynamicSettingsJson = FileUtils.readFileToString(dynamicSettingsJsonFile, StandardCharsets.UTF_8);
         client.updateIndexDynamicSettings(indexRepo, dynamicSettingsJson);
         JsonNode updateIndexSettings = getApiResponse(client, indexRepo, "settings");
         totalFieldsLimit = updateIndexSettings.get(indexRepo)
-                .get("settings")
-                .get("index")
-                .get("mapping")
-                .get("total_fields")
-                .get("limit")
-                .asText();
+                                              .get("settings")
+                                              .get("index")
+                                              .get("mapping")
+                                              .get("total_fields")
+                                              .get("limit")
+                                              .asString();
 
         assertThat(totalFieldsLimit).isEqualTo("1500");
 
@@ -191,12 +191,12 @@ public class OpenSearchComponentTest {
         client.updateIndexDynamicSettings(indexRepo, dynamicSettingsJson);
         JsonNode reapplyIndexSettings = getApiResponse(client, indexRepo, "settings");
         totalFieldsLimit = reapplyIndexSettings.get(indexRepo)
-                .get("settings")
-                .get("index")
-                .get("mapping")
-                .get("total_fields")
-                .get("limit")
-                .asText();
+                                               .get("settings")
+                                               .get("index")
+                                               .get("mapping")
+                                               .get("total_fields")
+                                               .get("limit")
+                                               .asString();
 
         assertThat(totalFieldsLimit).isEqualTo("1500");
     }
@@ -216,19 +216,60 @@ public class OpenSearchComponentTest {
         JsonNode createIndexSettings = getApiResponse(client, indexRepo, "settings");
         String totalFieldsLimit;
         totalFieldsLimit = createIndexSettings.get(indexRepo)
-                        .get("settings")
-                        .get("index")
-                        .get("number_of_shards")
-                        .asText();
+                                              .get("settings")
+                                              .get("index")
+                                              .get("number_of_shards")
+                                              .asString();
 
         assertThat(totalFieldsLimit).isEqualTo("1");
 
         // update the index with opensearch static settings
-        String staticSettingsJson = "{\"settings\":{\"index\":{\"number_of_shards\":2}}}";
-        assertThatExceptionOfType(NuxeoException.class)
-                .isThrownBy(() -> {
-                    client.updateIndexDynamicSettings(indexRepo, staticSettingsJson);
-                }).withMessageContaining("Fail to update index settings");
+        String staticSettingsJson = "{\"settings\":{\"index\":{\"number_of_shards\":6}}}";
+        assertThatExceptionOfType(NuxeoException.class).isThrownBy(
+                                                               () -> client.updateIndexDynamicSettings(indexRepo, staticSettingsJson))
+                                                       .withMessageContaining("Fail to update index settings");
+    }
+
+    @Test
+    @Deploy("org.nuxeo.opensearch.core:opensearch-test-shards-contrib.xml")
+    public void shouldApplyADifferentNumberOfShardsPerIndex() throws Exception {
+        OpenSearchRestClient client = (OpenSearchRestClient) openSearchService.getClient();
+
+        try {
+            // the indexes share opensearch-doc-settings.json but declare different shard counts
+            assertThat(numberOfShardsOf(client, "nxushardsdoc")).isEqualTo("6");
+            assertThat(numberOfShardsOf(client, "nxushardsvoc")).isEqualTo("1");
+            assertThat(numberOfShardsOf(client, "nxushardscfg")).isEqualTo("1");
+            assertThat(numberOfShardsOf(client, "nxushardslegacy")).isEqualTo("2");
+        } finally {
+            deleteIndexIfExists(client, "nxushardsdoc");
+            deleteIndexIfExists(client, "nxushardsvoc");
+            deleteIndexIfExists(client, "nxushardscfg");
+            deleteIndexIfExists(client, "nxushardslegacy");
+        }
+    }
+
+    @Test
+    public void shouldFallBackToSettingsFileWhenNumberOfShardsIsNotDeclared() throws Exception {
+        OpenSearchRestClient client = (OpenSearchRestClient) openSearchService.getClient();
+        String index = openSearchService.getIndexNameForRepository(session.getRepositoryName());
+
+        // no numberOfShards attribute on this index, so the value from the settings file applies
+        assertThat(numberOfShardsOf(client, index)).isEqualTo("1");
+    }
+
+    private String numberOfShardsOf(OpenSearchRestClient client, String index) throws Exception {
+        return getApiResponse(client, index, "settings").get(index)
+                                                        .get("settings")
+                                                        .get("index")
+                                                        .get("number_of_shards")
+                                                        .asString();
+    }
+
+    private void deleteIndexIfExists(OpenSearchRestClient client, String index) {
+        if (client.indexExists(index)) {
+            client.deleteIndex(index, TIMEOUT_DELETE_SECOND);
+        }
     }
 
     private void buildDocs() throws Exception {
@@ -260,9 +301,7 @@ public class OpenSearchComponentTest {
 
     private JsonNode getApiResponse(OpenSearchRestClient client, String index, String api) throws Exception {
         Request request = Requests.builder() //
-                                  .method("GET")
-                                  .endpoint("/%s/_%s".formatted(index, api))
-                                  .build();
+                                  .method("GET").endpoint("/%s/_%s".formatted(index, api)).build();
         try (Response response = client.performRequestWithTracing(request)) {
             return client.getObjectMapper().readTree(response.getBody().get().body());
         }
@@ -278,7 +317,7 @@ public class OpenSearchComponentTest {
     }
 
     // Number of processed command since the startTransaction
-    public void assertNumberOfCommandProcessed(int processed) throws Exception {
+    public void assertNumberOfCommandProcessed(int processed) {
         assertEquals(processed, openSearchService.getTotalCommandProcessed() - commandProcessed);
     }
 }

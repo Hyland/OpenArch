@@ -2,7 +2,7 @@
 <component name="org.nuxeo.opensearch.defaultConfig">
 
   <extension target="org.nuxeo.opensearch.OpenSearchService" point="openSearchIndex">
-    <openSearchIndex name="${opensearch.indexName:=nuxeo}" type="doc" repository="default" manageAlias="${opensearch.manageAlias.enabled:=false}">
+    <openSearchIndex name="${opensearch.indexName:=nuxeo}" type="doc" repository="default" numberOfShards="${opensearch.indexNumberOfShards:=1}" manageAlias="${opensearch.manageAlias.enabled:=false}">
       <fetchFromSource>
         <include>sys_*</include>
         <exclude>sys_fulltextBinary</exclude>
@@ -12,7 +12,7 @@
       <mapping file="opensearch-doc-mapping.json" />
     </openSearchIndex>
 
-    <openSearchIndex name="${opensearch.vocabularies.indexName:=nuxeo_vocabularies}" type="doc" repository="default_vocabularies" manageAlias="${opensearch.manageAlias.enabled:=false}">
+    <openSearchIndex name="${opensearch.vocabularies.indexName:=nuxeo_vocabularies}" type="doc" repository="default_vocabularies" numberOfShards="${opensearch.vocabularies.indexNumberOfShards:=1}" manageAlias="${opensearch.manageAlias.enabled:=false}">
       <fetchFromSource>
         <include>sys_*</include>
         <exclude>sys_fulltextBinary</exclude>
@@ -22,7 +22,7 @@
       <mapping file="opensearch-doc-mapping.json" />
     </openSearchIndex>
 
-    <openSearchIndex name="${opensearch.configuration.indexName:=nuxeo_configuration}" type="doc" repository="default_configuration" manageAlias="${opensearch.manageAlias.enabled:=false}">
+    <openSearchIndex name="${opensearch.configuration.indexName:=nuxeo_configuration}" type="doc" repository="default_configuration" numberOfShards="${opensearch.configuration.indexNumberOfShards:=1}" manageAlias="${opensearch.manageAlias.enabled:=false}">
       <fetchFromSource>
         <include>sys_*</include>
         <exclude>sys_fulltextBinary</exclude>
@@ -32,7 +32,7 @@
       <mapping file="opensearch-doc-mapping.json" />
     </openSearchIndex>
 
-    <openSearchIndex name="${opensearch.embeddings.indexName:=nuxeo_embeddings}" type="embeddings" repository="default" manageAlias="${opensearch.manageAlias.enabled:=false}">
+    <openSearchIndex name="${opensearch.embeddings.indexName:=nuxeo_embeddings}" type="embeddings" repository="default" numberOfShards="${opensearch.embeddings.indexNumberOfShards:=1}" manageAlias="${opensearch.manageAlias.enabled:=false}">
       <fetchFromSource>
         <include>sys_*</include>
         <exclude>sys_fulltextBinary</exclude>
