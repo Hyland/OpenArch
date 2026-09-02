@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.ecm.core.event.raise.DocumentEventRaiserService">
+
+  <documentation>
+    Central service responsible for raising document modification events
+    (e.g. DOCUMENT_UPDATED, DOCUMENT_BLOB_MODIFIED) through pluggable DocumentEventRaiser
+    contributions. Each raiser is bound to an event name; when a raise is requested the service
+    dispatches to the raiser that supports that event.
+  </documentation>
+
+  <implementation class="org.nuxeo.ecm.core.event.raiser.DocumentEventRaiserComponent" />
+
+  <service>
+    <provide interface="org.nuxeo.ecm.core.event.raiser.DocumentEventRaiserService" />
+  </service>
+
+  <extension-point name="raisers">
+    <documentation>
+      Contribute a DocumentEventRaiser implementation bound to an event name.
+    </documentation>
+    <object class="org.nuxeo.ecm.core.event.raiser.DocumentEventRaiserDescriptor" />
+  </extension-point>
+
+</component>

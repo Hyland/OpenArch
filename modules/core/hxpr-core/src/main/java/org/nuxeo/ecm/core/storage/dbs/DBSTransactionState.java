@@ -176,7 +176,7 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
         this.connection = repository.getConnection();
         this.session = session;
         securityPolicyService = Framework.getService(SecurityService.class)
-                                         .getSecurityPolicyService(repository.getName());
+                .getSecurityPolicyService(repository.getName());
     }
 
     public SchemaManager getSchemaManager() {
@@ -335,7 +335,7 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
     }
 
     private <T> List<T> getChildren(String parentId, ChildrenSelector childrenSelector,
-            Function<DBSDocumentState, T> converter) {
+                                    Function<DBSDocumentState, T> converter) {
         List<T> children = new ArrayList<>();
         Set<String> seen = new HashSet<>();
         ChildrenSelectorTestContext context = new ChildrenSelectorTestContext(getSchemaManager());
@@ -571,7 +571,7 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
 
     /** @since 11.1 */
     public PartialList<Map<String, Object>> queryAndFetch(DBSExpressionEvaluator evaluator,
-            OrderByClause orderByClause, boolean distinctDocuments, int limit, int offset, int countUpTo) {
+                                                          OrderByClause orderByClause, boolean distinctDocuments, int limit, int offset, int countUpTo) {
         return connection.queryAndFetch(evaluator, orderByClause, distinctDocuments, limit, offset, countUpTo);
     }
 
@@ -750,8 +750,8 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
     }
 
     private void computeEventContext(String id, DBSDocumentState docState,
-            Map<String, Map<String, Serializable>> contextForDocsWithDirtyProps,
-            Map<String, Map<String, Serializable>> contextForDocsWithDirtyBlobs) {
+                                     Map<String, Map<String, Serializable>> contextForDocsWithDirtyProps,
+                                     Map<String, Map<String, Serializable>> contextForDocsWithDirtyBlobs) {
         List<String> dirtyPaths = getDirtyPaths(docState);
         if (!dirtyPaths.isEmpty()) {
             List<String> condensedPaths = condenseDirtyPaths(dirtyPaths);
@@ -764,7 +764,7 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
     }
 
     protected void addConditionalUpdateForUserChangeToken(ConditionalUpdates conditionalUpdates,
-            DBSDocumentState docState) {
+                                                          DBSDocumentState docState) {
         if (!userChangeIds.contains(docState.getId())) {
             return;
         }
@@ -1288,10 +1288,10 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
     private List<String> getDirtyBlobsPath(List<String> dirtyPaths) {
         List<String> dirtyBlobPaths = new ArrayList<>();
         List<String> blobKeysPaths = repository.getBlobKeysPaths()
-                                               .stream()
-                                               .map(path -> String.join("/", path))
-                                               .filter(path -> !SYS_FULLTEXT_BINARY.equals(path))
-                                               .toList();
+                .stream()
+                .map(path -> String.join("/", path))
+                .filter(path -> !SYS_FULLTEXT_BINARY.equals(path))
+                .toList();
 
         dirtyPaths.forEach(path -> {
             // Remove the '/*' or '/d+' in the dirty path to compare them with the generic key blobs paths
@@ -1381,7 +1381,7 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
     }
 
     private void sendDocumentEvents(String eventName, Set<String> ids, NuxeoPrincipal principal,
-            Map<String, Map<String, Serializable>> contextPropertiesById) {
+                                    Map<String, Map<String, Serializable>> contextPropertiesById) {
         if (ids.isEmpty()) {
             return;
         }
@@ -1407,29 +1407,6 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
             }
             Event event = new EventImpl(eventName, context, Event.FLAG_NONE, time);
             eventService.fireEvent(event);
-        }
-    }
-
-    private void sendDocumentDirtyBlobsEvents(Map<String, List<String>> docsWithDirtyBlobs, NuxeoPrincipal principal) {
-        if (!docsWithDirtyBlobs.isEmpty()) {
-            // send an event for each document with at least one dirty blob
-            long time = System.currentTimeMillis(); // make sure all events have the same time
-            EventService eventService = Framework.getService(EventService.class);
-            CoreSession coreSession = CoreInstance.getCoreSessionSystem(repository.getName());
-            docsWithDirtyBlobs.forEach((docId, list) -> {
-                DocumentModel doc;
-                try {
-                    doc = coreSession.getDocument(new IdRef(docId));
-                } catch (DocumentNotFoundException e) {
-                    // old doc (UnknownDocumentType), don't send event
-                    return;
-                }
-                DocumentEventContext context = new DocumentEventContext(coreSession, principal, doc);
-                context.setCategory(EVENT_DOCUMENT_CATEGORY);
-                context.getProperties().put(DIRTY_BLOB_XPATHS, (Serializable) list);
-                Event event = new EventImpl(DOCUMENT_BLOB_MODIFIED, context, Event.FLAG_NONE, time);
-                eventService.fireEvent(event);
-            });
         }
     }
 }
