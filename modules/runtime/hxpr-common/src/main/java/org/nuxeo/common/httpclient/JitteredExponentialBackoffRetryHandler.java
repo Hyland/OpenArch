@@ -50,14 +50,26 @@ public class JitteredExponentialBackoffRetryHandler implements HttpRequestRetryH
         if (ex.getCause() instanceof CallNotPermittedException) {
             return false;
         }
+        boolean shouldRetry;
         if (ex instanceof HttpResponseException hre) {
             HttpRequest req = HttpClientContext.adapt(ctx).getRequest();
             Set<Integer> allowed = isIdempotentMethod(req) ? RETRIABLE_STATUS_IDEMPOTENT
                     : RETRIABLE_STATUS_NON_IDEMPOTENT;
-            return allowed.contains(hre.getStatusCode());
-        }
-        return ex instanceof SocketTimeoutException || ex instanceof ConnectTimeoutException
+            shouldRetry = allowed.contains(hre.getStatusCode());
+        } else {
+            shouldRetry = ex instanceof SocketTimeoutException || ex instanceof ConnectTimeoutException
                 || ex instanceof ConnectException;
+        }
+        if (shouldRetry) {
+            long retryInterval = getRetryInterval(executionCount);
+            try {
+                Thread.sleep(retryInterval);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return false;
+            }
+        }
+        return shouldRetry;
     }
 
     private boolean isIdempotentMethod(HttpRequest req) {
@@ -68,8 +80,10 @@ public class JitteredExponentialBackoffRetryHandler implements HttpRequestRetryH
     }
 
     public long getRetryInterval(int executionCount) {
+        int exp = Math.clamp(executionCount - 1L, 0, 30);
+        long baseDelayMs = 100L * (1L << exp);
         double factor = 1.0 + (random.nextDouble() * 2 - 1) * JITTER_FACTOR;
-        return (long) (executionCount * factor);
+        return (long) (baseDelayMs * factor);
     }
 
 }

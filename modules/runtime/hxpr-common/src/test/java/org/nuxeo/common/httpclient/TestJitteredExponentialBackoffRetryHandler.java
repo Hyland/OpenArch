@@ -122,23 +122,24 @@ public class TestJitteredExponentialBackoffRetryHandler {
 
     @Test
     public void retryIntervalAppliesJitterWithinBounds() throws ReflectiveOperationException {
-        int executionCount = 4;
+        int executionCount = 3;
+        long base = 100L * (1L << (executionCount - 1));
 
         setRandom(handler, fixedRandom(0.0));
-        assertEquals((long) (executionCount * 0.5), handler.getRetryInterval(executionCount));
+        assertEquals((long) (base * 0.5), handler.getRetryInterval(executionCount));
 
         setRandom(handler, fixedRandom(1.0));
-        assertEquals((long) (executionCount * 1.5), handler.getRetryInterval(executionCount));
+        assertEquals((long) (base * 1.5), handler.getRetryInterval(executionCount));
 
         setRandom(handler, fixedRandom(0.5));
-        assertEquals(executionCount, handler.getRetryInterval(executionCount));
-    }
+        assertEquals(base, handler.getRetryInterval(executionCount));    }
 
     @Test
     public void retryIntervalStaysWithinPredictedJitterBoundsForCounts1To10() {
         for (int executionCount = 1; executionCount <= 10; executionCount++) {
-            long min = (long) (executionCount * 0.5);
-            long max = (long) (executionCount * 1.5);
+            long base = 100L * (1L << (executionCount - 1));
+            long min = (long) (base * 0.5);
+            long max = (long) (base * 1.5);
             long actual = handler.getRetryInterval(executionCount);
             assertTrue(actual >= min && actual <= max,
                     "expected interval for executionCount=" + executionCount + " to be between " + min + " and "
