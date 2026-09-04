@@ -18,6 +18,7 @@ package org.nuxeo.common.httpclient;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -145,6 +146,35 @@ public class TestJitteredExponentialBackoffRetryHandler {
                     "expected interval for executionCount=" + executionCount + " to be between " + min + " and "
                             + max + " but was " + actual);
         }
+    }
+
+    @Test
+    public void appliesConfiguredMaxTryBaseDelayAndJitterFactor() {
+        JitteredExponentialBackoffRetryHandler configured = new JitteredExponentialBackoffRetryHandler(1, 200L, 0.0);
+        HttpResponseException ex = new HttpResponseException(500, "Internal Server Error");
+
+        // maxTry=1: an initial attempt (executionCount=1) is allowed, a first retry (executionCount=2) is not
+        assertTrue(configured.retryRequest(ex, 1, contextFor("GET")));
+        assertFalse(configured.retryRequest(ex, 2, contextFor("GET")));
+
+        // jitterFactor=0.0 means no randomisation: the interval is exactly the base delay
+        assertEquals(200L, configured.getRetryInterval(1));
+    }
+
+    @Test
+    public void rejectsNonPositiveMaxTry() {
+        assertThrows(IllegalArgumentException.class, () -> new JitteredExponentialBackoffRetryHandler(0, 100L, 0.5));
+    }
+
+    @Test
+    public void rejectsNonPositiveBaseDelay() {
+        assertThrows(IllegalArgumentException.class, () -> new JitteredExponentialBackoffRetryHandler(3, 0L, 0.5));
+    }
+
+    @Test
+    public void rejectsJitterFactorOutOfRange() {
+        assertThrows(IllegalArgumentException.class, () -> new JitteredExponentialBackoffRetryHandler(3, 100L, -0.1));
+        assertThrows(IllegalArgumentException.class, () -> new JitteredExponentialBackoffRetryHandler(3, 100L, 1.1));
     }
 
     private HttpContext contextFor(String method) {
