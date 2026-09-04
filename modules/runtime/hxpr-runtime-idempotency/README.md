@@ -1,0 +1,104 @@
+# HxPR Runtime Idempotency
+
+Idempotency support for HxPR operations using a key-value store backend.
+
+## Purpose
+
+Ensures that state-mutating operations are executed at most once, even when called multiple times with the same idempotency key. This is essential when operations are protected by retry patterns — idempotency guarantees that retries do not cause duplicate side effects.
+
+## Features
+
+- **Idempotent operation execution** - Cache results based on idempotency keys
+- **Failure recording** - Cache and replay exceptions to maintain consistency
+- **Configurable TTL** - Control how long results are cached (default: 24 hours)
+- **KeyValueService backend** - Uses the existing HxPR key-value store infrastructure
+
+## Architecture
+
+### Key Components
+
+1. **IdempotencyKey** - Represents a unique operation identifier
+2. **IdempotencyResult<T>** - Wraps operation results (success or failure)
+3. **IdempotencyHandler** - Interface for idempotent operation execution
+4. **KeyValueStoreIdempotencyHandler** - KV store-based implementation
+5. **IdempotencyHandlerFactory** - Factory for creating handlers
+
+### Dependency Flow
+
+```
+hxpr-commands → hxpr-runtime-idempotency → hxpr-runtime-kv
+hxpr-runtime-aws → hxpr-runtime-idempotency → hxpr-runtime-kv
+```
+
+## Usage
+
+### Basic Example
+
+```java
+IdempotencyHandler handler = IdempotencyHandlerFactory.create(
+    keyValueService,
+    "idempotency:commands:",
+    24,
+    TimeUnit.HOURS
+);
+
+IdempotencyKey key = IdempotencyKey.of(requestId);
+
+// Execute operation idempotently
+String result = handler.execute(key, () -> {
+    // Operation that must be idempotent
+    return performStateChange();
+});
+```
+
+### Integration with Retry Patterns
+
+When combined with retry mechanisms (from HXCS-8624):
+
+```
+Retry → Idempotency → Circuit Breaker
+```
+
+1. Retry detects transient failures and retries the operation
+2. Idempotency ensures the same result is returned or exception is replayed
+3. Circuit breaker protects against cascading failures
+
+## Configuration
+
+Add to `application.properties`:
+
+```properties
+# Idempotency cache TTL (in seconds)
+hxpr.idempotency.ttl-seconds=86400
+
+# Feature toggle
+hxpr.idempotency.enabled=true
+```
+
+## Testing
+
+Run unit tests:
+
+```bash
+mvn test -pl community/modules/runtime/hxpr-runtime-idempotency
+```
+
+Tests verify:
+- Key validation and equality
+- Result success/failure handling
+- Idempotency key generation
+- Cache hit/miss scenarios
+- Exception replay behavior
+
+## Implementation Notes
+
+- **Plain Java factory** (not Spring beans) for OSGi compatibility
+- **Thread-safe** via KeyValueService's underlying implementation
+- **Failure is cached** - Exceptions are also recorded and replayed on duplicate requests
+- **Serializable results** - Results must implement `Serializable` for KV store persistence
+
+## See Also
+
+- HXCS-8624: Resilience patterns (retry, circuit breaker)
+- HXCS-8625: Pattern 2 Idempotency implementation
+- `hxpr-runtime-kv`: KeyValue storage service

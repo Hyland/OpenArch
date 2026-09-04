@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: com.hyland.hxpr.runtime.idempotency
+Export-Package: com.hyland.hxpr.runtime.idempotency;version="12.0"
