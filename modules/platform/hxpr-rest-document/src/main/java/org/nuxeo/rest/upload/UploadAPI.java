@@ -153,7 +153,7 @@ public class UploadAPI {
     public ResponseEntity<Upload> upload(@Parameter(hidden = true) @RequestHeader HttpHeaders headers,
             @RequestParam(value = "id", required = false) @Parameter(description = "The upload id. A new upload is created if null.") String id,
             @RequestParam(value = "fileName", required = false) @Parameter(description = "The file name.") String fileName,
-            @RequestParam(value = "mimeType", required = false) @Parameter(description = "The file mimetype.") String queryMimeType,
+            @RequestParam(value = "mimeType", required = false) @Parameter(description = "The file mimetype. For a text/uri-list upload, it takes precedence over the mimetype advertised by the external resource.") String queryMimeType,
             @RequestParam(value = "encoding", required = false) @Parameter(description = "The file encoding (for text files).") String queryEncoding,
             @RequestParam(value = "bodyEncoding", required = false) @Parameter(description = "The body encoding (only base64 allowed).") String bodyEncoding,
             @RequestParam(value = "chunked", required = false, defaultValue = "false") @Parameter(description = "Indicates that the upload is chunked.") boolean chunked,

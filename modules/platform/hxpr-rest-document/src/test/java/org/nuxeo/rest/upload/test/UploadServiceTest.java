@@ -25,6 +25,7 @@ import static org.nuxeo.rest.upload.test.UploadAPITest.CONTENT_TYPE_URI_LIST;
 import static org.nuxeo.rest.upload.test.UploadAPITest.EXTERNAL_URI;
 import static org.nuxeo.rest.upload.test.UploadAPITest.HYLAND_PNG;
 import static org.nuxeo.rest.upload.test.UploadAPITest.MIME_TYPE;
+import static org.nuxeo.rest.upload.test.UploadAPITest.MIME_TYPE_OVERRIDE;
 import static org.springframework.http.HttpStatus.CREATED;
 
 import java.io.ByteArrayInputStream;
@@ -70,6 +71,31 @@ public class UploadServiceTest {
     public void testUploadServiceWithExternalURI() throws IOException {
         UploadHandler handler = new DefaultUploadHandler();
         UploadDTO uploadDTO = new UploadDTO(null, HYLAND_PNG, null, null, null, false, 0, 0);
+        var response = new UploadServiceImpl().handleUpload(handler, CONTENT_TYPE_URI_LIST, uploadDTO, new ByteArrayInputStream(EXTERNAL_URI.getBytes(UTF_8)));
+        assertSuccessfulUploadCreated(response, HYLAND_PNG, MIME_TYPE);
+    }
+
+    @Test
+    public void testUploadServiceWithExternalURIAndExplicitMimeType() throws IOException {
+        UploadHandler handler = new DefaultUploadHandler();
+        UploadDTO uploadDTO = new UploadDTO(null, HYLAND_PNG, MIME_TYPE_OVERRIDE, null, null, false, 0, 0);
+        var response = new UploadServiceImpl().handleUpload(handler, CONTENT_TYPE_URI_LIST, uploadDTO, new ByteArrayInputStream(EXTERNAL_URI.getBytes(UTF_8)));
+        assertSuccessfulUploadCreated(response, HYLAND_PNG, MIME_TYPE_OVERRIDE);
+    }
+
+    @Test
+    public void testUploadServiceWithExternalURIAndUriListMimetype() throws IOException {
+        UploadHandler handler = new DefaultUploadHandler();
+        UploadDTO uploadDTO = new UploadDTO(null, HYLAND_PNG, CONTENT_TYPE_URI_LIST, null, null, false, 0, 0);
+        var response = new UploadServiceImpl().handleUpload(handler, CONTENT_TYPE_URI_LIST, uploadDTO, new ByteArrayInputStream(EXTERNAL_URI.getBytes(UTF_8)));
+        //if mimetype is set to text/uri-list, the service should set the mimetype based on the external resource
+        assertSuccessfulUploadCreated(response, HYLAND_PNG, MIME_TYPE);
+    }
+
+    @Test
+    public void testUploadServiceWithExternalURIAndBlankMimeTypeUsesTheExternalResourceOne() throws IOException {
+        UploadHandler handler = new DefaultUploadHandler();
+        UploadDTO uploadDTO = new UploadDTO(null, HYLAND_PNG, " ", null, null, false, 0, 0);
         var response = new UploadServiceImpl().handleUpload(handler, CONTENT_TYPE_URI_LIST, uploadDTO, new ByteArrayInputStream(EXTERNAL_URI.getBytes(UTF_8)));
         assertSuccessfulUploadCreated(response, HYLAND_PNG, MIME_TYPE);
     }

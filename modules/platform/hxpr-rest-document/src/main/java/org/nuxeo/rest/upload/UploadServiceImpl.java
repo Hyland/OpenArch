@@ -105,7 +105,14 @@ public class UploadServiceImpl implements UploadService {
             HttpResponse<InputStream> response = externalUriManager.downloadResourceFromURI(uriWithHeaders);
             input = response.body();
             UploadExternalUriClient.MimeTypeAndEncoding mimeTypeAndEncoding = externalUriManager.getMimeTypeAndEncoding(response.headers());
-            mimeType = mimeTypeAndEncoding.mimeType();
+            // an explicit mimeType request parameter wins over the one advertised by the external resource, which
+            // may be generic (application/octet-stream) when the caller knows the actual type
+            // mimetype text/uri-list is excluded from this rule, as this is used sometimes declared as mimetype by mistake
+            if (StringUtils.isNotBlank(uploadDTO.queryMimeType()) && !uploadDTO.queryMimeType().equals(CONTENT_TYPE_URI_LIST)) {
+                mimeType = uploadDTO.queryMimeType();
+            } else {
+                mimeType = mimeTypeAndEncoding.mimeType();
+            }
             encoding = mimeTypeAndEncoding.encoding();
             bodyEncoding = null;
         } else {

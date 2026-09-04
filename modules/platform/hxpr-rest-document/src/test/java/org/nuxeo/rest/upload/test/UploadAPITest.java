@@ -77,6 +77,8 @@ public class UploadAPITest extends AbstractUploadAPITest {
 
     public static final String MIME_TYPE = "image/png";
 
+    public static final String MIME_TYPE_OVERRIDE = "image/x-hyland-test";
+
     public void checkHandler() {
         // this is a session scoped bean and will be injected as a proxy
         assertInstanceOf(DefaultUploadHandler.class, AopTestUtils.getTargetObject(handler));
@@ -141,6 +143,65 @@ public class UploadAPITest extends AbstractUploadAPITest {
         assertEquals(MIME_TYPE, blob.getMimeType());
         assertNotNull(blob.getFile());
         assertTrue(blob.getFile().exists());
+    }
+
+    @Test
+    public void checkUploadWithExternalURIAndExplicitMimeType() throws Exception {
+        long fileSize = new RestTemplate().getForObject(EXTERNAL_URI, byte[].class).length;
+        HttpHeaders headers = headers(Versions.APP_HXCS_JSON_V1, CONTENT_TYPE_URI_LIST);
+        var result = checkResponseWithPayload(CREATED, POST, headers, EXTERNAL_URI,
+                PATH + "?fileName={fileName}&mimeType={mimeType}", HYLAND_PNG, CONTENT_TYPE_URI_LIST);
+
+        String uploadId = getJsonPath(result, "id");
+        var response = result.andReturn().getResponse();
+        checkResponseBody("""
+                {
+                  "fileName": "%s",
+                  "fileSize": %s,
+                  "partialFileSize": %s,
+                  "hasContent": true,
+                  "id": "%s",
+                  "mimeType": "%s",
+                  "status": "READY",
+                  "attachStatus": "PENDING"
+                }
+                """.formatted(HYLAND_PNG, fileSize, fileSize, uploadId, MIME_TYPE), response);
+        // if someone mistakenly declare mimetype as text/uri-list, the actual mimetype of the downloaded content is used instead
+        Blob blob = handler.getUpload(uploadId).getBlob();
+        assertNotNull(blob);
+        assertEquals(HYLAND_PNG, blob.getFilename());
+        assertEquals(fileSize, blob.getLength());
+        assertEquals(MIME_TYPE, blob.getMimeType());
+    }
+
+    @Test
+    public void checkIgnoreWhenMimetypeIsDeclaredAsUriList() throws Exception {
+        long fileSize = new RestTemplate().getForObject(EXTERNAL_URI, byte[].class).length;
+        HttpHeaders headers = headers(Versions.APP_HXCS_JSON_V1, CONTENT_TYPE_URI_LIST);
+        var result = checkResponseWithPayload(CREATED, POST, headers, EXTERNAL_URI,
+                PATH + "?fileName={fileName}&mimeType={mimeType}", HYLAND_PNG, MIME_TYPE_OVERRIDE);
+
+        String uploadId = getJsonPath(result, "id");
+        var response = result.andReturn().getResponse();
+        checkResponseBody("""
+                {
+                  "fileName": "%s",
+                  "fileSize": %s,
+                  "partialFileSize": %s,
+                  "hasContent": true,
+                  "id": "%s",
+                  "mimeType": "%s",
+                  "status": "READY",
+                  "attachStatus": "PENDING"
+                }
+                """.formatted(HYLAND_PNG, fileSize, fileSize, uploadId, MIME_TYPE_OVERRIDE), response);
+        // the requested mimeType wins over the one advertised by the external resource, the content is still the one
+        // downloaded from it
+        Blob blob = handler.getUpload(uploadId).getBlob();
+        assertNotNull(blob);
+        assertEquals(HYLAND_PNG, blob.getFilename());
+        assertEquals(fileSize, blob.getLength());
+        assertEquals(MIME_TYPE_OVERRIDE, blob.getMimeType());
     }
 
     @Test
