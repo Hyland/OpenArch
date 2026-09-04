@@ -34,10 +34,7 @@ import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_READ_ACL;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_SYS_CHANGE_TOKEN;
 import static org.nuxeo.ecm.core.api.event.CoreEventConstants.DIRTY_BLOB_XPATHS;
 import static org.nuxeo.ecm.core.api.event.CoreEventConstants.DIRTY_XPATHS;
-import static org.nuxeo.ecm.core.api.event.DocumentEventCategories.EVENT_DOCUMENT_CATEGORY;
-import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_BLOB_MODIFIED;
 import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_CREATED;
-import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_UPDATED;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.SYSTEM_USERNAME;
 import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_KEY;
 import static org.nuxeo.ecm.core.storage.dbs.DBSDocument.INITIAL_CHANGE_TOKEN;
@@ -71,9 +68,6 @@ import org.nuxeo.ecm.core.api.CoreInstance;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentEnrichmentContext;
 import org.nuxeo.ecm.core.api.DocumentEnrichmentService;
-import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.ecm.core.api.DocumentNotFoundException;
-import org.nuxeo.ecm.core.api.IdRef;
 import org.nuxeo.ecm.core.api.Lock;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.api.NuxeoPrincipal;
@@ -87,10 +81,10 @@ import org.nuxeo.ecm.core.api.repository.RepositoryManager;
 import org.nuxeo.ecm.core.api.validation.DocumentValidationException;
 import org.nuxeo.ecm.core.api.validation.DocumentValidationReport;
 import org.nuxeo.ecm.core.api.validation.DocumentValidationService;
-import org.nuxeo.ecm.core.event.Event;
-import org.nuxeo.ecm.core.event.EventService;
-import org.nuxeo.ecm.core.event.impl.DocumentEventContext;
-import org.nuxeo.ecm.core.event.impl.EventImpl;
+import org.nuxeo.ecm.core.event.raiser.DocumentEventRaiser;
+import org.nuxeo.ecm.core.event.raiser.DocumentEventRaiserContext;
+import org.nuxeo.ecm.core.event.raiser.DocumentEventRaiserService;
+import org.nuxeo.ecm.core.event.raiser.DocumentEventSenderService;
 import org.nuxeo.ecm.core.query.sql.model.OrderByClause;
 import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.schema.DocumentType;
@@ -744,9 +738,8 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
         transientCreated.clear();
         userChangeIds.clear();
         updateConditionPredicates.clear();
-        sendDocumentEvents(DOCUMENT_UPDATED, updatedIds, principal, contextForDocsWithDirtyProps);
-        sendDocumentEvents(DOCUMENT_BLOB_MODIFIED, contextForDocsWithDirtyBlobs.keySet(), principal,
-                contextForDocsWithDirtyBlobs);
+        // dispatch the document events through the registered DocumentEventRaisers
+        raiseUpdatedDocumentEvents(updatedIds,contextForDocsWithDirtyBlobs.keySet(), contextForDocsWithDirtyProps, contextForDocsWithDirtyBlobs, principal);
     }
 
     private void computeEventContext(String id, DBSDocumentState docState,
@@ -1380,33 +1373,42 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
         }
     }
 
+    /**
+     * Raises document update events for documents that were modified during the transaction.
+     * Builds a {@link DocumentEventRaiserContext} carrying the ids and per-document context
+     * properties of documents with dirty properties and/or dirty blobs, then dispatches it to the
+     * {@link DocumentEventRaiserService}, which delegates to every registered
+     * {@link DocumentEventRaiser}. If the raiser service is not available, no event is raised.
+     *
+     * @param DirtyPropDocIds the ids of documents whose properties changed
+     * @param DirtyBlobDocIds the ids of documents whose blobs changed
+     * @param contextForDocsWithDirtyProps per-document context properties for documents with dirty
+     *            properties, keyed by document id
+     * @param contextForDocsWithDirtyBlobs per-document context properties for documents with dirty
+     *            blobs, keyed by document id
+     */
+    private void raiseUpdatedDocumentEvents(Set<String> DirtyPropDocIds, Set<String> DirtyBlobDocIds,
+                                            Map<String, Map<String, Serializable>> contextForDocsWithDirtyProps,
+                                            Map<String, Map<String, Serializable>> contextForDocsWithDirtyBlobs, NuxeoPrincipal principal) {
+        DocumentEventRaiserService raiserService = Framework.getService(DocumentEventRaiserService.class);
+        CoreSession coreSession = CoreInstance.getCoreSessionSystem(repository.getName());
+        if (raiserService != null) {
+            long time = System.currentTimeMillis();
+            DocumentEventRaiserContext context = new DocumentEventRaiserContext(coreSession, principal,
+                    contextForDocsWithDirtyProps,contextForDocsWithDirtyBlobs, DirtyPropDocIds, time);
+            // call matched registered raiser in a loop
+            raiserService.raiseEvent(context);
+        }
+        else {
+            log.debug("DocumentEventRaiserService is not registered; skipping update events for {} document(s) "
+                    + "with dirty properties and {} document(s) with dirty blobs.",
+                    DirtyPropDocIds.size(), DirtyBlobDocIds.size());
+        }
+    }
+
     private void sendDocumentEvents(String eventName, Set<String> ids, NuxeoPrincipal principal,
                                     Map<String, Map<String, Serializable>> contextPropertiesById) {
-        if (ids.isEmpty()) {
-            return;
-        }
-        // send a core event for each document in the list
-        long time = System.currentTimeMillis(); // make sure all events have the same time
-        EventService eventService = Framework.getService(EventService.class);
-        CoreSession coreSession = CoreInstance.getCoreSessionSystem(repository.getName());
-        for (String id : ids) {
-            DocumentModel doc;
-            try {
-                doc = coreSession.getDocument(new IdRef(id));
-            } catch (DocumentNotFoundException e) {
-                // old doc (UnknownDocumentType), don't send event
-                continue;
-            }
-            DocumentEventContext context = new DocumentEventContext(coreSession, principal, doc);
-            context.setCategory(EVENT_DOCUMENT_CATEGORY);
-            if (contextPropertiesById != null) {
-                Map<String, Serializable> contextProperties = contextPropertiesById.get(id);
-                if (contextProperties != null) {
-                    context.getProperties().putAll(contextProperties);
-                }
-            }
-            Event event = new EventImpl(eventName, context, Event.FLAG_NONE, time);
-            eventService.fireEvent(event);
-        }
+        DocumentEventSenderService documentEventSender = Framework.getService(DocumentEventSenderService.class);
+        documentEventSender.sendDocumentEvents(repository.getName(), eventName, ids, principal, contextPropertiesById);
     }
 }

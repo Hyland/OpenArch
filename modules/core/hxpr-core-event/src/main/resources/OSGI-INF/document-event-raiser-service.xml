@@ -2,7 +2,7 @@
 <component name="org.nuxeo.ecm.core.event.raise.DocumentEventRaiserService">
 
   <documentation>
-    Central service responsible for raising document modification events
+    Central service responsible for raising different document modification events
     (e.g. DOCUMENT_UPDATED, DOCUMENT_BLOB_MODIFIED) through pluggable DocumentEventRaiser
     contributions. Each raiser is bound to an event name; when a raise is requested the service
     dispatches to the raiser that supports that event.
@@ -14,11 +14,27 @@
     <provide interface="org.nuxeo.ecm.core.event.raiser.DocumentEventRaiserService" />
   </service>
 
-  <extension-point name="raisers">
-    <documentation>
-      Contribute a DocumentEventRaiser implementation bound to an event name.
-    </documentation>
-    <object class="org.nuxeo.ecm.core.event.raiser.DocumentEventRaiserDescriptor" />
-  </extension-point>
+    <extension-point name="raisers">
+        <documentation>
+            Register a org.nuxeo.ecm.core.event.raise.DocumentEventRaiser bound to a document event name
+            to customize how that event is raised.
+
+            <code>
+                <raiser name="DOCUMENT_UPDATED"
+                        class="org.nuxeo.ecm.core.event.raise.DocumentUpdatedEventRaiser" />
+                <raiser name="DOCUMENT_BLOB_MODIFIED"
+                        class="org.nuxeo.ecm.core.event.raise.DocumentBlobModifiedEventRaiser" />
+            </code>
+        </documentation>
+        <object class="org.nuxeo.ecm.core.event.raiser.DocumentEventRaiserDescriptor" />
+        <registry class="org.nuxeo.ecm.core.event.raiser.DocumentEventRaiserRegistry" />
+    </extension-point>
+
+    <extension target="org.nuxeo.ecm.core.event.raise.DocumentEventRaiserService" point="raisers">
+        <raiser name="DOCUMENT_UPDATED"
+                class="org.nuxeo.ecm.core.event.raiser.DocumentUpdatedEventRaiser" />
+        <raiser name="DOCUMENT_BLOB_MODIFIED"
+                class="org.nuxeo.ecm.core.event.raiser.DocumentBlobModifiedEventRaiser" />
+    </extension>
 
 </component>

@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.ecm.core.event.raiser.DocumentEventSender">
+
+  <documentation>
+    Service responsible for firing core document events (e.g. DOCUMENT_CREATED, DOCUMENT_UPDATED)
+    for a set of documents. The logic was extracted from DBSTransactionState so that it can be
+    reused and unit-tested independently.
+  </documentation>
+
+  <implementation class="org.nuxeo.ecm.core.event.raiser.DocumentEventSenderComponent" />
+
+  <service>
+    <provide interface="org.nuxeo.ecm.core.event.raiser.DocumentEventSenderService" />
+  </service>
+
+</component>
