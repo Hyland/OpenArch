@@ -53,7 +53,7 @@ class DocumentEventRaiserComponentTest {
     }
 
     private DocumentEventRaiserContext newContext() {
-        return new DocumentEventRaiserContext(null, null, null, null, Set.of(), 0L);
+        return new DocumentEventRaiserContext(null, null, null, null, Set.of(), null, null, null, 0L);
     }
 
     @Test

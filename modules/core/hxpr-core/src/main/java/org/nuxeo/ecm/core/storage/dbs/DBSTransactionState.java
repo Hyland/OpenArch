@@ -702,6 +702,9 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
         }
 
         Set<String> updatedIds = new HashSet<>();
+        Map<String, Object> diffsById = new HashMap<>();
+        Map<String, Object> originalStatesById = new HashMap<>();
+        Map<String, Object> currentStatesById = new HashMap<>();
         for (DBSDocumentState docState : transientStates.values()) {
             String id = docState.getId();
             if (transientCreated.contains(id)) {
@@ -710,6 +713,9 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
             StateDiff diff = docState.getStateChange();
             if (diff != null) {
                 updatedIds.add(id);
+                diffsById.put(id, diff);
+                originalStatesById.put(id, docState.getOriginalState());
+                currentStatesById.put(id, docState.getState());
                 computeEventContext(id, docState, contextForDocsWithDirtyProps, contextForDocsWithDirtyBlobs);
                 try {
                     if (undoLog != null && !undoLog.containsKey(id)) {
@@ -739,7 +745,8 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
         userChangeIds.clear();
         updateConditionPredicates.clear();
         // dispatch the document events through the registered DocumentEventRaisers
-        raiseUpdatedDocumentEvents(updatedIds,contextForDocsWithDirtyBlobs.keySet(), contextForDocsWithDirtyProps, contextForDocsWithDirtyBlobs, principal);
+        raiseUpdatedDocumentEvents(updatedIds, contextForDocsWithDirtyProps, contextForDocsWithDirtyBlobs, principal,
+                diffsById, originalStatesById, currentStatesById);
     }
 
     private void computeEventContext(String id, DBSDocumentState docState,
@@ -1375,34 +1382,42 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
 
     /**
      * Raises document update events for documents that were modified during the transaction.
-     * Builds a {@link DocumentEventRaiserContext} carrying the ids and per-document context
-     * properties of documents with dirty properties and/or dirty blobs, then dispatches it to the
-     * {@link DocumentEventRaiserService}, which delegates to every registered
+     * Builds a {@link DocumentEventRaiserContext} carrying the ids, per-document context properties
+     * and state diffs of documents with dirty properties and/or dirty blobs, then dispatches it to
+     * the {@link DocumentEventRaiserService}, which delegates to every registered
      * {@link DocumentEventRaiser}. If the raiser service is not available, no event is raised.
      *
-     * @param DirtyPropDocIds the ids of documents whose properties changed
-     * @param DirtyBlobDocIds the ids of documents whose blobs changed
+     * @param dirtyPropDocIds the ids of documents whose properties changed
      * @param contextForDocsWithDirtyProps per-document context properties for documents with dirty
      *            properties, keyed by document id
      * @param contextForDocsWithDirtyBlobs per-document context properties for documents with dirty
      *            blobs, keyed by document id
+     * @param principal the principal performing the update, propagated to the raised events
+     * @param diff the computed differences between the original and current document states,
+     *            keyed by document id
+     * @param originalDocument the original document states before the transaction, keyed by
+     *            document id
+     * @param currentDocument the current document states after the transaction, keyed by
+     *            document id
      */
-    private void raiseUpdatedDocumentEvents(Set<String> DirtyPropDocIds, Set<String> DirtyBlobDocIds,
+    private void raiseUpdatedDocumentEvents(Set<String> dirtyPropDocIds,
                                             Map<String, Map<String, Serializable>> contextForDocsWithDirtyProps,
-                                            Map<String, Map<String, Serializable>> contextForDocsWithDirtyBlobs, NuxeoPrincipal principal) {
+                                            Map<String, Map<String, Serializable>> contextForDocsWithDirtyBlobs, NuxeoPrincipal principal,
+                                            Map<String, Object> diff, Map<String, Object> originalDocument, Map<String, Object> currentDocument) {
         DocumentEventRaiserService raiserService = Framework.getService(DocumentEventRaiserService.class);
         CoreSession coreSession = CoreInstance.getCoreSessionSystem(repository.getName());
         if (raiserService != null) {
             long time = System.currentTimeMillis();
             DocumentEventRaiserContext context = new DocumentEventRaiserContext(coreSession, principal,
-                    contextForDocsWithDirtyProps,contextForDocsWithDirtyBlobs, DirtyPropDocIds, time);
+                    contextForDocsWithDirtyProps,contextForDocsWithDirtyBlobs, dirtyPropDocIds,
+                    diff, originalDocument, currentDocument, time);
             // call matched registered raiser in a loop
             raiserService.raiseEvent(context);
         }
         else {
             log.debug("DocumentEventRaiserService is not registered; skipping update events for {} document(s) "
-                    + "with dirty properties and {} document(s) with dirty blobs.",
-                    DirtyPropDocIds.size(), DirtyBlobDocIds.size());
+                            + "with dirty properties and {} document(s) with dirty blobs.",
+                    dirtyPropDocIds.size(), contextForDocsWithDirtyBlobs.size());
         }
     }
 

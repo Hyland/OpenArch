@@ -44,16 +44,26 @@ public class DocumentEventRaiserContext {
 
     private final Set<String> dirtyPropDocIds;
 
+    private final Map<String, Object> diff;
+
+    private final Map<String, Object> originalDocument;
+
+    private final Map<String, Object> currentDocument;
+
     private final long time;
 
     public DocumentEventRaiserContext(CoreSession session, NuxeoPrincipal principal,
               Map<String, Map<String, Serializable>> contextForDocsWithDirtyProps, Map<String, Map<String, Serializable>> contextForDocsWithDirtyBlobs,
-              Set<String> dirtyPropDocIds, long time) {
+              Set<String> dirtyPropDocIds, Map<String, Object> diff, Map<String, Object> originalDocument, Map<String, Object> currentDocument,
+              long time) {
         this.coreSession = session;
         this.principal = principal;
         this.docWithDirtyProps = contextForDocsWithDirtyProps == null ? new HashMap<>() : new HashMap<>(contextForDocsWithDirtyProps);
         this.docWithDirtyBlobs = contextForDocsWithDirtyBlobs == null ? new HashMap<>() : new HashMap<>(contextForDocsWithDirtyBlobs);
         this.dirtyPropDocIds = dirtyPropDocIds;
+        this.diff = diff;
+        this.originalDocument = originalDocument;
+        this.currentDocument = currentDocument;
         this.time = time;
     }
 
@@ -84,6 +94,21 @@ public class DocumentEventRaiserContext {
     /** @return the mutable event context doc with dirty blobs, never {@code null} */
     public Map<String, Map<String, Serializable>> getContextForDocsWithDirtyBlobs() {
         return docWithDirtyBlobs;
+    }
+
+    /** @return the state {@code StateDiff} describing the document change, may be {@code null} */
+    public Map<String, Object> getDiff() {
+        return diff;
+    }
+
+    /** @return the original document state before the change, may be {@code null} */
+    public Map<String, Object> getOriginalDocument() {
+        return originalDocument;
+    }
+
+    /** @return the current document state after the change, may be {@code null} */
+    public Map<String, Object> getCurrentDocument() {
+        return currentDocument;
     }
 
     public long getTime() {

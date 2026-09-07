@@ -35,9 +35,12 @@ class DocumentEventRaiserContextTest {
         Map<String, Map<String, Serializable>> props = Map.of("doc-1", Map.of("k", "v"));
         Map<String, Map<String, Serializable>> blobs = Map.of("doc-2", Map.of("b", "w"));
         Set<String> dirtyPropIds = Set.of("doc-1");
+        Map<String, Object> diff = Map.of("doc-1", "diffValue");
+        Map<String, Object> original = Map.of("doc-1", "originalValue");
+        Map<String, Object> current = Map.of("doc-1", "currentValue");
 
         DocumentEventRaiserContext context = new DocumentEventRaiserContext(session, principal, props, blobs,
-                dirtyPropIds, 99L);
+                dirtyPropIds, diff, original, current, 99L);
 
         assertThat(context.getSession()).isSameAs(session);
         assertThat(context.getPrincipal()).isSameAs(principal);
@@ -45,6 +48,9 @@ class DocumentEventRaiserContextTest {
         assertThat(context.getDirtyBlobDocIds()).containsExactly("doc-2");
         assertThat(context.getContextForDocsWithDirtyProps()).containsEntry("doc-1", Map.of("k", "v"));
         assertThat(context.getContextForDocsWithDirtyBlobs()).containsEntry("doc-2", Map.of("b", "w"));
+        assertThat(context.getDiff()).containsEntry("doc-1", "diffValue");
+        assertThat(context.getOriginalDocument()).containsEntry("doc-1", "originalValue");
+        assertThat(context.getCurrentDocument()).containsEntry("doc-1", "currentValue");
         assertThat(context.getTime()).isEqualTo(99L);
     }
 
@@ -54,7 +60,7 @@ class DocumentEventRaiserContextTest {
         props.put("doc-1", Map.of("k", "v"));
 
         DocumentEventRaiserContext context = new DocumentEventRaiserContext(null, null, props, null, Set.of(),
-                0L);
+                null, null, null, 0L);
         props.put("mutated", Map.of("x", "y"));
 
         assertThat(context.getContextForDocsWithDirtyProps()).containsOnlyKeys("doc-1");
@@ -66,7 +72,7 @@ class DocumentEventRaiserContextTest {
         blobs.put("doc-2", Map.of("b", "w"));
 
         DocumentEventRaiserContext context = new DocumentEventRaiserContext(null, null, null, blobs, Set.of(),
-                0L);
+                null, null, null, 0L);
         blobs.put("mutated", Map.of("x", "y"));
 
         assertThat(context.getContextForDocsWithDirtyBlobs()).containsOnlyKeys("doc-2");
