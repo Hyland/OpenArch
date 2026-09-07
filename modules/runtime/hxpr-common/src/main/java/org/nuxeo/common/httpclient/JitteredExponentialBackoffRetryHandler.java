@@ -45,8 +45,6 @@ public class JitteredExponentialBackoffRetryHandler implements HttpRequestRetryH
 
     private static final Set<Integer> RETRIABLE_STATUS_NON_IDEMPOTENT = Set.of(408, 425, 429);
 
-    private final Random random = ThreadLocalRandom.current();
-
     private final int maxTry;
 
     private final long baseDelayMs;
@@ -124,6 +122,7 @@ public class JitteredExponentialBackoffRetryHandler implements HttpRequestRetryH
     }
 
     public long getRetryInterval(int executionCount) {
+        Random random = ThreadLocalRandom.current();
         int exp = Math.clamp(executionCount - 1L, 0, 30);
         long baseDelay = baseDelayMs * (1L << exp);
         double factor = 1.0 + (random.nextDouble() * 2 - 1) * jitterFactor;

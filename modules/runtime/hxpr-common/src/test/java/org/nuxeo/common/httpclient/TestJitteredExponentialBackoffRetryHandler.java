@@ -21,13 +21,13 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
@@ -40,6 +40,7 @@ import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpCoreContext;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 
 public class TestJitteredExponentialBackoffRetryHandler {
 
@@ -122,18 +123,25 @@ public class TestJitteredExponentialBackoffRetryHandler {
     }
 
     @Test
-    public void retryIntervalAppliesJitterWithinBounds() throws ReflectiveOperationException {
+    public void retryIntervalAppliesJitterWithinBounds() {
         int executionCount = 3;
         long base = 100L * (1L << (executionCount - 1));
 
-        setRandom(handler, fixedRandom(0.0));
-        assertEquals((long) (base * 0.5), handler.getRetryInterval(executionCount));
+        ThreadLocalRandom randomAtMin = fixedRandom(0.0);
+        ThreadLocalRandom randomAtMax = fixedRandom(1.0);
+        ThreadLocalRandom randomAtMid = fixedRandom(0.5);
 
-        setRandom(handler, fixedRandom(1.0));
-        assertEquals((long) (base * 1.5), handler.getRetryInterval(executionCount));
+        try (MockedStatic<ThreadLocalRandom> threadLocalRandom = mockStatic(ThreadLocalRandom.class)) {
+            threadLocalRandom.when(ThreadLocalRandom::current).thenReturn(randomAtMin);
+            assertEquals((long) (base * 0.5), handler.getRetryInterval(executionCount));
 
-        setRandom(handler, fixedRandom(0.5));
-        assertEquals(base, handler.getRetryInterval(executionCount));    }
+            threadLocalRandom.when(ThreadLocalRandom::current).thenReturn(randomAtMax);
+            assertEquals((long) (base * 1.5), handler.getRetryInterval(executionCount));
+
+            threadLocalRandom.when(ThreadLocalRandom::current).thenReturn(randomAtMid);
+            assertEquals(base, handler.getRetryInterval(executionCount));
+        }
+    }
 
     @Test
     public void retryIntervalStaysWithinPredictedJitterBoundsForCounts1To10() {
@@ -188,19 +196,9 @@ public class TestJitteredExponentialBackoffRetryHandler {
         return context;
     }
 
-    private Random fixedRandom(double value) {
-        return new Random() {
-            @Override
-            public double nextDouble() {
-                return value;
-            }
-        };
-    }
-
-    private void setRandom(JitteredExponentialBackoffRetryHandler target, Random random)
-            throws ReflectiveOperationException {
-        Field field = JitteredExponentialBackoffRetryHandler.class.getDeclaredField("random");
-        field.setAccessible(true);
-        field.set(target, random);
+    private ThreadLocalRandom fixedRandom(double value) {
+        ThreadLocalRandom random = mock(ThreadLocalRandom.class);
+        when(random.nextDouble()).thenReturn(value);
+        return random;
     }
 }

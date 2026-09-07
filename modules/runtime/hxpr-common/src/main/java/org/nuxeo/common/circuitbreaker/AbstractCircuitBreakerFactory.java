@@ -78,7 +78,7 @@ public abstract class AbstractCircuitBreakerFactory {
                                                                             DEFAULT_PERMITTED_CALLS_IN_HALF_OPEN_STATE);
         customizeConfig(builder);
         CircuitBreaker circuitBreaker = CircuitBreaker.of(getCircuitBreakerName(), builder.build());
-        circuitBreaker.getEventPublisher().onStateTransition(event -> log.warn(
+        circuitBreaker.getEventPublisher().onStateTransition(event -> log.info(
                 "{} circuit breaker transitioning from {} to {}", getServiceLabel(),
                 event.getStateTransition().getFromState(), event.getStateTransition().getToState()));
         return circuitBreaker;

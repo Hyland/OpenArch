@@ -474,8 +474,7 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
                 // use a longer timeout than the default one
                 request = request.toBuilder().timeout(tb -> tb.time(LONG_TIMEOUT)).build();
             }
-            DeleteByQueryRequest finalRequest = request;
-            return withRetry(() -> client.deleteByQuery(finalRequest));
+            return client.deleteByQuery(request);
         } catch (IOException | OpenSearchException e) {
             throw new NuxeoException(e);
         }
