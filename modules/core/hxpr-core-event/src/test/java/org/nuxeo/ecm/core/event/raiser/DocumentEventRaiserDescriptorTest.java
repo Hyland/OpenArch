@@ -45,11 +45,8 @@ class DocumentEventRaiserDescriptorTest {
     /** A raiser without an accessible no-arg constructor to exercise the failure path. */
     public static class NoDefaultCtorRaiser implements DocumentEventRaiser {
 
-        private final String required;
-
-        public NoDefaultCtorRaiser(String required) {
-            // no-arg constructor intentionally missing
-            this.required = required;
+        private NoDefaultCtorRaiser() {
+            // private to trigger IllegalAccessException during instantiation
         }
 
         @Override

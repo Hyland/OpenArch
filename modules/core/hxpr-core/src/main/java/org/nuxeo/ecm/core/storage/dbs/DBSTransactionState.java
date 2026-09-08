@@ -1407,10 +1407,9 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
         DocumentEventRaiserService raiserService = Framework.getService(DocumentEventRaiserService.class);
         CoreSession coreSession = CoreInstance.getCoreSessionSystem(repository.getName());
         if (raiserService != null) {
-            long time = System.currentTimeMillis();
             DocumentEventRaiserContext context = new DocumentEventRaiserContext(coreSession, principal,
                     contextForDocsWithDirtyProps,contextForDocsWithDirtyBlobs, dirtyPropDocIds,
-                    diff, originalDocument, currentDocument, time);
+                    diff, originalDocument, currentDocument);
             // call matched registered raiser in a loop
             raiserService.raiseEvent(context);
         }

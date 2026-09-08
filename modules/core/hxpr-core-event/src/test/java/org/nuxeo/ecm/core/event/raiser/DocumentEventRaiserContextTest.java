@@ -40,7 +40,7 @@ class DocumentEventRaiserContextTest {
         Map<String, Object> current = Map.of("doc-1", "currentValue");
 
         DocumentEventRaiserContext context = new DocumentEventRaiserContext(session, principal, props, blobs,
-                dirtyPropIds, diff, original, current, 99L);
+                dirtyPropIds, diff, original, current);
 
         assertThat(context.getSession()).isSameAs(session);
         assertThat(context.getPrincipal()).isSameAs(principal);
@@ -51,7 +51,6 @@ class DocumentEventRaiserContextTest {
         assertThat(context.getDiff()).containsEntry("doc-1", "diffValue");
         assertThat(context.getOriginalDocument()).containsEntry("doc-1", "originalValue");
         assertThat(context.getCurrentDocument()).containsEntry("doc-1", "currentValue");
-        assertThat(context.getTime()).isEqualTo(99L);
     }
 
     @Test
@@ -60,7 +59,7 @@ class DocumentEventRaiserContextTest {
         props.put("doc-1", Map.of("k", "v"));
 
         DocumentEventRaiserContext context = new DocumentEventRaiserContext(null, null, props, null, Set.of(),
-                null, null, null, 0L);
+                null, null, null);
         props.put("mutated", Map.of("x", "y"));
 
         assertThat(context.getContextForDocsWithDirtyProps()).containsOnlyKeys("doc-1");
@@ -72,7 +71,7 @@ class DocumentEventRaiserContextTest {
         blobs.put("doc-2", Map.of("b", "w"));
 
         DocumentEventRaiserContext context = new DocumentEventRaiserContext(null, null, null, blobs, Set.of(),
-                null, null, null, 0L);
+                null, null, null);
         blobs.put("mutated", Map.of("x", "y"));
 
         assertThat(context.getContextForDocsWithDirtyBlobs()).containsOnlyKeys("doc-2");

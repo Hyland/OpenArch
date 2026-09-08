@@ -50,12 +50,9 @@ public class DocumentEventRaiserContext {
 
     private final Map<String, Object> currentDocument;
 
-    private final long time;
-
     public DocumentEventRaiserContext(CoreSession session, NuxeoPrincipal principal,
               Map<String, Map<String, Serializable>> contextForDocsWithDirtyProps, Map<String, Map<String, Serializable>> contextForDocsWithDirtyBlobs,
-              Set<String> dirtyPropDocIds, Map<String, Object> diff, Map<String, Object> originalDocument, Map<String, Object> currentDocument,
-              long time) {
+              Set<String> dirtyPropDocIds, Map<String, Object> diff, Map<String, Object> originalDocument, Map<String, Object> currentDocument) {
         this.coreSession = session;
         this.principal = principal;
         this.docWithDirtyProps = contextForDocsWithDirtyProps == null ? new HashMap<>() : new HashMap<>(contextForDocsWithDirtyProps);
@@ -64,7 +61,6 @@ public class DocumentEventRaiserContext {
         this.diff = diff;
         this.originalDocument = originalDocument;
         this.currentDocument = currentDocument;
-        this.time = time;
     }
 
     /** @return the session the event relates to */
@@ -109,9 +105,5 @@ public class DocumentEventRaiserContext {
     /** @return the current document state after the change, may be {@code null} */
     public Map<String, Object> getCurrentDocument() {
         return currentDocument;
-    }
-
-    public long getTime() {
-        return time;
     }
 }

@@ -162,6 +162,11 @@ public final class DocumentEventTypes {
      */
     public static final String GRAPH_UPDATED = "graphUpdated";
 
+    /**
+     * Event triggered during the save of a session if any graph-related document properties have changed.
+     */
+    public static final String UPSERT_GRAPH = "upsertGraph";
+
     // Constant utility class
     private DocumentEventTypes() {
     }

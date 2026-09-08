@@ -47,7 +47,7 @@ class DocumentUpdatedEventRaiserTest {
         Map<String, Serializable> docProps = Map.of("key1", "value1");
         Map<String, Map<String, Serializable>> props = Map.of("doc-1", docProps);
         DocumentEventRaiserContext context = new DocumentEventRaiserContext(session, principal, props, null,
-                Set.of("doc-1"), null, null, null, 4321L);
+                Set.of("doc-1"), null, null, null);
 
         DocumentEventSenderService sender = mock(DocumentEventSenderService.class);
         try (MockedStatic<Framework> framework = mockStatic(Framework.class)) {
@@ -66,7 +66,7 @@ class DocumentUpdatedEventRaiserTest {
         when(session.getRepositoryName()).thenReturn("default");
 
         DocumentEventRaiserContext context = new DocumentEventRaiserContext(session, null, null, null,
-                Set.of("doc-2"), null, null, null, 0L);
+                Set.of("doc-2"), null, null, null);
 
         DocumentEventSenderService sender = mock(DocumentEventSenderService.class);
         try (MockedStatic<Framework> framework = mockStatic(Framework.class)) {
@@ -82,7 +82,7 @@ class DocumentUpdatedEventRaiserTest {
     @Test
     void raiseWithNullSessionDoesNotDelegate() {
         DocumentEventRaiserContext context = new DocumentEventRaiserContext(null, null, null, null,
-                Set.of("doc-3"), null, null, null, 0L);
+                Set.of("doc-3"), null, null, null);
 
         DocumentEventSenderService sender = mock(DocumentEventSenderService.class);
         try (MockedStatic<Framework> framework = mockStatic(Framework.class)) {

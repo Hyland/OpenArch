@@ -47,7 +47,7 @@ class DocumentBlobModifiedEventRaiserTest {
         Map<String, Serializable> docProps = Map.of("key1", "value1");
         Map<String, Map<String, Serializable>> blobs = Map.of("doc-1", docProps);
         DocumentEventRaiserContext context = new DocumentEventRaiserContext(session, principal, null,
-                blobs, null, null, null, null, 1234L);
+                blobs, null, null, null, null);
 
         DocumentEventSenderService sender = mock(DocumentEventSenderService.class);
         try (MockedStatic<Framework> framework = mockStatic(Framework.class)) {
@@ -67,7 +67,7 @@ class DocumentBlobModifiedEventRaiserTest {
 
         Map<String, Map<String, Serializable>> blobs = Map.of("doc-2", Map.of());
         DocumentEventRaiserContext context = new DocumentEventRaiserContext(session, null, null, blobs, null,
-                null, null, null, 0L);
+                null, null, null);
 
         DocumentEventSenderService sender = mock(DocumentEventSenderService.class);
         try (MockedStatic<Framework> framework = mockStatic(Framework.class)) {
@@ -83,7 +83,7 @@ class DocumentBlobModifiedEventRaiserTest {
     @Test
     void raiseWithNullSessionDoesNotDelegate() {
         DocumentEventRaiserContext context = new DocumentEventRaiserContext(null, null, null, null, null,
-                null, null, null, 0L);
+                null, null, null);
 
         DocumentEventSenderService sender = mock(DocumentEventSenderService.class);
         try (MockedStatic<Framework> framework = mockStatic(Framework.class)) {
