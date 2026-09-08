@@ -16,12 +16,15 @@
 package org.nuxeo.ecm.core.storage.dbs;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -317,4 +320,62 @@ public class TestDBSCachingRepository {
         return descriptor;
     }
 
+    /**
+     * A received batch is a <em>list</em> of {@link DBSInvalidations}, drained destructively from the cluster buffer
+     * and the connection queue before any of it is applied: whatever is not evicted during this drain can never be
+     * redelivered and stays stale in the cache. So a failure while recording the per-node caches status -- which is
+     * only bookkeeping -- must not abort the drain and drop the invalidations that come after it in the batch.
+     * <p>
+     * Regression test for the {@code ClusterServiceImpl.updateCachesStatusPerNode} NPE, whose real damage was not the
+     * logged error but the silently dropped evictions behind it.
+     */
+    @Test
+    public void testFailureToUpdateCachesStatusStillAppliesLaterInvalidations() {
+        String poisoned = "POISONED_ID";
+        String later = "LATER_ID";
+
+        // cache both documents
+        connection.readState(poisoned);
+        connection.readState(later);
+        verify(subConnection, times(1)).readState(poisoned);
+        verify(subConnection, times(1)).readState(later);
+
+        // a batch of two invalidations from two different nodes; the first one's bookkeeping will blow up
+        var first = new DBSInvalidations();
+        first.addAll(Collections.singleton(poisoned));
+        first.setNodeId("nodeA");
+        var second = new DBSInvalidations();
+        second.addAll(Collections.singleton(later));
+        second.setNodeId("nodeB");
+        second.setTimestamp(456L);
+        var batch = new DBSInvalidationsList();
+        batch.add(first);
+        batch.add(second);
+
+        var spied = Mockito.spy(connection);
+        doThrow(new NullPointerException("Cannot invoke \"java.lang.Long.longValue()\" because \"timestamp\" is null"))
+                .when(spied)
+                .updateCachesStatus(argThat(inv -> "nodeA".equals(inv.getNodeId())));
+        when(invalidator.receiveInvalidations()).thenReturn(batch);
+
+        // capture rather than assert straight away, so that a regression in either guarantee below is reported on its
+        // own terms instead of the eviction check being masked by the throw
+        Throwable escaped = null;
+        try {
+            spied.begin();
+        } catch (RuntimeException e) {
+            escaped = e;
+        }
+
+        // guarantee 1, the silent one: BOTH documents were evicted. LATER_ID is the regression -- it sits after the
+        // failing invalidation in the same already-drained batch, and used to be dropped when the exception unwound
+        // out of the forEach, leaving it stale in the cache with nothing left to redeliver it
+        connection.readState(poisoned);
+        connection.readState(later);
+        verify(subConnection, times(2)).readState(poisoned);
+        verify(subConnection, times(2)).readState(later);
+
+        // guarantee 2: a bookkeeping failure must not surface to the caller and fail the request
+        assertNull(escaped, "the caches-status failure escaped the drain: " + escaped);
+    }
 }

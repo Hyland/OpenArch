@@ -376,24 +376,49 @@ public class DBSCachingConnection implements DBSConnection {
             }
             // apply invalidations to the cache (connection-local or repository-wide)
             if (invals != null && !invals.isEmpty()) {
+                // evict for ALL the invalidations first. They have already been drained from the cluster buffer and
+                // from the connection queue above, so they cannot be redelivered: anything we fail to evict here
+                // stays stale in the cache forever. Nothing between the drain and the last eviction may throw.
+                invals.getInvalidations().forEach(this::applyToCache);
+                // only then persist the status, once the evictions it vouches for have actually been done. A failure
+                // here is bookkeeping loss, not cache corruption, so it must never propagate to the caller.
                 invals.getInvalidations().forEach(inv -> {
-                    if (inv.all) {
-                        cache.invalidateAll();
-                        childCache.invalidateAll();
-                        // bump so any in-flight read that snapshotted an earlier clock drops its put
-                        bumpWriteClock();
-                    } else if (inv.ids != null) {
-                        evictAndBumpWriteClock(inv.ids);
-                    }
-                    // persist the status of the invalidations
-                    var nodeId = inv.nodeId;
-                    if (nodeId != null) {
-                        Framework.getService(ClusterService.class).updateCachesStatusPerNode(nodeId, inv.timestamp);
+                    try {
+                        updateCachesStatus(inv);
+                    } catch (RuntimeException e) { // NOSONAR
+                        log.warn("Failed to update the caches status for node {}, invalidations were still applied",
+                                inv.nodeId, e);
                     }
                 });
-
             }
         }
+    }
+
+    /** Evicts one set of received invalidations from the caches. */
+    protected void applyToCache(DBSInvalidations inv) {
+        if (inv.all) {
+            cache.invalidateAll();
+            childCache.invalidateAll();
+            // bump so any in-flight read that snapshotted an earlier clock drops its put
+            bumpWriteClock();
+        } else if (inv.ids != null) {
+            evictAndBumpWriteClock(inv.ids);
+        }
+    }
+
+    /** Records that the invalidations sent by that cluster node have been applied here. */
+    protected void updateCachesStatus(DBSInvalidations inv) {
+        var nodeId = inv.nodeId;
+        if (nodeId == null) {
+            return;
+        }
+        var clusterService = Framework.getService(ClusterService.class);
+        if (clusterService == null) {
+            // the runtime is shutting down, there is nobody left to read the status
+            log.debug("No cluster service available, skipping the caches status for node {}", nodeId);
+            return;
+        }
+        clusterService.updateCachesStatusPerNode(nodeId, inv.timestamp);
     }
 
     @Override

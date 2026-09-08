@@ -53,12 +53,16 @@ public interface ClusterService {
     String getNodeId();
 
     /**
-     * Returns the map used to maintain the status of the latest cache invalidation received from each node.
+     * Returns a read-only view of the map used to maintain the status of the latest cache invalidation received from
+     * each node. A missing entry means nothing is known about that node.
      */
     Map<String, Long> getCachesStatusPerNode();
 
     /**
      * Update the latest cache invalidation received from a node.
+     * <p>
+     * The status only ever moves forward: an older timestamp is ignored. A {@code null} timestamp is also ignored,
+     * as an invalidation not produced by a transaction carries no transaction time and so cannot advance the status.
      */
     void updateCachesStatusPerNode(String nodeId, Long timestamp);
 
