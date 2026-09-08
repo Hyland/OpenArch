@@ -17,6 +17,7 @@ package com.hyland.hxpr.springboot.server.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -28,7 +29,12 @@ public class CorsPolicyConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
+        // Methods must be listed explicitly: a CorsRegistry mapping starts from CorsConfiguration's permit defaults,
+        // which only allow GET, HEAD and POST, so preflight requests for the other methods the API exposes would be
+        // rejected with a 403.
         registry.addMapping("/**")
-                .allowedOriginPatterns(allowedOriginPattern);
+                .allowedOriginPatterns(allowedOriginPattern)
+                .allowedMethods(HttpMethod.GET.name(), HttpMethod.HEAD.name(), HttpMethod.POST.name(),
+                        HttpMethod.PUT.name(), HttpMethod.PATCH.name(), HttpMethod.DELETE.name());
     }
 }

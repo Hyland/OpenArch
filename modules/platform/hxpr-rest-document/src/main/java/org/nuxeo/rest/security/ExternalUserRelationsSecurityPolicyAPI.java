@@ -47,7 +47,6 @@ import org.nuxeo.rest.swagger.annotation.ApiResponse404;
 import org.nuxeo.rest.swagger.annotation.Authenticated;
 import org.nuxeo.rest.swagger.annotation.ParameterRepoId;
 import org.nuxeo.runtime.api.Framework;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -68,7 +67,6 @@ import jakarta.validation.Valid;
 @Tag(name = "Security", description = "Security Policy API")
 @Authenticated
 @AdministratorAccess
-@CrossOrigin
 public class ExternalUserRelationsSecurityPolicyAPI {
 
     public static final String STATUS_COUNT_KEY = "count";

@@ -246,37 +246,17 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GH_HS_HX_RO_CLASSIC_TOKEN }}
-      - name: Docker Compose Up
-        id: compose
-        working-directory: ./server/hxpr-community-internal-app
-        run: |
-          echo "Starting services with cached images for server tests..."
-          # Images are already loaded from cache, so this should be fast
-          docker compose -f docker-compose.yml up --quiet-pull -d
       - name: Maven Settings (inc Nexus)
         uses: ./.github/actions/setup-maven
         with:
           nexus-username: ${{ secrets.NEXUS_USERNAME }}
           nexus-password: ${{ secrets.NEXUS_PASSWORD }}
-      - name: Build HxPR Server with Maven
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # use localhost for the host here because we are running the job on the VM.
-          MONGODB_HOST: localhost
-          MONGODB_PORT: 27017
-        run: |
-          # Skip clean install since artifacts are already built and cached
-          # Skip enforcer on PRs to allow SNAPSHOT dependencies from in-flight upstream PRs.
-          mvn --no-transfer-progress -nsu verify \
-          -f server/hxpr-community-internal-app \
-          -Dnuxeo.mongodb.server=$MONGODB_HOST:$MONGODB_PORT \
-          -Dnuxeo.mongodb.dbname=unittests \
-          -Pcoverage \
-          -Dcoverage.reporting.outputDirectory=${COVERAGE_OUTPUT_DIRECTORY} \
-          ${{ github.event_name == 'pull_request' && '-Dnuxeo.skip.enforcer=true' || '' }}
-      - name: Dump docker logs on failure
-        if: failure()
-        uses: jwalton/gh-docker-logs@2741064ab9d7af54b0b1ffb6076cf64c16f0220e # v2.2.2
+      - name: Run the server test suite
+        uses: ./.github/actions/test-community-internal-app
+        with:
+          module-path: server/hxpr-community-internal-app
+          coverage-output-directory: ${{ env.COVERAGE_OUTPUT_DIRECTORY }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload reports
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:

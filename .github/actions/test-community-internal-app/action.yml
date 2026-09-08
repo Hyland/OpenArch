@@ -1,0 +1,46 @@
+name: 'Test HxPR Server'
+description: 'Starts the server test services and runs the Maven verify for a server module'
+inputs:
+  module-path:
+    required: true
+    description: 'Path to the server module, relative to the repository root'
+  coverage-output-directory:
+    required: true
+    description: 'Directory the jacoco exec files are written to'
+  github-token:
+    required: true
+    description: 'Token used by the Maven build'
+runs:
+  using: "composite"
+  steps:
+    - name: Docker Compose Up
+      id: compose
+      working-directory: ${{ inputs.module-path }}
+      shell: bash
+      run: |
+        echo "Starting services with cached images for server tests..."
+        # Images are already loaded from cache, so this should be fast
+        docker compose -f docker-compose.yml up --quiet-pull -d
+    - name: Build HxPR Server with Maven
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        MODULE_PATH: ${{ inputs.module-path }}
+        COVERAGE_OUTPUT_DIRECTORY: ${{ inputs.coverage-output-directory }}
+        # Skip enforcer on PRs to allow SNAPSHOT dependencies from in-flight upstream PRs.
+        SKIP_ENFORCER: ${{ github.event_name == 'pull_request' && '-Dnuxeo.skip.enforcer=true' || '' }}
+        # use localhost for the host here because we are running the job on the VM.
+        MONGODB_HOST: localhost
+        MONGODB_PORT: 27017
+      run: |
+        # Skip clean install since artifacts are already built and cached
+        mvn --no-transfer-progress -nsu verify \
+        -f "$MODULE_PATH" \
+        -Dnuxeo.mongodb.server=$MONGODB_HOST:$MONGODB_PORT \
+        -Dnuxeo.mongodb.dbname=unittests \
+        -Pcoverage \
+        -Dcoverage.reporting.outputDirectory=${COVERAGE_OUTPUT_DIRECTORY} \
+        ${SKIP_ENFORCER}
+    - name: Dump docker logs on failure
+      if: failure()
+      uses: jwalton/gh-docker-logs@2741064ab9d7af54b0b1ffb6076cf64c16f0220e # v2.2.2

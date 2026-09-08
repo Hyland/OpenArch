@@ -68,7 +68,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.AliasFor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -89,7 +88,6 @@ import tools.jackson.databind.ObjectMapper;
         APPLICATION_JSON_VALUE })
 @Tag(name = "Model", description = "Repository Model API")
 @Authenticated
-@CrossOrigin
 public class ModelAPI {
 
     private static final Logger log = LoggerFactory.getLogger(ModelAPI.class);

@@ -52,7 +52,6 @@ import org.nuxeo.rest.vocabulary.io.VocabularyIdDTO;
 import org.springframework.core.annotation.AliasFor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -69,7 +68,6 @@ import org.springframework.web.bind.annotation.RestController;
         APP_HXCS_JSON_V1 })
 @Tag(name = "Vocabulary", description = "Repository CRUD API")
 @Authenticated
-@CrossOrigin
 public class VocabularyAPI {
 
     protected static final String VOCABULARY_ID_FORMAT = "{" + VOCABULARY_ID + "}";

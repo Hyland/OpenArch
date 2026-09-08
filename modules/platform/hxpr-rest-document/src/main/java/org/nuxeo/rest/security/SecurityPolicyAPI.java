@@ -64,7 +64,6 @@ import org.nuxeo.rest.swagger.annotation.SwaggerRequestBody;
 import org.nuxeo.runtime.api.Framework;
 import org.springframework.core.annotation.AliasFor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -84,7 +83,6 @@ import tools.jackson.databind.ObjectMapper;
 @RequestMapping(path = API_PATH, produces = { APP_HXCS_JSON_V1, APP_HXCS_JSON, APPLICATION_JSON_VALUE })
 @Tag(name = "Security", description = "Security Policy API")
 @Authenticated
-@CrossOrigin
 public class SecurityPolicyAPI {
 
     public static final String API_PATH = "/api/repository/security/policies"; // NOSONAR
