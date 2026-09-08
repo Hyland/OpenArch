@@ -32,6 +32,15 @@ import org.apache.http.protocol.HttpContext;
 
 public class JitteredExponentialBackoffRetryHandler implements HttpRequestRetryHandler {
 
+    /**
+     * {@link HttpContext} attribute callers can set to {@link Boolean#TRUE} (via
+     * {@code HttpClientContext#setAttribute}) to opt a single request out of retries entirely, regardless of the
+     * failure encountered. Useful for non-idempotent calls (e.g. namespace creation) where retrying after a
+     * connection failure risks duplicating the effect of the original request.
+     */
+    public static final String RETRY_DISABLED_CONTEXT_ATTRIBUTE =
+            "org.nuxeo.common.httpclient.JitteredExponentialBackoffRetryHandler.retryDisabled";
+
     /** Default max retry attempts, matching the pre-configurable hardcoded value. */
     public static final int DEFAULT_MAX_TRY = 3;
 
@@ -86,6 +95,9 @@ public class JitteredExponentialBackoffRetryHandler implements HttpRequestRetryH
 
     @Override
     public boolean retryRequest(IOException ex, int executionCount, HttpContext ctx) {
+        if (Boolean.TRUE.equals(HttpClientContext.adapt(ctx).getAttribute(RETRY_DISABLED_CONTEXT_ATTRIBUTE))) {
+            return false;
+        }
         if (executionCount > maxTry) {
             return false;
         }
