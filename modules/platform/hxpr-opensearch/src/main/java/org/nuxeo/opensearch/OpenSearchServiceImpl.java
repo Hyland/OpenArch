@@ -1003,6 +1003,9 @@ public class OpenSearchServiceImpl extends DefaultComponent implements OpenSearc
             if (log.isDebugEnabled()) {
                 log.debug("Process index command {} response {}", cmd.getId(), response.toJsonString());
             }
+        } catch (DocumentNotFoundException e) {
+            log.info("Ignore indexing command in single mode, doc does not exists anymore: {}", cmd);
+            return;
         } catch (ConcurrentUpdateException e) {
             log.info("Ignore indexing of doc {} a more recent version has already been indexed: {}", cmd.getTargetDocumentId(),
                     e.getMessage());

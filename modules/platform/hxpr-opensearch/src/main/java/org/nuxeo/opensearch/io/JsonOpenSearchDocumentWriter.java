@@ -45,8 +45,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.api.DocumentModel;
+import org.nuxeo.ecm.core.api.DocumentNotFoundException;
 import org.nuxeo.ecm.core.api.DocumentRef;
 import org.nuxeo.ecm.core.api.Lock;
 import org.nuxeo.ecm.core.api.NuxeoException;
@@ -66,6 +69,8 @@ import jakarta.json.stream.JsonGenerator;
  * @since 5.9.3
  */
 public class JsonOpenSearchDocumentWriter {
+
+    private static final Logger log = LogManager.getLogger(JsonOpenSearchDocumentWriter.class);
 
     private final JsonGenerator jg;
 
@@ -92,9 +97,13 @@ public class JsonOpenSearchDocumentWriter {
 
         DocumentRef parentRef = doc.getParentRef();
         if (parentRef != null) {
-            String parentPath = doc.getCoreSession().getDocument(parentRef).getPathAsString();
-            jg.write(SYS_PARENT_ID, parentRef.toString());
-            jg.write(SYS_PARENT_PATH, parentPath);
+            try {
+                String parentPath = doc.getCoreSession().getDocument(parentRef).getPathAsString();
+                jg.write(SYS_PARENT_ID, parentRef.toString());
+                jg.write(SYS_PARENT_PATH, parentPath);
+            } catch (DocumentNotFoundException e) {
+                log.warn("Failed to resolve parent document during serialization (stale ref): doc={}, parent={}", doc.getId(), parentRef, e);
+            }
         }
         String path = doc.getPathAsString();
         jg.write(SYS_PATH, path);
@@ -188,11 +197,24 @@ public class JsonOpenSearchDocumentWriter {
     }
 
     private String getLifecycleState(DocumentModel doc) {
-        return (String) doc.getCoreSession().getDocumentSystemProp(doc.getRef(), SYS_LIFECYCLE_STATE, String.class);
+        try {
+            return (String) doc.getCoreSession().getDocumentSystemProp(doc.getRef(), SYS_LIFECYCLE_STATE, String.class);
+        } catch (DocumentNotFoundException e) {
+            log.warn("Failed to resolve lifecycle state for document during serialization (stale ref): doc={}", doc.getId(), e);
+            return null;
+        }
     }
 
+    @SuppressWarnings("unchecked")
     private List<String> getReadAcl(DocumentModel doc) {
-        return (List<String>) doc.getCoreSession().getDocumentSystemProp(doc.getRef(), SYS_READ_ACL, List.class);
+        try {
+            List<String> readAcl = (List<String>) doc.getCoreSession().getDocumentSystemProp(doc.getRef(), SYS_READ_ACL,
+                    List.class);
+            return readAcl == null ? List.of() : readAcl;
+        } catch (DocumentNotFoundException e) {
+            log.warn("Failed to resolve read ACL for document during serialization (stale ref): doc={}", doc.getId(), e);
+            return List.of();
+        }
     }
 
     protected void writeProperties(DocumentModel doc) {

@@ -26,6 +26,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.nuxeo.ecm.core.api.BulkIndexingException;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
+import org.nuxeo.ecm.core.api.DocumentNotFoundException;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.opensearch.api.OpenSearchClient;
 import org.nuxeo.opensearch.api.OpenSearchService;
@@ -94,6 +95,34 @@ class OpenSearchServiceCommandAndRuntimeIndexingLogsDistinctionTest {
         assertThrows(NuxeoException.class, () -> oss.indexNonRecursive(indexingCommand, true));
         List<String> events = logCaptureResult.getCaughtEventMessages();
         assertThat(events.stream().filter(s -> s.startsWith("OpenSearchService indexing task failed. Re-Indexing Command")).count()).isEqualTo(1);
+    }
+
+    @Test
+    void shouldSkipSingleCommandOnDocumentNotFoundDuringSerializationReindexing() {
+        DocumentModel doc = coreSession.createDocumentModel("/", "File1", "SysFile");
+        doc.create();
+        coreSession.save();
+        ((OpenSearchServiceImpl)oss).setOpenSearchClient(client);
+        // Mock client.index to throw DocumentNotFoundException during serialization
+        when(client.index(any())).thenThrow(new DocumentNotFoundException("6f792949-3480-450d-847d-f87686eec4ce"));
+        IndexingCommand indexingCommand = new IndexingCommand(doc, IndexingCommand.Type.INSERT, false, false);
+        // Should NOT throw exception but gracefully skip the stale command
+        // This is the main test: verify no exception is propagated
+        assertDoesNotThrow(() -> oss.indexNonRecursive(indexingCommand, true));
+    }
+
+    @Test
+    void shouldSkipSingleCommandOnDocumentNotFoundDuringSerializationRuntime() {
+        DocumentModel doc = coreSession.createDocumentModel("/", "File2", "SysFile");
+        doc.create();
+        coreSession.save();
+        ((OpenSearchServiceImpl)oss).setOpenSearchClient(client);
+        // Mock client.index to throw DocumentNotFoundException during serialization
+        when(client.index(any())).thenThrow(new DocumentNotFoundException("6f792949-3480-450d-847d-f87686eec4ce"));
+        IndexingCommand indexingCommand = new IndexingCommand(doc, IndexingCommand.Type.INSERT, false, false);
+        // Should NOT throw exception but gracefully skip the stale command
+        // This is the main test: verify no exception is propagated
+        assertDoesNotThrow(() -> oss.indexNonRecursive(indexingCommand, false));
     }
 
     @Test
