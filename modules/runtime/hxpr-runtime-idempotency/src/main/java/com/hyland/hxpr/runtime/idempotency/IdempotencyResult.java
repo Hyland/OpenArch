@@ -15,6 +15,8 @@
  */
 package com.hyland.hxpr.runtime.idempotency;
 
+import com.hyland.openarch.runtime.RuntimeServiceException;
+
 import java.io.Serializable;
 import java.util.Optional;
 
@@ -93,19 +95,23 @@ public final class IdempotencyResult<T extends Serializable> implements Serializ
 
     /**
      * Unwraps the result, returning the value or rethrowing the exception.
+     * <p>
+     * If the stored exception is already a {@link RuntimeException} (e.g. a domain exception such
+     * as a {@code GraphException}), it is rethrown as-is so callers can rely on the same exception
+     * type and mapping logic on a replayed failure as on the original, fresh failure. Only checked
+     * exceptions are wrapped in a {@link RuntimeServiceException}.
      *
      * @return the operation result if successful
-     * @throws RuntimeException if the operation failed (wraps the exception if needed)
+     * @throws RuntimeServiceException if the operation failed with a checked exception (wraps it)
      */
-    @SuppressWarnings("unchecked")
-    public T unwrap() throws RuntimeException {
+    public T unwrap() throws RuntimeServiceException {
         if (isSuccess()) {
             return value;
         }
-        if (exception instanceof RuntimeException) {
-            throw (RuntimeException) exception;
+        if (exception instanceof RuntimeException runtimeException) {
+            throw runtimeException;
         }
-        throw new RuntimeException(exception);
+        throw new RuntimeServiceException(exception);
     }
 
 }

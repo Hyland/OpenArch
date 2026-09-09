@@ -50,6 +50,7 @@ import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_TITLE;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_USER_GENERATION;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
@@ -69,7 +70,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * Simple document representation, useful for json serialization and swagger schema generation with the ReST API.
  */
 @Schema(name = SCHEMA_NAME, description = "Represents a document.", additionalProperties = Schema.AdditionalPropertiesValue.TRUE)
-public class DocumentDTO {
+// The List/Map fields below are declared with interface types that don't extend Serializable, but the concrete
+// instances assigned at runtime (e.g. ArrayList, HashMap) are always Serializable in practice.
+@SuppressWarnings("java:S1948")
+public class DocumentDTO implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @JsonProperty(SYS_REPOSITORY)
     @Schema(description = "Name of the repository where the document resides.")

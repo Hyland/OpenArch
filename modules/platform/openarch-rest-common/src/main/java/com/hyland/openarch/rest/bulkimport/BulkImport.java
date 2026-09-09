@@ -19,6 +19,7 @@ package com.hyland.openarch.rest.bulkimport;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
 
+import java.io.Serializable;
 import java.time.Instant;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -44,7 +45,9 @@ public record BulkImport(String jobId, //
         @JsonInclude(JsonInclude.Include.NON_NULL) boolean dryRun, //
         @JsonInclude(JsonInclude.Include.NON_EMPTY) String awsAccessKeyId, //
         @JsonInclude(JsonInclude.Include.NON_EMPTY) String awsSecretAccessKey, //
-        @JsonInclude(JsonInclude.Include.NON_EMPTY) String awsSessionToken) {
+        @JsonInclude(JsonInclude.Include.NON_EMPTY) String awsSessionToken) implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     public static Builder builder() {
         return new Builder();

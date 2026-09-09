@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
+import com.hyland.openarch.runtime.RuntimeServiceException;
 
 @DisplayName("IdempotencyResult tests")
 class IdempotencyResultTest {
@@ -49,7 +50,7 @@ class IdempotencyResultTest {
     }
 
     @Test
-    @DisplayName("unwrap rethrows stored exception")
+    @DisplayName("unwrap rethrows stored RuntimeException as-is")
     void testUnwrapThrows() {
         Exception original = new RuntimeException("Test error");
         IdempotencyResult<String> result = IdempotencyResult.failure(original);
@@ -64,7 +65,7 @@ class IdempotencyResultTest {
         Exception checked = new Exception("Checked error");
         IdempotencyResult<String> result = IdempotencyResult.failure(checked);
 
-        RuntimeException thrown = assertThrows(RuntimeException.class, result::unwrap);
+        RuntimeServiceException thrown = assertThrows(RuntimeServiceException.class, result::unwrap);
         assertEquals(checked, thrown.getCause());
     }
 

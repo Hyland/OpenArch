@@ -64,6 +64,21 @@ class IdempotencyKeyTest {
     }
 
     @Test
+    @DisplayName("equals returns true for the same instance")
+    void testEqualsSameInstance() {
+        IdempotencyKey key = IdempotencyKey.of("same-key");
+        assertEquals(key, key);
+    }
+
+    @Test
+    @DisplayName("equals returns false for a different type or null")
+    void testEqualsDifferentTypeOrNull() {
+        IdempotencyKey key = IdempotencyKey.of("same-key");
+        assertNotEquals("same-key", key);
+        assertNotEquals(null, key);
+    }
+
+    @Test
     @DisplayName("toString represents key value")
     void testToString() {
         IdempotencyKey key = IdempotencyKey.of("test-key");
