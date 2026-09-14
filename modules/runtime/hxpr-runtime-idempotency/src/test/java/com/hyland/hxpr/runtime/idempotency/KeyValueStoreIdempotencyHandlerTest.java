@@ -158,6 +158,36 @@ class KeyValueStoreIdempotencyHandlerTest {
     }
 
     @Test
+    @DisplayName("a cached result expires after its TTL and the operation runs again")
+    void execute_cachedResultExpiresAfterTtl_runsOperationAgain() throws InterruptedException {
+        long shortTtlSeconds = 1L;
+        KeyValueService keyValueService = name -> store;
+        IdempotencyHandler shortTtlHandler = new KeyValueStoreIdempotencyHandler(keyValueService, "default",
+                NAMESPACE, shortTtlSeconds);
+        IdempotencyKey key = IdempotencyKey.of("key-ttl");
+        AtomicInteger calls = new AtomicInteger();
+
+        String first = shortTtlHandler.execute(key, () -> {
+            calls.incrementAndGet();
+            return "value-" + calls.get();
+        });
+        assertTrue(shortTtlHandler.isCached(key));
+
+        // sleep a bit more than the TTL in case expiration is late, mirroring AbstractKeyValueStoreTest#testTTL
+        Thread.sleep((shortTtlSeconds + 1) * 1000);
+
+        assertFalse(shortTtlHandler.isCached(key));
+        String second = shortTtlHandler.execute(key, () -> {
+            calls.incrementAndGet();
+            return "value-" + calls.get();
+        });
+
+        assertEquals("value-1", first);
+        assertEquals("value-2", second);
+        assertEquals(2, calls.get());
+    }
+
+    @Test
     @DisplayName("a corrupted cache entry is ignored and the operation runs again")
     void execute_corruptedCacheEntry_fallsBackToRunningOperation() {
         String cacheKey = NAMESPACE + "key-6";
