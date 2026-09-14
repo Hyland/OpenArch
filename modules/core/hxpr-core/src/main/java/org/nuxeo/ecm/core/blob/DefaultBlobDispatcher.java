@@ -465,18 +465,16 @@ public class DefaultBlobDispatcher implements BlobDispatcher {
 
     @Override
     public void notifyBeforeRemove(InternalDocument doc) {
-        String xpath = SYSFILE_BLOB;
-        Blob blob;
-        try {
-            blob = (Blob) doc.getValue(xpath);
-        } catch (PropertyNotFoundException e) {
-            return;
-        }
-        if (!(blob instanceof ManagedBlob)) {
-            return;
-        }
-        String blobProviderId = ((ManagedBlob) blob).getProviderId();
-        deleteBlobIfRecord(blobProviderId, doc, xpath);
+        doc.visitBlobs(accessor -> {
+            Blob blob = accessor.getBlob();
+            if (!(blob instanceof ManagedBlob managedBlob)) {
+                return;
+            }
+            String xpath = accessor.getXPath();
+            String providerId = managedBlob.getProviderId();
+            deleteBlobIfRecord(providerId, doc, xpath);
+            markBlobForDeletionIfNotRecord(providerId, managedBlob);
+        });
     }
 
     protected void deleteBlobIfRecord(String blobProviderId, InternalDocument doc, String xpath) {
@@ -484,6 +482,14 @@ public class DefaultBlobDispatcher implements BlobDispatcher {
         if (blobProvider != null && blobProvider.isRecordMode()) {
             checkBlobCanBeDeleted(doc, xpath);
             blobProvider.deleteBlob(new BlobContext(doc, xpath));
+        }
+    }
+
+    protected void markBlobForDeletionIfNotRecord(String blobProviderId, ManagedBlob blob) {
+        BlobService blobService = Framework.getService(BlobService.class);
+        BlobProvider blobProvider = blobService.getBlobProvider(blobProviderId);
+        if (blobProvider != null && !blobProvider.isRecordMode()) {
+            blobService.markBlobForDeletion(blobProviderId, blob.getKey());
         }
     }
 

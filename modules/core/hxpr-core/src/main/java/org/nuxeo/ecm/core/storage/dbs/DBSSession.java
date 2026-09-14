@@ -971,6 +971,17 @@ public class DBSSession implements InternalSession {
         //notify first level ids removal
         sendDocumentEvents(firstLevelIds, principal);
 
+        // notify blob manager before removal for all documents being removed
+        for (String id : removedIds) {
+            try {
+                DBSDocument doc = getDocument(id);
+                getDocumentBlobService().notifyBeforeRemove(doc);
+            } catch (DocumentNotFoundException e) {
+                // unknown type in db
+                // ignore blob manager notification
+            }
+        }
+
         // remove root and first level synchronously
         firstLevelIds.add(rootId);
         transaction.removeStates(firstLevelIds);
