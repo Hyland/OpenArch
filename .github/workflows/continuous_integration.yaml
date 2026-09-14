@@ -32,8 +32,6 @@ jobs:
       - name: Generate Version
         id: version
         uses: ./.github/actions/generate-version
-        with:
-          base-version: '0.0'
   build:
     name: Build and Test Docker Image
     runs-on: ubuntu-latest
@@ -73,6 +71,9 @@ jobs:
         with:
           nexus-username: ${{ secrets.NEXUS_USERNAME }}
           nexus-password: ${{ secrets.NEXUS_PASSWORD }}
+      - name: Set Maven version to current build
+        # processAllModules is required because the community tree has multiple parent poms.
+        run: mvn --no-transfer-progress versions:set -DnewVersion=${{ env.VERSION }} -DgenerateBackupPoms=false -DprocessAllModules=true
       - name: Compile project
         run: mvn clean install -DskipTests
       - name: Set Product version to current build

@@ -1,10 +1,5 @@
 name: 'Generate Version'
-description: 'Generate semantic version with automatic patch increment'
-inputs:
-  base-version:
-    description: 'Base version (major.minor) to use'
-    required: false
-    default: '0.1'
+description: 'Generate semantic version from VERSION with automatic patch increment'
 outputs:
   version:
     description: 'Generated version string'
@@ -23,23 +18,28 @@ runs:
       id: version
       shell: bash
       run: |
-        BASE_VERSION="${{ inputs.base-version }}"
+        VERSION_FILE="VERSION"
 
-        # Get latest tag that matches our base version pattern
-        LATEST_TAG=$(git tag -l "${BASE_VERSION}.*" --sort=-version:refname | head -n1)
-
-        if [ -z "$LATEST_TAG" ]; then
-          # No existing tag found, start with patch version 0
-          PATCH_VERSION=0
-        else
-          # Extract patch version from latest tag and increment
-          PATCH_VERSION=$(echo "$LATEST_TAG" | cut -d. -f3 | head -c 10)
-          # Handle cases where patch version might have additional metadata
-          PATCH_VERSION=$(echo "$PATCH_VERSION" | grep -o '^[0-9]*')
-          PATCH_VERSION=$((PATCH_VERSION + 1))
+        if [ ! -f "$VERSION_FILE" ]; then
+          echo "Missing $VERSION_FILE file" >&2
+          exit 1
         fi
 
-        SEMANTIC_VERSION="${BASE_VERSION}.${PATCH_VERSION}"
+        MAJOR_MINOR=$(tr -d '\r\n' < "$VERSION_FILE")
+
+        if ! [[ "$MAJOR_MINOR" =~ ^[0-9]+\.[0-9]+$ ]]; then
+          echo "VERSION must contain exactly MAJOR.MINOR, found: $MAJOR_MINOR" >&2
+          exit 1
+        fi
+
+        ANCHOR=$(git log -1 --format=%H -- "$VERSION_FILE")
+        if [ -z "$ANCHOR" ]; then
+          echo "Could not determine the last commit that updated $VERSION_FILE" >&2
+          exit 1
+        fi
+
+        PATCH_VERSION=$(git rev-list --count "${ANCHOR}..HEAD")
+        SEMANTIC_VERSION="${MAJOR_MINOR}.${PATCH_VERSION}"
 
         # Get current branch name
         if [ "${{ github.event_name }}" == "pull_request" ]; then
@@ -74,7 +74,9 @@ runs:
         # Clean version for docker tags (replace invalid characters)
         CLEAN_VERSION=$(echo "$VERSION" | sed -e 's/[^-_.[:alnum:]]/_/g')
 
-        echo "Base version: $BASE_VERSION"
+        echo "Version file: $VERSION_FILE"
+        echo "Major.minor: $MAJOR_MINOR"
+        echo "Anchor commit: $ANCHOR"
         echo "Patch version: $PATCH_VERSION"
         echo "Semantic version: $SEMANTIC_VERSION"
         echo "Generated version: $VERSION"
