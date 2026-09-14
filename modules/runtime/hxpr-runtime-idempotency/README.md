@@ -27,7 +27,7 @@ Ensures that state-mutating operations are executed at most once, even when call
 
 ```
 hxpr-commands → hxpr-runtime-idempotency → hxpr-runtime-kv
-hxpr-runtime-aws → hxpr-runtime-idempotency → hxpr-runtime-kv
+hxpr-async-tasks-aws → hxpr-runtime-idempotency → hxpr-runtime-kv
 ```
 
 ## Usage
@@ -65,14 +65,13 @@ Retry → Idempotency → Circuit Breaker
 
 ## Configuration
 
-Add to `application.properties`:
+The store name, namespace and TTL are set per call site when creating the handler via
+`IdempotencyHandlerFactory.create(...)`; there is no global feature toggle. The only externally
+configurable property today is the tenant id used when building idempotency keys, in
+`application.properties`:
 
 ```properties
-# Idempotency cache TTL (in seconds)
-hxpr.idempotency.ttl-seconds=86400
-
-# Feature toggle
-hxpr.idempotency.enabled=true
+hxpr.idempotency.tenant-id=default
 ```
 
 ## Testing
