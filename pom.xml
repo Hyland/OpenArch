@@ -47,7 +47,7 @@
     <buildnumber-maven-plugin.version>3.3.0</buildnumber-maven-plugin.version>
     <parent-core-deploy.skip>false</parent-core-deploy.skip>
     <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
-    <plexus-utils.version>4.0.3</plexus-utils.version>
+    <plexus-utils.version>4.1.0</plexus-utils.version>
     <versions-maven-plugin.version>2.21.0</versions-maven-plugin.version>
 
     <maven.surefire.version>3.6.0</maven.surefire.version>
@@ -55,7 +55,7 @@
     <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
     <sonar-maven-plugin.version>5.5.0.6356</sonar-maven-plugin.version>
     <license-maven-plugin.version>2.7.1</license-maven-plugin.version>
-    <license-maven-plugin.mycila.version>5.1.1</license-maven-plugin.mycila.version>
+    <license-maven-plugin.mycila.version>5.1.2</license-maven-plugin.mycila.version>
     <!-- Sonar & JaCoCo (related profile: sonar)-->
     <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
     <sonar.organization>hylandsoftware</sonar.organization>
@@ -68,8 +68,8 @@
     <coverage.destFile>${coverage.reporting.outputDirectory}/${project.artifactId}.exec</coverage.destFile>
 
     <spring-cloud.version>5.0.0</spring-cloud.version>
-    <git-commit-id-plugin.version>10.0.0</git-commit-id-plugin.version>
-    <springdoc.version>3.1.0</springdoc.version>
+    <git-commit-id-plugin.version>10.0.1</git-commit-id-plugin.version>
+    <springdoc.version>3.1.1</springdoc.version>
 
     <commons-io.version>2.22.0</commons-io.version>
     <commons-codec.version>1.22.1</commons-codec.version>
@@ -82,8 +82,8 @@
     <apache.httpcomponents.version>4.5.14</apache.httpcomponents.version>
     <opencensus.version>0.31.1</opencensus.version>
     <git-commit-id-plugin.version>10.0.0</git-commit-id-plugin.version>
-    <classgraph.version>4.8.192</classgraph.version>
-    <metrics-bom.version>5.0.7</metrics-bom.version>
+    <classgraph.version>4.8.194</classgraph.version>
+    <metrics-bom.version>5.0.8</metrics-bom.version>
     <jackson-bom.version>3.2.2</jackson-bom.version>
     <osgi.version>4.3.1</osgi.version>
     <jakarta.enterprise.cdi.version>4.1.0</jakarta.enterprise.cdi.version>
@@ -92,11 +92,11 @@
     <guice.version>7.0.0</guice.version>
     <asm.version>9.10.1</asm.version>
     <concurrent.version>1.3.4</concurrent.version>
-    <guava.version>33.6.0-jre</guava.version>
+    <guava.version>33.7.1-jre</guava.version>
     <expiringmap.version>0.5.11</expiringmap.version>
     <bouncycastle.version>1.85.2</bouncycastle.version>
     <xsom.version>20140925</xsom.version>
-    <swagger.version>2.2.53</swagger.version>
+    <swagger.version>2.2.55</swagger.version>
     <antlr4.version>4.13.2</antlr4.version>
     <jericho-html.version>3.4</jericho-html.version>
     <dumbster.version>1.7.1</dumbster.version>
@@ -107,23 +107,23 @@
     <hadoop.version>3.5.0</hadoop.version>
     <snappy.version>1.1.10.8</snappy.version>
     <org.apache.log4j.version>2.26.1</org.apache.log4j.version>
-    <org.slf4j.version>2.0.18</org.slf4j.version>
+    <org.slf4j.version>2.0.19</org.slf4j.version>
     <jna.version>5.19.1</jna.version>
     <resilience4j.version>2.4.0</resilience4j.version>
     <spring-retry.version>2.0.13</spring-retry.version>
 
     <!-- MongoDB -->
-    <mongo.java.driver.version>5.10.0</mongo.java.driver.version>
+    <mongo.java.driver.version>5.11.0</mongo.java.driver.version>
     <quartz.version>2.3.2</quartz.version>
     <quartz.mongodb.version>2.2.0-rc2</quartz.mongodb.version>
 
     <!-- OpenSearch -->
-    <opensearch.version>3.9.0</opensearch.version>
+    <opensearch.version>3.10.0</opensearch.version>
     <opensearch.rest.version>3.8.0</opensearch.rest.version>
     <parsson.version>1.1.9</parsson.version>
 
     <!-- Apache -->
-    <parquet.version>1.18.0</parquet.version>
+    <parquet.version>1.18.1</parquet.version>
     <avro.version>1.12.2</avro.version>
 
     <!-- Test dependencies -->
