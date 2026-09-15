@@ -44,7 +44,28 @@ public interface IdempotencyHandler {
     <T extends Serializable> T execute(IdempotencyKey key, IdempotentOperation<T> operation);
 
     /**
+     * Executes an operation idempotently, same as {@link #execute}, but atomically reports whether
+     * the returned value was replayed from a previously cached result or freshly executed.
+     * <p>
+     * Callers that need to know the replay status (e.g. to set a response header) must use this
+     * method instead of separately calling {@link #isCached} followed by {@link #execute}: that
+     * two-call sequence is not atomic and can report an incorrect replay status if the cache state
+     * changes between the two calls.
+     *
+     * @param <T>       the type of the operation result
+     * @param key       the idempotency key identifying this operation
+     * @param operation the operation to execute (must be idempotent and deterministic)
+     * @return the outcome, carrying both the result and whether it was replayed
+     * @throws RuntimeException if the operation fails or if cached failure is replayed
+     */
+    <T extends Serializable> Outcome<T> executeWithOutcome(IdempotencyKey key, IdempotentOperation<T> operation);
+
+    /**
      * Checks if a cached result exists for the given idempotency key.
+     * <p>
+     * This is a point-in-time presence probe only; it is not atomic with respect to a subsequent
+     * {@link #execute} call. Callers that need an authoritative replay flag alongside the result
+     * must use {@link #executeWithOutcome} instead.
      *
      * @param key the idempotency key
      * @return true if a result is cached for this key
@@ -77,6 +98,15 @@ public interface IdempotencyHandler {
          */
         T execute() throws Exception;
 
+    }
+
+    /**
+     * Outcome of {@link #executeWithOutcome}: the operation's result, and whether it was replayed
+     * from a previously cached result rather than freshly executed.
+     *
+     * @param <T> the type of the operation result
+     */
+    record Outcome<T extends Serializable>(T value, boolean replay) {
     }
 
 }

@@ -25,6 +25,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -158,6 +166,24 @@ class KeyValueStoreIdempotencyHandlerTest {
     }
 
     @Test
+    @DisplayName("isCached returns false for a corrupted cache entry instead of throwing")
+    void isCached_corruptedCacheEntry_returnsFalse() {
+        String cacheKey = NAMESPACE + "key-corrupted-is-cached";
+        store.put(cacheKey, "not-a-serialized-object".getBytes());
+
+        assertFalse(handler.isCached(IdempotencyKey.of("key-corrupted-is-cached")));
+    }
+
+    @Test
+    @DisplayName("evict on a corrupted cache entry reports false instead of throwing")
+    void evict_corruptedCacheEntry_returnsFalse() {
+        String cacheKey = NAMESPACE + "key-corrupted-evict";
+        store.put(cacheKey, "not-a-serialized-object".getBytes());
+
+        assertFalse(handler.evict(IdempotencyKey.of("key-corrupted-evict")));
+    }
+
+    @Test
     @DisplayName("a cached result expires after its TTL and the operation runs again")
     void execute_cachedResultExpiresAfterTtl_runsOperationAgain() throws InterruptedException {
         long shortTtlSeconds = 1L;
@@ -207,6 +233,78 @@ class KeyValueStoreIdempotencyHandlerTest {
 
         assertNotNull(result);
         assertFalse(handler.isCached(key));
+    }
+
+    @Test
+    @DisplayName("concurrent executes with the same key run the operation exactly once (HXCS atomic claim)")
+    void execute_concurrentCallsSameKey_runOperationExactlyOnce() throws InterruptedException {
+        IdempotencyKey key = IdempotencyKey.of("key-concurrent");
+        AtomicInteger calls = new AtomicInteger();
+        int callers = 8;
+        CountDownLatch ready = new CountDownLatch(callers);
+        CountDownLatch start = new CountDownLatch(1);
+        ExecutorService pool = Executors.newFixedThreadPool(callers);
+        try {
+            List<Future<String>> futures = new ArrayList<>();
+            for (int i = 0; i < callers; i++) {
+                futures.add(pool.submit(() -> {
+                    ready.countDown();
+                    start.await();
+                    return handler.execute(key, () -> {
+                        calls.incrementAndGet();
+                        Thread.sleep(150);
+                        return "value-" + calls.get();
+                    });
+                }));
+            }
+            ready.await();
+            start.countDown();
+
+            String first = futures.get(0).get(10, TimeUnit.SECONDS);
+            for (Future<String> future : futures) {
+                assertEquals(first, future.get(10, TimeUnit.SECONDS));
+            }
+        } catch (Exception e) {
+            throw new AssertionError("Concurrent execution failed", e);
+        } finally {
+            pool.shutdownNow();
+        }
+
+        assertEquals(1, calls.get());
+    }
+
+    @Test
+    @DisplayName("a caller waits out a concurrent claim's expired lease and then runs the operation")
+    void execute_claimLeaseExpires_waitingCallerRunsOperationAfterward() throws InterruptedException {
+        long shortTtlSeconds = 1L;
+        KeyValueService keyValueService = name -> store;
+        IdempotencyHandler shortLeaseHandler = new KeyValueStoreIdempotencyHandler(keyValueService, "default",
+                NAMESPACE, shortTtlSeconds);
+        IdempotencyKey key = IdempotencyKey.of("key-lease-expiry");
+        String cacheKey = NAMESPACE + key.value();
+        // Simulate another caller having claimed the key with a short-lived lease.
+        store.put(cacheKey, "HXPR-IDEMPOTENCY-CLAIM-V1:".getBytes(StandardCharsets.UTF_8), shortTtlSeconds);
+
+        String result = shortLeaseHandler.execute(key, () -> "value-after-lease-expiry");
+
+        assertEquals("value-after-lease-expiry", result);
+    }
+
+    @Test
+    @DisplayName("a caller throws IdempotencyClaimTimeoutException if a concurrent claim never resolves")
+    void execute_claimNeverResolves_throwsClaimTimeoutException() {
+        long shortTtlSeconds = 1L;
+        KeyValueService keyValueService = name -> store;
+        IdempotencyHandler shortLeaseHandler = new KeyValueStoreIdempotencyHandler(keyValueService, "default",
+                NAMESPACE, shortTtlSeconds);
+        IdempotencyKey key = IdempotencyKey.of("key-lease-stuck");
+        String cacheKey = NAMESPACE + key.value();
+        // Simulate another caller holding a claim with a lease far longer than this handler's own lease
+        // (which is capped at shortTtlSeconds), so the waiting caller's deadline is reached first.
+        store.put(cacheKey, "HXPR-IDEMPOTENCY-CLAIM-V1:".getBytes(StandardCharsets.UTF_8), 3600L);
+
+        assertThrows(IdempotencyClaimTimeoutException.class,
+                () -> shortLeaseHandler.execute(key, () -> "should not run"));
     }
 
     /**

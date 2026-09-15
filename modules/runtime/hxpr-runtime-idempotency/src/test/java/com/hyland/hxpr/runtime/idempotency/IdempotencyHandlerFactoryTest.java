@@ -62,15 +62,6 @@ class IdempotencyHandlerFactoryTest {
     }
 
     @Test
-    @DisplayName("create with store name, namespace, TTL and TimeUnit converts to seconds")
-    void create_withStoreNamespaceTtlAndTimeUnit_convertsToSeconds() {
-        IdempotencyHandler handler = IdempotencyHandlerFactory.create(keyValueService, "custom-store",
-                "idempotency:test:", 30, TimeUnit.MINUTES);
-
-        assertEquals("value", handler.execute(IdempotencyKey.of("key-4"), () -> "value"));
-    }
-
-    @Test
     @DisplayName("create with full arguments builds a working handler")
     void create_fullArguments_buildsWorkingHandler() {
         IdempotencyHandler handler = IdempotencyHandlerFactory.create(keyValueService, "custom-store",
@@ -132,7 +123,7 @@ class IdempotencyHandlerFactoryTest {
     @DisplayName("default constants expose the documented defaults")
     void defaultConstants_matchDocumentedValues() {
         assertEquals(TimeUnit.HOURS.toSeconds(24), IdempotencyHandlerFactory.DEFAULT_TTL_SECONDS);
-        assertEquals("default", IdempotencyHandlerFactory.DEFAULT_STORE_NAME);
+        assertEquals("hxpr-idempotency", IdempotencyHandlerFactory.DEFAULT_STORE_NAME);
     }
 
 }

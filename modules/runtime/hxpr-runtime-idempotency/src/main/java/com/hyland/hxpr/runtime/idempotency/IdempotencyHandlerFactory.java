@@ -18,7 +18,7 @@ package com.hyland.hxpr.runtime.idempotency;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import org.nuxeo.runtime.kv.KeyValueService;
+import com.hyland.openarch.runtime.kv.KeyValueService;
 
 /**
  * Factory for creating {@link IdempotencyHandler} instances with configurable parameters.
@@ -32,7 +32,7 @@ public final class IdempotencyHandlerFactory {
 
     public static final long DEFAULT_TTL_SECONDS = TimeUnit.HOURS.toSeconds(24);
 
-    public static final String DEFAULT_STORE_NAME = "default";
+    public static final String DEFAULT_STORE_NAME = "hxpr-idempotency";
 
     private IdempotencyHandlerFactory() {
         // utility class
@@ -99,21 +99,6 @@ public final class IdempotencyHandlerFactory {
     public static IdempotencyHandler create(KeyValueService keyValueService, String namespace, long ttl,
             TimeUnit unit) {
         return create(keyValueService, DEFAULT_STORE_NAME, namespace, unit.toSeconds(ttl));
-    }
-
-    /**
-     * Creates an idempotency handler with custom store name, TTL, and time unit.
-     *
-     * @param keyValueService the key-value service for storing results
-     * @param storeName       the name of the key-value store to use
-     * @param namespace       namespace prefix for cache keys
-     * @param ttl             time-to-live value
-     * @param unit            time unit for the TTL
-     * @return a new IdempotencyHandler
-     */
-    public static IdempotencyHandler create(KeyValueService keyValueService, String storeName, String namespace,
-            long ttl, TimeUnit unit) {
-        return create(keyValueService, storeName, namespace, unit.toSeconds(ttl));
     }
 
 }
