@@ -130,7 +130,6 @@
     <mockito-inline.version>5.2.0</mockito-inline.version>
     <mockito-core.version>5.23.0</mockito-core.version>
     <rest-assured.version>6.0.1</rest-assured.version>
-    <testcontainers.version>1.21.4</testcontainers.version>
 
     <nuxeo.skip.enforcer>false</nuxeo.skip.enforcer>
     <nuxeo.skip.enforcer.convergence>false</nuxeo.skip.enforcer.convergence>
@@ -1201,7 +1200,7 @@
       </dependency>
       <dependency>
         <groupId>org.testcontainers</groupId>
-        <artifactId>localstack</artifactId>
+        <artifactId>testcontainers-localstack</artifactId>
         <version>${testcontainers.version}</version>
         <scope>test</scope>
       </dependency>
