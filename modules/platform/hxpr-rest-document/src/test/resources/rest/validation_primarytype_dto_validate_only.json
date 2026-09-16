@@ -1,6 +1,16 @@
 {
   "errors": [
     {
+      "invalidValue": "File-foobar",
+      "message": "The value \"File-foobar\" is an invalid document type.",
+      "messageKey": "label.schema.application.violation.InvalidObjectViolation.primaryTypes",
+      "parameters": [
+        "File-foobar",
+        "primaryTypes/SysFile"
+      ],
+      "path": "primaryTypes/SysFile"
+    },
+    {
       "invalidValue": {
         "extends-foo": "bar"
       },
@@ -43,16 +53,6 @@
       "path": "primaryTypes/SysRelation/schemas"
     },
     {
-      "invalidValue": "File-foobar",
-      "message": "The value \"File-foobar\" is an invalid document type.",
-      "messageKey": "label.schema.application.violation.InvalidObjectViolation.primaryTypes",
-      "parameters": [
-        "File-foobar",
-        "primaryTypes/SysFile"
-      ],
-      "path": "primaryTypes/SysFile"
-    },
-    {
       "invalidValue": "mixins-foobar",
       "message": "The value \"mixins-foobar\" is an invalid mixin for the document type \"primaryTypes/SysRendition/mixins\".",
       "messageKey": "label.schema.application.violation.InvalidObjectViolation.primaryTypes.mixins",
@@ -61,9 +61,56 @@
         "primaryTypes/SysRendition/mixins"
       ],
       "path": "primaryTypes/SysRendition/mixins"
+    },
+    {
+      "invalidValue": "SysFolder",
+      "message": "No parent type defined for primary type SysFolder at path primaryTypes/SysFolder/extends",
+      "messageKey": "label.schema.application.violation.ParentTypeValidationViolation",
+      "parameters": [
+        "No",
+        "SysFolder",
+        "primaryTypes/SysFolder/extends"
+      ],
+      "path": "primaryTypes/SysFolder/extends"
     }
   ],
   "warnings": [
+    {
+      "invalidValue": "File-foobar",
+      "message": "The value \"File-foobar\" cannot be applied as \"primaryTypes/SysFile\" already exists with value \"'{'extends=SysContent, schemas=[mydublincore, sysfiles, system], mixins=[SysFilish]'}'\".",
+      "messageKey": "label.schema.application.violation.AlreadyExistsViolation.modified",
+      "parameters": [
+        "File-foobar",
+        {
+          "extends": "SysContent",
+          "mixins": [
+            "SysFilish"
+          ],
+          "schemas": [
+            "mydublincore",
+            "sysfiles",
+            "system"
+          ]
+        },
+        "primaryTypes/SysFile"
+      ],
+      "path": "primaryTypes/SysFile"
+    },
+    {
+      "invalidValue": {
+        "extends-foo": "bar"
+      },
+      "message": "The value \"'{'extends-foo=bar'}'\" cannot be applied as \"primaryTypes/SysFolder/extends\" already exists with value \"SysContent\".",
+      "messageKey": "label.schema.application.violation.AlreadyExistsViolation.modified",
+      "parameters": [
+        {
+          "extends-foo": "bar"
+        },
+        "SysContent",
+        "primaryTypes/SysFolder/extends"
+      ],
+      "path": "primaryTypes/SysFolder/extends"
+    },
     {
       "invalidValue": {
         "subtypes-foo": "bar"
@@ -100,42 +147,6 @@
         "primaryTypes/SysRelation/schemas"
       ],
       "path": "primaryTypes/SysRelation/schemas"
-    },
-    {
-      "invalidValue": {
-        "extends-foo": "bar"
-      },
-      "message": "The value \"'{'extends-foo=bar'}'\" cannot be applied as \"primaryTypes/SysFolder/extends\" already exists with value \"SysContent\".",
-      "messageKey": "label.schema.application.violation.AlreadyExistsViolation.modified",
-      "parameters": [
-        {
-          "extends-foo": "bar"
-        },
-        "SysContent",
-        "primaryTypes/SysFolder/extends"
-      ],
-      "path": "primaryTypes/SysFolder/extends"
-    },
-    {
-      "invalidValue": "File-foobar",
-      "message": "The value \"File-foobar\" cannot be applied as \"primaryTypes/SysFile\" already exists with value \"'{'extends=SysContent, schemas=[mydublincore, sysfiles, system], mixins=[SysFilish]'}'\".",
-      "messageKey": "label.schema.application.violation.AlreadyExistsViolation.modified",
-      "parameters": [
-        "File-foobar",
-        {
-          "extends": "SysContent",
-          "mixins": [
-            "SysFilish"
-          ],
-          "schemas": [
-            "mydublincore",
-            "sysfiles",
-            "system"
-          ]
-        },
-        "primaryTypes/SysFile"
-      ],
-      "path": "primaryTypes/SysFile"
     }
   ]
 }

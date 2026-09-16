@@ -1,6 +1,16 @@
 {
   "errors": [
     {
+      "invalidValue": "File-foobar",
+      "message": "The value \"File-foobar\" is an invalid document type.",
+      "messageKey": "label.schema.application.violation.InvalidObjectViolation.primaryTypes",
+      "parameters": [
+        "File-foobar",
+        "primaryTypes/SysFile"
+      ],
+      "path": "primaryTypes/SysFile"
+    },
+    {
       "invalidValue": {
         "extends-foo": "bar"
       },
@@ -43,16 +53,6 @@
       "path": "primaryTypes/SysRelation/schemas"
     },
     {
-      "invalidValue": "File-foobar",
-      "message": "The value \"File-foobar\" is an invalid document type.",
-      "messageKey": "label.schema.application.violation.InvalidObjectViolation.primaryTypes",
-      "parameters": [
-        "File-foobar",
-        "primaryTypes/SysFile"
-      ],
-      "path": "primaryTypes/SysFile"
-    },
-    {
       "invalidValue": "mixins-foobar",
       "message": "The value \"mixins-foobar\" is an invalid mixin for the document type \"primaryTypes/SysRendition/mixins\".",
       "messageKey": "label.schema.application.violation.InvalidObjectViolation.primaryTypes.mixins",
@@ -61,6 +61,17 @@
         "primaryTypes/SysRendition/mixins"
       ],
       "path": "primaryTypes/SysRendition/mixins"
+    },
+    {
+      "invalidValue": "SysFolder",
+      "message": "No parent type defined for primary type SysFolder at path primaryTypes/SysFolder/extends",
+      "messageKey": "label.schema.application.violation.ParentTypeValidationViolation",
+      "parameters": [
+        "No",
+        "SysFolder",
+        "primaryTypes/SysFolder/extends"
+      ],
+      "path": "primaryTypes/SysFolder/extends"
     }
   ]
 }

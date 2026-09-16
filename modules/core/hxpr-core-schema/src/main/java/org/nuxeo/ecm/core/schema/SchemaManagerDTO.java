@@ -67,6 +67,7 @@ import org.nuxeo.ecm.core.schema.validation.SchemaValidationException;
 import org.nuxeo.ecm.core.schema.validation.SchemaValidationUtils;
 import org.nuxeo.ecm.core.schema.validation.ValidationReport;
 import org.nuxeo.ecm.core.schema.validation.violations.InvalidObjectViolation;
+import org.nuxeo.ecm.core.schema.validation.violations.ParentTypeValidationViolation;
 import org.nuxeo.ecm.core.schema.validation.violations.TypeRecursionViolation;
 import org.nuxeo.ecm.core.schema.validation.violations.UnknownObjectViolation;
 import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
@@ -93,7 +94,6 @@ public class SchemaManagerDTO extends SchemaManagerBase {
         registerMixinTypes(model.mixinTypes());
         registerPrimaryTypes(model.primaryTypes());
         computeDenormalizations();
-        checkValidParents();
         ValidationReport.checkViolations(this.violations, !validateOnly, SchemaValidationException::new);
     }
 
@@ -344,17 +344,6 @@ public class SchemaManagerDTO extends SchemaManagerBase {
 
     private Map<String, PrimaryTypeDTO> pendingPrimaryTypes;
 
-    void checkValidParents() {
-        for (DocumentType docType : this.documentTypes.values()) {
-            if (docType.getName().equals(SYS_CONTENT) || docType.getName().equals(SYS_RELATION)) {
-                continue; // root types have no super type
-            }
-            if (docType.getSuperType() == null) {
-                log.warn("Document type {} has no super type", docType.getName());
-            }
-        }
-    }
-
     private void registerPrimaryTypes(Map<String, PrimaryTypeDTO> primaryTypeDTOs) {
         pendingPrimaryTypes = new LinkedHashMap<>(primaryTypeDTOs);
         // compute documentTypes and specialDocumentTypes
@@ -385,7 +374,17 @@ public class SchemaManagerDTO extends SchemaManagerBase {
 
     private DocumentTypeImpl newDocumentType(String name, PrimaryTypeDTO dto) {
         DTOPath path = DTOPath.root(PRIMARY_TYPES, null).child(name, null);
-        DocumentType superType = dto.extend() == null ? null : getRegisteredDocumentType(dto.extend());
+        DocumentType superType = null;
+        if (!name.equals(SYS_CONTENT) && !name.equals(SYS_RELATION)) {
+            if (dto.extend() == null) {
+                violations.add(new ParentTypeValidationViolation(path.child(EXTENDS, null).withValue(name), name, true));
+            } else {
+                superType = getRegisteredDocumentType(dto.extend());
+                if (superType == null) {
+                    violations.add(new ParentTypeValidationViolation(path.child(EXTENDS, dto.extend()).withValue(name), name, false));
+                }
+            }
+        }
         List<Schema> schemas = getNewDocumentTypeSchemas(dto, path, superType);
         List<CompositeType> docMixins = getNewDocumentTypeMixins(dto, path, superType);
         List<String> subtypes = dto.subtypes() == null ? null : new ArrayList<>(dto.subtypes());

@@ -1,13 +1,77 @@
 {
   "errors": [
     {
-      "message": "The value \"'{''}'\" already exists at \"primaryTypes/SysContent\" and cannot be removed as primary types are not allowed to be removed.",
-      "messageKey": "label.schema.application.violation.PrimaryTypeValidationViolation.removed",
+      "invalidValue": "SysOrderedFolder",
+      "message": "Invalid parent type defined for primary type SysOrderedFolder at path primaryTypes/SysOrderedFolder/extends",
+      "messageKey": "label.schema.application.violation.ParentTypeValidationViolation",
       "parameters": [
-        {},
-        "primaryTypes/SysContent"
+        "Invalid",
+        "SysOrderedFolder",
+        "primaryTypes/SysOrderedFolder/extends"
       ],
-      "path": "primaryTypes/SysContent"
+      "path": "primaryTypes/SysOrderedFolder/extends"
+    },
+    {
+      "invalidValue": "SysRenditionsContainer",
+      "message": "Invalid parent type defined for primary type SysRenditionsContainer at path primaryTypes/SysRenditionsContainer/extends",
+      "messageKey": "label.schema.application.violation.ParentTypeValidationViolation",
+      "parameters": [
+        "Invalid",
+        "SysRenditionsContainer",
+        "primaryTypes/SysRenditionsContainer/extends"
+      ],
+      "path": "primaryTypes/SysRenditionsContainer/extends"
+    },
+    {
+      "invalidValue": "SysRoot",
+      "message": "Invalid parent type defined for primary type SysRoot at path primaryTypes/SysRoot/extends",
+      "messageKey": "label.schema.application.violation.ParentTypeValidationViolation",
+      "parameters": [
+        "Invalid",
+        "SysRoot",
+        "primaryTypes/SysRoot/extends"
+      ],
+      "path": "primaryTypes/SysRoot/extends"
+    }
+  ],
+  "warnings": [
+    {
+      "invalidValue": {
+        "extends": "SysContent",
+        "mixins": [
+          "SysFolderish"
+        ],
+        "schemas": [
+          "mydublincore",
+          "system"
+        ],
+        "subtypes": [
+          "SysFile",
+          "SysFolder",
+          "SysOrderedFolder"
+        ]
+      },
+      "message": "The value \"'{'extends=SysContent, schemas=[mydublincore, system], mixins=[SysFolderish], subtypes=[SysFile, SysFolder, SysOrderedFolder]'}'\" already exists at \"primaryTypes/SysFolder\" and cannot be removed.",
+      "messageKey": "label.schema.application.violation.AlreadyExistsViolation.removed",
+      "parameters": [
+        {
+          "extends": "SysContent",
+          "mixins": [
+            "SysFolderish"
+          ],
+          "schemas": [
+            "mydublincore",
+            "system"
+          ],
+          "subtypes": [
+            "SysFile",
+            "SysFolder",
+            "SysOrderedFolder"
+          ]
+        },
+        "primaryTypes/SysFolder"
+      ],
+      "path": "primaryTypes/SysFolder"
     }
   ]
 }

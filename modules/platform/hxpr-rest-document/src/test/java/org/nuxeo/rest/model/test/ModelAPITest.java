@@ -18,6 +18,7 @@ package org.nuxeo.rest.model.test;
 import static jakarta.ws.rs.core.HttpHeaders.ACCEPT;
 import static jakarta.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON;
 import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
 import static jakarta.ws.rs.core.Response.Status.CONFLICT;
 import static jakarta.ws.rs.core.Response.Status.NOT_ACCEPTABLE;
@@ -25,13 +26,14 @@ import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
 import static jakarta.ws.rs.core.Response.Status.NO_CONTENT;
 import static jakarta.ws.rs.core.Response.Status.OK;
 import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
-
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSFILE;
 import static org.nuxeo.ecm.core.api.local.DummyLoginFeature.TEST_ANONYMOUS_USER;
+import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_CONTENT;
+import static org.nuxeo.rest.model.Constants.API_PATH;
 import static org.nuxeo.rest.utils.Headers.HXCS_REPOSITORY;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.PATCH;
@@ -43,22 +45,24 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import jakarta.ws.rs.core.MediaType;
-
+import java.io.IOException;
 import java.util.stream.Stream;
 
+import com.jayway.jsonpath.JsonPath;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.nuxeo.ecm.core.api.local.WithUser;
 import org.nuxeo.ecm.core.schema.TypeService;
 import org.nuxeo.ecm.core.test.CoreFeature;
 import org.nuxeo.rest.document.test.AbstractAPITest;
-import org.nuxeo.rest.model.Constants;
+import org.nuxeo.rest.document.test.ContentTestHelper;
 import org.nuxeo.rest.model.ModelAPI;
 import org.nuxeo.rest.model.ModelManager;
 import org.nuxeo.rest.model.validation.ModelValidator;
@@ -66,9 +70,9 @@ import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.test.runner.Features;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.test.web.servlet.ResultActions;
-
-import com.jayway.jsonpath.JsonPath;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 /**
  * Model REST API tests.
@@ -77,10 +81,63 @@ import com.jayway.jsonpath.JsonPath;
 @SpringBootTest(classes = { ModelAPI.class, ModelManager.class, ModelValidator.class })
 class ModelAPITest extends AbstractAPITest {
 
-    private static final String PATH_VALIDATE_ONLY_TRUE = Constants.API_PATH + PARAM_VALIDATE_ONLY_TRUE;
+    private static final String PATH_VALIDATE_ONLY_TRUE = API_PATH + PARAM_VALIDATE_ONLY_TRUE;
 
     private static final String PATH_VALIDATE_ONLY_TRUE_FOR_PROJECT =
-            Constants.API_PATH + PROJECT_PF_00000 + PARAM_VALIDATE_ONLY_TRUE;
+            API_PATH + PROJECT_PF_00000 + PARAM_VALIDATE_ONLY_TRUE;
+
+
+    private static final String NEW_TYPE_PARENT = "NewTypeParent";
+    private static final String NEW_TYPE_CHILD = "NewTypeChild";
+    private static final String PUT_FOR_PROJECT_PATH = API_PATH + "/project/myproject";
+    private static final String PUT_FOR_PROJECT_BASE_BODY = """
+                {
+                   "primaryTypes": {
+                     "NewTypeParent": {
+                       "extends": "%s",
+                       "schemas": [
+                         "system"
+                       ]
+                     },
+                     "NewTypeChild": {
+                       "extends": "%s",
+                       "schemas": [
+                         "system"
+                       ]
+                     }
+                   }
+                 }
+           """;
+    private static final String EMPTY_PARENT_PUT_FOR_PROJECT_BODY = PUT_FOR_PROJECT_BASE_BODY.formatted(" ", " ");
+    private static final String NON_EXISTING_PARENT_PUT_FOR_PROJECT_BODY = PUT_FOR_PROJECT_BASE_BODY.formatted("NotExisting", "NotExisting");
+    private static final String EXTENDING_ITSELF_PARENT_PUT_FOR_PROJECT_BODY = PUT_FOR_PROJECT_BASE_BODY.formatted(NEW_TYPE_PARENT, NEW_TYPE_CHILD);
+    private static final String LOOP_PARENT_PUT_FOR_PROJECT_BODY = PUT_FOR_PROJECT_BASE_BODY.formatted(NEW_TYPE_CHILD, NEW_TYPE_PARENT);
+
+    private static final String BASE_PARENT_PATCH = """
+                                [
+                                  {
+                                    "op": "add",
+                                    "path": "/primaryTypes/NewTypeParent",
+                                    "value": {
+                                      "extends": "%s",
+                                      "schemas": ["system", "sysfile"]
+                                    }
+                                  },
+                                  {
+                                    "op": "add",
+                                    "path": "/primaryTypes/NewTypeChild",
+                                    "value": {
+                                      "extends": "%s",
+                                      "schemas": ["system", "sysfile"]
+                                    }
+                                  }
+                                ]
+                                """;
+
+    private static final String EMPTY_PARENT_PATCH_BODY = BASE_PARENT_PATCH.formatted(" ", " ");
+    private static final String NON_EXISTING_PARENT_PATCH_BODY = BASE_PARENT_PATCH.formatted("NotExisting", "NotExisting");
+    private static final String EXTENDING_ITSELF_PARENT_PATCH_BODY = BASE_PARENT_PATCH.formatted(NEW_TYPE_PARENT, NEW_TYPE_CHILD);
+    private static final String LOOP_PARENT_PATCH_BODY = BASE_PARENT_PATCH.formatted(NEW_TYPE_CHILD, NEW_TYPE_PARENT);
 
     private TypeService typeService;
 
@@ -93,19 +150,19 @@ class ModelAPITest extends AbstractAPITest {
     @Test
     @WithUser(TEST_ANONYMOUS_USER)
     void testGetUnauthenticated() throws Exception {
-        mvc.perform(get(Constants.API_PATH).header(HXCS_REPOSITORY, REPO_ID))
+        mvc.perform(get(API_PATH).header(HXCS_REPOSITORY, REPO_ID))
                 .andExpect(status().is(UNAUTHORIZED.getStatusCode()));
     }
 
     @Test
     void testGetBadRepo() throws Exception {
-        checkResponse(NOT_FOUND, GET, BAD_REPO_ID, Constants.API_PATH);
+        checkResponse(NOT_FOUND, GET, BAD_REPO_ID, API_PATH);
     }
 
     @Test
     @WithUser(ALT_USER)
     void testGet() throws Exception {
-        var result = checkResponse(OK, GET, REPO_ID, Constants.API_PATH);
+        var result = checkResponse(OK, GET, REPO_ID, API_PATH);
         checkResponseBody("rest/model.json", result);
     }
 
@@ -115,7 +172,7 @@ class ModelAPITest extends AbstractAPITest {
         HttpHeaders headers = new HttpHeaders();
         headers.add(CONTENT_TYPE, APPLICATION_JSON);
         headers.add(HXCS_REPOSITORY, REPO_ID);
-        var result = checkResponse(OK, GET, headers, Constants.API_PATH);
+        var result = checkResponse(OK, GET, headers, API_PATH);
         checkResponseBody("rest/model.json", result);
     }
 
@@ -125,7 +182,7 @@ class ModelAPITest extends AbstractAPITest {
         HttpHeaders headers = new HttpHeaders();
         headers.add(ACCEPT, "application/vnd.hxcs.v0+json");
         headers.add(HXCS_REPOSITORY, REPO_ID);
-        checkResponse(NOT_ACCEPTABLE, GET, headers, Constants.API_PATH);
+        checkResponse(NOT_ACCEPTABLE, GET, headers, API_PATH);
     }
 
     @Test
@@ -169,10 +226,10 @@ class ModelAPITest extends AbstractAPITest {
 
         JSONObject jsonObject = new JSONObject(putForProject);
         String newBody = jsonObject.toString();
-        checkResponseWithPayload(OK, PUT, REPO_ID, newBody, Constants.API_PATH + PROJECT_PF_00000);
+        checkResponseWithPayload(OK, PUT, REPO_ID, newBody, API_PATH + PROJECT_PF_00000);
 
         // get for just project PF00000
-        ResultActions result = checkResponse(OK, GET, REPO_ID, Constants.API_PATH + PROJECT_PF_00000);
+        ResultActions result = checkResponse(OK, GET, REPO_ID, API_PATH + PROJECT_PF_00000);
         String expected = """
                 {
                   "types": {
@@ -215,7 +272,7 @@ class ModelAPITest extends AbstractAPITest {
         checkResponseBodyEquals(expected, result);
 
         // cleanup: remove everything about project PF00000
-        result = checkResponseWithPayload(OK, PUT, REPO_ID, "{}", Constants.API_PATH + PROJECT_PF_00000);
+        result = checkResponseWithPayload(OK, PUT, REPO_ID, "{}", API_PATH + PROJECT_PF_00000);
         checkResponseBody("rest/model.json", result);
     }
 
@@ -223,7 +280,7 @@ class ModelAPITest extends AbstractAPITest {
     @ValueSource(strings = { "", PARAM_VALIDATE_ONLY_FALSE, PARAM_VALIDATE_ONLY_TRUE })
     @WithUser(TEST_ANONYMOUS_USER)
     void testPutUnauthenticated(String queryParam) throws Exception {
-        mvc.perform(put(Constants.API_PATH + queryParam).header(HXCS_REPOSITORY, REPO_ID).content("{}").with(csrf()))
+        mvc.perform(put(API_PATH + queryParam).header(HXCS_REPOSITORY, REPO_ID).content("{}").with(csrf()))
                 .andExpect(status().is(UNAUTHORIZED.getStatusCode()));
     }
 
@@ -231,13 +288,13 @@ class ModelAPITest extends AbstractAPITest {
     @ValueSource(strings = { "", PARAM_VALIDATE_ONLY_FALSE, PARAM_VALIDATE_ONLY_TRUE })
     @WithUser(ALT_USER)
     void testPutUnauthorized(String queryParam) throws Exception {
-        checkResponseWithPayload(UNAUTHORIZED, PUT, REPO_ID, "{}", Constants.API_PATH + queryParam);
+        checkResponseWithPayload(UNAUTHORIZED, PUT, REPO_ID, "{}", API_PATH + queryParam);
     }
 
     @ParameterizedTest
     @ValueSource(strings = { "", PARAM_VALIDATE_ONLY_FALSE, PARAM_VALIDATE_ONLY_TRUE })
     void testPutBadRepo(String queryParam) throws Exception {
-        checkResponseWithPayload(NOT_FOUND, PUT, BAD_REPO_ID, "{}", Constants.API_PATH + queryParam);
+        checkResponseWithPayload(NOT_FOUND, PUT, BAD_REPO_ID, "{}", API_PATH + queryParam);
     }
 
     /**
@@ -246,29 +303,29 @@ class ModelAPITest extends AbstractAPITest {
      */
     @Test
     void testMissingBody() throws Exception {
-        mvc.perform(put(Constants.API_PATH).header(HXCS_REPOSITORY, REPO_ID)
+        mvc.perform(put(API_PATH).header(HXCS_REPOSITORY, REPO_ID)
                 .contentType(APPLICATION_JSON).with(csrf())).andExpect(status().is(BAD_REQUEST.getStatusCode()));
-        mvc.perform(put(Constants.API_PATH + PROJECT_PF_00000).header(HXCS_REPOSITORY, REPO_ID)
+        mvc.perform(put(API_PATH + PROJECT_PF_00000).header(HXCS_REPOSITORY, REPO_ID)
                 .contentType(APPLICATION_JSON).with(csrf())).andExpect(status().is(BAD_REQUEST.getStatusCode()));
-        mvc.perform(patch(Constants.API_PATH).header(HXCS_REPOSITORY, REPO_ID)
-                .contentType(MediaType.APPLICATION_JSON_PATCH_JSON).with(csrf()))
+        mvc.perform(patch(API_PATH).header(HXCS_REPOSITORY, REPO_ID)
+                .contentType(APPLICATION_JSON_PATCH_JSON).with(csrf()))
            .andExpect(status().is(BAD_REQUEST.getStatusCode()));
     }
 
     @ParameterizedTest
     @ValueSource(strings = { "", PARAM_VALIDATE_ONLY_FALSE, PARAM_VALIDATE_ONLY_TRUE })
     void testPutInvalidJson(String queryParam) throws Exception {
-        checkResponseWithPayload(BAD_REQUEST, PUT, BAD_REPO_ID, NOT_JSON, Constants.API_PATH + queryParam);
+        checkResponseWithPayload(BAD_REQUEST, PUT, BAD_REPO_ID, NOT_JSON, API_PATH + queryParam);
     }
 
     @ParameterizedTest
     @ValueSource(strings = { "", PARAM_VALIDATE_ONLY_FALSE })
     void testPutUnchanged(String queryParam) throws Exception {
         // get original JSON
-        var result = checkResponse(OK, GET, REPO_ID, Constants.API_PATH);
+        var result = checkResponse(OK, GET, REPO_ID, API_PATH);
         String body = result.andReturn().getResponse().getContentAsString();
         // put it back unchanged
-        result = checkResponseWithPayload(OK, PUT, REPO_ID, body, Constants.API_PATH + queryParam);
+        result = checkResponseWithPayload(OK, PUT, REPO_ID, body, API_PATH + queryParam);
         checkResponseBody("rest/model.json", result);
     }
 
@@ -276,7 +333,7 @@ class ModelAPITest extends AbstractAPITest {
     @ValueSource(strings = { "", PARAM_VALIDATE_ONLY_FALSE })
     void testPut(String queryParam) throws Exception {
         // get original JSON
-        var result = checkResponse(OK, GET, REPO_ID, Constants.API_PATH);
+        var result = checkResponse(OK, GET, REPO_ID, API_PATH);
         String body = result.andReturn().getResponse().getContentAsString();
         JSONObject jsonObject = new JSONObject(body);
         // change some stuff
@@ -309,17 +366,17 @@ class ModelAPITest extends AbstractAPITest {
         fieldsData.put("mydc_foobr3", fooBar3);
         // put new model
         String newBody = jsonObject.toString();
-        result = checkResponseWithPayload(OK, PUT, REPO_ID, newBody, Constants.API_PATH + queryParam);
+        result = checkResponseWithPayload(OK, PUT, REPO_ID, newBody, API_PATH + queryParam);
         checkResponseBodyPatched("rest/model.json", "rest/model_updated.patch.json", result);
         // cleanup: put back the original one
-        result = checkResponseWithPayload(OK, PUT, REPO_ID, body, Constants.API_PATH + queryParam);
+        result = checkResponseWithPayload(OK, PUT, REPO_ID, body, API_PATH + queryParam);
         checkResponseBody("rest/model.json", result);
     }
 
     @Test
     void testPutValidateTrue() throws Exception {
         // get original JSON
-        var result = checkResponse(OK, GET, REPO_ID, Constants.API_PATH);
+        var result = checkResponse(OK, GET, REPO_ID, API_PATH);
         String body = result.andReturn().getResponse().getContentAsString();
         JSONObject jsonObject = new JSONObject(body);
 
@@ -335,7 +392,7 @@ class ModelAPITest extends AbstractAPITest {
         result = checkResponseWithPayload(NO_CONTENT, PUT, REPO_ID, newBody, PATH_VALIDATE_ONLY_TRUE);
         result.andExpect(jsonPath("$").doesNotExist());
         // check the model has not been changed
-        result = checkResponse(OK, GET, REPO_ID, Constants.API_PATH);
+        result = checkResponse(OK, GET, REPO_ID, API_PATH);
         checkResponseBody("rest/model.json", result);
     }
 
@@ -343,7 +400,7 @@ class ModelAPITest extends AbstractAPITest {
     @ValueSource(strings = { "", PARAM_VALIDATE_ONLY_FALSE })
     void testPutWithMixin(String queryParam) throws Exception {
         // get original JSON
-        var result = checkResponse(OK, GET, REPO_ID, Constants.API_PATH);
+        var result = checkResponse(OK, GET, REPO_ID, API_PATH);
         String body = result.andReturn().getResponse().getContentAsString();
         JSONObject jsonObject = new JSONObject(body);
         // change some stuff
@@ -361,11 +418,11 @@ class ModelAPITest extends AbstractAPITest {
         // put new model
         String newBody = jsonObject.toString();
 
-        result = checkResponseWithPayload(OK, PUT, REPO_ID, newBody, Constants.API_PATH + queryParam);
+        result = checkResponseWithPayload(OK, PUT, REPO_ID, newBody, API_PATH + queryParam);
         checkResponseBodyPatched("rest/model.json", "rest/model_updated_with_mixins.patch.json", result);
 
         // cleanup: put back the original one
-        result = checkResponseWithPayload(OK, PUT, REPO_ID, body, Constants.API_PATH + queryParam);
+        result = checkResponseWithPayload(OK, PUT, REPO_ID, body, API_PATH + queryParam);
         checkResponseBody("rest/model.json", result);
     }
 
@@ -373,7 +430,7 @@ class ModelAPITest extends AbstractAPITest {
     @ValueSource(strings = { "", PARAM_VALIDATE_ONLY_FALSE, PARAM_VALIDATE_ONLY_TRUE })
     @WithUser(TEST_ANONYMOUS_USER)
     void testPatchUnauthenticated(String queryParam) throws Exception {
-        String url = Constants.API_PATH + queryParam;
+        String url = API_PATH + queryParam;
         mvc.perform(patch(url).header(HXCS_REPOSITORY, REPO_ID).content("{}").with(csrf()))
                 .andExpect(status().is(UNAUTHORIZED.getStatusCode()));
     }
@@ -382,29 +439,29 @@ class ModelAPITest extends AbstractAPITest {
     @ValueSource(strings = { "", PARAM_VALIDATE_ONLY_FALSE, PARAM_VALIDATE_ONLY_TRUE })
     @WithUser(ALT_USER)
     void testPatchUnauthorized(String queryParam) throws Exception {
-        checkResponseWithPayload(UNAUTHORIZED, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON, REPO_ID, "{}",
-                Constants.API_PATH + queryParam);
+        checkResponseWithPayload(UNAUTHORIZED, PATCH, APPLICATION_JSON_PATCH_JSON, REPO_ID, "{}",
+                API_PATH + queryParam);
     }
 
     @ParameterizedTest
     @ValueSource(strings = { "", PARAM_VALIDATE_ONLY_FALSE, PARAM_VALIDATE_ONLY_TRUE })
     void testPatchBadRepo(String queryParam) throws Exception {
-        checkResponseWithPayload(NOT_FOUND, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON, BAD_REPO_ID, "{}",
-                Constants.API_PATH + queryParam);
+        checkResponseWithPayload(NOT_FOUND, PATCH, APPLICATION_JSON_PATCH_JSON, BAD_REPO_ID, "{}",
+                API_PATH + queryParam);
     }
 
     @ParameterizedTest
     @ValueSource(strings = { "", PARAM_VALIDATE_ONLY_FALSE, PARAM_VALIDATE_ONLY_TRUE })
     void testPatchInvalidJson(String queryParam) throws Exception {
-        checkResponseWithPayload(BAD_REQUEST, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON, REPO_ID, NOT_JSON,
-                Constants.API_PATH + queryParam);
+        checkResponseWithPayload(BAD_REQUEST, PATCH, APPLICATION_JSON_PATCH_JSON, REPO_ID, NOT_JSON,
+                API_PATH + queryParam);
     }
 
     @ParameterizedTest
     @ValueSource(strings = { "", PARAM_VALIDATE_ONLY_FALSE, PARAM_VALIDATE_ONLY_TRUE })
     void givenModelValidation_whenReplacementValueIsAnInvalidObjectTypeForTypesAndModelInUse_thenAnInvalidObjectViolationWithAlreadyExistsViolationWhenValidateOnlyTrueShouldBeInResponse(
             String queryParam) throws Exception {
-        String path = Constants.API_PATH + queryParam;
+        String path = API_PATH + queryParam;
         String badPatch = """
                 [
                       {
@@ -414,7 +471,7 @@ class ModelAPITest extends AbstractAPITest {
                       }
                  ]
                 """;
-        var result = checkResponseWithPayload(UNPROCESSABLE_ENTITY, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON,
+        var result = checkResponseWithPayload(UNPROCESSABLE_ENTITY, PATCH, APPLICATION_JSON_PATCH_JSON,
                 REPO_ID, badPatch, path);
         String expectedFilePath = queryParam.equals(PARAM_VALIDATE_ONLY_TRUE) ?
                 "rest/validation_type_dto_validate_only.json" :
@@ -426,7 +483,7 @@ class ModelAPITest extends AbstractAPITest {
     @ValueSource(strings = { "", PARAM_VALIDATE_ONLY_FALSE, PARAM_VALIDATE_ONLY_TRUE })
     void givenModelValidation_whenReplacementValueIsAnInvalidObjectTypeForSchemasAndModelInUse_thenAnInvalidObjectViolationWithAlreadyExistsViolationWhenValidateOnlyTrueShouldBeInResponse(
             String queryParam) throws Exception {
-        String path = Constants.API_PATH + queryParam;
+        String path = API_PATH + queryParam;
         String badPatch = """
               [
                     {
@@ -446,7 +503,7 @@ class ModelAPITest extends AbstractAPITest {
                     }
                ]
                 """;
-        var result = checkResponseWithPayload(UNPROCESSABLE_ENTITY, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON,
+        var result = checkResponseWithPayload(UNPROCESSABLE_ENTITY, PATCH, APPLICATION_JSON_PATCH_JSON,
                 REPO_ID, badPatch, path);
         String expectedFilePath = queryParam.equals(PARAM_VALIDATE_ONLY_TRUE) ?
                 "rest/validation_schema_dto_validate_only.json" :
@@ -458,7 +515,7 @@ class ModelAPITest extends AbstractAPITest {
     @ValueSource(strings = { "", PARAM_VALIDATE_ONLY_FALSE, PARAM_VALIDATE_ONLY_TRUE })
     void givenModelValidation_whenReplacementValueIsAnInvalidObjectTypeForPrimaryTypesAndModelInUse_thenAnInvalidObjectViolationWithAlreadyExistsViolationWhenValidateOnlyTrueShouldBeInResponse(
             String queryParam) throws Exception {
-        String path = Constants.API_PATH + queryParam;
+        String path = API_PATH + queryParam;
         String badPatch = """
               [
                     {
@@ -490,11 +547,11 @@ class ModelAPITest extends AbstractAPITest {
                     }
                ]
                 """;
-        var result = checkResponseWithPayload(UNPROCESSABLE_ENTITY, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON,
+        var result = checkResponseWithPayload(UNPROCESSABLE_ENTITY, PATCH, APPLICATION_JSON_PATCH_JSON,
                 REPO_ID, badPatch, path);
-        String expectedFilePath = queryParam.equals(PARAM_VALIDATE_ONLY_TRUE) ?
-                "rest/validation_primarytype_dto_validate_only.json" :
-                "rest/validation_primarytype_dto_validate_only_false.json";
+        String expectedFilePath = queryParam.equals(PARAM_VALIDATE_ONLY_TRUE)
+                ? "rest/validation_primarytype_dto_validate_only.json"
+                : "rest/validation_primarytype_dto_validate_only_false.json";
         checkResponseBody(expectedFilePath, result);
     }
 
@@ -502,7 +559,7 @@ class ModelAPITest extends AbstractAPITest {
     @ValueSource(strings = { "", PARAM_VALIDATE_ONLY_FALSE, PARAM_VALIDATE_ONLY_TRUE })
     void givenModelValidation_whenReplacementValueIsAnInvalidObjectTypeForMixinTypes_thenAnAlreadyExistViolationShouldBeInResponse(
             String queryParam) throws Exception {
-        String path = Constants.API_PATH + queryParam;
+        String path = API_PATH + queryParam;
         String badPatch = """
               [
                      {
@@ -512,7 +569,7 @@ class ModelAPITest extends AbstractAPITest {
                     }
                ]
                 """;
-        var result = checkResponseWithPayload(UNPROCESSABLE_ENTITY, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON,
+        var result = checkResponseWithPayload(UNPROCESSABLE_ENTITY, PATCH, APPLICATION_JSON_PATCH_JSON,
                 REPO_ID, badPatch, path);
         String expectedFilePath = queryParam.equals(PARAM_VALIDATE_ONLY_TRUE) ?
                 "rest/validation_mixintype_dto_validate_only.json" :
@@ -523,7 +580,7 @@ class ModelAPITest extends AbstractAPITest {
     @ParameterizedTest
     @ValueSource(strings = { "", PARAM_VALIDATE_ONLY_FALSE, PARAM_VALIDATE_ONLY_TRUE })
     void testValidationErrorsForRemove(String queryParam) throws Exception {
-        String path = Constants.API_PATH + queryParam;
+        String path = API_PATH + queryParam;
         String badPatch = """
              [
                     {
@@ -536,7 +593,7 @@ class ModelAPITest extends AbstractAPITest {
                     }
              ]
                  """;
-        var result = checkResponseWithPayload(UNPROCESSABLE_ENTITY, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON,
+        var result = checkResponseWithPayload(UNPROCESSABLE_ENTITY, PATCH, APPLICATION_JSON_PATCH_JSON,
                 REPO_ID, badPatch, path);
         String expectedFilePath = queryParam.equals(PARAM_VALIDATE_ONLY_TRUE) ?
                 "rest/validation_schema_dto_for_remove_validate_only.json" :
@@ -547,7 +604,7 @@ class ModelAPITest extends AbstractAPITest {
     @ParameterizedTest
     @ValueSource(strings = { "", PARAM_VALIDATE_ONLY_FALSE, PARAM_VALIDATE_ONLY_TRUE })
     void testValidationErrorsForAdd(String queryParam) throws Exception {
-        String path = Constants.API_PATH + queryParam;
+        String path = API_PATH + queryParam;
         String badPatch = """
                 [
                        {
@@ -557,7 +614,7 @@ class ModelAPITest extends AbstractAPITest {
                         }
                 ]
                 """;
-        var result = checkResponseWithPayload(UNPROCESSABLE_ENTITY, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON,
+        var result = checkResponseWithPayload(UNPROCESSABLE_ENTITY, PATCH, APPLICATION_JSON_PATCH_JSON,
                 REPO_ID, badPatch, path);
         String expectedFilePath = queryParam.equals(PARAM_VALIDATE_ONLY_TRUE) ?
                 "rest/validation_schema_dto_for_add_validate_only.json" :
@@ -588,8 +645,8 @@ class ModelAPITest extends AbstractAPITest {
                     }
                 ]
                 """;
-        var result = checkResponseWithPayload(UNPROCESSABLE_ENTITY, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON,
-                REPO_ID, badPatch, Constants.API_PATH);
+        var result = checkResponseWithPayload(UNPROCESSABLE_ENTITY, PATCH, APPLICATION_JSON_PATCH_JSON,
+                REPO_ID, badPatch, API_PATH);
         assertEqualsInJsonPath(error, result, "errors[0]");
     }
 
@@ -616,15 +673,15 @@ class ModelAPITest extends AbstractAPITest {
                     }
                 ]
                 """;
-        var result = checkResponseWithPayload(UNPROCESSABLE_ENTITY, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON,
-                REPO_ID, badPatch, Constants.API_PATH);
+        var result = checkResponseWithPayload(UNPROCESSABLE_ENTITY, PATCH, APPLICATION_JSON_PATCH_JSON,
+                REPO_ID, badPatch, API_PATH);
         assertEqualsInJsonPath(error, result, "errors[0]");
     }
 
     @ParameterizedTest
     @ValueSource(strings = { "", PARAM_VALIDATE_ONLY_FALSE, PARAM_VALIDATE_ONLY_TRUE })
     void testLengthConstraintValidation(String queryParam) throws Exception {
-        String path = Constants.API_PATH + queryParam;
+        String path = API_PATH + queryParam;
 
         // Test min > max throws error
         String lengthConstraintError = """
@@ -657,7 +714,7 @@ class ModelAPITest extends AbstractAPITest {
                     }
                 ]
                 """;
-        var result = checkResponseWithPayload(UNPROCESSABLE_ENTITY, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON,
+        var result = checkResponseWithPayload(UNPROCESSABLE_ENTITY, PATCH, APPLICATION_JSON_PATCH_JSON,
                 REPO_ID, badPatch, path);
         assertEqualsInJsonPath(lengthConstraintError, result, "errors[0]");
     }
@@ -665,7 +722,7 @@ class ModelAPITest extends AbstractAPITest {
     @ParameterizedTest
     @ValueSource(strings = { "", PARAM_VALIDATE_ONLY_FALSE, PARAM_VALIDATE_ONLY_TRUE })
     void testNumericConstraintValidation(String queryParam) throws Exception {
-        String path = Constants.API_PATH + queryParam;
+        String path = API_PATH + queryParam;
 
         String numericConstraintError = """
                 {
@@ -699,7 +756,7 @@ class ModelAPITest extends AbstractAPITest {
                 ]
                 """;
 
-        var result = checkResponseWithPayload(UNPROCESSABLE_ENTITY, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON,
+        var result = checkResponseWithPayload(UNPROCESSABLE_ENTITY, PATCH, APPLICATION_JSON_PATCH_JSON,
                 REPO_ID, badPatch, path);
         assertEqualsInJsonPath(numericConstraintError, result, "errors[0]");
 
@@ -735,7 +792,7 @@ class ModelAPITest extends AbstractAPITest {
                 ]
                 """;
 
-        result = checkResponseWithPayload(UNPROCESSABLE_ENTITY, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON, REPO_ID,
+        result = checkResponseWithPayload(UNPROCESSABLE_ENTITY, PATCH, APPLICATION_JSON_PATCH_JSON, REPO_ID,
                 badPatch, path);
         assertEqualsInJsonPath(numericConstraintError, result, "errors[0]");
 
@@ -744,7 +801,7 @@ class ModelAPITest extends AbstractAPITest {
     @ParameterizedTest
     @ValueSource(strings = { "", PARAM_VALIDATE_ONLY_FALSE, PARAM_VALIDATE_ONLY_TRUE })
     void testObjectResolverConstraintValidation(String queryParam) throws Exception {
-        String path = Constants.API_PATH + queryParam;
+        String path = API_PATH + queryParam;
 
         String objectResolverConstraintError = """
                 {
@@ -786,7 +843,7 @@ class ModelAPITest extends AbstractAPITest {
                 ]
                 """;
 
-        var result = checkResponseWithPayload(UNPROCESSABLE_ENTITY, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON,
+        var result = checkResponseWithPayload(UNPROCESSABLE_ENTITY, PATCH, APPLICATION_JSON_PATCH_JSON,
                 REPO_ID, badPatch, path);
         assertEqualsInJsonPath(objectResolverConstraintError, result, "errors[0]");
     }
@@ -794,41 +851,41 @@ class ModelAPITest extends AbstractAPITest {
     @ParameterizedTest
     @MethodSource("provideStringsForConstraintSuccessValidation")
     void testConstraintValidationSuccess(String goodPatch) throws Exception {
-        String path = Constants.API_PATH + PARAM_VALIDATE_ONLY_TRUE;
+        String path = API_PATH + PARAM_VALIDATE_ONLY_TRUE;
 
-        checkResponseWithPayload(NO_CONTENT, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON, REPO_ID, goodPatch, path);
+        checkResponseWithPayload(NO_CONTENT, PATCH, APPLICATION_JSON_PATCH_JSON, REPO_ID, goodPatch, path);
     }
 
     @ParameterizedTest
     @ValueSource(strings = { "", PARAM_VALIDATE_ONLY_FALSE })
     void testPatchUnchanged(String queryParam) throws Exception {
         // get original JSON
-        checkResponse(OK, GET, REPO_ID, Constants.API_PATH);
+        checkResponse(OK, GET, REPO_ID, API_PATH);
         String body = """
                 [
                 { "op": "replace", "path": "/schemas/mydublincore/fields/mydc_coverage", "value": "string" }
                 ]
                 """;
         // put it back unchanged
-        var result = checkResponseWithPayload(OK, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON, REPO_ID, body,
-                Constants.API_PATH + queryParam);
+        var result = checkResponseWithPayload(OK, PATCH, APPLICATION_JSON_PATCH_JSON, REPO_ID, body,
+                API_PATH + queryParam);
         checkResponseBody("rest/model.json", result);
     }
 
     @Test
     void testPatchUnchangedValidateTrue() throws Exception {
         // get original JSON
-        checkResponse(OK, GET, REPO_ID, Constants.API_PATH);
+        checkResponse(OK, GET, REPO_ID, API_PATH);
         String body = """
                 [
                 { "op": "replace", "path": "/schemas/mydublincore/fields/mydc_coverage", "value": {"type":"string"} }
                 ]
                 """;
         // put it back unchanged
-        checkResponseWithPayload(NO_CONTENT, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON, REPO_ID, body,
+        checkResponseWithPayload(NO_CONTENT, PATCH, APPLICATION_JSON_PATCH_JSON, REPO_ID, body,
                 PATH_VALIDATE_ONLY_TRUE).andExpect(jsonPath("$").doesNotExist());
         // check the model has not been changed
-        var result = checkResponse(OK, GET, REPO_ID, Constants.API_PATH);
+        var result = checkResponse(OK, GET, REPO_ID, API_PATH);
         checkResponseBody("rest/model.json", result);
     }
 
@@ -846,8 +903,8 @@ class ModelAPITest extends AbstractAPITest {
                 ]
                 """;
 
-        var result = checkResponseWithPayload(OK, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON, REPO_ID, body,
-                Constants.API_PATH + queryParam);
+        var result = checkResponseWithPayload(OK, PATCH, APPLICATION_JSON_PATCH_JSON, REPO_ID, body,
+                API_PATH + queryParam);
         checkResponseBodyPatched("rest/model.json", "rest/model_updated.patch.json", result);
     }
 
@@ -863,8 +920,8 @@ class ModelAPITest extends AbstractAPITest {
                 ]
                 """;
 
-        var result = checkResponseWithPayload(OK, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON, REPO_ID, body,
-                Constants.API_PATH + queryParam);
+        var result = checkResponseWithPayload(OK, PATCH, APPLICATION_JSON_PATCH_JSON, REPO_ID, body,
+                API_PATH + queryParam);
         checkResponseBodyPatched("rest/model.json", "rest/model_updated_withProjectId.patch.json", result);
     }
 
@@ -881,8 +938,8 @@ class ModelAPITest extends AbstractAPITest {
                 ]
                 """;
 
-        checkResponseWithPayload(OK, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON, REPO_ID, body,
-                Constants.API_PATH + queryParam);
+        checkResponseWithPayload(OK, PATCH, APPLICATION_JSON_PATCH_JSON, REPO_ID, body,
+                API_PATH + queryParam);
         // replace projectId from the original JSON
         body = """
                 [
@@ -892,8 +949,8 @@ class ModelAPITest extends AbstractAPITest {
                 ]
                 """;
 
-        var result = checkResponseWithPayload(OK, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON, REPO_ID, body,
-                Constants.API_PATH + queryParam);
+        var result = checkResponseWithPayload(OK, PATCH, APPLICATION_JSON_PATCH_JSON, REPO_ID, body,
+                API_PATH + queryParam);
         checkResponseBodyPatched("rest/model.json", "rest/model_updated_withModifiedProjectId.patch.json", result);
     }
 
@@ -909,8 +966,8 @@ class ModelAPITest extends AbstractAPITest {
                 ]
                 """;
 
-        checkResponseWithPayload(OK, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON, REPO_ID, body,
-                Constants.API_PATH + queryParam);
+        checkResponseWithPayload(OK, PATCH, APPLICATION_JSON_PATCH_JSON, REPO_ID, body,
+                API_PATH + queryParam);
 
         // remove projectId from the original JSON
         body = """
@@ -921,8 +978,8 @@ class ModelAPITest extends AbstractAPITest {
                 ]
                 """;
 
-        var result = checkResponseWithPayload(OK, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON, REPO_ID, body,
-                Constants.API_PATH + queryParam);
+        var result = checkResponseWithPayload(OK, PATCH, APPLICATION_JSON_PATCH_JSON, REPO_ID, body,
+                API_PATH + queryParam);
         checkResponseBody("rest/model.json", result);
     }
 
@@ -935,10 +992,10 @@ class ModelAPITest extends AbstractAPITest {
                 ]
                 """;
 
-        checkResponseWithPayload(NO_CONTENT, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON, REPO_ID, body,
+        checkResponseWithPayload(NO_CONTENT, PATCH, APPLICATION_JSON_PATCH_JSON, REPO_ID, body,
                 PATH_VALIDATE_ONLY_TRUE).andExpect(jsonPath("$").doesNotExist());
         // check the model has not been changed
-        var result = checkResponse(OK, GET, REPO_ID, Constants.API_PATH);
+        var result = checkResponse(OK, GET, REPO_ID, API_PATH);
         checkResponseBody("rest/model.json", result);
     }
 
@@ -1092,8 +1149,8 @@ class ModelAPITest extends AbstractAPITest {
                 { "op": "remove", "path": "/primaryTypes/DummyFolder" }
                 ]
                 """;
-        var result = checkResponseWithPayload(OK, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON, REPO_ID, removalBody,
-                Constants.API_PATH + queryParam);
+        var result = checkResponseWithPayload(OK, PATCH, APPLICATION_JSON_PATCH_JSON, REPO_ID, removalBody,
+                API_PATH + queryParam);
         assertEqualsInJsonPath(primaryTypesWithoutDummyFolder, result, "primaryTypes");
     }
 
@@ -1105,11 +1162,11 @@ class ModelAPITest extends AbstractAPITest {
                 { "op": "remove", "path": "/primaryTypes/SysOrderedFolder" }
                 ]
                 """;
-        var result = checkResponseWithPayload(UNPROCESSABLE_ENTITY, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON,
+        var result = checkResponseWithPayload(UNPROCESSABLE_ENTITY, PATCH, APPLICATION_JSON_PATCH_JSON,
                 REPO_ID, removalBody, PATH_VALIDATE_ONLY_TRUE);
         assertNoErrors(result);
         // check the model has not been changed
-        result = checkResponse(OK, GET, REPO_ID, Constants.API_PATH);
+        result = checkResponse(OK, GET, REPO_ID, API_PATH);
         checkResponseBody("rest/model.json", result);
     }
 
@@ -1137,8 +1194,8 @@ class ModelAPITest extends AbstractAPITest {
                     ]
                 }
                 """;
-        var result = checkResponseWithPayload(OK, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON, REPO_ID, addBody,
-                Constants.API_PATH + queryParam);
+        var result = checkResponseWithPayload(OK, PATCH, APPLICATION_JSON_PATCH_JSON, REPO_ID, addBody,
+                API_PATH + queryParam);
         assertEqualsInJsonPath(orderedFolderPartAfterAddition, result, orderedFolderPath);
 
         // perform delete elements within array
@@ -1160,8 +1217,8 @@ class ModelAPITest extends AbstractAPITest {
                     ]
                 }
                 """;
-        result = checkResponseWithPayload(OK, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON, REPO_ID, deleteBody,
-                Constants.API_PATH + queryParam);
+        result = checkResponseWithPayload(OK, PATCH, APPLICATION_JSON_PATCH_JSON, REPO_ID, deleteBody,
+                API_PATH + queryParam);
         assertEqualsInJsonPath(orderedFolderPartOriginal, result, orderedFolderPath);
     }
 
@@ -1190,26 +1247,26 @@ class ModelAPITest extends AbstractAPITest {
                     ]
                 }
                 """;
-        checkResponseWithPayload(UNPROCESSABLE_ENTITY, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON, REPO_ID,
+        checkResponseWithPayload(UNPROCESSABLE_ENTITY, PATCH, APPLICATION_JSON_PATCH_JSON, REPO_ID,
                 addBodyToArray, PATH_VALIDATE_ONLY_TRUE);
         String addBody = """
                 [
                     { "op": "add", "path": "/primaryTypes/SysOrderedFolder/schemas","value":["sysfile"] }
                 ]
                 """;
-        checkResponseWithPayload(NO_CONTENT, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON, REPO_ID, addBody,
+        checkResponseWithPayload(NO_CONTENT, PATCH, APPLICATION_JSON_PATCH_JSON, REPO_ID, addBody,
                 PATH_VALIDATE_ONLY_TRUE).andExpect(jsonPath("$").doesNotExist());
         // check the model has not been changed
-        var result = checkResponse(OK, GET, REPO_ID, Constants.API_PATH);
+        var result = checkResponse(OK, GET, REPO_ID, API_PATH);
         checkResponseBody("rest/model.json", result);
 
         // We'll do the addition this time, so we can test the delete will validate
-        result = checkResponseWithPayload(OK, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON, REPO_ID, addBody,
-                Constants.API_PATH);
+        result = checkResponseWithPayload(OK, PATCH, APPLICATION_JSON_PATCH_JSON, REPO_ID, addBody,
+                API_PATH);
         assertEqualsInJsonPath(orderedFolderPartAfterAddition, result, orderedFolderPath);
 
-        result = checkResponseWithPayload(OK, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON, REPO_ID, addBodyToArray,
-                Constants.API_PATH);
+        result = checkResponseWithPayload(OK, PATCH, APPLICATION_JSON_PATCH_JSON, REPO_ID, addBodyToArray,
+                API_PATH);
         orderedFolderPartAfterAddition = """
                 {
                     "extends": "SysFolder",
@@ -1237,12 +1294,12 @@ class ModelAPITest extends AbstractAPITest {
                 ]
                 """;
         // remove/ modify will produce 422 as of HXCS-758, but will produce no errors
-        result = checkResponseWithPayload(UNPROCESSABLE_ENTITY, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON, REPO_ID,
+        result = checkResponseWithPayload(UNPROCESSABLE_ENTITY, PATCH, APPLICATION_JSON_PATCH_JSON, REPO_ID,
                 deleteBody, PATH_VALIDATE_ONLY_TRUE);
         // check there are no errors in response
         assertNoErrors(result);
         // check the model has not been changed (we are checking that the original update is still applied)
-        result = checkResponse(OK, GET, REPO_ID, Constants.API_PATH);
+        result = checkResponse(OK, GET, REPO_ID, API_PATH);
         assertEqualsInJsonPath(orderedFolderPartAfterAddition, result, orderedFolderPath);
     }
 
@@ -1269,8 +1326,8 @@ class ModelAPITest extends AbstractAPITest {
                     }
                 }
                 """;
-        var result = checkResponseWithPayload(OK, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON, REPO_ID, addNewTypeBody,
-                Constants.API_PATH + queryParam);
+        var result = checkResponseWithPayload(OK, PATCH, APPLICATION_JSON_PATCH_JSON, REPO_ID, addNewTypeBody,
+                API_PATH + queryParam);
         assertEqualsInJsonPath(newTypeJson, result, newTypePath);
 
         // add another member into new type
@@ -1291,8 +1348,8 @@ class ModelAPITest extends AbstractAPITest {
                     }
                 }
                 """;
-        result = checkResponseWithPayload(OK, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON, REPO_ID,
-                addNewMemberIntoNewType, Constants.API_PATH + queryParam);
+        result = checkResponseWithPayload(OK, PATCH, APPLICATION_JSON_PATCH_JSON, REPO_ID,
+                addNewMemberIntoNewType, API_PATH + queryParam);
         assertEqualsInJsonPath(newTypeJson, result, newTypePath);
 
         // replace old member into new type
@@ -1313,8 +1370,8 @@ class ModelAPITest extends AbstractAPITest {
                     }
                 }
                 """;
-        result = checkResponseWithPayload(OK, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON, REPO_ID,
-                replaceOldMemberType, Constants.API_PATH + queryParam);
+        result = checkResponseWithPayload(OK, PATCH, APPLICATION_JSON_PATCH_JSON, REPO_ID,
+                replaceOldMemberType, API_PATH + queryParam);
         assertEqualsInJsonPath(newTypeJson, result, newTypePath);
 
         // test members
@@ -1332,8 +1389,8 @@ class ModelAPITest extends AbstractAPITest {
                 }
                 ]
                 """;
-        result = checkResponseWithPayload(OK, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON, REPO_ID, testMembers,
-                Constants.API_PATH + queryParam);
+        result = checkResponseWithPayload(OK, PATCH, APPLICATION_JSON_PATCH_JSON, REPO_ID, testMembers,
+                API_PATH + queryParam);
         assertEqualsInJsonPath(newTypeJson, result, newTypePath);
 
         // move newType from types to mixinTypes
@@ -1344,8 +1401,8 @@ class ModelAPITest extends AbstractAPITest {
                 { "op": "move", "from": "/types/newType/fields/oldMember", "path": "/types/newNewType/fields/oldMember"}
                 ]
                 """;
-        result = checkResponseWithPayload(OK, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON, REPO_ID, moveMembers,
-                Constants.API_PATH + queryParam);
+        result = checkResponseWithPayload(OK, PATCH, APPLICATION_JSON_PATCH_JSON, REPO_ID, moveMembers,
+                API_PATH + queryParam);
         newTypeJson = """
                 {
                     "fields": {
@@ -1386,15 +1443,15 @@ class ModelAPITest extends AbstractAPITest {
                     }
                 }
                 """;
-        checkResponseWithPayload(NO_CONTENT, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON, REPO_ID, addNewTypeBody,
+        checkResponseWithPayload(NO_CONTENT, PATCH, APPLICATION_JSON_PATCH_JSON, REPO_ID, addNewTypeBody,
                 PATH_VALIDATE_ONLY_TRUE);
         // check the model has not been changed
-        var result = checkResponse(OK, GET, REPO_ID, Constants.API_PATH);
+        var result = checkResponse(OK, GET, REPO_ID, API_PATH);
         checkResponseBody("rest/model.json", result);
 
         // Apply for next validation check
-        result = checkResponseWithPayload(OK, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON, REPO_ID, addNewTypeBody,
-                Constants.API_PATH);
+        result = checkResponseWithPayload(OK, PATCH, APPLICATION_JSON_PATCH_JSON, REPO_ID, addNewTypeBody,
+                API_PATH);
         assertEqualsInJsonPath(newTypeJson1, result, newTypePath);
         String newTypeJson1ResponseBody = result.andReturn().getResponse().getContentAsString();
 
@@ -1416,15 +1473,15 @@ class ModelAPITest extends AbstractAPITest {
                     }
                 }
                 """;
-        checkResponseWithPayload(NO_CONTENT, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON, REPO_ID,
+        checkResponseWithPayload(NO_CONTENT, PATCH, APPLICATION_JSON_PATCH_JSON, REPO_ID,
                 addNewMemberIntoNewType, PATH_VALIDATE_ONLY_TRUE);
         // Check that the previous update has not changed
-        result = checkResponse(OK, GET, REPO_ID, Constants.API_PATH);
+        result = checkResponse(OK, GET, REPO_ID, API_PATH);
         checkResponseBodyEquals(newTypeJson1ResponseBody, result);
 
         // Apply for next validation check
-        result = checkResponseWithPayload(OK, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON, REPO_ID,
-                addNewMemberIntoNewType, Constants.API_PATH);
+        result = checkResponseWithPayload(OK, PATCH, APPLICATION_JSON_PATCH_JSON, REPO_ID,
+                addNewMemberIntoNewType, API_PATH);
         assertEqualsInJsonPath(newTypeJson2, result, newTypePath);
         String newTypeJson2ResponseBody = result.andReturn().getResponse().getContentAsString();
 
@@ -1447,17 +1504,17 @@ class ModelAPITest extends AbstractAPITest {
                 }
                 """;
         // remove/ modify will produce 422 as of HXCS-758, but will produce no errors
-        result = checkResponseWithPayload(UNPROCESSABLE_ENTITY, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON, REPO_ID,
+        result = checkResponseWithPayload(UNPROCESSABLE_ENTITY, PATCH, APPLICATION_JSON_PATCH_JSON, REPO_ID,
                 replaceOldMemberType, PATH_VALIDATE_ONLY_TRUE);
         // check there are no errors in response
         assertNoErrors(result);
         // Check that the previous update has not changed
-        result = checkResponse(OK, GET, REPO_ID, Constants.API_PATH);
+        result = checkResponse(OK, GET, REPO_ID, API_PATH);
         checkResponseBodyEquals(newTypeJson2ResponseBody, result);
 
         // Apply for next validation check
-        result = checkResponseWithPayload(OK, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON, REPO_ID,
-                replaceOldMemberType, Constants.API_PATH);
+        result = checkResponseWithPayload(OK, PATCH, APPLICATION_JSON_PATCH_JSON, REPO_ID,
+                replaceOldMemberType, API_PATH);
         assertEqualsInJsonPath(newTypeJson3, result, newTypePath);
         String newTypeJson3ResponseBody = result.andReturn().getResponse().getContentAsString();
 
@@ -1477,15 +1534,15 @@ class ModelAPITest extends AbstractAPITest {
                 ]
                 """;
 
-        checkResponseWithPayload(NO_CONTENT, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON, REPO_ID, testMembers,
+        checkResponseWithPayload(NO_CONTENT, PATCH, APPLICATION_JSON_PATCH_JSON, REPO_ID, testMembers,
                 PATH_VALIDATE_ONLY_TRUE);
         // Check that the previous update has not changed
-        result = checkResponse(OK, GET, REPO_ID, Constants.API_PATH);
+        result = checkResponse(OK, GET, REPO_ID, API_PATH);
         checkResponseBodyEquals(newTypeJson3ResponseBody, result);
 
         // Apply for next validation check
-        result = checkResponseWithPayload(OK, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON, REPO_ID, testMembers,
-                Constants.API_PATH);
+        result = checkResponseWithPayload(OK, PATCH, APPLICATION_JSON_PATCH_JSON, REPO_ID, testMembers,
+                API_PATH);
         assertEqualsInJsonPath(newTypeJson3, result, newTypePath);
         String testMembersUpdateResponseBody = result.andReturn().getResponse().getContentAsString();
 
@@ -1496,12 +1553,12 @@ class ModelAPITest extends AbstractAPITest {
                 { "op": "move", "from": "/types/newType/fields/oldMember", "path": "/types/newNewType/fields/oldMember"}
                 ]
                 """;
-        result = checkResponseWithPayload(UNPROCESSABLE_ENTITY, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON, REPO_ID,
+        result = checkResponseWithPayload(UNPROCESSABLE_ENTITY, PATCH, APPLICATION_JSON_PATCH_JSON, REPO_ID,
                 moveMembers, PATH_VALIDATE_ONLY_TRUE);
         // Check for no errors
         assertNoErrors(result);
         // Check that the previous update has not changed
-        result = checkResponse(OK, GET, REPO_ID, Constants.API_PATH);
+        result = checkResponse(OK, GET, REPO_ID, API_PATH);
         checkResponseBodyEquals(testMembersUpdateResponseBody, result);
     }
 
@@ -1521,8 +1578,8 @@ class ModelAPITest extends AbstractAPITest {
                     }
                 }
                 """;
-        var result = checkResponseWithPayload(OK, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON, REPO_ID, addNewTypeBody,
-                Constants.API_PATH + queryParam);
+        var result = checkResponseWithPayload(OK, PATCH, APPLICATION_JSON_PATCH_JSON, REPO_ID, addNewTypeBody,
+                API_PATH + queryParam);
         assertEqualsInJsonPath(newBlobJson, result, newBlobPath);
 
         // copy field from file
@@ -1540,8 +1597,8 @@ class ModelAPITest extends AbstractAPITest {
                     }
                 }
                 """;
-        result = checkResponseWithPayload(OK, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON, REPO_ID,
-                copyFieldFromOldBlobBody, Constants.API_PATH + queryParam);
+        result = checkResponseWithPayload(OK, PATCH, APPLICATION_JSON_PATCH_JSON, REPO_ID,
+                copyFieldFromOldBlobBody, API_PATH + queryParam);
         assertEqualsInJsonPath(newBlobJson, result, newBlobPath);
 
         // delete newBlob type
@@ -1550,8 +1607,8 @@ class ModelAPITest extends AbstractAPITest {
                 { "op": "remove", "path": "/types/newBlob" }
                 ]
                 """;
-        checkResponseWithPayload(OK, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON, REPO_ID, deleteNewBlobTypeBody,
-                Constants.API_PATH + queryParam).andExpect(jsonPath("types", not(hasKey("newBlob"))));
+        checkResponseWithPayload(OK, PATCH, APPLICATION_JSON_PATCH_JSON, REPO_ID, deleteNewBlobTypeBody,
+                API_PATH + queryParam).andExpect(jsonPath("types", not(hasKey("newBlob"))));
     }
 
     @Test
@@ -1569,15 +1626,15 @@ class ModelAPITest extends AbstractAPITest {
                     }
                 }
                 """;
-        checkResponseWithPayload(NO_CONTENT, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON, REPO_ID, addNewTypeBody,
+        checkResponseWithPayload(NO_CONTENT, PATCH, APPLICATION_JSON_PATCH_JSON, REPO_ID, addNewTypeBody,
                 PATH_VALIDATE_ONLY_TRUE);
         // check the model has not been changed
-        var result = checkResponse(OK, GET, REPO_ID, Constants.API_PATH);
+        var result = checkResponse(OK, GET, REPO_ID, API_PATH);
         checkResponseBody("rest/model.json", result);
 
         // Apply for next validation check
-        result = checkResponseWithPayload(OK, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON, REPO_ID, addNewTypeBody,
-                Constants.API_PATH);
+        result = checkResponseWithPayload(OK, PATCH, APPLICATION_JSON_PATCH_JSON, REPO_ID, addNewTypeBody,
+                API_PATH);
         assertEqualsInJsonPath(newBlobJson1, result, newBlobPath);
         String newBlobJson1ResponseBody = result.andReturn().getResponse().getContentAsString();
         // copy field from file
@@ -1595,15 +1652,15 @@ class ModelAPITest extends AbstractAPITest {
                     }
                 }
                 """;
-        checkResponseWithPayload(NO_CONTENT, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON, REPO_ID,
+        checkResponseWithPayload(NO_CONTENT, PATCH, APPLICATION_JSON_PATCH_JSON, REPO_ID,
                 copyFieldFromOldBlobBody, PATH_VALIDATE_ONLY_TRUE);
         // Check that the previous update has not changed
-        result = checkResponse(OK, GET, REPO_ID, Constants.API_PATH);
+        result = checkResponse(OK, GET, REPO_ID, API_PATH);
         checkResponseBodyEquals(newBlobJson1ResponseBody, result);
 
         // Apply for next validation
-        result = checkResponseWithPayload(OK, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON, REPO_ID,
-                copyFieldFromOldBlobBody, Constants.API_PATH);
+        result = checkResponseWithPayload(OK, PATCH, APPLICATION_JSON_PATCH_JSON, REPO_ID,
+                copyFieldFromOldBlobBody, API_PATH);
         assertEqualsInJsonPath(newBlobJson2, result, newBlobPath);
         String newBlobJson2ResponseBody = result.andReturn().getResponse().getContentAsString();
 
@@ -1613,12 +1670,12 @@ class ModelAPITest extends AbstractAPITest {
                 { "op": "remove", "path": "/types/newBlob" }
                 ]
                 """;
-        result = checkResponseWithPayload(UNPROCESSABLE_ENTITY, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON, REPO_ID,
+        result = checkResponseWithPayload(UNPROCESSABLE_ENTITY, PATCH, APPLICATION_JSON_PATCH_JSON, REPO_ID,
                 deleteNewBlobTypeBody, PATH_VALIDATE_ONLY_TRUE);
         // Check that there are no errors
         assertNoErrors(result);
         // Check that the previous update has not changed
-        result = checkResponse(OK, GET, REPO_ID, Constants.API_PATH);
+        result = checkResponse(OK, GET, REPO_ID, API_PATH);
         checkResponseBodyEquals(newBlobJson2ResponseBody, result);
     }
 
@@ -1626,7 +1683,7 @@ class ModelAPITest extends AbstractAPITest {
     @ValueSource(strings = { "", PARAM_VALIDATE_ONLY_FALSE, PARAM_VALIDATE_ONLY_TRUE })
     @WithUser(TEST_ANONYMOUS_USER)
     public void testPutUnauthenticatedForProject(String queryParam) throws Exception {
-        String url = Constants.API_PATH + PROJECT_PF_00000 + queryParam;
+        String url = API_PATH + PROJECT_PF_00000 + queryParam;
         mvc.perform(put(url).header(HXCS_REPOSITORY, REPO_ID).content("{}").with(csrf()))
                 .andExpect(status().is(UNAUTHORIZED.getStatusCode()));
     }
@@ -1635,27 +1692,27 @@ class ModelAPITest extends AbstractAPITest {
     @ValueSource(strings = { "", PARAM_VALIDATE_ONLY_FALSE, PARAM_VALIDATE_ONLY_TRUE })
     @WithUser(ALT_USER)
     public void testPutUnauthorizedForProject(String queryParam) throws Exception {
-        checkResponseWithPayload(UNAUTHORIZED, PUT, REPO_ID, "{}", Constants.API_PATH + PROJECT_PF_00000 + queryParam);
+        checkResponseWithPayload(UNAUTHORIZED, PUT, REPO_ID, "{}", API_PATH + PROJECT_PF_00000 + queryParam);
     }
 
     @ParameterizedTest
     @ValueSource(strings = { "", PARAM_VALIDATE_ONLY_FALSE, PARAM_VALIDATE_ONLY_TRUE })
     public void testPutBadRepoForProject(String queryParam) throws Exception {
-        checkResponseWithPayload(NOT_FOUND, PUT, BAD_REPO_ID, "{}", Constants.API_PATH + PROJECT_PF_00000 + queryParam);
+        checkResponseWithPayload(NOT_FOUND, PUT, BAD_REPO_ID, "{}", API_PATH + PROJECT_PF_00000 + queryParam);
     }
 
     @ParameterizedTest
     @ValueSource(strings = { "", PARAM_VALIDATE_ONLY_FALSE, PARAM_VALIDATE_ONLY_TRUE })
     public void testPutInvalidJsonForProject(String queryParam) throws Exception {
         checkResponseWithPayload(BAD_REQUEST, PUT, BAD_REPO_ID, NOT_JSON,
-                Constants.API_PATH + PROJECT_PF_00000 + queryParam);
+                API_PATH + PROJECT_PF_00000 + queryParam);
     }
 
     @ParameterizedTest
     @ValueSource(strings = { "", PARAM_VALIDATE_ONLY_FALSE })
     public void testPutForProjectConflictWithDefaultModel(String queryParam) throws Exception {
         // get original JSON
-        checkResponse(OK, GET, REPO_ID, Constants.API_PATH);
+        checkResponse(OK, GET, REPO_ID, API_PATH);
 
         // Content model item (schema/mixinTypes/primaryTypes) passed in the request body for a project is already
         // present as a default content model item.
@@ -1677,7 +1734,7 @@ class ModelAPITest extends AbstractAPITest {
         // put new model for consuming the project specific PUT endpoint
         String newBody = jsonObject.toString();
         var result = checkResponseWithPayload(CONFLICT, PUT, REPO_ID, newBody,
-                Constants.API_PATH + PROJECT_PF_00000 + queryParam);
+                API_PATH + PROJECT_PF_00000 + queryParam);
         checkResponseBody("rest/validation_error_for_default_content_model_item.json", result);
     }
 
@@ -1685,7 +1742,7 @@ class ModelAPITest extends AbstractAPITest {
     @ValueSource(strings = { "", PARAM_VALIDATE_ONLY_FALSE })
     public void testPutForProjectUnknownMixinTypeValidationUnderPrimaryTypes(String queryParam) throws Exception {
         // get original JSON
-        checkResponse(OK, GET, REPO_ID, Constants.API_PATH);
+        checkResponse(OK, GET, REPO_ID, API_PATH);
 
         // Content model item (schema/mixinTypes/primaryTypes) passed in the request body for a project is already
         // present as a default content model item.
@@ -1693,8 +1750,9 @@ class ModelAPITest extends AbstractAPITest {
                         {
                           "primaryTypes": {
                             "MixinTest": {
+                              "extends": "SysContent",
                               "mixins": ["fakeMixin"],
-                             "schemas": ["system"]
+                              "schemas": ["system"]
                             }
                           }
                         }
@@ -1704,15 +1762,134 @@ class ModelAPITest extends AbstractAPITest {
         // put new model for consuming the project specific PUT endpoint
         String newBody = jsonObject.toString();
         var result = checkResponseWithPayload(UNPROCESSABLE_ENTITY, PUT, REPO_ID, newBody,
-                Constants.API_PATH + PROJECT_PF_00000 + queryParam);
+                API_PATH + PROJECT_PF_00000 + queryParam);
         checkResponseBody("rest/validation_error_for_unknown_mixin_under_primarytype.json", result);
     }
+
+    // INVALID PARENT TYPE ADDING TEST
+    @ParameterizedTest
+    @MethodSource("provideParentValidationTestCases")
+    void testPrimaryTypesParentValidation(String path, HttpMethod method, String contentType, String queryParam, String body) throws Exception {
+        checkResponseWithPayload(UNPROCESSABLE_ENTITY, method, contentType, REPO_ID, body,
+                path + queryParam);
+
+        var result = checkResponse(OK, GET, REPO_ID, API_PATH);
+        checkResponseBody("rest/model.json", result);
+    }
+
+    private static String updatedSysRenditionParentBody(String currentModelBody, String parentValue) throws JSONException {
+        JSONObject jsonObject = new JSONObject(currentModelBody);
+        jsonObject.getJSONObject("primaryTypes").getJSONObject("SysRendition").put("extends", parentValue);
+        return jsonObject.toString();
+    }
+
+    private static String putTypesBody(String currentModelBody, String parent1, String parent2) throws JSONException {
+        JSONObject jsonObject = new JSONObject(currentModelBody);
+        jsonObject.getJSONObject("primaryTypes").put(NEW_TYPE_PARENT, new JSONObject("""
+                {"extends": "%s", "schemas": ["system", "sysfile"]}
+            """.formatted(parent1)));
+        jsonObject.getJSONObject("primaryTypes").put(NEW_TYPE_CHILD, new JSONObject("""
+                {"extends": "%s", "schemas": ["system", "sysfile"]}
+            """.formatted(parent2)));
+        return jsonObject.toString();
+    }
+
+    private static Stream<Arguments> provideParentValidationTestCases() throws JSONException, IOException {
+        String body = ContentTestHelper.getReferenceContent("rest/model.json");
+        return Stream.of(
+                // PUT test cases
+                Arguments.of(API_PATH, PUT, APPLICATION_JSON, PARAM_VALIDATE_ONLY_FALSE, updatedSysRenditionParentBody(body, "")),
+                Arguments.of(API_PATH, PUT, APPLICATION_JSON, PARAM_VALIDATE_ONLY_FALSE, updatedSysRenditionParentBody(body, "NotExistingParent")),
+                Arguments.of(API_PATH, PUT, APPLICATION_JSON, PARAM_VALIDATE_ONLY_FALSE, updatedSysRenditionParentBody(body, "SysRendition")),
+                Arguments.of(API_PATH, PUT, APPLICATION_JSON, PARAM_VALIDATE_ONLY_FALSE, putTypesBody(body, NEW_TYPE_CHILD, NEW_TYPE_PARENT)),
+                Arguments.of(API_PATH, PUT, APPLICATION_JSON, PARAM_VALIDATE_ONLY_TRUE, updatedSysRenditionParentBody(body, "")),
+                Arguments.of(API_PATH, PUT, APPLICATION_JSON, PARAM_VALIDATE_ONLY_TRUE, updatedSysRenditionParentBody(body, "NotExistingParent")),
+                Arguments.of(API_PATH, PUT, APPLICATION_JSON, PARAM_VALIDATE_ONLY_TRUE, updatedSysRenditionParentBody(body, "SysRendition")),
+                Arguments.of(API_PATH, PUT, APPLICATION_JSON, PARAM_VALIDATE_ONLY_TRUE, putTypesBody(body, NEW_TYPE_CHILD, NEW_TYPE_PARENT)),
+                // PUT for Project test cases
+                Arguments.of(PUT_FOR_PROJECT_PATH, PUT, APPLICATION_JSON, "", EMPTY_PARENT_PUT_FOR_PROJECT_BODY),
+                Arguments.of(PUT_FOR_PROJECT_PATH, PUT, APPLICATION_JSON, PARAM_VALIDATE_ONLY_FALSE, NON_EXISTING_PARENT_PUT_FOR_PROJECT_BODY),
+                Arguments.of(PUT_FOR_PROJECT_PATH, PUT, APPLICATION_JSON, PARAM_VALIDATE_ONLY_FALSE, EXTENDING_ITSELF_PARENT_PUT_FOR_PROJECT_BODY),
+                Arguments.of(PUT_FOR_PROJECT_PATH, PUT, APPLICATION_JSON, PARAM_VALIDATE_ONLY_TRUE, LOOP_PARENT_PUT_FOR_PROJECT_BODY),
+                // PATCH test cases
+                Arguments.of(API_PATH, PATCH, APPLICATION_JSON_PATCH_JSON, "", EMPTY_PARENT_PATCH_BODY),
+                Arguments.of(API_PATH, PATCH, APPLICATION_JSON_PATCH_JSON, "", NON_EXISTING_PARENT_PATCH_BODY),
+                Arguments.of(API_PATH, PATCH, APPLICATION_JSON_PATCH_JSON, "", EXTENDING_ITSELF_PARENT_PATCH_BODY),
+                Arguments.of(API_PATH, PATCH, APPLICATION_JSON_PATCH_JSON, "", LOOP_PARENT_PATCH_BODY),
+                Arguments.of(API_PATH, PATCH, APPLICATION_JSON_PATCH_JSON, PARAM_VALIDATE_ONLY_TRUE, EMPTY_PARENT_PATCH_BODY),
+                Arguments.of(API_PATH, PATCH, APPLICATION_JSON_PATCH_JSON, PARAM_VALIDATE_ONLY_TRUE, NON_EXISTING_PARENT_PATCH_BODY),
+                Arguments.of(API_PATH, PATCH, APPLICATION_JSON_PATCH_JSON, PARAM_VALIDATE_ONLY_TRUE, EXTENDING_ITSELF_PARENT_PATCH_BODY),
+                Arguments.of(API_PATH, PATCH, APPLICATION_JSON_PATCH_JSON, PARAM_VALIDATE_ONLY_TRUE, LOOP_PARENT_PATCH_BODY)
+        );
+    }
+
+    // PARENT TYPE REMOVAL TEST
+    private static String putNewTypeWithRemovedParentTypeBody(String currentModelBody, String removedParent) throws JSONException {
+        JSONObject jsonObject = new JSONObject(currentModelBody);
+        jsonObject.getJSONObject("primaryTypes").put(NEW_TYPE_CHILD, new JSONObject("""
+                {"extends": "%s", "schemas": ["system", "sysfile"]}
+            """.formatted(removedParent)));
+        return jsonObject.toString();
+    }
+
+    private static final String PUT_FOR_PROJECT_REMOVE_PARENT_BODY = """
+                {
+                   "primaryTypes": {
+                     "NewTypeChild": {
+                       "extends": "%s",
+                       "schemas": [
+                         "system"
+                       ]
+                     }
+                   }
+                }
+           """;
+
+    private static final String ADD_VALID_TYPES_PATCH = BASE_PARENT_PATCH.formatted("SysContent", "NewTypeParent");
+    private static final String REMOVE_PARENT_PATCH = """
+            [
+              { "op": "remove", "path": "/primaryTypes/NewTypeParent" }
+            ]
+        """;
+
+    static Stream<org.junit.jupiter.params.provider.Arguments> providePrimaryTypesRemoveParentValidationTestCases() throws IOException, JSONException {
+        String originalBody = ContentTestHelper.getReferenceContent("rest/model.json");
+        return Stream.of(
+                Arguments.of(API_PATH, PUT, putTypesBody(originalBody, SYS_CONTENT, NEW_TYPE_PARENT), putNewTypeWithRemovedParentTypeBody(originalBody, NEW_TYPE_PARENT), PARAM_VALIDATE_ONLY_TRUE),
+                Arguments.of(API_PATH, PUT, putTypesBody(originalBody, SYS_CONTENT, NEW_TYPE_PARENT), putNewTypeWithRemovedParentTypeBody(originalBody, NEW_TYPE_PARENT), ""),
+                Arguments.of(PUT_FOR_PROJECT_PATH, PUT, PUT_FOR_PROJECT_BASE_BODY.formatted(SYS_CONTENT, NEW_TYPE_PARENT), PUT_FOR_PROJECT_REMOVE_PARENT_BODY.formatted(NEW_TYPE_PARENT), PARAM_VALIDATE_ONLY_TRUE),
+                Arguments.of(PUT_FOR_PROJECT_PATH, PUT, PUT_FOR_PROJECT_BASE_BODY.formatted(SYS_CONTENT, NEW_TYPE_PARENT), PUT_FOR_PROJECT_REMOVE_PARENT_BODY.formatted(NEW_TYPE_PARENT), ""),
+                Arguments.of(API_PATH, PATCH, ADD_VALID_TYPES_PATCH, REMOVE_PARENT_PATCH, PARAM_VALIDATE_ONLY_TRUE),
+                Arguments.of(API_PATH, PATCH, ADD_VALID_TYPES_PATCH, REMOVE_PARENT_PATCH, "")
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("providePrimaryTypesRemoveParentValidationTestCases")
+    void testPrimaryTypesRemoveParentValidation(String path, HttpMethod method, String addBody, String rmBody, String queryParam) throws Exception {
+        // get original model to clean up after the test
+        var response = checkResponse(OK, GET, REPO_ID, API_PATH);
+        String originalModel = response.andReturn().getResponse().getContentAsString();
+        String contentType = method.equals(PATCH) ? APPLICATION_JSON_PATCH_JSON : APPLICATION_JSON;
+
+        checkResponseWithPayload(OK, method, contentType, REPO_ID, addBody, path);
+        var result = checkResponseWithPayload(UNPROCESSABLE_ENTITY, method, contentType, REPO_ID, rmBody, path + queryParam);
+        result.andExpect(MockMvcResultMatchers.jsonPath("errors").exists());
+        var getResult = checkResponse(OK, GET, REPO_ID, API_PATH);
+        getResult.andExpect(MockMvcResultMatchers.jsonPath("primaryTypes.NewTypeParent").exists());
+        getResult.andExpect(MockMvcResultMatchers.jsonPath("primaryTypes.NewTypeChild").exists());
+
+        //clean up - put back the original model
+        result = checkResponseWithPayload(OK, PUT, REPO_ID, originalModel, API_PATH);
+        checkResponseBody("rest/model.json", result);
+    }
+
 
     @ParameterizedTest
     @ValueSource(strings = { "", PARAM_VALIDATE_ONLY_FALSE })
     public void testPutForANewProject(String queryParam) throws Exception {
         // get original JSON
-        checkResponse(OK, GET, REPO_ID, Constants.API_PATH);
+        checkResponse(OK, GET, REPO_ID, API_PATH);
 
         // Content model item (schema/mixinTypes/primaryTypes) passed in the request body for a project is not present
         // in the content model
@@ -1780,7 +1957,7 @@ class ModelAPITest extends AbstractAPITest {
         // put new model for consuming the project specific PUT endpoint
         String newBody = jsonObject.toString();
         var result = checkResponseWithPayload(OK, PUT, REPO_ID, newBody,
-                Constants.API_PATH + PROJECT_PF_00000 + queryParam);
+                API_PATH + PROJECT_PF_00000 + queryParam);
         checkResponseBodyPatched("rest/model.json", "rest/model_updated_ForProject.patch.json", result);
     }
 
@@ -1795,7 +1972,7 @@ class ModelAPITest extends AbstractAPITest {
     @ValueSource(strings = { "", PARAM_VALIDATE_ONLY_FALSE })
     public void testPutForANewProjectWithListOfInlineComplexType(String queryParam) throws Exception {
         // get original JSON
-        checkResponse(OK, GET, REPO_ID, Constants.API_PATH);
+        checkResponse(OK, GET, REPO_ID, API_PATH);
 
         String putBodyForProject = """
                 {
@@ -1863,9 +2040,9 @@ class ModelAPITest extends AbstractAPITest {
         JSONObject jsonObject = new JSONObject(putBodyForProject);
         // put new model for consuming the project specific PUT endpoint
         String newBody = jsonObject.toString();
-        checkResponseWithPayload(OK, PUT, REPO_ID, newBody, Constants.API_PATH + PROJECT_PF_00000 + queryParam);
+        checkResponseWithPayload(OK, PUT, REPO_ID, newBody, API_PATH + PROJECT_PF_00000 + queryParam);
         // the inline complex item survives the round trip
-        var result = checkResponse(OK, GET, REPO_ID, Constants.API_PATH);
+        var result = checkResponse(OK, GET, REPO_ID, API_PATH);
         result.andExpect(jsonPath("$.schemas.test.fields.test_desc5.list.fields.first.type", is("string")));
     }
 
@@ -1873,7 +2050,7 @@ class ModelAPITest extends AbstractAPITest {
     @ValueSource(strings = { "", PARAM_VALIDATE_ONLY_FALSE })
     public void testPutForAnExistingProject(String queryParam) throws Exception {
         // get original JSON
-        var result = checkResponse(OK, GET, REPO_ID, Constants.API_PATH);
+        var result = checkResponse(OK, GET, REPO_ID, API_PATH);
         String body = result.andReturn().getResponse().getContentAsString();
 
         // Content model item (schema/mixinTypes/primaryTypes) passed in the request body for a project is present in
@@ -1918,7 +2095,7 @@ class ModelAPITest extends AbstractAPITest {
         // put new model for consuming the project specific PUT endpoint
         String newBody = jsonObject.toString();
         result = checkResponseWithPayload(OK, PUT, REPO_ID, newBody,
-                Constants.API_PATH + PROJECT_PF_00000 + queryParam);
+                API_PATH + PROJECT_PF_00000 + queryParam);
         checkResponseBodyPatched("rest/model.json", "rest/model_updated_ForSameProject.patch.json", result);
 
         // Content model item (schema/mixinTypes/primaryTypes) passed in the request body for a project exists for a
@@ -1962,18 +2139,18 @@ class ModelAPITest extends AbstractAPITest {
         // put new model for consuming the project specific PUT endpoint
         newBody = jsonObject.toString();
         result = checkResponseWithPayload(CONFLICT, PUT, REPO_ID, newBody,
-                Constants.API_PATH + "/project/PBAR9999" + queryParam);
+                API_PATH + "/project/PBAR9999" + queryParam);
         checkResponseBody("rest/validation_error_model_item_exists_for_another_project.json", result);
 
         // cleanup: put back the original one
-        result = checkResponseWithPayload(OK, PUT, REPO_ID, body, Constants.API_PATH + queryParam);
+        result = checkResponseWithPayload(OK, PUT, REPO_ID, body, API_PATH + queryParam);
         checkResponseBody("rest/model.json", result);
     }
 
     @Test
     public void testPutForProjectValidateTrue() throws Exception {
         // get original JSON
-        checkResponse(OK, GET, REPO_ID, Constants.API_PATH);
+        checkResponse(OK, GET, REPO_ID, API_PATH);
         String putBodyForProject = """
                 {
                   "mixinTypes": {
@@ -2014,7 +2191,7 @@ class ModelAPITest extends AbstractAPITest {
         checkResponseWithPayload(NO_CONTENT, PUT, REPO_ID, newBody, PATH_VALIDATE_ONLY_TRUE_FOR_PROJECT).andExpect(
                 jsonPath("$").doesNotExist());
         // check the model has not been changed
-        var result = checkResponse(OK, GET, REPO_ID, Constants.API_PATH);
+        var result = checkResponse(OK, GET, REPO_ID, API_PATH);
         checkResponseBody("rest/model.json", result);
     }
 
@@ -2022,7 +2199,7 @@ class ModelAPITest extends AbstractAPITest {
     @ValueSource(strings = { "", PARAM_VALIDATE_ONLY_FALSE })
     public void testPutForProjectEmptyPayload(String queryParam) throws Exception {
         // get original JSON
-        checkResponse(OK, GET, REPO_ID, Constants.API_PATH);
+        checkResponse(OK, GET, REPO_ID, API_PATH);
 
         // Empty content model payload
         String putBodyForProject = "{}";
@@ -2030,7 +2207,7 @@ class ModelAPITest extends AbstractAPITest {
         // put new model
         String newBody = jsonObject.toString();
         var result = checkResponseWithPayload(OK, PUT, REPO_ID, newBody,
-                Constants.API_PATH + PROJECT_PF_00000 + queryParam);
+                API_PATH + PROJECT_PF_00000 + queryParam);
         checkResponseBody("rest/model.json", result);
     }
 
@@ -2043,11 +2220,11 @@ class ModelAPITest extends AbstractAPITest {
                 { "op": "remove", "path": "/primaryTypes/SysRoot" }
                 ]
                 """;
-        var result = checkResponseWithPayload(UNPROCESSABLE_ENTITY, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON,
+        var result = checkResponseWithPayload(UNPROCESSABLE_ENTITY, PATCH, APPLICATION_JSON_PATCH_JSON,
                 REPO_ID, deleteRootPrimaryTypeBody, PATH_VALIDATE_ONLY_TRUE);
         checkResponseBody("rest/validation_error_for_remove_root_primary_type.json", result);
         // Check that the previous update has not changed
-        result = checkResponse(OK, GET, REPO_ID, Constants.API_PATH);
+        result = checkResponse(OK, GET, REPO_ID, API_PATH);
         checkResponseBody("rest/model.json", result);
     }
 
@@ -2057,21 +2234,21 @@ class ModelAPITest extends AbstractAPITest {
         // delete Document Primary type
         String deleteDocumentPrimaryTypeBody = """
                 [
-                { "op": "remove", "path": "/primaryTypes/SysContent" }
+                { "op": "remove", "path": "/primaryTypes/SysFolder" }
                 ]
                 """;
-        var result = checkResponseWithPayload(UNPROCESSABLE_ENTITY, PATCH, MediaType.APPLICATION_JSON_PATCH_JSON,
+        var result = checkResponseWithPayload(UNPROCESSABLE_ENTITY, PATCH, APPLICATION_JSON_PATCH_JSON,
                 REPO_ID, deleteDocumentPrimaryTypeBody, PATH_VALIDATE_ONLY_TRUE);
         checkResponseBody("rest/validation_error_for_remove_document_primary_type.json", result);
         // Check that the previous update has not changed
-        result = checkResponse(OK, GET, REPO_ID, Constants.API_PATH);
+        result = checkResponse(OK, GET, REPO_ID, API_PATH);
         checkResponseBody("rest/model.json", result);
     }
 
     @Test
     void testTrueFlagFullTextIndexedOnPrimaryTypeDefinitionAndField() throws Exception {
         // get original JSON
-        var originalModel = checkResponse(OK, GET, REPO_ID, Constants.API_PATH);
+        var originalModel = checkResponse(OK, GET, REPO_ID, API_PATH);
         String putBodyForProject = """
                 {
                   "primaryTypes": {
@@ -2102,7 +2279,7 @@ class ModelAPITest extends AbstractAPITest {
         JSONObject jsonObject = new JSONObject(putBodyForProject);
         // put new model
         String newBody = jsonObject.toString();
-        var result = checkResponseWithPayload(OK, PUT, REPO_ID, newBody, Constants.API_PATH + "/project/HxP001");
+        var result = checkResponseWithPayload(OK, PUT, REPO_ID, newBody, API_PATH + "/project/HxP001");
         var expectedPrimaryTypeJson = """
                 {
                   "extends": "SysContent",
@@ -2133,14 +2310,14 @@ class ModelAPITest extends AbstractAPITest {
 
         // cleanup: put back the original one
         result = checkResponseWithPayload(OK, PUT, REPO_ID,
-                originalModel.andReturn().getResponse().getContentAsString(), Constants.API_PATH);
+                originalModel.andReturn().getResponse().getContentAsString(), API_PATH);
         checkResponseBody("rest/model.json", result);
     }
 
     @Test
     void testFalseFlagFullTextIndexedOnPrimaryTypeDefinitionAndField() throws Exception {
         // get original JSON
-        var originalModel = checkResponse(OK, GET, REPO_ID, Constants.API_PATH);
+        var originalModel = checkResponse(OK, GET, REPO_ID, API_PATH);
         String putBodyForProject = """
                 {
                   "primaryTypes": {
@@ -2168,7 +2345,7 @@ class ModelAPITest extends AbstractAPITest {
         JSONObject jsonObject = new JSONObject(putBodyForProject);
         // put new model
         String newBody = jsonObject.toString();
-        var result = checkResponseWithPayload(OK, PUT, REPO_ID, newBody, Constants.API_PATH + "/project/HxP001");
+        var result = checkResponseWithPayload(OK, PUT, REPO_ID, newBody, API_PATH + "/project/HxP001");
         var expectedPrimaryTypeJson = """
                 {
                   "extends": "SysContent",
@@ -2195,7 +2372,7 @@ class ModelAPITest extends AbstractAPITest {
 
         // cleanup: put back the original one
         result = checkResponseWithPayload(OK, PUT, REPO_ID,
-                originalModel.andReturn().getResponse().getContentAsString(), Constants.API_PATH);
+                originalModel.andReturn().getResponse().getContentAsString(), API_PATH);
         checkResponseBody("rest/model.json", result);
     }
 
