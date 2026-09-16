@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+import org.nuxeo.common.RetryAfterHint;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.api.RenditionException;
 import org.nuxeo.ecm.core.api.local.DummyLoginFeature;
@@ -89,6 +90,11 @@ class NuxeoExceptionControllerTest extends RuntimeSpringBootTest {
         @GetMapping("/serviceunavail")
         public void serviceunvail() {
             throw new NuxeoException("service unavail", SC_SERVICE_UNAVAILABLE);
+        }
+
+        @GetMapping("/serviceunavailRetryAfterHint")
+        public void serviceunvailRetryAfterHint() {
+            throw new RetryAfterHintException("breaker open", 30);
         }
 
         @GetMapping("/runtime")
@@ -162,6 +168,21 @@ class NuxeoExceptionControllerTest extends RuntimeSpringBootTest {
         }
     }
 
+    static class RetryAfterHintException extends NuxeoException implements RetryAfterHint {
+
+        private final int retryAfterSeconds;
+
+        RetryAfterHintException(String message, int retryAfterSeconds) {
+            super(message, SC_SERVICE_UNAVAILABLE);
+            this.retryAfterSeconds = retryAfterSeconds;
+        }
+
+        @Override
+        public int getRetryAfterSeconds() {
+            return retryAfterSeconds;
+        }
+    }
+
     @Test
     public void testNuxeoException() throws Exception {
         doTestException("/exception/nuxeo", 456, "oops");
@@ -182,6 +203,12 @@ class NuxeoExceptionControllerTest extends RuntimeSpringBootTest {
     public void testServiceUnavailable() throws Exception {
         doTestExceptionAndHeaders("/exception/serviceunavail", SC_SERVICE_UNAVAILABLE, "service unavail",
                 Map.of(RETRY_AFTER, "2")); // NuxeoExceptionController.RETRY_AFTER_DEFAULT_DELAY
+    }
+
+    @Test
+    public void testServiceUnavailableWithRetryAfterHint() throws Exception {
+        doTestExceptionAndHeaders("/exception/serviceunavailRetryAfterHint", SC_SERVICE_UNAVAILABLE, "breaker open",
+                Map.of(RETRY_AFTER, "30"));
     }
 
     @Test

@@ -27,6 +27,7 @@ import com.flipkart.zjsonpatch.JsonPatchApplicationException;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.ws.rs.WebApplicationException;
 import org.apache.commons.lang3.StringUtils;
+import org.nuxeo.common.RetryAfterHint;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.ecm.core.api.RenditionException;
@@ -104,21 +105,29 @@ public class NuxeoExceptionController {
     }
 
     protected <T> ResponseEntity<T> createResponseEntity(int status, T error) {
+        return createResponseEntity(status, error, null);
+    }
+
+    protected <T> ResponseEntity<T> createResponseEntity(int status, T error, Throwable cause) {
         BodyBuilder builder = ResponseEntity.status(status);
         if (status == SC_SERVICE_UNAVAILABLE) {
-            // for now default to a fixed delay
-            builder.header(RETRY_AFTER, RETRY_AFTER_DEFAULT_DELAY);
+            builder.header(RETRY_AFTER, getRetryAfterDelay(cause));
         }
         return builder.body(error);
     }
 
+    private static String getRetryAfterDelay(Throwable cause) {
+        return (cause instanceof RetryAfterHint hint) ? Integer.toString(hint.getRetryAfterSeconds())
+                : RETRY_AFTER_DEFAULT_DELAY;
+    }
+
     protected ResponseEntity<HxprErrorResponse> createHxprErrorResponseResponseEntity(int status, String message,
             Throwable cause) {
-        return createResponseEntity(status, createErrorResponse(status, message, cause));
+        return createResponseEntity(status, createErrorResponse(status, message, cause), cause);
     }
 
     protected ResponseEntity<HxprErrorResponse> createHxprErrorResponseResponseEntity(int status, Throwable cause) {
-        return createResponseEntity(status, createErrorResponse(status, cause));
+        return createResponseEntity(status, createErrorResponse(status, cause), cause);
     }
 
     protected ResponseEntity<HxprErrorResponse> handleNuxeoException(NuxeoException exception) {
