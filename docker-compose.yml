@@ -1,0 +1,18 @@
+include:
+  - server/hxpr-community-internal-app/docker-compose.yml
+
+services:
+  hxpr-app:
+    image: ghcr.io/hyland/hxpr-community-internal-app-jvm:${HXPR_VERSION}
+    depends_on:
+      opensearch:
+        condition: service_healthy
+    container_name: hxpr-app
+    hostname: hxpr-app
+    environment:
+      OPENSEARCH_ADDRESSLIST: "http://opensearch:9200"
+      NUXEO_MONGODB_SERVER: mongo:27017
+      NUXEO_MONGODB_DBNAME: hxpr
+    ports:
+      - "8080:8080"
+      - "5005:5005"
