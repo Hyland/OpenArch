@@ -18,6 +18,9 @@ package org.nuxeo.ecm.core.repository;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.nuxeo.ecm.core.api.CoreSession;
@@ -27,6 +30,22 @@ public class TestRepositoryInitializationHandler {
     protected static class TestHandler extends RepositoryInitializationHandler {
         @Override
         public void doInitializeRepository(CoreSession session) {
+        }
+    }
+
+    protected static class RecordingHandler extends RepositoryInitializationHandler {
+        private final String name;
+
+        private final List<String> calls;
+
+        RecordingHandler(String name, List<String> calls) {
+            this.name = name;
+            this.calls = calls;
+        }
+
+        @Override
+        public void doInitializeRepository(CoreSession session) {
+            calls.add(name);
         }
     }
 
@@ -83,6 +102,29 @@ public class TestRepositoryInitializationHandler {
         assertNull(a.next);
         a.uninstall();
         assertNull(getTail());
+    }
+
+    @Test
+    public void testInitializeRepositoryWithoutPrevious() {
+        List<String> calls = new ArrayList<>();
+        RecordingHandler a = new RecordingHandler("A", calls);
+
+        a.initializeRepository(null);
+
+        assertEquals(List.of("A"), calls);
+    }
+
+    @Test
+    public void testInitializeRepositoryChainsToPreviousFirst() {
+        List<String> calls = new ArrayList<>();
+        RecordingHandler a = new RecordingHandler("A", calls);
+        RecordingHandler b = new RecordingHandler("B", calls);
+        a.install();
+        b.install(); // links b.previous = a
+
+        b.initializeRepository(null);
+
+        assertEquals(List.of("A", "B"), calls);
     }
 
 }

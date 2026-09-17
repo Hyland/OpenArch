@@ -17,7 +17,9 @@ package org.nuxeo.ecm.core.blob;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -193,6 +195,17 @@ public class TestDocumentBlobService {
         ManagedBlob blob = (ManagedBlob) documentBlobService.readBlob(blobInfo, doc, "somexpath");
         assertNotNull(blob);
         assertEquals("1234567890", blob.getString());
+    }
+
+    @Test
+    public void testGetConvertedStreamReturnsNullForUnmanagedBlob() throws Exception {
+        // a plain (non-managed) blob has no document blob provider
+        assertNull(documentBlobService.getConvertedStream(Blobs.createBlob("foo"), "text/html", null));
+    }
+
+    @Test
+    public void testBinariesGarbageCollectionNotInProgressByDefault() {
+        assertFalse(documentBlobService.isBinariesGarbageCollectionInProgress());
     }
 
 }

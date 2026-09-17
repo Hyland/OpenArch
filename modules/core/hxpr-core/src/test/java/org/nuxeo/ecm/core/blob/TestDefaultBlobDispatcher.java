@@ -16,7 +16,10 @@
 package org.nuxeo.ecm.core.blob;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSFILE_BLOB;
 
@@ -25,8 +28,12 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 import org.nuxeo.ecm.core.api.Blob;
+import org.nuxeo.ecm.core.api.DocumentSecurityException;
+import org.nuxeo.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.ecm.core.model.InternalDocument;
+import org.nuxeo.ecm.core.model.InternalSession;
 
 public class TestDefaultBlobDispatcher {
 
@@ -512,6 +519,32 @@ public class TestDefaultBlobDispatcher {
 
         when(doc.isRecord()).thenReturn(true);
         assertEquals(CUSTOM, dispatcher.getProviderId(doc, null, SYSFILE_BLOB));
+    }
+
+    @Test
+    public void testCheckBlobCanBeDeletedThrowsWhenUnderRetentionAndNotAllowed() {
+        DefaultBlobDispatcher dispatcher = new DefaultBlobDispatcher();
+        InternalDocument doc = mock(InternalDocument.class);
+        when(doc.isUnderRetentionOrLegalHold()).thenReturn(true);
+        when(doc.getId()).thenReturn("id1");
+
+        try (MockedStatic<NuxeoPrincipal> principals = mockStatic(NuxeoPrincipal.class);
+                MockedStatic<InternalSession> sessions = mockStatic(InternalSession.class)) {
+            principals.when(NuxeoPrincipal::getCurrent).thenReturn(null);
+            sessions.when(() -> InternalSession.canDeleteUndeletable(any())).thenReturn(false);
+
+            assertThrows(DocumentSecurityException.class,
+                    () -> dispatcher.checkBlobCanBeDeleted(doc, SYSFILE_BLOB));
+        }
+    }
+
+    @Test
+    public void testCheckBlobCanBeDeletedAllowedWhenNotUnderRetention() {
+        DefaultBlobDispatcher dispatcher = new DefaultBlobDispatcher();
+        InternalDocument doc = mock(InternalDocument.class);
+        when(doc.isUnderRetentionOrLegalHold()).thenReturn(false);
+
+        dispatcher.checkBlobCanBeDeleted(doc, SYSFILE_BLOB);
     }
 
 }
