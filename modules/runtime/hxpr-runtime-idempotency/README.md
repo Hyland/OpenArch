@@ -17,11 +17,10 @@ Ensures that state-mutating operations are executed at most once, even when call
 
 ### Key Components
 
-1. **IdempotencyKey** - Represents a unique operation identifier
-2. **IdempotencyResult<T>** - Wraps operation results (success or failure)
-3. **IdempotencyHandler** - Interface for idempotent operation execution
-4. **KeyValueStoreIdempotencyHandler** - KV store-based implementation
-5. **IdempotencyHandlerFactory** - Factory for creating handlers
+1. **IdempotencyResult<T>** - Wraps operation results (success or failure)
+2. **IdempotencyHandler** - Interface for idempotent operation execution
+3. **KeyValueStoreIdempotencyHandler** - KV store-based implementation
+4. **IdempotencyHandlerFactory** - Factory for creating handlers
 
 ### Dependency Flow
 
@@ -42,7 +41,7 @@ IdempotencyHandler handler = IdempotencyHandlerFactory.create(
     TimeUnit.HOURS
 );
 
-IdempotencyKey key = IdempotencyKey.of(requestId);
+String key = requestId;
 
 // Execute operation idempotently
 String result = handler.execute(key, () -> {
@@ -83,9 +82,7 @@ mvn test -pl community/modules/runtime/hxpr-runtime-idempotency
 ```
 
 Tests verify:
-- Key validation and equality
 - Result success/failure handling
-- Idempotency key generation
 - Cache hit/miss scenarios
 - Exception replay behavior
 

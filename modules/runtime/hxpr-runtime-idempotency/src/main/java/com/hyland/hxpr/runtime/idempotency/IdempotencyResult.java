@@ -23,27 +23,20 @@ import java.util.Optional;
 /**
  * Encapsulates the result of an idempotent operation, including the operation result and metadata.
  * <p>
- * This class can store either a successful result or a failed exception, allowing idempotent
- * operations to return or re-throw the same outcome on duplicate requests.
+ * This record can store either a successful result or a failed exception, allowing idempotent
+ * operations to return or re-throw the same outcome on duplicate requests. Exactly one of
+ * {@code value} or {@code exception} is expected to be non-null; use {@link #success(Serializable)}
+ * or {@link #failure(Exception)} to construct instances.
  *
- * @param <T> the type of the operation result
- * @since 12.0
+ * @param <T>             the type of the operation result
+ * @param rawValue        the operation result if successful, or {@code null} on failure
+ * @param rawException    the exception if the operation failed, or {@code null} on success
+ * @param createdAtMillis the timestamp when this result was created, in milliseconds since epoch
  */
-public final class IdempotencyResult<T extends Serializable> implements Serializable {
+public record IdempotencyResult<T extends Serializable>(T rawValue, Exception rawException, long createdAtMillis)
+        implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
-    private final T value;
-
-    private final Exception exception;
-
-    private final long createdAtMillis;
-
-    private IdempotencyResult(T value, Exception exception, long createdAtMillis) {
-        this.value = value;
-        this.exception = exception;
-        this.createdAtMillis = createdAtMillis;
-    }
 
     /**
      * Creates a result representing a successful operation outcome.
@@ -69,28 +62,21 @@ public final class IdempotencyResult<T extends Serializable> implements Serializ
      * Returns whether this result represents a successful outcome.
      */
     public boolean isSuccess() {
-        return exception == null;
+        return rawException == null;
     }
 
     /**
      * Gets the result value if the operation succeeded.
      */
     public Optional<T> value() {
-        return Optional.ofNullable(value);
+        return Optional.ofNullable(rawValue);
     }
 
     /**
      * Gets the exception if the operation failed.
      */
     public Optional<Exception> exception() {
-        return Optional.ofNullable(exception);
-    }
-
-    /**
-     * Gets the timestamp when this result was created, in milliseconds since epoch.
-     */
-    public long createdAtMillis() {
-        return createdAtMillis;
+        return Optional.ofNullable(rawException);
     }
 
     /**
@@ -106,12 +92,12 @@ public final class IdempotencyResult<T extends Serializable> implements Serializ
      */
     public T unwrap() throws RuntimeServiceException {
         if (isSuccess()) {
-            return value;
+            return rawValue;
         }
-        if (exception instanceof RuntimeException runtimeException) {
+        if (rawException instanceof RuntimeException runtimeException) {
             throw runtimeException;
         }
-        throw new RuntimeServiceException(exception);
+        throw new RuntimeServiceException(rawException);
     }
 
 }

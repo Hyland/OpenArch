@@ -23,8 +23,6 @@ package com.hyland.hxpr.runtime.idempotency;
  * its lease, which should be sized to comfortably exceed the expected duration of the guarded
  * operation. Callers may catch this exception to retry later, or surface a conflict response (e.g.
  * HTTP 409) to the original caller.
- *
- * @since 12.0
  */
 public final class IdempotencyClaimTimeoutException extends RuntimeException {
 

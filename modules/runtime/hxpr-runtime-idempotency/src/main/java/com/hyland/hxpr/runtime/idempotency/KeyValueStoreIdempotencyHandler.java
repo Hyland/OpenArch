@@ -21,10 +21,12 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Objects;
+import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.logging.log4j.LogManager;
@@ -50,8 +52,6 @@ import com.hyland.openarch.runtime.kv.KeyValueService;
  * never mistake the new claimant's marker for its own, so it can safely detect and discard a stale
  * outcome instead of overwriting the current claimant's state. The lease should be sized to
  * comfortably exceed the expected duration of the guarded operation.
- *
- * @since 12.0
  */
 public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler {
 
@@ -101,18 +101,18 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
     }
 
     @Override
-    public <T extends Serializable> T execute(IdempotencyKey key, IdempotentOperation<T> operation) {
+    public <T extends Serializable> T execute(String key, IdempotentOperation<T> operation) {
         return executeWithOutcome(key, operation).value();
     }
 
     @Override
-    public <T extends Serializable> Outcome<T> executeWithOutcome(IdempotencyKey key,
+    public <T extends Serializable> Outcome<T> executeWithOutcome(String key,
             IdempotentOperation<T> operation) {
         String cacheKey = getCacheKey(key);
 
-        ClaimOutcome<T> claim = claimOrAwaitCached(cacheKey, key.value());
+        ClaimOutcome<T> claim = claimOrAwaitCached(cacheKey, key);
         if (claim.cachedResult() != null) {
-            log.debug("Idempotency cache hit for key={}", key.value());
+            log.debug("Idempotency cache hit for key={}", key);
             return new Outcome<>(claim.cachedResult().unwrap(), true);
         }
 
@@ -124,7 +124,7 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
      * Runs {@code operation}, which was just granted the claim identified by {@code ownerMarker},
      * and finalizes the cache entry with its outcome (success or failure).
      */
-    private <T extends Serializable> T runAndFinalize(String cacheKey, IdempotencyKey key, byte[] ownerMarker,
+    private <T extends Serializable> T runAndFinalize(String cacheKey, String key, byte[] ownerMarker,
             IdempotentOperation<T> operation) {
         try {
             T result = operation.execute();
@@ -133,35 +133,32 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
                 finalizeResult(cacheKey, ownerMarker, successResult);
             } catch (IdempotencyPersistenceException e) {
                 log.error("Idempotency result for key={} could not be persisted; at-most-once is not "
-                        + "guaranteed for this call", key.value(), e);
+                        + "guaranteed for this call", key, e);
                 // still return the result: the operation itself succeeded, we only failed to record it.
             }
-            log.debug("Idempotency cache stored success for key={}", key.value());
+            log.debug("Idempotency cache stored success for key={}", key);
             return result;
         } catch (RuntimeException e) {
             IdempotencyResult<T> failureResult = IdempotencyResult.failure(e);
-            finalizeResult(cacheKey, ownerMarker, failureResult);
-            log.debug("Idempotency cache stored failure for key={}", key.value());
+            try {
+                finalizeResult(cacheKey, ownerMarker, failureResult);
+            } catch (IdempotencyPersistenceException ipe) {
+                log.error("Idempotency result for key={} could not be persisted; at-most-once is not "
+                        + "guaranteed for this call", key, ipe);
+            }
+            log.debug("Idempotency cache stored failure for key={}", key);
             throw e;
-        } catch (Exception e) {
-            RuntimeException wrapped = new RuntimeException("Operation failed", e);
-            IdempotencyResult<T> failureResult = IdempotencyResult.failure(wrapped);
-            finalizeResult(cacheKey, ownerMarker, failureResult);
-            log.debug("Idempotency cache stored wrapped failure for key={}", key.value());
-            throw wrapped;
         }
     }
 
-
-    @Override
-    public boolean isCached(IdempotencyKey key) {
+    boolean isCached(String key) {
         String cacheKey = getCacheKey(key);
         byte[] current = keyValueStore.get(cacheKey);
         return current != null && !isInProgressMarker(current) && decode(current, cacheKey) != null;
     }
 
     @Override
-    public boolean evict(IdempotencyKey key) {
+    public boolean evict(String key) {
         String cacheKey = getCacheKey(key);
         byte[] current = keyValueStore.get(cacheKey);
         if (current != null && !isInProgressMarker(current) && decode(current, cacheKey) != null) {
@@ -170,8 +167,8 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
         return false;
     }
 
-    private String getCacheKey(IdempotencyKey key) {
-        return namespace + key.value();
+    private String getCacheKey(String key) {
+        return namespace + key;
     }
 
     /**
@@ -187,7 +184,8 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
      */
     private <T extends Serializable> ClaimOutcome<T> claimOrAwaitCached(String cacheKey, String keyValue) {
         byte[] ownerMarker = newClaimMarker();
-        long deadline = System.currentTimeMillis() + leaseSeconds * 1000L + CLAIM_WAIT_BUFFER_MILLIS;
+        long deadlineNanos = System.nanoTime() + Duration.ofSeconds(leaseSeconds).toNanos()
+                + Duration.ofMillis(CLAIM_WAIT_BUFFER_MILLIS).toNanos();
         byte[] current = keyValueStore.get(cacheKey);
         while (true) {
             if (current == null) {
@@ -195,7 +193,7 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
                     return ClaimOutcome.won(ownerMarker);
                 }
             } else if (isInProgressMarker(current)) {
-                if (System.currentTimeMillis() >= deadline) {
+                if (System.nanoTime() >= deadlineNanos) {
                     throw new IdempotencyClaimTimeoutException(
                             "Timed out waiting for a concurrent idempotent operation to complete for key="
                                     + keyValue);
@@ -257,7 +255,7 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
      * Outcome of {@link #claimOrAwaitCached}: either an already-published result (cache hit), or a
      * fresh owner marker for a claim this call just won. Exactly one of the two fields is non-null.
      */
-    private record ClaimOutcome<T extends Serializable>(IdempotencyResult<T> cachedResult, byte[] ownerMarker) {
+    record ClaimOutcome<T extends Serializable>(IdempotencyResult<T> cachedResult, byte[] ownerMarker) {
 
         static <T extends Serializable> ClaimOutcome<T> hit(IdempotencyResult<T> cachedResult) {
             return new ClaimOutcome<>(cachedResult, null);
@@ -291,11 +289,18 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
 
     private static void sleepQuietly(long millis) {
         try {
-            Thread.sleep(millis);
+            Thread.sleep(getRetryInterval(millis));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new IdempotencyClaimTimeoutException("Interrupted while waiting for an idempotency claim", e);
         }
+    }
+
+    private static long getRetryInterval(long millis) {
+        Random random = ThreadLocalRandom.current();
+        var jitterFactor = 0.5; // 50% jitter
+        double factor = 1.0 + (random.nextDouble() * 2 - 1) * jitterFactor;
+        return (long) (millis * factor);
     }
 
     @SuppressWarnings("unchecked")

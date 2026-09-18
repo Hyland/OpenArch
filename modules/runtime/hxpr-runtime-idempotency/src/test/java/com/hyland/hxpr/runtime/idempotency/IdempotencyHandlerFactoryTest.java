@@ -15,6 +15,8 @@
  */
 package com.hyland.hxpr.runtime.idempotency;
 
+import static com.hyland.hxpr.runtime.idempotency.IdempotencyHandlerFactory.DEFAULT_STORE_NAME;
+import static com.hyland.hxpr.runtime.idempotency.IdempotencyHandlerFactory.DEFAULT_TTL_SECONDS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -38,27 +40,26 @@ class IdempotencyHandlerFactoryTest {
     @Test
     @DisplayName("create with namespace only uses the default store and default TTL")
     void create_namespaceOnly_usesDefaults() {
-        IdempotencyHandler handler = IdempotencyHandlerFactory.create(keyValueService, "idempotency:test:");
+        IdempotencyHandler handler = IdempotencyHandlerFactory.create(keyValueService, DEFAULT_STORE_NAME, "idempotency:test:", DEFAULT_TTL_SECONDS);
 
         assertNotNull(handler);
-        assertEquals("value", handler.execute(IdempotencyKey.of("key-1"), () -> "value"));
+        assertEquals("value", handler.execute("key-1", () -> "value"));
     }
 
     @Test
     @DisplayName("create with a TTL in seconds uses the default store")
     void create_withTtlSeconds_usesDefaultStore() {
-        IdempotencyHandler handler = IdempotencyHandlerFactory.create(keyValueService, "idempotency:test:", 60L);
+        IdempotencyHandler handler = IdempotencyHandlerFactory.create(keyValueService, DEFAULT_STORE_NAME, "idempotency:test:", 60L);
 
-        assertEquals("value", handler.execute(IdempotencyKey.of("key-2"), () -> "value"));
+        assertEquals("value", handler.execute("key-2", () -> "value"));
     }
 
     @Test
     @DisplayName("create with a TTL and TimeUnit converts to seconds and uses the default store")
     void create_withTtlAndTimeUnit_convertsToSeconds() {
-        IdempotencyHandler handler = IdempotencyHandlerFactory.create(keyValueService, "idempotency:test:", 1,
-                TimeUnit.HOURS);
+        IdempotencyHandler handler = IdempotencyHandlerFactory.create(keyValueService, DEFAULT_STORE_NAME, "idempotency:test:", 3600);
 
-        assertEquals("value", handler.execute(IdempotencyKey.of("key-3"), () -> "value"));
+        assertEquals("value", handler.execute("key-3", () -> "value"));
     }
 
     @Test
@@ -67,7 +68,7 @@ class IdempotencyHandlerFactoryTest {
         IdempotencyHandler handler = IdempotencyHandlerFactory.create(keyValueService, "custom-store",
                 "idempotency:test:", 120L);
 
-        assertEquals("value", handler.execute(IdempotencyKey.of("key-5"), () -> "value"));
+        assertEquals("value", handler.execute("key-5", () -> "value"));
     }
 
     @Test
@@ -123,7 +124,7 @@ class IdempotencyHandlerFactoryTest {
     @DisplayName("default constants expose the documented defaults")
     void defaultConstants_matchDocumentedValues() {
         assertEquals(TimeUnit.HOURS.toSeconds(24), IdempotencyHandlerFactory.DEFAULT_TTL_SECONDS);
-        assertEquals("hxpr-idempotency", IdempotencyHandlerFactory.DEFAULT_STORE_NAME);
+        assertEquals("hxpr-idempotency", DEFAULT_STORE_NAME);
     }
 
 }

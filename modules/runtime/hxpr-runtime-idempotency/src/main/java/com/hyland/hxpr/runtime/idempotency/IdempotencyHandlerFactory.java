@@ -24,9 +24,7 @@ import com.hyland.openarch.runtime.kv.KeyValueService;
  * Factory for creating {@link IdempotencyHandler} instances with configurable parameters.
  * <p>
  * This is a plain Java factory (not a Spring bean) to maintain compatibility with the Nuxeo
- * OSGi runtime, similar to {@code TransformCircuitBreakerFactory} and {@code OpenSearchCircuitBreakerFactory}.
- *
- * @since 12.0
+ * OSGi runtime.
  */
 public final class IdempotencyHandlerFactory {
 
@@ -34,31 +32,17 @@ public final class IdempotencyHandlerFactory {
 
     public static final String DEFAULT_STORE_NAME = "hxpr-idempotency";
 
+    public static final String DEFAULT_IDEMPOTENCY_NAMESPACE = "idempotency:";
+
+    public static final String DEFAULT_IDEMPOTENCY_KEY_PREFIX = "hxpr:idem";
+
+    public static final String DEFAULT_IDEMPOTENCY_DEFAULT_TENANT = "default";
+
+    public static final String IDEMPOTENCY_TENANT_PROPERTY = "hxpr.idempotency.tenant-id";
+
+
     private IdempotencyHandlerFactory() {
         // utility class
-    }
-
-    /**
-     * Creates an idempotency handler with default TTL (24 hours) and default store.
-     *
-     * @param keyValueService the key-value service for storing results
-     * @param namespace       namespace prefix for cache keys (e.g., "idempotency:commands:")
-     * @return a new IdempotencyHandler
-     */
-    public static IdempotencyHandler create(KeyValueService keyValueService, String namespace) {
-        return create(keyValueService, DEFAULT_STORE_NAME, namespace, DEFAULT_TTL_SECONDS);
-    }
-
-    /**
-     * Creates an idempotency handler with custom TTL and default store.
-     *
-     * @param keyValueService the key-value service for storing results
-     * @param namespace       namespace prefix for cache keys
-     * @param ttlSeconds      time-to-live for cached results in seconds
-     * @return a new IdempotencyHandler
-     */
-    public static IdempotencyHandler create(KeyValueService keyValueService, String namespace, long ttlSeconds) {
-        return create(keyValueService, DEFAULT_STORE_NAME, namespace, ttlSeconds);
     }
 
     /**
@@ -85,20 +69,6 @@ public final class IdempotencyHandlerFactory {
             throw new IllegalArgumentException("TTL must be positive");
         }
         return new KeyValueStoreIdempotencyHandler(keyValueService, storeName, namespace, ttlSeconds);
-    }
-
-    /**
-     * Creates an idempotency handler with custom TTL specified in time units and default store.
-     *
-     * @param keyValueService the key-value service for storing results
-     * @param namespace       namespace prefix for cache keys
-     * @param ttl             time-to-live value
-     * @param unit            time unit for the TTL
-     * @return a new IdempotencyHandler
-     */
-    public static IdempotencyHandler create(KeyValueService keyValueService, String namespace, long ttl,
-            TimeUnit unit) {
-        return create(keyValueService, DEFAULT_STORE_NAME, namespace, unit.toSeconds(ttl));
     }
 
 }

@@ -33,8 +33,6 @@ import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
  * directly (as opposed to the {@code @CircuitBreaker} annotation. {@code @CircuitBreaker} only takes effect on
  * beans invoked through a Spring AOP proxy, while subclasses of this class are typically built directly with
  * {@code new} by the OpenArch OSGi runtime, so no Spring proxy is ever involved.
- *
- * @since 12.0
  */
 public abstract class AbstractCircuitBreakerFactory {
 
