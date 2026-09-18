@@ -23,7 +23,10 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.nuxeo.common.resilience.Resilience4jRegistries;
 import org.opensearch.client.transport.httpclient5.ResponseException;
 
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
@@ -34,6 +37,12 @@ import io.github.resilience4j.circuitbreaker.CircuitBreaker;
  * since it is built on the {@code resilience4j-circuitbreaker} core library used programmatically.
  */
 class OpenSearchCircuitBreakerFactoryTest {
+
+    @BeforeEach
+    @AfterEach
+    void cleanRegistry() {
+        Resilience4jRegistries.removeCircuitBreaker(OpenSearchCircuitBreakerFactory.CIRCUIT_BREAKER_NAME);
+    }
 
     // Uses executeCheckedSupplier (not executeRunnable): Runnable#run cannot throw a checked IOException, and
     // isRetryable (used by OpenSearchCircuitBreakerFactory to decide what counts as a failure) treats IOException

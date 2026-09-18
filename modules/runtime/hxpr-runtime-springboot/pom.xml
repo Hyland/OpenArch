@@ -83,9 +83,25 @@
       <artifactId>hxpr-runtime-osgi</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>hxpr-runtime-metrics</artifactId>
+    </dependency>
+    <dependency>
       <groupId>io.swagger.core.v3</groupId>
       <artifactId>swagger-annotations-jakarta</artifactId>
       <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.github.resilience4j</groupId>
+      <artifactId>resilience4j-circuitbreaker</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.github.resilience4j</groupId>
+      <artifactId>resilience4j-retry</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.github.resilience4j</groupId>
+      <artifactId>resilience4j-timelimiter</artifactId>
     </dependency>
     <dependency>
       <groupId>com.google.inject</groupId>

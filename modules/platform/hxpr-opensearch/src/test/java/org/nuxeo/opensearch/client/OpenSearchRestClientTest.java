@@ -29,12 +29,13 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 
-import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.nuxeo.common.resilience.Resilience4jRegistries;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.opensearch.io.DocumentDTO;
 import org.opensearch.client.json.jackson3.JacksonJsonpMapper;
@@ -43,6 +44,8 @@ import org.opensearch.client.opensearch._types.ErrorResponse;
 import org.opensearch.client.opensearch._types.OpenSearchException;
 import org.opensearch.client.opensearch.core.IndexRequest;
 import org.opensearch.client.opensearch.core.IndexResponse;
+
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 
 @ExtendWith(MockitoExtension.class)
 class OpenSearchRestClientTest {
@@ -61,6 +64,7 @@ class OpenSearchRestClientTest {
 
     @BeforeEach
     void setUp() {
+        cleanRegistry();
         // Fast retry config (2 attempts, 1ms wait) and fast-tripping circuit breaker config (window/min calls of
         // 2) keep retry- and circuit-breaker-related tests quick while still exercising the real Resilience4j
         // retry loop and circuit breaker.
@@ -237,6 +241,8 @@ class OpenSearchRestClientTest {
     void testCircuitBreakerOpensAfterRepeatedFailuresAndFailsFast() throws Exception {
         // Given: a long wait-in-open-state (unlike the fast-tripping one from setUp()) so the breaker stays open
         // for the whole test instead of racing into HALF_OPEN before the second call below is made.
+        // Clean the registry first to remove the setUp() instance so create() builds a new one with this test's config.
+        cleanRegistry();
         restClient = spy(new OpenSearchRestClient(null, new JacksonJsonpMapper(), null,
                 OpenSearchRetryFactory.create(2, 1), OpenSearchCircuitBreakerFactory.create(50.0f, 2, 2, 60_000)));
         restClient.client = mockClient;
@@ -272,5 +278,15 @@ class OpenSearchRestClientTest {
             assertThrows(NuxeoException.class, () -> restClient.index(request));
         }
         verify(mockClient, times(5)).index(any(IndexRequest.class));
+    }
+
+    @AfterEach
+    void tearDown() {
+        cleanRegistry();
+    }
+
+    private static void cleanRegistry() {
+        Resilience4jRegistries.removeRetry(OpenSearchRetryFactory.RETRY_NAME);
+        Resilience4jRegistries.removeCircuitBreaker(OpenSearchCircuitBreakerFactory.CIRCUIT_BREAKER_NAME);
     }
 }

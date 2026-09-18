@@ -20,6 +20,7 @@ import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.nuxeo.common.resilience.Resilience4jRegistries;
 import org.opensearch.client.opensearch._types.OpenSearchException;
 import org.opensearch.client.transport.httpclient5.ResponseException;
 
@@ -64,7 +65,10 @@ public final class OpenSearchRetryFactory {
 
     /**
      * Creates a {@link Retry} with the given attempt count and initial wait duration (exponential backoff with
-     * jitter is applied between attempts), logging an error once all attempts have been exhausted.
+     * jitter is applied between attempts), logging an error once all attempts have been exhausted. Listener attachment
+     * is gated on idempotent lookup semantics: the listener is only attached if this invocation creates a new instance
+     * (i.e., the name wasn't already in the registry). Repeated calls with the same name return the same instance
+     * without stacking duplicate listeners.
      */
     public static Retry create(int maxAttempts, long waitDurationMs) {
         RetryConfig config = RetryConfig.custom()
@@ -73,18 +77,21 @@ public final class OpenSearchRetryFactory {
                                                 waitDurationMs, BACKOFF_MULTIPLIER, JITTER_FACTOR))
                                         .retryOnException(OpenSearchRetryFactory::isRetryable)
                                         .build();
-        Retry retry = Retry.of(RETRY_NAME, config);
-        // Callback invoked once the number of retries has been reached: RetryOnErrorEvent is only published
-        // when the current attempt count reaches maxAttempts (i.e. all retries are exhausted).
-        // Note: the last throwable is deliberately NOT passed as a trailing log parameter, since Log4j2 would
-        // then attempt to render its stack trace; this can throw an NPE for exceptions whose native
-        // stack trace was never filled in (e.g. mocked exceptions in unit tests).
-        retry.getEventPublisher().onError(event -> {
-            Throwable last = event.getLastThrowable();
-            log.error("OpenSearch API call failed after exhausting all {} attempt(s), giving up: {}: {}",
-                    event.getNumberOfRetryAttempts() + 1, last.getClass().getName(), last.getMessage());
+
+        // Use thread-safe createRetryWithListener to atomically check-create-attach.
+        // This prevents race conditions where two threads could both see isNew=true and attach duplicate listeners.
+        return Resilience4jRegistries.createRetryWithListener(RETRY_NAME, config, retry -> {
+            // Callback invoked once the number of retries has been reached: RetryOnErrorEvent is only published
+            // when the current attempt count reaches maxAttempts (i.e. all retries are exhausted).
+            // Note: the last throwable is deliberately NOT passed as a trailing log parameter, since Log4j2 would
+            // then attempt to render its stack trace; this can throw an NPE for exceptions whose native
+            // stack trace was never filled in (e.g. mocked exceptions in unit tests).
+            retry.getEventPublisher().onError(event -> {
+                Throwable last = event.getLastThrowable();
+                log.error("OpenSearch API call failed after exhausting all {} attempt(s), giving up: {}: {}",
+                        event.getNumberOfRetryAttempts() + 1, last.getClass().getName(), last.getMessage());
+            });
         });
-        return retry;
     }
 
     /**

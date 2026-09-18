@@ -24,7 +24,10 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.nuxeo.common.resilience.Resilience4jRegistries;
 import org.opensearch.client.opensearch._types.OpenSearchException;
 import org.opensearch.client.transport.httpclient5.ResponseException;
 
@@ -35,6 +38,12 @@ import io.github.resilience4j.retry.Retry;
  * it is built on the {@code resilience4j-retry} core library used programmatically.
  */
 class OpenSearchRetryFactoryTest {
+
+    @BeforeEach
+    @AfterEach
+    void cleanRegistry() {
+        Resilience4jRegistries.removeRetry(OpenSearchRetryFactory.RETRY_NAME);
+    }
 
     @Test
     void isRetryableReturnsTrueForIOException() {
@@ -92,6 +101,23 @@ class OpenSearchRetryFactoryTest {
 
         assertThat(result).isEqualTo("ok");
         assertThat(callCount.get()).isEqualTo(3);
+    }
+
+    @Test
+    void registersCreatedRetryInSharedRegistry() {
+        Retry retry = OpenSearchRetryFactory.create(3, 1);
+
+        assertThat(Resilience4jRegistries.retryRegistry().find(OpenSearchRetryFactory.RETRY_NAME))
+                .containsSame(retry);
+    }
+
+    @Test
+    void returnsSameSharedRetryWhenFactoryCalledAgain() {
+        Retry first = OpenSearchRetryFactory.create(3, 1);
+        Retry second = OpenSearchRetryFactory.create(4, 2);
+
+        assertThat(second).isSameAs(first);
+        assertThat(second.getRetryConfig().getMaxAttempts()).isEqualTo(3);
     }
 
     @Test

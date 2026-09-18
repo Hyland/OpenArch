@@ -41,10 +41,12 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
+import org.nuxeo.common.resilience.Resilience4jRegistries;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.opensearch.api.OpenSearchClient;
 import org.nuxeo.runtime.api.Framework;
@@ -82,6 +84,12 @@ public class TestOpenSearchRestClientFactory {
         try (var out = Files.newOutputStream(emptyTruststorePath)) {
             keyStore.store(out, TRUSTSTORE_PASSWORD.toCharArray());
         }
+    }
+
+    @AfterEach
+    void cleanRegistry() {
+        Resilience4jRegistries.removeRetry(OpenSearchRetryFactory.RETRY_NAME);
+        Resilience4jRegistries.removeCircuitBreaker(OpenSearchCircuitBreakerFactory.CIRCUIT_BREAKER_NAME);
     }
 
     @Test

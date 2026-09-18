@@ -19,6 +19,7 @@ import java.time.Duration;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.nuxeo.common.resilience.Resilience4jRegistries;
 
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
@@ -62,7 +63,9 @@ public abstract class AbstractCircuitBreakerFactory {
     /**
      * Creates a {@link CircuitBreaker} with the given failure rate threshold, sliding window size, minimum number
      * of calls before the failure rate is evaluated, and wait duration once the breaker is open, logging on every
-     * state transition.
+     * state transition. Listener attachment is gated on idempotent lookup semantics: the listener is only attached
+     * if this invocation creates a new instance (i.e., the name wasn't already in the registry). Repeated calls with
+     * the same name return the same instance without stacking duplicate listeners.
      */
     protected CircuitBreaker createCircuitBreaker(float failureRateThreshold, int slidingWindowSize,
             int minimumNumberOfCalls, long waitDurationInOpenStateMs) {
@@ -77,11 +80,15 @@ public abstract class AbstractCircuitBreakerFactory {
                                                                     .permittedNumberOfCallsInHalfOpenState(
                                                                             DEFAULT_PERMITTED_CALLS_IN_HALF_OPEN_STATE);
         customizeConfig(builder);
-        CircuitBreaker circuitBreaker = CircuitBreaker.of(getCircuitBreakerName(), builder.build());
-        circuitBreaker.getEventPublisher().onStateTransition(event -> log.info(
-                "{} circuit breaker transitioning from {} to {}", getServiceLabel(),
-                event.getStateTransition().getFromState(), event.getStateTransition().getToState()));
-        return circuitBreaker;
+
+        // Use thread-safe createCircuitBreakerWithListener to atomically check-create-attach.
+        // This prevents race conditions where two threads could both see isNew=true and attach duplicate listeners.
+        return Resilience4jRegistries.createCircuitBreakerWithListener(getCircuitBreakerName(), builder.build(),
+                circuitBreaker -> {
+                    circuitBreaker.getEventPublisher().onStateTransition(event -> log.info(
+                            "{} circuit breaker transitioning from {} to {}", getServiceLabel(),
+                            event.getStateTransition().getFromState(), event.getStateTransition().getToState()));
+                });
     }
 
 }

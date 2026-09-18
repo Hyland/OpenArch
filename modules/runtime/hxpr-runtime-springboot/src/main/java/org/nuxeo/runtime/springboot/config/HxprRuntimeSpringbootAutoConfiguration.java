@@ -37,6 +37,7 @@ import org.springframework.retry.annotation.EnableRetry;
 @EnableRetry
 @Import({
         NuxeoApplicationConfiguration.class,
+        Resilience4jDropwizardMetricsConfiguration.class,
         TransactionFilter.class,
         NuxeoLoginFilter.class,
         HxprInfoContributor.class,

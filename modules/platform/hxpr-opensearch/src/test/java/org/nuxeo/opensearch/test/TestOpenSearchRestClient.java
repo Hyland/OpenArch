@@ -28,9 +28,12 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.nuxeo.ecm.core.api.ConcurrentUpdateException;
+import org.nuxeo.common.resilience.Resilience4jRegistries;
 import org.nuxeo.opensearch.api.OpenSearchClient;
+import org.nuxeo.opensearch.client.OpenSearchCircuitBreakerFactory;
 import org.nuxeo.opensearch.client.OpenSearchRestClient;
 import org.nuxeo.opensearch.client.OpenSearchRestClientFactory;
+import org.nuxeo.opensearch.client.OpenSearchRetryFactory;
 import org.nuxeo.opensearch.io.DocumentDTO;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesExtension;
@@ -65,6 +68,8 @@ public class TestOpenSearchRestClient {
             client.close();
         }
         client = null;
+        Resilience4jRegistries.removeRetry(OpenSearchRetryFactory.RETRY_NAME);
+        Resilience4jRegistries.removeCircuitBreaker(OpenSearchCircuitBreakerFactory.CIRCUIT_BREAKER_NAME);
     }
 
     @Test
