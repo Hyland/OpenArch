@@ -183,7 +183,7 @@ public class DBSDocument implements InternalDocument {
     // in particular : (colon), / (slash) and % (percent) are not allowed
     private static final Pattern ID_PATTERN = Pattern.compile("[a-zA-Z0-9-_.]+");
 
-    private static final int ID_MAX_LEN = 200;
+    private static final int ID_MAX_LEN = 500;
 
     private final SchemaManager schemaManager;
 

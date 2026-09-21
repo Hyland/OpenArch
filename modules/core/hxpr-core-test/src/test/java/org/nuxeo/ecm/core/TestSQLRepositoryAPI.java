@@ -4026,8 +4026,11 @@ public class TestSQLRepositoryAPI {
     public void testSetIdMaxLen() {
         DocumentModel doc = session.createDocumentModel("/", "doc", SYS_FILE);
 
-        String id = "x".repeat(201);
-        assertThrows(PropertyException.class, () -> doc.setId(id));
+        String id500 = "x".repeat(500);
+        doc.setId(id500); // should succeed
+
+        String id501 = "x".repeat(501);
+        assertThrows(PropertyException.class, () -> doc.setId(id501));
     }
 
     @Test
