@@ -32,6 +32,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.nuxeo.common.utils.TooLargeException;
 import org.nuxeo.common.xmap.registry.MapRegistry;
 import org.nuxeo.common.xmap.registry.SingleRegistry;
@@ -177,7 +178,31 @@ public class TaskServiceImpl extends DefaultComponent implements TaskService, Co
                 .orElseThrow(() -> new IllegalArgumentException("Unknown registry for extension point '%s--%s'".formatted(NAME, XP_TASKS)));
 
         List<TaskProcessorDescriptor> contributions = registry.getContributionValues();
-        return contributions.stream().filter(TaskProcessorDescriptor::isEnabled).toList();
+        return contributions.stream()
+                .filter(TaskProcessorDescriptor::isEnabled)
+                .filter(this::isActivatedByConditionalProperty)
+                .toList();
+    }
+
+    /**
+     * Tells whether a task descriptor gated by a {@code conditionalOnProperty} may be activated. A task with no such
+     * property is always eligible; a task that declares one is only activated when that property resolves to a non-blank
+     * value. The property is read the same way the AWS task runner reads the SQS queue name it needs
+     * ({@link System#getProperty}), so the gate and the runner agree on whether the backing resource is configured. This
+     * lets a task ship disabled by default and be turned on purely by configuration, without aborting the runtime when
+     * the backing resource (e.g. an SQS queue) has not been provisioned.
+     */
+    private boolean isActivatedByConditionalProperty(TaskProcessorDescriptor descriptor) {
+        String conditionalOnProperty = descriptor.getConditionalOnProperty();
+        if (StringUtils.isBlank(conditionalOnProperty)) {
+            return true;
+        }
+        if (StringUtils.isNotBlank(System.getProperty(conditionalOnProperty))) {
+            return true;
+        }
+        log.info("Async task '{}' is disabled because required property '{}' is missing or empty",
+                descriptor.getName(), conditionalOnProperty);
+        return false;
     }
 
     @Override

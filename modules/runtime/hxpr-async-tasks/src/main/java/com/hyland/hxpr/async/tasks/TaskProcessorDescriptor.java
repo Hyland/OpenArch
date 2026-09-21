@@ -47,8 +47,21 @@ public class TaskProcessorDescriptor {
     @XEnable
     private Boolean enabled = true;
 
+    @XNode("@conditionalOnProperty")
+    private String conditionalOnProperty;
+
     public String getName() {
         return name;
+    }
+
+    /**
+     * Name of a runtime property that must resolve to a non-blank value for this task to be activated. When set, the
+     * task is only enabled if the property is present, allowing a task to be disabled by default and conditionally
+     * activated by configuration (e.g. only once its backing SQS queue has been provisioned). Returns {@code null} when
+     * the task has no such requirement.
+     */
+    public String getConditionalOnProperty() {
+        return conditionalOnProperty;
     }
 
     public Integer getBucketSize() {
