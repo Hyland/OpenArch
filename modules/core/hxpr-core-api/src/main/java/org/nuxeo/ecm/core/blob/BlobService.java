@@ -86,8 +86,24 @@ public interface BlobService {
      * @param servletRequest the servlet request, or {@code null}
      * @return the {@link URI}, or {@code null} if none available
      */
-
     URI getURI(Blob blob, UsageHint hint, long expirationSeconds, HttpServletRequest servletRequest) throws IOException;
+
+    /**
+     * Gets an {@link URI} for the content of a blob.
+     *
+     * @param blob the blob
+     * @param hint {@link UsageHint}
+     * @param expirationSeconds the expiration value in seconds
+     * @param inline whether the {@code Content-Disposition} of the returned {@link URI} should be {@code inline} rather than {@code attachment}
+     * @param servletRequest the servlet request, or {@code null}
+     * @return the {@link URI}, or {@code null} if none available
+     */
+    default URI getURI(Blob blob, UsageHint hint, long expirationSeconds, boolean inline, HttpServletRequest servletRequest)
+            throws IOException {
+        // implementations that don't know about "inline" still get a working URI (without the inline capability)
+        // instead of failing with an AbstractMethodError
+        return getURI(blob, hint, expirationSeconds, servletRequest);
+    }
 
     /**
      * Gets a map of available MIME type conversions and corresponding {@link URI} for a blob.

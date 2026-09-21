@@ -194,6 +194,15 @@ public class BlobServiceImpl extends DefaultComponent implements BlobService {
     }
 
     @Override
+    public URI getURI(Blob blob, UsageHint hint, long expirationSeconds, boolean inline, HttpServletRequest servletRequest) throws IOException {
+        BlobProvider blobProvider = getBlobProvider(blob);
+        if (blobProvider == null) {
+            return null;
+        }
+        return blobProvider.getURI((ManagedBlob) blob, hint, expirationSeconds, inline, servletRequest);
+    }
+
+    @Override
     public Map<String, URI> getAvailableConversions(Blob blob, UsageHint hint) throws IOException {
         BlobProvider blobProvider = getBlobProvider(blob);
         if (blobProvider == null) {

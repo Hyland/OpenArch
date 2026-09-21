@@ -35,11 +35,19 @@ public class PresignedUrlProvider extends LocalBlobProvider {
     public URI getURI(
             ManagedBlob blob, BlobService.UsageHint hint, long expirationSeconds, HttpServletRequest servletRequest)
             throws IOException {
+        return getURI(blob, hint, expirationSeconds, false, servletRequest);
+    }
+
+    @Override
+    public URI getURI(
+            ManagedBlob blob, BlobService.UsageHint hint, long expirationSeconds, boolean inline,
+            HttpServletRequest servletRequest) throws IOException {
         try {
+            // the received "inline" flag is reflected in the dummy URL so REST-level tests can assert on it
             return new URI(
                     "https://s3.amazonaws.com/your-bucket/your-object?X-Amz-Algorithm=AWS4-HMAC-SHA256" +
                             "&X-Amz-Credential=dummy-credential&X-Amz-Date=dummy-date&X-Amz-SignedHeaders=host" +
-                            "&X-Amz-Signature=dummy-signature&X-Amz-Expires=3600");
+                            "&X-Amz-Signature=dummy-signature&X-Amz-Expires=3600&inline=" + inline);
         } catch (URISyntaxException e) {
             return null;
         }

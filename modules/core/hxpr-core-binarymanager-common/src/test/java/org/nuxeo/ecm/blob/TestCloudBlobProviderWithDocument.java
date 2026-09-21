@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.List;
 import java.util.UUID;
 
 import jakarta.inject.Inject;
@@ -172,8 +173,30 @@ public abstract class TestCloudBlobProviderWithDocument {
         assertDownloadUriForOther(uri);
     }
 
+    @Test
+    @Deploy("org.nuxeo.ecm.core.storage.binarymanager.common.tests:OSGI-INF/test-cloud-other-withuserid.xml")
+    public void testStoreToBlobProviderWithUriInline() throws IOException {
+        ManagedBlob blob = testStoreToBlobProvider("other");
+        blob.setFilename("file.txt");
+        var provider = Framework.getService(BlobService.class).getBlobProvider("other");
+        for (boolean inline : List.of(false, true)) {
+            URI uri = provider.getURI(blob, BlobService.UsageHint.DOWNLOAD, 5000, inline, null);
+            assertNotNull(uri);
+            assertContentDispositionInUri(uri, inline);
+        }
+    }
+
     /** Asserts that a direct-download URI generated for the {@code other} provider targets the expected storage. */
     protected abstract void assertDownloadUriForOther(URI uri);
+
+    /** Asserts that the generated URI's {@code Content-Disposition} reflects the requested {@code inline} choice. */
+    protected void assertContentDispositionInUri(URI uri, boolean inline) {
+        String expected = contentDispositionQueryParamName() + "=" + (inline ? "inline" : "attachment");
+        assertTrue(uri.toString().contains(expected), uri.toString());
+    }
+
+    /** The query parameter carrying the response {@code Content-Disposition} override in a generated download URI. */
+    protected abstract String contentDispositionQueryParamName();
 
     protected boolean isKeyStrategyManaged(String blobProviderId) {
         BlobStoreBlobProvider bp = (BlobStoreBlobProvider) blobService.getBlobProvider(blobProviderId);

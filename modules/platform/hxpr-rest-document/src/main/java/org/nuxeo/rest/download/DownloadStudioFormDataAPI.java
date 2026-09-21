@@ -73,11 +73,12 @@ public class DownloadStudioFormDataAPI {
     public ResponseEntity<String> doGetUrl(@PathVariable("docId") @ParameterDocId String docId,
             @PathVariable("propertyXPathAndFilename") @DownloadAPI.ParameterXPathAndFilename String propertyXPathAndFilename,
             @RequestParam(name = "expiration", required = false) @Parameter(description = "expiration value for generating the S3 pre-signed url in seconds.") Long expirationSeconds,
+            @RequestParam(name = "inline", required = false) @Parameter(description = "Inline content disposition enablement.") Boolean inline,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId)
             throws IOException {
         DownloadManager.Result xPathAndFilename = getXPathAndFilename(propertyXPathAndFilename, repoId);
         return downloadManager.generatePresignedUrl(repoId, docId, xPathAndFilename.xpath(), xPathAndFilename.filename(),
-            expirationSeconds);
+            expirationSeconds, Boolean.TRUE.equals(inline));
     }
 
 }

@@ -292,6 +292,20 @@ public class DownloadAPITest extends AbstractAPITest {
 
     @Test
     @Deploy("org.nuxeo.springboot.rest.document.test:OSGI-INF/test-presignedurl-provider-contrib.xml")
+    public void testGetDownloadUrlInline() throws Exception {
+        ResultActions r = checkResponseStatus(GET, OK, docId, SYSFILE_BLOB, Map.of("inline", "true"));
+        assertTrue(r.andReturn().getResponse().getContentAsString().contains("inline=true"));
+    }
+
+    @Test
+    @Deploy("org.nuxeo.springboot.rest.document.test:OSGI-INF/test-presignedurl-provider-contrib.xml")
+    public void testGetDownloadUrlDefaultsToNotInline() throws Exception {
+        ResultActions r = checkResponseStatus(GET, OK, docId, SYSFILE_BLOB, GENERATE_URL_QUERY_PARAMS);
+        assertTrue(r.andReturn().getResponse().getContentAsString().contains("inline=false"));
+    }
+
+    @Test
+    @Deploy("org.nuxeo.springboot.rest.document.test:OSGI-INF/test-presignedurl-provider-contrib.xml")
     public void testGetDownloadUrlComplexBlob() throws Exception {
         ResultActions r = checkResponseStatus(GET, OK, docId, "tp_fileComplexList/0/blobItem", GENERATE_URL_QUERY_PARAMS);
         assertTrue(containsPreSignedURLWithExpiration(r.andReturn().getResponse().getContentAsString(), 3600));

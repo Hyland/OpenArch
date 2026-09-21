@@ -303,6 +303,11 @@ public class DownloadManager {
 
     public ResponseEntity<String> generatePresignedUrl(String repoId, String docId, String xpath, String filename,
             Long expirationSeconds) throws IOException {
+        return generatePresignedUrl(repoId, docId, xpath, filename, expirationSeconds, false);
+    }
+
+    public ResponseEntity<String> generatePresignedUrl(String repoId, String docId, String xpath, String filename,
+            Long expirationSeconds, boolean inline) throws IOException {
         CoreSession session = CoreInstance.getCoreSession(repoId);
         DocumentRef docRef = new IdRef(docId);
         if (!session.exists(docRef)) {
@@ -318,7 +323,7 @@ public class DownloadManager {
             expirationSeconds = -1L; // means use the default
         }
         URI uri = Framework.getService(BlobService.class)
-                           .getURI(blob, BlobService.UsageHint.DOWNLOAD, expirationSeconds, null);
+                           .getURI(blob, BlobService.UsageHint.DOWNLOAD, expirationSeconds, inline, null);
         if (uri == null) {
             throw new NuxeoException("Pre-signed URL not available for this blob provider",
                     HttpStatus.NOT_IMPLEMENTED.value());

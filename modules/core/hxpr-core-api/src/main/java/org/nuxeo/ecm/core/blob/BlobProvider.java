@@ -250,6 +250,23 @@ public interface BlobProvider {
     }
 
     /**
+     * Gets an {@link URI} for the content of a managed blob.
+     *
+     * @param blob the managed blob
+     * @param hint {@link UsageHint}
+     * @param expirationSeconds the expiration value in seconds
+     * @param inline whether the {@code Content-Disposition} of the returned {@link URI} should be {@code inline} rather than {@code attachment}
+     * @param servletRequest the servlet request, or {@code null}
+     * @return the {@link URI}, or {@code null} if none available
+     */
+    default URI getURI(ManagedBlob blob, UsageHint hint, long expirationSeconds, boolean inline, HttpServletRequest servletRequest)
+            throws IOException {
+        // providers that only know the old signature still get a working URI (without the inline capability)
+        // instead of silently losing pre-signed URL support
+        return getURI(blob, hint, expirationSeconds, servletRequest);
+    }
+
+    /**
      * Gets a map of available MIME type conversions and corresponding {@link URI} for a managed blob.
      *
      * @param blob the managed blob
