@@ -235,7 +235,7 @@
       </dependency>
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
-        <artifactId>hxpr-runtime-management</artifactId>
+        <artifactId>openarch-runtime-management</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

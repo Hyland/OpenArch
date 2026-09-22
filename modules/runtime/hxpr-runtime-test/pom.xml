@@ -42,7 +42,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-runtime-management</artifactId>
+      <artifactId>openarch-runtime-management</artifactId>
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
