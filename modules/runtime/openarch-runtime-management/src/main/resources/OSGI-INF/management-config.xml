@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<component name="org.nuxeo.runtime.management.ServerLocatorContrib">
+<component name="com.hyland.openarch.runtime.management.ServerLocatorContrib">
 
   <!-- nuxeo beans are published by default in the platform mbean server,
        uncomment one of the following configuration if you want to use

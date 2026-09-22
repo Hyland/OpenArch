@@ -67,7 +67,7 @@ import com.hyland.hxpr.async.tasks.TaskService;
  * <p>
  * In addition, by injecting the feature itself, some helper methods are available to open new sessions.
  */
-@Deploy("org.nuxeo.runtime.management")
+@Deploy("com.hyland.openarch.runtime.management")
 @Deploy("org.nuxeo.runtime.metrics")
 @Deploy("com.hyland.hxpr.runtime.pubsub")
 @Deploy("com.hyland.hxpr.config")

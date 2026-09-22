@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
-<component name="org.nuxeo.runtime.management.counters">
+<component name="com.hyland.openarch.runtime.management.counters">
 
-  <implementation class="org.nuxeo.runtime.management.counters.CounterManagerImpl" />
+  <implementation class="com.hyland.openarch.runtime.management.counters.CounterManagerImpl" />
 
   <service>
-    <provide interface="org.nuxeo.runtime.management.counters.CounterManager" />
+    <provide interface="com.hyland.openarch.runtime.management.counters.CounterManager" />
   </service>
 
 </component>
