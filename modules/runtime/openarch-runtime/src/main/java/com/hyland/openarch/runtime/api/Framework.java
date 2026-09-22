@@ -45,7 +45,7 @@ import com.hyland.openarch.runtime.trackers.files.FileEvent;
 import com.hyland.openarch.runtime.trackers.files.FileEventTracker;
 
 /**
- * This class is the main entry point to a Nuxeo runtime application.
+ * This class is the main entry point to a OpenArch runtime application.
  * <p>
  * It offers an easy way to create new sessions, to access system services and other resources.
  * <p>
@@ -108,7 +108,7 @@ public final class Framework {
 
     public static void initialize(RuntimeService runtimeService) {
         if (runtime != null) {
-            throw new RuntimeServiceException("Nuxeo Framework was already initialized");
+            throw new RuntimeServiceException("OpenArch Framework was already initialized");
         }
         runtime = runtimeService;
         reloadResourceLoader();
@@ -269,7 +269,7 @@ public final class Framework {
     }
 
     /**
-     * Logs in the Nuxeo platform using the given {@link ThrowableSupplier authSupplier}, then gets the given
+     * Logs in the OpenArch platform using the given {@link ThrowableSupplier authSupplier}, then gets the given
      * {@link ThrowableSupplier supplier} before logging out.
      *
      * @since 11.1
@@ -539,7 +539,7 @@ public final class Framework {
     }
 
     /**
-     * @return the Nuxeo temp dir returned by {@link Environment#getTemp()}. If the Environment fails to initialize,
+     * @return the OpenArch temp dir returned by {@link Environment#getTemp()}. If the Environment fails to initialize,
      *         then returns the File denoted by {@code "nuxeo.tmp.dir"} System property, or {@code "java.io.tmpdir"}.
      * @since 8.1
      */

@@ -21,7 +21,7 @@ import com.hyland.openarch.runtime.services.event.EventService;
 import com.hyland.openarch.runtime.trackers.files.FileEventTracker;
 
 /**
- * Runtime events that be fired once a thread is about to enter in the nuxeo runtime or leave it. Could be used for
+ * Runtime events that be fired once a thread is about to enter in the OpenArch runtime or leave it. Could be used for
  * cleaning resource such as the {@link FileEventTracker}. Producers should use the static
  * {@link ThreadEvent#onEnter(Object, boolean)} and {@link ThreadEvent#onLeave(Object)} factory methods and fire events
  * by invoking the event's {@link ThreadEvent#send()} method. Consumers should implements the {@link ThreadEventHandler}

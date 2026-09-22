@@ -24,7 +24,7 @@ import java.util.Map;
  * <p>
  * A service provider is used by the framework to be able to change the local services are found
  * <p>
- * For example, you may want to use a simple service provider for testing purpose to avoid loading the nuxeo runtime
+ * For example, you may want to use a simple service provider for testing purpose to avoid loading the OpenArch runtime
  * framework to register services.
  *
  * @author <a href="mailto:bs@nuxeo.com">Bogdan Stefanescu</a>

@@ -52,7 +52,7 @@ public class OSGiComponentLoader implements BundleListener {
             log.debug("Install bundle: {} {}", () -> name, () -> bundleStateAsString(state));
             // check only resolved bundles
             if ((state & mask) != 0) {
-                // check only bundles containing nuxeo components
+                // check only bundles containing OpenArch components
                 if (OSGiRuntimeService.getComponentsList(bundle) != null) {
                     log.debug("Install bundle: {} component list: {}", name,
                             OSGiRuntimeService.getComponentsList(bundle));

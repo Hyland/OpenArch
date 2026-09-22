@@ -16,7 +16,7 @@
 package com.hyland.openarch.runtime;
 
 /**
- * A generic exception thrown by the Nuxeo Runtime.
+ * A generic exception thrown by the OpenArch Runtime.
  */
 public class RuntimeServiceException extends RuntimeException {
 

@@ -21,7 +21,7 @@ package com.hyland.openarch.runtime.api;
  * <p>
  * A service provider is used by the framework to be able to change the way local services are found.
  * <p>
- * For example you may want to use a simple service provider for testing purpose to avoid loading the nuxeo runtime
+ * For example you may want to use a simple service provider for testing purpose to avoid loading the OpenArch runtime
  * framework to register services.
  * <p>
  * To set a service provider use: {@link DefaultServiceProvider#setProvider(ServiceProvider)}

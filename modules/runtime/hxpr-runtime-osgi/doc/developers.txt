@@ -5,7 +5,7 @@ Author: Bogdan Stefanescu
 Date: 2006/11/12
 
 
-The OSGi package from NXRuntime (see NXRuntime: org.nuxeo.runtime.osgi) provides some abstract classes that helps you emulate an OSGi framework on host frameworks that are not OSGi compliant.
+The OSGi package from NXRuntime (see NXRuntime: com.hyland.openarch.runtime.osgi) provides some abstract classes that helps you emulate an OSGi framework on host frameworks that are not OSGi compliant.
 
 When using OSGI host frameworks like an Eclipse environment you don't need an OSGI adapter to correctly run your code. The OSGi environment is taking care of the bundle deployment.
 
@@ -19,7 +19,7 @@ Thus, not all the OSGi specs are emulated - only a small part. I will add more f
 
 There is an abstract implementation of the OSGi adapter so you can reuse it when writing an adapter for a new host platform.
 
-These generic classes are located in NXRuntime: org.nuxeo.runtime.osgi
+These generic classes are located in NXRuntime: com.hyland.openarch.runtime.osgi
 
 Usually you may need to extend the abstract classes defined there. There are 2 examples you may follow:
 

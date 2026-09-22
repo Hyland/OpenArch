@@ -55,7 +55,7 @@ public class FileEventTracker extends DefaultComponent {
         protected CopyOnWriteArrayList<String> protectedPaths = new CopyOnWriteArrayList<>();
 
         protected SafeFileDeleteStrategy() {
-            super("DoNotTouchNuxeoBinaries");
+            super("DoNotTouchRepositoryBinaries");
         }
 
         protected void registerProtectedPath(String path) {

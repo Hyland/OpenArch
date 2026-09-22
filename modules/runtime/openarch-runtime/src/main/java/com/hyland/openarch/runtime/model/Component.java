@@ -16,7 +16,7 @@
 package com.hyland.openarch.runtime.model;
 
 /**
- * A Nuxeo Runtime component.
+ * An OpenArch Runtime component.
  * <p>
  * Components are extensible and adaptable objects and they provide methods to respond to component life cycle events.
  *

@@ -144,7 +144,7 @@ public class OSGiRuntimeService implements RuntimeService, FrameworkListener {
         } catch (IOException e) {
             throw new RuntimeServiceException(e);
         }
-        log.debug("Starting Nuxeo Runtime service {}; version: {}",getName(), getVersion());
+        log.debug("Starting OpenArch Runtime service {}; version: {}",getName(), getVersion());
         try {
             bundleContext.addFrameworkListener(this);
             loadComponents(bundleContext.getBundle(), runtimeContext, false);
@@ -158,7 +158,7 @@ public class OSGiRuntimeService implements RuntimeService, FrameworkListener {
         if (!isStarted) {
             return;
         }
-        log.debug("Stopping Nuxeo Runtime service {}; version: {}", getName(), getVersion());
+        log.debug("Stopping OpenArch Runtime service {}; version: {}", getName(), getVersion());
         try {
             manager.shutdown();
             // do not destroy context since component manager is already shutdown
@@ -354,7 +354,7 @@ public class OSGiRuntimeService implements RuntimeService, FrameworkListener {
         }
 
         properties.putAll(env.getProperties());
-        loadNuxeoConf();
+        loadRepositoryConf();
 
         File dir = env.getConfig();
         String[] names = dir.list();
@@ -400,16 +400,16 @@ public class OSGiRuntimeService implements RuntimeService, FrameworkListener {
         }
     }
 
-    private void loadNuxeoConf() throws IOException {
-        String nuxeoConfProperty = Framework.getProperty("nuxeo.conf");
-        File nuxeoConf;
-        if (nuxeoConfProperty == null) {
-            nuxeoConf = new File(getHome(), "bin/nuxeo.conf");
+    private void loadRepositoryConf() throws IOException {
+        String repositoryConfProperty = Framework.getProperty("nuxeo.conf");
+        File repositoryConf;
+        if (repositoryConfProperty == null) {
+            repositoryConf = new File(getHome(), "bin/nuxeo.conf");
         } else {
-            nuxeoConf = new File(nuxeoConfProperty);
+            repositoryConf = new File(repositoryConfProperty);
         }
-        if (nuxeoConf.exists()) {
-            try (InputStream in = new BufferedInputStream(new FileInputStream(nuxeoConf))) {
+        if (repositoryConf.exists()) {
+            try (InputStream in = new BufferedInputStream(new FileInputStream(repositoryConf))) {
                 loadProperties(in);
             }
         }
@@ -480,10 +480,10 @@ public class OSGiRuntimeService implements RuntimeService, FrameworkListener {
     private void printStatusMessage() {
         StringBuilder msg = new StringBuilder();
         if (getStatusMessage(msg)) {
-            msg.insert(0, "HxPR Platform Started With Errors\n");
+            msg.insert(0, "OpenArch Platform Started With Errors\n");
             log.error(msg);
         } else {
-            msg.insert(0, "HxPR Platform Started: ");
+            msg.insert(0, "OpenArch Platform Started: ");
             log.info(msg);
         }
     }

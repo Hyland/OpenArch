@@ -716,7 +716,7 @@ public class ComponentManagerImpl implements ComponentManager {
             return false;
         }
 
-        log.debug("Starting Nuxeo Components");
+        log.debug("Starting OpenArch Components");
 
         List<RegistrationInfo> ris = activateComponents();
 
@@ -734,7 +734,7 @@ public class ComponentManagerImpl implements ComponentManager {
             return false;
         }
 
-        log.debug("Stopping Nuxeo Components");
+        log.debug("Stopping OpenArch Components");
 
         try {
             stopComponents();

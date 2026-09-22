@@ -24,10 +24,10 @@ import com.hyland.openarch.runtime.model.ComponentManager;
 import com.hyland.openarch.runtime.model.RuntimeContext;
 
 /**
- * The runtime service: a singleton object that provides access to the Nuxeo Runtime. The runtime service must be
+ * The runtime service: a singleton object that provides access to the OpenArch Runtime. The runtime service must be
  * started before any other runtime component or object that accesses the runtime.
  * <p>
- * This service is usually implemented for each target platform where Nuxeo Runtime should run.
+ * This service is usually implemented for each target platform where OpenArch Runtime should run.
  * <p>
  * After the runtime service was initialized, it may be accessed through the facade class
  * {@link Framework}.
