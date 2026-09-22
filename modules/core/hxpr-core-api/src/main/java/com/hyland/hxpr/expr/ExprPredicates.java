@@ -44,6 +44,8 @@ public class ExprPredicates {
      * <p>
      * The result is a {@link Predicate}, or a {@link BooleanLiteral} when the expression does not depend on the content
      * and the evaluator could therefore reduce it to a constant.
+     * <p>
+     * Security properties are usable when the expression is evaluated for an administrator.
      *
      * @param expr the expression
      * @param principal the current user
@@ -55,7 +57,9 @@ public class ExprPredicates {
         try {
             Expr parsed = new ExpressionVisitor().parse(expr);
             Map<String, Object> context = ExprEvaluator.queryContext(principal);
-            return new ExprEvaluator(context, schemaManager).evaluateOperand(parsed);
+            // an administrator sees security properties anyway, so there is nothing to protect from them
+            boolean administrator = principal != null && principal.isAdministrator();
+            return new ExprEvaluator(context, schemaManager, administrator).evaluateOperand(parsed);
         } catch (IllegalArgumentException e) {
             // both the parser and the evaluator signal errors this way
             throw new QueryParseException("Invalid expression: " + expr + ": " + e.getMessage(), e);

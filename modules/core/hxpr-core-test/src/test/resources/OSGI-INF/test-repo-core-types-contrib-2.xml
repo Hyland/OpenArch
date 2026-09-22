@@ -10,11 +10,9 @@
       <schema name="testschema2" />
     </doctype>
     <doctype name="MyDocType2" extends="SysContent">
-      <schema name="system" />
       <schema name="info" />
     </doctype>
     <doctype name="GovernableFile" extends="SysContent">
-      <schema name="system" />
       <schema name="info" />
       <mixin name="SysGovernable"/>
     </doctype>

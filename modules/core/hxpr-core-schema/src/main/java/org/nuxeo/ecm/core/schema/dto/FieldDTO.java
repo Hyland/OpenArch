@@ -17,6 +17,8 @@ package org.nuxeo.ecm.core.schema.dto;
 
 import java.util.Map;
 
+import org.nuxeo.ecm.core.schema.types.FieldCharacteristics;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -34,7 +36,7 @@ import tools.jackson.databind.annotation.JsonDeserialize;
  * <p>
  * A field is either a reference to a named type ({@link #typeRef}) or an anonymous type declared
  * inline ({@link #fields} for a complex type, {@link #list} for a list type), plus its own
- * constraints, default value and full-text flag.
+ * constraints, default value, full-text flag and optional repository-managed characteristics.
  * <p>
  * <b>On {@code typeRef}, {@code type} and {@code extends}:</b> the wire formats spell a type
  * reference two ways, and the choice is purely about whether the field carries anything else:
@@ -49,7 +51,8 @@ import tools.jackson.databind.annotation.JsonDeserialize;
  * {@code type} where {@code extends} was expected.
  */
 @Schema(name = "Field", description = "Represents a field.")
-@JsonPropertyOrder({ "type", "extends", "fields", "list", "constraints", "default", "fullTextIndexed", "projectId" })
+@JsonPropertyOrder({ "type", "extends", "fields", "list", "constraints", "default", "fullTextIndexed",
+        "managed", "projectId" })
 @JsonDeserialize(using = FieldDTODeserializer.class)
 public record FieldDTO( //
         @JsonIgnore String typeRef, //
@@ -62,11 +65,15 @@ public record FieldDTO( //
                 extensions = @Extension(properties = @ExtensionProperty(name = "setter-extra-annotation", value = "@Deprecated"))) //
         @JsonProperty("default") @JsonInclude(Include.NON_NULL) String defaultValue, //
         @JsonInclude(Include.NON_DEFAULT) boolean fullTextIndexed, //
+        @Schema( //
+                description = "Internal repository-managed behavior. Read-only and reserved for core system schemas.", //
+                accessMode = Schema.AccessMode.READ_ONLY) //
+        @JsonProperty("managed") @JsonInclude(Include.NON_NULL) FieldCharacteristics characteristics, //
         @JsonInclude(Include.NON_NULL) String projectId) {
 
     /** A bare reference to a named type. */
     public static FieldDTO ofType(String typeRef) {
-        return new FieldDTO(typeRef, null, null, null, null, false, null);
+        return new FieldDTO(typeRef, null, null, null, null, false, null, null);
     }
 
     /**
@@ -76,7 +83,7 @@ public record FieldDTO( //
     @JsonIgnore
     public boolean isCompact() {
         return typeRef != null && fields == null && list == null && constraints == null && defaultValue == null
-                && !fullTextIndexed && projectId == null;
+                && !fullTextIndexed && characteristics == null && projectId == null;
     }
 
     /** The type reference, when compact. See the class javadoc. */

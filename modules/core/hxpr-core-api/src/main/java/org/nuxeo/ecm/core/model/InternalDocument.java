@@ -33,6 +33,7 @@ import org.nuxeo.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.ecm.core.api.PropertyException;
 import org.nuxeo.ecm.core.api.UpdateCondition;
 import org.nuxeo.ecm.core.schema.DocumentType;
+import org.nuxeo.ecm.core.schema.SchemaManager;
 
 /**
  * A low-level document from a {@link InternalSession}.
@@ -45,6 +46,13 @@ public interface InternalDocument {
      * @return the session
      */
     InternalSession getInternalSession();
+
+    /**
+     * Gets the schema manager for this document.
+     *
+     * @return the schema manager
+     */
+    SchemaManager getSchemaManager();
 
     /**
      * Gets the name of this document.
@@ -142,7 +150,7 @@ public interface InternalDocument {
      * @param overwrite whether to overwrite any previous ACL or just add to it
      * @param principal the caller, for event purposes
      */
-    void setACL(ACL acl, boolean overwrite, NuxeoPrincipal principal);
+    WriteResult setACL(ACL acl, boolean overwrite, NuxeoPrincipal principal);
 
     /**
      * Checks if the principal has the given permission on this document.
@@ -184,6 +192,22 @@ public interface InternalDocument {
     void setValue(String xpath, Object value) throws PropertyException;
 
     /**
+     * Caller context for a property write.
+     */
+    record WriteContext( //
+            NuxeoPrincipal principal, //
+            String changeToken, //
+            boolean userChange) {
+    }
+
+    /**
+     * Sets a value with the caller context needed for permissions and repository-managed behavior.
+     *
+     * @return the write result, including any events that the caller must publish
+     */
+    WriteResult setValue(String xpath, Object value, WriteContext context) throws PropertyException;
+
+    /**
      * Gets a simple property value.
      * <p>
      * For more generic properties described by an xpath, use {@link #getValue} instead.
@@ -204,6 +228,11 @@ public interface InternalDocument {
      * @throws PropertyException if the property does not exist
      */
     Object getValue(String xpath) throws PropertyException;
+
+    /**
+     * Gets a value with the caller context needed for permission-aware repository-managed fields.
+     */
+    Object getValue(String xpath, NuxeoPrincipal principal) throws PropertyException;
 
     /**
      * Visits this document's values, passing information to the {@link ValuesVisitor}.
@@ -382,16 +411,6 @@ public interface InternalDocument {
      * @return the repository name.
      */
     String getRepositoryName();
-
-    /**
-     * Sets a system property.
-     */
-    void setSystemProp(String name, Object value);
-
-    /**
-     * Gets a system property.
-     */
-    Object getSystemProp(String name, Class<?> type);
 
     /**
      * Gets the current change token for this document.

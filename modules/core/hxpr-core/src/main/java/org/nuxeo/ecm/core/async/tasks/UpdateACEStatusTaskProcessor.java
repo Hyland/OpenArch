@@ -31,6 +31,7 @@ import java.util.stream.Stream;
 import com.hyland.hxpr.async.tasks.message.RepositoryTask;
 import org.nuxeo.ecm.core.api.CoreInstance;
 import org.nuxeo.ecm.core.api.CoreSession;
+import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentRef;
 import org.nuxeo.ecm.core.api.IdRef;
 import org.nuxeo.ecm.core.api.IterableQueryResult;
@@ -169,9 +170,10 @@ public class UpdateACEStatusTaskProcessor implements TaskProcessor<RepositoryTas
         for (Map.Entry<String, List<ACE>> entry : docIdsToACEs.entrySet()) {
             try {
                 DocumentRef ref = new IdRef(entry.getKey());
-                ACL acl = session.getDocument(ref).getLocalACL();
+                DocumentModel doc = session.getDocument(ref);
+                ACL acl = doc.getLocalACL();
                 // re-set the ACL to actually write the new status
-                session.setACL(ref, acl, true);
+                doc.setACL(acl, true);
                 session.save();
                 aclUpdatedCount++;
                 if (aclUpdatedCount % batchSize == 0) {

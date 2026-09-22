@@ -15,25 +15,41 @@
  */
 package org.nuxeo.rest.document;
 
-import static java.lang.Boolean.FALSE;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_PREFIX;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSTEM;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_IS_CHECKED_IN;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_IS_VERSION;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ACL;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ANCESTOR_IDS;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_CHANGE_TOKEN;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_CONTRIBUTORS;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_CREATED;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_CREATOR;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_DESCRIPTION;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_EFFECTIVE_ACL;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_EFFECTIVE_PERMISSIONS;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_FULLTEXT_BINARY;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ID;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_IS_FOLDERISH;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_IS_TRASHED;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_LAST_CONTRIBUTOR;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_LIFECYCLE_STATE;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_LOCK_CREATED;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_LOCK_OWNER;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_MIXIN_TYPES;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_MODIFIED;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PREFIX;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_NAME;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PARENT_ID;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PARENT_PATH;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PATH;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PATH_DEPTH;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_POS;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PRIMARY_TYPE;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_READ_ACL;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_REPOSITORY;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_SECURITY_POLICIES;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_IS_RECORD;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_HAS_LEGAL_HOLD;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.SYSTEM_USERNAME;
 import static org.nuxeo.ecm.core.schema.MixinNames.SYS_GOVERNABLE;
+import static org.nuxeo.ecm.core.schema.types.FieldCharacteristics.Representation.REST;
 import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_DIGEST;
 import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_ENCODING;
 import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_FILENAME;
@@ -50,7 +66,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.CyclicBarrier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -60,8 +75,6 @@ import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentRef;
-import org.nuxeo.ecm.core.api.IdRef;
-import org.nuxeo.ecm.core.api.Lock;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.ecm.core.api.ValuesVisitor;
@@ -71,6 +84,7 @@ import org.nuxeo.ecm.core.api.security.ACL;
 import org.nuxeo.ecm.core.api.validation.DocumentValidationException;
 import org.nuxeo.ecm.core.api.validation.DocumentValidationReport;
 import org.nuxeo.ecm.core.blob.ManagedBlob;
+import org.nuxeo.ecm.core.SystemPropertyValues;
 import org.nuxeo.ecm.core.event.impl.document.UploadEvent;
 import org.nuxeo.ecm.core.schema.types.Field;
 import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
@@ -134,68 +148,61 @@ public class DocumentMapper implements ApplicationContextAware {
     }
 
     public DocumentDTO documentModelToDocumentDTO(DocumentModel doc, boolean withEmptyLists) {
+        Map<String, Object> system = SystemPropertyValues.forOutput(doc, REST);
         DocumentDTO res = new DocumentDTO();
-        String docId = doc.getId();
-        res.setId(docId);
-        res.setRepository(doc.getRepositoryName());
-        res.setName(doc.getName());
-        String pathAsString = doc.getPathAsString();
-        res.setPath(pathAsString);
-        if (StringUtils.isNotBlank(pathAsString)) {
-            String[] split = pathAsString.split("/");
-            res.setPathDepth(split.length);
-        }
-        res.setPrimaryType(doc.getType());
-        DocumentRef parentRef = doc.getParentRef();
-        if (parentRef != null) {
-            if (parentRef instanceof IdRef parentIdRef) {
-                res.setParentId(parentIdRef.toString());
-                res.setParentPath(doc.getPath().removeLastSegments(1).toString());
-            } else {
-                res.setParentPath(parentRef.toString());
-            }
-            res.setAncestorIds(checkEmptyList(doc.getAncestorIds(), withEmptyLists));
-        }
-        res.setIsFolderish(doc.isFolder());
-        res.setMixinTypes(checkEmptyList(new ArrayList<>(doc.getEffectiveMixins()), withEmptyLists));
-        res.setChangeToken(doc.getChangeToken());
-        res.setLifecycleState(getLifecycleState(doc));
-        res.setPos(doc.getPos());
-
-        res.setSecurityPolicies(checkEmptyList(doc.getSecurityPolicies(), withEmptyLists));
-        res.setAcl(checkEmptyList(localACLsToAceDTOs(doc), withEmptyLists));
-        res.setEffectiveAcl(checkEmptyList(effectiveACLsToAceDTOs(doc), withEmptyLists));
-        res.setEffectivePermissions(checkEmptyList(getEffectivePermissions(doc), withEmptyLists));
-        res.setFulltextBinary(doc.getBinaryFulltext());
-        Lock lock = doc.getLockInfo();
-        if (lock != null) {
-            res.setLockCreated(lock.getCreated());
-            res.setLockOwner(principalIdToUserDTO(lock.getOwner()));
-        }
-
-        if (doc.hasSchema(SYSTEM)) {
-            @SuppressWarnings("unchecked")
-            List<Object> contributors = (List<Object>) doc.getPropertyValue(SYS_CONTRIBUTORS);
-            res.setContributors(checkEmptyList(principalIdsToUserDTO(contributors), withEmptyLists));
-            Instant created = (Instant) doc.getPropertyValue(SYS_CREATED);
-            res.setCreated(created);
-            Object creator = doc.getPropertyValue(SYS_CREATOR);
-            res.setCreator(principalIdToUserDTO(creator));
-            String description = (String) doc.getPropertyValue(SYS_DESCRIPTION);
-            res.setDescription(description);
-            Object lastContributor = doc.getPropertyValue(SYS_LAST_CONTRIBUTOR);
-            res.setLastContributor(principalIdToUserDTO(lastContributor));
-            Instant modified = (Instant) doc.getPropertyValue(SYS_MODIFIED);
-            res.setModified(modified);
-            String title = (String) doc.getPropertyValue(SYS_TITLE);
-            res.setTitle(title);
-        }
+        res.setId((String) system.get(SYS_ID));
+        res.setRepository((String) system.get(SYS_REPOSITORY));
+        res.setName((String) system.get(SYS_NAME));
+        res.setPath((String) system.get(SYS_PATH));
+        res.setPathDepth((Integer) system.get(SYS_PATH_DEPTH));
+        res.setPrimaryType((String) system.get(SYS_PRIMARY_TYPE));
+        res.setParentId((String) system.get(SYS_PARENT_ID));
+        res.setParentPath((String) system.get(SYS_PARENT_PATH));
+        res.setAncestorIds(checkEmptyList(stringList(system.get(SYS_ANCESTOR_IDS)), withEmptyLists));
+        res.setIsFolderish((Boolean) system.get(SYS_IS_FOLDERISH));
+        res.setIsTrashed((Boolean) system.get(SYS_IS_TRASHED));
+        res.setMixinTypes(sortedStringList(system.get(SYS_MIXIN_TYPES), withEmptyLists));
+        res.setChangeToken((String) system.get(SYS_CHANGE_TOKEN));
+        res.setLifecycleState((String) system.get(SYS_LIFECYCLE_STATE));
+        res.setPos((Long) system.get(SYS_POS));
+        res.setSecurityPolicies(sortedStringList(system.get(SYS_SECURITY_POLICIES), withEmptyLists));
+        res.setAcl(checkEmptyList(aclToAceDTOs(system.get(SYS_ACL)), withEmptyLists));
+        res.setEffectiveAcl(checkEmptyList(aclToAceDTOs(system.get(SYS_EFFECTIVE_ACL)), withEmptyLists));
+        res.setEffectivePermissions(sortedStringList(system.get(SYS_EFFECTIVE_PERMISSIONS), withEmptyLists));
+        res.setReadAcl(checkEmptyList(stringList(system.get(SYS_READ_ACL)), withEmptyLists));
+        res.setFulltextBinary((String) system.get(SYS_FULLTEXT_BINARY));
+        res.setLockCreated((Instant) system.get(SYS_LOCK_CREATED));
+        res.setLockOwner(principalIdToUserDTO(system.get(SYS_LOCK_OWNER)));
+        res.setContributors(
+                checkEmptyList(principalIdsToUserDTO(objectList(system.get(SYS_CONTRIBUTORS))), withEmptyLists));
+        res.setCreated((Instant) system.get(SYS_CREATED));
+        res.setCreator(principalIdToUserDTO(system.get(SYS_CREATOR)));
+        res.setDescription((String) system.get(SYS_DESCRIPTION));
+        res.setLastContributor(principalIdToUserDTO(system.get(SYS_LAST_CONTRIBUTOR)));
+        res.setModified((Instant) system.get(SYS_MODIFIED));
+        res.setTitle((String) system.get(SYS_TITLE));
 
         Map<String, Object> props = new HashMap<>();
         doc.visitFields(new MapBuilderValuesVisitor(props, withEmptyLists));
+        props.keySet().removeIf(name -> SystemPropertyValues.isRepositoryManagedField(doc, name));
+        system.forEach((name, value) -> {
+            if (value != null && (name.startsWith("sysgov_") || name.startsWith("sysver_"))) {
+                props.put(name, value);
+            }
+        });
         res.setProperties(props);
 
         return res;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static List<String> stringList(Object value) {
+        return (List<String>) value;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static List<Object> objectList(Object value) {
+        return (List<Object>) value;
     }
 
     private <T> List<T> checkEmptyList(List<T> list, boolean withEmptyLists) {
@@ -204,6 +211,11 @@ public class DocumentMapper implements ApplicationContextAware {
         } else {
             return list;
         }
+    }
+
+    private List<String> sortedStringList(Object value, boolean withEmptyLists) {
+        List<String> list = checkEmptyList(stringList(value), withEmptyLists);
+        return list == null || list.isEmpty() ? list : list.stream().sorted().toList();
     }
 
     private UserDTO principalIdToUserDTO(Object principalIdObject) {
@@ -238,40 +250,11 @@ public class DocumentMapper implements ApplicationContextAware {
                            .toList();
     }
 
-    private NuxeoPrincipal getPrincipal(String principalId) {
-        UserManager userManager = Framework.getService(UserManager.class);
-        NuxeoPrincipal principal = userManager.getPrincipal(principalId);
-        if (principal == null) {
-            if (Framework.isTestModeSet()) {
-                // TODO do proper tests setup with pre-defined users instead
-                return new NuxeoPrincipalImpl(principalId);
-            }
-            throw new NuxeoException("No such principal: " + principalId);
-        }
-        return principal;
-    }
-
     /**
      * Returns local ACL only.
      */
-    protected List<ACEDTO> localACLsToAceDTOs(DocumentModel doc) {
-        ACL localACL = doc.getLocalACL();
-        return aclMapper.acesToAceDTOs(localACL);
-    }
-
-    /**
-     * Returns positive ACL only.
-     */
-    protected List<ACEDTO> effectiveACLsToAceDTOs(DocumentModel doc) {
-        ACL effectiveACL = doc.getEffectiveACL();
-        return aclMapper.acesToAceDTOs(effectiveACL);
-    }
-
-    protected List<String> getEffectivePermissions(DocumentModel doc) {
-        Set<String> set = doc.getEffectivePermissions();
-        List<String> permissions = new ArrayList<>(set);
-        permissions.sort(null); // provide stable JSON representation
-        return permissions;
+    protected List<ACEDTO> aclToAceDTOs(Object value) {
+        return value == null ? null : aclMapper.acesToAceDTOs((ACL) value);
     }
 
     public DocumentModel createDocumentModel(CoreSession session, DocumentRef parentRef, DocumentDTO doc,
@@ -320,25 +303,10 @@ public class DocumentMapper implements ApplicationContextAware {
         List<ValidationViolation> errors = new ArrayList<>();
         updatePrimaryTypeAndMixinTypes(doc, docModel);
 
-        String lifecycleState = doc.getLifecycleState();
-        if (lifecycleState != null) {
-            setLifecycleState(docModel, lifecycleState);
-        }
-
-        // system
-        List<String> securityPolicies = doc.getSecurityPolicies();
-        if (securityPolicies != null) {
-            docModel.setSecurityPolicies(securityPolicies);
-        }
-        String description = doc.getDescription();
-        if (description != null) {
-            docModel.setPropertyValue(SYS_DESCRIPTION, description);
-        }
-        String title = doc.getTitle();
-        if (title != null) {
-            docModel.setPropertyValue(SYS_TITLE, title);
-        }
-        // the other properties are read-only
+        setSystemProperty(docModel, SYS_LIFECYCLE_STATE, doc.getLifecycleState());
+        setSystemProperty(docModel, SYS_SECURITY_POLICIES, doc.getSecurityPolicies());
+        setSystemProperty(docModel, SYS_DESCRIPTION, doc.getDescription());
+        setSystemProperty(docModel, SYS_TITLE, doc.getTitle());
 
         // Build the list of blobs as context info for updating the document from the DTO
         // The goal is to prevent the creation of new empty blobs or setting up blobs with a different key
@@ -347,6 +315,7 @@ public class DocumentMapper implements ApplicationContextAware {
             if (blob instanceof ManagedBlob managedBlob) {
                 blobsContext.blobs().put(managedBlob.getKey(), managedBlob);
             }
+
         });
 
         for (Map.Entry<String, Object> prop : doc.getProperties().entrySet()) {
@@ -369,6 +338,12 @@ public class DocumentMapper implements ApplicationContextAware {
         }
     }
 
+    protected void setSystemProperty(DocumentModel docModel, String name, Object value) {
+        if (value != null) {
+            docModel.setPropertyValue(name, value);
+        }
+    }
+
     private void updatePrimaryTypeAndMixinTypes(DocumentDTO doc, DocumentModel docModel) {
         String type = doc.getPrimaryType();
         List<String> mixins = doc.getMixinTypes();
@@ -380,14 +355,6 @@ public class DocumentMapper implements ApplicationContextAware {
             mixins = mixins.stream().filter(x -> !x.equals(SYS_GOVERNABLE)).toList();
         }
         docModel.setPrimaryTypeAndMixinTypes(type, mixins);
-    }
-
-    private String getLifecycleState(DocumentModel doc) {
-        return (String) doc.getCoreSession().getDocumentSystemProp(doc.getRef(), SYS_LIFECYCLE_STATE, String.class);
-    }
-
-    private void setLifecycleState(DocumentModel doc, String lifecycleState) {
-        doc.getCoreSession().setDocumentSystemProp(doc.getRef(), SYS_LIFECYCLE_STATE, lifecycleState);
     }
 
     private Blob getBlobFromPropertyOrUpload(Map<String, Object> value, String xpath, DocumentModel docModel,
@@ -440,22 +407,10 @@ public class DocumentMapper implements ApplicationContextAware {
     }
 
     /**
-     * This visitor is called using doc.visitFields because we want to visit null values. These null values are usually
-     * not output, except that we have a few "true or null" booleans for which we want null to be sent as false.
-     * Also when withEmptyLists is requested, we want to express null values as empty lists.
+     * This visitor is called using doc.visitFields because we want to express null list values as empty lists when
+     * requested. Repository-managed fields are projected separately.
      */
     public static class MapBuilderValuesVisitor implements ValuesVisitor {
-
-        /**
-         * These system properties are (for migration reasons) stored in db as either true or null, but never false.
-         * Null has the semantics of false, and that's what we want to send to REST clients.
-         */
-        // TODO this characteristic really needs to be part of the field / content model
-        private static final Set<String> TRUE_OR_NULL_BOOLEAN_PROPS = Set.of( //
-                SYSVER_IS_CHECKED_IN, //
-                SYSVER_IS_VERSION,
-                SYSGOV_HAS_LEGAL_HOLD,
-                SYSGOV_IS_RECORD);
 
         private final Deque<Map<String, Object>> mapStack = new ArrayDeque<>();
 
@@ -521,15 +476,8 @@ public class DocumentMapper implements ApplicationContextAware {
 
         @Override
         public void endObjectElement() {
-            // system schemas managed separately (for now)
-            if (!key.startsWith(SYS_PREFIX)) {
-                // we don't write nulls except for those that really mean false
-                if (value == null && TRUE_OR_NULL_BOOLEAN_PROPS.contains(key)) {
-                    value = FALSE;
-                }
-                if (value != null) {
-                    map.put(key, value);
-                }
+            if (value != null) {
+                map.put(key, value);
             }
             key = keyStack.pollLast();
         }
@@ -628,7 +576,7 @@ public class DocumentMapper implements ApplicationContextAware {
         return props;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings("unchecked")
     private Object translatePropertyFromDocumentDTO(String xpath, Object value, DocumentModel docModel,
             BlobsContext blobsContext) {
         if (value == null) {

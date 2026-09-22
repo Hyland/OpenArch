@@ -170,16 +170,6 @@ public class ShallowDocumentModel implements DocumentModel {
     }
 
     @Override
-    public List<String> getSecurityPolicies() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void setSecurityPolicies(List<String> securityPolicies) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public ACL getLocalACL() {
         throw new UnsupportedOperationException();
     }
@@ -246,11 +236,6 @@ public class ShallowDocumentModel implements DocumentModel {
 
     @Override
     public NuxeoPrincipal getPrincipal() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public String getTitle() {
         throw new UnsupportedOperationException();
     }
 
@@ -389,11 +374,6 @@ public class ShallowDocumentModel implements DocumentModel {
 
     @Override
     public String getChangeToken() {
-        return null;
-    }
-
-    @Override
-    public String getBinaryFulltext() {
         return null;
     }
 

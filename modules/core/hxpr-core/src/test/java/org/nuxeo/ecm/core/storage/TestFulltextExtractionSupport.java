@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_FULLTEXT_BINARY;
 
@@ -33,6 +34,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.api.CoreSession;
+import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.IdRef;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.api.impl.blob.StringBlob;
@@ -205,33 +207,41 @@ public class TestFulltextExtractionSupport {
     @Test
     public void handlePlainText_setsTextOnEachDocId() {
         CoreSession session = mock(CoreSession.class);
-        when(session.getBinaryFulltext(new IdRef("doc1"))).thenReturn("");
-        when(session.getBinaryFulltext(new IdRef("doc2"))).thenReturn("");
+        DocumentModel doc1 = mock(DocumentModel.class);
+        DocumentModel doc2 = mock(DocumentModel.class);
+        when(session.getDocument(new IdRef("doc1"))).thenReturn(doc1);
+        when(session.getDocument(new IdRef("doc2"))).thenReturn(doc2);
+        when(doc1.getPropertyValue(SYS_FULLTEXT_BINARY)).thenReturn("");
+        when(doc2.getPropertyValue(SYS_FULLTEXT_BINARY)).thenReturn("");
 
         support.handlePlainText("hello", 100, session, List.of("doc1", "doc2"));
 
-        verify(session).setDocumentSystemProp(new IdRef("doc1"), SYS_FULLTEXT_BINARY, "hello");
-        verify(session).setDocumentSystemProp(new IdRef("doc2"), SYS_FULLTEXT_BINARY, "hello");
+        verify(doc1).setPropertyValue(SYS_FULLTEXT_BINARY, "hello");
+        verify(doc2).setPropertyValue(SYS_FULLTEXT_BINARY, "hello");
     }
 
     @Test
     public void handlePlainText_stripsNullBytes() {
         CoreSession session = mock(CoreSession.class);
-        when(session.getBinaryFulltext(new IdRef("doc1"))).thenReturn("");
+        DocumentModel doc = mock(DocumentModel.class);
+        when(session.getDocument(new IdRef("doc1"))).thenReturn(doc);
+        when(doc.getPropertyValue(SYS_FULLTEXT_BINARY)).thenReturn("");
 
         support.handlePlainText("hel\0lo", 100, session, List.of("doc1"));
 
-        verify(session).setDocumentSystemProp(new IdRef("doc1"), SYS_FULLTEXT_BINARY, "hel lo");
+        verify(doc).setPropertyValue(SYS_FULLTEXT_BINARY, "hel lo");
     }
 
     @Test
     public void handlePlainText_appendsToExistingText() {
         CoreSession session = mock(CoreSession.class);
-        when(session.getBinaryFulltext(new IdRef("doc1"))).thenReturn("existing");
+        DocumentModel doc = mock(DocumentModel.class);
+        when(session.getDocument(new IdRef("doc1"))).thenReturn(doc);
+        when(doc.getPropertyValue(SYS_FULLTEXT_BINARY)).thenReturn("existing");
 
         support.handlePlainText("new text", 100, session, List.of("doc1"));
 
-        verify(session).setDocumentSystemProp(new IdRef("doc1"), SYS_FULLTEXT_BINARY, "existing new text");
+        verify(doc).setPropertyValue(SYS_FULLTEXT_BINARY, "existing new text");
     }
 
     @Test
@@ -239,8 +249,7 @@ public class TestFulltextExtractionSupport {
         CoreSession session = mock(CoreSession.class);
         support.handlePlainText("hello", 100, session, List.of());
         // no interactions with session
-        verify(session, org.mockito.Mockito.never()).setDocumentSystemProp(
-                org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
+        verifyNoInteractions(session);
     }
 
     // -------------------------------------------------------------------------

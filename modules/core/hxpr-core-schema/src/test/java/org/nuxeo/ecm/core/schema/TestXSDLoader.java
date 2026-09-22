@@ -18,6 +18,7 @@ package org.nuxeo.ecm.core.schema;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -437,6 +438,15 @@ public class TestXSDLoader {
         } catch (TypeException e) {
             assertEquals("Duplicate property \"pref_validator\" in schemas \"s1\" (string) and \"s2\" (long).", e.getMessage());
         }
+    }
+
+    @Test
+    public void testInvalidManagedBoolean() {
+        URL url = ResourceHelper.getResource("schema/invalid-managed-boolean.xsd");
+
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> reader.loadSchema("system", "sys", url));
+        assertEquals("Invalid boolean value: TRUE", e.getMessage());
     }
 
 }

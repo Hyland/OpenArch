@@ -53,9 +53,6 @@ import org.nuxeo.ecm.core.query.sql.model.StringLiteral;
  */
 public abstract class ExpressionEvaluator {
 
-    /** pseudo NXQL to resolve internal path. */
-    public static final String NXQL_SYS_PATH = "sys___path";
-
     protected static final String DATE_CAST = "DATE";
 
     /**

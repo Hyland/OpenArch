@@ -42,8 +42,7 @@
           "SysFolderish"
         ],
         "schemas": [
-          "mydublincore",
-          "system"
+          "mydublincore"
         ],
         "subtypes": [
           "SysFile",
@@ -51,7 +50,7 @@
           "SysOrderedFolder"
         ]
       },
-      "message": "The value \"'{'extends=SysContent, schemas=[mydublincore, system], mixins=[SysFolderish], subtypes=[SysFile, SysFolder, SysOrderedFolder]'}'\" already exists at \"primaryTypes/SysFolder\" and cannot be removed.",
+      "message": "The value \"'{'extends=SysContent, schemas=[mydublincore], mixins=[SysFolderish], subtypes=[SysFile, SysFolder, SysOrderedFolder]'}'\" already exists at \"primaryTypes/SysFolder\" and cannot be removed.",
       "messageKey": "label.schema.application.violation.AlreadyExistsViolation.removed",
       "parameters": [
         {
@@ -60,8 +59,7 @@
             "SysFolderish"
           ],
           "schemas": [
-            "mydublincore",
-            "system"
+            "mydublincore"
           ],
           "subtypes": [
             "SysFile",

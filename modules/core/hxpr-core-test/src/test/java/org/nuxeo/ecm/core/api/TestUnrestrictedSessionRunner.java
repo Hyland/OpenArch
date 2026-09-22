@@ -99,7 +99,7 @@ public class TestUnrestrictedSessionRunner {
             DocumentModel root = session.getRootDocument();
             ACL acl = root.getLocalACL();
             acl.add(ACE.builder().user(USERNAME).permission(SecurityConstants.READ_WRITE).build());
-            session.setACL(root.getRef(), acl, true);
+            root.setACL(acl, true);
             DocumentModel doc = session.createDocumentModel("/", DOC_NAME, SYS_FILE);
             doc.setPropertyValue(SYS_TITLE, NEW_TITLE);
             doc.create();

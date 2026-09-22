@@ -3,7 +3,9 @@
     "op": "add",
     "path": "/types/testT",
     "value": {
-      "list": { "type" : "string" },
+      "list": {
+        "type": "string"
+      },
       "projectId": "PF00000"
     }
   },
@@ -58,7 +60,6 @@
       ],
       "projectId": "PF00000",
       "schemas": [
-        "system",
         "sysfile",
         "mydublincore"
       ],

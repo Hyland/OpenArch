@@ -15,6 +15,8 @@
  */
 package org.nuxeo.ecm.core.schema;
 
+import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.SYSTEM_SCHEMAS;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -32,9 +34,12 @@ import com.hyland.hxpr.config.Configurable;
 import com.hyland.hxpr.config.ConfigurationService;
 import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
 import org.nuxeo.ecm.core.schema.dto.ModelMapCodec;
+import org.nuxeo.ecm.core.schema.dto.SchemaDTO;
+import org.nuxeo.ecm.core.schema.dto.TypeDTO;
 import org.nuxeo.ecm.core.schema.dto.ContentModelDTO;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 /**
  * The TypeService is the component dealing with registration of schemas and document types (and mixins).
@@ -109,6 +114,8 @@ public class TypeServiceImpl extends DefaultComponent implements TypeService, Co
 
     @Override
     public void setSchemaManager(String repositoryName, SchemaManager schemaManager) {
+        schemaManager = new SchemaManagerDTO(withCoreSystemDefinitions(schemaManager.toContentModel()), List.of(),
+                false);
         // set locally
         setSchemaManagerLocally(repositoryName, schemaManager);
         // persist it (sends cluster invalidations)
@@ -145,6 +152,7 @@ public class TypeServiceImpl extends DefaultComponent implements TypeService, Co
             List<ValidationViolation> violations = new ArrayList<>();
             AtomicBoolean legacyShape = new AtomicBoolean();
             ContentModelDTO model = ModelMapCodec.read(config, violations, legacyShape);
+            model = withCoreSystemDefinitions(model);
             if (legacyShape.get()) {
                 log.warn("Content model for repository {} is stored in the legacy shape; "
                         + "it will be rewritten in the current shape the next time the model is updated",
@@ -156,6 +164,31 @@ public class TypeServiceImpl extends DefaultComponent implements TypeService, Co
             return;
         }
         setSchemaManagerLocally(repositoryName, schemaManager);
+    }
+
+    /**
+     * Replaces persisted core system schemas and types with their current bootstrap definitions.
+     */
+    protected ContentModelDTO withCoreSystemDefinitions(ContentModelDTO model) {
+        return withCoreSystemDefinitions(model, defaultSchemaManager.toContentModel());
+    }
+
+    /** Same merge with explicit bootstrap definitions, for tests. */
+    static ContentModelDTO withCoreSystemDefinitions(ContentModelDTO model, ContentModelDTO defaults) {
+        Map<String, SchemaDTO> schemas = new LinkedHashMap<>(model.schemas());
+        SYSTEM_SCHEMAS.forEach(name -> {
+            if (defaults.schemas().containsKey(name)) {
+                schemas.put(name, defaults.schemas().get(name));
+            }
+        });
+        Map<String, TypeDTO> types = new LinkedHashMap<>(model.types());
+        types.keySet().removeIf(name -> name.startsWith("system#"));
+        defaults.types()
+                .entrySet()
+                .stream()
+                .filter(entry -> entry.getKey().startsWith("system#"))
+                .forEach(entry -> types.put(entry.getKey(), entry.getValue()));
+        return new ContentModelDTO(schemas, types, model.mixinTypes(), model.primaryTypes());
     }
 
 }

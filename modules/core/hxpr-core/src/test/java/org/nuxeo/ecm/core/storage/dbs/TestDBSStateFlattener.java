@@ -18,6 +18,8 @@ package org.nuxeo.ecm.core.storage.dbs;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ACL;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ID;
 
@@ -27,14 +29,34 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+import org.nuxeo.ecm.core.schema.SchemaManager;
+import org.nuxeo.ecm.core.schema.types.Field;
+import org.nuxeo.ecm.core.schema.types.FieldCharacteristics;
 import org.nuxeo.ecm.core.storage.State;
 
-public class TestDBSStateFlatter {
+public class TestDBSStateFlattener {
+
+    protected static final SchemaManager SCHEMA_MANAGER = schemaManager();
+
+    protected static SchemaManager schemaManager() {
+        SchemaManager schemaManager = mock(SchemaManager.class);
+        Field acl = mock(Field.class);
+        FieldCharacteristics managed = mock(FieldCharacteristics.class);
+        when(schemaManager.getField(SYS_ACL)).thenReturn(acl);
+        when(acl.isRepositoryManaged()).thenReturn(true);
+        when(acl.getCharacteristics()).thenReturn(managed);
+        when(managed.notProjectable()).thenReturn(true);
+        return schemaManager;
+    }
+
+    protected static DBSStateFlattener flattener() {
+        return new DBSStateFlattener(Map.of(), SCHEMA_MANAGER);
+    }
 
     @Test
     public void testFlatterWithEmptyState() {
         State state = new State();
-        Map<String, Object> flattened = new DBSStateFlattener().flatten(state);
+        Map<String, Object> flattened = flattener().flatten(state);
         assertNotNull(flattened);
         assertTrue(flattened.isEmpty());
     }
@@ -43,7 +65,7 @@ public class TestDBSStateFlatter {
     public void testFlatterWithPropertyNotReturnedToCaller() {
         State state = new State();
         state.put(SYS_ACL, "whatever");
-        Map<String, Object> flattened = new DBSStateFlattener().flatten(state);
+        Map<String, Object> flattened = flattener().flatten(state);
         assertNotNull(flattened);
         assertTrue(flattened.isEmpty());
     }
@@ -52,7 +74,7 @@ public class TestDBSStateFlatter {
     public void testFlatterWithECMId() {
         State state = new State();
         state.put(SYS_ID, "ID");
-        Map<String, Object> flattened = new DBSStateFlattener().flatten(state);
+        Map<String, Object> flattened = flattener().flatten(state);
         assertNotNull(flattened);
         assertEquals("ID", flattened.get(SYS_ID));
     }
@@ -61,7 +83,7 @@ public class TestDBSStateFlatter {
     public void testFlatterWithRegularProperty() {
         State state = new State();
         state.put("color", "black");
-        Map<String, Object> flattened = new DBSStateFlattener().flatten(state);
+        Map<String, Object> flattened = flattener().flatten(state);
         assertNotNull(flattened);
         assertEquals(1, flattened.size());
         assertEquals("black", flattened.get("color"));
@@ -73,7 +95,7 @@ public class TestDBSStateFlatter {
         State subState = new State();
         subState.put("color", "black");
         state.put("sub", subState);
-        Map<String, Object> flattened = new DBSStateFlattener().flatten(state);
+        Map<String, Object> flattened = flattener().flatten(state);
         assertNotNull(flattened);
         assertEquals("black", flattened.get("sub/color"));
     }
@@ -82,7 +104,7 @@ public class TestDBSStateFlatter {
     public void testFlatterWithArray() {
         State state = new State();
         state.put("colors", new String[] { "black", "white" });
-        Map<String, Object> flattened = new DBSStateFlattener().flatten(state);
+        Map<String, Object> flattened = flattener().flatten(state);
         assertNotNull(flattened);
         assertEquals(2, flattened.size());
         assertEquals("black", flattened.get("colors/0"));
@@ -96,7 +118,7 @@ public class TestDBSStateFlatter {
         mappings.put("king", "queen");
         state.put("king", "kong");
         state.put("ping", "pong");
-        Map<String, Object> flattened = new DBSStateFlattener(mappings).flatten(state);
+        Map<String, Object> flattened = new DBSStateFlattener(mappings, SCHEMA_MANAGER).flatten(state);
         assertNotNull(flattened);
         assertEquals(2, flattened.size());
         assertEquals("kong", flattened.get("queen"));
@@ -107,7 +129,7 @@ public class TestDBSStateFlatter {
     public void testFlatterWithListOfPrimitive() {
         State state = new State();
         state.put("colors", new ArrayList<>(Arrays.asList("black", "white")));
-        Map<String, Object> flattened = new DBSStateFlattener().flatten(state);
+        Map<String, Object> flattened = flattener().flatten(state);
         assertNotNull(flattened);
         assertEquals(2, flattened.size());
         assertEquals("black", flattened.get("colors/0"));
@@ -122,7 +144,7 @@ public class TestDBSStateFlatter {
         State subState2 = new State();
         subState2.put("main", "white");
         state.put("colors", new ArrayList<>(Arrays.asList(subState1, subState2)));
-        Map<String, Object> flattened = new DBSStateFlattener().flatten(state);
+        Map<String, Object> flattened = flattener().flatten(state);
         assertNotNull(flattened);
         assertEquals(2, flattened.size());
         assertEquals("black", flattened.get("colors/0/main"));

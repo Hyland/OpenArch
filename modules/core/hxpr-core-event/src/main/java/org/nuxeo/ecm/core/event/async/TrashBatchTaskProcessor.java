@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.nuxeo.ecm.core.api.CoreSession;
+import org.nuxeo.ecm.core.api.CoreInstance;
 import org.nuxeo.ecm.core.api.DocumentModelList;
 import org.nuxeo.ecm.core.api.DocumentRef;
 import org.nuxeo.ecm.core.api.IdRef;
@@ -76,7 +77,9 @@ public class TrashBatchTaskProcessor extends AbstractBatchTaskProcessor {
             for (Map<String, Object> map : result) {
                 DocumentRef ref = new IdRef((String) map.get(SYS_ID));
                 try {
-                    session.setDocumentSystemProp(ref, SYS_IS_TRASHED, value);
+                    CoreInstance.doPrivileged(session.getRepositoryName(), systemSession -> {
+                        systemSession.getDocument(ref).setPropertyValue(SYS_IS_TRASHED, value);
+                    });
                     String docName = (String) map.get(SYS_NAME);
                     if (!value && trashService.isMangledName(docName)) {
                         DocumentRef parentRef = new IdRef((String) map.get(SYS_PARENT_ID));

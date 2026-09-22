@@ -7,7 +7,6 @@
     <doctype name="Note" extends="SysContent">
       <schema name="note"/>
       <schema name="sysfiles"/>
-      <schema name="system"/>
       <mixin name="SysVersionable"/>
       <mixin name="Publishable"/>
       <mixin name="Commentable"/>

@@ -88,16 +88,30 @@ public class ExprEvaluator {
 
     private final Map<String, Object> context;
 
-    /** SchemaManager required in order to know which fields are true-or-null booleans. */
+    /** SchemaManager required in order to know which fields store false as null. */
     private final SchemaManager schemaManager;
+
+    /** Whether security-related properties may be used. */
+    private final boolean allowSecurityProperties;
 
     /**
      * @param context the context for the evaluation
      * @param schemaManager the schema manager
      */
     public ExprEvaluator(Map<String, Object> context, SchemaManager schemaManager) {
+        this(context, schemaManager, false);
+    }
+
+    /**
+     * @param context the context for the evaluation
+     * @param schemaManager the schema manager
+     * @param allowSecurityProperties whether the properties {@link SchemaManager#isSecurityProperty} identifies may
+     *            nevertheless be used, which is the case for an administrator, who can see them anyway
+     */
+    public ExprEvaluator(Map<String, Object> context, SchemaManager schemaManager, boolean allowSecurityProperties) {
         this.context = context;
         this.schemaManager = schemaManager;
+        this.allowSecurityProperties = allowSecurityProperties;
     }
 
     /** The context for evaluating an expression against the content a query selects, with no user. */
@@ -250,7 +264,7 @@ public class ExprEvaluator {
      * @throws IllegalArgumentException if the property is a disallowed system property
      */
     private void checkAllowedProperty(String name, Expr expr) {
-        if (schemaManager.isForbiddenInExpr(name)) {
+        if (!allowSecurityProperties && schemaManager.isSecurityProperty(name)) {
             throw new IllegalArgumentException(
                     "Disallowed system property: " + name + " in: " + expr.toStringPretty());
         }
@@ -292,7 +306,7 @@ public class ExprEvaluator {
             value = Long.valueOf(i);
         } else if (value instanceof Float f) {
             value = Double.valueOf(f);
-        } else if (value == null && schemaManager.isTrueOrNullBoolean(name)) {
+        } else if (value == null && schemaManager.isFalseStoredAsNull(name)) {
             value = false;
         } else if (value instanceof ManagedBlob blob) {
             Map<String, Object> map = new HashMap<>();

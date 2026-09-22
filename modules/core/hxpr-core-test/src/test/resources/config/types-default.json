@@ -121,13 +121,36 @@
     "sysgovernable": {
       "fields": {
         "sysgov_hasLegalHold": {
-          "type": "boolean"
+          "extends": "boolean",
+          "managed": {
+            "noAutoCheckout": true,
+            "falseAsNull": [
+              "STORE",
+              "INDEX"
+            ],
+            "writePermission": "ManageRetention",
+            "versionWritePermission": "STANDARD"
+          }
         },
         "sysgov_isRecord": {
-          "type": "boolean"
+          "extends": "boolean",
+          "managed": {
+            "noAutoCheckout": true,
+            "falseAsNull": [
+              "STORE",
+              "INDEX"
+            ],
+            "writePermission": "ManageRetention",
+            "versionWritePermission": "STANDARD"
+          }
         },
         "sysgov_retainUntil": {
-          "type": "date"
+          "extends": "date",
+          "managed": {
+            "noAutoCheckout": true,
+            "writePermission": "ManageRetention",
+            "versionWritePermission": "STANDARD"
+          }
         }
       },
       "prefix": "sysgov"
@@ -410,23 +433,275 @@
     },
     "system": {
       "fields": {
+        "sys_acl": {
+          "extends": "system#aceList",
+          "managed": {
+            "readPermission": "ManageSecurity",
+            "writePermission": "ManageSecurity",
+            "notProjectable": true,
+            "noAutoCheckout": true,
+            "notOutput": [
+              "INDEX"
+            ]
+          }
+        },
+        "sys_ancestorIds": {
+          "extends": "system#stringList",
+          "managed": {
+            "systemOwned": true
+          }
+        },
+        "sys_blobKeys": {
+          "extends": "system#stringList",
+          "managed": {
+            "systemOwned": true,
+            "notOutput": [
+              "REST",
+              "INDEX"
+            ]
+          }
+        },
+        "sys_changeToken": {
+          "extends": "string",
+          "managed": {
+            "source": "COMPUTED",
+            "notQueryable": true,
+            "notProjectable": true,
+            "systemOwned": true
+          }
+        },
         "sys_contributors": {
-          "type": "system#contributorList"
+          "extends": "system#contributorList",
+          "managed": {
+            "systemOwned": true
+          }
         },
         "sys_created": {
-          "type": "date"
+          "extends": "date",
+          "managed": {
+            "systemOwned": true
+          }
         },
         "sys_creator": {
-          "type": "string"
+          "extends": "system#principal",
+          "managed": {
+            "systemOwned": true
+          }
         },
         "sys_description": {
           "type": "string"
         },
+        "sys_effectiveAcl": {
+          "extends": "system#aceList",
+          "managed": {
+            "readPermission": "ManageSecurity",
+            "source": "COMPUTED",
+            "notQueryable": true,
+            "notProjectable": true,
+            "systemOwned": true,
+            "notOutput": [
+              "INDEX"
+            ]
+          }
+        },
+        "sys_effectivePermissions": {
+          "extends": "system#stringList",
+          "managed": {
+            "source": "COMPUTED",
+            "notQueryable": true,
+            "notProjectable": true,
+            "systemOwned": true,
+            "notOutput": [
+              "INDEX"
+            ]
+          }
+        },
+        "sys_fulltext": {
+          "extends": "string",
+          "managed": {
+            "source": "QUERY_VIRTUAL",
+            "notProjectable": true,
+            "systemOwned": true,
+            "notOutput": [
+              "REST",
+              "INDEX"
+            ]
+          }
+        },
+        "sys_fulltextBinary": {
+          "extends": "string",
+          "managed": {
+            "notProjectable": true,
+            "systemOwned": true
+          }
+        },
+        "sys_fulltextJobId": {
+          "extends": "string",
+          "managed": {
+            "systemOwned": true,
+            "notOutput": [
+              "REST",
+              "INDEX"
+            ]
+          }
+        },
+        "sys_fulltextScore": {
+          "extends": "double",
+          "managed": {
+            "source": "QUERY_VIRTUAL",
+            "systemOwned": true,
+            "notOutput": [
+              "REST",
+              "INDEX"
+            ]
+          }
+        },
+        "sys_id": {
+          "extends": "string",
+          "managed": {
+            "noAutoCheckout": true
+          }
+        },
+        "sys_isFolderish": {
+          "extends": "boolean",
+          "managed": {
+            "falseAsNull": [
+              "STORE"
+            ],
+            "systemOwned": true
+          }
+        },
+        "sys_isTrashed": {
+          "extends": "boolean",
+          "managed": {
+            "falseAsNull": [
+              "STORE",
+              "REST",
+              "INDEX"
+            ],
+            "systemOwned": true
+          }
+        },
         "sys_lastContributor": {
-          "type": "string"
+          "extends": "system#principal",
+          "managed": {
+            "systemOwned": true
+          }
+        },
+        "sys_lifecycleState": {
+          "extends": "string",
+          "managed": {
+            "versionWritePermission": "STANDARD"
+          }
+        },
+        "sys_lockCreated": {
+          "extends": "date",
+          "managed": {
+            "systemOwned": true
+          }
+        },
+        "sys_lockOwner": {
+          "extends": "system#principal",
+          "managed": {
+            "noAutoCheckout": true,
+            "writePermission": "MANAGED",
+            "versionWritePermission": "STANDARD"
+          }
+        },
+        "sys_mixinTypes": {
+          "extends": "system#stringList",
+          "managed": {
+            "noAutoCheckout": true
+          }
         },
         "sys_modified": {
-          "type": "date"
+          "extends": "date",
+          "managed": {
+            "systemOwned": true
+          }
+        },
+        "sys_name": {
+          "extends": "string",
+          "managed": {
+            "systemOwned": true
+          }
+        },
+        "sys_parentId": {
+          "extends": "string",
+          "managed": {
+            "systemOwned": true
+          }
+        },
+        "sys_parentPath": {
+          "extends": "string",
+          "managed": {
+            "source": "COMPUTED",
+            "notQueryable": true,
+            "notProjectable": true,
+            "systemOwned": true
+          }
+        },
+        "sys_path": {
+          "extends": "string",
+          "managed": {
+            "source": "COMPUTED",
+            "systemOwned": true
+          }
+        },
+        "sys_pathDepth": {
+          "extends": "long",
+          "managed": {
+            "source": "COMPUTED",
+            "notQueryable": true,
+            "notProjectable": true,
+            "systemOwned": true
+          }
+        },
+        "sys_pos": {
+          "extends": "long",
+          "managed": {
+            "systemOwned": true
+          }
+        },
+        "sys_primaryType": {
+          "extends": "string",
+          "managed": {
+            "noAutoCheckout": true
+          }
+        },
+        "sys_racl": {
+          "extends": "system#stringList",
+          "managed": {
+            "readPermission": "ManageSecurity",
+            "systemOwned": true
+          }
+        },
+        "sys_repository": {
+          "extends": "string",
+          "managed": {
+            "source": "COMPUTED",
+            "notQueryable": true,
+            "notProjectable": true,
+            "systemOwned": true
+          }
+        },
+        "sys_secpol": {
+          "extends": "system#stringList",
+          "managed": {
+            "noAutoCheckout": true,
+            "readPermission": "ManageSecurity",
+            "writePermission": "ManageSecurity"
+          }
+        },
+        "sys_systemChangeToken": {
+          "extends": "long",
+          "managed": {
+            "systemOwned": true,
+            "notOutput": [
+              "REST",
+              "INDEX"
+            ]
+          }
         },
         "sys_title": {
           "type": "string"
@@ -437,31 +712,66 @@
     "sysversionable": {
       "fields": {
         "sysver_created": {
-          "type": "date"
+          "extends": "date",
+          "managed": {
+            "systemOwned": true
+          }
         },
         "sysver_creator": {
-          "type": "string"
+          "extends": "string",
+          "managed": {
+            "systemOwned": true
+          }
         },
         "sysver_description": {
-          "type": "string"
+          "extends": "string",
+          "managed": {
+            "versionWritePermission": "WriteVersion"
+          }
         },
         "sysver_isCheckedIn": {
-          "type": "boolean"
+          "extends": "boolean",
+          "managed": {
+            "falseAsNull": [
+              "STORE",
+              "INDEX"
+            ],
+            "systemOwned": true
+          }
         },
         "sysver_isTemp": {
-          "type": "boolean"
+          "extends": "boolean",
+          "managed": {
+            "systemOwned": true
+          }
         },
         "sysver_isVersion": {
-          "type": "boolean"
+          "extends": "boolean",
+          "managed": {
+            "falseAsNull": [
+              "STORE",
+              "INDEX"
+            ],
+            "systemOwned": true
+          }
         },
         "sysver_minorVersion": {
-          "type": "long"
+          "extends": "long",
+          "managed": {
+            "systemOwned": true
+          }
         },
         "sysver_title": {
-          "type": "string"
+          "extends": "string",
+          "managed": {
+            "versionWritePermission": "WriteVersion"
+          }
         },
         "sysver_version": {
-          "type": "long"
+          "extends": "long",
+          "managed": {
+            "systemOwned": true
+          }
         }
       },
       "prefix": "sysver"
@@ -594,9 +904,47 @@
         "type": "string"
       }
     },
-    "system#contributorList": {
+    "system#ace": {
+      "fields": {
+        "begin": {
+          "type": "date"
+        },
+        "creator": {
+          "type": "system#principal"
+        },
+        "end": {
+          "type": "date"
+        },
+        "grant": {
+          "type": "boolean"
+        },
+        "perm": {
+          "type": "string"
+        },
+        "principal": {
+          "type": "system#principal"
+        },
+        "status": {
+          "type": "string"
+        }
+      }
+    },
+    "system#aceList": {
+      "list": {
+        "type": "system#ace"
+      }
+    },
+    "system#principal": {
+      "extends": "string"
+    },
+    "system#stringList": {
       "list": {
         "type": "string"
+      }
+    },
+    "system#contributorList": {
+      "list": {
+        "type": "system#principal"
       }
     }
   },
@@ -676,19 +1024,21 @@
     "SysVersionedWithParent": {}
   },
   "primaryTypes": {
-    "SysContent": {},
+    "SysContent": {
+      "schemas": [
+        "system"
+      ]
+    },
     "SysEmbeddings": {
       "extends": "SysContent",
       "schemas": [
-        "sysembeddings",
-        "system"
+        "sysembeddings"
       ]
     },
     "SysFile": {
       "extends": "SysContent",
       "schemas": [
-        "sysfiles",
-        "system"
+        "sysfiles"
       ],
       "mixins": [
         "SysFilish"
@@ -696,9 +1046,6 @@
     },
     "SysFolder": {
       "extends": "SysContent",
-      "schemas": [
-        "system"
-      ],
       "mixins": [
         "SysFolderish"
       ],
@@ -711,8 +1058,7 @@
     "SysMDAnnotation": {
       "extends": "SysContent",
       "schemas": [
-        "sysmdanno",
-        "system"
+        "sysmdanno"
       ],
       "mixins": [
         "SysVersionedWithParent"
@@ -721,8 +1067,7 @@
     "SysMDBookmark": {
       "extends": "SysContent",
       "schemas": [
-        "sysmdbm",
-        "system"
+        "sysmdbm"
       ],
       "mixins": [
         "SysVersionedWithParent"
@@ -731,8 +1076,7 @@
     "SysMDComment": {
       "extends": "SysContent",
       "schemas": [
-        "sysmdcomment",
-        "system"
+        "sysmdcomment"
       ],
       "mixins": [
         "SysVersionedWithParent"
@@ -751,15 +1095,14 @@
     },
     "SysRelation": {
       "schemas": [
-        "sysrelation",
-        "system"
-      ]
+        "sysrelation"
+      ],
+      "extends": "SysContent"
     },
     "SysRendition": {
       "extends": "SysContent",
       "schemas": [
-        "sysrendition",
-        "system"
+        "sysrendition"
       ]
     },
     "SysRenditionsContainer": {
@@ -777,7 +1120,6 @@
     "SysVocabulary": {
       "extends": "SysContent",
       "schemas": [
-        "system",
         "sysvocab"
       ],
       "mixins": [
@@ -790,7 +1132,6 @@
     "SysVocabularyEntry": {
       "extends": "SysContent",
       "schemas": [
-        "system",
         "sysvocab"
       ]
     }

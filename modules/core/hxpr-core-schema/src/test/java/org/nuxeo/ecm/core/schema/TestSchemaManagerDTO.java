@@ -16,9 +16,12 @@
 package org.nuxeo.ecm.core.schema;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 import org.nuxeo.ecm.core.schema.validation.SchemaValidationException;
@@ -92,6 +95,87 @@ public class TestSchemaManagerDTO {
                 """;
         Map<String, Object> map = MAPPER.readValue(modelJson, Map.class);
         new SchemaManagerDTO(map, null, false);
+    }
+
+    @Test
+    public void testManagedCharacteristicsAreReservedForSystemSchemas() throws Exception {
+        String modelJson = """
+                {
+                  "types": {
+                    "customType": {
+                      "fields": {
+                        "value": {
+                          "extends": "string",
+                          "managed": {}
+                        }
+                      }
+                    }
+                  },
+                  "schemas": {
+                    "custom": {
+                      "fields": {
+                        "custom_value": {
+                          "extends": "string",
+                          "managed": {
+                            "systemOwned": true
+                          }
+                        }
+                      }
+                    },
+                    "system": {
+                      "projectId": "project",
+                      "fields": {
+                        "sys_value": {
+                          "extends": "string",
+                          "managed": {}
+                        }
+                      }
+                    }
+                  },
+                  "mixinTypes": {},
+                  "primaryTypes": {}
+                }
+                """;
+        Map<String, Object> map = MAPPER.readValue(modelJson, Map.class);
+
+        SchemaValidationException e = assertThrows(SchemaValidationException.class,
+                () -> new SchemaManagerDTO(map, null, false));
+        assertEquals(Set.of("types/customType/fields/value/managed", "schemas/custom/fields/custom_value/managed",
+                "schemas/system/fields/sys_value/managed"),
+                e.getReport().asList().stream().map(v -> v.getPath()).collect(java.util.stream.Collectors.toSet()));
+        e.getReport()
+         .asList()
+         .forEach(v -> assertEquals(
+                 "Managed field characteristics are reserved for core system schemas (at \"%s\").".formatted(
+                         v.getPath()),
+                 v.getMessage(Locale.ENGLISH)));
+    }
+
+    @Test
+    public void testManagedCharacteristicsAreAllowedForSystemSchemas() throws Exception {
+        String modelJson = """
+                {
+                  "types": {},
+                  "schemas": {
+                    "system": {
+                      "fields": {
+                        "sys_value": {
+                          "extends": "string",
+                          "managed": {
+                            "systemOwned": true
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "mixinTypes": {},
+                  "primaryTypes": {}
+                }
+                """;
+        Map<String, Object> map = MAPPER.readValue(modelJson, Map.class);
+
+        SchemaManager manager = new SchemaManagerDTO(map, null, false);
+        assertTrue(manager.getField("sys_value").getCharacteristics().systemOwned());
     }
 
     /**

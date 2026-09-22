@@ -21,6 +21,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.nuxeo.ecm.core.schema.types.FieldCharacteristics.Representation.INDEX;
+import static org.nuxeo.ecm.core.schema.types.FieldCharacteristics.Representation.REST;
+import static org.nuxeo.ecm.core.schema.types.FieldCharacteristics.Representation.STORE;
 import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_CONTENT;
 
 import java.util.List;
@@ -57,40 +60,73 @@ public class TestSchemaManager {
     }
 
     @Test
-    public void testIsForbiddenInExpr() {
-        // non-system properties are never forbidden
-        assertFalse(schemaManager.isForbiddenInExpr("dc_title"));
-        assertFalse(schemaManager.isForbiddenInExpr("mydc_source"));
-        // allowed system properties, across the three system prefixes
-        assertFalse(schemaManager.isForbiddenInExpr("sys_title"));
-        assertFalse(schemaManager.isForbiddenInExpr("sysgov_isRecord"));
-        assertFalse(schemaManager.isForbiddenInExpr("sysver_isVersion"));
-        // every true-or-null boolean must be usable in an expression, or its normalization is unreachable
-        assertFalse(schemaManager.isForbiddenInExpr("sys_isTrashed"));
-        assertFalse(schemaManager.isForbiddenInExpr("sysver_isCheckedIn"));
-        assertFalse(schemaManager.isForbiddenInExpr("sysgov_hasLegalHold"));
-        // forbidden system properties
-        assertTrue(schemaManager.isForbiddenInExpr("sys_acl"));
-        assertTrue(schemaManager.isForbiddenInExpr("sys_racl"));
-        assertTrue(schemaManager.isForbiddenInExpr("sys_ancestorIds"));
-        assertTrue(schemaManager.isForbiddenInExpr("sysver_versionSeriesId"));
+    @Deploy("org.nuxeo.ecm.core.schema.tests:OSGI-INF/test-system-characteristics.xml")
+    public void testIsSecurityProperty() {
+        // non-system properties are not security properties
+        assertFalse(schemaManager.isSecurityProperty("dc_title"));
+        assertFalse(schemaManager.isSecurityProperty("mydc_source"));
+        // non-security system properties, across the three system prefixes
+        assertFalse(schemaManager.isSecurityProperty("sys_title"));
+        assertFalse(schemaManager.isSecurityProperty("sysgov_isRecord"));
+        assertFalse(schemaManager.isSecurityProperty("sysver_isVersion"));
+        // system properties that only the former prefix rule used to classify
+        assertFalse(schemaManager.isSecurityProperty("sys_ancestorIds"));
+        assertFalse(schemaManager.isSecurityProperty("sys_mixinTypes"));
+        assertFalse(schemaManager.isSecurityProperty("sysver_versionSeriesId"));
+        // security properties
+        assertTrue(schemaManager.isSecurityProperty("sys_acl"));
+        assertTrue(schemaManager.isSecurityProperty("sys_acl/*/principal"));
+        assertTrue(schemaManager.isSecurityProperty("sys_effectiveAcl"));
+        assertTrue(schemaManager.isSecurityProperty("sys_racl"));
+        assertTrue(schemaManager.isSecurityProperty("sys_secpol"));
     }
 
     @Test
-    public void testTrueOrNullBooleansAreUsableInExpressions() {
-        // the two hardcoded sets must not drift apart
+    @Deploy("org.nuxeo.ecm.core.schema.tests:OSGI-INF/test-system-characteristics.xml")
+    public void testFalseStoredAsNullBooleansAreUsableInAQuery() {
         Stream.of("sys_isFolderish", "sys_isTrashed", "sysgov_hasLegalHold", "sysgov_isRecord", "sysver_isCheckedIn",
                 "sysver_isVersion")
-              .filter(schemaManager::isTrueOrNullBoolean)
-              .forEach(key -> assertFalse(schemaManager.isForbiddenInExpr(key), key));
+              .filter(schemaManager::isFalseStoredAsNull)
+              .forEach(key -> assertFalse(schemaManager.isSecurityProperty(key), key));
     }
 
     @Test
-    public void testIsTrueOrNullBoolean() {
-        assertTrue(schemaManager.isTrueOrNullBoolean("sys_isFolderish"));
-        assertTrue(schemaManager.isTrueOrNullBoolean("sysgov_hasLegalHold"));
-        assertFalse(schemaManager.isTrueOrNullBoolean("sys_title"));
-        assertFalse(schemaManager.isTrueOrNullBoolean("dc_title"));
+    @Deploy("org.nuxeo.ecm.core.schema.tests:OSGI-INF/test-system-characteristics.xml")
+    public void testIsFalseStoredAsNullBoolean() {
+        assertTrue(schemaManager.isFalseStoredAsNull("sys_isFolderish"));
+        assertEquals(Set.of(STORE), schemaManager.getField("sys_isFolderish").getCharacteristics().falseAsNull());
+        assertEquals(Set.of(STORE, REST, INDEX),
+                schemaManager.getField("sys_isTrashed").getCharacteristics().falseAsNull());
+        assertTrue(schemaManager.isFalseStoredAsNull("sysgov_hasLegalHold"));
+        assertFalse(schemaManager.isFalseStoredAsNull("sys_title"));
+        assertFalse(schemaManager.isFalseStoredAsNull("dc_title"));
+    }
+
+    @Test
+    @Deploy("org.nuxeo.ecm.core.schema.tests:OSGI-INF/test-system-characteristics.xml")
+    public void testNoAutoCheckout() {
+        assertTrue(schemaManager.getField("sys_acl").getCharacteristics().noAutoCheckout());
+        assertTrue(schemaManager.getField("sysgov_isRecord").getCharacteristics().noAutoCheckout());
+        assertFalse(schemaManager.getField("sys_title").getCharacteristics().noAutoCheckout());
+    }
+
+    @Test
+    @Deploy("org.nuxeo.ecm.core.schema.tests:OSGI-INF/test-system-characteristics.xml")
+    public void testPropertyPermissions() {
+        assertEquals("ManageSecurity", schemaManager.getField("sys_acl").getCharacteristics().readPermission());
+        assertEquals("ManageSecurity", schemaManager.getField("sys_acl").getCharacteristics().writePermission());
+        assertEquals("ManageSecurity", schemaManager.getField("sys_racl").getCharacteristics().readPermission());
+        assertEquals("ManageRetention",
+                schemaManager.getField("sysgov_isRecord").getCharacteristics().writePermission());
+        assertNull(schemaManager.getField("sys_title").getCharacteristics().readPermission());
+        assertNull(schemaManager.getField("sys_title").getCharacteristics().writePermission());
+    }
+
+    @Test
+    @Deploy("org.nuxeo.ecm.core.schema.tests:OSGI-INF/test-system-characteristics.xml")
+    public void testNotOutput() {
+        assertEquals(Set.of(INDEX),
+                schemaManager.getField("sys_acl").getCharacteristics().notOutput());
     }
 
     @Test

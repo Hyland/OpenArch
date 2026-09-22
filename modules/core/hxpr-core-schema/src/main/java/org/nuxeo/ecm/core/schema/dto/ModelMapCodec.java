@@ -24,6 +24,7 @@ import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.FIELDS;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.FULL_TEXT_INDEXED;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.LIST;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.MAX_LENGTH;
+import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.MANAGED;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.MIN_LENGTH;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.MIXINS;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.MIXIN_TYPES;
@@ -50,11 +51,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
 
 import org.nuxeo.ecm.core.schema.SchemaManagerDTO;
+import org.nuxeo.ecm.core.schema.types.FieldCharacteristics;
 import org.nuxeo.ecm.core.schema.types.constraints.ConstraintUtils;
 import org.nuxeo.ecm.core.schema.validation.violations.InvalidObjectViolation;
 import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
 
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Converts a {@link ContentModelDTO} to and from the untyped {@code Map<String, Object>} form.
@@ -89,7 +94,9 @@ import tools.jackson.databind.ObjectMapper;
  */
 public class ModelMapCodec {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final ObjectMapper MAPPER = JsonMapper.builder()
+                                                         .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                                                         .build();
 
     @SuppressWarnings("rawtypes")
     private static final Class<Map> MAP_TYPE = Map.class;
@@ -316,7 +323,25 @@ public class ModelMapCodec {
                     readConstraints(map, path), //
                     string(map.get(DEFAULT)), //
                     TRUE.equals(map.get(FULL_TEXT_INDEXED)), //
+                    readCharacteristics(map, path), //
                     readProjectId(map, path));
+        }
+
+        private FieldCharacteristics readCharacteristics(Map<String, Object> map, DTOPath path) {
+            Object value = map.get(MANAGED);
+            if (value == null) {
+                return null;
+            }
+            if (!(value instanceof Map)) {
+                violations.add(new InvalidObjectViolation(path.child(MANAGED, value), MANAGED));
+                return null;
+            }
+            try {
+                return MAPPER.convertValue(value, FieldCharacteristics.class);
+            } catch (IllegalArgumentException | JacksonException e) {
+                violations.add(new InvalidObjectViolation(path.child(MANAGED, value), MANAGED));
+                return null;
+            }
         }
 
         private Map<String, FieldDTO> readFields(Object json, DTOPath path) {

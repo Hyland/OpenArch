@@ -74,7 +74,7 @@ public class RetentionExpiredBatchTaskProcessor extends AbstractBatchTaskProcess
 
             try {
                 // reset retention to null
-                session.setRetainUntil(ref, null, null);
+                session.setRetainUntil(ref, null);
                 // send event about retention expired
                 sendEvent(session, ref, retainUntil);
             } catch (NuxeoException e) {

@@ -17,21 +17,18 @@ package org.nuxeo.ecm.core;
 
 import static java.lang.Boolean.TRUE;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_IS_RECORD;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_DESCRIPTION;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_PREFIX;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_TITLE;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_DESCRIPTION;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ACL;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_CHANGE_TOKEN;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_EFFECTIVE_ACL;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_EFFECTIVE_PERMISSIONS;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ID;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_IS_TRASHED;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PREFIX;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_SECURITY_POLICIES;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_LOCK_CREATED;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_LOCK_OWNER;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.CREATE_CHILD;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.GENERIC_DOCUMENT_SECURITY_ERROR;
-import static org.nuxeo.ecm.core.api.security.SecurityConstants.MANAGE_SECURITY;
-import static org.nuxeo.ecm.core.api.security.SecurityConstants.READ;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.WRITE;
-import static org.nuxeo.ecm.core.api.security.SecurityConstants.WRITE_VERSION;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -40,20 +37,18 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.nuxeo.common.utils.IdUtils;
 import org.nuxeo.common.utils.Path;
-import org.nuxeo.ecm.core.api.ConcurrentUpdateException;
 import org.nuxeo.ecm.core.api.CoreSession;
+import org.nuxeo.ecm.core.api.ConcurrentUpdateException;
 import org.nuxeo.ecm.core.api.DocumentEnrichmentContext;
 import org.nuxeo.ecm.core.api.DocumentEnrichmentService;
 import org.nuxeo.ecm.core.api.DocumentModel;
@@ -72,17 +67,18 @@ import org.nuxeo.ecm.core.api.model.PropertyNotFoundException;
 import org.nuxeo.ecm.core.api.model.resolver.DocumentPropertyObjectResolverImpl;
 import org.nuxeo.ecm.core.api.model.resolver.PropertyObjectResolver;
 import org.nuxeo.ecm.core.api.security.ACL;
+import org.nuxeo.ecm.core.model.DocumentEventSpec;
 import org.nuxeo.ecm.core.model.InternalDocument;
 import org.nuxeo.ecm.core.model.InternalDocument.BlobAccessor;
-import org.nuxeo.ecm.core.query.QueryParseException;
+import org.nuxeo.ecm.core.model.InternalDocument.WriteContext;
 import org.nuxeo.ecm.core.model.InternalSession;
+import org.nuxeo.ecm.core.model.WriteResult;
+import org.nuxeo.ecm.core.query.QueryParseException;
 import org.nuxeo.ecm.core.repository.RepositoryService;
 import org.nuxeo.ecm.core.schema.DocumentType;
 import org.nuxeo.ecm.core.schema.MixinNames;
 import org.nuxeo.ecm.core.schema.SchemaManager;
-import org.nuxeo.ecm.core.schema.TypeService;
 import org.nuxeo.ecm.core.schema.types.CompositeType;
-import org.nuxeo.ecm.core.security.SecurityPolicyService;
 import org.nuxeo.ecm.core.security.SecurityService;
 import org.nuxeo.ecm.core.storage.dbs.DBSDocument;
 import org.nuxeo.ecm.core.storage.dbs.DBSSession;
@@ -93,17 +89,6 @@ public class DocumentImpl implements DocumentModel {
     private static final long serialVersionUID = 1L;
 
     private static final Logger log = LogManager.getLogger(DocumentImpl.class);
-
-    private static final Set<String> READWRITE_SYS = Set.of( //
-            SYS_DESCRIPTION, //
-            SYS_TITLE, //
-            SYSGOV_IS_RECORD //
-    );
-
-    private static final Set<String> READWRITE_SYSVER = Set.of( //
-            SYSVER_TITLE, //
-            SYSVER_DESCRIPTION //
-    );
 
     private static final Pattern DOT_DIGITS_PATTERN = Pattern.compile("(.*)\\.\\d+$");
 
@@ -251,25 +236,6 @@ public class DocumentImpl implements DocumentModel {
         }
     }
 
-    private void checkSecurityMixinsUpdate(Collection<String> mixins) {
-        Set<String> mixinsAdded = mixins.stream().filter(mixin -> !hasMixin(mixin)).collect(Collectors.toSet());
-        Set<String> mixinsRemoved = getEffectiveMixins().stream().filter(mixin -> !mixins.contains(mixin)).collect(Collectors.toSet());
-        Set<String> mixinsUpdated = new HashSet<>();
-        mixinsUpdated.addAll(mixinsAdded);
-        mixinsUpdated.addAll(mixinsRemoved);
-        SecurityService securityService = Framework.getService(SecurityService.class);
-        SecurityPolicyService securityPolicyService = securityService.getSecurityPolicyService(getRepositoryName());
-        for (String mixin : mixinsUpdated) {
-            securityPolicyService.checkAllowedMixinUpdate(doc, principal, mixin);
-        }
-    }
-
-    private void checkSecurityPropertyUpdate(String xpath) {
-        SecurityService securityService = Framework.getService(SecurityService.class);
-        SecurityPolicyService securityPolicyService = securityService.getSecurityPolicyService(getRepositoryName());
-        securityPolicyService.checkAllowedPropertyUpdate(doc, principal, xpath);
-    }
-
     @Override
     public NuxeoPrincipal getPrincipal() {
         return principal;
@@ -329,7 +295,7 @@ public class DocumentImpl implements DocumentModel {
 
     @Override
     public void setId(String id) {
-        doc.setId(id);
+        setPropertyValue(SYS_ID, id);
     }
 
     @Override
@@ -343,30 +309,13 @@ public class DocumentImpl implements DocumentModel {
     }
 
     @Override
-    public String getTitle() {
-        String title;
-        try {
-            title = (String) doc.getValue(SYS_TITLE);
-        } catch (PropertyNotFoundException e) {
-            title = null;
-        }
-        if (title == null) {
-            title = getName();
-            if (title == null) {
-                title = getId();
-            }
-        }
-        return title;
-    }
-
-    @Override
     public String getPathAsString() {
         return doc.getPath();
     }
 
     @Override
     public Path getPath() {
-        String path = doc.getPath();
+        String path = getPathAsString();
         return path == null ? null : new Path(path);
     }
 
@@ -382,9 +331,9 @@ public class DocumentImpl implements DocumentModel {
 
     @Override
     public Set<String> getSchemas() {
-        SchemaManager schemaManager = Framework.getService(TypeService.class).getSchemaManager(getRepositoryName());
+        SchemaManager schemaManager = doc.getSchemaManager();
         Set<String> schemaNames = new HashSet<>(doc.getType().getSchemaNames());
-        for (String mixins : doc.getMixins()) {
+        for (String mixins : getEffectiveMixins()) {
             CompositeType mixinType = schemaManager.getMixin(mixins);
             if (mixinType != null) {
                 schemaNames.addAll(mixinType.getSchemaNames());
@@ -399,8 +348,8 @@ public class DocumentImpl implements DocumentModel {
         if (type.hasSchema(schemaName)) {
             return true;
         }
-        SchemaManager schemaManager = Framework.getService(TypeService.class).getSchemaManager(getRepositoryName());
-        for (String mixin : doc.getMixins()) {
+        SchemaManager schemaManager = doc.getSchemaManager();
+        for (String mixin : getEffectiveMixins()) {
             CompositeType mixinType = schemaManager.getMixin(mixin);
             if (mixinType != null && mixinType.hasSchema(schemaName)) {
                 return true;
@@ -411,13 +360,7 @@ public class DocumentImpl implements DocumentModel {
 
     @Override
     public void setPrimaryTypeAndMixinTypes(String typeName, Collection<String> mixins) {
-        checkPermission(WRITE);
-        if (mixins != null) {
-            checkSecurityMixinsUpdate(mixins);
-            // Enforce: cannot remove SysHasEmbeddings when SysEmbeddings children exist
-            SysEmbeddingsPolicies.enforceHasEmbeddingsMixinUpdateOrThrow(doc, mixins);
-        }
-        doc.setPrimaryTypeAndMixinTypes(typeName, mixins);
+        doc.setPrimaryTypeAndMixinTypes(typeName, mixins, principal);
     }
 
     @Override
@@ -427,8 +370,7 @@ public class DocumentImpl implements DocumentModel {
 
     @Override
     public void addMixin(String mixin) {
-        Set<String> mixins = new HashSet<>();
-        mixins.addAll(doc.getMixins());
+        Set<String> mixins = new HashSet<>(getEffectiveMixins());
         mixins.add(mixin);
         setMixins(mixins);
     }
@@ -440,7 +382,7 @@ public class DocumentImpl implements DocumentModel {
 
     @Override
     public boolean hasMixin(String mixin) {
-        return doc.hasMixin(mixin);
+        return getEffectiveMixins().contains(mixin);
     }
 
     @Override
@@ -450,18 +392,18 @@ public class DocumentImpl implements DocumentModel {
 
     @Override
     public Lock setLock() throws LockException {
-        return getCoreSession().setLock(getRef());
+        return setValue(SYS_LOCK_OWNER, principal.getId(), new WriteContext(principal, null, false)).lock();
     }
 
     @Override
     public Lock getLockInfo() {
-        checkPermission(READ);
-        return doc.getLock();
+        String owner = (String) getPropertyValue(SYS_LOCK_OWNER);
+        return owner == null ? null : new Lock(owner, (Instant) getPropertyValue(SYS_LOCK_CREATED));
     }
 
     @Override
     public Lock removeLock() throws LockException {
-        return getCoreSession().removeLock(getRef());
+        return setValue(SYS_LOCK_OWNER, null, new WriteContext(principal, null, false)).lock();
     }
 
     @Override
@@ -486,14 +428,14 @@ public class DocumentImpl implements DocumentModel {
 
     @Override
     public Long getVersion() {
-        Long v = doc.getVersion();
-        return v == null ? 0 : v;
+        Long version = doc.getVersion();
+        return version == null ? 0 : version;
     }
 
     @Override
     public Long getMinorVersion() {
-        Long v = doc.getMinorVersion();
-        return v == null ? 0 : v;
+        Long version = doc.getMinorVersion();
+        return version == null ? 0 : version;
     }
 
     @Override
@@ -516,58 +458,41 @@ public class DocumentImpl implements DocumentModel {
         return doc.isUnderRetentionOrLegalHold();
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public List<String> getSecurityPolicies() {
-        checkPermission(READ);
-        return (List<String>) doc.getSystemProp(SYS_SECURITY_POLICIES, List.class);
-    }
-
-    @Override
-    public void setSecurityPolicies(List<String> securityPolicies) {
-        checkPermission(MANAGE_SECURITY);
-        SecurityService securityService = Framework.getService(SecurityService.class);
-        SecurityPolicyService securityPolicyService = securityService.getSecurityPolicyService(getRepositoryName());
-        securityPolicyService.setSecurityPolicies(doc, securityPolicies);
-    }
-
     @Override
     public ACL getLocalACL() {
-        checkPermission(READ);
-        return doc.getLocalACL();
+        return (ACL) getPropertyValue(SYS_ACL);
     }
 
     @Override
     public ACL getEffectiveACL() {
-        checkPermission(READ);
-        return doc.getEffectiveACL();
+        return (ACL) getPropertyValue(SYS_EFFECTIVE_ACL);
     }
 
     @Override
     public void setACL(ACL acl, boolean overwrite) {
-        checkPermission(MANAGE_SECURITY);
-        doc.setACL(acl, overwrite, principal);
+        WriteResult result = doc.setACL(acl, overwrite, principal);
+        List<DocumentEventSpec> events = result.events();
+        getCoreSession().publishWriteEvents(this, events);
     }
 
     @Override
     public Set<String> getEffectivePermissions() {
-        // no permission check necessary
-        return doc.getEffectivePermissions(principal);
+        return new HashSet<>(castList(getPropertyValue(SYS_EFFECTIVE_PERMISSIONS)));
     }
 
     @Override
     public boolean isTrashed() {
-        return TRUE.equals(doc.getPropertyValue(SYS_IS_TRASHED));
+        return TRUE.equals(getPropertyValue(SYS_IS_TRASHED));
     }
 
     @Override
     public boolean isFolder() {
-        return hasMixin(MixinNames.SYS_FOLDERISH);
+        return doc.isFolder();
     }
 
     @Override
     public boolean isVersionable() {
-        return doc.isVersionable();
+        return hasMixin(MixinNames.SYS_VERSIONABLE);
     }
 
     @Override
@@ -632,85 +557,29 @@ public class DocumentImpl implements DocumentModel {
 
     @Override
     public Object getPropertyValue(String xpath) throws PropertyException {
-        return doc.getValue(xpath);
+        return doc.getValue(xpath, principal);
     }
 
     @Override
     public void setPropertyValue(String xpath, Object value) throws PropertyException {
-        checkPermission(WRITE);
-        checkSecurityPropertyUpdate(xpath);
-
-        // change token
         String changeToken = (String) getContextData(CoreSession.CHANGE_TOKEN);
-        boolean userChange = StringUtils.isNotEmpty(changeToken);
-        if (!doc.validateUserVisibleChangeToken(changeToken)) {
-            throw new ConcurrentUpdateException("Invalid change token").addInfo(doc.getId());
-        }
-        userChange = userChange || TRUE.equals(getContextData(CoreSession.USER_CHANGE));
+        boolean userChange = StringUtils.isNotEmpty(changeToken) || TRUE.equals(getContextData(CoreSession.USER_CHANGE));
         putContextData(CoreSession.USER_CHANGE, null);
-        if (userChange) {
-            doc.markUserChange();
-        }
-
-        // pre-save auto-checkout
-        boolean disableAutoCheckOut = TRUE.equals(getContextData(CoreSession.DISABLE_AUTO_CHECKOUT));
-        putContextData(CoreSession.DISABLE_AUTO_CHECKOUT, null);
-        if (!doc.isCheckedOut() && !isVersion() && !disableAutoCheckOut) {
-            checkOut(); // includes sending events
-        }
-
-        // version write
-        boolean allowVersionWrite = TRUE.equals(getContextData(CoreSession.ALLOW_VERSION_WRITE));
-        putContextData(CoreSession.ALLOW_VERSION_WRITE, null);
-        if (doc.isVersion() && !allowVersionWrite) {
-            // check if we can write a version
-            if (checkReadOnlyIgnoredWrite(xpath, value)) {
-                return;
-            }
-        }
-        if (xpath.startsWith(SYSVER_PREFIX) && !READWRITE_SYSVER.contains(xpath)) {
-            return; // ignore write to read-only version property
-        }
-
-        if (xpath.startsWith(SYS_PREFIX) && !READWRITE_SYS.contains(xpath)) {
-            return; // ignore write to read-only system property
-        }
-        doc.setValue(xpath, value);
+        setValue(xpath, value, new WriteContext(principal, changeToken, userChange));
     }
 
-    /** Checks for ignored writes. May throw. */
-    private boolean checkReadOnlyIgnoredWrite(String xpath, Object value) throws PropertyException {
-        if (!doc.isReadOnly() || DBSDocument.isVersionWritableProperty(xpath)) {
-            // do write
-            return false;
+    private WriteResult setValue(String xpath, Object value, WriteContext context) {
+        WriteResult result = doc.setValue(xpath, value, context);
+        List<DocumentEventSpec> events = result.events();
+        if (!events.isEmpty()) { // avoid constructing session if no events
+            getCoreSession().publishWriteEvents(this, events);
         }
-        if (!xpath.startsWith(SYS_PREFIX) && !xpath.startsWith(SYSVER_PREFIX)) {
-            throw new PropertyException("Cannot set property on a version: " + xpath);
-        }
-        // for writable system props we are lenient of attempts to re-write identical values
-        // ignore write if value can quickly be detected as unchanged
-        if (value instanceof Object[] array && array.length == 0) {
-            // normalize empty arrays to null
-            value = null;
-        }
-        Object oldValue;
-        try {
-            oldValue = doc.getValue(xpath);
-        } catch (PropertyNotFoundException e) {
-            // ignore here, well be thrown again on actual write in caller
-            return false;
-        }
-        if (Objects.deepEquals(value, oldValue)) {
-            // unchanged, ignore write even though strictly speaking writing the version is not allowed
-            return true;
-        }
-        if (xpath.equals(SYSVER_TITLE) || xpath.equals(SYSVER_DESCRIPTION)) {
-            // version title and description changes are allowed if the user has WRITE_VERSION
-            checkPermission(WRITE_VERSION);
-            return false;
-        } else {
-            return true;
-        }
+        return result;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> List<T> castList(Object value) {
+        return (List<T>) value;
     }
 
     @Override
@@ -747,7 +616,7 @@ public class DocumentImpl implements DocumentModel {
         // we must get a current session
         RepositoryService repositoryService = Framework.getService(RepositoryService.class);
         InternalSession session = repositoryService.getSession(getRepositoryName());
-        doc = (DBSDocument) session.getDocumentByUUID(doc.getId());
+        doc = (DBSDocument) session.getDocumentByUUID(getId());
     }
 
     @Override
@@ -757,12 +626,7 @@ public class DocumentImpl implements DocumentModel {
 
     @Override
     public String getChangeToken() {
-        return doc.getChangeToken();
-    }
-
-    @Override
-    public String getBinaryFulltext() {
-        return getCoreSession().getBinaryFulltext(getRef());
+        return (String) getPropertyValue(SYS_CHANGE_TOKEN);
     }
 
     @Override

@@ -37,8 +37,8 @@ import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_NAME;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PARENT_ID;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PRIMARY_TYPE;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_READ_ACL;
-import static org.nuxeo.ecm.core.storage.dbs.DBSDocument.KEY_ACE_PRINCIPAL;
-import static org.nuxeo.ecm.core.storage.dbs.DBSDocument.KEY_ACE_STATUS;
+import static org.nuxeo.ecm.core.api.DocumentConstants.KEY_ACE_PRINCIPAL;
+import static org.nuxeo.ecm.core.api.DocumentConstants.KEY_ACE_STATUS;
 import static org.nuxeo.ecm.core.storage.mongodb.MongoDBRepository.MONGODB_ID;
 import static org.nuxeo.ecm.core.storage.mongodb.MongoDBRepository.MONGODB_SET;
 import static org.nuxeo.ecm.core.storage.mongodb.MongoDBRepository.ONE;
@@ -634,7 +634,7 @@ public class MongoDBConnection extends DBSConnectionBase {
                                                         .sort(orderBy)
                                                         .iterator()) {
             projections = new ArrayList<>();
-            DBSStateFlattener flattener = new DBSStateFlattener(builder.propertyKeys);
+            DBSStateFlattener flattener = new DBSStateFlattener(builder.propertyKeys, getSchemaManager());
             Iterable<Document> docs = () -> cursor;
             for (Document doc : docs) {
                 State state = converter.bsonToState(doc);

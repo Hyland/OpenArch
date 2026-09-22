@@ -86,7 +86,7 @@ public class TestRetentionRemove {
         for (String permission : permissions) {
             acl.add(ACE.builder().user(username).permission(permission).build());
         }
-        session.setACL(documentModel.getRef(), acl, false);
+        documentModel.setACL(acl, false);
         session.save();
     }
 
@@ -255,9 +255,9 @@ public class TestRetentionRemove {
         documentModelUnderRetention = createFileDocument(session, folder);
         session.setRecord(documentModelUnderLegalHold.getRef(), true);
         session.setRecord(documentModelUnderRetention.getRef(), true);
-        session.setLegalHold(documentModelUnderLegalHold.getRef(), true, null);
+        session.setLegalHold(documentModelUnderLegalHold.getRef(), true);
         Instant retainUntil = Instant.now().plus(10, DAYS);
-        session.setRetainUntil(documentModelUnderRetention.getRef(), retainUntil, "any comment");
+        session.setRetainUntil(documentModelUnderRetention.getRef(), retainUntil);
 
         // Give the permission to another user
         addPermission(folder, JOHN, READ, WRITE, DELETE);

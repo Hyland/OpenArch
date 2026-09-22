@@ -216,7 +216,6 @@ class ModelAPITest extends AbstractAPITest {
                         "MyMixin"
                       ],
                       "schemas": [
-                        "system",
                         "myschema"
                       ]
                     }
@@ -262,7 +261,6 @@ class ModelAPITest extends AbstractAPITest {
                         "MyMixin"
                       ],
                       "schemas": [
-                        "system",
                         "myschema"
                       ]
                     }
@@ -1034,12 +1032,15 @@ class ModelAPITest extends AbstractAPITest {
     void testPatchRemove(String queryParam) throws Exception {
         String primaryTypesWithoutDummyFolder = """
                 {
-                    "SysContent": {},
+                    "SysContent": {
+                        "schemas": [
+                            "system"
+                        ]
+                    },
                     "SysEmbeddings": {
                         "extends": "SysContent",
                         "schemas": [
-                            "sysembeddings",
-                            "system"
+                            "sysembeddings"
                         ]
                     },
                     "SysFile": {
@@ -1049,8 +1050,7 @@ class ModelAPITest extends AbstractAPITest {
                         ],
                         "schemas": [
                             "mydublincore",
-                            "sysfiles",
-                            "system"
+                            "sysfiles"
                         ]
                     },
                     "SysFolder": {
@@ -1059,8 +1059,7 @@ class ModelAPITest extends AbstractAPITest {
                             "SysFolderish"
                         ],
                         "schemas": [
-                            "mydublincore",
-                            "system"
+                            "mydublincore"
                         ],
                         "subtypes": [
                             "SysFile",
@@ -1071,8 +1070,7 @@ class ModelAPITest extends AbstractAPITest {
                     "SysMDAnnotation": {
                         "extends": "SysContent",
                         "schemas": [
-                            "sysmdanno",
-                            "system"
+                            "sysmdanno"
                         ],
                        "mixins": [
                          "SysVersionedWithParent"
@@ -1081,8 +1079,7 @@ class ModelAPITest extends AbstractAPITest {
                     "SysMDBookmark": {
                         "extends": "SysContent",
                         "schemas": [
-                            "sysmdbm",
-                            "system"
+                            "sysmdbm"
                         ],
                        "mixins": [
                          "SysVersionedWithParent"
@@ -1091,8 +1088,7 @@ class ModelAPITest extends AbstractAPITest {
                     "SysMDComment": {
                         "extends": "SysContent",
                         "schemas": [
-                            "sysmdcomment",
-                            "system"
+                            "sysmdcomment"
                         ],
                        "mixins": [
                          "SysVersionedWithParent"
@@ -1110,16 +1106,15 @@ class ModelAPITest extends AbstractAPITest {
                         ]
                     },
                     "SysRelation": {
+                        "extends": "SysContent",
                         "schemas": [
-                            "sysrelation",
-                            "system"
+                            "sysrelation"
                         ]
                     },
                     "SysRendition": {
                         "extends": "SysContent",
                         "schemas": [
-                            "sysrendition",
-                            "system"
+                            "sysrendition"
                         ]
                     },
                     "SysRenditionsContainer": {
@@ -1137,8 +1132,7 @@ class ModelAPITest extends AbstractAPITest {
                     "SysEmbeddings": {
                         "extends": "SysContent",
                         "schemas": [
-                            "sysembeddings",
-                            "system"
+                            "sysembeddings"
                         ]
                     },
                     "SysVocabulary": {
@@ -1147,7 +1141,6 @@ class ModelAPITest extends AbstractAPITest {
                             "SysFolderish"
                         ],
                         "schemas": [
-                            "system",
                             "sysvocab"
                         ],
                         "subtypes": [
@@ -1157,7 +1150,6 @@ class ModelAPITest extends AbstractAPITest {
                     "SysVocabularyEntry": {
                         "extends": "SysContent",
                         "schemas": [
-                            "system",
                             "sysvocab"
                         ]
                     },
@@ -1166,7 +1158,6 @@ class ModelAPITest extends AbstractAPITest {
                         "schemas": [
                             "mydublincore",
                             "sysfile",
-                            "system",
                             "test-properties"
                         ]
                     }
@@ -1942,7 +1933,6 @@ class ModelAPITest extends AbstractAPITest {
                         "SysVersionable"
                       ],
                       "schemas": [
-                        "system",
                         "sysfile",
                         "mydublincore"
                       ],
@@ -2018,7 +2008,6 @@ class ModelAPITest extends AbstractAPITest {
                         "SysVersionable"
                       ],
                       "schemas": [
-                        "system",
                         "sysfile"
                       ],
                       "subtypes": [
@@ -2099,7 +2088,6 @@ class ModelAPITest extends AbstractAPITest {
                         "SysVersionable"
                       ],
                       "schemas": [
-                        "system",
                         "sysfile",
                         "mydublincore"
                       ],
@@ -2144,7 +2132,6 @@ class ModelAPITest extends AbstractAPITest {
                         "SysVersionable"
                       ],
                       "schemas": [
-                        "system",
                         "sysfile"
                       ],
                       "subtypes": [
@@ -2195,7 +2182,6 @@ class ModelAPITest extends AbstractAPITest {
                         "SysVersionable"
                       ],
                       "schemas": [
-                        "system",
                         "sysfile"
                       ],
                       "subtypes": [
@@ -2285,7 +2271,6 @@ class ModelAPITest extends AbstractAPITest {
                     "FileFullText": {
                       "extends": "SysContent",
                       "schemas": [
-                        "system",
                         "test"
                       ],
                       "mixins": [
@@ -2318,7 +2303,6 @@ class ModelAPITest extends AbstractAPITest {
                   ],
                   "projectId": "HxP001",
                   "schemas": [
-                    "system",
                     "test"
                   ]
                 }
@@ -2354,7 +2338,6 @@ class ModelAPITest extends AbstractAPITest {
                     "FileWithoutFullText": {
                       "extends": "SysContent",
                       "schemas": [
-                        "system",
                         "test"
                       ]
                     }
@@ -2381,7 +2364,6 @@ class ModelAPITest extends AbstractAPITest {
                   "extends": "SysContent",
                   "projectId": "HxP001",
                   "schemas": [
-                    "system",
                     "test"
                   ]
                 }

@@ -81,6 +81,7 @@
   "sys_path": "/My ACL Folder Name/My File Name",
   "sys_pathDepth": 3,
   "sys_primaryType": "SysFile",
+  "sys_racl": ["u:ff7b0360-3594-416c-b587-2fa4dd0839ce"],
   "sys_repository": "test",
   "sys_title": "My File",
   "sys_contributors": [

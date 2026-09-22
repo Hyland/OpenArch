@@ -46,60 +46,9 @@ public class HXQL {
     public static final String HXQL = "HXQL";
 
     /**
-     * Suffix for sys_acl, like in {@code sys_acl/}{@code *}{@code /principal}
-     *
-     * @since 6.0-HF06, 7.2
+     * Deprecated compatibility suffix for sys_acl component, use "perm" instead.
      */
-    public static final String SYS_ACL_PRINCIPAL = "principal";
-
-    /**
-     * Suffix for sys_acl, like in {@code sys_acl/}{@code *}{@code /permission}
-     *
-     * @since 6.0-HF06, 7.2
-     */
-    public static final String SYS_ACL_PERMISSION = "permission";
-
-    /**
-     * Suffix for sys_acl, like in {@code sys_acl/}{@code *}{@code /grant}
-     *
-     * @since 6.0-HF06, 7.2
-     */
-    public static final String SYS_ACL_GRANT = "grant";
-
-    /**
-     * Suffix for sys_acl, like in {@code sys_acl/}{@code *}{@code /pos}
-     *
-     * @since 6.0-HF06, 7.2
-     */
-    public static final String SYS_ACL_POS = "pos";
-
-    /**
-     * Suffix for sys_acl, like in {@code sys_acl/}{@code *}{@code /creator}
-     *
-     * @since 7.4
-     */
-    public static final String SYS_ACL_CREATOR = "creator";
-
-    /**
-     * Suffix for sys_acl, like in {@code sys_acl/}{@code *}{@code /begin}
-     *
-     * @since 7.4
-     */
-    public static final String SYS_ACL_BEGIN = "begin";
-
-    /**
-     * Suffix for sys_acl, like in {@code sys_acl/}{@code *}{@code /end}
-     *
-     * @since 7.4
-     */
-    public static final String SYS_ACL_END = "end";
-
-    /**
-     * Suffix for sys_acl, like in {@code sys_acl/}{@code *}{@code /status}
-     *
-     * @since 7.4
-     */
-    public static final String SYS_ACL_STATUS = "status";
+    public static final String KEY_ACE_PERMISSION_COMPAT = "permission";
 
     /**
      * The function returning the current datetime. It can optionally have as an argument a duration that will be added

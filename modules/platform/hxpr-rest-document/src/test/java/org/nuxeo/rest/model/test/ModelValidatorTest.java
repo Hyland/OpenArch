@@ -392,7 +392,7 @@ public class ModelValidatorTest extends RuntimeSpringBootTest {
         assertDoesNotThrow(() -> modelValidator.validate(currentModel, modelToValidateDTO, "HxP001"));
     }
     @Test
-    void validatorThrowsExceptionIfSystemNotPresentForSchemaInPrimaryType() throws Exception {
+    void validatorAllowsImplicitSystemSchema() throws Exception {
         var modelToValidate = """
                  {
                      "primaryTypes": {
@@ -412,16 +412,11 @@ public class ModelValidatorTest extends RuntimeSpringBootTest {
                 """;
         var jsonNode = mapper.readTree(modelToValidate);
         var modelToValidateDTO = mapper.convertValue(jsonNode, ContentModelDTO.class);
-        var report = assertThrows(ModelValidationException.class,
-                () -> modelValidator.validate(modelToValidateDTO)).getReport();
-        assertEquals(1, report.numberOfViolations());
-        assertEquals(
-                "The system schema must be present in the following content type SysFile",
-                report.toString());
+        assertDoesNotThrow(() -> modelValidator.validate(modelToValidateDTO));
     }
 
     @Test
-    void validatorThrowsExceptionIfSchemaNotPresentInPrimaryType() throws Exception {
+    void validatorAllowsPrimaryTypeWithoutExplicitSchema() throws Exception {
         var modelToValidate = """
                  {
                      "primaryTypes": {
@@ -437,12 +432,7 @@ public class ModelValidatorTest extends RuntimeSpringBootTest {
                 """;
         var jsonNode = mapper.readTree(modelToValidate);
         var modelToValidateDTO = mapper.convertValue(jsonNode, ContentModelDTO.class);
-        var report = assertThrows(ModelValidationException.class,
-                () -> modelValidator.validate(modelToValidateDTO)).getReport();
-        assertEquals(1, report.numberOfViolations());
-        assertEquals(
-                "The system schema must be present in the following content type SysFile",
-                report.toString());
+        assertDoesNotThrow(() -> modelValidator.validate(modelToValidateDTO));
     }
 
     @Test

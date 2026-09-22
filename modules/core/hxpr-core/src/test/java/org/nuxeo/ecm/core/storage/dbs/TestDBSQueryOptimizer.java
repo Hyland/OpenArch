@@ -54,11 +54,6 @@ public class TestDBSQueryOptimizer {
             protected Set<String> getDocumentTypeNamesExtending(String typeName) {
                 return Collections.singleton(typeName);
             }
-
-            @Override
-            protected boolean isTypeRelation(String typeName) {
-                return false;
-            }
         };
     }
 

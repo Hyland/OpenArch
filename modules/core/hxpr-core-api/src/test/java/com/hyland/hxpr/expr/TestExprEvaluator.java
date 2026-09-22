@@ -47,16 +47,16 @@ public class TestExprEvaluator {
 
     private static final String NOVAL_PREFIX = "NOVAL: ";
 
-    /** No runtime here, so the schema manager is mocked with the true-or-null booleans it knows about. */
+    /** No runtime here, so the schema manager is mocked with the booleans that store false as null. */
     private static final SchemaManager SCHEMA_MANAGER = mockSchemaManager();
 
     private static SchemaManager mockSchemaManager() {
         SchemaManager schemaManager = mock(SchemaManager.class);
         Set.of(SYSVER_IS_VERSION, SYSVER_IS_CHECKED_IN, SYS_IS_FOLDERISH, SYS_IS_TRASHED, SYSGOV_IS_RECORD,
                 SYSGOV_HAS_LEGAL_HOLD)
-           .forEach(key -> when(schemaManager.isTrueOrNullBoolean(key)).thenReturn(true));
+           .forEach(key -> when(schemaManager.isFalseStoredAsNull(key)).thenReturn(true));
         // the actual forbidden properties are the schema manager's business, here only sys_acl is forbidden
-        when(schemaManager.isForbiddenInExpr(SYS_ACL)).thenReturn(true);
+        when(schemaManager.isSecurityProperty(SYS_ACL)).thenReturn(true);
         return schemaManager;
     }
 
@@ -442,7 +442,7 @@ public class TestExprEvaluator {
         Map<String, Object> content2 = Map.of("sys_isFolderish", true);
         check(user, content2, "content.sys_isFolderish == true", "sys_isFolderish = TRUE", true);
 
-        // Test sys_isFolderish with null (not folderish) (this is a true-or-null boolean property)
+        // Test sys_isFolderish with null (not folderish), as false is stored as null for this property.
         Map<String, Object> content3 = Map.of();
         check(user, content3, "content.sys_isFolderish == false", "sys_isFolderish = FALSE", true);
     }
@@ -460,6 +460,21 @@ public class TestExprEvaluator {
         assertEquals(operandException.getMessage(), valueException.getMessage());
         assertTrue(operandException.getMessage().startsWith("Disallowed system property: sys_acl"),
                 operandException.getMessage());
+    }
+
+    /** An administrator is not restricted, being able to see the forbidden properties anyway. */
+    @Test
+    public void testDisallowedPropertyForAdministrator() {
+        UserPrincipal admin = new UserPrincipal("", null, true);
+        String expression = "content." + SYS_ACL + " == null";
+
+        Map<String, Object> context = ExprEvaluator.queryContext(admin);
+        Expr expr = new ExpressionVisitor().parse(expression);
+        Operand operand = new ExprEvaluator(context, SCHEMA_MANAGER, true).evaluateOperand(expr);
+        assertEquals("sys_acl IS NULL", operand.toString());
+
+        // it is the evaluation that is unrestricted, not the property: the check still applies by default
+        assertThrows(IllegalArgumentException.class, () -> evaluateOperand(expression, admin));
     }
 
 }

@@ -104,7 +104,6 @@
     </mixin>
 
     <doctype name="SysFolder" extends="SysContent">
-      <schema name="system"/>
       <mixin name="SysFolderish"/>
       <subtypes>
         <type>SysFolder</type>
@@ -125,19 +124,16 @@
     <doctype name="SysRoot" extends="SysFolder">
     </doctype>
 
-    <doctype name="SysRelation"> <!-- no extends -->
+    <doctype name="SysRelation" extends="SysContent">
       <schema name="sysrelation"/>
-      <schema name="system"/>
     </doctype>
 
     <doctype name="SysFile" extends="SysContent">
-      <schema name="system"/>
       <schema name="sysfiles"/>
       <mixin name="SysFilish"/>
     </doctype>
 
     <doctype name="SysVocabulary" extends="SysContent">
-      <schema name="system"/>
       <schema name="sysvocab"/>
       <mixin name="SysFolderish"/>
       <subtypes>
@@ -145,7 +141,6 @@
       </subtypes>
     </doctype>
     <doctype name="SysVocabularyEntry" extends="SysContent">
-      <schema name="system"/>
       <schema name="sysvocab"/>
     </doctype>
 
@@ -157,7 +152,6 @@
     </doctype>
 
     <doctype name="SysRendition" extends="SysContent">
-      <schema name="system" />
       <schema name="sysrendition" />
     </doctype>
 
@@ -166,25 +160,21 @@
     <mixin name="SysHasEmbeddings" />
 
     <doctype name="SysEmbeddings" extends="SysContent">
-        <schema name="system"/>
         <schema name="sysembeddings"/>
     </doctype>
 
     <!-- Additional document types for storing document metadata -->
     <doctype name="SysMDBookmark" extends="SysContent">
-      <schema name="system" />
       <schema name="sysmdbm" />
       <mixin name="SysVersionedWithParent"/>
     </doctype>
 
     <doctype name="SysMDAnnotation" extends="SysContent">
-      <schema name="system" />
       <schema name="sysmdanno" />
       <mixin name="SysVersionedWithParent"/>
     </doctype>
 
     <doctype name="SysMDComment" extends="SysContent">
-      <schema name="system" />
       <schema name="sysmdcomment" />
       <mixin name="SysVersionedWithParent"/>
     </doctype>

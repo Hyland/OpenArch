@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ACL;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_SECURITY_POLICIES;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.CREATE_CHILD;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.CREATE_VERSION;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.EVERYTHING;
@@ -103,7 +104,7 @@ public class TestSecurityPoliciesProperty {
 
         // cannot set an invalid security policy
         assertThrows(IllegalArgumentException.class, () -> {
-            file.setSecurityPolicies(List.of("invalid_name"));
+            file.setPropertyValue(SYS_SECURITY_POLICIES, List.of("invalid_name"));
         });
     }
 
@@ -112,7 +113,7 @@ public class TestSecurityPoliciesProperty {
         for (String permission : permissions) {
             acl.add(ACE.builder().user(userId).permission(permission).build());
         }
-        session.setACL(new PathRef("/"), acl, false);
+        session.getDocument(new PathRef("/")).setACL(acl, false);
         NuxeoPrincipal principal = new UserPrincipal(userId);
         return CoreInstance.getCoreSession(REPOSITORY, principal);
     }
@@ -132,7 +133,7 @@ public class TestSecurityPoliciesProperty {
         // file doesn't have the mixin
         assertFalse(file.hasMixin(POLICY_MIXIN));
         // set the security policy
-        file.setSecurityPolicies(List.of(POLICY_NAME));
+        file.setPropertyValue(SYS_SECURITY_POLICIES, List.of(POLICY_NAME));
         // the mixin is now set
         assertTrue(file.hasMixin(POLICY_MIXIN));
 
@@ -143,7 +144,7 @@ public class TestSecurityPoliciesProperty {
 
         // now remove the security policy (as admin because alice can't)
         file = session.getDocument(file.getRef());
-        file.setSecurityPolicies(List.of());
+        file.setPropertyValue(SYS_SECURITY_POLICIES, List.of());
         // the mixin is now gone
         assertFalse(file.hasMixin(POLICY_MIXIN));
     }
@@ -170,7 +171,7 @@ public class TestSecurityPoliciesProperty {
         // cannot set the security policy
         List<String> policies = List.of(POLICY_NAME);
         assertThrows(DocumentSecurityException.class, () -> {
-            file.setSecurityPolicies(policies);
+            file.setPropertyValue(SYS_SECURITY_POLICIES, policies);
         });
     }
 
@@ -193,9 +194,9 @@ public class TestSecurityPoliciesProperty {
         file.setPropertyValue(SYS_ACL, acl);
         // alice will not have the permission after the call to setPropertyValue
 
-        // alice can modify sys_acl (via CoreSession.setACL)
+        // alice can modify sys_acl through another DocumentModel.setACL call
         acl.add(ACE.builder().user("alice").permission(MANAGE_LOCK).build());
-        aliceSession.setACL(file.getRef(), acl, false);
+        file.setACL(acl, false);
         assertTrue(aliceSession.hasPermission(file.getRef(), MANAGE_LOCK));
     }
 
@@ -206,7 +207,9 @@ public class TestSecurityPoliciesProperty {
 
         DocumentModel file = aliceSession.createDocumentModel("/", "file", SYS_FILE);
         file.create();
-        ACL acl = file.getLocalACL();
+        assertThrows(DocumentSecurityException.class, file::getLocalACL,
+                "Privilege 'ManageSecurity' is not granted to 'alice'");
+        ACL acl = new ACLImpl();
 
         // alice cannot modify sys_acl (via DocumentModel.setACL)
         acl.add(ACE.builder().user("alice").permission(CREATE_VERSION).build());
@@ -217,9 +220,8 @@ public class TestSecurityPoliciesProperty {
         assertThrows(DocumentSecurityException.class, () -> file.setPropertyValue(SYS_ACL, acl),
                 "Property update is not allowed: sys_acl");
 
-        // alice cannot modify sys_acl (via CoreSession.setACL)
-        DocumentRef fileRef = file.getRef();
-        assertThrows(DocumentSecurityException.class, () -> aliceSession.setACL(fileRef, acl, false),
+        // alice cannot modify sys_acl through DocumentModel.setACL
+        assertThrows(DocumentSecurityException.class, () -> file.setACL(acl, false),
                 "Privilege 'ManageSecurity' is not granted to 'alice'");
     }
 
@@ -252,7 +254,7 @@ public class TestSecurityPoliciesProperty {
         assertEquals(Set.of(READ), bobFile.getEffectivePermissions());
 
         // if the doc gets deassociated from the security policy, then Write is restored
-        aliceFile.setSecurityPolicies(null);
+        aliceFile.setPropertyValue(SYS_SECURITY_POLICIES, null);
         // keep data that would prevent access if the security policy was active
         aliceFile.setMixins(Set.of(POLICY_MIXIN));
         aliceFile.setPropertyValue(POLICY_PROPERTY, 100L);

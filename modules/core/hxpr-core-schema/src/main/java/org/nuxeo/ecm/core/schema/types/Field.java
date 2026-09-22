@@ -15,6 +15,8 @@
  */
 package org.nuxeo.ecm.core.schema.types;
 
+import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.SYSTEM_SCHEMAS;
+
 import java.util.Set;
 
 import org.nuxeo.ecm.core.schema.SchemaManager;
@@ -82,4 +84,20 @@ public interface Field {
      * Returns true if the property 'fullTextIndexed' is defined on the field.
      */
     boolean isFullTextIndexed();
+
+    /**
+     * Effective field characteristics. Fields with no explicit characteristics return
+     * {@link FieldCharacteristics#DEFAULT}.
+     */
+    default FieldCharacteristics getCharacteristics() {
+        return FieldCharacteristics.DEFAULT;
+    }
+
+    /**
+     * Whether this field belongs to one of the core system schemas.
+     */
+    default boolean isRepositoryManaged() {
+        return getDeclaringType() instanceof Schema schema && SYSTEM_SCHEMAS.contains(schema.getName());
+    }
+
 }

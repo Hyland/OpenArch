@@ -21,15 +21,17 @@ import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.EXTENDS;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.FIELDS;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.ITEM;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.LIST;
+import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.MANAGED;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.MIXIN_TYPES;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.MIXINS;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.PRIMARY_TYPES;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.SCHEMAS;
+import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.SYSTEM_SCHEMAS;
+import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.SYSTEM_SCHEMA;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.SUPERTYPES;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.TYPES;
 import static org.nuxeo.ecm.core.schema.TypeConstants.PREFIX_SEPARATOR;
 import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_CONTENT;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_RELATION;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -89,12 +91,41 @@ public class SchemaManagerDTO extends SchemaManagerBase {
 
     public SchemaManagerDTO(ContentModelDTO model, List<ValidationViolation> violations, boolean validateOnly) {
         this.violations = violations == null ? new ArrayList<>() : violations;
+        validateManagedCharacteristics(model);
         registerTypes(model.types());
         registerSchemas(model.schemas());
         registerMixinTypes(model.mixinTypes());
         registerPrimaryTypes(model.primaryTypes());
         computeDenormalizations();
         ValidationReport.checkViolations(this.violations, !validateOnly, SchemaValidationException::new);
+    }
+
+    private void validateManagedCharacteristics(ContentModelDTO model) {
+        model.types().forEach((name, type) -> {
+            DTOPath path = DTOPath.root(TYPES, null).child(name, null);
+            validateManagedCharacteristics(type.fields(), path.child(FIELDS, null), false);
+            validateManagedCharacteristics(type.list(), path.child(LIST, null), false);
+        });
+        model.schemas().forEach((name, schema) -> validateManagedCharacteristics(schema.fields(),
+                DTOPath.root(SCHEMAS, null).child(name, null).child(FIELDS, null),
+                SYSTEM_SCHEMAS.contains(name) && schema.projectId() == null));
+    }
+
+    private void validateManagedCharacteristics(Map<String, FieldDTO> fields, DTOPath path, boolean allowed) {
+        if (fields != null) {
+            fields.forEach((name, field) -> validateManagedCharacteristics(field, path.child(name, null), allowed));
+        }
+    }
+
+    private void validateManagedCharacteristics(FieldDTO field, DTOPath path, boolean allowed) {
+        if (field == null) {
+            return;
+        }
+        if (!allowed && field.characteristics() != null) {
+            violations.add(new InvalidObjectViolation(path.child(MANAGED, field.characteristics()), MANAGED));
+        }
+        validateManagedCharacteristics(field.fields(), path.child(FIELDS, null), false);
+        validateManagedCharacteristics(field.list(), path.child(LIST, null), false);
     }
 
     /** Builds from the persisted map form; shape problems in the map become violations too. */
@@ -184,7 +215,14 @@ public class SchemaManagerDTO extends SchemaManagerBase {
             return null;
         }
         Set<Constraint> constraints = toConstraints(dto.constraints(), path.child(CONSTRAINTS, null));
-        return newSimpleTypeWithConstraints(name, simpleSuperType, constraints, dto.projectId());
+        SimpleTypeImpl type = new SimpleTypeImpl(simpleSuperType, name, dto.projectId());
+        type.addConstraints(constraints);
+        constraints.forEach(c -> {
+            if (c instanceof ObjectResolverConstraint orc) {
+                type.setResolver(orc.getResolver());
+            }
+        });
+        return type;
     }
 
     private SimpleType newSimpleTypeWithConstraints(String name, SimpleType superType, Set<Constraint> constraints,
@@ -231,7 +269,7 @@ public class SchemaManagerDTO extends SchemaManagerBase {
             return;
         }
         ct.addField(new FieldImpl(name, ct, fti.type(), fti.defaultValue(), fti.constraints(),
-                field.fullTextIndexed()));
+                field.fullTextIndexed(), field.characteristics()));
     }
 
     private record FieldTypeInfo( //
@@ -375,7 +413,7 @@ public class SchemaManagerDTO extends SchemaManagerBase {
     private DocumentTypeImpl newDocumentType(String name, PrimaryTypeDTO dto) {
         DTOPath path = DTOPath.root(PRIMARY_TYPES, null).child(name, null);
         DocumentType superType = null;
-        if (!name.equals(SYS_CONTENT) && !name.equals(SYS_RELATION)) {
+        if (!name.equals(SYS_CONTENT)) {
             if (dto.extend() == null) {
                 violations.add(new ParentTypeValidationViolation(path.child(EXTENDS, null).withValue(name), name, true));
             } else {
@@ -396,6 +434,9 @@ public class SchemaManagerDTO extends SchemaManagerBase {
 
     private List<Schema> getNewDocumentTypeSchemas(PrimaryTypeDTO dto, DTOPath path, DocumentType superType) {
         Set<String> schemaNames = new HashSet<>(dto.schemas() == null ? List.of() : dto.schemas());
+        if (superType == null && SYS_CONTENT.equals(path.key()) && schemas.containsKey(SYSTEM_SCHEMA)) {
+            schemaNames.add(SYSTEM_SCHEMA);
+        }
         // add parent schemas
         if (superType != null) {
             schemaNames.addAll(superType.getSchemaNames());

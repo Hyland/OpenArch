@@ -8,7 +8,6 @@
       <schema name="wdemployee" />
     </mixin>
     <doctype name="Resume" extends="SysContent">
-      <schema name="system" />
     </doctype>
   </extension>
 </component>

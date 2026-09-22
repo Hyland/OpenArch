@@ -16,42 +16,22 @@
 package org.nuxeo.opensearch.io;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ANCESTOR_IDS;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_CHANGE_TOKEN;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_FULLTEXT_BINARY;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ID;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_IS_FOLDERISH;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_LIFECYCLE_STATE;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_LOCK_CREATED;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_LOCK_OWNER;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_MIXIN_TYPES;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_NAME;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PARENT_ID;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PARENT_PATH;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PATH;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PATH_DEPTH;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PATH_LEVEL;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_POS;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PRIMARY_TYPE;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_READ_ACL;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_REPOSITORY;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_SECURITY_POLICIES;
+import static org.nuxeo.ecm.core.schema.types.FieldCharacteristics.Representation.INDEX;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.TreeSet;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.nuxeo.ecm.core.SystemPropertyValues;
 import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.ecm.core.api.DocumentNotFoundException;
-import org.nuxeo.ecm.core.api.DocumentRef;
-import org.nuxeo.ecm.core.api.Lock;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.api.ValuesVisitor;
 import org.nuxeo.ecm.core.schema.types.Field;
@@ -60,6 +40,7 @@ import org.nuxeo.ecm.core.schema.types.primitives.BooleanType;
 import org.nuxeo.ecm.core.schema.types.primitives.DecimalType;
 import org.nuxeo.ecm.core.schema.types.primitives.DoubleType;
 import org.nuxeo.ecm.core.schema.types.primitives.LongType;
+import org.opensearch.client.json.JsonpMapper;
 
 import jakarta.json.stream.JsonGenerator;
 
@@ -70,12 +51,13 @@ import jakarta.json.stream.JsonGenerator;
  */
 public class JsonOpenSearchDocumentWriter {
 
-    private static final Logger log = LogManager.getLogger(JsonOpenSearchDocumentWriter.class);
-
     private final JsonGenerator jg;
 
-    public JsonOpenSearchDocumentWriter(JsonGenerator jg) {
+    private final JsonpMapper mapper;
+
+    public JsonOpenSearchDocumentWriter(JsonGenerator jg, JsonpMapper mapper) {
         this.jg = jg;
+        this.mapper = mapper;
     }
 
     public void write(DocumentModel doc) {
@@ -90,131 +72,41 @@ public class JsonOpenSearchDocumentWriter {
      * @since 7.2
      */
     protected void writeSystemProperties(DocumentModel doc) {
-        String docId = doc.getId();
-        jg.write(SYS_REPOSITORY, doc.getRepositoryName());
-        jg.write(SYS_ID, docId);
-        jg.write(SYS_NAME, doc.getName());
-
-        DocumentRef parentRef = doc.getParentRef();
-        if (parentRef != null) {
-            try {
-                String parentPath = doc.getCoreSession().getDocument(parentRef).getPathAsString();
-                jg.write(SYS_PARENT_ID, parentRef.toString());
-                jg.write(SYS_PARENT_PATH, parentPath);
-            } catch (DocumentNotFoundException e) {
-                log.warn("Failed to resolve parent document during serialization (stale ref): doc={}, parent={}", doc.getId(), parentRef, e);
-            }
-        }
-        String path = doc.getPathAsString();
-        jg.write(SYS_PATH, path);
-        if (isNotBlank(path)) {
-            String[] split = path.split("/");
-            if (split.length > 0) {
-                for (int i = 1; i < split.length; i++) {
-                    jg.write(SYS_PATH_LEVEL + i, split[i]);
-                }
-            }
-            jg.write(SYS_PATH_DEPTH, split.length);
-            jg.writeStartArray(SYS_ANCESTOR_IDS);
-            doc.getAncestorIds().forEach(jg::write);
-            jg.writeEnd();
-        }
-
-        jg.write(SYS_PRIMARY_TYPE, doc.getType());
-
-        jg.writeStartArray(SYS_MIXIN_TYPES);
-        List<String> mixins = new ArrayList<>(doc.getEffectiveMixins());
-        mixins.sort(null);
-        for (String mixin : mixins) {
-            jg.write(mixin);
-        }
-        jg.writeEnd();
-
-        // jg.writeArrayFieldStart(SYS_ANCESTOR_IDS);
-        // for (String id : doc.getAncesorIds()) {
-        // jg.writeString(id);
-        // }
-        // jg.writeEndArray();
-        jg.write(SYS_IS_FOLDERISH, doc.isFolder());
-
-        String lifecycleState = getLifecycleState(doc);
-        if (lifecycleState != null) {
-            jg.write(SYS_LIFECYCLE_STATE, lifecycleState);
-        }
-        Lock lock = doc.getLockInfo();
-        if (lock != null) {
-            Instant created = lock.getCreated();
-            if (created != null) {
-                jg.write(SYS_LOCK_CREATED, created.toString());
-            }
-            String owner = lock.getOwner();
-            if (owner != null) {
-                jg.write(SYS_LOCK_OWNER, owner);
-            }
-        }
-        String changeToken = doc.getChangeToken();
-        if (changeToken != null) {
-            jg.write(SYS_CHANGE_TOKEN, changeToken);
-        }
-
-        Long pos = doc.getPos();
-        if (pos != null) {
-            jg.write(SYS_POS, pos.longValue());
-        }
-
-        List<String> securityPolicies = doc.getSecurityPolicies();
-        if (!securityPolicies.isEmpty()) {
-            securityPolicies = new ArrayList<>(securityPolicies);
-            securityPolicies.sort(null);
-            jg.writeStartArray(SYS_SECURITY_POLICIES);
-            for (String securityPolicy : securityPolicies) {
-                jg.write(securityPolicy);
-            }
-            jg.writeEnd();
-        }
-
-        Set<String> racls = new TreeSet<>(getReadAcl(doc)); // unique, sorted
-        jg.writeStartArray(SYS_READ_ACL);
-        for (String principal : racls) {
-            jg.write(principal);
-        }
-        jg.writeEnd();
-
+        Map<String, Object> values = SystemPropertyValues.forOutput(doc, INDEX);
+        sortList(values, SYS_MIXIN_TYPES, false);
+        sortList(values, SYS_SECURITY_POLICIES, false);
+        sortList(values, SYS_READ_ACL, true);
+        values.remove(SYS_FULLTEXT_BINARY);
+        values.forEach(this::writeValue);
         writeFulltextBinary(doc);
     }
 
     /**
-     * Writes the fulltext binary content.
-     * Override this method to exclude fulltext from denormalized data.
-     *
-     * @param doc the document
+     * Writes full-text binary content. Denormalized writers override this to omit it.
      */
     protected void writeFulltextBinary(DocumentModel doc) {
-        String fulltext = doc.getBinaryFulltext();
+        String fulltext = (String) doc.getPropertyValue(SYS_FULLTEXT_BINARY);
         if (isNotBlank(fulltext)) {
             jg.write(SYS_FULLTEXT_BINARY, fulltext);
         }
     }
 
-    private String getLifecycleState(DocumentModel doc) {
-        try {
-            return (String) doc.getCoreSession().getDocumentSystemProp(doc.getRef(), SYS_LIFECYCLE_STATE, String.class);
-        } catch (DocumentNotFoundException e) {
-            log.warn("Failed to resolve lifecycle state for document during serialization (stale ref): doc={}", doc.getId(), e);
-            return null;
+    protected void sortList(Map<String, Object> values, String name, boolean unique) {
+        Object value = values.get(name);
+        if (value instanceof List<?> l) {
+            @SuppressWarnings("unchecked")
+            List<String> list = (List<String>) l;
+            List<String> sorted = unique ? new ArrayList<>(new TreeSet<>(list)) : list.stream().sorted().toList();
+            values.put(name, sorted);
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private List<String> getReadAcl(DocumentModel doc) {
-        try {
-            List<String> readAcl = (List<String>) doc.getCoreSession().getDocumentSystemProp(doc.getRef(), SYS_READ_ACL,
-                    List.class);
-            return readAcl == null ? List.of() : readAcl;
-        } catch (DocumentNotFoundException e) {
-            log.warn("Failed to resolve read ACL for document during serialization (stale ref): doc={}", doc.getId(), e);
-            return List.of();
+    protected void writeValue(String name, Object value) {
+        if (value == null || SYS_FULLTEXT_BINARY.equals(name) && value instanceof String s && !isNotBlank(s)) {
+            return;
         }
+        jg.writeKey(name);
+        mapper.serialize(value, jg);
     }
 
     protected void writeProperties(DocumentModel doc) {
@@ -230,6 +122,9 @@ public class JsonOpenSearchDocumentWriter {
         private final JsonGenerator jg;
 
         private int depth;
+
+        // Managed fields are written separately; track nesting while suppressing their visitor subtree.
+        private int skipDepth;
 
         public JsonGeneratorValuesVisitor(JsonGenerator jg) {
             this.jg = jg;
@@ -252,6 +147,9 @@ public class JsonOpenSearchDocumentWriter {
 
         @Override
         public void startObject() {
+            if (skipDepth > 0) {
+                return;
+            }
             if (depth++ != 0) {
                 jg.writeStartObject();
             }
@@ -259,6 +157,9 @@ public class JsonOpenSearchDocumentWriter {
 
         @Override
         public void endObject() {
+            if (skipDepth > 0) {
+                return;
+            }
             if (--depth != 0) {
                 jg.writeEnd();
             }
@@ -266,21 +167,35 @@ public class JsonOpenSearchDocumentWriter {
 
         @Override
         public void startObjectElement(Field field) {
-            jg.writeKey(field.getName());
+            if (skipDepth > 0) {
+                skipDepth++;
+            } else if (field.isRepositoryManaged()) {
+                skipDepth = 1;
+            } else {
+                jg.writeKey(field.getName());
+            }
         }
 
         @Override
         public void endObjectElement() {
-            // nothing
+            if (skipDepth > 0) {
+                skipDepth--;
+            }
         }
 
         @Override
         public void startList() {
+            if (skipDepth > 0) {
+                return;
+            }
             jg.writeStartArray();
         }
 
         @Override
         public void endList() {
+            if (skipDepth > 0) {
+                return;
+            }
             jg.writeEnd();
         }
 
@@ -296,6 +211,9 @@ public class JsonOpenSearchDocumentWriter {
 
         @Override
         public void value(Object value, Field field) {
+            if (skipDepth > 0) {
+                return;
+            }
             Type type = field.getType();
             if (type instanceof BooleanType) {
                 jg.write((Boolean) value);
@@ -312,6 +230,9 @@ public class JsonOpenSearchDocumentWriter {
 
         @Override
         public void list(List<Object> list, Field listField, Field elemField) {
+            if (skipDepth > 0) {
+                return;
+            }
             jg.writeStartArray();
             for (Object value : list) {
                 value(value, elemField);

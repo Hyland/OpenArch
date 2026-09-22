@@ -19,7 +19,6 @@ import static java.util.stream.Collectors.groupingBy;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_MIXIN_TYPES;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PRIMARY_TYPE;
 import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_CONTENT;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_RELATION;
 import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_ROOT;
 
 import java.util.ArrayList;
@@ -35,7 +34,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.nuxeo.ecm.core.query.QueryParseException;
@@ -47,7 +45,6 @@ import org.nuxeo.ecm.core.query.sql.model.MultiExpression;
 import org.nuxeo.ecm.core.query.sql.model.Operand;
 import org.nuxeo.ecm.core.query.sql.model.OperandList;
 import org.nuxeo.ecm.core.query.sql.model.Operator;
-import org.nuxeo.ecm.core.query.sql.model.OrderByClause;
 import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Reference;
 import org.nuxeo.ecm.core.query.sql.model.SelectClause;
@@ -55,7 +52,6 @@ import org.nuxeo.ecm.core.query.sql.model.Statement;
 import org.nuxeo.ecm.core.query.sql.model.StringLiteral;
 import org.nuxeo.ecm.core.query.sql.model.WhereClause;
 import org.nuxeo.ecm.core.schema.SchemaManager;
-import org.nuxeo.ecm.core.schema.types.Type;
 
 import org.nuxeo.ecm.core.storage.QueryAnnotations.PrefixInfo;
 
@@ -74,9 +70,6 @@ public abstract class QueryOptimizer {
     protected final Set<String> neverPerInstanceMixins;
 
     protected int correlationCounter;
-
-    /** Do we match only relations? */
-    protected boolean onlyRelations;
 
     /** What we work out about the query's nodes, kept beside the tree. */
     protected final QueryAnnotations annotations = new QueryAnnotations();
@@ -267,20 +260,6 @@ public abstract class QueryOptimizer {
         return types;
     }
 
-    protected boolean isTypeRelation(String typeName) {
-        do {
-            if (SYS_RELATION.equals(typeName)) {
-                return true;
-            }
-            Type t = schemaManager.getDocumentType(typeName);
-            if (t != null) {
-                t = t.getSuperType();
-            }
-            typeName = t == null ? null : t.getName();
-        } while (typeName != null);
-        return false;
-    }
-
     /**
      * Finds all the types to take into account (all concrete types being a subtype of the passed types) based on the
      * FROM list.
@@ -288,15 +267,12 @@ public abstract class QueryOptimizer {
      * Adds them as a sys_primaryType match in the toplevel operands.
      */
     protected void addTypes(List<Predicate> clauses, FromClause node) {
-        onlyRelations = true;
         Set<String> fromTypes = new HashSet<>();
         for (String typeName : node.elements()) {
             if (SYS_CONTENT.equalsIgnoreCase(typeName)) {
                 typeName = SYS_CONTENT;
             }
             fromTypes.addAll(getDocumentTypeNamesExtending(typeName));
-            boolean isRelation = isTypeRelation(typeName);
-            onlyRelations = onlyRelations && isRelation;
         }
         fromTypes.remove(SYS_ROOT);
         LiteralList list = new LiteralList(fromTypes.stream().map(t -> (Literal) new StringLiteral(t)).toList());

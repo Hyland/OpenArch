@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<xs:schema targetNamespace="http://www.nuxeo.org/ecm/schemas/sysgov-characteristics/"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:m="http://www.nuxeo.org/ecm/schemas/core/managed/">
+  <xs:element name="isRecord" type="xs:boolean"
+              m:noAutoCheckout="true" m:falseAsNull="STORE,INDEX"
+              m:writePermission="ManageRetention" />
+  <xs:element name="hasLegalHold" type="xs:boolean"
+              m:noAutoCheckout="true" m:falseAsNull="STORE,INDEX"
+              m:writePermission="ManageRetention" />
+</xs:schema>

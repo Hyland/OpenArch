@@ -74,10 +74,16 @@ public class ComplexTypeImpl extends AbstractType implements ComplexType {
     // called by XSDLoader
     @Override
     public Field addField(String name, Type type, String defaultValue, Collection<Constraint> constraints) {
+        return addField(name, type, defaultValue, constraints, null);
+    }
+
+    @Override
+    public Field addField(String name, Type type, String defaultValue, Collection<Constraint> constraints,
+            FieldCharacteristics characteristics) {
         if (!prefix.isEmpty()) {
             name = prefix + PREFIX_SEPARATOR + name;
         }
-        FieldImpl field = new FieldImpl(name, this, type, defaultValue, constraints);
+        FieldImpl field = new FieldImpl(name, this, type, defaultValue, constraints, false, characteristics);
         addField(field);
         return field;
     }

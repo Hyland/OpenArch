@@ -100,8 +100,8 @@ public class TestExprEvaluatorOnInternalDocument {
     }
 
     @Test
-    public void testTrueOrNullBoolean() {
-        // sys_isFolderish is a true-or-null boolean property: when unset on storage (here a SysFile),
+    public void testFalseStoredAsNullBoolean() {
+        // sys_isFolderish stores false as null: when unset on storage (here a SysFile),
         // reading it must yield false (not null)
         check("content.sys_isFolderish", false);
         check("content.sys_isFolderish == false", true);

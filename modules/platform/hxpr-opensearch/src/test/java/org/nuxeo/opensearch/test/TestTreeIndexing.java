@@ -254,7 +254,7 @@ public class TestTreeIndexing {
         DocumentRef ref = new PathRef("/folder0/folder1/folder2");
         ACL acl = new ACLImpl();
         acl.add(ACE.builder().user("toto").permission(SecurityConstants.READ).build());
-        session.setACL(ref, acl, true);
+        session.getDocument(ref).setACL(acl, true);
 
         // in sync we split recursive update into 2 commands:
         // 1 sync non recurse + 1 async recursive
@@ -275,7 +275,7 @@ public class TestTreeIndexing {
                    .build());
         acl.add(ACE.builder().user(TEST_ADMIN_USER).permission(SecurityConstants.EVERYTHING).build());
 
-        session.setACL(ref, acl, true);
+        session.getDocument(ref).setACL(acl, true);
 
         nextTransactionWithWaitAssertNumberOfCommandProcessed(syncMode ? 11 : 10);
 
@@ -297,7 +297,7 @@ public class TestTreeIndexing {
         DocumentRef ref = new PathRef("/folder0");
         ACL acl = new ACLImpl();
         acl.add(ACE.builder().user("toto").permission(SecurityConstants.READ).build());
-        session.setACL(ref, acl, true);
+        session.getDocument(ref).setACL(acl, true);
 
         nextTransactionWithWait();
 
@@ -309,7 +309,7 @@ public class TestTreeIndexing {
         Instant begin = Instant.now().minus(10, DAYS);
         Instant end = Instant.now().minus(2, DAYS);
         acl.add(ACE.builder().user("toto").permission(SecurityConstants.READ).begin(begin).end(end).build());
-        session.setACL(ref, acl, true);
+        session.getDocument(ref).setACL(acl, true);
 
         nextTransactionWithWait();
 

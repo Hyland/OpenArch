@@ -16,9 +16,12 @@
 package org.nuxeo.ecm.core.storage.mongodb;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.nuxeo.ecm.core.storage.mongodb.MongoDBConverter.DEFAULT_CONVERTER;
+
+import java.util.List;
 
 import org.bson.Document;
 import org.junit.jupiter.api.Test;
@@ -27,9 +30,12 @@ import org.nuxeo.ecm.core.query.sql.model.IntegerLiteral;
 import org.nuxeo.ecm.core.query.sql.model.Operator;
 import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Reference;
+import org.nuxeo.ecm.core.query.sql.model.SelectClause;
 import org.nuxeo.ecm.core.query.sql.model.StringLiteral;
+import org.nuxeo.ecm.core.query.QueryParseException;
 import org.nuxeo.ecm.core.schema.SchemaManager;
 import org.nuxeo.ecm.core.schema.types.Field;
+import org.nuxeo.ecm.core.schema.types.FieldCharacteristics;
 import org.nuxeo.ecm.core.schema.types.primitives.AnyType;
 import org.nuxeo.ecm.core.schema.types.primitives.BooleanType;
 import org.nuxeo.ecm.core.storage.ExpressionEvaluator.PathResolver;
@@ -38,6 +44,23 @@ import org.nuxeo.ecm.core.storage.ExpressionEvaluator.PathResolver;
  * Tests for {@link MongoDBRepositoryQueryBuilder}.
  */
 public class TestMongoDBRepositoryQueryBuilder {
+
+    @Test
+    public void testNonProjectableFieldIsRejected() {
+        SchemaManager schemaManager = mock(SchemaManager.class);
+        PathResolver pathResolver = mock(PathResolver.class);
+        Field field = mock(Field.class);
+        doReturn("sys_path").when(field).getName();
+        doReturn(new FieldCharacteristics(true, null, false, true, false, null, null, null, null, null)).when(field)
+                                                                                     .getCharacteristics();
+        doReturn(field).when(schemaManager).getField("sys_path");
+        SelectClause select = new SelectClause(List.of(new Reference("sys_path")));
+        MongoDBRepositoryQueryBuilder qb = new MongoDBRepositoryQueryBuilder(DEFAULT_CONVERTER, null, select, null,
+                pathResolver, schemaManager);
+
+        QueryParseException e = assertThrows(QueryParseException.class, qb::walkProjection);
+        assertEquals("Disallowed system property: sys_path", e.getMessage());
+    }
 
     @Test
     public void testWalkReference_SubPropertyOfAny() {

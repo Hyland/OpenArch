@@ -21,13 +21,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.nuxeo.ecm.core.api.DocumentConstants.KEY_ACE_GRANT;
+import static org.nuxeo.ecm.core.api.DocumentConstants.KEY_ACE_PERMISSION;
+import static org.nuxeo.ecm.core.api.DocumentConstants.KEY_ACE_PRINCIPAL;
+import static org.nuxeo.ecm.core.api.DocumentConstants.KEY_ACE_STATUS;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ACL;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.EVERYONE;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.READ;
-import static org.nuxeo.ecm.core.storage.dbs.DBSDocument.KEY_ACE_GRANT;
-import static org.nuxeo.ecm.core.storage.dbs.DBSDocument.KEY_ACE_PERMISSION;
-import static org.nuxeo.ecm.core.storage.dbs.DBSDocument.KEY_ACE_PRINCIPAL;
-import static org.nuxeo.ecm.core.storage.dbs.DBSDocument.KEY_ACE_STATUS;
 
 import java.util.List;
 import java.util.Set;

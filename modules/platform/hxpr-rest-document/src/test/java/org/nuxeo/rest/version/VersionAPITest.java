@@ -19,6 +19,7 @@ import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
 import static jakarta.ws.rs.core.Response.Status.OK;
 import static jakarta.ws.rs.core.Response.Status.PRECONDITION_FAILED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FILE;
 import static org.nuxeo.rest.document.AbstractDocumentAPI.PATH;
@@ -104,7 +105,7 @@ class VersionAPITest extends AbstractAPITest {
         // the version of working copy is unchanged after restoring the version 1.0
         assertEquals(2L, doc.getVersion());
         assertEquals(0L, doc.getMinorVersion());
-        assertNull(doc.getPropertyValue(DocumentConstants.SYSVER_IS_VERSION));
+        assertFalse((Boolean) doc.getPropertyValue(DocumentConstants.SYSVER_IS_VERSION));
         assertNull(doc.getPropertyValue(DocumentConstants.SYSVER_CREATED));
         assertNull(doc.getPropertyValue(DocumentConstants.SYSVER_CREATOR));
         assertNull(doc.getPropertyValue(DocumentConstants.SYSVER_TITLE));

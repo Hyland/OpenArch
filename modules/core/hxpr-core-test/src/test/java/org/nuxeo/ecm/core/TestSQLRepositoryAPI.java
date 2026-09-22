@@ -35,13 +35,44 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSFILE;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSFILE_BLOB;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSTEM;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_HAS_LEGAL_HOLD;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_IS_RECORD;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_RETAIN_UNTIL;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_IS_VERSION;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_MINOR_VERSION;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_VERSION;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ACL;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ANCESTOR_IDS;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_CHANGE_TOKEN;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_DESCRIPTION;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_EFFECTIVE_ACL;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_EFFECTIVE_PERMISSIONS;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ID;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_IS_FOLDERISH;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_LOCK_CREATED;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_LOCK_OWNER;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_MIXIN_TYPES;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_MODIFIED;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_NAME;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PARENT_ID;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PATH;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PATH_DEPTH;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PRIMARY_TYPE;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_SECURITY_POLICIES;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
 import static org.nuxeo.ecm.core.api.event.CoreEventConstants.DIRTY_BLOB_XPATHS;
 import static org.nuxeo.ecm.core.api.event.CoreEventConstants.DIRTY_XPATHS;
+import static org.nuxeo.ecm.core.api.event.CoreEventConstants.RETAIN_UNTIL;
+import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.AFTER_EXTEND_RETENTION;
+import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.AFTER_MAKE_RECORD;
+import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.AFTER_REMOVE_LEGAL_HOLD;
+import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.AFTER_SET_LEGAL_HOLD;
+import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.AFTER_SET_RETENTION;
 import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_BLOB_MODIFIED;
+import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_LOCKED;
+import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_SECURITY_UPDATED;
 import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_UPDATED;
+import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_UNLOCKED;
 import static org.nuxeo.ecm.core.api.local.DummyLoginFeature.TEST_ADMIN_USER;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.DELETE;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.EVERYTHING;
@@ -49,6 +80,7 @@ import static org.nuxeo.ecm.core.api.security.SecurityConstants.GENERIC_DOCUMENT
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.READ;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.READ_WRITE;
 import static org.nuxeo.ecm.core.schema.MixinNames.SYS_VERSIONABLE;
+import static org.nuxeo.ecm.core.schema.MixinNames.SYS_GOVERNABLE;
 import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FILE;
 import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FOLDER;
 import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_ORDERED_FOLDER;
@@ -908,15 +940,15 @@ public class TestSQLRepositoryAPI {
         // set the ACL of FolderA, granting user READ access
         ACL aclFolderA = new ACLImpl();
         aclFolderA.add(ACE.builder().user(user).permission(READ).build());
-        session.setACL(folderA.getRef(), aclFolderA, true);
+        folderA.setACL(aclFolderA, true);
         // set the ACL of FolderB, removing all permissions from everyone
         ACL aclFolderB = new ACLImpl();
         aclFolderB.add(ACE.BLOCK);
-        session.setACL(folderB.getRef(), aclFolderB, true);
+        folderB.setACL(aclFolderB, true);
         // set the ACL of File, granting user READ access
         ACL aclFile = new ACLImpl();
         aclFile.add(ACE.builder().user(user).permission(READ).build());
-        session.setACL(file.getRef(), aclFile, true);
+        file.setACL(aclFile, true);
 
         // user should only have access to FolderA and File
         ancestors = userSession.getAncestorDocuments(file.getRef());
@@ -967,7 +999,7 @@ public class TestSQLRepositoryAPI {
         // don't save
         // check that we don't get phantom docs when getting children
         // for instance when updating ACLs recursively
-        session.setACL(folder1.getRef(), new ACLImpl(), true);
+        folder1.setACL(new ACLImpl(), true);
         session.save();
     }
 
@@ -3010,29 +3042,139 @@ public class TestSQLRepositoryAPI {
     }
 
     @Test
+    public void testSystemPropertyGenericAccessMatchesDedicatedAccessors() {
+        DocumentModel folder = session.createDocumentModel("/", "folder", SYS_FOLDER);
+        assertTrue(folder.isFolder());
+        assertEquals(Boolean.TRUE, folder.getPropertyValue(SYS_IS_FOLDERISH));
+
+        DocumentModel identified = session.createDocumentModel("/", "identified", SYS_FILE);
+        identified.setPropertyValue(SYS_ID, "generic-id");
+        identified.create();
+        assertEquals("generic-id", identified.getId());
+
+        DocumentModel doc = session.createDocumentModel("/", "doc", SYS_FILE);
+        doc.create();
+        assertThrows(NuxeoException.class, () -> doc.setPropertyValue(SYS_ID, "replacement-id"));
+        assertThrows(PropertyException.class, () -> doc.getPropertyValue(SYSGOV_IS_RECORD));
+        assertThrows(PropertyException.class, () -> doc.setPropertyValue(SYSGOV_IS_RECORD, true));
+
+        assertEquals(doc.getId(), doc.getPropertyValue(SYS_ID));
+        assertEquals(doc.getName(), doc.getPropertyValue(SYS_NAME));
+        assertEquals(doc.getPathAsString(), doc.getPropertyValue(SYS_PATH));
+        assertEquals(2, doc.getPropertyValue(SYS_PATH_DEPTH));
+        assertEquals(doc.getParentRef().toString(), doc.getPropertyValue(SYS_PARENT_ID));
+        assertEquals(doc.getAncestorIds(), doc.getPropertyValue(SYS_ANCESTOR_IDS));
+        assertEquals(doc.getType(), doc.getPropertyValue(SYS_PRIMARY_TYPE));
+        assertEquals(doc.isFolder(), doc.getPropertyValue(SYS_IS_FOLDERISH));
+        assertEquals(doc.getEffectiveMixins(), Set.copyOf((List<String>) doc.getPropertyValue(SYS_MIXIN_TYPES)));
+        assertEquals(doc.getChangeToken(), doc.getPropertyValue(SYS_CHANGE_TOKEN));
+        assertEquals(doc.getLocalACL(), doc.getPropertyValue(SYS_ACL));
+        assertEquals(doc.getEffectiveACL(), doc.getPropertyValue(SYS_EFFECTIVE_ACL));
+        assertEquals(doc.getEffectivePermissions(),
+                Set.copyOf((List<String>) doc.getPropertyValue(SYS_EFFECTIVE_PERMISSIONS)));
+        assertNull(doc.getPropertyValue(SYS_SECURITY_POLICIES));
+
+        doc.setPropertyValue(SYS_NAME, "ignored");
+        assertEquals("doc", doc.getName());
+        doc.setPropertyValue(SYS_TITLE, "Generic title");
+        assertEquals("Generic title", doc.getPropertyValue(SYS_TITLE));
+        doc.setPropertyValue(SYS_PRIMARY_TYPE, SYS_FILE);
+        doc.setPropertyValue(SYS_MIXIN_TYPES, List.of(SYS_GOVERNABLE));
+        assertTrue(doc.hasMixin(SYS_GOVERNABLE));
+        doc.setPropertyValue(SYS_MIXIN_TYPES, List.of());
+        assertFalse(doc.hasMixin(SYS_GOVERNABLE));
+        doc.setPropertyValue(SYS_SECURITY_POLICIES, List.of());
+        assertNull(doc.getPropertyValue(SYS_SECURITY_POLICIES));
+
+        ACL acl = new ACLImpl();
+        acl.add(ACE.builder().user("bob").permission(READ).build());
+        try (CapturingEventListener listener = new CapturingEventListener(DOCUMENT_SECURITY_UPDATED)) {
+            doc.setPropertyValue(SYS_ACL, acl);
+            assertEquals(1, listener.getCapturedEvents().size());
+        }
+        assertEquals(acl, doc.getLocalACL());
+
+        try (CapturingEventListener listener = new CapturingEventListener(DOCUMENT_LOCKED, DOCUMENT_UNLOCKED)) {
+            doc.setPropertyValue(SYS_LOCK_OWNER, TEST_ADMIN_USER);
+            assertEquals(TEST_ADMIN_USER, doc.getLockInfo().getOwner());
+            assertEquals(doc.getLockInfo().getCreated(), doc.getPropertyValue(SYS_LOCK_CREATED));
+            doc.setPropertyValue(SYS_LOCK_OWNER, TEST_ADMIN_USER);
+            doc.setPropertyValue(SYS_LOCK_OWNER, null);
+            assertNull(doc.getLockInfo());
+            doc.setPropertyValue(SYS_LOCK_OWNER, null);
+
+            Lock lock = doc.setLock();
+            assertEquals(TEST_ADMIN_USER, lock.getOwner());
+            Lock relock = doc.setLock();
+            assertEquals(lock.getOwner(), relock.getOwner());
+            assertEquals(lock.getCreated().truncatedTo(MILLIS), relock.getCreated().truncatedTo(MILLIS));
+            Lock removedLock = doc.removeLock();
+            assertEquals(lock.getOwner(), removedLock.getOwner());
+            assertEquals(lock.getCreated().truncatedTo(MILLIS), removedLock.getCreated().truncatedTo(MILLIS));
+            assertNull(doc.removeLock());
+
+            List<Event> events = listener.getCapturedEvents();
+            assertEquals(List.of(DOCUMENT_LOCKED, DOCUMENT_UNLOCKED, DOCUMENT_LOCKED, DOCUMENT_UNLOCKED),
+                    events.stream().map(Event::getName).toList());
+        }
+    }
+
+    @Test
+    public void testSystemPropertyGenericAccessEnforcesDedicatedPermissions() {
+        DocumentModel doc = session.createDocumentModel("/", "doc", SYS_FILE);
+        doc.create();
+        ACL acl = new ACLImpl();
+        acl.add(ACE.builder().user("pete").permission(READ_WRITE).build());
+        doc.setACL(acl, true);
+
+        DocumentModel peteDoc = openSessionAs("pete").getDocument(doc.getRef());
+        assertThrows(DocumentSecurityException.class, () -> peteDoc.getPropertyValue(SYS_ACL));
+        assertThrows(DocumentSecurityException.class, () -> peteDoc.getPropertyValue(SYS_EFFECTIVE_ACL));
+        assertThrows(DocumentSecurityException.class,
+                () -> peteDoc.setPropertyValue(SYS_ACL, new ACLImpl()));
+        assertThrows(PropertyException.class,
+                () -> peteDoc.setPropertyValue(SYS_ACL + "/0/permission", READ));
+        assertThrows(PropertyException.class, () -> peteDoc.getPropertyValue(SYS_ACL + "/0/principal"));
+        assertThrows(PropertyException.class, () -> peteDoc.setPropertyValue("sys:secpol", List.of("policy")));
+    }
+
+    @Test
+    public void testVersionSystemPropertiesMatchDedicatedAccessors() {
+        DocumentModel doc = session.createDocumentModel("/", "doc", MY_FILE);
+        doc.create();
+        DocumentModel version = session.getDocument(doc.checkIn());
+
+        assertTrue(version.isVersion());
+        assertEquals(Boolean.TRUE, version.getPropertyValue(SYSVER_IS_VERSION));
+        assertFalse(version.isCheckedOut());
+        assertEquals(version.getVersion(), version.getPropertyValue(SYSVER_VERSION));
+        assertEquals(version.getMinorVersion(), version.getPropertyValue(SYSVER_MINOR_VERSION));
+    }
+
+    @Test
     public void testLocking() {
         DocumentModel doc = session.createDocumentModel("/", "doc", SYS_FILE);
         doc.create();
         DocumentRef docRef = doc.getRef();
         ACL acl = new ACLImpl();
         acl.add(ACE.builder().user("pete").permission(READ_WRITE).build());
-        session.setACL(docRef, acl, true);
+        doc.setACL(acl, true);
         session.save();
 
-        Lock lock = session.getLockInfo(docRef);
+        Lock lock = doc.getLockInfo();
         assertNull(lock);
 
-        lock = session.setLock(docRef);
+        lock = doc.setLock();
         assertNotNull(lock);
         assertEquals(TEST_ADMIN_USER, lock.getOwner());
         assertNotNull(lock.getCreated());
 
-        Lock lock2 = session.getLockInfo(docRef);
+        Lock lock2 = doc.getLockInfo();
         assertNotNull(lock2);
         assertEquals(TEST_ADMIN_USER, lock2.getOwner());
 
         // a user can call setLock again on their own lock without error
-        Lock relock = session.setLock(docRef);
+        Lock relock = doc.setLock();
         assertEquals(lock.getOwner(), relock.getOwner());
         assertEquals(lock.getFailed(), relock.getFailed());
         assertEquals(lock.getCreated().truncatedTo(MILLIS), relock.getCreated().truncatedTo(MILLIS));
@@ -3050,30 +3192,31 @@ public class TestSQLRepositoryAPI {
         // cannot remove lock as pete
         // try to remove lock as pete
         try {
-            peteSession.removeLock(docRef);
+            peteSession.getDocument(docRef).removeLock();
             fail();
         } catch (LockException e) {
             assertTrue(e.getMessage().contains("Document already locked"), e.getMessage());
         }
 
-        lock = session.removeLock(docRef);
+        lock = doc.removeLock();
         assertNotNull(lock);
         assertEquals(TEST_ADMIN_USER, lock.getOwner());
 
-        lock = session.getLockInfo(docRef);
+        lock = doc.getLockInfo();
         assertNull(lock);
 
         // removing lock on non-locked doesn't fail
-        lock = session.removeLock(docRef);
+        lock = doc.removeLock();
         assertNull(lock);
 
         // set lock as pete
-        lock = peteSession.setLock(docRef);
+        DocumentModel peteDoc = peteSession.getDocument(docRef);
+        lock = peteDoc.setLock();
         assertNotNull(lock);
         assertEquals("pete", lock.getOwner());
 
         // remove as pete
-        lock = peteSession.removeLock(docRef);
+        lock = peteDoc.removeLock();
         assertNotNull(lock);
     }
 
@@ -3081,26 +3224,25 @@ public class TestSQLRepositoryAPI {
     public void testLockingBeforeSave() {
         DocumentModel doc = session.createDocumentModel("/", "doc", SYS_FILE);
         doc.create();
-        DocumentRef docRef = doc.getRef();
 
-        Lock lock = session.getLockInfo(docRef);
+        Lock lock = doc.getLockInfo();
         assertNull(lock);
 
-        lock = session.setLock(docRef);
+        lock = doc.setLock();
         assertNotNull(lock);
         assertEquals(TEST_ADMIN_USER, lock.getOwner());
 
-        lock = session.removeLock(docRef);
+        lock = doc.removeLock();
         assertNotNull(lock);
         assertEquals(TEST_ADMIN_USER, lock.getOwner());
 
-        lock = session.setLock(docRef);
+        lock = doc.setLock();
         assertNotNull(lock);
         assertEquals(TEST_ADMIN_USER, lock.getOwner());
 
         session.save();
 
-        lock = session.getLockInfo(docRef);
+        lock = doc.getLockInfo();
         assertNotNull(lock);
         assertEquals(TEST_ADMIN_USER, lock.getOwner());
     }
@@ -3124,6 +3266,77 @@ public class TestSQLRepositoryAPI {
         // set as record again
         session.setRecord(docRef, true);
         assertTrue(session.isRecord(docRef));
+    }
+
+    @Test
+    public void testGovernanceThroughGenericSystemProperties() {
+        DocumentModel doc = session.createDocumentModel("/", "doc", GOVERNABLE_FILE);
+        doc.create();
+
+        doc.setPropertyValue(SYSGOV_IS_RECORD, true);
+        assertTrue(doc.isRecord());
+        assertEquals(Boolean.TRUE, doc.getPropertyValue(SYSGOV_IS_RECORD));
+
+        Instant retainUntil = Instant.now().plus(1, HOURS);
+        doc.setPropertyValue(SYSGOV_RETAIN_UNTIL, retainUntil);
+        assertEquals(retainUntil, doc.getRetainUntil());
+
+        doc.setPropertyValue(SYSGOV_HAS_LEGAL_HOLD, true);
+        assertTrue(doc.hasLegalHold());
+        doc.setPropertyValue(SYSGOV_HAS_LEGAL_HOLD, false);
+        assertFalse(doc.hasLegalHold());
+
+        assertThrows(PropertyException.class, () -> doc.setPropertyValue(SYSGOV_IS_RECORD, false));
+    }
+
+    @Test
+    public void testGovernanceEventsThroughGenericAndDedicatedSetters() {
+        DocumentModel doc = session.createDocumentModel("/", "doc", GOVERNABLE_FILE);
+        doc.create();
+        Instant retainUntil = Instant.now().plus(1, HOURS);
+        Instant extendedRetainUntil = retainUntil.plus(1, HOURS);
+
+        try (CapturingEventListener listener = new CapturingEventListener(AFTER_MAKE_RECORD, AFTER_SET_RETENTION,
+                AFTER_EXTEND_RETENTION, AFTER_SET_LEGAL_HOLD, AFTER_REMOVE_LEGAL_HOLD)) {
+            doc.setPropertyValue(SYSGOV_IS_RECORD, true);
+            session.setRetainUntil(doc.getRef(), retainUntil);
+            doc.setPropertyValue(SYSGOV_RETAIN_UNTIL, extendedRetainUntil);
+            doc.setPropertyValue(SYSGOV_HAS_LEGAL_HOLD, true);
+            session.setLegalHold(doc.getRef(), false);
+
+            session.setRecord(doc.getRef(), true);
+            doc.setPropertyValue(SYSGOV_RETAIN_UNTIL, extendedRetainUntil);
+            session.setLegalHold(doc.getRef(), false);
+
+            List<Event> events = listener.getCapturedEvents();
+            assertEquals(
+                    List.of(AFTER_MAKE_RECORD, AFTER_SET_RETENTION, AFTER_EXTEND_RETENTION, AFTER_SET_LEGAL_HOLD,
+                            AFTER_REMOVE_LEGAL_HOLD),
+                    events.stream().map(Event::getName).toList());
+            for (Event event : events) {
+                assertFalse(event.isInline());
+                DocumentEventContext context = (DocumentEventContext) event.getContext();
+                assertEquals(doc.getRef(), context.getSourceDocument().getRef());
+            }
+            assertEquals(retainUntil, events.get(1).getContext().getProperty(RETAIN_UNTIL));
+            assertEquals(extendedRetainUntil, events.get(2).getContext().getProperty(RETAIN_UNTIL));
+        }
+    }
+
+    @Test
+    public void testNullRetentionEventProperty() {
+        DocumentModel doc = session.createDocumentModel("/", "doc", GOVERNABLE_FILE);
+        doc.create();
+        session.setRecord(doc.getRef(), true);
+
+        try (CapturingEventListener listener = new CapturingEventListener(AFTER_SET_RETENTION)) {
+            doc.setPropertyValue(SYSGOV_RETAIN_UNTIL, null);
+
+            assertEquals(1, listener.getCapturedEvents().size());
+            Event event = listener.getCapturedEvents().getFirst();
+            assertTrue(event.getContext().getProperties().containsKey(RETAIN_UNTIL));
+            assertNull(event.getContext().getProperty(RETAIN_UNTIL));
+        }
     }
 
     @Test
@@ -3213,7 +3426,7 @@ public class TestSQLRepositoryAPI {
 
         // must be a record
         try {
-            session.setRetainUntil(doc.getRef(), null, null);
+            session.setRetainUntil(doc.getRef(), null);
             fail("Should fail because document is not a record");
         } catch (PropertyException e) {
             assertEquals("Document is not a record", e.getMessage());
@@ -3229,7 +3442,7 @@ public class TestSQLRepositoryAPI {
         // first, set inderminate retention
         assertNull(session.getRetainUntil(doc.getRef()));
         assertNull(doc.getRetainUntil());
-        session.setRetainUntil(doc.getRef(), CoreSession.RETAIN_UNTIL_INDETERMINATE, null);
+        session.setRetainUntil(doc.getRef(), CoreSession.RETAIN_UNTIL_INDETERMINATE);
         assertEquals(CoreSession.RETAIN_UNTIL_INDETERMINATE, session.getRetainUntil(doc.getRef()));
         doc.refresh();
         assertEquals(CoreSession.RETAIN_UNTIL_INDETERMINATE, doc.getRetainUntil());
@@ -3241,7 +3454,7 @@ public class TestSQLRepositoryAPI {
 
         // then reduce retention to an actual date in the future
         Instant retainUntil = Instant.now().plus(1, HOURS);
-        session.setRetainUntil(doc.getRef(), retainUntil, null);
+        session.setRetainUntil(doc.getRef(), retainUntil);
         assertEquals(retainUntil, session.getRetainUntil(doc.getRef()));
         doc.refresh();
         assertEquals(retainUntil, doc.getRetainUntil());
@@ -3254,7 +3467,7 @@ public class TestSQLRepositoryAPI {
         // cannot reduce retention
         Instant retainUntilEarlier = Instant.now().plus(5, MINUTES);
         try {
-            session.setRetainUntil(doc.getRef(), retainUntilEarlier, null);
+            session.setRetainUntil(doc.getRef(), retainUntilEarlier);
             fail("Should fail because cannot reduce retention time");
         } catch (PropertyException e) {
             assertTrue(e.getMessage().startsWith("Cannot reduce retention time"), e.getMessage());
@@ -3276,13 +3489,13 @@ public class TestSQLRepositoryAPI {
 
         // set the retention time
         Instant retainUntil = Instant.now().plus(1, SECONDS);
-        session.setRetainUntil(doc.getRef(), retainUntil, null);
+        session.setRetainUntil(doc.getRef(), retainUntil);
         assertEquals(retainUntil, session.getRetainUntil(doc.getRef()));
         doc.refresh();
         assertEquals(retainUntil, doc.getRetainUntil());
         // let us try set it to null
         try {
-            session.setRetainUntil(doc.getRef(), null, null);
+            session.setRetainUntil(doc.getRef(), null);
             fail("Should fail because cannot unset retention time if retention not expired");
         } catch (PropertyException e) {
             assertTrue(e.getMessage().startsWith("Cannot reduce retention time"), e.getMessage());
@@ -3305,7 +3518,7 @@ public class TestSQLRepositoryAPI {
 
         // must be a record
         try {
-            session.setRetainUntil(doc.getRef(), null, null);
+            session.setRetainUntil(doc.getRef(), null);
             fail("Should fail because document is not a record");
         } catch (PropertyException e) {
             assertEquals("Document is not a record", e.getMessage());
@@ -3320,7 +3533,7 @@ public class TestSQLRepositoryAPI {
 
         // set legal hold
         assertFalse(session.hasLegalHold(doc.getRef()));
-        session.setLegalHold(doc.getRef(), true, null);
+        session.setLegalHold(doc.getRef(), true);
         assertTrue(session.hasLegalHold(doc.getRef()));
         doc.refresh();
         assertTrue(doc.hasLegalHold());
@@ -3330,7 +3543,7 @@ public class TestSQLRepositoryAPI {
         assertFalse(bobSession.hasPermission(doc.getRef(), SecurityConstants.DELETE));
 
         // unset legal hold, can now delete
-        session.setLegalHold(doc.getRef(), false, null);
+        session.setLegalHold(doc.getRef(), false);
         doc.refresh();
         assertFalse(doc.hasLegalHold());
         // bob can delete it
@@ -3347,7 +3560,7 @@ public class TestSQLRepositoryAPI {
 
         // set retention to current time
         Instant now = Instant.now();
-        session.setRetainUntil(doc.getRef(), now, null);
+        session.setRetainUntil(doc.getRef(), now);
         session.save();
 
         // Let's launch a task with a valid and and invalid doc id
@@ -3381,7 +3594,7 @@ public class TestSQLRepositoryAPI {
         session.setRecord(doc.getRef(), true);
         // set retention to two seconds in the future
         Instant twoSeconds = Instant.now().plus(2, SECONDS);
-        session.setRetainUntil(doc.getRef(), twoSeconds, null);
+        session.setRetainUntil(doc.getRef(), twoSeconds);
         session.save();
 
         checkUndeletable(folder, doc);
@@ -4054,7 +4267,7 @@ public class TestSQLRepositoryAPI {
         doc.setUpdateCondition(UpdateCondition.hxql(hxql));
         doc.setPropertyValue(SYS_TITLE, "bar");
         session.save();
-        assertEquals("bar", doc.getTitle());
+        assertEquals("bar", doc.getPropertyValue(SYS_TITLE));
 
         // commit transaction
         nextTransaction();
@@ -4071,7 +4284,7 @@ public class TestSQLRepositoryAPI {
         doc.refresh();
 
         // doc has still old value from previous transaction
-        assertEquals("bar", doc.getTitle());
+        assertEquals("bar", doc.getPropertyValue(SYS_TITLE));
     }
 
     @Test
@@ -4121,7 +4334,7 @@ public class TestSQLRepositoryAPI {
                 "content.sys_title == \"foo\" && (content.sys_primaryType == \"SysFile\" || content.sys_name == \"abcd\")"));
         doc.setPropertyValue(SYS_TITLE, "bar");
         session.save();
-        assertEquals("bar", doc.getTitle());
+        assertEquals("bar", doc.getPropertyValue(SYS_TITLE));
 
         // commit transaction
         nextTransaction();
@@ -4138,7 +4351,7 @@ public class TestSQLRepositoryAPI {
         doc.refresh();
 
         // doc has still old value from previous transaction
-        assertEquals("bar", doc.getTitle());
+        assertEquals("bar", doc.getPropertyValue(SYS_TITLE));
     }
 
     @Test
@@ -4156,7 +4369,7 @@ public class TestSQLRepositoryAPI {
         doc.setUpdateCondition(UpdateCondition.expr("content.sys_creator == user.id"));
         doc.setPropertyValue(SYS_TITLE, "bar");
         session.save();
-        assertEquals("bar", doc.getTitle());
+        assertEquals("bar", doc.getPropertyValue(SYS_TITLE));
     }
 
     @Test
@@ -4174,7 +4387,7 @@ public class TestSQLRepositoryAPI {
         doc.setUpdateCondition(UpdateCondition.expr("1 == 1"));
         doc.setPropertyValue(SYS_TITLE, "bar");
         session.save();
-        assertEquals("bar", doc.getTitle());
+        assertEquals("bar", doc.getPropertyValue(SYS_TITLE));
 
         // an expression that is always false fails immediately, without attempting the update
         assertThrows(ConditionFailedException.class, () -> doc.setUpdateCondition(UpdateCondition.expr("1 == 2")));

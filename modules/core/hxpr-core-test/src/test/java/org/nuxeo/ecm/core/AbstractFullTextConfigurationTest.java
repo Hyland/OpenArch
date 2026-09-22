@@ -16,6 +16,7 @@
 package org.nuxeo.ecm.core;
 
 import static org.awaitility.Awaitility.await;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_FULLTEXT_BINARY;
 
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -174,7 +175,7 @@ public abstract class AbstractFullTextConfigurationTest extends RuntimeSpringBoo
         coreFeature.waitForAsyncCompletion();
         AtomicReference<String> text = new AtomicReference<>();
         awaitReply(timeoutSeconds, () -> {
-            text.set(getBinaryFulltext(repositoryName, docRef));
+            text.set(getFulltextBinary(repositoryName, docRef));
             return text.get() != null;
         });
         return text.get();
@@ -186,11 +187,11 @@ public abstract class AbstractFullTextConfigurationTest extends RuntimeSpringBoo
                .until(conditionEvaluator);
     }
 
-    private String getBinaryFulltext(String repositoryName, DocumentRef docRef) {
+    private String getFulltextBinary(String repositoryName, DocumentRef docRef) {
         return TransactionHelper.runInNewTransaction(() -> {
             try (var __ = Framework.loginSystem()) {
                 return CoreInstance.doPrivileged(repositoryName, session -> {
-                    return session.getBinaryFulltext(docRef);
+                    return (String) session.getDocument(docRef).getPropertyValue(SYS_FULLTEXT_BINARY);
                 });
             }
         });

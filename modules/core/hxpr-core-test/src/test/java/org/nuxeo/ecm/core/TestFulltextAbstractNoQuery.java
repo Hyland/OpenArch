@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSFILE_BLOB;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_FULLTEXT_BINARY;
 
 import java.io.IOException;
 
@@ -51,7 +52,8 @@ public abstract class TestFulltextAbstractNoQuery extends AbstractFullTextConfig
         waitForFulltextIndexing();
 
         // check whether or not we can get the binary text
-        String fulltext = session.getBinaryFulltext(doc.getRef());
+        doc.refresh();
+        String fulltext = (String) doc.getPropertyValue(SYS_FULLTEXT_BINARY);
         if (expectBinaryText()) {
             assertEquals(BINARY_TEXT, fulltext.strip());
         } else {

@@ -145,13 +145,6 @@ public interface DocumentModel extends Serializable {
     Long getPos();
 
     /**
-     * Get a text suitable to be shown in a UI for this document.
-     *
-     * @return the title or the internal name if no title could be found
-     */
-    String getTitle();
-
-    /**
      * Gets the document path as a string.
      *
      * @return the document path as string
@@ -386,26 +379,12 @@ public interface DocumentModel extends Serializable {
     }
 
     /**
-     * Gets the security policies for this document.
-     *
-     * @return the list of security policies (never {@code null})
-     */
-    List<String> getSecurityPolicies();
-
-    /**
-     * Sets the security policies for this document.
-     *
-     * @param securityPolicies the list of security policies
-     */
-    void setSecurityPolicies(List<String> securityPolicies);
-
-    /**
      * Gets the local ACL for this document.
      * <p>
      * This does not take into account inherited ACLs.
      * <p>
      * Note that modifying the returned ACL will not affect in any way the stored document ACL. To modify the ACL you
-     * must explicitly set it by calling {@link CoreSession#setACL(DocumentRef, ACL, boolean)}
+     * must explicitly set it by calling {@link #setACL(ACL, boolean)}.
      *
      * @return the local ACL (never {@code null})
      */
@@ -417,7 +396,7 @@ public interface DocumentModel extends Serializable {
      * The returned ACL is the ACL defined on this document plus the inherited ACL if any.
      * <p>
      * Note that modifying the returned ACL will not affect in any way the stored document ACL. To modify the ACL you
-     * must explicitly set it by calling {@link CoreSession#setACL(DocumentRef, ACL, boolean)}
+     * must explicitly set it by calling {@link #setACL(ACL, boolean)}.
      *
      * @return the effective ACL (an empty list if no local ACLs are defined or inherited)
      */
@@ -426,7 +405,6 @@ public interface DocumentModel extends Serializable {
     /**
      * Sets the ACL for this document model.
      *
-     * @see CoreSession#setACL(DocumentRef, ACL, boolean)
      * @param acl the ACL to set
      * @param overwrite whether to overwrite the old ACL or not
      */
@@ -644,13 +622,6 @@ public interface DocumentModel extends Serializable {
      * @see CoreSession#getChangeToken
      */
     String getChangeToken();
-
-    /**
-     * Gets the fulltext extracted from the binary fields.
-     *
-     * @since 5.9.3
-     */
-    String getBinaryFulltext();
 
     /**
      * @param xpath the property xpath

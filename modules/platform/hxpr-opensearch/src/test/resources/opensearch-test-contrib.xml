@@ -27,7 +27,6 @@
 
     <!-- add mydublincore to standard doctypes -->
     <doctype name="SysFolder" extends="SysContent">
-      <schema name="system"/>
       <schema name="mydublincore"/>
       <mixin name="SysFolderish"/>
       <subtypes>
@@ -37,7 +36,6 @@
       </subtypes>
     </doctype>
     <doctype name="SysFile" extends="SysContent">
-      <schema name="system"/>
       <schema name="mydublincore"/>
       <schema name="sysfiles"/>
       <mixin name="SysFilish"/>
@@ -46,7 +44,6 @@
     <doctype name="Note" extends="SysContent">
       <schema name="note"/>
       <schema name="sysfiles"/>
-      <schema name="system"/>
       <schema name="mydublincore"/>
       <mixin name="SysVersionable"/>
     </doctype>

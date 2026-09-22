@@ -103,7 +103,7 @@ public class TestRetentionSecurityPolicy {
         fileWithRetention = createGovernableFile("File With Retention", session).getRef();
         session.setRecord(fileWithRetention, true);
         Instant twoSeconds = Instant.now().plusSeconds(2);
-        session.setRetainUntil(fileWithRetention, twoSeconds, null);
+        session.setRetainUntil(fileWithRetention, twoSeconds);
         fileMakredAsRecord = createGovernableFile("Recorded File", session).getRef();
         session.setRecord(fileMakredAsRecord, true);
         // create test users

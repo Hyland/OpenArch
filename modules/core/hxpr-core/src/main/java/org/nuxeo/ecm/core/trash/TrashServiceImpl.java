@@ -39,6 +39,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.nuxeo.common.utils.Path;
+import org.nuxeo.ecm.core.api.CoreInstance;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentRef;
@@ -96,8 +97,7 @@ public class TrashServiceImpl extends DefaultComponent implements TrashService {
 
     @Override
     public boolean isTrashed(CoreSession session, DocumentRef docRef) {
-        Boolean isTrashed = (Boolean) session.getDocumentSystemProp(docRef, SYS_IS_TRASHED, Boolean.class);
-        return Boolean.TRUE.equals(isTrashed);
+        return session.getDocument(docRef).isTrashed();
     }
 
     @Override
@@ -128,7 +128,7 @@ public class TrashServiceImpl extends DefaultComponent implements TrashService {
                     docForEvent = session.getDocument(docRef);
                     docForEvent.copyContextData(doc);
                 }
-                session.setDocumentSystemProp(docRef, SYS_IS_TRASHED, Boolean.TRUE);
+                setTrashed(session, docRef, true);
                 notifyEvent(session, DOCUMENT_TRASHED, docForEvent);
                 if (session.hasChildren(doc.getRef())) {
                     trashDescendants(doc, Boolean.TRUE);
@@ -161,7 +161,7 @@ public class TrashServiceImpl extends DefaultComponent implements TrashService {
                 docForEvent.copyContextData(doc);
             }
         }
-        session.setDocumentSystemProp(docRef, SYS_IS_TRASHED, Boolean.FALSE);
+        setTrashed(session, docRef, false);
         notifyEvent(session, DOCUMENT_UNTRASHED, docForEvent);
         if (processChildren && session.hasChildren(doc.getRef())) {
             trashDescendants(doc, Boolean.FALSE);
@@ -177,6 +177,12 @@ public class TrashServiceImpl extends DefaultComponent implements TrashService {
             docRefs.addAll(ancestorDocRefs);
         }
         return docRefs;
+    }
+
+    private static void setTrashed(CoreSession session, DocumentRef docRef, boolean value) {
+        CoreInstance.doPrivileged(session.getRepositoryName(), systemSession -> {
+            systemSession.getDocument(docRef).setPropertyValue(SYS_IS_TRASHED, value);
+        });
     }
 
     private void trashDescendants(DocumentModel model, Boolean value) {

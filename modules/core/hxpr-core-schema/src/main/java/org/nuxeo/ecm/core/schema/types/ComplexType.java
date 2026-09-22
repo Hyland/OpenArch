@@ -51,6 +51,14 @@ public interface ComplexType extends Type {
      */
     Field addField(String name, Type type, String defaultValue, Collection<Constraint> constraints);
 
+    default Field addField(String name, Type type, String defaultValue, Collection<Constraint> constraints,
+            FieldCharacteristics characteristics) {
+        if (characteristics != null) {
+            throw new UnsupportedOperationException("Field characteristics are not supported by " + getClass());
+        }
+        return addField(name, type, defaultValue, constraints);
+    }
+
     /**
      * Tests whether this type defines the given field name.
      *

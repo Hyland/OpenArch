@@ -15,19 +15,20 @@
  */
 package org.nuxeo.ecm.core.storage.dbs;
 
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_PREFIX;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PREFIX;
+import static java.util.Objects.requireNonNull;
+import static org.nuxeo.ecm.core.storage.dbs.DBSDocument.KEY_PATH_INTERNAL;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.nuxeo.ecm.core.schema.SchemaManager;
+import org.nuxeo.ecm.core.schema.types.Field;
 import org.nuxeo.ecm.core.storage.State;
 
 /**
- * Function to flatten and convert {@link State} into NXQL {@link Map}&lt;{@link String}, {@link Object}&gt;.
+ * Function to flatten and convert {@link State} into NXQL {@code Map<String, Object>}.
  *
  * @since 8.3
  */
@@ -35,12 +36,11 @@ public class DBSStateFlattener {
 
     protected final Map<String, String> keyMappings;
 
-    public DBSStateFlattener() {
-        this.keyMappings = Collections.emptyMap();
-    }
+    protected final SchemaManager schemaManager;
 
-    public DBSStateFlattener(Map<String, String> keyMappings) {
-        this.keyMappings = keyMappings != null ? keyMappings : Collections.emptyMap();
+    public DBSStateFlattener(Map<String, String> keyMappings, SchemaManager schemaManager) {
+        this.keyMappings = keyMappings != null ? keyMappings : Map.of();
+        this.schemaManager = requireNonNull(schemaManager);
     }
 
     /**
@@ -63,13 +63,14 @@ public class DBSStateFlattener {
             String realName = keyMappings.get(key);
             if (realName != null) {
                 name = realName;
-            } else if (key.startsWith(SYS_PREFIX) || key.startsWith(SYSVER_PREFIX)) {
-                name = DBSSession.convToNXQL(key);
-                if (name == null) {
-                    // present in state but not returned to caller
+            } else {
+                if (KEY_PATH_INTERNAL.equals(key)) {
                     continue;
                 }
-            } else {
+                Field field = schemaManager.getField(key);
+                if (field != null && field.getCharacteristics().notProjectable()) {
+                    continue;
+                }
                 name = key;
             }
             name = prefix == null ? name : prefix + name;

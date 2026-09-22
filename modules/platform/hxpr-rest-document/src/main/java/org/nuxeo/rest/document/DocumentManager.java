@@ -154,7 +154,7 @@ public class DocumentManager {
         CoreSession session = getSession(repoId);
         DocumentModel document = documentMapper.createDocumentModel(session, parentRef, doc, enforceSysName);
         if (doc.getAcl() != null && !doc.getAcl().isEmpty()) {
-            aclChangesHandler.applyACLChange(doc, document.getRef(), session);
+            aclChangesHandler.applyACLChange(doc, document);
         }
         applyGovernance(session, document, doc);
         session.save();
@@ -165,13 +165,13 @@ public class DocumentManager {
     public DocumentDTO updateDocument(String repoId, DocumentRef docRef, DocumentDTO doc, UpdateCondition condition) {
         CoreSession session = getSession(repoId);
         DocumentDTO currentDocument = getDocument(repoId, docRef);
-        if (aclChangesHandler.isChangeInACL(currentDocument, doc)) {
-            aclChangesHandler.applyACLChange(doc, docRef, session);
-        }
         DocumentModel docModel = session.getDocument(docRef);
+        if (aclChangesHandler.isChangeInACL(currentDocument, doc)) {
+            aclChangesHandler.applyACLChange(doc, docModel);
+        }
         // remove legal hold first, to allow properties updates
         if (docModel.isRecord() && FALSE.equals(getLegalHold(doc))) {
-            session.setLegalHold(docRef, false, null);
+            session.setLegalHold(docRef, false);
         }
         Instant currentTime = Instant.now();
         if (docModel.isRecord() && RETAIN_UNTIL_INDETERMINATE.equals(docModel.getRetainUntil())
@@ -180,7 +180,7 @@ public class DocumentManager {
             // In order to allow properties updates, first remove all retention,
             // then updateDocumentModel will set properties,
             // then applyGovernance will set the new retention date.
-            session.setRetainUntil(docRef, currentTime, null);
+            session.setRetainUntil(docRef, currentTime);
         }
         documentMapper.updateDocumentModel(docModel, doc);
         applyGovernance(session, session.getDocument(docRef), doc);
@@ -332,14 +332,16 @@ public class DocumentManager {
 
     public DocumentDTO setLock(String repoId, DocumentRef docRef) {
         CoreSession session = getSession(repoId);
-        session.setLock(docRef);
+        DocumentModel doc = session.getDocument(docRef);
+        doc.setLock();
         session.save();
         return getDocument(repoId, docRef);
     }
 
     public DocumentDTO removeLock(String repoId, DocumentRef docRef) {
         CoreSession session = getSession(repoId);
-        session.removeLock(docRef);
+        DocumentModel doc = session.getDocument(docRef);
+        doc.removeLock();
         session.save();
         return getDocument(repoId, docRef);
     }
@@ -365,16 +367,16 @@ public class DocumentManager {
         return getDocument(repoId, docRef);
     }
 
-    public DocumentDTO setLegalHold(String repoId, DocumentRef docRef, Boolean hold, String comment) {
+    public DocumentDTO setLegalHold(String repoId, DocumentRef docRef, Boolean hold) {
         CoreSession session = getSession(repoId);
-        session.setLegalHold(docRef, hold, comment);
+        session.setLegalHold(docRef, hold);
         session.save();
         return documentMapper.documentModelToDocumentDTO(session.getDocument(docRef));
     }
 
-    public DocumentDTO setRetainUntil(String repoId, DocumentRef docRef, Instant until, String comment) {
+    public DocumentDTO setRetainUntil(String repoId, DocumentRef docRef, Instant until) {
         CoreSession session = getSession(repoId);
-        session.setRetainUntil(docRef, until, comment);
+        session.setRetainUntil(docRef, until);
         session.save();
         return documentMapper.documentModelToDocumentDTO(session.getDocument(docRef));
     }
@@ -437,10 +439,10 @@ public class DocumentManager {
         }
         if (docModel.isRecord()) {
             if (TRUE.equals(getLegalHold(doc))) {
-                session.setLegalHold(docModel.getRef(), true, null);
+                session.setLegalHold(docModel.getRef(), true);
             }
             if (retainUntil(doc) != null) {
-                session.setRetainUntil(docModel.getRef(), retainUntil(doc), null);
+                session.setRetainUntil(docModel.getRef(), retainUntil(doc));
             }
         }
     }

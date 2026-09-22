@@ -7,12 +7,10 @@
 
   <extension target="org.nuxeo.ecm.core.schema.TypeService" point="doctype">
     <doctype name="File2" extends="SysContent">
-      <schema name="system"/>
       <schema name="mycustomschema" />
       <mixin name="File2Facet" />
     </doctype>
     <doctype name="GovernableFile" extends="SysContent">
-      <schema name="system"/>
       <mixin name="SysFilish" />
       <mixin name="SysGovernable" />
     </doctype>

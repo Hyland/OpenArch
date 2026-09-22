@@ -36,6 +36,7 @@ import org.nuxeo.runtime.mockito.RuntimeInject;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesExtension;
 import org.nuxeo.runtime.test.runner.LogCaptureFeature;
+import org.opensearch.client.json.JsonpMapper;
 import org.opensearch.client.opensearch._types.ErrorCause;
 import org.opensearch.client.opensearch.core.BulkResponse;
 import org.opensearch.client.opensearch.core.bulk.BulkResponseItem;
@@ -76,6 +77,9 @@ class OpenSearchServiceCommandAndRuntimeIndexingLogsDistinctionTest {
 
     @Mock
     protected JsonProvider jsonProvider;
+
+    @Mock
+    protected JsonpMapper jsonpMapper;
 
     @Mock
     protected JsonGenerator jsonGenerator;
@@ -149,7 +153,8 @@ class OpenSearchServiceCommandAndRuntimeIndexingLogsDistinctionTest {
 
         when(badCommand.getRepositoryName()).thenReturn(doc.getRepositoryName());
         when(badCommand.getTargetDocumentId()).thenReturn(doc.getId());
-        when(client.getJsonProvider()).thenReturn(jsonProvider);
+        when(client.getJsonpMapper()).thenReturn(jsonpMapper);
+        when(jsonpMapper.jsonProvider()).thenReturn(jsonProvider);
         when(jsonProvider.createGenerator(any(Writer.class))).thenReturn(jsonGenerator);
         when(client.bulk(any())).thenReturn(bulkResponse);
         when(bulkResponse.errors()).thenReturn(true);
@@ -174,7 +179,8 @@ class OpenSearchServiceCommandAndRuntimeIndexingLogsDistinctionTest {
 
         when(badCommand.getRepositoryName()).thenReturn(doc.getRepositoryName());
         when(badCommand.getTargetDocumentId()).thenReturn(doc.getId());
-        when(client.getJsonProvider()).thenReturn(jsonProvider);
+        when(client.getJsonpMapper()).thenReturn(jsonpMapper);
+        when(jsonpMapper.jsonProvider()).thenReturn(jsonProvider);
         when(jsonProvider.createGenerator(any(Writer.class))).thenReturn(jsonGenerator);
         when(client.bulk(any())).thenReturn(bulkResponse);
         when(bulkResponse.errors()).thenReturn(true);

@@ -15,7 +15,6 @@
  */
 package org.nuxeo.ecm.core;
 
-import static jakarta.servlet.http.HttpServletResponse.SC_CONFLICT;
 import static jakarta.servlet.http.HttpServletResponse.SC_PRECONDITION_FAILED;
 import static java.util.Objects.requireNonNull;
 import static org.apache.http.HttpStatus.SC_UNPROCESSABLE_ENTITY;
@@ -24,16 +23,15 @@ import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_MINOR_VERSION;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_TITLE;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_VERSION;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_CREATED;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_FULLTEXT_BINARY;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ID;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_HAS_LEGAL_HOLD;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_IS_RECORD;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_RETAIN_UNTIL;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.CREATE_CHILD;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.CREATE_VERSION;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.DELETE;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.DELETE_CHILD;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.GENERIC_DOCUMENT_SECURITY_ERROR;
-import static org.nuxeo.ecm.core.api.security.SecurityConstants.MANAGE_LOCK;
-import static org.nuxeo.ecm.core.api.security.SecurityConstants.MANAGE_RETENTION;
-import static org.nuxeo.ecm.core.api.security.SecurityConstants.MANAGE_SECURITY;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.READ;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.WRITE;
 import static org.nuxeo.ecm.core.event.impl.DocumentEventContext.REQUESTED_PERMISSION_PROPERTY_KEY;
@@ -58,7 +56,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.nuxeo.ecm.core.api.ConcurrentUpdateException;
@@ -71,8 +68,6 @@ import org.nuxeo.ecm.core.api.DocumentRef;
 import org.nuxeo.ecm.core.api.DocumentSecurityException;
 import org.nuxeo.ecm.core.api.IdRef;
 import org.nuxeo.ecm.core.api.IterableQueryResult;
-import org.nuxeo.ecm.core.api.Lock;
-import org.nuxeo.ecm.core.api.LockException;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.ecm.core.api.PartialList;
@@ -85,11 +80,11 @@ import org.nuxeo.ecm.core.api.event.DocumentEventCategories;
 import org.nuxeo.ecm.core.api.event.DocumentEventTypes;
 import org.nuxeo.ecm.core.api.impl.DocumentModelListImpl;
 import org.nuxeo.ecm.core.api.query.QueryParameters;
-import org.nuxeo.ecm.core.api.security.ACL;
 import org.nuxeo.ecm.core.api.trash.TrashService;
 import org.nuxeo.ecm.core.event.Event;
 import org.nuxeo.ecm.core.event.EventService;
 import org.nuxeo.ecm.core.event.impl.DocumentEventContext;
+import org.nuxeo.ecm.core.model.DocumentEventSpec;
 import org.nuxeo.ecm.core.model.InternalDocument;
 import org.nuxeo.ecm.core.model.InternalSession;
 import org.nuxeo.ecm.core.model.PathComparator;
@@ -101,7 +96,6 @@ import org.nuxeo.ecm.core.query.sql.model.SelectClause;
 import org.nuxeo.ecm.core.query.sql.model.Statement;
 import org.nuxeo.ecm.core.repository.RepositoryService;
 import org.nuxeo.ecm.core.schema.SchemaManager;
-import org.nuxeo.ecm.core.security.LockSecurityPolicy;
 import org.nuxeo.ecm.core.storage.dbs.DBSDocument;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.metrics.MetricsService;
@@ -553,18 +547,6 @@ public class SessionImpl implements CoreSession {
     }
 
     @Override
-    public void setACL(DocumentRef docRef, ACL newAcl, boolean overwrite) {
-        InternalDocument doc = resolveReference(docRef, MANAGE_SECURITY);
-        setACL(doc, newAcl, overwrite);
-    }
-
-    private void setACL(InternalDocument doc, ACL newAcl, boolean overwrite) {
-        DocumentModel docModel = readModel(doc);
-        doc.setACL(newAcl, overwrite, principal);
-        notifyEvent(DocumentEventTypes.DOCUMENT_SECURITY_UPDATED, docModel, null, null, null, false);
-    }
-
-    @Override
     public void updateDenormalizedPropertiesNoCache(Collection<String> ids) {
         getSession().updateDenormalizedPropertiesNoCache(ids);
     }
@@ -855,25 +837,8 @@ public class SessionImpl implements CoreSession {
     @Override
     public void setRecord(DocumentRef docRef, boolean makeRecord) {
         InternalDocument doc = resolveReference(docRef, READ);
-        if (doc.isRecord()) {
-            // already a record, don't do anything
-            if (!makeRecord) {
-                throw new PropertyException("Cannot unmark a record");
-            }
-            return;
-        } else if (!makeRecord) {
-            return; // nothing to do
-        }
         DocumentModel docModel = readModel(doc);
-        if (!docModel.isGovernable()) {
-            throw new PropertyException("Document is not governable: " + doc.getId());
-        }
-        if (doc.isVersion()) {
-            throw new PropertyException("Version cannot be made record: " + doc.getId());
-        }
-        checkPermission(doc, MANAGE_RETENTION);
-        doc.makeRecord();
-        notifyEvent(DocumentEventTypes.AFTER_MAKE_RECORD, docModel, null, null, null, false);
+        docModel.setPropertyValue(SYSGOV_IS_RECORD, makeRecord);
     }
 
     @Override
@@ -883,28 +848,10 @@ public class SessionImpl implements CoreSession {
     }
 
     @Override
-    public void setRetainUntil(DocumentRef docRef, Instant retainUntil, String comment) throws PropertyException {
+    public void setRetainUntil(DocumentRef docRef, Instant retainUntil) throws PropertyException {
         InternalDocument doc = resolveReference(docRef, READ);
-        if (!doc.isRecord()) {
-            throw new PropertyException("Document is not a record");
-        }
-        Instant current = doc.getRetainUntil();
-        if (current != null && retainUntil != null && current.compareTo(retainUntil) == 0) {
-            // unchanged, don't do anything
-            return;
-        }
-        checkPermission(doc, MANAGE_RETENTION);
-        Map<String, Serializable> options = new HashMap<>();
-        options.put(CoreEventConstants.RETAIN_UNTIL, retainUntil);
-        boolean retainUntilIndeterminate = retainUntil == null
-                || RETAIN_UNTIL_INDETERMINATE.compareTo(retainUntil) == 0;
-        options.put("comment", retainUntilIndeterminate ? "" : retainUntil.toString());
         DocumentModel docModel = readModel(doc);
-        boolean currentIndeterminate = current == null || RETAIN_UNTIL_INDETERMINATE.compareTo(current) == 0;
-        doc.setRetainUntil(retainUntil);
-        String afterRetentionEvent = currentIndeterminate ? DocumentEventTypes.AFTER_SET_RETENTION
-                : DocumentEventTypes.AFTER_EXTEND_RETENTION;
-        notifyEvent(afterRetentionEvent, docModel, options, null, null, false);
+        docModel.setPropertyValue(SYSGOV_RETAIN_UNTIL, retainUntil);
     }
 
     @Override
@@ -914,22 +861,10 @@ public class SessionImpl implements CoreSession {
     }
 
     @Override
-    public void setLegalHold(DocumentRef docRef, boolean hold, String comment) {
-        InternalDocument doc = resolveReference(docRef, MANAGE_RETENTION);
-        if (!isRecord(docRef)) {
-            throw new PropertyException("Document is not a record");
-        }
-        if (hasLegalHold(docRef) == hold) {
-            // unchanged, don't do anything
-            return;
-        }
+    public void setLegalHold(DocumentRef docRef, boolean hold) {
+        InternalDocument doc = resolveReference(docRef, null);
         DocumentModel docModel = readModel(doc);
-        Map<String, Serializable> options = new HashMap<>();
-        options.put("comment", StringUtils.defaultString(comment));
-        doc.setLegalHold(hold);
-        String afterLegalHoldEvent = hold ? DocumentEventTypes.AFTER_SET_LEGAL_HOLD
-                : DocumentEventTypes.AFTER_REMOVE_LEGAL_HOLD;
-        notifyEvent(afterLegalHoldEvent, docModel, options, null, null, false);
+        docModel.setPropertyValue(SYSGOV_HAS_LEGAL_HOLD, hold);
     }
 
     @Override
@@ -951,88 +886,6 @@ public class SessionImpl implements CoreSession {
     }
 
     @Override
-    public Lock setLock(DocumentRef docRef) throws LockException {
-        // TODO: add a new permission named LOCK and use it instead of
-        // WRITE_PROPERTIES
-
-        // ignore the lock policy that would always deny a write on a locked document, because we want to have a
-        // specific LockException when the document is already locked by another user
-        InternalDocument doc;
-        try {
-            LockSecurityPolicy.setIgnoreLockPolicy(true);
-            doc = resolveReference(docRef, WRITE);
-        } finally {
-            LockSecurityPolicy.setIgnoreLockPolicy(false);
-        }
-        Lock lock = new Lock(principal.getId(), Instant.now());
-        Lock oldLock = doc.setLock(lock);
-        if (oldLock == null) {
-            // not previously locked
-            DocumentModel docModel = readModel(doc);
-            Map<String, Serializable> options = new HashMap<>();
-            options.put("lock", lock);
-            notifyEvent(DocumentEventTypes.DOCUMENT_LOCKED, docModel, options, null, null, false);
-            return lock;
-        }
-        if (principal.getId().equals(oldLock.getOwner())) {
-            return oldLock;
-        }
-        throw new LockException("Document already locked by " + oldLock.getOwner() + ": " + docRef, SC_CONFLICT);
-    }
-
-    @Override
-    public Lock getLockInfo(DocumentRef docRef) {
-        InternalDocument doc = resolveReference(docRef, READ);
-        return doc.getLock();
-    }
-
-    @Override
-    public Lock removeLock(DocumentRef docRef) throws LockException {
-        InternalDocument doc = resolveReference(docRef, null);
-        String owner;
-        if (hasPermission(doc, MANAGE_LOCK)) {
-            // always unlock
-            owner = null;
-        } else {
-            owner = principal.getId();
-        }
-        Lock lock = doc.removeLock(owner);
-        if (lock == null) {
-            // there was no lock, we're done
-            return null;
-        }
-        if (lock.getFailed()) {
-            // lock removal failed due to owner check
-            throw new LockException("Document already locked by " + lock.getOwner() + ": " + docRef, SC_CONFLICT);
-        }
-        DocumentModel docModel = readModel(doc);
-        Map<String, Serializable> options = new HashMap<>();
-        options.put("lock", lock);
-        notifyEvent(DocumentEventTypes.DOCUMENT_UNLOCKED, docModel, options, null, null, false);
-        return lock;
-    }
-
-    @Override
-    public Object getDocumentSystemProp(DocumentRef docRef, String systemProperty, Class<?> type) {
-        InternalDocument doc = resolveReference(docRef, READ);
-        return doc.getSystemProp(systemProperty, type);
-    }
-
-    @Override
-    public void setDocumentSystemProp(DocumentRef docRef, String systemProperty, Object value) {
-        InternalDocument doc = resolveReference(docRef, WRITE);
-        if (systemProperty != null && systemProperty.startsWith(SYS_FULLTEXT_BINARY)) {
-            DocumentModel docModel = readModel(doc);
-            Map<String, Serializable> options = new HashMap<>();
-            options.put(DocumentEventTypes.SYSTEM_PROPERTY, systemProperty);
-            options.put(DocumentEventTypes.SYSTEM_PROPERTY_VALUE, (Serializable) value);
-            // note: event is sent "inline", so never available to async processing (because it's big)
-            notifyEvent(DocumentEventTypes.BINARYTEXT_UPDATED, docModel, options, null, null, true);
-        }
-        doc.setSystemProp(systemProperty, value);
-    }
-
-    @Override
     public void orderBefore(DocumentRef parentRef, String src, String dest) {
         if (src == null || src.equals(dest)) {
             return;
@@ -1048,13 +901,6 @@ public class SessionImpl implements CoreSession {
     @Override
     public DocumentModelRefresh refreshDocument(DocumentRef docRef, int refreshFlags, String[] schemas) {
         throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public String getBinaryFulltext(DocumentRef docRef) {
-        InternalDocument doc = resolveReference(docRef, READ);
-        // use an id rather than system properties to avoid to store fulltext properties in cache
-        return getSession().getBinaryFulltext(doc.getId());
     }
 
     @Override
@@ -1109,6 +955,13 @@ public class SessionImpl implements CoreSession {
         }
         EventService eventService = Framework.getService(EventService.class);
         eventService.fireEvent(event);
+    }
+
+    protected void publishWriteEvents(DocumentModel source, List<DocumentEventSpec> events) {
+        for (DocumentEventSpec event : events) {
+            Map<String, Serializable> properties = event.properties().isEmpty() ? null : event.properties();
+            notifyEvent(event.name(), source, properties, null, null, event.inline());
+        }
     }
 
     @Override

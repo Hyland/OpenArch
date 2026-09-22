@@ -55,7 +55,6 @@ public class DocumentConstants {
 
     public static final String SYS_EFFECTIVE_PERMISSIONS = "sys_effectivePermissions";
 
-    // REST API
     public static final String SYS_FULLTEXT = "sys_fulltext";
 
     public static final String SYS_FULLTEXT_BINARY = "sys_fulltextBinary";
@@ -86,17 +85,11 @@ public class DocumentConstants {
 
     public static final String SYS_PARENT_ID = "sys_parentId";
 
-    // OpenSearch and REST
     public static final String SYS_PARENT_PATH = "sys_parentPath";
 
-    // OpenSearch and REST
     public static final String SYS_PATH = "sys_path";
 
-    // OpenSearch and REST
     public static final String SYS_PATH_DEPTH = "sys_pathDepth";
-
-    // OpenSearch (it's a prefix)
-    public static final String SYS_PATH_LEVEL = "sys_pathLevel";
 
     public static final String SYS_POS = "sys_pos";
 
@@ -110,10 +103,24 @@ public class DocumentConstants {
 
     public static final String SYS_SYS_CHANGE_TOKEN = "sys_systemChangeToken";
 
-    // ES
     public static final String SYS_TITLE = "sys_title";
 
+    public static final String KEY_ACE_PRINCIPAL = "principal";
+
+    public static final String KEY_ACE_PERMISSION = "perm";
+
+    public static final String KEY_ACE_GRANT = "grant";
+
+    public static final String KEY_ACE_CREATOR = "creator";
+
+    public static final String KEY_ACE_BEGIN = "begin";
+
+    public static final String KEY_ACE_END = "end";
+
+    public static final String KEY_ACE_STATUS = "status";
+
     // SysGovernable
+
     public static final String SYSGOV_PREFIX = "sysgov_";
 
     public static final String SYSGOV_RETAIN_UNTIL = "sysgov_retainUntil";

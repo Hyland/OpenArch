@@ -30,7 +30,6 @@
       ],
       "projectId": "PF00000",
       "schemas": [
-        "system",
         "sysfile",
         "mydublincore"
       ],

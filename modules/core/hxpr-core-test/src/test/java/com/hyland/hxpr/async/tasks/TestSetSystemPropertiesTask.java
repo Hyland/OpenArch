@@ -64,7 +64,7 @@ public class TestSetSystemPropertiesTask extends AbstractTestAsyncTask {
         txFeature.nextTransaction();
 
         for (DocumentModel child : session.getChildren(model.getRef())) {
-            assertEquals(TRUE, session.getDocumentSystemProp(child.getRef(), SYS_IS_TRASHED, Boolean.class));
+            assertEquals(TRUE, child.getPropertyValue(SYS_IS_TRASHED));
         }
     }
 

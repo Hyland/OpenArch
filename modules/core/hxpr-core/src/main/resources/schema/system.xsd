@@ -1,30 +1,122 @@
 <?xml version="1.0"?>
-<xs:schema targetNamespace="http://www.nuxeo.org/ecm/schemas/system/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+<xs:schema targetNamespace="http://www.nuxeo.org/ecm/schemas/system/"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:nxs="http://www.nuxeo.org/ecm/schemas/system/"
-           xmlns:ref="http://www.nuxeo.org/ecm/schemas/core/external-references/">
+           xmlns:ref="http://www.nuxeo.org/ecm/schemas/core/external-references/"
+           xmlns:m="http://www.nuxeo.org/ecm/schemas/core/managed/">
 
-  <xs:simpleType name="contributorList">
-    <xs:list>
-      <xs:simpleType>
-        <xs:restriction base="xs:string" ref:resolver="userManagerResolver" ref:type="user" ref:validation="false" />
-      </xs:simpleType>
-    </xs:list>
+  <xs:simpleType name="stringList">
+    <xs:list itemType="xs:string" />
   </xs:simpleType>
 
-  <xs:element name="title" type="xs:string" />
+  <xs:simpleType name="principal">
+    <xs:restriction base="xs:string" ref:resolver="userManagerResolver" ref:type="user" ref:validation="false" />
+  </xs:simpleType>
+
+  <xs:simpleType name="contributorList">
+    <xs:list itemType="nxs:principal" />
+  </xs:simpleType>
+
+  <xs:complexType name="ace">
+    <xs:sequence>
+      <xs:element name="principal" type="nxs:principal" />
+      <xs:element name="perm" type="xs:string" />
+      <xs:element name="grant" type="xs:boolean" />
+      <xs:element name="creator" type="nxs:principal" />
+      <xs:element name="begin" type="xs:date" />
+      <xs:element name="end" type="xs:date" />
+      <xs:element name="status" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="aceList">
+    <xs:sequence>
+      <xs:element name="item" type="nxs:ace" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="acl" type="nxs:aceList"
+              m:noAutoCheckout="true"
+              m:readPermission="ManageSecurity" m:writePermission="ManageSecurity"
+              m:notOutput="INDEX"
+              m:notProjectable="true" />
+  <xs:element name="ancestorIds" type="nxs:stringList"
+              m:systemOwned="true" />
+  <xs:element name="blobKeys" type="nxs:stringList"
+              m:systemOwned="true" m:notOutput="REST,INDEX" />
+  <xs:element name="changeToken" type="xs:string"
+              m:systemOwned="true" m:source="COMPUTED"
+              m:notQueryable="true" m:notProjectable="true" />
+  <xs:element name="contributors" type="nxs:contributorList"
+              m:systemOwned="true" />
+  <xs:element name="created" type="xs:date"
+              m:systemOwned="true" />
+  <xs:element name="creator" type="nxs:principal"
+              m:systemOwned="true" />
   <xs:element name="description" type="xs:string" />
-  <xs:element name="created" type="xs:date" />
-  <xs:element name="modified" type="xs:date" />
-  <xs:element name="creator">
-    <xs:simpleType>
-      <xs:restriction base="xs:string" ref:resolver="userManagerResolver" ref:type="user" ref:validation="false" />
-    </xs:simpleType>
-  </xs:element>
-  <xs:element name="contributors" type="nxs:contributorList" />
-  <xs:element name="lastContributor">
-    <xs:simpleType>
-      <xs:restriction base="xs:string" ref:resolver="userManagerResolver" ref:type="user" ref:validation="false" />
-    </xs:simpleType>
-  </xs:element>
+  <xs:element name="effectiveAcl" type="nxs:aceList"
+              m:systemOwned="true" m:source="COMPUTED"
+              m:readPermission="ManageSecurity" m:notOutput="INDEX"
+              m:notQueryable="true" m:notProjectable="true" />
+  <xs:element name="effectivePermissions" type="nxs:stringList"
+              m:systemOwned="true" m:source="COMPUTED" m:notOutput="INDEX"
+              m:notQueryable="true" m:notProjectable="true" />
+  <xs:element name="fulltext" type="xs:string"
+              m:systemOwned="true" m:source="QUERY_VIRTUAL"
+              m:notProjectable="true" m:notOutput="REST,INDEX" />
+  <xs:element name="fulltextBinary" type="xs:string"
+              m:systemOwned="true"
+              m:notProjectable="true" />
+  <xs:element name="fulltextJobId" type="xs:string"
+              m:systemOwned="true"
+              m:notOutput="REST,INDEX" />
+  <xs:element name="fulltextScore" type="xs:double"
+              m:systemOwned="true" m:source="QUERY_VIRTUAL" m:notOutput="REST,INDEX" />
+  <xs:element name="id" type="xs:string"
+              m:noAutoCheckout="true" />
+  <xs:element name="isFolderish" type="xs:boolean"
+              m:systemOwned="true" m:falseAsNull="STORE" />
+  <xs:element name="isTrashed" type="xs:boolean"
+              m:systemOwned="true" m:falseAsNull="STORE,REST,INDEX" />
+  <xs:element name="lastContributor" type="nxs:principal"
+              m:systemOwned="true" />
+  <xs:element name="lifecycleState" type="xs:string"
+              m:versionWritePermission="STANDARD" />
+  <xs:element name="lockCreated" type="xs:date"
+              m:systemOwned="true" />
+  <xs:element name="lockOwner" type="nxs:principal"
+              m:noAutoCheckout="true" m:writePermission="MANAGED"
+              m:versionWritePermission="STANDARD" />
+  <xs:element name="mixinTypes" type="nxs:stringList"
+              m:noAutoCheckout="true" />
+  <xs:element name="modified" type="xs:date"
+              m:systemOwned="true" />
+  <xs:element name="name" type="xs:string"
+              m:systemOwned="true" />
+  <xs:element name="parentId" type="xs:string"
+              m:systemOwned="true" />
+  <xs:element name="parentPath" type="xs:string"
+              m:systemOwned="true" m:source="COMPUTED"
+              m:notQueryable="true" m:notProjectable="true" />
+  <xs:element name="path" type="xs:string"
+              m:systemOwned="true" m:source="COMPUTED" />
+  <xs:element name="pathDepth" type="xs:long"
+              m:systemOwned="true" m:source="COMPUTED"
+              m:notQueryable="true" m:notProjectable="true" />
+  <xs:element name="pos" type="xs:long"
+              m:systemOwned="true" />
+  <xs:element name="primaryType" type="xs:string"
+              m:noAutoCheckout="true" />
+  <xs:element name="racl" type="nxs:stringList"
+              m:systemOwned="true" m:readPermission="ManageSecurity" />
+  <xs:element name="repository" type="xs:string"
+              m:systemOwned="true" m:source="COMPUTED"
+              m:notQueryable="true" m:notProjectable="true" />
+  <xs:element name="secpol" type="nxs:stringList"
+              m:noAutoCheckout="true"
+              m:readPermission="ManageSecurity" m:writePermission="ManageSecurity" />
+  <xs:element name="systemChangeToken" type="xs:long"
+              m:systemOwned="true" m:notOutput="REST,INDEX" />
+  <xs:element name="title" type="xs:string" />
 
 </xs:schema>

@@ -15,7 +15,15 @@
  */
 package org.nuxeo.ecm.core.storage.dbs;
 
+import static jakarta.servlet.http.HttpServletResponse.SC_CONFLICT;
 import static java.lang.Boolean.TRUE;
+import static org.nuxeo.ecm.core.api.DocumentConstants.KEY_ACE_BEGIN;
+import static org.nuxeo.ecm.core.api.DocumentConstants.KEY_ACE_CREATOR;
+import static org.nuxeo.ecm.core.api.DocumentConstants.KEY_ACE_END;
+import static org.nuxeo.ecm.core.api.DocumentConstants.KEY_ACE_GRANT;
+import static org.nuxeo.ecm.core.api.DocumentConstants.KEY_ACE_PERMISSION;
+import static org.nuxeo.ecm.core.api.DocumentConstants.KEY_ACE_PRINCIPAL;
+import static org.nuxeo.ecm.core.api.DocumentConstants.KEY_ACE_STATUS;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_CREATED;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_IS_CHECKED_IN;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_IS_VERSION;
@@ -23,28 +31,45 @@ import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_MINOR_VERSION;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_VERSION;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ACL;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ANCESTOR_IDS;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_BLOB_KEYS;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_CHANGE_TOKEN;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_EFFECTIVE_ACL;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_EFFECTIVE_PERMISSIONS;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_FULLTEXT_BINARY;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_FULLTEXT_JOB_ID;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ID;
 import static org.nuxeo.ecm.core.api.CoreSession.RETAIN_UNTIL_INDETERMINATE;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_HAS_LEGAL_HOLD;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_IS_FOLDERISH;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_IS_RECORD;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_IS_TRASHED;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_LIFECYCLE_STATE;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_LOCK_CREATED;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_LOCK_OWNER;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_MIXIN_TYPES;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_NAME;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PARENT_ID;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PARENT_PATH;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PATH;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PATH_DEPTH;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_POS;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PRIMARY_TYPE;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_READ_ACL;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_REPOSITORY;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_RETAIN_UNTIL;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_SECURITY_POLICIES;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_SYS_CHANGE_TOKEN;
+import static org.nuxeo.ecm.core.api.event.CoreEventConstants.RETAIN_UNTIL;
+import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.AFTER_EXTEND_RETENTION;
+import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.AFTER_MAKE_RECORD;
+import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.AFTER_REMOVE_LEGAL_HOLD;
+import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.AFTER_SET_LEGAL_HOLD;
+import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.AFTER_SET_RETENTION;
+import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.BINARYTEXT_UPDATED;
+import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_LOCKED;
+import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_SECURITY_UPDATED;
+import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_UNLOCKED;
+import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.SYSTEM_PROPERTY;
+import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.SYSTEM_PROPERTY_VALUE;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.WRITE;
+import static org.nuxeo.ecm.core.api.security.SecurityConstants.GENERIC_DOCUMENT_SECURITY_ERROR;
+import static org.nuxeo.ecm.core.api.security.SecurityConstants.MANAGE_LOCK;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.MANAGE_SECURITY;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.READ;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.READ_VERSION;
@@ -54,8 +79,12 @@ import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_FILENAME;
 import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_KEY;
 import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_LENGTH;
 import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_MIME_TYPE;
+import static org.nuxeo.ecm.core.schema.types.FieldCharacteristics.Representation.STORE;
+import static org.nuxeo.ecm.core.schema.types.FieldCharacteristics.VERSION_WRITE_STANDARD;
+import static org.nuxeo.ecm.core.schema.types.FieldCharacteristics.WRITE_MANAGED;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -69,6 +98,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
@@ -81,12 +111,17 @@ import org.apache.logging.log4j.Logger;
 import org.nuxeo.ecm.core.api.BaseValuesVisitor;
 import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.api.Blobs;
+import org.nuxeo.ecm.core.api.ConcurrentUpdateException;
 import org.nuxeo.ecm.core.api.CoreSession;
+import org.nuxeo.ecm.core.api.DocumentSecurityException;
 import org.nuxeo.ecm.core.api.DocumentNotFoundException;
+import org.nuxeo.ecm.core.api.IdRef;
 import org.nuxeo.ecm.core.api.Lock;
+import org.nuxeo.ecm.core.api.LockException;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.ecm.core.api.PropertyException;
+import org.nuxeo.ecm.core.api.SystemPrincipal;
 import org.nuxeo.ecm.core.api.UpdateCondition;
 import org.nuxeo.ecm.core.api.ValuesVisitor;
 import org.nuxeo.ecm.core.api.lock.LockManager;
@@ -101,8 +136,12 @@ import org.nuxeo.ecm.core.blob.BlobInfo;
 import org.nuxeo.ecm.core.blob.DocumentBlobService;
 import org.nuxeo.ecm.core.blob.ManagedBlob;
 import org.nuxeo.ecm.core.blob.SimpleManagedBlob;
+import org.nuxeo.ecm.core.SessionImpl;
+import org.nuxeo.ecm.core.SysEmbeddingsPolicies;
+import org.nuxeo.ecm.core.model.DocumentEventSpec;
 import org.nuxeo.ecm.core.model.InternalDocument;
 import org.nuxeo.ecm.core.model.InternalSession;
+import org.nuxeo.ecm.core.model.WriteResult;
 import org.nuxeo.ecm.core.query.QueryParseException;
 import org.nuxeo.ecm.core.schema.DocumentType;
 import org.nuxeo.ecm.core.schema.MixinNames;
@@ -111,6 +150,8 @@ import org.nuxeo.ecm.core.schema.TypeConstants;
 import org.nuxeo.ecm.core.schema.types.ComplexType;
 import org.nuxeo.ecm.core.schema.types.CompositeType;
 import org.nuxeo.ecm.core.schema.types.Field;
+import org.nuxeo.ecm.core.schema.types.FieldCharacteristics;
+import org.nuxeo.ecm.core.schema.types.FieldCharacteristics.ValueSource;
 import org.nuxeo.ecm.core.schema.types.FieldImpl;
 import org.nuxeo.ecm.core.schema.types.ListType;
 import org.nuxeo.ecm.core.schema.types.Schema;
@@ -122,6 +163,7 @@ import org.nuxeo.ecm.core.schema.types.primitives.DecimalType;
 import org.nuxeo.ecm.core.schema.types.primitives.DoubleType;
 import org.nuxeo.ecm.core.schema.types.primitives.LongType;
 import org.nuxeo.ecm.core.schema.types.primitives.StringType;
+import org.nuxeo.ecm.core.security.LockSecurityPolicy;
 import org.nuxeo.ecm.core.security.SecurityPolicyService;
 import org.nuxeo.ecm.core.security.SecurityService;
 import org.nuxeo.ecm.core.storage.State;
@@ -148,33 +190,7 @@ public class DBSDocument implements InternalDocument {
 
     public static final String KEY_PATH_INTERNAL = "sys___path";
 
-    public static final String KEY_ACE_PRINCIPAL = "principal";
-
-    public static final String KEY_ACE_PERMISSION = "perm";
-
-    public static final String KEY_ACE_GRANT = "grant";
-
-    public static final String KEY_ACE_CREATOR = "creator";
-
-    public static final String KEY_ACE_BEGIN = "begin";
-
-    public static final String KEY_ACE_END = "end";
-
-    public static final String KEY_ACE_STATUS = "status";
-
     public static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
-
-    private static final Set<String> VERSION_WRITABLE_PROPS = new HashSet<>(Arrays.asList( //
-            SYS_FULLTEXT_JOB_ID, //
-            SYS_FULLTEXT_BINARY, //
-            SYS_IS_TRASHED, //
-            SYS_LIFECYCLE_STATE, //
-            SYS_LOCK_OWNER, //
-            SYS_LOCK_CREATED, //
-            SYSGOV_IS_RECORD, //
-            SYSGOV_RETAIN_UNTIL, //
-            SYSGOV_HAS_LEGAL_HOLD //
-    ));
 
     public static final Long INITIAL_SYS_CHANGE_TOKEN = Long.valueOf(0);
 
@@ -197,13 +213,6 @@ public class DBSDocument implements InternalDocument {
 
     private final SecurityPolicyService securityPolicyService;
 
-    protected static final Set<String> VALID_SYS_PROPS = Set.of( //
-            SYS_FULLTEXT_JOB_ID, //
-            SYS_IS_TRASHED, //
-            SYS_LIFECYCLE_STATE, //
-            SYS_SECURITY_POLICIES, //
-            SYS_READ_ACL);
-
     public DBSDocument(DBSDocumentState docState, DocumentType type, DBSSession session, boolean readonly) {
         // no state for NullDocument (parent of placeless children)
         this.docState = docState;
@@ -213,6 +222,11 @@ public class DBSDocument implements InternalDocument {
         this.readonly = readonly;
         securityPolicyService = Framework.getService(SecurityService.class)
                                          .getSecurityPolicyService(session.getRepositoryName());
+    }
+
+    @Override
+    public SchemaManager getSchemaManager() {
+        return schemaManager;
     }
 
     /**
@@ -228,6 +242,9 @@ public class DBSDocument implements InternalDocument {
         }
         DBSDocumentState docState = ((DBSSession) session).newState();
         docState.put(SYS_PRIMARY_TYPE, typeName);
+        if (type.isFolder()) {
+            docState.put(SYS_IS_FOLDERISH, Boolean.TRUE);
+        }
         if (parent != null) {
             docState.put(SYS_PARENT_ID, parent.getId());
         }
@@ -269,6 +286,10 @@ public class DBSDocument implements InternalDocument {
     @Override
     public InternalSession getInternalSession() {
         return session;
+    }
+
+    private CoreSession getSession(NuxeoPrincipal principal) {
+        return new SessionImpl(getRepositoryName(), principal);
     }
 
     @Override
@@ -337,15 +358,18 @@ public class DBSDocument implements InternalDocument {
 
     @Override
     public String getPath() {
+        List<String> path = getPathList();
+        return path.size() == 1 && path.getFirst().isEmpty() ? "/" : StringUtils.join(path, '/');
+    }
+
+    /**
+     * Returns the path components, retaining the root's empty name as an absolute-path marker. The root is represented
+     * by {@code [""]}, a placeless document by {@code ["name"]}, and a first-level document by
+     * {@code ["", "name"]}.
+     */
+    private List<String> getPathList() {
         String name = getName();
         String parentId = getParentId();
-        if (parentId == null) {
-            if ("".equals(name)) {
-                return "/"; // root
-            } else {
-                return name; // placeless, no slash
-            }
-        }
         LinkedList<String> list = new LinkedList<>();
         list.addFirst(name);
         while (parentId != null) {
@@ -357,7 +381,23 @@ public class DBSDocument implements InternalDocument {
             parentId = parentDoc.getParentId();
             list.addFirst(name);
         }
-        return StringUtils.join(list, '/');
+        return list;
+    }
+
+    private String getParentPath() {
+        try {
+            InternalDocument parent = getParent();
+            return parent == null ? null : parent.getPath();
+        } catch (DocumentNotFoundException e) {
+            log.warn("Failed to resolve parent document for stale reference: doc={}, parent={}", getId(), getParentId(),
+                    e);
+            return null;
+        }
+    }
+
+    private int getPathDepth() {
+        List<String> path = getPathList();
+        return path.size() == 1 && path.getFirst().isEmpty() ? 0 : path.size();
     }
 
     @Override
@@ -393,9 +433,10 @@ public class DBSDocument implements InternalDocument {
     }
 
     @Override
-    public void setACL(ACL acl, boolean overwrite, NuxeoPrincipal principal) {
+    public WriteResult setACL(ACL acl, boolean overwrite, NuxeoPrincipal principal) {
+        checkPropertyWritePermission(SYS_ACL, principal);
         if (!overwrite && acl == null) {
-            return;
+            return WriteResult.EMPTY;
         }
         if (acl != null) {
             checkACL(acl);
@@ -408,7 +449,19 @@ public class DBSDocument implements InternalDocument {
         if (isCreated()) {
             // update read acls
             session.updateDenormalizedPropertiesWithDescendants(getId(), principal);
-        } // else denormalization will happen at create() time
+            return WriteResult.of(DocumentEventSpec.of(DOCUMENT_SECURITY_UPDATED));
+        } else {
+            // denormalization will happen at create() time
+            // and doc creation event will be sent, we don't want an early security event
+            return WriteResult.EMPTY;
+        }
+    }
+
+    private WriteResult setACLValue(Object value, NuxeoPrincipal principal) {
+        if (value != null && !(value instanceof ACL)) {
+            throw new PropertyException("Property " + SYS_ACL + " must be an ACL");
+        }
+        return setACL((ACL) value, true, principal);
     }
 
     /**
@@ -624,14 +677,157 @@ public class DBSDocument implements InternalDocument {
 
     @Override
     public Object getValue(String xpath) throws PropertyException {
-        return getValueObject(docState.getState(), xpath);
+        return getValueObject(docState.getState(), xpath, null);
+    }
+
+    @Override
+    public Object getValue(String xpath, NuxeoPrincipal principal) throws PropertyException {
+        Field managedField = checkManagedField(xpath);
+        prepareUserRead(managedField, principal);
+        return getValueObject(docState.getState(), xpath, principal);
+    }
+
+    private void prepareUserRead(Field managedField, NuxeoPrincipal principal) {
+        if (managedField != null) {
+            String permission = managedField.getCharacteristics().readPermission();
+            if (permission != null) {
+                checkPermission(principal, permission);
+            }
+        }
     }
 
     @Override
     public void setValue(String xpath, Object value) throws PropertyException {
         // markDirty has to be called *before* we change the state
         docState.markDirty();
-        setValueObject(docState.getState(), xpath, value);
+        setValueObject(docState.getState(), xpath, value, null);
+    }
+
+    @Override
+    public WriteResult setValue(String xpath, Object value, WriteContext context) throws PropertyException {
+        Field managedField = checkManagedField(xpath);
+        boolean managedWritePermission = managedField != null
+                && WRITE_MANAGED.equals(managedField.getCharacteristics().writePermission());
+        // A MANAGED field's specialized handler owns authorization and all other write behavior.
+        if (!managedWritePermission && !prepareUserWrite(xpath, managedField, value, context)) {
+            // ignore this write
+            return WriteResult.EMPTY;
+        }
+        if (managedField != null) {
+            WriteResult result = setManagedSystemValue(managedField, xpath, value, context.principal());
+            if (result != null) {
+                return result;
+            }
+            if (managedWritePermission) {
+                // A MANAGED field must never fall through to ordinary storage.
+                throw new IllegalStateException("No managed write handler for: " + managedField.getName());
+            }
+        }
+        docState.markDirty();
+        setValueObject(docState.getState(), xpath, value, context);
+        return WriteResult.EMPTY;
+    }
+
+    /** {@return {@code true} if the write should proceed, {@code false} if it's ignored or already taken care of.} */
+    private boolean prepareUserWrite(String xpath, Field managedField, Object value, WriteContext context) {
+        if (SYS_ID.equals(xpath)) {
+            // A top-level ID is assigned before creation, when the other checks do not apply.
+            return true;
+        }
+        NuxeoPrincipal principal = context.principal();
+        checkPropertyWritePermission(managedField, principal);
+        securityPolicyService.checkAllowedPropertyUpdate(this, principal, xpath);
+        if (!validateUserVisibleChangeToken(context.changeToken())) {
+            throw new ConcurrentUpdateException("Invalid change token").addInfo(getId());
+        }
+        if (ignoresUserWrite(xpath, managedField, value, principal)) {
+            return false;
+        }
+        if (context.userChange()) {
+            markUserChange();
+        }
+        boolean systemWrite = managedField != null && managedField.getCharacteristics().systemOwned()
+                && principal instanceof SystemPrincipal;
+        if (!systemWrite && (managedField == null || !managedField.getCharacteristics().noAutoCheckout())
+                && !isCheckedOut() && !isVersion()) {
+            getSession(principal).checkOut(new IdRef(getId()));
+        }
+        return true;
+    }
+
+    /**
+     * Determines whether a user write has no effect. System-owned fields are always ignored. On immutable versions,
+     * ordinary content writes are rejected; managed fields marked {@code STANDARD} proceed; other same-value writes
+     * are ignored; and changed values require their configured version-write permission or are ignored.
+     */
+    private boolean ignoresUserWrite(String xpath, Field managedField, Object value, NuxeoPrincipal principal) {
+        if (managedField != null && managedField.getCharacteristics().systemOwned()) {
+            return !(principal instanceof SystemPrincipal);
+        }
+        if (!isVersion() || !isReadOnly()) {
+            return false;
+        }
+        if (managedField == null) {
+            throw new PropertyException("Cannot set property on a version: " + xpath);
+        }
+        String permission = managedField.getCharacteristics().versionWritePermission();
+        if (VERSION_WRITE_STANDARD.equals(permission)) {
+            return false;
+        }
+        if (isSamePropertyValue(xpath, value)) {
+            return true;
+        }
+        if (permission != null) {
+            checkPermission(principal, permission);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Compares a requested value with the current property value after normalizing an empty array to {@code null}.
+     */
+    private boolean isSamePropertyValue(String xpath, Object value) {
+        if (value instanceof Object[] array && array.length == 0) {
+            value = null;
+        }
+        try {
+            return Objects.deepEquals(value, getValue(xpath));
+        } catch (PropertyNotFoundException e) {
+            return false;
+        }
+    }
+
+    private Field checkManagedField(String xpath) {
+        String root = StringUtils.substringBefore(xpath, '/');
+        Field field = getField(getType(), root);
+        if (field != null && field.isRepositoryManaged()) {
+            if (!xpath.equals(root)) {
+                throw new PropertyException("Cannot access subproperty of managed property: " + xpath);
+            }
+            return field; // managed
+        } else {
+            return null; // regular
+        }
+    }
+
+    private void checkPropertyWritePermission(String xpath, NuxeoPrincipal principal) {
+        checkPropertyWritePermission(checkManagedField(xpath), principal);
+    }
+
+    private void checkPropertyWritePermission(Field managedField, NuxeoPrincipal principal) {
+        String permission = managedField == null ? null : managedField.getCharacteristics().writePermission();
+        if (WRITE_MANAGED.equals(permission)) {
+            return;
+        }
+        checkPermission(principal, permission == null ? WRITE : permission);
+    }
+
+    private void checkPermission(NuxeoPrincipal principal, String permission) {
+        if (principal != null && !hasPermission(principal, permission)) {
+            throw new DocumentSecurityException(
+                    String.format(GENERIC_DOCUMENT_SECURITY_ERROR, permission, principal.getId(), getId()));
+        }
     }
 
     @Override
@@ -829,7 +1025,8 @@ public class DBSDocument implements InternalDocument {
 
     @Override
     public boolean isFolder() {
-        return TRUE.equals(docState.get(SYS_IS_FOLDERISH));
+        // Root and older type-defined folders may lack the denormalized flag.
+        return TRUE.equals(docState.get(SYS_IS_FOLDERISH)) || getType().isFolder();
     }
 
     @Override
@@ -852,45 +1049,32 @@ public class DBSDocument implements InternalDocument {
         session.removeDocument(getId(), principal);
     }
 
-    @Override
-    public void setSystemProp(String name, Object value) {
-        if (name.startsWith(SYS_FULLTEXT_BINARY)) {
-            if (session.fulltextStoredInBlob) {
-                if (!(value instanceof String)) {
-                    throw new PropertyException("Property " + name + " must be a string");
-                }
-                setPropertyBlobData(name, (String) value);
-                return;
-            }
-        } else if (!VALID_SYS_PROPS.contains(name)) {
-            // cannot be set by user code
-            throw new PropertyNotFoundException(name);
+    private WriteResult setFulltextBinaryValue(String value) {
+        if (session.fulltextStoredInBlob) {
+            setPropertyBlobData(SYS_FULLTEXT_BINARY, value);
+        } else {
+            setValue(SYS_FULLTEXT_BINARY, value);
         }
-        if (value instanceof Object[] array) {
-            value = Arrays.asList(array);
-        }
-        if (value instanceof List list && list.isEmpty()) {
-            value = null;
-        }
-        setPropertyValue(name, value);
+        Map<String, Serializable> properties = new HashMap<>();
+        properties.put(SYSTEM_PROPERTY, SYS_FULLTEXT_BINARY);
+        properties.put(SYSTEM_PROPERTY_VALUE, value);
+        // inline event: keep the potentially large extracted text out of asynchronous event processing
+        return WriteResult.of(DocumentEventSpec.of(BINARYTEXT_UPDATED, properties, true));
     }
 
-    @Override
-    public Object getSystemProp(String name, Class<?> type) {
-        if (!VALID_SYS_PROPS.contains(name)) {
-            throw new PropertyNotFoundException(name);
+    private String getFulltextBinaryValue(State state) {
+        String fulltext = (String) state.get(SYS_FULLTEXT_BINARY);
+        if (!session.fulltextStoredInBlob || fulltext == null) {
+            return fulltext;
         }
-        Object value = getPropertyValue(name);
-        if (value == null) {
-            if (type == Boolean.class) {
-                value = Boolean.FALSE;
-            } else if (type == Long.class) {
-                value = Long.valueOf(0);
-            } else if (type == List.class) {
-                value = List.of();
-            }
+        try {
+            BlobInfo blobInfo = new BlobInfo();
+            blobInfo.setKey(fulltext);
+            Blob blob = getDocumentBlobService().readBlob(blobInfo, this, SYS_FULLTEXT_BINARY);
+            return blob.getString();
+        } catch (IOException e) {
+            throw new PropertyException("Cannot read fulltext blob for doc: " + getId(), e);
         }
-        return value;
     }
 
     @Override
@@ -916,30 +1100,6 @@ public class DBSDocument implements InternalDocument {
     @Override
     public void setUpdateCondition(UpdateCondition condition, NuxeoPrincipal principal) throws QueryParseException {
         session.setUpdateCondition(getId(), condition, principal);
-    }
-
-    protected String getSchema(String xpath) {
-        switch (xpath) {
-        case SYSVER_MINOR_VERSION:
-        case SYSVER_VERSION:
-        case SYS_FULLTEXT_JOB_ID:
-        case SYS_IS_TRASHED:
-        case SYS_LIFECYCLE_STATE:
-        case SYS_SECURITY_POLICIES:
-        case SYS_BLOB_KEYS:
-        case SYS_READ_ACL:
-            return "__sys__";
-        default:
-        }
-        if (xpath.startsWith(SYS_FULLTEXT_BINARY)) {
-            return "__sys__";
-        }
-        String[] segments = xpath.split("/");
-        Field field = getField(getType(), segments[0]);
-        if (field == null) {
-            throw new PropertyNotFoundException(xpath);
-        }
-        return field.getDeclaringType().getName();
     }
 
     @Override
@@ -1033,6 +1193,22 @@ public class DBSDocument implements InternalDocument {
         return oldType != newType || !(ListUtils.isEqualList(oldMixins, newMixins));
     }
 
+    public boolean setPrimaryTypeAndMixinTypes(String typeName, Collection<String> mixins, NuxeoPrincipal principal) {
+        checkPermission(principal, WRITE);
+        if (mixins != null) {
+            Set<String> current = getEffectiveMixins();
+            Set<String> updated = new HashSet<>(mixins);
+            Set<String> changed = new HashSet<>(updated);
+            changed.removeAll(current);
+            Set<String> removed = new HashSet<>(current);
+            removed.removeAll(updated);
+            changed.addAll(removed);
+            changed.forEach(mixin -> securityPolicyService.checkAllowedMixinUpdate(this, principal, mixin));
+            SysEmbeddingsPolicies.enforceHasEmbeddingsMixinUpdateOrThrow(this, mixins);
+        }
+        return setPrimaryTypeAndMixinTypes(typeName, mixins);
+    }
+
     // denormalize sys_isFolderish from sys_mixinTypes and sys_primaryType
     private void denormalizeSysIsFolderish(DBSDocumentState docState, List<Object> mixins) {
         boolean isFolderish = mixins != null && mixins.contains(MixinNames.SYS_FOLDERISH);
@@ -1114,6 +1290,38 @@ public class DBSDocument implements InternalDocument {
         }
     }
 
+    private WriteResult setLockOwnerValue(Object value, NuxeoPrincipal principal) {
+        if (value == null) {
+            String owner = hasPermission(principal, MANAGE_LOCK) ? null : principal.getId();
+            Lock lock = removeLock(owner);
+            if (lock == null) {
+                return WriteResult.EMPTY;
+            }
+            if (lock.getFailed()) {
+                throw new LockException("Document already locked by " + lock.getOwner() + ": " + getId(), SC_CONFLICT);
+            }
+            return WriteResult.of(lock, DocumentEventSpec.of(DOCUMENT_UNLOCKED));
+        }
+        try {
+            LockSecurityPolicy.setIgnoreLockPolicy(true);
+            checkPermission(principal, WRITE);
+        } finally {
+            LockSecurityPolicy.setIgnoreLockPolicy(false);
+        }
+        if (!principal.getId().equals(value)) {
+            throw new PropertyException("Lock owner must be the current principal");
+        }
+        Lock lock = new Lock(principal.getId(), Instant.now());
+        Lock oldLock = setLock(lock);
+        if (oldLock == null) {
+            return WriteResult.of(lock, DocumentEventSpec.of(DOCUMENT_LOCKED));
+        }
+        if (principal.getId().equals(oldLock.getOwner())) {
+            return WriteResult.of(oldLock);
+        }
+        throw new LockException("Document already locked by " + oldLock.getOwner() + ": " + getId(), SC_CONFLICT);
+    }
+
     /**
      * Removes a lock from this recently created and unsaved document.
      *
@@ -1138,11 +1346,6 @@ public class DBSDocument implements InternalDocument {
         docState.put(SYS_LOCK_CREATED, null);
         // return old lock
         return new Lock(oldOwner, oldCreated);
-    }
-
-    public static boolean isVersionWritableProperty(String name) {
-        return VERSION_WRITABLE_PROPS.contains(name) //
-                || name.startsWith(SYS_FULLTEXT_BINARY);
     }
 
     protected BlobInfo getBlobInfo(State state) throws PropertyException {
@@ -1186,7 +1389,7 @@ public class DBSDocument implements InternalDocument {
     /**
      * Gets a value (may be complex/list) from the document at the given xpath.
      */
-    protected Object getValueObject(State state, String xpath) throws PropertyException {
+    protected Object getValueObject(State state, String xpath, NuxeoPrincipal principal) throws PropertyException {
         String[] segments = xpath.split("/");
 
         /*
@@ -1219,7 +1422,7 @@ public class DBSDocument implements InternalDocument {
                 parentType = (ComplexType) ((ListType) type).getFieldType();
                 if (i == segments.length - 1) {
                     // last segment
-                    return getValueComplex(state, parentType, xpath);
+                    return getValueComplex(state, parentType, xpath, principal);
                 } else {
                     // not last segment
                     continue;
@@ -1228,7 +1431,7 @@ public class DBSDocument implements InternalDocument {
 
             if (i == segments.length - 1) {
                 // last segment
-                return state == null ? null : getValueField(state, field, xpath);
+                return state == null ? null : getValueField(state, field, xpath, principal);
             } else {
                 // not last segment
                 if (type.isSimpleType()) {
@@ -1249,10 +1452,14 @@ public class DBSDocument implements InternalDocument {
         throw new AssertionError("not reached");
     }
 
-    protected Object getValueField(State state, Field field, String xpath) throws PropertyException {
+    protected Object getValueField(State state, Field field, String xpath, NuxeoPrincipal principal)
+            throws PropertyException {
         Type type = field.getType();
         String name = field.getName();
         String xp = xpath == null ? name : xpath + '/' + name;
+        if (field.isRepositoryManaged()) {
+            return getManagedSystemValue(state, field, principal);
+        }
         if (type.isSimpleType()) {
             // scalar
             if (state == null) {
@@ -1278,14 +1485,14 @@ public class DBSDocument implements InternalDocument {
             if (childState == null) {
                 return null;
             }
-            return getValueComplex(childState, (ComplexType) type, xp);
+            return getValueComplex(childState, (ComplexType) type, xp, principal);
         } else if (type.isListType()) {
             // list
             Type fieldType = ((ListType) type).getFieldType();
             if (fieldType.isSimpleType()) {
                 // simple list
                 Object value = state.get(name);
-                if (value != null && !(value instanceof List l)) {
+                if (value != null && !(value instanceof List)) {
                     // cater for type mismatches
                     // data migration not done in database, return an array anyway
                     value = List.of(value);
@@ -1298,7 +1505,7 @@ public class DBSDocument implements InternalDocument {
                 int i = 0;
                 for (State childState : childStates) {
                     String xpi = xp + '/' + i++;
-                    Object value = getValueComplex(childState, (ComplexType) fieldType, xpi);
+                    Object value = getValueComplex(childState, (ComplexType) fieldType, xpi, principal);
                     list.add(value);
                 }
                 return list;
@@ -1309,7 +1516,62 @@ public class DBSDocument implements InternalDocument {
         }
     }
 
-    protected Object getValueComplex(State state, ComplexType complexType, String xpath) throws PropertyException {
+    private Object getManagedSystemValue(State state, Field field, NuxeoPrincipal principal) {
+        String name = field.getName();
+        FieldCharacteristics characteristics = field.getCharacteristics();
+        Object value = characteristics.source() == ValueSource.QUERY_VIRTUAL ? null : switch (name) {
+            case SYS_ACL -> getLocalACL();
+            case SYS_ANCESTOR_IDS -> getAncestorIds();
+            case SYS_CHANGE_TOKEN -> getChangeToken();
+            case SYS_EFFECTIVE_ACL -> getEffectiveACL();
+            case SYS_EFFECTIVE_PERMISSIONS -> getEffectivePermissions(principal).stream().toList();
+            case SYS_FULLTEXT_BINARY -> getFulltextBinaryValue(state);
+            case SYS_ID -> getId();
+            case SYS_IS_FOLDERISH -> isFolder();
+            case SYS_MIXIN_TYPES -> getEffectiveMixins().stream().toList();
+            case SYS_NAME -> getName();
+            case SYS_PARENT_ID -> getParentId();
+            case SYS_PATH -> getPath();
+            case SYS_PARENT_PATH -> getParentPath();
+            case SYS_PATH_DEPTH -> getPathDepth();
+            case SYS_POS -> getPos();
+            case SYS_PRIMARY_TYPE -> getType().getName();
+            case SYS_READ_ACL -> Objects.requireNonNullElse(state.get(name), List.of());
+            case SYS_REPOSITORY -> getRepositoryName();
+            case SYSVER_VERSION -> Objects.requireNonNullElse(getVersion(), 0L);
+            case SYSVER_MINOR_VERSION -> Objects.requireNonNullElse(getMinorVersion(), 0L);
+            default -> getDefaultSystemValue(state, field, characteristics);
+        };
+        return characteristics.falseAsNull().contains(STORE) ? Boolean.valueOf(TRUE.equals(value)) : value;
+    }
+
+    private Object getDefaultSystemValue(State state, Field field, FieldCharacteristics characteristics) {
+        String name = field.getName();
+        if (characteristics.source() == ValueSource.COMPUTED) {
+            throw new IllegalStateException("No computed system value handler for: " + name);
+        }
+        return normalizeStoredValue(state.get(name), field.getType(), name);
+    }
+
+    private Object normalizeStoredValue(Object value, Type type, String name) {
+        if (type.isSimpleType() && value instanceof List<?> list) {
+            if (list.isEmpty()) {
+                return null;
+            }
+            if (list.size() > 1) {
+                log.warn("Property {}: expected a simple value but read a list: {} ", name, list);
+            }
+            return list.get(0);
+        }
+        if (type.isListType() && ((ListType) type).getFieldType().isSimpleType() && value != null
+                && !(value instanceof List<?>)) {
+            return List.of(value);
+        }
+        return value;
+    }
+
+    protected Object getValueComplex(State state, ComplexType complexType, String xpath, NuxeoPrincipal principal)
+            throws PropertyException {
         if (state == null) {
             // corrupted or invalid list element in storage
             state = new State();
@@ -1321,7 +1583,7 @@ public class DBSDocument implements InternalDocument {
         for (Field field : complexType.getFields()) {
             String name = field.getName();
             String xp = xpath + '/' + name;
-            Object value = getValueField(state, field, xp);
+            Object value = getValueField(state, field, xp, principal);
             map.put(name, value);
         }
         return map;
@@ -1340,8 +1602,9 @@ public class DBSDocument implements InternalDocument {
     /**
      * Sets a value (may be complex/list) into the document at the given xpath.
      */
-    protected void setValueObject(State state, String xpath, Object value) throws PropertyException {
-        if (value instanceof List list && list.isEmpty()) {
+    private void setValueObject(State state, String xpath, Object value, WriteContext context)
+            throws PropertyException {
+        if (value instanceof List<?> list && list.isEmpty()) {
             // normalize empty lists to null
             value = null;
         }
@@ -1373,7 +1636,7 @@ public class DBSDocument implements InternalDocument {
                 field = ((ListType) type).getField();
                 if (i == segments.length - 1) {
                     // last segment
-                    setValueComplex(state, field, xpath, value);
+                    setValueComplex(state, field, xpath, value, context);
                 } else {
                     // not last segment
                     parentType = (ComplexType) field.getType();
@@ -1383,7 +1646,7 @@ public class DBSDocument implements InternalDocument {
 
             if (i == segments.length - 1) {
                 // last segment
-                setValueField(state, field, xpath, value);
+                setValueField(state, field, xpath, value, context);
             } else {
                 // not last segment
                 if (type.isSimpleType()) {
@@ -1401,10 +1664,10 @@ public class DBSDocument implements InternalDocument {
         }
     }
 
-    protected void setValueField(State state, Field field, String xpath, Object value) throws PropertyException {
+    protected void setValueField(State state, Field field, String xpath, Object value, WriteContext context)
+            throws PropertyException {
         Type type = field.getType();
         String name = field.getName(); // normalize from map key
-        // TODO we could check for read-only here
         if (type.isSimpleType()) {
             // scalar
             value = convert(value, type, xpath);
@@ -1412,7 +1675,7 @@ public class DBSDocument implements InternalDocument {
         } else if (type.isComplexType()) {
             // complex property
             State childState = getChildForWrite(state, name);
-            setValueComplex(childState, field, xpath, value);
+            setValueComplex(childState, field, xpath, value, context);
         } else if (type.isListType()) {
             // list
             ListType listType = (ListType) type;
@@ -1438,6 +1701,7 @@ public class DBSDocument implements InternalDocument {
                         list = list.stream().map(v -> convert(v, fieldType, xpath)).toList();
                     }
                 }
+
                 state.put(name, list);
             } else {
                 // complex list
@@ -1447,7 +1711,7 @@ public class DBSDocument implements InternalDocument {
                 }
                 List<?> values = (List<?>) value;
                 List<State> childStates;
-                if (value == null || values.isEmpty()) {
+                if (values == null || values.isEmpty()) {
                     childStates = null;
                 } else {
                     Field listField = listType.getField();
@@ -1455,7 +1719,7 @@ public class DBSDocument implements InternalDocument {
                     int i = 0;
                     for (Object v : values) {
                         State childState = new State();
-                        setValueComplex(childState, listField, xpath + '/' + i, v);
+                        setValueComplex(childState, listField, xpath + '/' + i, v, context);
                         childStates.add(childState);
                         i++;
                     }
@@ -1466,6 +1730,118 @@ public class DBSDocument implements InternalDocument {
             // any
             state.put(name, StateHelper.toState(value));
         }
+    }
+
+    private Object normalizeManagedValue(Object value, Type type, String xpath) {
+        if (value == null || !type.isSimpleType() && !type.isListType()) {
+            return value;
+        }
+        if (type.isSimpleType()) {
+            return convert(value, type, xpath);
+        }
+        Type itemType = ((ListType) type).getFieldType();
+        if (!itemType.isSimpleType()) {
+            return value;
+        }
+        List<?> values;
+        if (value instanceof Object[] array) {
+            values = Arrays.asList(array);
+        } else if (value instanceof List<?> list) {
+            values = list;
+        } else {
+            throw new PropertyConversionException(value.getClass(), List.class, xpath);
+        }
+        return values.stream().map(item -> convert(item, itemType, xpath)).toList();
+    }
+
+    /**
+     * Handles writes requiring specialized repository-managed behavior.
+     *
+     * @return the result when the write was handled, or {@code null} to continue with normal field storage
+     */
+    @SuppressWarnings("unchecked")
+    private WriteResult setManagedSystemValue(Field field, String xpath, Object value, NuxeoPrincipal principal) {
+        // all the setters below manage their own markDirty
+        String name = field.getName();
+        value = normalizeManagedValue(value, field.getType(), xpath);
+        switch (name) {
+            case SYS_ID -> setId((String) value);
+            case SYS_PRIMARY_TYPE -> setPrimaryTypeAndMixinTypes((String) value, null, principal);
+            case SYS_MIXIN_TYPES -> setPrimaryTypeAndMixinTypes(null, (Collection<String>) value, principal);
+            case SYS_ACL -> {
+                return setACLValue(value, principal);
+            }
+            case SYS_SECURITY_POLICIES -> setSecurityPoliciesValue(value);
+            case SYS_FULLTEXT_BINARY -> {
+                return setFulltextBinaryValue((String) value);
+            }
+            case SYSGOV_IS_RECORD -> {
+                return setRecordValue(TRUE.equals(value));
+            }
+            case SYSGOV_RETAIN_UNTIL -> {
+                return setRetainUntilValue((Instant) value);
+            }
+            case SYSGOV_HAS_LEGAL_HOLD -> {
+                return setLegalHoldValue(TRUE.equals(value));
+            }
+            case SYS_LOCK_OWNER -> {
+                return setLockOwnerValue(value, principal);
+            }
+            default -> {
+                return null;
+            }
+        }
+        return WriteResult.EMPTY;
+    }
+
+    private WriteResult setRecordValue(boolean record) {
+        if (isRecord()) {
+            if (!record) {
+                throw new PropertyException("Cannot unmark a record");
+            }
+            return WriteResult.EMPTY;
+        }
+        if (!record) {
+            return WriteResult.EMPTY;
+        }
+        if (isVersion()) {
+            throw new PropertyException("Version cannot be made record: " + getId());
+        }
+        makeRecord();
+        return WriteResult.of(DocumentEventSpec.of(AFTER_MAKE_RECORD));
+    }
+
+    private WriteResult setRetainUntilValue(Instant retainUntil) {
+        if (!isRecord()) {
+            throw new PropertyException("Document is not a record");
+        }
+        Instant current = getRetainUntil();
+        if (current != null && retainUntil != null && current.equals(retainUntil)) {
+            return WriteResult.EMPTY;
+        }
+        boolean currentIndeterminate = current == null || RETAIN_UNTIL_INDETERMINATE.equals(current);
+        setRetainUntil(retainUntil);
+        Map<String, Serializable> properties = new HashMap<>();
+        properties.put(RETAIN_UNTIL, retainUntil);
+        String event = currentIndeterminate ? AFTER_SET_RETENTION : AFTER_EXTEND_RETENTION;
+        return WriteResult.of(DocumentEventSpec.of(event, properties));
+    }
+
+    private WriteResult setLegalHoldValue(boolean hold) {
+        if (!isRecord()) {
+            throw new PropertyException("Document is not a record");
+        }
+        if (hasLegalHold() == hold) {
+            return WriteResult.EMPTY;
+        }
+        setLegalHold(hold);
+        String event = hold ? AFTER_SET_LEGAL_HOLD : AFTER_REMOVE_LEGAL_HOLD;
+        return WriteResult.of(DocumentEventSpec.of(event));
+    }
+
+    @SuppressWarnings("unchecked")
+    private void setSecurityPoliciesValue(Object value) {
+        securityPolicyService.setSecurityPolicies(this, (List<String>) value);
     }
 
     private Object convert(Object value, Type type, String xpath) {
@@ -1479,7 +1855,8 @@ public class DBSDocument implements InternalDocument {
         }
     }
 
-    protected void setValueComplex(State state, Field field, String xpath, Object value) throws PropertyException {
+    protected void setValueComplex(State state, Field field, String xpath, Object value, WriteContext context)
+            throws PropertyException {
         ComplexType complexType = (ComplexType) field.getType();
         if (TypeConstants.isBlobType(complexType)) {
             if (value == null || value instanceof Blob) {
@@ -1503,7 +1880,7 @@ public class DBSDocument implements InternalDocument {
             String name = f.getName();
             keys.remove(name);
             value = map.get(name);
-            setValueField(state, f, xpath + '/' + name, value);
+            setValueField(state, f, xpath + '/' + name, value, context);
         }
         if (!keys.isEmpty()) {
             throw new PropertyException("Unknown key: " + keys.iterator().next() + " for " + xpath);
@@ -1569,7 +1946,10 @@ public class DBSDocument implements InternalDocument {
                 String name = e.getKey();
                 Field field = getField(type, name);
                 if (field == null) {
-                    // TODO XXX system property
+                    continue;
+                }
+                if (field.isRepositoryManaged()) {
+                    // repository-managed fields are projected separately from ordinary content properties
                     continue;
                 }
                 Object value = e.getValue();
@@ -1584,6 +1964,9 @@ public class DBSDocument implements InternalDocument {
         return (state, type) -> {
             List<ValueAndField> list = new ArrayList<>();
             for (Field field : type.getFields()) {
+                if (field.isRepositoryManaged()) {
+                    continue;
+                }
                 Object value = state.get(field.getName());
                 list.add(new ValueAndField(value, field));
             }
@@ -1704,7 +2087,7 @@ public class DBSDocument implements InternalDocument {
             visitor.endObject();
         }
 
-        protected void visitAnyList(List list) {
+        protected void visitAnyList(List<?> list) {
             visitor.startList();
             int i = 0;
             for (Object v : list) {

@@ -802,7 +802,7 @@ public class OpenSearchServiceImpl extends DefaultComponent implements OpenSearc
                 IndexRequest<DocumentDTO> idxRequest = buildEsIndexingRequest(cmd.getRepositoryName(), doc, cmd.getOrder());
                 if (idxRequest != null) {
                     DocumentDTO dto = idxRequest.document();
-                    bulkSize += dto.size(getClient().getJsonProvider());
+                    bulkSize += dto.size(getClient().getJsonpMapper());
                     bulkOperations.add(BulkOperation.of(b -> b.index(iob -> iob.index(idxRequest.index()) //
                                                                                .id(idxRequest.id())
                                                                                .document(dto))));

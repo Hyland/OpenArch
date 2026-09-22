@@ -17,6 +17,7 @@ package org.nuxeo.ecm.core.storage.dbs;
 
 import static jakarta.servlet.http.HttpServletResponse.SC_CONFLICT;
 import static java.lang.Boolean.TRUE;
+import static org.nuxeo.ecm.core.api.DocumentConstants.KEY_ACE_PERMISSION;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_HAS_LEGAL_HOLD;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_IS_RECORD;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_RETAIN_UNTIL;
@@ -30,22 +31,8 @@ import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_TITLE;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_VERSION;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ACL;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ANCESTOR_IDS;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_BLOB_KEYS;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_CONTRIBUTORS;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_CREATED;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_CREATOR;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_DESCRIPTION;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_FULLTEXT;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_FULLTEXT_BINARY;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_FULLTEXT_JOB_ID;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_FULLTEXT_SCORE;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ID;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_IS_FOLDERISH;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_IS_TRASHED;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_LAST_CONTRIBUTOR;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_LIFECYCLE_STATE;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_LOCK_CREATED;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_LOCK_OWNER;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_MIXIN_TYPES;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_MODIFIED;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_NAME;
@@ -54,19 +41,11 @@ import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PATH;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_POS;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PRIMARY_TYPE;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_READ_ACL;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_SECURITY_POLICIES;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
 import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_REMOVED;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.SYSTEM_USERNAME;
 import static org.nuxeo.ecm.core.async.tasks.DeleteBatchTaskProcessor.BATCH_DELETE_TASK_NAME;
+import static org.nuxeo.ecm.core.query.sql.HXQL.KEY_ACE_PERMISSION_COMPAT;
 import static org.nuxeo.ecm.core.schema.MixinNames.SYS_VERSIONED_WITH_PARENT;
-import static org.nuxeo.ecm.core.storage.dbs.DBSDocument.KEY_ACE_BEGIN;
-import static org.nuxeo.ecm.core.storage.dbs.DBSDocument.KEY_ACE_CREATOR;
-import static org.nuxeo.ecm.core.storage.dbs.DBSDocument.KEY_ACE_END;
-import static org.nuxeo.ecm.core.storage.dbs.DBSDocument.KEY_ACE_GRANT;
-import static org.nuxeo.ecm.core.storage.dbs.DBSDocument.KEY_ACE_PERMISSION;
-import static org.nuxeo.ecm.core.storage.dbs.DBSDocument.KEY_ACE_PRINCIPAL;
-import static org.nuxeo.ecm.core.storage.dbs.DBSDocument.KEY_ACE_STATUS;
 import static org.nuxeo.ecm.core.storage.dbs.DBSDocument.KEY_PATH_INTERNAL;
 import static org.nuxeo.ecm.core.storage.dbs.DBSSession.ChildrenSelector.ALL;
 import static org.nuxeo.ecm.core.storage.dbs.DBSSession.ChildrenSelector.FOR_CHECK_IN;
@@ -79,7 +58,6 @@ import io.dropwizard.metrics5.MetricRegistry;
 import io.dropwizard.metrics5.SharedMetricRegistries;
 import io.dropwizard.metrics5.Timer;
 
-import java.io.IOException;
 import java.text.Normalizer;
 import java.time.Instant;
 import java.util.ArrayDeque;
@@ -98,6 +76,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.collections4.ListUtils;
@@ -108,7 +87,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.nuxeo.common.utils.IdUtils;
 import org.nuxeo.ecm.core.DocumentImpl;
-import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.api.ConditionFailedException;
 import org.nuxeo.ecm.core.api.CoreInstance;
 import org.nuxeo.ecm.core.api.CoreSession;
@@ -122,14 +100,12 @@ import org.nuxeo.ecm.core.api.IterableQueryResult;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.ecm.core.api.PartialList;
-import org.nuxeo.ecm.core.api.PropertyException;
 import org.nuxeo.ecm.core.api.ScrollResult;
 import org.nuxeo.ecm.core.api.UpdateCondition;
 import org.nuxeo.ecm.core.api.lock.LockManager;
 import org.nuxeo.ecm.core.api.query.QueryParameters;
 import org.nuxeo.ecm.core.api.repository.FulltextConfiguration;
 import org.nuxeo.ecm.core.async.tasks.DeleteBatchTaskProcessor;
-import org.nuxeo.ecm.core.blob.BlobInfo;
 import org.nuxeo.ecm.core.blob.DocumentBlobService;
 import org.nuxeo.ecm.core.event.Event;
 import org.nuxeo.ecm.core.event.EventService;
@@ -139,7 +115,6 @@ import org.nuxeo.ecm.core.model.InternalDocument;
 import org.nuxeo.ecm.core.model.InternalSession;
 import org.nuxeo.ecm.core.model.Repository;
 import org.nuxeo.ecm.core.query.QueryParseException;
-import org.nuxeo.ecm.core.query.sql.HXQL;
 import org.nuxeo.ecm.core.query.sql.HXQLParser;
 import org.nuxeo.ecm.core.query.sql.model.BooleanLiteral;
 import org.nuxeo.ecm.core.query.sql.model.Operand;
@@ -150,20 +125,15 @@ import org.nuxeo.ecm.core.query.sql.model.Predicates;
 import org.nuxeo.ecm.core.query.sql.model.Reference;
 import org.nuxeo.ecm.core.query.sql.model.SelectClause;
 import org.nuxeo.ecm.core.query.sql.model.Statement;
+import org.nuxeo.ecm.core.query.sql.model.StatementValidator;
 import org.nuxeo.ecm.core.query.sql.model.WhereClause;
 import org.nuxeo.ecm.core.schema.DocumentType;
 import org.nuxeo.ecm.core.schema.MixinNames;
 import org.nuxeo.ecm.core.schema.SchemaManager;
 import org.nuxeo.ecm.core.schema.UnknownDocumentType;
-import org.nuxeo.ecm.core.schema.types.ListTypeImpl;
-import org.nuxeo.ecm.core.schema.types.Type;
-import org.nuxeo.ecm.core.schema.types.primitives.BooleanType;
-import org.nuxeo.ecm.core.schema.types.primitives.DateType;
-import org.nuxeo.ecm.core.schema.types.primitives.StringType;
 import org.nuxeo.ecm.core.security.SecurityPolicyService;
 import org.nuxeo.ecm.core.security.SecurityService;
 import com.hyland.hxpr.expr.ExprPredicates;
-import org.nuxeo.ecm.core.storage.ExpressionEvaluator;
 import org.nuxeo.ecm.core.storage.QueryOptimizer;
 import org.nuxeo.ecm.core.storage.State;
 import org.nuxeo.ecm.core.storage.StateHelper;
@@ -1024,37 +994,6 @@ public class DBSSession implements InternalSession {
     }
 
     @Override
-    public boolean isFulltextStoredInBlob() {
-        return fulltextStoredInBlob;
-    }
-
-    @Override
-    public String getBinaryFulltext(String id) {
-        State state = transaction.getStateForRead(id);
-        String fulltext = (String) state.get(SYS_FULLTEXT_BINARY);
-        if (fulltextStoredInBlob && fulltext != null) {
-            DBSDocument doc = getDocument(id);
-            if (doc == null) {
-                // could not find doc (shouldn't happen)
-                fulltext = null;
-            } else {
-                // fulltext is actually the blob key
-                // now retrieve the actual fulltext from the blob content
-                try {
-                    BlobInfo blobInfo = new BlobInfo();
-                    blobInfo.setKey(fulltext);
-                    String xpath = SYS_FULLTEXT_BINARY;
-                    Blob blob = getDocumentBlobService().readBlob(blobInfo, doc, xpath);
-                    fulltext = blob.getString();
-                } catch (IOException e) {
-                    throw new PropertyException("Cannot read fulltext blob for doc: " + id, e);
-                }
-            }
-        }
-        return fulltext;
-    }
-
-    @Override
     public void removeDocument(String id, NuxeoPrincipal principal) {
         transaction.save(principal);
 
@@ -1129,6 +1068,7 @@ public class DBSSession implements InternalSession {
 
     protected PartialList<Map<String, Object>> doQueryAndFetch(Statement statement, QueryParameters queryParams,
             boolean distinctDocuments, int countUpTo, Mutable<String> idKeyHolder) {
+        StatementValidator.rejectSecurityProperties(statement, queryParams.principal(), getSchemaManager());
         List<Operand> projection = new ArrayList<>(statement.getSelectClause().elements());
         if (projection.isEmpty()) {
             // turned into SELECT sys_id
@@ -1208,8 +1148,31 @@ public class DBSSession implements InternalSession {
                 projections = projections.subList(fromIndex, toIndex);
             }
         }
+        materializePathProjection(projections, statement.getSelectClause());
 
         return projections;
+    }
+
+    protected void materializePathProjection(List<Map<String, Object>> projections, SelectClause selectClause) {
+        boolean selectPath = selectClause.elements()
+                                         .stream()
+                                         .anyMatch(operand -> operand instanceof Reference ref
+                                                 && SYS_PATH.equals(ref.name()));
+        if (!selectPath) {
+            return;
+        }
+        Set<String> selected = selectClause.elements()
+                                           .stream()
+                                           .filter(Reference.class::isInstance)
+                                           .map(Reference.class::cast)
+                                           .map(Reference::name)
+                                           .collect(Collectors.toSet());
+        for (Map<String, Object> projection : projections) {
+            projection.put(SYS_PATH, getPath(projection));
+            Stream.of(SYS_NAME, SYS_ID, SYS_PARENT_ID)
+                  .filter(name -> !selected.contains(name))
+                  .forEach(projection::remove);
+        }
     }
 
     /** Does an ORDER BY clause include sys_path */
@@ -1252,7 +1215,7 @@ public class DBSSession implements InternalSession {
         if (isOrderByPath(orderByClause)) {
             // add path info to do the sort
             for (Map<String, Object> projection : projections) {
-                projection.put(ExpressionEvaluator.NXQL_SYS_PATH, getPath(projection));
+                projection.put(KEY_PATH_INTERNAL, getPath(projection));
             }
         }
         projections.sort(new OrderByComparator(orderByClause));
@@ -1269,7 +1232,7 @@ public class DBSSession implements InternalSession {
             List<OrderByExpr> obl = new ArrayList<>();
             for (OrderByExpr ob : orderByClause.elements()) {
                 if (ob.reference().name().equals(SYS_PATH)) {
-                    ob = new OrderByExpr(new Reference(ExpressionEvaluator.NXQL_SYS_PATH), ob.isDescending());
+                    ob = new OrderByExpr(new Reference(KEY_PATH_INTERNAL), ob.isDescending());
                 }
                 obl.add(ob);
             }
@@ -1353,6 +1316,7 @@ public class DBSSession implements InternalSession {
     @Override
     public ScrollResult<String> scroll(Statement statement, QueryParameters queryParams, int batchSize,
             int keepAliveSeconds) {
+        StatementValidator.rejectSecurityProperties(statement, queryParams.principal(), getSchemaManager());
         List<Operand> projection = new ArrayList<>(statement.getSelectClause().elements());
         projection.add(new Reference(SYS_ID));
         statement = statement.withSelectClause(new SelectClause(projection));
@@ -1447,160 +1411,14 @@ public class DBSSession implements InternalSession {
         }
     }
 
-    public static String convToInternal(String name) {
-        switch (name) {
-        case SYS_ID:
-        case SYS_NAME:
-        case SYS_POS:
-        case SYS_PARENT_ID:
-        case SYS_ANCESTOR_IDS:
-        case SYS_MIXIN_TYPES:
-        case SYS_PRIMARY_TYPE:
-        case SYS_LOCK_OWNER:
-        case SYS_LOCK_CREATED:
-        case SYS_IS_FOLDERISH:
-        case SYSGOV_IS_RECORD:
-        case SYSGOV_RETAIN_UNTIL:
-        case SYSGOV_HAS_LEGAL_HOLD:
-        case SYS_FULLTEXT_JOB_ID:
-        case SYS_FULLTEXT_SCORE:
-        case SYS_IS_TRASHED:
-        case SYS_LIFECYCLE_STATE:
-        case SYS_BLOB_KEYS:
-        case SYS_FULLTEXT_BINARY:
-        case SYS_ACL:
-        case SYS_READ_ACL:
-        case SYS_CONTRIBUTORS:
-        case SYS_CREATED:
-        case SYS_CREATOR:
-        case SYS_DESCRIPTION:
-        case SYS_LAST_CONTRIBUTOR:
-        case SYS_MODIFIED:
-        case SYS_TITLE:
-        case SYS_SECURITY_POLICIES:
-        case SYSVER_CREATED:
-        case SYSVER_CREATOR:
-        case SYSVER_DESCRIPTION:
-        case SYSVER_IS_CHECKED_IN:
-        case SYSVER_IS_VERSION:
-        case SYSVER_MINOR_VERSION:
-        case SYSVER_TITLE:
-        case SYSVER_VERSION:
+    /** Rewrites the deprecated ACL permission suffix in a full property path. */
+    public static String compatibilityName(String name) {
+        if (!name.startsWith(SYS_ACL + "/")) {
             return name;
-        case ExpressionEvaluator.NXQL_SYS_PATH:
-            return KEY_PATH_INTERNAL;
-        case SYS_FULLTEXT:
-            throw new UnsupportedOperationException(name);
-        default:
-            throw new QueryParseException("No such property: " + name);
         }
-    }
-
-    public static String convToInternalAce(String name) {
-        switch (name) {
-        case HXQL.SYS_ACL_PRINCIPAL:
-            return KEY_ACE_PRINCIPAL;
-        case HXQL.SYS_ACL_PERMISSION:
-            return KEY_ACE_PERMISSION;
-        case HXQL.SYS_ACL_GRANT:
-            return KEY_ACE_GRANT;
-        case HXQL.SYS_ACL_CREATOR:
-            return KEY_ACE_CREATOR;
-        case HXQL.SYS_ACL_BEGIN:
-            return KEY_ACE_BEGIN;
-        case HXQL.SYS_ACL_END:
-            return KEY_ACE_END;
-        case HXQL.SYS_ACL_STATUS:
-            return KEY_ACE_STATUS;
-        default:
-            return null;
-        }
-    }
-
-    public static String convToNXQL(String name) {
-        switch (name) {
-        case SYS_ID:
-        case SYS_NAME:
-        case SYS_POS:
-        case SYS_PARENT_ID:
-        case SYS_MIXIN_TYPES:
-        case SYS_PRIMARY_TYPE:
-        case SYS_LOCK_OWNER:
-        case SYS_LOCK_CREATED:
-        case SYS_IS_FOLDERISH:
-        case SYSGOV_IS_RECORD:
-        case SYSGOV_RETAIN_UNTIL:
-        case SYSGOV_HAS_LEGAL_HOLD:
-        case SYS_FULLTEXT_SCORE:
-        case SYS_IS_TRASHED:
-        case SYS_LIFECYCLE_STATE:
-        case SYS_BLOB_KEYS:
-        case SYS_CONTRIBUTORS:
-        case SYS_CREATED:
-        case SYS_CREATOR:
-        case SYS_DESCRIPTION:
-        case SYS_LAST_CONTRIBUTOR:
-        case SYS_MODIFIED:
-        case SYS_TITLE:
-        case SYS_SECURITY_POLICIES:
-        case SYSVER_CREATED:
-        case SYSVER_CREATOR:
-        case SYSVER_DESCRIPTION:
-        case SYSVER_IS_CHECKED_IN:
-        case SYSVER_IS_VERSION:
-        case SYSVER_MINOR_VERSION:
-        case SYSVER_TITLE:
-        case SYSVER_VERSION:
-            return name;
-        case SYS_ACL:
-        case SYS_ANCESTOR_IDS:
-        case SYS_READ_ACL:
-        case SYS_FULLTEXT_BINARY:
-        case SYS_FULLTEXT_JOB_ID:
-        case KEY_PATH_INTERNAL:
-            return null;
-        default:
-            throw new QueryParseException("No such property: " + name);
-        }
-    }
-
-    protected static final Type STRING_LIST_TYPE = new ListTypeImpl("", StringType.INSTANCE);
-
-    public static Type getType(String name) {
-        switch (name) {
-        case SYS_IS_FOLDERISH:
-        case KEY_ACE_GRANT:
-        case SYS_IS_TRASHED:
-        case SYSGOV_IS_RECORD:
-        case SYSGOV_HAS_LEGAL_HOLD:
-        case SYSVER_IS_CHECKED_IN:
-        case SYSVER_IS_VERSION:
-            return BooleanType.INSTANCE;
-        case SYS_LOCK_CREATED:
-        case KEY_ACE_BEGIN:
-        case KEY_ACE_END:
-        case SYSGOV_RETAIN_UNTIL:
-        case SYS_CREATED:
-        case SYS_MODIFIED:
-        case SYSVER_CREATED:
-            return DateType.INSTANCE;
-        case SYS_MIXIN_TYPES:
-        case SYS_ANCESTOR_IDS:
-        case SYS_READ_ACL:
-        case SYS_BLOB_KEYS:
-        case SYS_CONTRIBUTORS:
-        case SYS_SECURITY_POLICIES:
-            return STRING_LIST_TYPE;
-        case SYS_LIFECYCLE_STATE:
-        case SYS_CREATOR:
-        case SYS_DESCRIPTION:
-        case SYS_LAST_CONTRIBUTOR:
-        case SYS_TITLE:
-        case SYSVER_CREATOR:
-            return StringType.INSTANCE;
-        default:
-            return null;
-        }
+        int slash = name.lastIndexOf('/');
+        String leaf = name.substring(slash + 1);
+        return KEY_ACE_PERMISSION_COMPAT.equals(leaf) ? name.substring(0, slash + 1) + KEY_ACE_PERMISSION : name;
     }
 
     @Override

@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<xs:schema targetNamespace="http://www.nuxeo.org/ecm/schemas/system-characteristics/"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:m="http://www.nuxeo.org/ecm/schemas/core/managed/">
+  <xs:element name="title" type="xs:string" />
+  <xs:element name="acl" type="xs:string"
+              m:noAutoCheckout="true"
+              m:readPermission="ManageSecurity" m:writePermission="ManageSecurity"
+              m:notOutput="INDEX" />
+  <xs:element name="effectiveAcl" type="xs:string" m:readPermission="ManageSecurity" />
+  <xs:element name="racl" type="xs:string" m:readPermission="ManageSecurity" />
+  <xs:element name="secpol" type="xs:string" m:readPermission="ManageSecurity" />
+  <xs:element name="ancestorIds" type="xs:string" />
+  <xs:element name="isFolderish" type="xs:boolean"
+              m:falseAsNull="STORE" />
+  <xs:element name="isTrashed" type="xs:boolean"
+              m:falseAsNull="STORE,REST,INDEX" />
+</xs:schema>

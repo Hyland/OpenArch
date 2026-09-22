@@ -46,6 +46,9 @@ public class FieldImpl implements Field {
 
     private final boolean fullTextIndexed;
 
+    // null represents DEFAULT internally so empty characteristics stay omitted from the serialized model
+    private final FieldCharacteristics characteristics;
+
     private final boolean nullable;
 
     public FieldImpl(String name, Type declaringType, Type type, String defaultValue,
@@ -55,12 +58,18 @@ public class FieldImpl implements Field {
 
     public FieldImpl(String name, Type declaringType, Type type, String defaultValue,
             Collection<Constraint> constraints, boolean fullTextIndexed) {
+        this(name, declaringType, type, defaultValue, constraints, fullTextIndexed, null);
+    }
+
+    public FieldImpl(String name, Type declaringType, Type type, String defaultValue,
+            Collection<Constraint> constraints, boolean fullTextIndexed, FieldCharacteristics characteristics) {
         this.name = name;
         this.type = type;
         this.declaringType = declaringType;
         this.defaultValue = defaultValue;
         this.constraints = constraints == null ? Set.of() : new HashSet<>(constraints);
         this.fullTextIndexed = fullTextIndexed;
+        this.characteristics = FieldCharacteristics.DEFAULT.equals(characteristics) ? null : characteristics;
         nullable = ConstraintUtils.getConstraint(this.constraints, NotNullConstraint.class) == null;
     }
 
@@ -75,7 +84,7 @@ public class FieldImpl implements Field {
             // anonymous type, declared inline
             TypeDTO anonymous = type.toTypeDTO(schemaManager);
             base = new FieldDTO(anonymous.extend(), anonymous.fields(), anonymous.list(), anonymous.constraints(),
-                    null, false, anonymous.projectId());
+                    null, false, null, anonymous.projectId());
         }
 
         // keep only the constraints that are the field's own, not those of its type
@@ -85,7 +94,7 @@ public class FieldImpl implements Field {
 
         return new FieldDTO(base.typeRef(), base.fields(), base.list(),
                 ConstraintsDTO.merge(base.constraints(), ConstraintsDTO.of(fieldConstraints)), defaultValue,
-                fullTextIndexed, base.projectId());
+                fullTextIndexed, characteristics, base.projectId());
     }
 
     @Override
@@ -126,5 +135,10 @@ public class FieldImpl implements Field {
     @Override
     public boolean isFullTextIndexed() {
         return fullTextIndexed;
+    }
+
+    @Override
+    public FieldCharacteristics getCharacteristics() {
+        return characteristics == null ? FieldCharacteristics.DEFAULT : characteristics;
     }
 }

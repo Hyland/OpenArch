@@ -15,18 +15,13 @@
  */
 package org.nuxeo.opensearch.query;
 
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_HAS_LEGAL_HOLD;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_IS_RECORD;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_IS_CHECKED_IN;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_IS_VERSION;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ANCESTOR_IDS;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_FULLTEXT;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_FULLTEXT_SCORE;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_IS_FOLDERISH;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_IS_TRASHED;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PARENT_ID;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PATH;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PRIMARY_TYPE;
+import static org.nuxeo.ecm.core.schema.types.FieldCharacteristics.Representation.INDEX;
 import static org.nuxeo.opensearch.OpenSearchConstants.FULLTEXT_FIELD;
 import static org.nuxeo.opensearch.OpenSearchConstants.OPENSEARCH_SCORE_FIELD;
 
@@ -62,6 +57,7 @@ import org.nuxeo.ecm.core.query.sql.model.Parameter;
 import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Reference;
 import org.nuxeo.ecm.core.query.sql.model.Statement;
+import org.nuxeo.ecm.core.query.sql.model.StatementValidator;
 import org.nuxeo.ecm.core.query.sql.model.StringLiteral;
 import org.nuxeo.ecm.core.schema.SchemaManager;
 import org.nuxeo.ecm.core.schema.types.Field;
@@ -97,12 +93,7 @@ public final class HXQLQueryConverter {
     private static final Set<Operator> FULLTEXT_OPERATORS = Set.of(Operator.EQ, Operator.NOTEQ, Operator.LIKE,
             Operator.NOTLIKE);
 
-    /** Keys for boolean system properties that are stored in db and also indexed as true or null (never false). */
-    private static final Set<String> TRUE_OR_NULL_BOOLEAN_PROPS = Set.of( //
-            SYSVER_IS_CHECKED_IN, //
-            SYSVER_IS_VERSION,
-            SYSGOV_HAS_LEGAL_HOLD,
-            SYSGOV_IS_RECORD);
+    private static final Set<String> SYNTHETIC_OPENSEARCH_FIELDS = Set.of(SYS_FULLTEXT, SYS_FULLTEXT_SCORE);
 
     private final SchemaManager schemaManager;
 
@@ -111,6 +102,8 @@ public final class HXQLQueryConverter {
     }
 
     public ObjectBuilder<? extends QueryVariant> toESQueryBuilder(final Statement hxqlQuery, final CoreSession session) {
+        StatementValidator.rejectSecurityProperties(hxqlQuery, session == null ? null : session.getPrincipal(),
+                schemaManager);
         final List<ExpressionBuilder> builders = new ArrayList<>();
         Statement query = hxqlQuery;
         if (session != null) {
@@ -253,6 +246,9 @@ public final class HXQLQueryConverter {
 
     protected QueryAndFilter makeQueryFromSimpleExpression(Operator op, String nxqlName, String value,
             String[] values, FtHint hint, CoreSession session) {
+        FieldUse fieldUse = resolveFieldUse(nxqlName);
+        validateFieldUse(fieldUse, false);
+        Field field = fieldUse.field();
         ObjectBuilder<? extends QueryVariant> query = null;
         ObjectBuilder<? extends QueryVariant> filter = null;
         String name = getFieldName(nxqlName, hint);
@@ -267,22 +263,19 @@ public final class HXQLQueryConverter {
             if (op == Operator.NOTEQ) {
                 filter = QueryBuilders.bool().mustNot(filter.build().toQuery());
             }
-        } else if (nxqlName.equals(SYS_IS_TRASHED)) {
-            filter = makeTrashedFilter(op, name, value);
-
         } else {
             switch (op) {
             case EQ -> {
-                FieldValue normval = checkBoolValue(nxqlName, value);
-                if (TRUE_OR_NULL_BOOLEAN_PROPS.contains(nxqlName) && normval == FieldValue.FALSE) {
+                FieldValue normval = checkBoolValue(field, value);
+                if (isFalseAsNullInIndex(field) && normval == FieldValue.FALSE) {
                     filter = QueryBuilders.bool().mustNot(QueryBuilders.exists().field(name).build().toQuery());
                 } else {
                     filter = QueryBuilders.term().field(name).value(normval);
                 }
             }
             case NOTEQ -> {
-                FieldValue normval = checkBoolValue(nxqlName, value);
-                if (TRUE_OR_NULL_BOOLEAN_PROPS.contains(nxqlName)) {
+                FieldValue normval = checkBoolValue(field, value);
+                if (isFalseAsNullInIndex(field)) {
                     if (normval == FieldValue.TRUE) {
                         filter = QueryBuilders.bool().mustNot(QueryBuilders.exists().field(name).build().toQuery());
                     } else {
@@ -336,30 +329,24 @@ public final class HXQLQueryConverter {
         };
     }
 
-    protected FieldValue checkBoolValue(String nxqlName, String value) {
+    protected FieldValue checkBoolValue(Field field, String value) {
         if (value == null) {
             return FieldValue.NULL;
         }
+
         // accept 0/1 (legacy HXQL int form) and true/false (BooleanLiteral.asString)
         Boolean bool = parseBoolValue(value);
         if (bool == null) {
             return FieldValue.of(value);
         }
-        switch (nxqlName) {
-        case SYS_IS_FOLDERISH:
-        case SYS_IS_TRASHED:
-        case SYSGOV_IS_RECORD:
-        case SYSGOV_HAS_LEGAL_HOLD:
-        case SYSVER_IS_CHECKED_IN:
-        case SYSVER_IS_VERSION:
-            break;
-        default:
-            Field field = schemaManager.getField(nxqlName);
-            if (field == null || !BooleanType.ID.equals(field.getType().getName())) {
-                return FieldValue.of(value);
-            }
+        if (field == null || !BooleanType.ID.equals(field.getType().getName())) {
+            return FieldValue.of(value);
         }
         return bool ? FieldValue.TRUE : FieldValue.FALSE;
+    }
+
+    protected boolean isFalseAsNullInIndex(Field field) {
+        return field != null && field.getCharacteristics().falseAsNull().contains(INDEX);
     }
 
     /**
@@ -375,23 +362,6 @@ public final class HXQLQueryConverter {
         } else {
             return null;
         }
-    }
-
-    protected static ObjectBuilder<? extends QueryVariant> makeTrashedFilter(Operator op, String name, String value) {
-        Boolean trashedRequested = parseBoolValue(value);
-        if (trashedRequested == null) {
-            throw new IllegalArgumentException(SYS_IS_TRASHED + " requires literal TRUE/FALSE (or 0/1) as right argument");
-        }
-        boolean equalsDeleted = switch (op) {
-        case EQ -> trashedRequested;
-        case NOTEQ -> !trashedRequested;
-        default -> throw new IllegalArgumentException(SYS_IS_TRASHED + " requires = or <> operator");
-        };
-        ObjectBuilder<? extends QueryVariant> filter = QueryBuilders.term().field(name).value(FieldValue.of(true));
-        if (!equalsDeleted) {
-            filter = QueryBuilders.bool().mustNot(filter.build().toQuery());
-        }
-        return filter;
     }
 
     protected static ObjectBuilder<? extends QueryVariant> makeStartsWithQuery(String name, Object value) {
@@ -578,7 +548,9 @@ public final class HXQLQueryConverter {
         OrderByClause orderBy = query.getOrderByClause();
         if (orderBy != null) {
             for (OrderByExpr expr : orderBy.elements()) {
-                String name = getFieldName(expr.reference().name(), null);
+                String referenceName = expr.reference().name();
+                validateFieldUse(resolveFieldUse(referenceName), false);
+                String name = getFieldName(referenceName, null);
                 if (SYS_FULLTEXT_SCORE.equals(name)) {
                     name = OPENSEARCH_SCORE_FIELD;
                 }
@@ -593,11 +565,40 @@ public final class HXQLQueryConverter {
         Map<String, Type> fieldsAndTypes = new LinkedHashMap<>();
         for (Operand op : query.getSelectClause().elements()) {
             if (op instanceof Reference reference) {
-                Field field = schemaManager.getField(reference.name());
+                FieldUse fieldUse = resolveFieldUse(reference.name());
+                validateFieldUse(fieldUse, true);
+                Field field = fieldUse.field();
                 fieldsAndTypes.put(reference.name(), field == null ? null : field.getType());
             }
         }
         return fieldsAndTypes;
+    }
+
+    protected FieldUse resolveFieldUse(String name) {
+        Field field = schemaManager.getField(name);
+        int slash = name.indexOf('/');
+        Field rootField = slash < 0 ? field : schemaManager.getField(name.substring(0, slash));
+        return new FieldUse(field, rootField);
+    }
+
+    protected void validateFieldUse(FieldUse fieldUse, boolean projection) {
+        Field field = fieldUse.field();
+        Field rootField = fieldUse.rootField();
+        if (rootField != null && !SYNTHETIC_OPENSEARCH_FIELDS.contains(rootField.getName())
+                && rootField.getCharacteristics().notOutput().contains(INDEX)) {
+            throw new QueryParseException("Disallowed system property: " + rootField.getName());
+        }
+        if (field == null) {
+            return;
+        }
+        var characteristics = field.getCharacteristics();
+        boolean unsupported = projection ? characteristics.notProjectable() : characteristics.notQueryable();
+        if (unsupported) {
+            throw new QueryParseException("Disallowed system property: " + field.getName());
+        }
+    }
+
+    protected record FieldUse(Field field, Field rootField) {
     }
 
     /**

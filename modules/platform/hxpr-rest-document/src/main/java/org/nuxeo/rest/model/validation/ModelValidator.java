@@ -15,7 +15,6 @@
  */
 package org.nuxeo.rest.model.validation;
 
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSTEM;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.LIST;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.MAX_EXCLUSIVE;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.MAX_INCLUSIVE;
@@ -23,24 +22,17 @@ import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.MIN_EXCLUSIVE;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.MIN_INCLUSIVE;
 import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.PATH_DELIMITER;
 import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_KEY;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_CONTENT;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-import org.nuxeo.ecm.core.schema.DocumentType;
 import org.nuxeo.ecm.core.schema.SchemaManager;
 import org.nuxeo.ecm.core.schema.TypeConstants;
 import org.nuxeo.ecm.core.schema.XSDTypes;
 import org.nuxeo.ecm.core.schema.dto.ConstraintsDTO;
 import org.nuxeo.ecm.core.schema.dto.ContentModelDTO;
 import org.nuxeo.ecm.core.schema.dto.FieldDTO;
-import org.nuxeo.ecm.core.schema.dto.PrimaryTypeDTO;
 import org.nuxeo.ecm.core.schema.types.ComplexType;
 import org.nuxeo.ecm.core.schema.types.ListType;
 import org.nuxeo.ecm.core.schema.types.SimpleTypeImpl;
@@ -55,8 +47,6 @@ import org.nuxeo.ecm.core.schema.validation.ValidationReport;
 import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
 import org.nuxeo.rest.model.Constants;
 import org.nuxeo.rest.model.exception.ModelValidationException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -110,9 +100,6 @@ public class ModelValidator {
         // Validate the fullTextIndexed on fields
         validateFullTextFields(schemaManager, modelDTOFromRequest);
 
-        // Validate for system schema not present in content type
-        validatePrimaryTypesHaveSystemSchema(schemaManager, modelDTOFromRequest);
-
         // Validate default value of fields (e.g: boolean/date)
         validateFields(modelDTOFromRequest);
 
@@ -130,7 +117,6 @@ public class ModelValidator {
     public void validate(ContentModelDTO modelDTOFromRequest) {
         violations.clear();
         validateFields(modelDTOFromRequest);
-        validatePrimaryTypesHaveSystemSchema(modelDTOFromRequest);
         checkViolations();
     }
 
@@ -338,123 +324,4 @@ public class ModelValidator {
         }
     }
 
-    /**
-     * Validates if the system schema is present in the primary type
-     * @param modelDTOFromRequest DTO instance prepared from the request
-     */
-
-    private void validatePrimaryTypesHaveSystemSchema(SchemaManager schemaManager, ContentModelDTO modelDTOFromRequest) {
-        new SystemSchemaValidator(schemaManager, modelDTOFromRequest).validate();
-    }
-
-    private void validatePrimaryTypesHaveSystemSchema(ContentModelDTO modelDTOFromRequest) {
-        new SystemSchemaValidator(modelDTOFromRequest).validate();
-    }
-
-    protected class SystemSchemaValidator {
-
-        private final Logger logger = LoggerFactory.getLogger(SystemSchemaValidator.class);
-
-        private final ContentModelDTO modelDTO;
-
-        private final SchemaManager schemaManager;
-
-        private final Map<String, Set<String>> mixinTypesSchemas = new HashMap<>();
-
-        private final Map<String, Set<String>> primaryTypesSchemas = new HashMap<>();
-
-        private final Set<String> typesDone = new HashSet<>();
-
-        public SystemSchemaValidator(SchemaManager schemaManager, ContentModelDTO modelDTO) {
-            this.schemaManager = schemaManager;
-            this.modelDTO = modelDTO;
-        }
-
-        public SystemSchemaValidator( ContentModelDTO modelDTO) {
-            this.modelDTO = modelDTO;
-            this.schemaManager = null;
-        }
-
-        public void validate() {
-            expandMixinTypesSchemas();
-            expandPrimaryTypesSchemas();
-            modelDTO.primaryTypes().keySet().forEach(name -> {
-                Set<String> schemas = primaryTypesSchemas.getOrDefault(name, new HashSet<>());
-                if (!name.equals(SYS_CONTENT) && !schemas.contains(SYSTEM)) {
-                    logger.error("payload responsible for validation error for primaryType without system schema is.....{}, \n\n\n and primaryType name is...{}", modelDTO, name);
-                    violations.add(new ModelDTOViolation(
-                            "The system schema must be present in the following content type %s".formatted(name),
-                            name));
-                }
-            });
-        }
-
-        private void expandMixinTypesSchemas() {
-            modelDTO.mixinTypes().forEach((name, dto) -> {
-                List<String> schemas = dto.schemas();
-                if (schemas != null) {
-                    mixinTypesSchemas.put(name, new HashSet<>(schemas));
-                }
-            });
-        }
-
-        private void expandPrimaryTypesSchemas() {
-            modelDTO.primaryTypes().keySet().forEach(this::expandPrimaryTypeSchemas);
-        }
-
-        private void expandPrimaryTypeSchemas(String name) {
-            if (!typesDone.add(name)) {
-                return; // type already done
-            }
-
-            PrimaryTypeDTO dto = modelDTO.primaryTypes().get(name);
-            if (dto == null) {
-                // happens when extending SysContent in unit tests
-                primaryTypesSchemas.put(name, Set.of());
-                return;
-            }
-
-            Set<String> allSchemas = new HashSet<>();
-            expandSchemasFromExtend(dto, allSchemas);
-            expandSchemasFromMixins(dto, allSchemas);
-            addDirectlyDefinedSchemas(dto, allSchemas);
-            recordEffectiveSchemas(name, allSchemas);
-        }
-
-        private void expandSchemasFromExtend(PrimaryTypeDTO dto, Set<String> allSchemas) {
-            String extend = dto.extend();
-            if (extend != null) {
-                expandPrimaryTypeSchemas(extend);
-                if (schemaManager != null) {
-                    DocumentType parentDTO = schemaManager.getDocumentType(extend);
-                    if (parentDTO != null && parentDTO.getSchemaNames() != null) {
-                        allSchemas.addAll(primaryTypesSchemas.getOrDefault(extend, Set.of()));
-                        allSchemas.addAll(parentDTO.getSchemaNames()); // Add schemas from the extended type
-                    } else if (parentDTO == null) {
-                        allSchemas.addAll(primaryTypesSchemas.getOrDefault(extend, Set.of()));
-                    }
-                } else {
-                    allSchemas.addAll(primaryTypesSchemas.getOrDefault(extend, Set.of()));
-                }
-            }
-        }
-
-        private void expandSchemasFromMixins(PrimaryTypeDTO dto, Set<String> allSchemas) {
-            List<String> mixins = dto.mixins();
-            if (mixins != null) {
-                mixins.forEach(mixin -> allSchemas.addAll(mixinTypesSchemas.getOrDefault(mixin, Set.of())));
-            }
-        }
-
-        private void addDirectlyDefinedSchemas(PrimaryTypeDTO dto, Set<String> allSchemas) {
-            List<String> schemas = dto.schemas();
-            if (schemas != null) {
-                allSchemas.addAll(schemas);
-            }
-        }
-
-        private void recordEffectiveSchemas(String name, Set<String> allSchemas) {
-            primaryTypesSchemas.put(name, allSchemas);
-        }
-    }
 }

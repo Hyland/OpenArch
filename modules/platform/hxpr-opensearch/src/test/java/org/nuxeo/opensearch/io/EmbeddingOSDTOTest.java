@@ -37,15 +37,19 @@ import org.nuxeo.ecm.core.model.LocationModel;
 import org.nuxeo.opensearch.test.RepositoryOpenSearchFeature;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesExtension;
-import org.opensearch.client.json.jackson.JacksonJsonProvider;
+import org.opensearch.client.json.JsonpMapper;
+import org.opensearch.client.json.jackson3.JacksonJsonpMapper;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import jakarta.inject.Inject;
 import jakarta.json.stream.JsonGenerator;
+import tools.jackson.databind.json.JsonMapper;
 
 @ExtendWith(FeaturesExtension.class)
 @Features(RepositoryOpenSearchFeature.class)
 public class EmbeddingOSDTOTest {
+
+    private static final JsonpMapper MAPPER = new JacksonJsonpMapper(JsonMapper.builder().build());
 
     @Inject
     CoreSession session;
@@ -63,7 +67,7 @@ public class EmbeddingOSDTOTest {
     @Test
     public void testSerializeWithTextLocation() throws JSONException {
         StringWriter writer = new StringWriter();
-        JsonGenerator jg = JacksonJsonProvider.provider().createGenerator(writer);
+        JsonGenerator jg = MAPPER.jsonProvider().createGenerator(writer);
         String embeddingId = UUID.randomUUID().toString();
 
         List<Double> vector = IntStream.range(0, VECTOR_SIZE).mapToObj(Double::valueOf).toList();
@@ -72,7 +76,7 @@ public class EmbeddingOSDTOTest {
         EmbeddingOSDTO embeddingOSDTO = new EmbeddingOSDTO(embedding, createTestParentDoc(), null);
 
         // Call the method under test.
-        embeddingOSDTO.serialize(jg, null);
+        embeddingOSDTO.serialize(jg, MAPPER);
 
         jg.flush();
         String vectorAsString = vector.stream().map(Object::toString).collect(joining(", "));
@@ -98,7 +102,7 @@ public class EmbeddingOSDTOTest {
     @Test
     public void testSerializeWithImageLocation() throws JSONException {
         StringWriter writer = new StringWriter();
-        JsonGenerator jg = JacksonJsonProvider.provider().createGenerator(writer);
+        JsonGenerator jg = MAPPER.jsonProvider().createGenerator(writer);
         String embeddingId = UUID.randomUUID().toString();
 
         List<Double> vector = IntStream.range(0, VECTOR_SIZE).mapToObj(Double::valueOf).toList();
@@ -106,7 +110,7 @@ public class EmbeddingOSDTOTest {
                 new LocationModel(10, 20, 100, 200), null);
         EmbeddingOSDTO embeddingOSDTO = new EmbeddingOSDTO(embedding, createTestParentDoc(), null);
 
-        embeddingOSDTO.serialize(jg, null);
+        embeddingOSDTO.serialize(jg, MAPPER);
         jg.flush();
 
         String vectorAsString = vector.stream().map(Object::toString).collect(joining(", "));
@@ -132,7 +136,7 @@ public class EmbeddingOSDTOTest {
     @Test
     public void testSerializeWithVideoLocation() throws JSONException {
         StringWriter writer = new StringWriter();
-        JsonGenerator jg = JacksonJsonProvider.provider().createGenerator(writer);
+        JsonGenerator jg = MAPPER.jsonProvider().createGenerator(writer);
         String embeddingId = UUID.randomUUID().toString();
 
         List<Double> vector = IntStream.range(0, VECTOR_SIZE).mapToObj(Double::valueOf).toList();
@@ -140,7 +144,7 @@ public class EmbeddingOSDTOTest {
                 new LocationModel(15.5, 30.75), null);
         EmbeddingOSDTO embeddingOSDTO = new EmbeddingOSDTO(embedding, createTestParentDoc(), null);
 
-        embeddingOSDTO.serialize(jg, null);
+        embeddingOSDTO.serialize(jg, MAPPER);
         jg.flush();
 
         String vectorAsString = vector.stream().map(Object::toString).collect(joining(", "));
@@ -164,7 +168,7 @@ public class EmbeddingOSDTOTest {
     @Test
     public void testSerializeWithSpreadSheetLocation() throws JSONException {
         StringWriter writer = new StringWriter();
-        JsonGenerator jg = JacksonJsonProvider.provider().createGenerator(writer);
+        JsonGenerator jg = MAPPER.jsonProvider().createGenerator(writer);
         String embeddingId = UUID.randomUUID().toString();
 
         List<Double> vector = IntStream.range(0, VECTOR_SIZE).mapToObj(Double::valueOf).toList();
@@ -172,7 +176,7 @@ public class EmbeddingOSDTOTest {
                 new LocationModel("Sheet1", 5, 3), null);
         EmbeddingOSDTO embeddingOSDTO = new EmbeddingOSDTO(embedding, createTestParentDoc(), null);
 
-        embeddingOSDTO.serialize(jg, null);
+        embeddingOSDTO.serialize(jg, MAPPER);
         jg.flush();
 
         String vectorAsString = vector.stream().map(Object::toString).collect(joining(", "));
@@ -197,14 +201,14 @@ public class EmbeddingOSDTOTest {
     @Test
     public void testSerializeWithNullLocation() throws JSONException {
         StringWriter writer = new StringWriter();
-        JsonGenerator jg = JacksonJsonProvider.provider().createGenerator(writer);
+        JsonGenerator jg = MAPPER.jsonProvider().createGenerator(writer);
         String embeddingId = UUID.randomUUID().toString();
 
         List<Double> vector = IntStream.range(0, VECTOR_SIZE).mapToObj(Double::valueOf).toList();
         EmbeddingModel embedding = new EmbeddingModel(embeddingId, "repository", "docId", "type", vector, "text", null, null);
         EmbeddingOSDTO embeddingOSDTO = new EmbeddingOSDTO(embedding, createTestParentDoc(), null);
 
-        embeddingOSDTO.serialize(jg, null);
+        embeddingOSDTO.serialize(jg, MAPPER);
         jg.flush();
 
         String vectorAsString = vector.stream().map(Object::toString).collect(joining(", "));
@@ -222,7 +226,7 @@ public class EmbeddingOSDTOTest {
     @Test
     public void testSerializeWithBlobRef() throws JSONException {
         StringWriter writer = new StringWriter();
-        JsonGenerator jg = JacksonJsonProvider.provider().createGenerator(writer);
+        JsonGenerator jg = MAPPER.jsonProvider().createGenerator(writer);
         String embeddingId = UUID.randomUUID().toString();
 
         List<Double> vector = IntStream.range(0, VECTOR_SIZE).mapToObj(Double::valueOf).toList();
@@ -242,7 +246,7 @@ public class EmbeddingOSDTOTest {
 
         EmbeddingOSDTO embeddingOSDTO = new EmbeddingOSDTO(embedding, createTestParentDoc(), null);
 
-        embeddingOSDTO.serialize(jg, null);
+        embeddingOSDTO.serialize(jg, MAPPER);
         jg.flush();
 
         String vectorAsString = vector.stream().map(Object::toString).collect(joining(", "));
@@ -262,7 +266,7 @@ public class EmbeddingOSDTOTest {
     @Test
     public void testSerializeWithNullBlobRef() throws JSONException {
         StringWriter writer = new StringWriter();
-        JsonGenerator jg = JacksonJsonProvider.provider().createGenerator(writer);
+        JsonGenerator jg = MAPPER.jsonProvider().createGenerator(writer);
         String embeddingId = UUID.randomUUID().toString();
 
         List<Double> vector = IntStream.range(0, VECTOR_SIZE).mapToObj(Double::valueOf).toList();
@@ -281,7 +285,7 @@ public class EmbeddingOSDTOTest {
 
         EmbeddingOSDTO embeddingOSDTO = new EmbeddingOSDTO(embedding, createTestParentDoc(), null);
 
-        embeddingOSDTO.serialize(jg, null);
+        embeddingOSDTO.serialize(jg, MAPPER);
         jg.flush();
 
         String vectorAsString = vector.stream().map(Object::toString).collect(joining(", "));
@@ -306,7 +310,7 @@ public class EmbeddingOSDTOTest {
     @Test
     public void testSerializeOnPremOmitsChunkText() {
         StringWriter writer = new StringWriter();
-        JsonGenerator jg = JacksonJsonProvider.provider().createGenerator(writer);
+        JsonGenerator jg = MAPPER.jsonProvider().createGenerator(writer);
         String embeddingId = UUID.randomUUID().toString();
 
         List<Double> vector = IntStream.range(0, VECTOR_SIZE).mapToObj(Double::valueOf).toList();
@@ -314,7 +318,7 @@ public class EmbeddingOSDTOTest {
                 new LocationModel(1, 1), null);
         EmbeddingOSDTO embeddingOSDTO = new EmbeddingOSDTO(embedding, createTestParentDoc(), SYSEMB_RESIDENCY_ON_PREM);
 
-        embeddingOSDTO.serialize(jg, null);
+        embeddingOSDTO.serialize(jg, MAPPER);
         jg.flush();
 
         String actual = writer.toString();
@@ -329,7 +333,7 @@ public class EmbeddingOSDTOTest {
     @Test
     public void testSerializeCloudIncludesChunkText() {
         StringWriter writer = new StringWriter();
-        JsonGenerator jg = JacksonJsonProvider.provider().createGenerator(writer);
+        JsonGenerator jg = MAPPER.jsonProvider().createGenerator(writer);
         String embeddingId = UUID.randomUUID().toString();
 
         List<Double> vector = IntStream.range(0, VECTOR_SIZE).mapToObj(Double::valueOf).toList();
@@ -337,7 +341,7 @@ public class EmbeddingOSDTOTest {
                 new LocationModel(1, 1), null);
         EmbeddingOSDTO embeddingOSDTO = new EmbeddingOSDTO(embedding, createTestParentDoc(), SYSEMB_RESIDENCY_CLOUD);
 
-        embeddingOSDTO.serialize(jg, null);
+        embeddingOSDTO.serialize(jg, MAPPER);
         jg.flush();
 
         String actual = writer.toString();
@@ -349,7 +353,7 @@ public class EmbeddingOSDTOTest {
     @Test
     public void testSerializeNullResidencyDefaultsToCloud() {
         StringWriter writer = new StringWriter();
-        JsonGenerator jg = JacksonJsonProvider.provider().createGenerator(writer);
+        JsonGenerator jg = MAPPER.jsonProvider().createGenerator(writer);
         String embeddingId = UUID.randomUUID().toString();
 
         List<Double> vector = IntStream.range(0, VECTOR_SIZE).mapToObj(Double::valueOf).toList();
@@ -357,7 +361,7 @@ public class EmbeddingOSDTOTest {
                 new LocationModel(1, 1), null);
         EmbeddingOSDTO embeddingOSDTO = new EmbeddingOSDTO(embedding, createTestParentDoc(), null);
 
-        embeddingOSDTO.serialize(jg, null);
+        embeddingOSDTO.serialize(jg, MAPPER);
         jg.flush();
 
         assertTrue(writer.toString().contains("\"sysemb_residency\":\"cloud\""),

@@ -15,7 +15,6 @@
  */
 package org.nuxeo.ecm.core.storage.mongodb;
 
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_PREFIX;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ACL;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ANCESTOR_IDS;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_FULLTEXT;
@@ -25,7 +24,6 @@ import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ID;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_IS_TRASHED;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_MIXIN_TYPES;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PATH;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PREFIX;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PRIMARY_TYPE;
 import static org.nuxeo.ecm.core.storage.mongodb.MongoDBRepository.MONGODB_ID;
 
@@ -151,7 +149,9 @@ public class MongoDBRepositoryQueryBuilder extends MongoDBAbstractQueryBuilder {
             if (!(op instanceof Reference)) {
                 throw new QueryParseException("Projection not supported: " + op);
             }
-            FieldInfo fieldInfo = walkReference((Reference) op);
+            Reference ref = (Reference) op;
+            validateProjection(ref);
+            FieldInfo fieldInfo = walkReference(ref);
             String propertyField = fieldInfo.prop;
             if (!propertyField.equals(SYS_ID) //
                     && !propertyField.equals(fieldInfo.projectionField) //
@@ -165,6 +165,14 @@ public class MongoDBRepositoryQueryBuilder extends MongoDBAbstractQueryBuilder {
             if (fieldInfo.projectionField.equals(SYS_FULLTEXT_SCORE)) {
                 throw new QueryParseException("Fulltext search not available");
             }
+        }
+    }
+
+    protected void validateProjection(Reference ref) {
+        String name = DBSSession.compatibilityName(ref.name());
+        Field field = schemaManager.getField(name);
+        if (field != null && field.getCharacteristics().notProjectable()) {
+            throw new QueryParseException("Disallowed system property: " + field.getName());
         }
     }
 
@@ -346,86 +354,67 @@ public class MongoDBRepositoryQueryBuilder extends MongoDBAbstractQueryBuilder {
     }
 
     @Override
-    protected FieldInfo walkReference(String prop) {
-        String[] parts = prop.split("/");
-        if (prop.startsWith(SYS_PREFIX) || prop.startsWith(SYSVER_PREFIX)) {
-            if (prop.startsWith(SYS_ACL + "/")) {
-                return parseACL(prop, parts);
+    protected FieldInfo walkReference(String name) {
+        name = DBSSession.compatibilityName(name);
+        String[] parts = name.split("/");
+        String first = parts[0];
+        Field rootField = schemaManager.getField(first);
+        if (rootField == null) {
+            throw new QueryParseException("No such property: " + name);
+        }
+        boolean managed = rootField.isRepositoryManaged();
+        if (managed) {
+            int expectedParts = SYS_ACL.equals(first) ? 3 : 1;
+            if (rootField.getCharacteristics().notQueryable()) {
+                throw new QueryParseException("Disallowed system property: " + rootField.getName());
             }
-            // simple field
-            String field = DBSSession.convToInternal(prop);
-            Type type = DBSSession.getType(field);
-            String queryField = converter.keyToBson(field);
-            queryField = stripElemMatchPrefix(queryField);
-            return new FieldInfo(prop, field, queryField, queryField, type);
-        } else {
-            String first = parts[0];
-            Field field = schemaManager.getField(first);
-            if (field == null) {
-                throw new QueryParseException("No such property: " + prop);
+            if (parts.length != expectedParts) {
+                throw new QueryParseException("No such property: " + name);
             }
-            Type type = field.getType();
+            if (SYS_FULLTEXT.equals(first)) {
+                throw new UnsupportedOperationException(name);
+            }
+        }
+        Type type = rootField.getType();
 
-            // canonical name
-            parts[0] = field.getName();
-            // are there wildcards or list indexes?
-            List<String> queryFieldParts = new LinkedList<>(); // field for query
-            List<String> projectionFieldParts = new LinkedList<>(); // field for projection
-            boolean firstPart = true;
-            for (String part : parts) {
-                if (NumberUtils.isDigits(part)) {
-                    // explicit list index
-                    queryFieldParts.add(part);
-                    type = ((ListType) type).getFieldType();
-                } else if (!part.startsWith("*")) {
-                    // complex or any sub-property
-                    String bsonPart = converter.keyToBson(part);
-                    queryFieldParts.add(bsonPart);
-                    projectionFieldParts.add(bsonPart);
-                    if (!firstPart) {
-                        // we already computed the type of the first part
-                        if (type instanceof ComplexType complexType) {
-                            field = complexType.getField(part);
-                            if (field == null) {
-                                throw new QueryParseException("No such property: " + prop);
-                            }
-                            type = field.getType();
-                        } else if (!(type instanceof AnyType)) {
-                            throw new QueryParseException(
-                                    "Sub property of non-Complex and non-AnyType property: " + prop);
+        // are there wildcards or list indexes?
+        List<String> queryFieldParts = new LinkedList<>(); // field for query
+        List<String> projectionFieldParts = new LinkedList<>(); // field for projection
+        boolean firstPart = true;
+        for (String part : parts) {
+            if (NumberUtils.isDigits(part)) {
+                // explicit list index
+                queryFieldParts.add(part);
+                type = ((ListType) type).getFieldType();
+            } else if (!part.startsWith("*")) {
+                // complex or any sub-property
+                if (!firstPart) {
+                    // we already computed the type of the first part
+                    if (type instanceof ComplexType complexType) {
+                        Field field = complexType.getField(part);
+                        if (field == null) {
+                            throw new QueryParseException("No such property: " + name);
                         }
-                        // we assume sub-property of AnyType is also AnyType
+                        type = field.getType();
+                    } else if (!(type instanceof AnyType)) {
+                        throw new QueryParseException(
+                                "Sub property of non-Complex and non-AnyType property: " + name);
                     }
-                } else {
-                    // wildcard
-                    type = ((ListType) type).getFieldType();
+                    // we assume sub-property of AnyType is also AnyType
                 }
-                firstPart = false;
+                String bsonPart = converter.keyToBson(part);
+                queryFieldParts.add(bsonPart);
+                projectionFieldParts.add(bsonPart);
+            } else {
+                // wildcard
+                type = ((ListType) type).getFieldType();
             }
-            String queryField = StringUtils.join(queryFieldParts, '.');
-            String projectionField = StringUtils.join(projectionFieldParts, '.');
-            queryField = stripElemMatchPrefix(queryField);
-            return new FieldInfo(prop, prop, queryField, projectionField, type);
+            firstPart = false;
         }
-    }
-
-    protected FieldInfo parseACL(String prop, String[] parts) {
-        if (parts.length != 3) {
-            throw new QueryParseException("No such property: " + prop);
-        }
-        String wildcard = parts[1];
-        if (NumberUtils.isDigits(wildcard)) {
-            throw new QueryParseException("Cannot use explicit index in ACLs: " + prop);
-        }
-        String last = parts[2];
-        String fieldLast = DBSSession.convToInternalAce(last);
-        if (fieldLast == null) {
-            throw new QueryParseException("No such property: " + prop);
-        }
-        String queryField = SYS_ACL + "." + fieldLast;
+        String queryField = StringUtils.join(queryFieldParts, '.');
+        String projectionField = StringUtils.join(projectionFieldParts, '.');
         queryField = stripElemMatchPrefix(queryField);
-        Type type = DBSSession.getType(last);
-        return new FieldInfo(prop, prop, queryField, queryField, type);
+        return new FieldInfo(name, name, queryField, projectionField, type);
     }
 
     protected boolean isMixinTypes(FieldInfo fieldInfo) {

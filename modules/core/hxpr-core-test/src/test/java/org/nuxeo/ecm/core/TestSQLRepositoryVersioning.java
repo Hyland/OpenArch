@@ -31,7 +31,9 @@ import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_IS_TEMP;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_MINOR_VERSION;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_TITLE;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_VERSION;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ACL;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_DESCRIPTION;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_NAME;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
 import static org.nuxeo.ecm.core.api.local.DummyLoginFeature.TEST_ADMIN_USER;
 import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FILE;
@@ -285,6 +287,18 @@ public class TestSQLRepositoryVersioning {
         assertTrue(doc.isCheckedOut());
         session.checkIn(doc.getRef());
         doc.refresh();
+        assertFalse(doc.isCheckedOut());
+
+        // an ignored system-owned write does not auto-checkout
+        doc.putContextData(CoreSession.USER_CHANGE, Boolean.TRUE);
+        doc.setPropertyValue(SYS_NAME, "ignored");
+        assertEquals("file", doc.getName());
+        assertFalse(doc.isCheckedOut());
+
+        // repository metadata updates do not auto-checkout
+        ACL acl = new ACLImpl();
+        acl.add(ACE.builder().user("bob").permission("Read").build());
+        doc.setPropertyValue(SYS_ACL, acl);
         assertFalse(doc.isCheckedOut());
 
         // auto-checkout
@@ -604,7 +618,7 @@ public class TestSQLRepositoryVersioning {
     }
 
     @Test
-    public void testAllowVersionWrite() {
+    public void testVersionWriteRejected() {
         DocumentModel doc = session.createDocumentModel("/", "doc", "MyDocType");
         doc.setPropertyValue("my_string", "string1");
         doc.create();
@@ -619,12 +633,6 @@ public class TestSQLRepositoryVersioning {
             assertTrue(e.getMessage().contains("Cannot set property on a version"), e.getMessage());
         }
 
-        // with proper option, it's allowed
-        ver.putContextData(CoreSession.ALLOW_VERSION_WRITE, Boolean.TRUE);
-        ver.setPropertyValue("my_string", "string3");
-        // refetch to check
-        ver = session.getDocument(verRef);
-        assertEquals("string3", ver.getPropertyValue("my_string"));
     }
 
     @Test
@@ -824,8 +832,8 @@ public class TestSQLRepositoryVersioning {
         assertEquals("version descr", workingCopy.getPropertyValue(SYSVER_DESCRIPTION));
 
         // check that the read-only fields are not saved
-        assertNull(workingCopy.getPropertyValue(SYSVER_MINOR_VERSION));
-        assertNull(workingCopy.getPropertyValue(SYSVER_VERSION));
+        assertEquals(workingCopy.getMinorVersion(), workingCopy.getPropertyValue(SYSVER_MINOR_VERSION));
+        assertEquals(workingCopy.getVersion(), workingCopy.getPropertyValue(SYSVER_VERSION));
         assertNull(workingCopy.getPropertyValue(SYSVER_IS_TEMP));
         assertNull(workingCopy.getPropertyValue(SYSVER_CREATOR));
         assertNull(workingCopy.getPropertyValue(SYSVER_CREATED));

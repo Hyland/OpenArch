@@ -537,7 +537,7 @@ public class TestAutomaticIndexing {
                 new OpenSearchQueryBuilder(session).hxql("SELECT * FROM SysContent WHERE sysver_isVersion = FALSE AND sys_title='v3'"));
         assertEquals(1, ret.totalSize());
         DocumentModel doc = ret.get(0);
-        assertEquals("v3", doc.getTitle());
+        assertEquals("v3", doc.getPropertyValue(SYS_TITLE));
 
         // restore the document to v2 and check version in ES
         session.restoreVersion(v2Ref);
@@ -547,7 +547,7 @@ public class TestAutomaticIndexing {
         ret = oss.query(
                 new OpenSearchQueryBuilder(session).hxql("SELECT * FROM SysContent WHERE sysver_isVersion = FALSE AND sys_title='v2'"));
         assertEquals(1, ret.totalSize());
-        assertEquals("v2", ret.get(0).getTitle());
+        assertEquals("v2", ret.get(0).getPropertyValue(SYS_TITLE));
     }
 
     /*
@@ -584,7 +584,7 @@ public class TestAutomaticIndexing {
         DocumentModelList ret = oss.query(new OpenSearchQueryBuilder(session).hxql(
                 "SELECT * FROM SysContent WHERE sys_path = '/file' and sysver_isVersion = FALSE AND sys_title='v2'"));
         assertEquals(1, ret.totalSize());
-        assertEquals("v2", ret.get(0).getTitle());
+        assertEquals("v2", ret.get(0).getPropertyValue(SYS_TITLE));
 
         // restore document to 1
         session.restoreVersion(v1.getRef());
@@ -595,7 +595,7 @@ public class TestAutomaticIndexing {
         ret = oss.query(new OpenSearchQueryBuilder(session).hxql(
                 "SELECT * FROM SysContent WHERE sys_path = '/file' and sysver_isVersion = FALSE AND sys_title='v1'"));
         assertEquals(1, ret.totalSize());
-        assertEquals("v1", ret.get(0).getTitle());
+        assertEquals("v1", ret.get(0).getPropertyValue(SYS_TITLE));
     }
 
     protected void createADocumentWith3Versions() throws Exception {
@@ -632,26 +632,6 @@ public class TestAutomaticIndexing {
         ret = oss.query(new OpenSearchQueryBuilder(session).hxql("SELECT * FROM SysContent ORDER BY sys_pos"));
         assertEquals(0, ret.totalSize());
 
-    }
-
-    @Test
-    public void pathLevelFieldMustBeSeenAsKeyword() throws Exception {
-        // Creates folders with names that can be taken as timestamp
-        DocumentModel folder = session.createDocumentModel("/", "1530083790734003", SYS_FOLDER);
-        folder.create();
-        folder = session.createDocumentModel("/1530083790734003", "1530083790734004", SYS_FOLDER);
-        folder.create();
-
-        nextTransactionWithWait();
-
-        // Now creates folders with normal names to check that sys_pathLevel# fields are typed as keyword and not as
-        // date
-        folder = session.createDocumentModel("/", "a-folder-name", SYS_FOLDER);
-        folder.create();
-        folder = session.createDocumentModel("/a-folder-name", "foo", SYS_FOLDER);
-        folder.create();
-
-        nextTransactionWithWait();
     }
 
     @Disabled("record not implemented for now")
@@ -695,7 +675,7 @@ public class TestAutomaticIndexing {
         // set retention to two seconds in the future
         Instant twoSeconds = Instant.now().plus(2, SECONDS);
         session.setRecord(doc.getRef(), true);
-        session.setRetainUntil(doc.getRef(), twoSeconds, null);
+        session.setRetainUntil(doc.getRef(), twoSeconds);
 
         nextTransactionWithWaitAssertNumberOfCommandProcessed(1); // update
 
@@ -732,7 +712,7 @@ public class TestAutomaticIndexing {
 
         // set legal hold
         session.setRecord(doc.getRef(), true);
-        session.setLegalHold(doc.getRef(), true, null);
+        session.setLegalHold(doc.getRef(), true);
 
         nextTransactionWithWaitAssertNumberOfCommandProcessed(1); // update
 
@@ -741,7 +721,7 @@ public class TestAutomaticIndexing {
         assertEquals(1, ret.totalSize());
 
         // remove legal hold
-        session.setLegalHold(doc.getRef(), false, null);
+        session.setLegalHold(doc.getRef(), false);
 
         nextTransactionWithWaitAssertNumberOfCommandProcessed(1); // update
 

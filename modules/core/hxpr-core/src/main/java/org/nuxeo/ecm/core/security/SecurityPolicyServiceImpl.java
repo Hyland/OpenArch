@@ -324,7 +324,7 @@ public class SecurityPolicyServiceImpl implements SecurityPolicyService {
         if (newSecurityPolicies.isEmpty()) {
             newSecurityPolicies = null;
         }
-        doc.setSystemProp(SYS_SECURITY_POLICIES, newSecurityPolicies);
+        doc.setValue(SYS_SECURITY_POLICIES, newSecurityPolicies);
     }
 
     // public for tests

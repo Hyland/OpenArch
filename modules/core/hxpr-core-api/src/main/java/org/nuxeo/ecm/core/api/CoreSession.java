@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.nuxeo.ecm.core.api.DocumentModel.DocumentModelRefresh;
-import org.nuxeo.ecm.core.api.security.ACL;
 import org.nuxeo.ecm.core.query.sql.model.Statement;
 import org.nuxeo.ecm.core.schema.SchemaManager;
 
@@ -34,22 +33,6 @@ import org.nuxeo.ecm.core.schema.SchemaManager;
  * @author Florent Guillaume
  */
 public interface CoreSession {
-
-    /**
-     * Allow version write, Boolean parameter passed in context data at saveDocument time.
-     *
-     * @since 5.9.2
-     */
-    String ALLOW_VERSION_WRITE = "allowVersionWrite";
-
-    /**
-     * Context data to disable auto-checkout of checked-in documents at pre-save time. This option should only be used
-     * when updating a mixin that's considered pure metadata and holds information about the document but external to
-     * it. Value is a {@link Boolean}.
-     *
-     * @since 5.7, 5.6.0-HF09
-     */
-    String DISABLE_AUTO_CHECKOUT = "DisableAutoCheckOut";
 
     /**
      * Context data to make sure the sys_name passed during creation is either kept as is, or a
@@ -337,22 +320,6 @@ public interface CoreSession {
     void move(List<DocumentRef> src, DocumentRef dst);
 
     /**
-     * Sets the ACL for this document.
-     * <p>
-     * This MUST NOT be called with the result of a previous call to {@link #getEffectiveACL}, as this ACL contains the
-     * full inherited ACL and not just the local one.
-     * <p>
-     * If the <code>overwrite</code> argument is false, the ACL is added to the existing one if any.
-     * If the <code>overwrite</code> argument is true, the old ACL will be replaced by the new one.
-     * <p>
-     * You can remove the existing ACL by specifying a {@code new ACLImpl()} ACL and <code>overwrite</code> argument set to
-     * true.
-     * <p>
-     * Setting a null ACL when <code>overwrite</code> is false will do nothing.
-     */
-    void setACL(DocumentRef docRef, ACL acl, boolean overwrite);
-
-    /**
      * Updates the denormalized properties for some documents.
      * <p>
      * For INTERNAL use by the core.
@@ -610,13 +577,12 @@ public interface CoreSession {
      *
      * @param docRef the document (a record)
      * @param retainUntil the new retention date
-     * @param comment an optional comment passed to the associated events
      * @throws PropertyException if trying to reduce the retention time, or if the document is not a record
      * @see #getRetainUntil
      * @see #RETAIN_UNTIL_INDETERMINATE
      * @since 11.1
      */
-    void setRetainUntil(DocumentRef docRef, Instant retainUntil, String comment) throws PropertyException;
+    void setRetainUntil(DocumentRef docRef, Instant retainUntil) throws PropertyException;
 
     /**
      * Gets the retention date for the document.
@@ -637,12 +603,11 @@ public interface CoreSession {
      *
      * @param docRef the document (a record)
      * @param hold {@code true} to set a legal hold, {@code false} to remove it
-     * @param comment an optional comment passed to the associated events
      * @see #hasLegalHold
      * @throws PropertyException if the document is not a record
      * @since 11.1
      */
-    void setLegalHold(DocumentRef docRef, boolean hold, String comment);
+    void setLegalHold(DocumentRef docRef, boolean hold);
 
     /**
      * Checks if the document has a legal hold set.
@@ -676,60 +641,11 @@ public interface CoreSession {
     boolean isTrashed(DocumentRef docRef);
 
     /**
-     * Sets a lock on the given document.
-     *
-     * @param docRef the document reference
-     * @return the lock info that was set
-     * @throws LockException if the document is already locked by another user
-     * @since 5.4.2
-     */
-    Lock setLock(DocumentRef docRef) throws LockException;
-
-    /**
-     * Gets the lock info on the given document.
-     * <p>
-     * Lock info is never cached, and needs to use a separate transaction in a separate thread, so care should be taken
-     * to not call this method needlessly.
-     *
-     * @param docRef the document reference
-     * @return the lock info if the document is locked, or {@code null} otherwise
-     * @since 5.4.2
-     */
-    Lock getLockInfo(DocumentRef docRef);
-
-    /**
-     * Removes the lock on the given document.
-     * <p>
-     * The caller principal should be the same as the one who set the lock or to belongs to the administrator group,
-     * otherwise an exception will be throw.
-     * <p>
-     * If the document was not locked, does nothing.
-     * <p>
-     * Returns the previous lock info.
-     *
-     * @param docRef the document to unlock
-     * @return the removed lock info, or {@code null} if there was no lock
-     * @since 5.4.2
-     * @throws LockException if the document is locked by someone else
-     */
-    Lock removeLock(DocumentRef docRef) throws LockException;
-
-    /**
      * Returns the repository name against which this core session is bound.
      *
      * @return the repository name used currently used as an identifier
      */
     String getRepositoryName();
-
-    /**
-     * Gets system property of the specified type for the document ref.
-     */
-    Object getDocumentSystemProp(DocumentRef ref, String systemProperty, Class<?> type);
-
-    /**
-     * Sets given value as a system property.
-     */
-    void setDocumentSystemProp(DocumentRef ref, String systemProperty, Object value);
 
     /**
      * Given a parent document, order the source child before the destination child. The source and destination must be
@@ -761,16 +677,6 @@ public interface CoreSession {
      * @return a DocumentModelRefresh object
      */
     DocumentModelRefresh refreshDocument(DocumentRef ref, int refreshFlags, String[] schemas);
-
-    /**
-     * Gets the fulltext extracted from the binary fields. We defined a new API for that to avoid to store in the cache
-     * the fulltext properties which could be huge.
-     *
-     * @param ref the document reference
-     * @return the fulltext
-     * @since 5.9.3
-     */
-    String getBinaryFulltext(DocumentRef ref);
 
     /**
      * Gets the current change token for the document.

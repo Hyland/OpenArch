@@ -26,7 +26,6 @@ import org.opensearch.client.json.JsonpSerializable;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import jakarta.json.spi.JsonProvider;
 import jakarta.json.stream.JsonGenerator;
 
 /**
@@ -69,10 +68,10 @@ public class DocumentDTO implements JsonpSerializable {
         return properties;
     }
 
-    public int size(JsonProvider jsonProvider) {
+    public int size(JsonpMapper mapper) {
         StringWriter writer = new StringWriter();
-        try (JsonGenerator generator = jsonProvider.createGenerator(writer)) {
-            serialize(generator, null);
+        try (JsonGenerator generator = mapper.jsonProvider().createGenerator(writer)) {
+            serialize(generator, mapper);
             return writer.toString().length();
         }
     }
@@ -81,7 +80,7 @@ public class DocumentDTO implements JsonpSerializable {
     @Override
     public void serialize(JsonGenerator generator, JsonpMapper mapper) {
         if (doc != null) {
-            new JsonOpenSearchDocumentWriter(generator).write(doc);
+            new JsonOpenSearchDocumentWriter(generator, mapper).write(doc);
         } else {
             generator.writeStartObject();
             properties.forEach((key, value) -> {

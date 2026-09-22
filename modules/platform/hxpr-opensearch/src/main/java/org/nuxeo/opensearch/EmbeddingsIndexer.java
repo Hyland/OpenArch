@@ -268,7 +268,7 @@ public class EmbeddingsIndexer {
      */
     private void executeWithBatching(String repositoryName, DocumentModel parentDoc, String residency,
             Collection<EmbeddingModel> newEmbeddings, Set<String> idsToDelete, boolean isReindexing, int maxBulkSize) {
-        var jsonProvider = service.getClient().getJsonProvider();
+        var jsonpMapper = service.getClient().getJsonpMapper();
         List<BulkOperation> currentBatch = new ArrayList<>();
         int bulkSize = 0;
 
@@ -283,7 +283,7 @@ public class EmbeddingsIndexer {
         // Add upsert operations with size tracking - write to embeddings index with denormalized parent data
         for (EmbeddingModel embedding : newEmbeddings) {
             EmbeddingOSDTO denormalizedDto = new EmbeddingOSDTO(embedding, parentDoc, residency);
-            int denormalizedDtoSize = denormalizedDto.size(jsonProvider);
+            int denormalizedDtoSize = denormalizedDto.size(jsonpMapper);
 
             // Check if adding this operation would exceed the limit
             if (bulkSize + denormalizedDtoSize > maxBulkSize && !currentBatch.isEmpty()) {

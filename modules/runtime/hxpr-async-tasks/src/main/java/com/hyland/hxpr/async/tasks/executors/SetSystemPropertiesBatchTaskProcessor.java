@@ -17,6 +17,7 @@ package com.hyland.hxpr.async.tasks.executors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.nuxeo.ecm.core.api.CoreInstance;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentRef;
 import org.nuxeo.ecm.core.api.IdRef;
@@ -47,7 +48,9 @@ public class SetSystemPropertiesBatchTaskProcessor extends AbstractBatchTaskProc
         for (DocumentRef ref : refs) {
             for (Map.Entry<String, Serializable> entry : properties.entrySet()) {
                 try {
-                    session.setDocumentSystemProp(ref, entry.getKey(), entry.getValue());
+                    CoreInstance.doPrivileged(session.getRepositoryName(), systemSession -> {
+                        systemSession.getDocument(ref).setPropertyValue(entry.getKey(), entry.getValue());
+                    });
                 } catch (NuxeoException e) {
                     log.error("Cannot set system property: {} on: {}", entry.getKey(), ref, e);
                 }

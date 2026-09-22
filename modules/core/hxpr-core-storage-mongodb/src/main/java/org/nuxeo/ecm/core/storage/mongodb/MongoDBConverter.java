@@ -227,7 +227,7 @@ public class MongoDBConverter {
         if (value instanceof Instant instant) {
             return Date.from(instant); // XXX TODO check if MongoDB accepts Instant directly
         }
-        if (FALSE.equals(value) && key != null && schemaManager != null && schemaManager.isTrueOrNullBoolean(key)) {
+        if (FALSE.equals(value) && key != null && schemaManager != null && schemaManager.isFalseStoredAsNull(key)) {
             return null;
         }
         return value;

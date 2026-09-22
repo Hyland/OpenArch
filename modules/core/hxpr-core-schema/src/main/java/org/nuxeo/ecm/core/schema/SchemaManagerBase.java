@@ -17,6 +17,7 @@ package org.nuxeo.ecm.core.schema;
 
 import static java.util.Objects.requireNonNull;
 import static org.nuxeo.common.function.FunctionUtils.sortByKeyAndMapValue;
+import static org.nuxeo.ecm.core.schema.types.FieldCharacteristics.Representation.STORE;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -250,65 +251,17 @@ public class SchemaManagerBase implements SchemaManager {
                 sortByKeyAndMapValue(documentTypes, this::toDocumentTypeDTO));
     }
 
-    /**
-     * The system properties that are allowed to be used in an expression.
-     * <p>
-     * TODO this is hardcoded for now, it should become a characteristic of the fields of the schema.
-     * <p>
-     * These mirror the corresponding constants of {@code DocumentConstants}, which is not visible from this module.
-     */
-    private static final Set<String> ALLOWED_SYS = Set.of( //
-            "sys_contributors", //
-            "sys_created", //
-            "sys_creator", //
-            "sys_description", //
-            "sys_isFolderish", //
-            "sys_isTrashed", //
-            "sys_lastContributor", //
-            "sys_lifecycleState", //
-            "sys_modified", //
-            "sys_name", //
-            "sys_primaryType", //
-            "sys_title", //
-            "sysgov_retainUntil", //
-            "sysgov_hasLegalHold", //
-            "sysgov_isRecord", //
-            "sysver_created", //
-            "sysver_creator", //
-            "sysver_description", //
-            "sysver_isCheckedIn", //
-            "sysver_isTemp", //
-            "sysver_isVersion", //
-            "sysver_minorVersion", //
-            "sysver_title", //
-            "sysver_version");
-
-    /** The prefixes of the system properties. */
-    private static final List<String> SYS_PREFIXES = List.of("sys_", "sysgov_", "sysver_");
-
     @Override
-    public boolean isForbiddenInExpr(String name) {
-        return SYS_PREFIXES.stream().anyMatch(name::startsWith) && !ALLOWED_SYS.contains(name);
+    public boolean isSecurityProperty(String name) {
+        int slash = name.indexOf('/');
+        Field field = getField(slash < 0 ? name : name.substring(0, slash));
+        return field != null && field.getCharacteristics().readPermission() != null;
     }
 
-    /**
-     * The keys for booleans whose value is only ever true or null.
-     * <p>
-     * TODO this is hardcoded for now, it should become a characteristic of the fields of the schema.
-     * <p>
-     * These mirror the corresponding constants of {@code DocumentConstants}, which is not visible from this module.
-     */
-    private static final Set<String> TRUE_OR_NULL_BOOLEAN = Set.of( //
-            "sys_isFolderish", //
-            "sys_isTrashed", //
-            "sysgov_hasLegalHold", //
-            "sysgov_isRecord", //
-            "sysver_isCheckedIn", //
-            "sysver_isVersion");
-
     @Override
-    public boolean isTrueOrNullBoolean(String name) {
-        return TRUE_OR_NULL_BOOLEAN.contains(name);
+    public boolean isFalseStoredAsNull(String name) {
+        Field field = getField(name);
+        return field != null && field.getCharacteristics().falseAsNull().contains(STORE);
     }
 
     private TypeDTO toTypeDTO(Entry<String, Type> e) {

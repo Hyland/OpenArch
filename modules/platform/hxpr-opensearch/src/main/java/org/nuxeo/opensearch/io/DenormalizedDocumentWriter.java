@@ -17,6 +17,7 @@ package org.nuxeo.opensearch.io;
 
 
 import org.nuxeo.ecm.core.api.DocumentModel;
+import org.opensearch.client.json.JsonpMapper;
 
 import jakarta.json.stream.JsonGenerator;
 
@@ -31,8 +32,8 @@ import jakarta.json.stream.JsonGenerator;
  */
 public class DenormalizedDocumentWriter extends JsonOpenSearchDocumentWriter {
 
-    public DenormalizedDocumentWriter(JsonGenerator jg) {
-        super(jg);
+    public DenormalizedDocumentWriter(JsonGenerator jg, JsonpMapper mapper) {
+        super(jg, mapper);
     }
 
     @Override

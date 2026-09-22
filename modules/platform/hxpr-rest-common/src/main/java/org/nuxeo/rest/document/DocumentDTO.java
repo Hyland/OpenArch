@@ -28,6 +28,7 @@ import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_EFFECTIVE_PERMISSIONS
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_FULLTEXT_BINARY;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ID;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_IS_FOLDERISH;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_IS_TRASHED;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_LAST_CONTRIBUTOR;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_LIFECYCLE_STATE;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_LOCK_CREATED;
@@ -41,6 +42,7 @@ import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PATH;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PATH_DEPTH;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_POS;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PRIMARY_TYPE;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_READ_ACL;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_REPOSITORY;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_SECURITY_POLICIES;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
@@ -136,6 +138,11 @@ public class DocumentDTO {
     protected Boolean isFolderish;
 
     @JsonInclude(Include.NON_NULL)
+    @JsonProperty(SYS_IS_TRASHED)
+    @Schema(description = "True when the document is trashed; omitted otherwise.")
+    protected Boolean isTrashed;
+
+    @JsonInclude(Include.NON_NULL)
     @JsonProperty(SYS_MIXIN_TYPES)
     @Schema(description = """
             Restricted list of the document mixins.
@@ -171,22 +178,44 @@ public class DocumentDTO {
 
     @JsonInclude(Include.NON_NULL)
     @JsonProperty(SYS_SECURITY_POLICIES)
-    @Schema(description = "List of elements applying to the default system security policies.")
+    @Schema(description = """
+            Names of the security policies associated with the document.
+
+            Only included in responses when the user has the `ManageSecurity` permission.
+            """)
     protected List<String> securityPolicies;
 
     @JsonInclude(Include.NON_NULL)
     @JsonProperty(SYS_ACL)
-    @Schema(description = "A list of associations between a user (or group of users) and the permissions that are granted.")
+    @Schema(description = """
+            A list of associations between a user (or group of users) and the permissions that are granted or denied.
+
+            Only included in responses when the user has the `ManageSecurity` permission.
+            """)
     protected List<ACEDTO> acl;
 
     @JsonInclude(Include.NON_NULL)
     @JsonProperty(SYS_EFFECTIVE_ACL)
-    @Schema(description = "A list of associations between a user (or group of users) and the permissions that are granted (including the resolution through the document's ancestors).")
+    @Schema(description = """
+            A list of associations between a user (or group of users) and the permissions that are granted or denied, \
+            including those inherited from the document's ancestors.
+
+            Only included in responses when the user has the `ManageSecurity` permission.
+            """)
     protected List<ACEDTO> effectiveAcl;
 
     @JsonInclude(Include.NON_NULL)
     @JsonProperty(SYS_EFFECTIVE_PERMISSIONS)
     protected List<String> effectivePermissions;
+
+    @JsonInclude(Include.NON_NULL)
+    @JsonProperty(SYS_READ_ACL)
+    @Schema(description = """
+            The denormalized list of principals that can read the document.
+
+            Only included in responses when the user has the `ManageSecurity` permission.
+            """)
+    protected List<String> readAcl;
 
     @JsonInclude(Include.NON_NULL)
     @JsonProperty(SYS_LOCK_CREATED)
@@ -321,6 +350,14 @@ public class DocumentDTO {
         this.isFolderish = isFolderish;
     }
 
+    public Boolean getIsTrashed() {
+        return isTrashed;
+    }
+
+    public void setIsTrashed(Boolean isTrashed) {
+        this.isTrashed = isTrashed;
+    }
+
     public List<String> getMixinTypes() {
         return mixinTypes;
     }
@@ -383,6 +420,14 @@ public class DocumentDTO {
 
     public void setEffectivePermissions(List<String> effectivePermissions) {
         this.effectivePermissions = effectivePermissions;
+    }
+
+    public List<String> getReadAcl() {
+        return readAcl;
+    }
+
+    public void setReadAcl(List<String> readAcl) {
+        this.readAcl = readAcl;
     }
 
     public Instant getLockCreated() {

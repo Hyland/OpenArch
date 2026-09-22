@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_CONTENT;
 import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FOLDER;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_RELATION;
 import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_ROOT;
 
 import java.util.HashMap;
@@ -63,14 +62,16 @@ public class TestMongoDBPrimaryTypeParentMigrator {
     }
 
     @Test
-    public void rootTypesAreIgnoredByMigration() {
+    public void sysRelationGetsContentParent() {
         Map<String, Object> primaryTypes = new HashMap<>();
         primaryTypes.put(SYS_CONTENT, new HashMap<>());
-        primaryTypes.put(SYS_RELATION, new HashMap<>());
+        primaryTypes.put("SysRelation", new HashMap<>());
 
         boolean migrated = MongoDBPrimaryTypeParentMigrator.migrate(primaryTypes);
 
-        assertFalse(migrated);
+        assertTrue(migrated);
+        assertEquals(SYS_CONTENT,
+                ((Map<?, ?>) primaryTypes.get("SysRelation")).get(MongoDBPrimaryTypeParentMigrator.EXTENDS_FIELD));
     }
 
     @Test

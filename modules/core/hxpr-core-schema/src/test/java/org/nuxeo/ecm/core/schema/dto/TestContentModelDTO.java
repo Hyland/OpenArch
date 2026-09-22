@@ -25,9 +25,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.jupiter.api.Test;
+import org.nuxeo.ecm.core.schema.types.FieldCharacteristics;
+import org.nuxeo.ecm.core.schema.types.FieldCharacteristics.ValueSource;
 import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
 import org.skyscreamer.jsonassert.JSONAssert;
 
@@ -88,7 +91,13 @@ public class TestContentModelDTO {
                     },
                     "my_text": {
                       "extends": "string",
-                      "fullTextIndexed": true
+                      "fullTextIndexed": true,
+                      "managed": {
+                        "systemOwned": true,
+                        "notQueryable": true,
+                        "notProjectable": true,
+                        "notOutput": [ "INDEX" ]
+                      }
                     },
                     "my_title": "string",
                     "my_required": {
@@ -164,7 +173,13 @@ public class TestContentModelDTO {
                     },
                     "my_text": {
                       "extends": "string",
-                      "fullTextIndexed": true
+                      "fullTextIndexed": true,
+                      "managed": {
+                        "systemOwned": true,
+                        "notQueryable": true,
+                        "notProjectable": true,
+                        "notOutput": [ "INDEX" ]
+                      }
                     },
                     "my_title": { "type": "string" },
                     "my_required": {
@@ -233,6 +248,23 @@ public class TestContentModelDTO {
     public void testCurrentShapeRoundTrips() throws Exception {
         String actual = MAPPER.writeValueAsString(ModelMapCodec.write(readMap(CURRENT_JSON)));
         JSONAssert.assertEquals(actual, CURRENT_JSON, actual, true);
+    }
+
+    @Test
+    public void testSparseManagedCharacteristicsUseBooleanDefaults() {
+        FieldCharacteristics characteristics = readMap(
+                """
+                        {"schemas":{"system":{"fields":{"sys_test":{"extends":"string","managed":{"source":"COMPUTED"}}}}}}
+                        """).schemas().get("system").fields().get("sys_test").characteristics();
+        assertEquals(ValueSource.COMPUTED, characteristics.source());
+        assertFalse(characteristics.systemOwned());
+        assertFalse(characteristics.notQueryable());
+        assertFalse(characteristics.notProjectable());
+        assertFalse(characteristics.noAutoCheckout());
+        assertEquals(Set.of(), characteristics.falseAsNull());
+        assertEquals(Set.of(), characteristics.notOutput());
+        assertNull(characteristics.readPermission());
+        assertNull(characteristics.writePermission());
     }
 
     /**

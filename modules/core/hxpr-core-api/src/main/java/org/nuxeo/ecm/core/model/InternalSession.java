@@ -164,21 +164,6 @@ public interface InternalSession {
     void updateDenormalizedPropertiesNoCache(Collection<String> ids);
 
     /**
-     * Checks if fulltext extracted from the binary fields is internally stored as a blob.
-     *
-     * @return {@code true} if fulltext from binaries is store as a blob
-     * @since 11.1
-     */
-    boolean isFulltextStoredInBlob();
-
-    /**
-     * Gets the fulltext extracted from the binary fields.
-     *
-     * @since 5.9.3
-     */
-    String getBinaryFulltext(String id);
-
-    /**
      * Removes a document. This removal is done without checking if the document has any children.
      *
      * @param id the document id

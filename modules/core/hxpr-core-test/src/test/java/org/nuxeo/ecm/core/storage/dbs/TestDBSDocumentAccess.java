@@ -17,12 +17,8 @@ package org.nuxeo.ecm.core.storage.dbs;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_FULLTEXT_BINARY;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_IS_TRASHED;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
 import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FILE;
 import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FOLDER;
 import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_ORDERED_FOLDER;
@@ -39,7 +35,6 @@ import org.nuxeo.ecm.core.SessionImpl;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.NuxeoException;
-import org.nuxeo.ecm.core.api.model.PropertyNotFoundException;
 import org.nuxeo.ecm.core.model.InternalDocument;
 import org.nuxeo.ecm.core.model.InternalSession;
 import org.nuxeo.ecm.core.test.CoreFeature;
@@ -109,16 +104,4 @@ public class TestDBSDocumentAccess {
         assertFalse(doc.hasSchema("no_such_schema_xyz"));
     }
 
-    @Test
-    public void getSchemaResolvesSystemPrefixAndRegularFields() {
-        DBSDocument doc = createChild(session().getRootDocument(), "doc", SYS_FILE);
-
-        // system properties resolve to the synthetic system schema
-        assertEquals("__sys__", doc.getSchema(SYS_IS_TRASHED));
-        assertEquals("__sys__", doc.getSchema(SYS_FULLTEXT_BINARY + "/0"));
-        // a regular property resolves to its declaring schema
-        assertNotNull(doc.getSchema(SYS_TITLE));
-        // an unknown property is rejected
-        assertThrows(PropertyNotFoundException.class, () -> doc.getSchema("no_such_field"));
-    }
 }

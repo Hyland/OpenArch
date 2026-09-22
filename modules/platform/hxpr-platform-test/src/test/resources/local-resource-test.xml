@@ -5,7 +5,6 @@
       point="doctype">
     <documentation>The core document types</documentation>
     <doctype name="MyFolder" extends="SysContent">
-      <schema name="system"/>
       <mixin name="SysFolderish"/>
     </doctype>
   </extension>

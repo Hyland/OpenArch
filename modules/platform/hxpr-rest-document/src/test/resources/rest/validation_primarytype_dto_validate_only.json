@@ -77,7 +77,7 @@
   "warnings": [
     {
       "invalidValue": "File-foobar",
-      "message": "The value \"File-foobar\" cannot be applied as \"primaryTypes/SysFile\" already exists with value \"'{'extends=SysContent, schemas=[mydublincore, sysfiles, system], mixins=[SysFilish]'}'\".",
+      "message": "The value \"File-foobar\" cannot be applied as \"primaryTypes/SysFile\" already exists with value \"'{'extends=SysContent, schemas=[mydublincore, sysfiles], mixins=[SysFilish]'}'\".",
       "messageKey": "label.schema.application.violation.AlreadyExistsViolation.modified",
       "parameters": [
         "File-foobar",
@@ -88,8 +88,7 @@
           ],
           "schemas": [
             "mydublincore",
-            "sysfiles",
-            "system"
+            "sysfiles"
           ]
         },
         "primaryTypes/SysFile"
@@ -134,15 +133,14 @@
       "invalidValue": {
         "schemas-foo": "bar"
       },
-      "message": "The value \"'{'schemas-foo=bar'}'\" cannot be applied as \"primaryTypes/SysRelation/schemas\" already exists with value \"[sysrelation, system]\".",
+      "message": "The value \"'{'schemas-foo=bar'}'\" cannot be applied as \"primaryTypes/SysRelation/schemas\" already exists with value \"[sysrelation]\".",
       "messageKey": "label.schema.application.violation.AlreadyExistsViolation.modified",
       "parameters": [
         {
           "schemas-foo": "bar"
         },
         [
-          "sysrelation",
-          "system"
+          "sysrelation"
         ],
         "primaryTypes/SysRelation/schemas"
       ],

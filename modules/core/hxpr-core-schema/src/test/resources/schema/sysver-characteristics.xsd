@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<xs:schema targetNamespace="http://www.nuxeo.org/ecm/schemas/sysver-characteristics/"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:m="http://www.nuxeo.org/ecm/schemas/core/managed/">
+  <xs:element name="isCheckedIn" type="xs:boolean"
+              m:falseAsNull="STORE,INDEX" />
+  <xs:element name="isVersion" type="xs:boolean"
+              m:falseAsNull="STORE,INDEX" />
+</xs:schema>

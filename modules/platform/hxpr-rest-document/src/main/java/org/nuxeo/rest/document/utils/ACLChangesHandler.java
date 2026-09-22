@@ -18,8 +18,7 @@ package org.nuxeo.rest.document.utils;
 import java.util.List;
 import java.util.Objects;
 
-import org.nuxeo.ecm.core.api.CoreSession;
-import org.nuxeo.ecm.core.api.DocumentRef;
+import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.security.ACL;
 import org.nuxeo.ecm.core.api.security.impl.ACLImpl;
 import org.nuxeo.rest.acl.ACEDTO;
@@ -53,12 +52,12 @@ public class ACLChangesHandler {
         return currentAces;
     }
 
-    public void applyACLChange(DocumentDTO updatingDocument, DocumentRef docRef, CoreSession session) {
+    public void applyACLChange(DocumentDTO updatingDocument, DocumentModel document) {
         List<ACEDTO> aceDtos = updatingDocument.getAcl();
         ACL acl = new ACLImpl();
         aceDtos.forEach(acedto ->
                 acl.add(aceMapper.aceDTOToAce(acedto)));
-        session.setACL(docRef, acl, true);
+        document.setACL(acl, true);
     }
 
 }

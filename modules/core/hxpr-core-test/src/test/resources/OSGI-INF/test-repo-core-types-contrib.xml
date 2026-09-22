@@ -23,7 +23,6 @@
 
     <!-- add mydublincore to standard doctypes -->
     <doctype name="SysFolder" extends="SysContent">
-      <schema name="system"/>
       <schema name="mydublincore"/>
       <mixin name="SysFolderish"/>
       <subtypes>
@@ -33,7 +32,6 @@
       </subtypes>
     </doctype>
     <doctype name="SysFile" extends="SysContent">
-      <schema name="system"/>
       <schema name="mydublincore"/>
       <schema name="sysfiles"/>
       <mixin name="SysFilish"/>
@@ -55,7 +53,6 @@
     <doctype name="Note" extends="SysContent">
       <schema name="note"/>
       <schema name="sysfiles"/>
-      <schema name="system"/>
       <schema name="mydublincore"/>
       <mixin name="SysVersionable"/>
     </doctype>
@@ -65,14 +62,12 @@
     </doctype>
     <doctype name="MyDocType" extends="SysContent">
       <schema name="myschema" />
-      <schema name="system" />
       <schema name="mydublincore"/>
       <schema name="testList" />
       <schema name="book" />
       <mixin name="SysVersionable"/>
     </doctype>
     <doctype name="MyDocType2" extends="SysContent">
-      <schema name="system" />
       <schema name="complex" />
       <schema name="complexList" />
     </doctype>
@@ -81,18 +76,15 @@
       <mixin name="SysVersionable"/>
     </doctype>
     <doctype name="ComplexDoc" extends="SysContent">
-      <schema name="system" />
       <schema name="mydublincore"/>
       <schema name="complex" />
       <schema name="complexschema" />
       <mixin name="SysVersionable"/>
     </doctype>
     <doctype name="TestDocument" extends="SysContent">
-      <schema name="system" />
       <schema name="test-properties" />
     </doctype>
     <doctype name="TestDocument2" extends="SysContent">
-      <schema name="system" />
       <schema name="mydublincore"/>
       <schema name="test-properties" />
     </doctype>
@@ -111,7 +103,6 @@
       <schema name="sysfiles" />
     </mixin>
     <doctype name="DocWithAge" extends="SysContent">
-      <schema name="system" />
       <schema name="mydublincore"/>
       <mixin name="Aged" />
     </doctype>

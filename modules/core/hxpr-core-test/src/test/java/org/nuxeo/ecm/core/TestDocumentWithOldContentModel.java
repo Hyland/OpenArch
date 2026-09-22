@@ -88,7 +88,7 @@ class TestDocumentWithOldContentModel {
 
     @SuppressWarnings("unchecked")
     private List<String> getReadAcl(DocumentRef docRef) {
-        return (List<String>) session.getDocumentSystemProp(docRef, SYS_READ_ACL, List.class);
+        return (List<String>) session.getDocument(docRef).getPropertyValue(SYS_READ_ACL);
     }
 
     @Test
@@ -130,7 +130,7 @@ class TestDocumentWithOldContentModel {
         // set ACL on root with Read
         ACL acl = new ACLImpl();
         acl.add(ACE.builder().user("bob").permission(READ).build());
-        session.setACL(rootRef, acl, true);
+        session.getDocument(rootRef).setACL(acl, true);
         // make sure save it doesn't fail on unknown type while recursing to compute sys_racl
         // avoid: DocumentNotFoundException: Unknown document type: MyType
         session.save();
@@ -218,7 +218,7 @@ class TestDocumentWithOldContentModel {
         // set ACL on root with Read
         ACL acl = new ACLImpl();
         acl.add(ACE.builder().user("bob").permission(READ).build());
-        session.setACL(rootRef, acl, true);
+        session.getDocument(rootRef).setACL(acl, true);
         // make sure save doesn't fail on unknown type while recursing to compute sys_racl
         // avoid: DocumentValidationException: Constraint violation thrown on property my_field:
         // 'label.schema.constraint.violation'

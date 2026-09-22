@@ -20,7 +20,6 @@ import java.util.Set;
 
 import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_CONTENT;
 import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FOLDER;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_RELATION;
 import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_ROOT;
 
 public class MongoDBPrimaryTypeParentMigrator {
@@ -35,8 +34,8 @@ public class MongoDBPrimaryTypeParentMigrator {
         for (Map.Entry<String, Object> entry : primaryTypes.entrySet()) {
             String primaryTypeName = entry.getKey();
             Object primaryType = entry.getValue();
-            if (primaryTypeName.equals(SYS_CONTENT) || primaryTypeName.equals(SYS_RELATION)) {
-                continue; // root types does not have parent type
+            if (primaryTypeName.equals(SYS_CONTENT)) {
+                continue; // root type does not have a parent
             }
             if (primaryType == null || !(primaryType instanceof Map<?,?>)) {
                 continue;

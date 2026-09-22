@@ -18,15 +18,14 @@ package org.nuxeo.ecm.core.storage.dbs;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static java.time.temporal.ChronoUnit.DAYS;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_PREFIX;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ACL;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_FULLTEXT;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_FULLTEXT_SCORE;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ID;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_MIXIN_TYPES;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_NAME;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PARENT_ID;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PATH;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PREFIX;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PRIMARY_TYPE;
 
 import java.time.Instant;
@@ -107,7 +106,7 @@ public class DBSExpressionEvaluator extends ExpressionEvaluator {
 
         public Type type;
 
-        public boolean isTrueOrNullBoolean;
+        public boolean isFalseStoredAsNull;
 
         public boolean isDateCast;
 
@@ -123,7 +122,7 @@ public class DBSExpressionEvaluator extends ExpressionEvaluator {
         public Object getValueForEvaluation() {
             if (type instanceof BooleanType) {
                 // boolean evaluation is like 0 / 1
-                if (isTrueOrNullBoolean) {
+                if (isFalseStoredAsNull) {
                     return TRUE.equals(value) ? ONE : ZERO;
                 } else {
                     return value == null ? null : (((Boolean) value).booleanValue() ? ONE : ZERO);
@@ -389,6 +388,7 @@ public class DBSExpressionEvaluator extends ExpressionEvaluator {
         Map<String, Object> projection = new HashMap<>();
         for (Operand op : selectClause.elements()) {
             if (op instanceof Reference ref) {
+                validateProjection(ref);
                 if (ref.name().equals(SYS_FULLTEXT_SCORE)) {
                     throw new QueryParseException("Fulltext search not available");
                 }
@@ -405,6 +405,14 @@ public class DBSExpressionEvaluator extends ExpressionEvaluator {
             }
         }
         return projection;
+    }
+
+    protected void validateProjection(Reference ref) {
+        String name = DBSSession.compatibilityName(ref.name());
+        Field field = schemaManager.getField(name);
+        if (field != null && field.getCharacteristics().notProjectable()) {
+            throw new QueryParseException("Disallowed system property: " + field.getName());
+        }
     }
 
     protected void addProjection(Reference ref, Map<String, Object> projection) {
@@ -514,30 +522,29 @@ public class DBSExpressionEvaluator extends ExpressionEvaluator {
      * @return the canonical reference (with resolved uncorrelated wildcards)
      */
     protected ValueInfo parseReference(String name, String originalName) {
-
+        name = DBSSession.compatibilityName(name);
+        String nxqlProp = originalName == null ? name : DBSSession.compatibilityName(originalName);
         String[] parts = name.split("/");
-
-        // convert first part to internal representation, and canonicalize prefixed schema
-        String prop = parts[0];
-        Type type;
-        boolean isTrueOrNullBoolean;
-        if (prop.startsWith(SYS_PREFIX) || prop.startsWith(SYSVER_PREFIX)) {
-            prop = DBSSession.convToInternal(prop);
-            if (prop.equals(SYS_ACL)) {
-                return parseACL(parts, name);
+        String first = parts[0];
+        Field rootField = schemaManager.getField(first);
+        if (rootField == null) {
+            throw new QueryParseException("No such property: " + name);
+        }
+        boolean managed = rootField.isRepositoryManaged();
+        if (managed) {
+            int expectedParts = SYS_ACL.equals(first) ? 3 : 1;
+            if (rootField.getCharacteristics().notQueryable()) {
+                throw new QueryParseException("Disallowed system property: " + rootField.getName());
             }
-            type = DBSSession.getType(prop);
-            isTrueOrNullBoolean = true;
-        } else {
-            Field field = schemaManager.getField(prop);
-            if (field == null) {
+            if (parts.length != expectedParts) {
                 throw new QueryParseException("No such property: " + name);
             }
-            type = field.getType();
-            isTrueOrNullBoolean = false;
-            prop = field.getName();
+            if (SYS_FULLTEXT.equals(first)) {
+                throw new UnsupportedOperationException(name);
+            }
         }
-        parts[0] = prop;
+        Type type = rootField.getType();
+        boolean isFalseStoredAsNull = schemaManager.isFalseStoredAsNull(first);
 
         // canonical prefix used to find shared values (foo/*1 referenced twice always uses the same value)
         List<String> canonParts = new ArrayList<>(parts.length);
@@ -556,16 +563,16 @@ public class DBSExpressionEvaluator extends ExpressionEvaluator {
                 type = ((ListType) type).getFieldType();
             } else if (!part.startsWith("*")) {
                 // complex sub-property
-                step = part;
                 if (firstPart) {
                     // we already computed the type of the first part
                 } else {
-                    Field field = ((ComplexType) type).getField(part);
+                    Field field = type instanceof ComplexType complexType ? complexType.getField(part) : null;
                     if (field == null) {
                         throw new QueryParseException("No such property: " + name);
                     }
                     type = field.getType();
                 }
+                step = part;
             } else {
                 // wildcard
                 int corr;
@@ -592,48 +599,9 @@ public class DBSExpressionEvaluator extends ExpressionEvaluator {
             firstPart = false;
         }
         String canonRef = StringUtils.join(canonParts, '/');
-        String nxqlProp = originalName == null ? name : originalName;
         ValueInfo valueInfo = new ValueInfo(steps, nxqlProp, canonRef);
         valueInfo.type = type;
-        valueInfo.isTrueOrNullBoolean = isTrueOrNullBoolean;
-        return valueInfo;
-    }
-
-    protected ValueInfo parseACL(String[] parts, String name) {
-        if (parts.length != 3) {
-            throw new QueryParseException("No such property: " + name);
-        }
-
-        String wildcard = parts[1];
-        if (NumberUtils.isDigits(wildcard)) {
-            throw new QueryParseException("Cannot use explicit index in ACLs: " + name);
-        }
-        int corr;
-        if (wildcard.length() == 1) {
-            // uncorrelated wildcard
-            corr = uncorrelatedCounter--; // negative
-            wildcard = "*" + corr; // unique correlation
-        } else {
-            // correlated wildcard, use correlation number
-            String digits = wildcard.substring(1);
-            if (!NumberUtils.isDigits(digits)) {
-                throw new QueryParseException("Invalid wildcard (" + wildcard + ") in property: " + name);
-            }
-            corr = Integer.parseInt(digits);
-            if (corr < 0) {
-                throw new QueryParseException("Invalid wildcard (" + wildcard + ") in property: " + name);
-            }
-        }
-
-        String subPart = DBSSession.convToInternalAce(parts[2]);
-        if (subPart == null) {
-            throw new QueryParseException("No such property: " + name);
-        }
-        List<Object> steps = List.of(SYS_ACL, Long.valueOf(corr), subPart);
-        String canonRef = SYS_ACL + '/' + wildcard + '/' + subPart;
-        ValueInfo valueInfo = new ValueInfo(steps, name, canonRef);
-        valueInfo.type = DBSSession.getType(subPart);
-        valueInfo.isTrueOrNullBoolean = false; // TODO check ok
+        valueInfo.isFalseStoredAsNull = isFalseStoredAsNull;
         return valueInfo;
     }
 

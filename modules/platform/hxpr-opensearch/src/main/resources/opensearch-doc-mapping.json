@@ -26,15 +26,6 @@
         },
         "match_mapping_type": "string"
       }
-    },
-    {
-      "paths": {
-        "mapping": {
-          "type": "keyword",
-          "ignore_above": 32
-        },
-        "path_match": "sys_pathLevel*"
-      }
     }
   ],
   "properties": {

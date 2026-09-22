@@ -15,6 +15,8 @@
  */
 package org.nuxeo.ecm.core.schema;
 
+import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.SYSTEM_SCHEMA;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -213,7 +215,11 @@ public class SchemaManagerImpl extends SchemaManagerBase {
         // recompute all types, parents first
         documentTypes.clear();
 
-        registerDocumentType(new DocumentTypeImpl(TypeConstants.SYS_CONTENT)); // SysContent
+        Schema systemSchema = schemas.get(SYSTEM_SCHEMA);
+        // The schema module can be used standalone for tests without the hxpr-core system schema contribution.
+        List<Schema> systemSchemas = systemSchema == null ? List.of() : List.of(systemSchema);
+        registerDocumentType(
+                new DocumentTypeImpl(TypeConstants.SYS_CONTENT, null, systemSchemas, List.of(), null)); // SysContent
         for (String name : dtds.keySet()) {
             LinkedHashSet<String> stack = new LinkedHashSet<>();
             recomputeDocumentType(name, stack, dtds);

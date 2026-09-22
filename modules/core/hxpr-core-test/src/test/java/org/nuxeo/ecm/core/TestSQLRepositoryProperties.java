@@ -1272,44 +1272,29 @@ public class TestSQLRepositoryProperties {
     }
 
     @Test
-    public void testSetDocumentSystemPropUnknown() {
-        DocumentModel doc = session.createDocumentModel("/", "doc", SYS_FILE);
-        doc.create();
-        try {
-            session.setDocumentSystemProp(doc.getRef(), "noSuchSystemProp", "foo bar");
-            fail("shouldn't allow writing unknown property");
-        } catch (PropertyNotFoundException e) {
-            assertEquals("noSuchSystemProp", e.getPath());
-        }
-    }
-
-    @Test
-    public void testSetDocumentSystemPropOnVersion() {
-        // what we test
-        List<String> stringSysProps = Arrays.asList(SYS_FULLTEXT_BINARY, SYS_FULLTEXT_JOB_ID);
-        List<String> booleanSysProps = Arrays.asList(SYS_IS_TRASHED);
-
+    public void testInternalSystemPropertiesOnVersion() {
         DocumentModel doc = session.createDocumentModel("/", "doc", MY_FILE);
         doc.create();
         DocumentRef verRef = doc.checkIn();
-        for (String prop : stringSysProps) {
-            session.setDocumentSystemProp(verRef, prop, "foobar");
-        }
-        for (String prop : booleanSysProps) {
-            session.setDocumentSystemProp(verRef, prop, Boolean.TRUE);
-        }
+        CoreInstance.doPrivileged(session.getRepositoryName(), systemSession -> {
+            DocumentModel version = systemSession.getDocument(verRef);
+            version.setPropertyValue(SYS_FULLTEXT_BINARY, "foobar");
+            version.setPropertyValue(SYS_FULLTEXT_JOB_ID, "foobar");
+            version.setPropertyValue(SYS_IS_TRASHED, Boolean.TRUE);
+        });
     }
 
     @Test
     public void testSystemPropertyFulltextBinary() {
         DocumentModel doc = session.createDocumentModel("/", "doc", SYS_FILE);
         doc.create();
-        DocumentRef docRef = doc.getRef();
         String fulltext = "hello world";
-        session.setDocumentSystemProp(docRef, SYS_FULLTEXT_BINARY, fulltext);
-        session.save();
-        String res = session.getBinaryFulltext(docRef);
+        CoreInstance.doPrivileged(session.getRepositoryName(), systemSession -> {
+            systemSession.getDocument(doc.getRef()).setPropertyValue(SYS_FULLTEXT_BINARY, fulltext);
+        });
+        String res = (String) doc.getPropertyValue(SYS_FULLTEXT_BINARY);
         assertEquals(fulltext, res);
+        assertEquals(fulltext, doc.getPropertyValue(SYS_FULLTEXT_BINARY));
     }
 
     @Test

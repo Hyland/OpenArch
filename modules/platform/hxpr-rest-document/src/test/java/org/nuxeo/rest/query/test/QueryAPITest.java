@@ -377,11 +377,20 @@ public class QueryAPITest extends AbstractQueryAPITest {
 
     /** Disallowed system properties are as out of reach in a query as they are anywhere else. */
     @Test
+    @WithUser("myUserName") // an ordinary user, not an administrator
     public void testExprQueryDisallowedPropertyPOST() throws Exception {
         var result = checkResponse(BAD_REQUEST, POST,
                 Map.of(QUERY_STRING_PROP, "content.sys_acl == \"x\"", SYNTAX_PROP, EXPR));
         ContentTestHelper.checkErrorResponse(BAD_REQUEST,
                 Pattern.compile(".*Disallowed system property: sys_acl.*"), result);
+    }
+
+    /** An administrator bypasses the security restriction, but the index still rejects an unavailable property. */
+    @Test
+    public void testExprQueryDisallowedPropertyAsAdministratorPOST() throws Exception {
+        // the default test user is an administrator
+        String expr = "content.sys_acl == \"x\"";
+        checkResponse(BAD_REQUEST, POST, Map.of(QUERY_STRING_PROP, expr, SYNTAX_PROP, EXPR));
     }
 
     /** Both backends run an expression, and both echo it back. */

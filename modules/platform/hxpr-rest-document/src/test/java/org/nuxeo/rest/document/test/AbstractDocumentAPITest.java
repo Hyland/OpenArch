@@ -1182,7 +1182,7 @@ public abstract class AbstractDocumentAPITest extends AbstractAPITest {
         checkResponseWithPayload(OK, PUT, REPO_ID, payload, apiPath)
                 // validate the updated mixins (the custom field value should be unchanged)
                 .andExpect(jsonPath(SYS_MIXIN_TYPES + ".length()", is(3)))
-                .andExpect(jsonPath(SYS_MIXIN_TYPES, contains(SYS_FOLDERISH, SYS_ORDERABLE, "CustomFacet")))
+                .andExpect(jsonPath(SYS_MIXIN_TYPES, contains("CustomFacet", SYS_FOLDERISH, SYS_ORDERABLE)))
                 .andExpect(jsonPath("customschema_string").value("test"));
 
         // remove the SysOrderable and SysFolderish mixins (the latter will reappear due to primary type)
@@ -1194,7 +1194,7 @@ public abstract class AbstractDocumentAPITest extends AbstractAPITest {
         checkResponseWithPayload(OK, PUT, REPO_ID, payload, apiPath)
                 // validate the updated mixins (the field value should remain the same)
                 .andExpect(jsonPath(SYS_MIXIN_TYPES + ".length()", is(2)))
-                .andExpect(jsonPath(SYS_MIXIN_TYPES, contains(SYS_FOLDERISH, "CustomFacet")))
+                .andExpect(jsonPath(SYS_MIXIN_TYPES, contains("CustomFacet", SYS_FOLDERISH)))
                 .andExpect(jsonPath("customschema_string").value("test"));
 
         // remove the custom mixin
@@ -1218,7 +1218,7 @@ public abstract class AbstractDocumentAPITest extends AbstractAPITest {
         checkResponseWithPayload(OK, PUT, REPO_ID, payload, apiPath)
                 // validate the updated mixins and the new data
                 .andExpect(jsonPath(SYS_MIXIN_TYPES + ".length()", is(3)))
-                .andExpect(jsonPath(SYS_MIXIN_TYPES, contains(SYS_FOLDERISH, SYS_ORDERABLE, "CustomFacet")))
+                .andExpect(jsonPath(SYS_MIXIN_TYPES, contains("CustomFacet", SYS_FOLDERISH, SYS_ORDERABLE)))
                 .andExpect(jsonPath("customschema_string").value("test2"));
 
     }

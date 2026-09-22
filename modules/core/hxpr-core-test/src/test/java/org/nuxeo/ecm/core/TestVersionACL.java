@@ -44,13 +44,13 @@ public class TestVersionACL extends AbstractTestVersioning {
         ACL acl = new ACLImpl();
         acl.add(ACE.BLOCK);
         acl.add(ACE.builder().user("user1").permission(READ).build());
-        session.setACL(folder.getRef(), acl, true);
+        folder.setACL(acl, true);
 
         DocumentModel file = session.createDocumentModel("/folder", "file", MY_FILE);
         file.create();
         acl = new ACLImpl();
         acl.add(ACE.builder().user("user2").permission(READ).build());
-        session.setACL(file.getRef(), acl, true);
+        file.setACL(acl, true);
 
         // create a version
         DocumentRef verRef = session.checkIn(file.getRef());
@@ -59,7 +59,7 @@ public class TestVersionACL extends AbstractTestVersioning {
         // add ACL on version itself
         acl = new ACLImpl();
         acl.add(ACE.builder().user("user3").permission(READ).build());
-        session.setACL(verRef, acl, true);
+        ver.setACL(acl, true);
 
         session.save();
         coreFeature.waitForAsyncCompletion(); // DBS read ACL computation is async
@@ -107,7 +107,7 @@ public class TestVersionACL extends AbstractTestVersioning {
         ACL acl = new ACLImpl();
         acl.add(ACE.builder().user("user1").permission(READ_VERSION).build());
         acl.add(ACE.BLOCK);
-        session.setACL(aclCarrier.getRef(), acl, true);
+        aclCarrier.setACL(acl, true);
 
         // create a version
         DocumentRef verRef = session.checkIn(file.getRef());

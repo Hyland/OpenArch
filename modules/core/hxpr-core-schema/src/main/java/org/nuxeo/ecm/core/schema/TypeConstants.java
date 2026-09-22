@@ -27,8 +27,6 @@ public final class TypeConstants {
 
     public static final String SYS_CONTENT = "SysContent";
 
-    public static final String SYS_RELATION = "SysRelation";
-
     public static final String SYS_ROOT = "SysRoot";
 
     public static final String SYS_FOLDER = "SysFolder";

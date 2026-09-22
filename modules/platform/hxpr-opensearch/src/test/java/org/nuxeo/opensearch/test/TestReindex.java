@@ -173,7 +173,7 @@ public class TestReindex {
         for (DocumentModel doc : docs) {
             String nameOrTitle = doc.getName();
             if (nameOrTitle == null || nameOrTitle.isEmpty()) {
-                nameOrTitle = doc.getTitle();
+                nameOrTitle = (String) doc.getPropertyValue(SYS_TITLE);
             }
             sb.append(doc.getType()).append(" ").append(" ").append(doc.getId()).append(" ");
             sb.append(nameOrTitle);

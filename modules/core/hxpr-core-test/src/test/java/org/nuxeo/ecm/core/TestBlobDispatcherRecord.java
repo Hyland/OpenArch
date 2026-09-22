@@ -86,7 +86,7 @@ public class TestBlobDispatcherRecord {
         assertEquals("records1:" + doc.getId(), ((ManagedBlob) blob).getKey());
 
         // the blob cannot be changed if there is a legal hold
-        session.setLegalHold(doc.getRef(), true, null);
+        session.setLegalHold(doc.getRef(), true);
         try {
             doc.setPropertyValue(SYSFILE_BLOB, Blobs.createBlob("bar"));
             fail();

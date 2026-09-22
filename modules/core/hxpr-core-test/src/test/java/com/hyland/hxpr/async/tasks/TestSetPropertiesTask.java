@@ -95,7 +95,7 @@ public class TestSetPropertiesTask extends AbstractTestAsyncTask {
         txFeature.nextTransaction();
 
         for (DocumentModel child : session.query(nxql)) {
-            assertEquals(title, child.getTitle());
+            assertEquals(title, child.getPropertyValue(SYS_TITLE));
             assertEquals(description, child.getPropertyValue(SYS_DESCRIPTION));
             if (child.getType().equals("ComplexDoc")) {
                 assertEquals(foo, child.getPropertyValue("cpx_complex/foo"));

@@ -97,7 +97,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
     DocumentMapper documentMapper;
 
     private void setLifecycleState(DocumentModel doc, String state) {
-        doc.getCoreSession().setDocumentSystemProp(doc.getRef(), SYS_LIFECYCLE_STATE, state);
+        doc.setPropertyValue(SYS_LIFECYCLE_STATE, state);
     }
 
     private void doTestWrite(String type, boolean withEmptyLists, UnaryOperator<DocumentModel> func, String expected)
@@ -148,7 +148,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
         doTestWrite(MY_GOVERNABLE_FILE, false, doc -> {
             session.setRecord(doc.getRef(), true);
             Instant twoSeconds = Instant.now().plusSeconds(2);
-            session.setRetainUntil(doc.getRef(), twoSeconds, null);
+            session.setRetainUntil(doc.getRef(), twoSeconds);
             // not setting a legal hold to showcase that we output "sysgov_hasLegalHold": false
             return doc;
         }, """
@@ -158,8 +158,8 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   "sys_ancestorIds": ["{ANCESTORIDS}"],
                   "sys_changeToken": "1-0",
                   "sys_mixinTypes": [
-                    "SysGovernable",
-                    "SysFilish"
+                    "SysFilish",
+                    "SysGovernable"
                   ],
                   "sys_acl": [
                     {
@@ -198,6 +198,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   "sys_parentPath": "/foo/bar",
                   "sys_path": "/foo/bar/file",
                   "sys_primaryType": "MyGovernableFile",
+                  "sys_racl": ["u:bobId"],
                   "sys_repository": "test",
                   "sys_lifecycleState": "draft",
                   "sys_lockCreated": "2021-10-24T00:00:00.000Z",
@@ -272,8 +273,8 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   "sys_ancestorIds": ["{ANCESTORIDS}"],
                   "sys_changeToken": "1-0",
                   "sys_mixinTypes": [
-                    "SysGovernable",
-                    "SysFilish"
+                    "SysFilish",
+                    "SysGovernable"
                   ],
                   "sys_acl": [
                     {
@@ -315,6 +316,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   "sys_parentPath": "/foo/bar",
                   "sys_path": "/foo/bar/file",
                   "sys_primaryType": "MyGovernableFile",
+                  "sys_racl": ["u:bobId"],
                   "sys_repository": "test",
                   "sys_lifecycleState": "draft",
                   "sys_lockCreated": "2021-10-24T00:00:00.000Z",
@@ -437,6 +439,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   "sys_parentPath": "/foo/bar",
                   "sys_path": "/foo/bar/file",
                   "sys_primaryType": "SysFile",
+                  "sys_racl": ["u:bobId"],
                   "sys_repository": "test",
                   "sys_isFolderish": false,
                   "sys_pathDepth": 4,
@@ -518,8 +521,8 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   ],
                   "sys_changeToken": "2-0",
                   "sys_mixinTypes": [
-                    "SysVersionable",
-                    "SysFilish"
+                    "SysFilish",
+                    "SysVersionable"
                   ],
                   "sys_acl": [
                     {
@@ -567,6 +570,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   "sys_parentPath": "/foo/bar",
                   "sys_path": "/foo/bar/file",
                   "sys_primaryType": "MyFile",
+                  "sys_racl": ["u:bobId"],
                   "sys_repository": "test",
                   "sys_isFolderish": false,
                   "sys_pathDepth": 4,
@@ -653,8 +657,8 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   ],
                   "sys_changeToken": "3-0",
                   "sys_mixinTypes": [
-                    "SysVersionable",
-                    "SysFilish"
+                    "SysFilish",
+                    "SysVersionable"
                   ],
                   "sys_acl": [
                     {
@@ -702,6 +706,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   "sys_parentPath": "/foo/bar",
                   "sys_path": "/foo/bar/file",
                   "sys_primaryType": "MyFile",
+                  "sys_racl": ["u:bobId"],
                   "sys_repository": "test",
                   "sys_isFolderish": false,
                   "sys_pathDepth": 4,
@@ -790,8 +795,8 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   ],
                   "sys_changeToken": "2-0",
                   "sys_mixinTypes": [
-                    "SysVersionable",
-                    "SysFilish"
+                    "SysFilish",
+                    "SysVersionable"
                   ],
                   "sys_effectiveAcl": [
                     {
@@ -837,6 +842,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   "sys_parentPath": "/foo/bar/file",
                   "sys_path": "/foo/bar/file/{NAME}",
                   "sys_primaryType": "MyFile",
+                  "sys_racl": ["u:aliceId", "u:bobId"],
                   "sys_repository": "test",
                   "sys_isFolderish": false,
                   "sys_pathDepth": 5,
@@ -939,8 +945,8 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   "sys_ancestorIds": ["{ANCESTORIDS}"],
                   "sys_changeToken": "1-0",
                   "sys_mixinTypes": [
-                    "SysVersionable",
-                    "SysFilish"
+                    "SysFilish",
+                    "SysVersionable"
                   ],
                   "sys_acl": [
                     {
@@ -982,6 +988,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   "sys_parentPath": "/foo/bar",
                   "sys_path": "/foo/bar/file",
                   "sys_primaryType": "MyFile",
+                  "sys_racl": ["u:bobId"],
                   "sys_repository": "test",
                   "sys_isFolderish": false,
                   "sys_pathDepth": 4,
@@ -1110,6 +1117,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   "sys_parentPath": "/",
                   "sys_path": "/file",
                   "sys_primaryType": "SysFile",
+                  "sys_racl": [],
                   "sys_repository": "test",
                   "sys_isFolderish": false,
                   "sys_pathDepth": 2,
@@ -1205,6 +1213,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   "sys_parentPath": "/foo/bar",
                   "sys_path": "/foo/bar/{NAME}",
                   "sys_primaryType": "SysFile",
+                  "sys_racl": ["u:bobId"],
                   "sys_repository": "test",
                   "sys_isFolderish": false,
                   "sys_pathDepth": 4,

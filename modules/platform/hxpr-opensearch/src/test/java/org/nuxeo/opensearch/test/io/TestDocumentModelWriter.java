@@ -23,9 +23,11 @@ import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_DESCRIPTION;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_TITLE;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_CREATED;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_DESCRIPTION;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_IS_TRASHED;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_LIFECYCLE_STATE;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_LOCK_CREATED;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_MODIFIED;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_SECURITY_POLICIES;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.EVERYTHING;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.READ;
@@ -49,6 +51,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.nuxeo.ecm.core.api.Blobs;
+import org.nuxeo.ecm.core.api.CoreInstance;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentRef;
@@ -64,6 +67,8 @@ import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesExtension;
 import org.nuxeo.runtime.transaction.TransactionHelper;
+import org.opensearch.client.json.JsonpMapper;
+import org.opensearch.client.json.jackson3.JacksonJsonpMapper;
 import org.skyscreamer.jsonassert.Customization;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.ValueMatcher;
@@ -73,8 +78,8 @@ import org.skyscreamer.jsonassert.comparator.JSONComparator;
 import com.hyland.hxpr.async.tasks.TaskService;
 
 import jakarta.inject.Inject;
-import jakarta.json.Json;
 import jakarta.json.stream.JsonGenerator;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * @since 5.9.5
@@ -105,11 +110,24 @@ public class TestDocumentModelWriter {
             new Customization(SYS_LOCK_CREATED, NON_NULL_MATCHER),
             new Customization(SYSGOV_RETAIN_UNTIL, NON_NULL_MATCHER));
 
+    private static final JsonpMapper MAPPER = new JacksonJsonpMapper(JsonMapper.builder().build());
+
+    private static class TestWriter extends JsonOpenSearchDocumentWriter {
+
+        TestWriter(JsonGenerator jg) {
+            super(jg, MAPPER);
+        }
+
+        void writeTestValue(String name, Object value) {
+            writeValue(name, value);
+        }
+    }
+
     @Inject
     private CoreSession session;
 
     private void setLifecycleState(DocumentModel doc, String state) {
-        doc.getCoreSession().setDocumentSystemProp(doc.getRef(), SYS_LIFECYCLE_STATE, state);
+        doc.setPropertyValue(SYS_LIFECYCLE_STATE, state);
     }
 
     @BeforeAll
@@ -148,7 +166,7 @@ public class TestDocumentModelWriter {
         doc.setACL(acl, true);
         setLifecycleState(doc, "draft");
         doc.setLock();
-        doc.setSecurityPolicies(List.of(SECURITY_POLICY_NAME));
+        doc.setPropertyValue(SYS_SECURITY_POLICIES, List.of(SECURITY_POLICY_NAME));
         // additional stuff passed by caller
         doc = func.apply(doc);
 
@@ -160,8 +178,8 @@ public class TestDocumentModelWriter {
         doc.refresh();
 
         OutputStream out = new ByteArrayOutputStream();
-        try (JsonGenerator jg = Json.createGenerator(out)) {
-            new JsonOpenSearchDocumentWriter(jg).write(doc);
+        try (JsonGenerator jg = MAPPER.jsonProvider().createGenerator(out)) {
+            new JsonOpenSearchDocumentWriter(jg, MAPPER).write(doc);
         }
         String actual = out.toString();
         expected = expected.replace("{DOCID}", doc.getId()) //
@@ -172,11 +190,22 @@ public class TestDocumentModelWriter {
     }
 
     @Test
+    public void testSystemValuePreservesFloatingPoint() throws Exception {
+        OutputStream out = new ByteArrayOutputStream();
+        try (JsonGenerator jg = MAPPER.jsonProvider().createGenerator(out)) {
+            jg.writeStartObject();
+            new TestWriter(jg).writeTestValue("value", 1.25);
+            jg.writeEnd();
+        }
+        JSONAssert.assertEquals("{\"value\":1.25}", out.toString(), true);
+    }
+
+    @Test
     public void testGovernable() throws Exception {
         doTestWrite(MY_FILE, doc -> {
             session.setRecord(doc.getRef(), true);
             Instant twoSeconds = Instant.now().plusSeconds(2);
-            session.setRetainUntil(doc.getRef(), twoSeconds, null);
+            session.setRetainUntil(doc.getRef(), twoSeconds);
             return doc;
             // not setting a legal hold to showcase that we do NOT output "sysgov_hasLegalHold": false for not indexing fields with false value
         }, """
@@ -203,9 +232,6 @@ public class TestDocumentModelWriter {
                   "sysgov_isRecord": true,
                   "sysgov_retainUntil": "2021-10-24T00:00:02.000Z",
                   "sys_pathDepth": 4,
-                  "sys_pathLevel1": "foo",
-                  "sys_pathLevel2": "bar",
-                  "sys_pathLevel3": "file",
                   "sys_contributors": ["ff7b0360-3594-416c-b587-2fa4dd0839ce"],
                   "sys_created": "2021-10-24T00:00:00.000Z",
                   "sys_creator": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
@@ -255,9 +281,6 @@ public class TestDocumentModelWriter {
                   "sys_title": "Some file",
                   "sys_isFolderish": false,
                   "sys_pathDepth": 4,
-                  "sys_pathLevel1": "foo",
-                  "sys_pathLevel2": "bar",
-                  "sys_pathLevel3": "file",
                   "sys_contributors": ["ff7b0360-3594-416c-b587-2fa4dd0839ce"],
                   "sys_created": "2021-10-24T00:00:00.000Z",
                   "sys_creator": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
@@ -283,7 +306,12 @@ public class TestDocumentModelWriter {
 
     @Test
     public void testNonVersionable() throws Exception {
-        doTestWrite(SYS_FILE, doc -> doc, """
+        doTestWrite(SYS_FILE, doc -> {
+            CoreInstance.doPrivileged(doc.getRepositoryName(), systemSession -> {
+                systemSession.getDocument(doc.getRef()).setPropertyValue(SYS_IS_TRASHED, Boolean.TRUE);
+            });
+            return doc;
+        }, """
                 {
                   "sys_id": "{DOCID}",
                   "sys_parentId": "{PARENTID}",
@@ -302,10 +330,8 @@ public class TestDocumentModelWriter {
                   "sys_repository": "test",
                   "sys_title": "Some file",
                   "sys_isFolderish": false,
+                  "sys_isTrashed": true,
                   "sys_pathDepth": 4,
-                  "sys_pathLevel1": "foo",
-                  "sys_pathLevel2": "bar",
-                  "sys_pathLevel3": "file",
                   "sys_contributors": ["ff7b0360-3594-416c-b587-2fa4dd0839ce"],
                   "sys_created": "2021-10-24T00:00:00.000Z",
                   "sys_creator": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
@@ -356,9 +382,6 @@ public class TestDocumentModelWriter {
                   "sys_title": "Some file",
                   "sys_isFolderish": false,
                   "sys_pathDepth": 4,
-                  "sys_pathLevel1": "foo",
-                  "sys_pathLevel2": "bar",
-                  "sys_pathLevel3": "file",
                   "sys_contributors": ["ff7b0360-3594-416c-b587-2fa4dd0839ce"],
                   "sys_created": "2021-10-24T00:00:00.000Z",
                   "sys_creator": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
@@ -413,9 +436,6 @@ public class TestDocumentModelWriter {
                   "sys_title": "Some file",
                   "sys_isFolderish": false,
                   "sys_pathDepth": 4,
-                  "sys_pathLevel1": "foo",
-                  "sys_pathLevel2": "bar",
-                  "sys_pathLevel3": "file",
                   "sys_contributors": ["ff7b0360-3594-416c-b587-2fa4dd0839ce"],
                   "sys_created": "2021-10-24T00:00:00.000Z",
                   "sys_creator": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
@@ -471,10 +491,6 @@ public class TestDocumentModelWriter {
                   "sys_title": "Some file",
                   "sys_isFolderish": false,
                   "sys_pathDepth": 5,
-                  "sys_pathLevel1": "foo",
-                  "sys_pathLevel2": "bar",
-                  "sys_pathLevel3": "file",
-                  "sys_pathLevel4": "{NAME}",
                   "sys_contributors": ["ff7b0360-3594-416c-b587-2fa4dd0839ce"],
                   "sys_created": "2021-10-24T00:00:00.000Z",
                   "sys_creator": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
@@ -547,9 +563,6 @@ public class TestDocumentModelWriter {
                   "sys_title": "Some file",
                   "sys_isFolderish": false,
                   "sys_pathDepth": 4,
-                  "sys_pathLevel1": "foo",
-                  "sys_pathLevel2": "bar",
-                  "sys_pathLevel3": "file",
                   "sys_contributors": ["ff7b0360-3594-416c-b587-2fa4dd0839ce"],
                   "sys_created": "2021-10-24T00:00:00.000Z",
                   "sys_creator": "ff7b0360-3594-416c-b587-2fa4dd0839ce",

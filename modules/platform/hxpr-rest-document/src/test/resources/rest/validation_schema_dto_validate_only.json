@@ -44,15 +44,13 @@
         },
         {
             "invalidValue": [
-                "sysrelation",
-                "system"
+                "sysrelation"
             ],
-            "message": "The schema \"[sysrelation, system]\" is not known.",
+            "message": "The schema \"[sysrelation]\" is not known.",
             "messageKey": "label.schema.application.violation.UnknownObjectViolation.schemas",
             "parameters": [
                 [
-                    "sysrelation",
-                    "system"
+                    "sysrelation"
                 ],
                 "primaryTypes/SysRelation/schemas"
             ],
@@ -61,16 +59,14 @@
         {
             "invalidValue": [
                 "mydublincore",
-                "sysfiles",
-                "system"
+                "sysfiles"
             ],
-            "message": "The schema \"[mydublincore, sysfiles, system]\" is not known.",
+            "message": "The schema \"[mydublincore, sysfiles]\" is not known.",
             "messageKey": "label.schema.application.violation.UnknownObjectViolation.schemas",
             "parameters": [
                 [
                     "mydublincore",
-                    "sysfiles",
-                    "system"
+                    "sysfiles"
                 ],
                 "primaryTypes/SysFile/schemas"
             ],

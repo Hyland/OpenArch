@@ -12,7 +12,6 @@
       <schema name="sysfile" />
     </mixin>
     <doctype name="Contract" extends="SysContent">
-      <schema name="system" />
     </doctype>
   </extension>
 </component>

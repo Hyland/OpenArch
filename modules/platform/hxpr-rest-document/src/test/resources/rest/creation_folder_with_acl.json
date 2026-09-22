@@ -62,6 +62,10 @@
   "sys_path": "/My Folder",
   "sys_pathDepth": 2,
   "sys_primaryType": "SysFolder",
+  "sys_racl": [
+    "g:myGroup",
+    "u:myOtherUser"
+  ],
   "sys_repository": "test",
   "sys_title": "My Folder",
   "sys_description": "Test Folder for Document API",

@@ -15,11 +15,17 @@
  */
 package org.nuxeo.ecm.core.schema;
 
+import java.util.List;
+
 public class SchemaManagerConstants {
 
     private SchemaManagerConstants() {
         // Utility class, should not be instantiated
     }
+
+    public static final String SYSTEM_SCHEMA = "system";
+
+    public static final List<String> SYSTEM_SCHEMAS = List.of(SYSTEM_SCHEMA, "sysgovernable", "sysversionable");
 
     public static final String ANONYMOUS_TYPE = "#anonymous";
 
@@ -46,6 +52,8 @@ public class SchemaManagerConstants {
     public static final String MAX_INCLUSIVE = "maxInclusive";
 
     public static final String MAX_LENGTH = "maxLength";
+
+    public static final String MANAGED = "managed";
 
     public static final String MESSAGE_KEY_SEPARATOR = ".";
 

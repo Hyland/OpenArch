@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ACL;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
 
 import java.util.List;
@@ -225,7 +226,7 @@ public class QueryAssemblerTest {
 
     protected static SchemaManager schemaManager() {
         SchemaManager schemaManager = mock(SchemaManager.class);
-        when(schemaManager.isForbiddenInExpr("sys_acl")).thenReturn(true);
+        when(schemaManager.isSecurityProperty(SYS_ACL)).thenReturn(true);
         return schemaManager;
     }
 

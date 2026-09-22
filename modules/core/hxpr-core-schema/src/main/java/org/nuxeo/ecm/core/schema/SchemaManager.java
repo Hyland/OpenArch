@@ -81,24 +81,20 @@ public interface SchemaManager {
     Set<String> getDocumentTypeNamesExtendedBy(String docType);
 
     /**
-     * Checks whether the given property is forbidden from being used in an expression.
-     * <p>
-     * System properties are forbidden unless they are part of a known safe subset; other properties are never
-     * forbidden.
+     * Checks whether the given property contains security-related repository state.
      *
      * @param name the property name
-     * @return {@code true} if the property is forbidden in an expression
+     * @return {@code true} if the property contains security-related state
      */
-    boolean isForbiddenInExpr(String name);
+    boolean isSecurityProperty(String name);
 
     /**
-     * Checks whether the given property holds a boolean whose value is only ever {@code true} or {@code null}, instead
-     * of {@code true} or {@code false}.
+     * Checks whether the given boolean property stores {@code false} as {@code null}.
      *
      * @param name the property name
-     * @return {@code true} if the property is a true-or-null boolean
+     * @return {@code true} if the property stores {@code false} as {@code null}
      */
-    boolean isTrueOrNullBoolean(String name);
+    boolean isFalseStoredAsNull(String name);
 
     /** The whole content model as a DTO. */
     ContentModelDTO toContentModel();

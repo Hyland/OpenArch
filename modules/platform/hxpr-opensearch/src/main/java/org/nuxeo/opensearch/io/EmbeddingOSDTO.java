@@ -51,7 +51,6 @@ import org.opensearch.client.json.JsonpSerializable;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import jakarta.json.spi.JsonProvider;
 import jakarta.json.stream.JsonGenerator;
 
 /**
@@ -90,13 +89,13 @@ public class EmbeddingOSDTO implements JsonpSerializable {
     /**
      * Calculates the serialized size of this DTO in bytes.
      *
-     * @param jsonProvider the JSON provider to use for serialization
+     * @param mapper the JSON mapper to use for serialization
      * @return the size in bytes
      */
-    public int size(JsonProvider jsonProvider) {
+    public int size(JsonpMapper mapper) {
         try (CountingOutputStream countingStream = new CountingOutputStream(NullOutputStream.INSTANCE);
-                JsonGenerator generator = jsonProvider.createGenerator(countingStream)) {
-            serialize(generator, null);
+                JsonGenerator generator = mapper.jsonProvider().createGenerator(countingStream)) {
+            serialize(generator, mapper);
             generator.flush();
             return Math.toIntExact(countingStream.getByteCount());
         } catch (IOException e) {
@@ -172,7 +171,7 @@ public class EmbeddingOSDTO implements JsonpSerializable {
         }
 
         // Write denormalized parent document metadata
-        writeParentDocumentMetadata(jg);
+        writeParentDocumentMetadata(jg, mapper);
 
         jg.writeEnd();
     }
@@ -183,9 +182,9 @@ public class EmbeddingOSDTO implements JsonpSerializable {
      * <p>
      * Note: parentDoc is guaranteed non-null by the check in serialize().
      */
-    private void writeParentDocumentMetadata(JsonGenerator jg) {
+    private void writeParentDocumentMetadata(JsonGenerator jg, JsonpMapper mapper) {
         // Use specialized writer that excludes join fields and fulltext
-        DenormalizedDocumentWriter writer = new DenormalizedDocumentWriter(jg);
+        DenormalizedDocumentWriter writer = new DenormalizedDocumentWriter(jg, mapper);
 
         // Write system properties (automatically excludes join fields and fulltext)
         writer.writeSystemProperties(parentDoc);

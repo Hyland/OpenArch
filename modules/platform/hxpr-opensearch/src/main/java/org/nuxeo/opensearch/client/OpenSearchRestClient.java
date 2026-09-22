@@ -18,6 +18,7 @@ package org.nuxeo.opensearch.client;
 import static java.util.stream.Collectors.toMap;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,6 +31,7 @@ import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.Tracing;
 import jakarta.json.spi.JsonProvider;
+import jakarta.json.stream.JsonGenerator;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -519,7 +521,7 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
 
     @Override
     public IndexResponse index(IndexRequest<? extends JsonpSerializable> request) {
-        try (Scope ignored = getScopedSpan("open/_index", request.toJsonString())) {
+        try (Scope ignored = getScopedSpan("open/_index", toJsonString(request))) {
             if (request.timeout() == null) {
                 // use a longer timeout than the default one
                 request = request.toBuilder().timeout(tb -> tb.time(LONG_TIMEOUT)).build();
@@ -540,6 +542,14 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
             }
             throw new NuxeoException(message, e);
         }
+    }
+
+    protected String toJsonString(JsonpSerializable value) {
+        StringWriter writer = new StringWriter();
+        try (JsonGenerator generator = jsonpMapper.jsonProvider().createGenerator(writer)) {
+            value.serialize(generator, jsonpMapper);
+        }
+        return writer.toString();
     }
 
     protected Scope getScopedSpan(String name, String request) {

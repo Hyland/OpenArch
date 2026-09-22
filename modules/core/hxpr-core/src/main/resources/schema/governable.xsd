@@ -1,11 +1,20 @@
 <?xml version="1.0"?>
 <xs:schema targetNamespace="http://www.nuxeo.org/ecm/schemas/governable/"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           xmlns:nxs="http://www.nuxeo.org/ecm/schemas/governable/">
+           xmlns:nxs="http://www.nuxeo.org/ecm/schemas/governable/"
+           xmlns:m="http://www.nuxeo.org/ecm/schemas/core/managed/">
 
   <xs:include schemaLocation="core-types.xsd" />
 
-  <xs:element name="isRecord" type="xs:boolean" />
-  <xs:element name="hasLegalHold" type="xs:boolean" />
-  <xs:element name="retainUntil" type="xs:date" />
+  <xs:element name="isRecord" type="xs:boolean"
+              m:noAutoCheckout="true" m:falseAsNull="STORE,INDEX"
+              m:writePermission="ManageRetention"
+              m:versionWritePermission="STANDARD" />
+  <xs:element name="hasLegalHold" type="xs:boolean"
+              m:noAutoCheckout="true" m:falseAsNull="STORE,INDEX"
+              m:writePermission="ManageRetention"
+              m:versionWritePermission="STANDARD" />
+  <xs:element name="retainUntil" type="xs:date"
+              m:noAutoCheckout="true" m:writePermission="ManageRetention"
+              m:versionWritePermission="STANDARD" />
 </xs:schema>

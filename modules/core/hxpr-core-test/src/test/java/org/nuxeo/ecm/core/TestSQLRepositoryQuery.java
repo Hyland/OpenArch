@@ -18,6 +18,7 @@ package org.nuxeo.ecm.core;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.ChronoUnit.HOURS;
 import static java.time.temporal.ChronoUnit.SECONDS;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -30,9 +31,13 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSFILE_BLOB;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_VERSION;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ANCESTOR_IDS;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_DESCRIPTION;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_FULLTEXT_JOB_ID;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ID;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PARENT_ID;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PATH;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_SYS_CHANGE_TOKEN;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
 import static org.nuxeo.ecm.core.api.local.DummyLoginFeature.TEST_ADMIN_USER;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.EVERYONE;
@@ -1375,7 +1380,7 @@ public class TestSQLRepositoryQuery {
         checkQueryACL(0, queryBase + "sys_acl/*1/principal = 'u:bob' AND sys_acl/*1/principal = 'u:steve'");
 
         // bob with Read
-        checkQueryACL(1, queryBase + "sys_acl/*1/principal = 'u:bob' AND sys_acl/*1/permission = 'Read'");
+        checkQueryACL(1, queryBase + "sys_acl/*1/principal = 'u:bob' AND sys_acl/*1/perm = 'Read'");
 
         // bob with Read granted
         checkQueryACL(1, queryBase
@@ -1414,11 +1419,37 @@ public class TestSQLRepositoryQuery {
                 + "sys_acl/*1/principal = '%s' AND sys_acl/*1/permission = 'Everything' AND sys_acl/*1/grant = 0".formatted(
                         EVERYONE));
 
-        // explicit array index not possible on DBS
-        // checkQueryACL(1, queryBase + "sys_acl/0/principal = 'pete'")
-        // checkQueryACL(1, queryBase + "sys_acl/1/principal = 'Administrator'")
-        // checkQueryACL(1, queryBase + "sys_acl/2/principal = 'bob'")
-        // checkQueryACL(1, queryBase + "sys_acl/3/principal = 'steve'")
+        // explicit array index
+        int matches = 0;
+        for (int i = 0; i < 10; i++) {
+            matches += session.query(queryBase + "sys_acl/" + i + "/principal = 'u:bob'").size();
+        }
+        assertEquals(1, matches);
+    }
+
+    @Test
+    public void testForbiddenSecurityQueries() {
+        CoreSession userSession = openSessionAs("bob");
+        for (String property : List.of("sys_acl/*/principal", "sys_racl", "sys_secpol")) {
+            String query = "SELECT * FROM SysContent WHERE " + property + " IS NULL";
+            QueryParseException exception = assertThrows(QueryParseException.class, () -> userSession.query(query));
+            assertTrue(exception.getMessage().contains("Disallowed system property: " + property),
+                    exception.getMessage());
+        }
+        QueryParseException exception = assertThrows(QueryParseException.class,
+                () -> userSession.queryAndFetch("SELECT sys_racl FROM SysContent"));
+        assertTrue(exception.getMessage().contains("Disallowed system property: sys_racl"), exception.getMessage());
+
+        // The default test session is an administrator.
+        assertDoesNotThrow(
+                () -> session.query("SELECT * FROM SysContent WHERE sys_acl/*/principal = 'u:nobody'"));
+        DocumentModel doc = session.createDocumentModel("/", "doc", MY_DOC_TYPE);
+        doc.create();
+        session.save();
+        IterableQueryResult result = session.queryAndFetch(
+                "SELECT sys_racl FROM SysContent WHERE sys_id = '%s'".formatted(doc.getId()));
+        assertEquals(1, result.size());
+        result.close();
     }
 
     /**
@@ -1467,12 +1498,12 @@ public class TestSQLRepositoryQuery {
         IterableQueryResult res;
         // simple query
         res = session.queryAndFetch(
-                "SELECT sys_id, sys_acl/*1/principal, sys_acl/*1/permission FROM SysContent WHERE "
-                        + "sys_acl/*1/permission = 'Read' AND sys_acl/*1/grant = 1");
+                "SELECT sys_id, sys_acl/*1/principal, sys_acl/*1/perm FROM SysContent WHERE "
+                        + "sys_acl/*1/perm = 'Read' AND sys_acl/*1/grant = 1");
         assertEquals(2, res.size());
         Set<String> set = new HashSet<>();
         for (Map<String, Object> map : res) {
-            set.add(map.get("sys_acl/*1/principal") + ":" + map.get("sys_acl/*1/permission"));
+            set.add(map.get("sys_acl/*1/principal") + ":" + map.get("sys_acl/*1/perm"));
         }
         res.close();
         assertEquals(Set.of("u:bob:Read", "u:steve:Read"), set);
@@ -1487,7 +1518,7 @@ public class TestSQLRepositoryQuery {
         assertEquals(5, res.size());
         set = new HashSet<>();
         for (Map<String, Object> map : res) {
-            String ace = map.get("sys_acl/*1/principal") + ":" + map.get("sys_acl/*1/permission") + ":"
+            String ace = map.get("sys_acl/*1/principal") + ":" + map.get("sys_acl/*1/perm") + ":"
                     + map.get("sys_acl/*1/grant") + ":" + map.get("sys_acl/*1/creator");
             Instant cal = (Instant) map.get("sys_acl/*1/begin");
             ace += ":" + (cal != null ? cal.toEpochMilli() : null);
@@ -2144,6 +2175,32 @@ public class TestSQLRepositoryQuery {
             assertTrue(parentId instanceof String, parentId.getClass().getName());
         }
         res.close();
+    }
+
+    @Test
+    public void testSystemFieldsQueryableAndProjectable() {
+        DocumentModel folder1 = session.createDocumentModel("/", "folder1", SYS_FOLDER);
+        folder1.create();
+        DocumentModel folder2 = session.createDocumentModel("/folder1", "folder2", SYS_FOLDER);
+        folder2.create();
+        DocumentModel doc = session.createDocumentModel("/folder1/folder2", "doc", MY_DOC_TYPE);
+        doc.create();
+        session.save();
+
+        String query = "SELECT %s, %s, %s FROM MyDocType WHERE sys_id = '%s' AND %s IS NOT NULL".formatted(
+                SYS_SYS_CHANGE_TOKEN, SYS_ANCESTOR_IDS, SYS_FULLTEXT_JOB_ID, doc.getId(), SYS_SYS_CHANGE_TOKEN);
+        IterableQueryResult result = session.queryAndFetch(query);
+        assertEquals(1, result.size());
+        Map<String, Object> projection = result.iterator().next();
+        assertNotNull(projection.get(SYS_SYS_CHANGE_TOKEN));
+        assertEquals(session.getRootDocument().getId(), projection.get(SYS_ANCESTOR_IDS + "/0"));
+        assertEquals(folder1.getId(), projection.get(SYS_ANCESTOR_IDS + "/1"));
+        assertEquals(folder2.getId(), projection.get(SYS_ANCESTOR_IDS + "/2"));
+        result.close();
+
+        result = session.queryAndFetch("SELECT sys_path FROM MyDocType WHERE sys_id = '%s'".formatted(doc.getId()));
+        assertEquals(doc.getPathAsString(), result.iterator().next().get(SYS_PATH));
+        result.close();
     }
 
     protected DocumentModel makeComplexDoc() {
@@ -3361,7 +3418,7 @@ public class TestSQLRepositoryQuery {
         session.setRecord(doc.getRef(), true);
         // retain one hour
         Instant oneHour = Instant.now().plus(1, HOURS);
-        session.setRetainUntil(doc.getRef(), oneHour, null);
+        session.setRetainUntil(doc.getRef(), oneHour);
         session.save();
 
         // check that we can find the record by its retention date
@@ -3395,7 +3452,7 @@ public class TestSQLRepositoryQuery {
         assertEquals(1, dml.size()); // 1 doc that has no hold
 
         // add hold
-        session.setLegalHold(doc.getRef(), true, null);
+        session.setLegalHold(doc.getRef(), true);
         session.save();
 
         // check that we can find the hold

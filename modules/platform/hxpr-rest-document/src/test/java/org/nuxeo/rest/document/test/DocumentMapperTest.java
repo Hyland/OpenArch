@@ -19,8 +19,11 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_IS_TRASHED;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSFILES_BLOBS;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSFILE_BLOB;
+import static org.nuxeo.ecm.core.api.security.SecurityConstants.MANAGE_SECURITY;
+import static org.nuxeo.ecm.core.api.security.SecurityConstants.READ;
 import static org.nuxeo.ecm.core.schema.TypeConstants.BLOB_TYPE;
 import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_FILENAME;
 import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_KEY;
@@ -41,9 +44,14 @@ import java.util.concurrent.Future;
 import org.junit.jupiter.api.Test;
 import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.api.Blobs;
+import org.nuxeo.ecm.core.api.CoreInstance;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.PathRef;
+import org.nuxeo.ecm.core.api.local.DummyLoginFeature;
+import org.nuxeo.ecm.core.api.security.ACE;
+import org.nuxeo.ecm.core.api.security.ACL;
+import org.nuxeo.ecm.core.api.security.impl.ACLImpl;
 import org.nuxeo.ecm.core.api.validation.DocumentValidationException;
 import org.nuxeo.ecm.core.test.CoreFeature;
 import org.nuxeo.ecm.platform.test.UserManagerMockFeature;
@@ -81,6 +89,47 @@ public class DocumentMapperTest extends RuntimeSpringBootTest {
 
     @Autowired
     UploadService uploadService;
+
+    @Test
+    public void securityPropertiesRequireManageSecurity() {
+        DocumentModel doc = session.createDocumentModel("/", "security", SYS_FILE);
+        doc.create();
+        ACL acl = new ACLImpl();
+        acl.add(ACE.builder().user("reader").permission(READ).build());
+        acl.add(ACE.builder().user("securityManager").permission(READ).build());
+        acl.add(ACE.builder().user("securityManager").permission(MANAGE_SECURITY).build());
+        doc.setACL(acl, true);
+        session.save();
+
+        CoreSession readerSession = openSessionAs("reader");
+        DocumentDTO readerDTO = mapper.documentModelToDocumentDTO(readerSession.getDocument(doc.getRef()));
+        assertThat(readerDTO.getAcl()).isNull();
+        assertThat(readerDTO.getEffectiveAcl()).isNull();
+        assertThat(readerDTO.getReadAcl()).isNull();
+
+        CoreSession managerSession = openSessionAs("securityManager");
+        DocumentDTO managerDTO = mapper.documentModelToDocumentDTO(managerSession.getDocument(doc.getRef()));
+        assertThat(managerDTO.getAcl()).isNotNull();
+        assertThat(managerDTO.getEffectiveAcl()).isNotNull();
+        assertThat(managerDTO.getReadAcl()).isNotEmpty();
+    }
+
+    @Test
+    public void trashedIsFalseStoredAsNull() {
+        DocumentModel doc = session.createDocumentModel("/", "trashed", SYS_FILE);
+        doc.create();
+
+        assertThat(mapper.documentModelToDocumentDTO(doc).getIsTrashed()).isNull();
+        CoreInstance.doPrivileged(session.getRepositoryName(), systemSession -> {
+            systemSession.getDocument(doc.getRef()).setPropertyValue(SYS_IS_TRASHED, Boolean.TRUE);
+        });
+        assertThat(mapper.documentModelToDocumentDTO(doc).getIsTrashed()).isTrue();
+    }
+
+    protected CoreSession openSessionAs(String username) {
+        return CoreInstance.getCoreSession(session.getRepositoryName(),
+                DummyLoginFeature.getTestPrincipal(username, false));
+    }
 
     @Test
     public void mapperCanCreateDocumentWithBinary() throws Exception {

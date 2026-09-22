@@ -32,6 +32,7 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -45,6 +46,9 @@ import org.nuxeo.common.xmap.Context;
 import org.nuxeo.ecm.core.schema.types.ComplexType;
 import org.nuxeo.ecm.core.schema.types.ComplexTypeImpl;
 import org.nuxeo.ecm.core.schema.types.Field;
+import org.nuxeo.ecm.core.schema.types.FieldCharacteristics;
+import org.nuxeo.ecm.core.schema.types.FieldCharacteristics.Representation;
+import org.nuxeo.ecm.core.schema.types.FieldCharacteristics.ValueSource;
 import org.nuxeo.ecm.core.schema.types.ListType;
 import org.nuxeo.ecm.core.schema.types.ListTypeImpl;
 import org.nuxeo.ecm.core.schema.types.Schema;
@@ -102,6 +106,8 @@ public class XSDLoader {
     private static final String NAMESPACE_CORE_VALIDATION = "http://www.nuxeo.org/ecm/schemas/core/validation/";
 
     private static final String NAMESPACE_CORE_EXTERNAL_REFERENCES = "http://www.nuxeo.org/ecm/schemas/core/external-references/";
+
+    private static final String NAMESPACE_CORE_MANAGED = "http://www.nuxeo.org/ecm/schemas/core/managed/";
 
     private static final String NS_XSD = "http://www.w3.org/2001/XMLSchema";
 
@@ -701,7 +707,61 @@ public class XSDLoader {
         if (fieldType instanceof SimpleType st) {
             constraints.addAll(st.getConstraints());
         }
-        return type.addField(elementName, fieldType, defValue, constraints);
+        return type.addField(elementName, fieldType, defValue, constraints, getFieldCharacteristics(element));
+    }
+
+    protected static FieldCharacteristics getFieldCharacteristics(XSElementDecl element) {
+        String systemOwnedValue = getCharacteristic(element, "systemOwned");
+        String sourceValue = getCharacteristic(element, "source");
+        String notQueryableValue = getCharacteristic(element, "notQueryable");
+        String notProjectableValue = getCharacteristic(element, "notProjectable");
+        String noAutoCheckoutValue = getCharacteristic(element, "noAutoCheckout");
+        String falseAsNullValue = getCharacteristic(element, "falseAsNull");
+        String readPermission = getCharacteristic(element, "readPermission");
+        String writePermission = getCharacteristic(element, "writePermission");
+        String versionWritePermission = getCharacteristic(element, "versionWritePermission");
+        String notOutputValue = getCharacteristic(element, "notOutput");
+        if (systemOwnedValue == null && sourceValue == null && notQueryableValue == null && notProjectableValue == null
+                && noAutoCheckoutValue == null && falseAsNullValue == null && readPermission == null
+                && writePermission == null && versionWritePermission == null && notOutputValue == null) {
+            return null;
+        }
+        boolean systemOwned = Boolean.TRUE.equals(booleanValue(systemOwnedValue));
+        ValueSource source = enumValue(ValueSource.class, sourceValue);
+        boolean notQueryable = Boolean.TRUE.equals(booleanValue(notQueryableValue));
+        boolean notProjectable = Boolean.TRUE.equals(booleanValue(notProjectableValue));
+        boolean noAutoCheckout = Boolean.TRUE.equals(booleanValue(noAutoCheckoutValue));
+        Set<Representation> falseAsNull = enumSetValue(Representation.class, falseAsNullValue);
+        Set<Representation> notOutput = enumSetValue(Representation.class, notOutputValue);
+        return new FieldCharacteristics(systemOwned, source, notQueryable, notProjectable, noAutoCheckout, falseAsNull,
+                notOutput, readPermission, writePermission, versionWritePermission);
+    }
+
+    private static String getCharacteristic(XSElementDecl element, String name) {
+        return element.getForeignAttribute(NAMESPACE_CORE_MANAGED, name);
+    }
+
+    private static Boolean booleanValue(String value) {
+        return switch (value) {
+        case null -> null;
+        case "true" -> Boolean.TRUE;
+        case "false" -> Boolean.FALSE;
+        default -> throw new IllegalArgumentException("Invalid boolean value: " + value);
+        };
+    }
+
+    private static <E extends Enum<E>> E enumValue(Class<E> type, String value) {
+        return value == null ? null : Enum.valueOf(type, value);
+    }
+
+    private static <E extends Enum<E>> Set<E> enumSetValue(Class<E> type, String value) {
+        Set<E> values = EnumSet.noneOf(type);
+        if (value != null) {
+            for (String item : value.split(",")) {
+                values.add(enumValue(type, item.strip()));
+            }
+        }
+        return values;
     }
 
     protected static String getTypeName(XSType type, String fieldName, Schema schema) {

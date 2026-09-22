@@ -213,6 +213,7 @@ public class TestHXQLConversion {
                       {
                         "terms" : {
                           "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -251,6 +252,7 @@ public class TestHXQLConversion {
                           "sys_primaryType" : [
                             "MyFile",
                             "SysFile",
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -345,6 +347,7 @@ public class TestHXQLConversion {
                       {
                         "terms" : {
                           "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -395,6 +398,7 @@ public class TestHXQLConversion {
                       {
                         "terms" : {
                           "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -445,6 +449,7 @@ public class TestHXQLConversion {
                       {
                         "terms" : {
                           "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -493,6 +498,7 @@ public class TestHXQLConversion {
                       {
                         "terms" : {
                           "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -544,6 +550,7 @@ public class TestHXQLConversion {
                       {
                         "terms" : {
                           "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -587,6 +594,7 @@ public class TestHXQLConversion {
                       {
                         "terms" : {
                           "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -626,6 +634,7 @@ public class TestHXQLConversion {
                       {
                         "terms" : {
                           "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -675,6 +684,7 @@ public class TestHXQLConversion {
                       {
                         "terms" : {
                           "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -721,6 +731,7 @@ public class TestHXQLConversion {
                       {
                         "terms" : {
                           "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -760,6 +771,7 @@ public class TestHXQLConversion {
                       {
                         "terms" : {
                           "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -799,6 +811,7 @@ public class TestHXQLConversion {
                       {
                         "terms" : {
                           "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -839,6 +852,7 @@ public class TestHXQLConversion {
                       {
                         "terms" : {
                           "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -879,6 +893,7 @@ public class TestHXQLConversion {
                       {
                         "terms" : {
                           "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -922,6 +937,7 @@ public class TestHXQLConversion {
                       {
                         "terms" : {
                           "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -961,6 +977,7 @@ public class TestHXQLConversion {
                       {
                         "terms" : {
                           "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -1010,6 +1027,7 @@ public class TestHXQLConversion {
                       {
                         "terms" : {
                           "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -1061,6 +1079,7 @@ public class TestHXQLConversion {
                       {
                         "terms" : {
                           "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -1102,6 +1121,7 @@ public class TestHXQLConversion {
                       {
                         "terms" : {
                           "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -1150,6 +1170,7 @@ public class TestHXQLConversion {
                       {
                         "terms" : {
                           "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -1200,6 +1221,7 @@ public class TestHXQLConversion {
                       {
                         "terms" : {
                           "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -1262,6 +1284,7 @@ public class TestHXQLConversion {
                       {
                         "terms" : {
                           "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -1303,6 +1326,7 @@ public class TestHXQLConversion {
                       {
                         "terms" : {
                           "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -1361,6 +1385,7 @@ public class TestHXQLConversion {
                       {
                         "terms" : {
                           "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -1405,6 +1430,7 @@ public class TestHXQLConversion {
                       {
                         "terms" : {
                           "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -1454,6 +1480,7 @@ public class TestHXQLConversion {
                       {
                         "terms" : {
                           "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -1497,6 +1524,7 @@ public class TestHXQLConversion {
                       {
                         "terms" : {
                           "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -1544,6 +1572,7 @@ public class TestHXQLConversion {
                       {
                         "terms" : {
                           "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -1592,6 +1621,7 @@ public class TestHXQLConversion {
                       {
                         "terms" : {
                           "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -1638,6 +1668,7 @@ public class TestHXQLConversion {
                       {
                         "terms" : {
                           "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -1698,6 +1729,7 @@ public class TestHXQLConversion {
                       {
                         "terms" : {
                           "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -1754,6 +1786,7 @@ public class TestHXQLConversion {
                       {
                         "terms" : {
                           "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -1814,6 +1847,7 @@ public class TestHXQLConversion {
                       {
                         "terms" : {
                           "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -1873,6 +1907,7 @@ public class TestHXQLConversion {
                       {
                         "terms" : {
                           "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -1917,6 +1952,7 @@ public class TestHXQLConversion {
                       {
                         "terms" : {
                           "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -1971,6 +2007,7 @@ public class TestHXQLConversion {
                       {
                         "terms" : {
                           "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -2022,6 +2059,7 @@ public class TestHXQLConversion {
                       {
                         "terms" : {
                           "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -2046,7 +2084,7 @@ public class TestHXQLConversion {
                 """, es);
     }
 
-    @Disabled("trash not implemented for now")
+    @Disabled("trash integration not implemented for now")
     @Test
     public void testConverterIsTrashedWithProperty() {
         String expectedTrashed = """
@@ -2070,6 +2108,7 @@ public class TestHXQLConversion {
                         "terms" : {
                           "sys_primaryType" : [
                             "SysMDComment",
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -2118,6 +2157,7 @@ public class TestHXQLConversion {
                         "terms" : {
                           "sys_primaryType" : [
                             "SysMDComment",
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -2191,6 +2231,7 @@ public class TestHXQLConversion {
                       {
                         "terms" : {
                           "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -2251,6 +2292,7 @@ public class TestHXQLConversion {
                       {
                         "terms" : {
                           "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -2338,6 +2380,7 @@ public class TestHXQLConversion {
                    {
                      "terms" : {
                        "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -2411,6 +2454,7 @@ public class TestHXQLConversion {
                    {
                      "terms" : {
                        "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -2519,6 +2563,7 @@ public class TestHXQLConversion {
                    {
                      "terms" : {
                        "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -2555,6 +2600,7 @@ public class TestHXQLConversion {
                     {
                       "terms" : {
                         "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -2591,6 +2637,7 @@ public class TestHXQLConversion {
                  {
                    "terms" : {
                      "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -2638,6 +2685,7 @@ public class TestHXQLConversion {
                      {
                        "terms" : {
                          "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -2686,6 +2734,7 @@ public class TestHXQLConversion {
                {
                  "terms" : {
                    "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -2730,6 +2779,7 @@ public class TestHXQLConversion {
                    {
                      "terms" : {
                        "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -2772,6 +2822,7 @@ public class TestHXQLConversion {
                    {
                      "terms" : {
                        "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -2821,6 +2872,7 @@ public class TestHXQLConversion {
                    {
                      "terms" : {
                        "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -2866,6 +2918,7 @@ public class TestHXQLConversion {
                    {
                      "terms" : {
                        "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -2910,6 +2963,7 @@ public class TestHXQLConversion {
                    {
                      "terms" : {
                        "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",
@@ -2959,6 +3013,7 @@ public class TestHXQLConversion {
                    {
                      "terms" : {
                        "sys_primaryType" : [
+                            "SysRelation",
                             "SysVocabulary",
                             "SysRendition",
                             "MyFile",

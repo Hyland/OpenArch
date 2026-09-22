@@ -29,10 +29,10 @@ import static org.nuxeo.ecm.core.api.security.SecurityConstants.READ;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.READ_VERSION;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.SYSTEM_USERNAME;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.UNSUPPORTED_ACL;
-import static org.nuxeo.ecm.core.storage.dbs.DBSDocument.KEY_ACE_GRANT;
-import static org.nuxeo.ecm.core.storage.dbs.DBSDocument.KEY_ACE_PERMISSION;
-import static org.nuxeo.ecm.core.storage.dbs.DBSDocument.KEY_ACE_PRINCIPAL;
-import static org.nuxeo.ecm.core.storage.dbs.DBSDocument.KEY_ACE_STATUS;
+import static org.nuxeo.ecm.core.api.DocumentConstants.KEY_ACE_GRANT;
+import static org.nuxeo.ecm.core.api.DocumentConstants.KEY_ACE_PERMISSION;
+import static org.nuxeo.ecm.core.api.DocumentConstants.KEY_ACE_PRINCIPAL;
+import static org.nuxeo.ecm.core.api.DocumentConstants.KEY_ACE_STATUS;
 
 import java.util.ArrayList;
 import java.util.Collection;

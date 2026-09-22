@@ -33,7 +33,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.ecm.core.api.DocumentRef;
 import org.nuxeo.ecm.core.api.IdRef;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.api.repository.FulltextConfiguration;
@@ -79,12 +78,9 @@ public class FulltextExtractionSupport implements FulltextSupport {
         }
         String text = replace0chars(textFromBlob);
         for (String docIdToUpdate : docIdsToUpdate) {
-            DocumentRef docRef = new IdRef(docIdToUpdate);
-            session.setDocumentSystemProp(docRef, SYS_FULLTEXT_BINARY,
-                    appendText(
-                            session.getBinaryFulltext(docRef),
-                            text,
-                            sizeLimit));
+            DocumentModel doc = session.getDocument(new IdRef(docIdToUpdate));
+            String currentText = (String) doc.getPropertyValue(SYS_FULLTEXT_BINARY);
+            doc.setPropertyValue(SYS_FULLTEXT_BINARY, appendText(currentText, text, sizeLimit));
         }
     }
 
