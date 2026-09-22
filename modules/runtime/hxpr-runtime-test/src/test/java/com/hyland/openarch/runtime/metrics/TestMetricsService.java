@@ -39,8 +39,8 @@ import io.dropwizard.metrics5.MetricName;
  */
 @ExtendWith(FeaturesExtension.class)
 @Features(RuntimeFeature.class)
-@Deploy("org.nuxeo.runtime.metrics")
-@Deploy("org.nuxeo.runtime.metrics:test-metrics-contrib.xml")
+@Deploy("com.hyland.openarch.runtime.metrics")
+@Deploy("com.hyland.openarch.runtime.metrics:test-metrics-contrib.xml")
 public class TestMetricsService {
 
     @Inject

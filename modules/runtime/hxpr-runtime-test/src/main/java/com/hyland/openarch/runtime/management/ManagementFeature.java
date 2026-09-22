@@ -21,7 +21,7 @@ import com.hyland.openarch.runtime.test.runner.RunnerFeature;
 import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
 
 @Deploy("com.hyland.openarch.runtime.management")
-@Deploy("org.nuxeo.runtime.metrics")
+@Deploy("com.hyland.openarch.runtime.metrics")
 @Deploy("com.hyland.openarch.runtime.management:isolated-server.xml")
 @Features(RuntimeFeature.class)
 public class ManagementFeature implements RunnerFeature {
