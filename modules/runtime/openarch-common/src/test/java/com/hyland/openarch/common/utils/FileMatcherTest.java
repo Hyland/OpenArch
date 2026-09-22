@@ -33,57 +33,57 @@ public class FileMatcherTest {
 
     @Test
     public void testMatchFilename() {
-        FileMatcher fm = FileMatcher.getMatcher("nuxeo-automation-1.2.jar");
-        assertTrue(fm.match("nuxeo-automation-1.2.jar"));
-        assertFalse(fm.match("nuxeo-automation-3.4.zip"));
+        FileMatcher fm = FileMatcher.getMatcher("test-automation-1.2.jar");
+        assertTrue(fm.match("test-automation-1.2.jar"));
+        assertFalse(fm.match("test-automation-3.4.zip"));
         assertNull(fm.getKey());
         assertNull(fm.getValue());
     }
 
     @Test
     public void testMatchFilenameWithPatternOnVersion() {
-        FileMatcher fm = FileMatcher.getMatcher("nuxeo-automation-{v:.+}.jar");
-        assertTrue(fm.match("nuxeo-automation-1.2.jar"));
+        FileMatcher fm = FileMatcher.getMatcher("test-automation-{v:.+}.jar");
+        assertTrue(fm.match("test-automation-1.2.jar"));
         assertEquals("v", fm.getKey(), "Key not extracted");
         assertEquals("1.2", fm.getValue(), "Value not extracted");
     }
 
     @Test
     public void testMatchFilenameWithPatternOnVersionAndExtension() {
-        FileMatcher fm = FileMatcher.getMatcher("nuxeo-automation-{v:.+}");
-        assertTrue(fm.match("nuxeo-automation-1.2.jar"));
+        FileMatcher fm = FileMatcher.getMatcher("test-automation-{v:.+}");
+        assertTrue(fm.match("test-automation-1.2.jar"));
         assertEquals("1.2.jar", fm.getValue(), "Value not extracted");
     }
 
     @Test
     public void testMatchFilenameWithPatternOnNameAndFixedExtension() {
         FileMatcher fm = FileMatcher.getMatcher("{v:.+}.jar");
-        assertTrue(fm.match("nuxeo-automation-1.2.jar"));
-        assertEquals("nuxeo-automation-1.2", fm.getValue(), "Value not extracted");
+        assertTrue(fm.match("test-automation-1.2.jar"));
+        assertEquals("test-automation-1.2", fm.getValue(), "Value not extracted");
     }
 
     @Test
     public void testMatchFilenameWithWholePattern() {
         FileMatcher fm = FileMatcher.getMatcher("{v:.+}");
-        assertTrue(fm.match("nuxeo-automation-1.2.jar"));
-        assertEquals( "nuxeo-automation-1.2.jar", fm.getValue(), "Value not extracted");
+        assertTrue(fm.match("test-automation-1.2.jar"));
+        assertEquals( "test-automation-1.2.jar", fm.getValue(), "Value not extracted");
     }
 
     @Test
     public void testMatchFilenameWithNameAndVersion() {
         FileMatcher fm = FileMatcher.getMatcher("{n:.*-}[0-9]+.*\\.jar");
-        assertTrue(fm.match("nuxeo-automation-5.5-SNAPSHOT.jar"));
-        assertEquals("nuxeo-automation-", fm.getValue(), "Value not extracted");
-        assertTrue(fm.match("nuxeo-automation-5.5.jar"));
-        assertEquals("nuxeo-automation-", fm.getValue(), "Value not extracted");
+        assertTrue(fm.match("test-automation-5.5-SNAPSHOT.jar"));
+        assertEquals("test-automation-", fm.getValue(), "Value not extracted");
+        assertTrue(fm.match("test-automation-5.5.jar"));
+        assertEquals("test-automation-", fm.getValue(), "Value not extracted");
     }
 
     @Test
     public void testMatchWithFilenameAndVersionPattern() {
-        FileMatcher fm = FileMatcher.getMatcher("nuxeo-automation-" + "{v:[0-9]+.*}\\.jar");
-        assertTrue(fm.match("nuxeo-automation-5.5-SNAPSHOT.jar"));
+        FileMatcher fm = FileMatcher.getMatcher("test-automation-" + "{v:[0-9]+.*}\\.jar");
+        assertTrue(fm.match("test-automation-5.5-SNAPSHOT.jar"));
         assertEquals("5.5-SNAPSHOT", fm.getValue(), "Value not extracted");
-        assertTrue(fm.match("nuxeo-automation-5.5.jar"));
+        assertTrue(fm.match("test-automation-5.5.jar"));
         assertEquals("5.5", fm.getValue(), "Value not extracted");
     }
 
@@ -91,13 +91,13 @@ public class FileMatcherTest {
     public void testWithPrecompiledPattern() {
         Pattern pattern = Pattern.compile("");
         FileMatcher fm = new FileMatcher(pattern, "key");
-        assertFalse(fm.match("nuxeo-automation-1.2.jar"));
+        assertFalse(fm.match("test-automation-1.2.jar"));
         assertEquals(pattern, fm.getPattern());
     }
 
     @Test
     public void testMatchWithFileReference() {
-        File testFile = new File("./nuxeo-common/src/test/resources/test-resource-1.xml");
+        File testFile = new File("./openarch-common/src/test/resources/test-resource-1.xml");
         FileMatcher fm = FileMatcher.getMatcher(testFile);
         assertTrue(fm.match("test-resource-1.xml"));
         assertFalse(fm.match("test-resource-2.zip"));

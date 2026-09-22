@@ -42,7 +42,7 @@ public class TestIdUtils {
     @Test
     public void testGenerateIdMaxChars() {
         // testing max chars
-        String s = "On rails Nuxeooooo 5 is for a loooooooooooooooooooooooooooong time";
+        String s = "the quick brown fox jumps over the lazy dog";
         // With max_chars = 0 the length of the generated ID should be the same
         // than this of the input.
         assertEquals(s.replace(" ", "-"), IdUtils.generateId(s, "-", false, 0));

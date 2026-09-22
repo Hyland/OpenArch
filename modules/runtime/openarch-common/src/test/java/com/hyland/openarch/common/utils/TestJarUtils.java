@@ -58,7 +58,7 @@ public class TestJarUtils {
         Attributes mainAttributes = manifest.getMainAttributes();
         assertNotNull(mainAttributes);
         assertEquals("1.0", mainAttributes.getValue("Manifest-Version"));
-        assertEquals("Nuxeo JarUtils test", mainAttributes.getValue("Bundle-Name"));
+        assertEquals("OpenArch JarUtils test", mainAttributes.getValue("Bundle-Name"));
         assertEquals("2", mainAttributes.getValue("Bundle-ManifestVersion"));
         assertEquals("com.hyland.openarch.common.jarutils.test;singleton:=true", mainAttributes.getValue("Bundle-SymbolicName"));
     }

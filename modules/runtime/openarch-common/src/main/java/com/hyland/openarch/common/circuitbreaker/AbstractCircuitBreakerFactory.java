@@ -33,7 +33,7 @@ import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
  * directly (as opposed to the {@code @CircuitBreaker} annotation, e.g. as used by
  * {@code com.hyland.hxpr.cfs.evstore.client.EVStoreClientImpl}): {@code @CircuitBreaker} only takes effect on
  * beans invoked through a Spring AOP proxy, while subclasses of this class are typically built directly with
- * {@code new} by the Nuxeo OSGi runtime, so no Spring proxy is ever involved.
+ * {@code new} by the OpenArch OSGi runtime, so no Spring proxy is ever involved.
  *
  * @since 12.0
  */

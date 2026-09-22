@@ -11,10 +11,10 @@ Export-Package: com.hyland.openarch.common,
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
 Manifest-Version: 1.0
-Bundle-Name: Nuxeo Common
+Bundle-Name: OpenArch Common
 Created-By: 1.6.0_20 (Sun Microsystems Inc.)
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Bundle-Vendor: Nuxeo
+Bundle-Vendor: OpenArch
 Bundle-Version: 5.4.2.qualifier
 Eclipse-BuddyPolicy: registered
 Bundle-ManifestVersion: 2

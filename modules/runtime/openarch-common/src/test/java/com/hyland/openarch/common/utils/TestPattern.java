@@ -101,11 +101,11 @@ public class TestPattern {
         assertTrue(pattern.match(".jar"));
         assertFalse(pattern.match("abc-jar"));
 
-        pattern = new FileNamePattern("nuxeo?*common*.jar");
-        assertTrue(pattern.match("nuxeo-common.jar"));
-        assertTrue(pattern.match("nuxeo--common.jar"));
-        assertTrue(pattern.match("nuxeo-common-SNAPSHOT-1.0.jar"));
-        assertFalse(pattern.match("nuxeocommon.jar"));
+        pattern = new FileNamePattern("openarch?*common*.jar");
+        assertTrue(pattern.match("openarch-common.jar"));
+        assertTrue(pattern.match("openarch--common.jar"));
+        assertTrue(pattern.match("openarch-common-SNAPSHOT-1.0.jar"));
+        assertFalse(pattern.match("openarchcommon.jar"));
 
         pattern = new FileNamePattern("???*");
         assertTrue(pattern.match("abcdef"));
