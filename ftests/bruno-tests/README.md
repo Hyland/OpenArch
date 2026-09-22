@@ -62,7 +62,7 @@ Make sure the HxPR Community application is running and accessible at `http://lo
 docker run --rm -d -p 8080:8080 --name=HXPR_COMMUNITY_APP \
   -e NUXEO_MONGODB_SERVER=localhost:27017 \
   -e NUXEO_DATA_DIR=/tmp \
-  ghcr.io/hylandsoftware/hxpr-community-internal-app:<version>
+  ghcr.io/hyland/openarch-app-jvm:<version>
 ```
 
 ### Run the full collection

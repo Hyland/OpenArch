@@ -66,17 +66,17 @@ The `Continuous Integration` workflow (`.github/workflows/continuous_integration
 1. Compiles the project with Maven.
 2. On push to `main`, runs the Maven release (`_ci/release.sh`) to produce a released version, tag the repository and publish the artifacts to the Hyland Nexus / GitHub Packages repository.
 3. Starts the docker-compose stack and runs the server build/tests against MongoDB.
-4. Builds a multi-architecture (`linux/amd64`, `linux/arm64`) Docker image for `hxpr-community-internal-app-jvm` and publishes it to `ghcr.io/hylandsoftware/`.
+4. Builds a multi-architecture (`linux/amd64`, `linux/arm64`) Docker image for `openarch-app-jvm` and publishes it to `ghcr.io/hyland/`.
 
 The version used for the Docker tag and for `org.nuxeo.ecm.product.version` is derived from the `pom.xml` version (with `-SNAPSHOT` stripped on release builds), so it always matches the version produced by `_ci/release.sh`.
 
 ## Running the Docker image
 
-After running the `docker compose up -d` command, you can run the application in a Docker container with (version 0.0.62 for this example):
+After running the `docker compose up -d` command, you can run the application in a Docker container with (version 1.0.0 for this example):
 
 ```shell
 docker run --rm -d -p 8080:8080 --name=HXPR_APP --network="host" \
   -e NUXEO_MONGODB_SERVER=localhost:27017 \
   -e NUXEO_DATA_DIR=/tmp \
-  ghcr.io/hylandsoftware/hxpr-community-internal-app-jvm:0.0.62
+  ghcr.io/hyland/openarch-app-jvm:1.0.0
 ```

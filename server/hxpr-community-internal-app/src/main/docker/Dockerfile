@@ -7,18 +7,18 @@
 #
 # Then, build the image with:
 #
-# docker build -f src/main/docker/Dockerfile -t hyland/hxpr-community-internal-app-jvm .
+# docker build -f src/main/docker/Dockerfile -t hyland/openarch-app-jvm .
 #
 # Then run the container using:
 #
-# docker run -i --rm -p 8080:8080 hyland/hxpr-community-internal-app-jvm
+# docker run -i --rm -p 8080:8080 hyland/openarch-app-jvm
 #
 # If you want to include the debug port into your docker image
 # you will have to expose the debug port (default 5005) like this :  EXPOSE 8080 5005
 #
 # Then run the container using :
 #
-# docker run -i --rm -p 8080:8080 -p 5005:5005 -e JAVA_ENABLE_DEBUG="true" hyland/hxpr-community-internal-app-jvm
+# docker run -i --rm -p 8080:8080 -p 5005:5005 -e JAVA_ENABLE_DEBUG="true" hyland/openarch-app-jvm
 #
 # For current base image, see also: https://hub.docker.com/_/alpine/tags
 #

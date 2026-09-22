@@ -15,7 +15,7 @@ permissions:
   contents: read
   packages: write
 env:
-  IMAGE_NAME: hxpr-community-internal-app-jvm
+  IMAGE_NAME: openarch-app-jvm
 
 jobs:
   prepare_build:

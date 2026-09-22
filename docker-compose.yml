@@ -3,7 +3,7 @@ include:
 
 services:
   hxpr-app:
-    image: ghcr.io/hyland/hxpr-community-internal-app-jvm:${HXPR_VERSION}
+    image: ghcr.io/hyland/openarch-app-jvm:${HXPR_VERSION}
     depends_on:
       opensearch:
         condition: service_healthy
