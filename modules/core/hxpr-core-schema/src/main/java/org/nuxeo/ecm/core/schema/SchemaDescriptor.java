@@ -19,8 +19,8 @@ package org.nuxeo.ecm.core.schema;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.nuxeo.common.xmap.annotation.XNode;
-import org.nuxeo.common.xmap.annotation.XObject;
+import com.hyland.openarch.common.xmap.annotation.XNode;
+import com.hyland.openarch.common.xmap.annotation.XObject;
 
 /**
  * Descriptor for a reference to a schema from a document type or a mixin.

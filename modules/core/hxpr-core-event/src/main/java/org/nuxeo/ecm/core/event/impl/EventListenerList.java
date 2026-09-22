@@ -22,9 +22,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.nuxeo.common.xmap.Context;
-import org.nuxeo.common.xmap.XAnnotatedObject;
-import org.nuxeo.common.xmap.registry.MapRegistry;
+import com.hyland.openarch.common.xmap.Context;
+import com.hyland.openarch.common.xmap.XAnnotatedObject;
+import com.hyland.openarch.common.xmap.registry.MapRegistry;
 import org.nuxeo.ecm.core.event.EventListener;
 import org.nuxeo.ecm.core.event.PostCommitEventListener;
 import org.nuxeo.runtime.RuntimeMessage;

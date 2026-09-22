@@ -29,8 +29,8 @@ import java.util.jar.Manifest;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.nuxeo.common.Environment;
-import org.nuxeo.common.utils.StringUtils;
+import com.hyland.openarch.common.Environment;
+import com.hyland.openarch.common.utils.StringUtils;
 import org.nuxeo.osgi.BundleFile;
 import org.nuxeo.osgi.BundleImpl;
 import org.nuxeo.osgi.DirectoryBundleFile;

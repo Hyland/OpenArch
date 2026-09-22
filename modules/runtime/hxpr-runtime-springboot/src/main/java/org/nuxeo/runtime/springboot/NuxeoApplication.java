@@ -15,13 +15,14 @@
  */
 package org.nuxeo.runtime.springboot;
 
-import static org.nuxeo.common.Environment.NUXEO_CONFIG_DIR;
-import static org.nuxeo.common.Environment.NUXEO_DATA_DIR;
-import static org.nuxeo.common.Environment.NUXEO_HOME;
-import static org.nuxeo.common.Environment.NUXEO_LOG_DIR;
-import static org.nuxeo.common.Environment.NUXEO_RUNTIME_HOME;
-import static org.nuxeo.common.Environment.NUXEO_TMP_DIR;
+import static com.hyland.openarch.common.Environment.NUXEO_CONFIG_DIR;
+import static com.hyland.openarch.common.Environment.NUXEO_DATA_DIR;
+import static com.hyland.openarch.common.Environment.NUXEO_HOME;
+import static com.hyland.openarch.common.Environment.NUXEO_LOG_DIR;
+import static com.hyland.openarch.common.Environment.NUXEO_RUNTIME_HOME;
+import static com.hyland.openarch.common.Environment.NUXEO_TMP_DIR;
 
+import com.hyland.openarch.common.Environment;
 import jakarta.annotation.PreDestroy;
 
 import java.io.File;
@@ -109,7 +110,7 @@ public class NuxeoApplication {
             Map<String, String> nxConfEnv = buildNuxeoConfEnv(env);
 
             String homePath = (String) nxHostEnv.get(NUXEO_RUNTIME_HOME);
-            System.setProperty(org.nuxeo.common.Environment.NUXEO_HOME, (String) nxHostEnv.get(NUXEO_RUNTIME_HOME));
+            System.setProperty(Environment.NUXEO_HOME, (String) nxHostEnv.get(NUXEO_RUNTIME_HOME));
             File home = new File(homePath);
 
             Properties sysprops = System.getProperties();

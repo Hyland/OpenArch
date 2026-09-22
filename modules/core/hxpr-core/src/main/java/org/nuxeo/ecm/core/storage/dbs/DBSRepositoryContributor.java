@@ -16,12 +16,12 @@
 package org.nuxeo.ecm.core.storage.dbs;
 
 import org.apache.xerces.dom.DocumentImpl;
-import org.nuxeo.common.xmap.XAnnotatedObject;
-import org.nuxeo.common.xmap.XMap;
-import org.nuxeo.common.xmap.annotation.XNode;
-import org.nuxeo.common.xmap.annotation.XObject;
-import org.nuxeo.common.xmap.registry.XRegistry;
-import org.nuxeo.common.xmap.registry.XRegistryId;
+import com.hyland.openarch.common.xmap.XAnnotatedObject;
+import com.hyland.openarch.common.xmap.XMap;
+import com.hyland.openarch.common.xmap.annotation.XNode;
+import com.hyland.openarch.common.xmap.annotation.XObject;
+import com.hyland.openarch.common.xmap.registry.XRegistry;
+import com.hyland.openarch.common.xmap.registry.XRegistryId;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

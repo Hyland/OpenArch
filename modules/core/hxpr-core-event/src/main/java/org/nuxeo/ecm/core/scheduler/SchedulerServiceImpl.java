@@ -31,7 +31,7 @@ import java.util.TimeZone;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.nuxeo.common.utils.DurationUtils;
+import com.hyland.openarch.common.utils.DurationUtils;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.cluster.ClusterService;

@@ -15,7 +15,7 @@
  */
 package org.nuxeo.ecm.core.event.raiser;
 
-import org.nuxeo.common.xmap.registry.MapRegistry;
+import com.hyland.openarch.common.xmap.registry.MapRegistry;
 
 /**
  * Registry for the {@code raisers} extension point of the document event raiser service. Keeps the

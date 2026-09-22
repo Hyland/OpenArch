@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.nuxeo.common.resilience.Resilience4jRegistries;
+import com.hyland.openarch.common.resilience.Resilience4jRegistries;
 import org.opensearch.client.transport.httpclient5.ResponseException;
 
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;

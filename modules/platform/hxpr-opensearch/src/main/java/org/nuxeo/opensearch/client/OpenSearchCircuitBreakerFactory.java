@@ -15,7 +15,7 @@
  */
 package org.nuxeo.opensearch.client;
 
-import org.nuxeo.common.circuitbreaker.AbstractCircuitBreakerFactory;
+import com.hyland.openarch.common.circuitbreaker.AbstractCircuitBreakerFactory;
 
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;

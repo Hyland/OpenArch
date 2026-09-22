@@ -18,12 +18,12 @@ package org.nuxeo.ecm.core.schema;
 
 import java.io.File;
 
-import org.nuxeo.common.xmap.Resource;
-import org.nuxeo.common.xmap.annotation.XNode;
-import org.nuxeo.common.xmap.annotation.XObject;
-import org.nuxeo.common.xmap.registry.XEnable;
-import org.nuxeo.common.xmap.registry.XRegistry;
-import org.nuxeo.common.xmap.registry.XRegistryId;
+import com.hyland.openarch.common.xmap.Resource;
+import com.hyland.openarch.common.xmap.annotation.XNode;
+import com.hyland.openarch.common.xmap.annotation.XObject;
+import com.hyland.openarch.common.xmap.registry.XEnable;
+import com.hyland.openarch.common.xmap.registry.XRegistry;
+import com.hyland.openarch.common.xmap.registry.XRegistryId;
 
 /**
  * @author <a href="mailto:bs@nuxeo.com">Bogdan Stefanescu</a>

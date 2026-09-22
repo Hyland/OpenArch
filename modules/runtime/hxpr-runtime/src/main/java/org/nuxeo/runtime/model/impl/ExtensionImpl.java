@@ -19,10 +19,10 @@ package org.nuxeo.runtime.model.impl;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.nuxeo.common.xmap.DOMSerializer;
-import org.nuxeo.common.xmap.annotation.XContent;
-import org.nuxeo.common.xmap.annotation.XNode;
-import org.nuxeo.common.xmap.annotation.XObject;
+import com.hyland.openarch.common.xmap.DOMSerializer;
+import com.hyland.openarch.common.xmap.annotation.XContent;
+import com.hyland.openarch.common.xmap.annotation.XNode;
+import com.hyland.openarch.common.xmap.annotation.XObject;
 import org.nuxeo.runtime.model.ComponentInstance;
 import org.nuxeo.runtime.model.Extension;
 import org.nuxeo.runtime.model.RuntimeContext;

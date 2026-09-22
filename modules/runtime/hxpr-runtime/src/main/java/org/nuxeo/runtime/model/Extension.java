@@ -16,6 +16,7 @@
 
 package org.nuxeo.runtime.model;
 
+import com.hyland.openarch.common.xmap.XMap;
 import org.w3c.dom.Element;
 
 /**
@@ -24,7 +25,7 @@ import org.w3c.dom.Element;
  * Extension objects holds extension data as a DOM element.
  * <p>
  * This data can be used by the extension point to extract contribution objects by using
- * {@link org.nuxeo.common.xmap.XMap} XML mapping engine.
+ * {@link XMap} XML mapping engine.
  *
  * @author <a href="mailto:bs@nuxeo.com">Bogdan Stefanescu</a>
  */

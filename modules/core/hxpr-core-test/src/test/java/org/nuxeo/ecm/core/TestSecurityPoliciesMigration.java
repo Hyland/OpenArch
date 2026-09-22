@@ -25,7 +25,7 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.nuxeo.common.utils.FileUtils;
+import com.hyland.openarch.common.utils.FileUtils;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.security.SecurityPolicyService;
 import org.nuxeo.ecm.core.security.SecurityService;
@@ -41,7 +41,6 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import java.io.File;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
-import java.util.List;
 import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.UTF_8;

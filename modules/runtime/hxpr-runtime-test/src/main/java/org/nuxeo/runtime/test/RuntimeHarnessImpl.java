@@ -36,7 +36,7 @@ import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.nuxeo.common.Environment;
+import com.hyland.openarch.common.Environment;
 import org.nuxeo.osgi.BundleFile;
 import org.nuxeo.osgi.DirectoryBundleFile;
 import org.nuxeo.osgi.JarBundleFile;

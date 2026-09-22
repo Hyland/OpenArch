@@ -28,7 +28,7 @@ import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.nuxeo.common.xmap.XMap;
+import com.hyland.openarch.common.xmap.XMap;
 import org.nuxeo.runtime.RuntimeService;
 import org.nuxeo.runtime.RuntimeServiceException;
 import org.nuxeo.runtime.api.Framework;

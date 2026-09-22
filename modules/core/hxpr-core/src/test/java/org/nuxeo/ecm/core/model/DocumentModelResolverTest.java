@@ -31,7 +31,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
-import org.nuxeo.common.utils.Path;
+import com.hyland.openarch.common.utils.Path;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.model.DocumentModelResolver.MODE;
 import org.nuxeo.ecm.core.model.DocumentModelResolver.REF;

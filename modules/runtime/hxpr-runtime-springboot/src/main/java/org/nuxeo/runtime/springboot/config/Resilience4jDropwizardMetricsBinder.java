@@ -39,7 +39,7 @@ import io.dropwizard.metrics5.Gauge;
 import io.dropwizard.metrics5.MetricName;
 import io.dropwizard.metrics5.MetricRegistry;
 
-import org.nuxeo.common.resilience.Resilience4jRegistries;
+import com.hyland.openarch.common.resilience.Resilience4jRegistries;
 
 /**
  * Binds resilience4j registries into HxPR's shared Dropwizard 5 registry.

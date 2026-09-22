@@ -18,9 +18,9 @@ package org.nuxeo.ecm.core.schema;
 import java.util.Map;
 import java.util.Set;
 
-import org.nuxeo.common.xmap.Context;
-import org.nuxeo.common.xmap.XAnnotatedObject;
-import org.nuxeo.common.xmap.registry.Registry;
+import com.hyland.openarch.common.xmap.Context;
+import com.hyland.openarch.common.xmap.XAnnotatedObject;
+import com.hyland.openarch.common.xmap.registry.Registry;
 import org.w3c.dom.Element;
 
 /**

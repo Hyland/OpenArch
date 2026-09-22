@@ -18,11 +18,11 @@ package org.nuxeo.ecm.core.blob;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.nuxeo.common.xmap.annotation.XNode;
-import org.nuxeo.common.xmap.annotation.XNodeMap;
-import org.nuxeo.common.xmap.annotation.XObject;
-import org.nuxeo.common.xmap.registry.XRegistry;
-import org.nuxeo.common.xmap.registry.XRegistryId;
+import com.hyland.openarch.common.xmap.annotation.XNode;
+import com.hyland.openarch.common.xmap.annotation.XNodeMap;
+import com.hyland.openarch.common.xmap.annotation.XObject;
+import com.hyland.openarch.common.xmap.registry.XRegistry;
+import com.hyland.openarch.common.xmap.registry.XRegistryId;
 
 /**
  * Descriptor for a {@link BlobProvider}.

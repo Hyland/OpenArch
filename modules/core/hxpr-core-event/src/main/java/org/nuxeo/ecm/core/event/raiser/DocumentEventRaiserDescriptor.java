@@ -17,10 +17,10 @@ package org.nuxeo.ecm.core.event.raiser;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.nuxeo.common.xmap.annotation.XNode;
-import org.nuxeo.common.xmap.annotation.XObject;
-import org.nuxeo.common.xmap.registry.XRegistry;
-import org.nuxeo.common.xmap.registry.XRegistryId;
+import com.hyland.openarch.common.xmap.annotation.XNode;
+import com.hyland.openarch.common.xmap.annotation.XObject;
+import com.hyland.openarch.common.xmap.registry.XRegistry;
+import com.hyland.openarch.common.xmap.registry.XRegistryId;
 
 /**
  * XMap descriptor for the {@code raisers} extension point.

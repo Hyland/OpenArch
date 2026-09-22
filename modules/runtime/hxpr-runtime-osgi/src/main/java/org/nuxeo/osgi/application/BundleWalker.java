@@ -28,8 +28,8 @@ import java.util.jar.Manifest;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.nuxeo.common.utils.FileNamePattern;
-import org.nuxeo.common.utils.JarUtils;
+import com.hyland.openarch.common.utils.FileNamePattern;
+import com.hyland.openarch.common.utils.JarUtils;
 import org.nuxeo.osgi.BundleFile;
 import org.nuxeo.osgi.DirectoryBundleFile;
 import org.nuxeo.osgi.JarBundleFile;

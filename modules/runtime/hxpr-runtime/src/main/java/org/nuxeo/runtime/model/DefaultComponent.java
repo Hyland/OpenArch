@@ -21,9 +21,9 @@ import static java.util.Objects.requireNonNull;
 import java.util.List;
 import java.util.Optional;
 
-import org.nuxeo.common.xmap.registry.MapRegistry;
-import org.nuxeo.common.xmap.registry.Registry;
-import org.nuxeo.common.xmap.registry.SingleRegistry;
+import com.hyland.openarch.common.xmap.registry.MapRegistry;
+import com.hyland.openarch.common.xmap.registry.Registry;
+import com.hyland.openarch.common.xmap.registry.SingleRegistry;
 import org.nuxeo.runtime.RuntimeMessage;
 import org.nuxeo.runtime.RuntimeMessage.Level;
 import org.nuxeo.runtime.RuntimeMessage.Source;

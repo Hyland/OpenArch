@@ -27,8 +27,7 @@ import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.nuxeo.common.utils.JarUtils;
-import org.nuxeo.common.utils.StringUtils;
+import com.hyland.openarch.common.utils.JarUtils;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 

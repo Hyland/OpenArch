@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.opentest4j.TestAbortedException;
-import org.nuxeo.common.function.ThrowableConsumer;
+import com.hyland.openarch.common.function.ThrowableConsumer;
 import org.nuxeo.runtime.RuntimeServiceException;
 
 import com.google.inject.Module;

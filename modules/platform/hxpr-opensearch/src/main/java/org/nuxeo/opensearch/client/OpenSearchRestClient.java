@@ -35,7 +35,7 @@ import jakarta.json.stream.JsonGenerator;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.nuxeo.common.function.ThrowableSupplier;
+import com.hyland.openarch.common.function.ThrowableSupplier;
 import org.nuxeo.ecm.core.api.ConcurrentUpdateException;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.opensearch.api.OpenSearchIndexStoreStats;

@@ -20,7 +20,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.nuxeo.common.xmap.registry.SingleRegistry;
+import com.hyland.openarch.common.xmap.registry.SingleRegistry;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.model.DefaultComponent;

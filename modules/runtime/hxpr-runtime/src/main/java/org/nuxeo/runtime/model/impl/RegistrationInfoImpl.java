@@ -24,10 +24,10 @@ import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.nuxeo.common.xmap.annotation.XNode;
-import org.nuxeo.common.xmap.annotation.XNodeList;
-import org.nuxeo.common.xmap.annotation.XNodeMap;
-import org.nuxeo.common.xmap.annotation.XObject;
+import com.hyland.openarch.common.xmap.annotation.XNode;
+import com.hyland.openarch.common.xmap.annotation.XNodeList;
+import com.hyland.openarch.common.xmap.annotation.XNodeMap;
+import com.hyland.openarch.common.xmap.annotation.XObject;
 import org.nuxeo.runtime.RuntimeMessage;
 import org.nuxeo.runtime.RuntimeMessage.Level;
 import org.nuxeo.runtime.RuntimeMessage.Source;

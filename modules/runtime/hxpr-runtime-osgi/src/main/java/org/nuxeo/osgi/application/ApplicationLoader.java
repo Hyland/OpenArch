@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
-import org.nuxeo.common.utils.FileNamePattern;
 import org.nuxeo.osgi.BundleFile;
 import org.nuxeo.osgi.NestedJarBundleFile;
 import org.nuxeo.osgi.OSGiAdapter;

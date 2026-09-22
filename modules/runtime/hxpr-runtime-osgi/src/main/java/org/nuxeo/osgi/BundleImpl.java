@@ -25,7 +25,7 @@ import java.util.Enumeration;
 import java.util.Map;
 import java.util.jar.Manifest;
 
-import org.nuxeo.common.utils.ExceptionUtils;
+import com.hyland.openarch.common.utils.ExceptionUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;

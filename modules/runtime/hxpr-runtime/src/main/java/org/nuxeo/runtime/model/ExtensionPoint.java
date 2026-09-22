@@ -16,7 +16,7 @@
 
 package org.nuxeo.runtime.model;
 
-import org.nuxeo.common.xmap.XMap;
+import com.hyland.openarch.common.xmap.XMap;
 
 /**
  * A component extension point.

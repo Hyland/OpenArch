@@ -17,7 +17,7 @@
   <dependencies>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-common</artifactId>
+      <artifactId>openarch-common</artifactId>
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>

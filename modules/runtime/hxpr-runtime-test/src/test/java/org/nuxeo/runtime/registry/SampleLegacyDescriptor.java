@@ -15,7 +15,7 @@
  */
 package org.nuxeo.runtime.registry;
 
-import org.nuxeo.common.xmap.annotation.XObject;
+import com.hyland.openarch.common.xmap.annotation.XObject;
 
 /**
  * @since 11.5

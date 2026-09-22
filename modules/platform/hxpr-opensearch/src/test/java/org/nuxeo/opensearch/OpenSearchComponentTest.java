@@ -118,9 +118,9 @@ class OpenSearchComponentTest {
         OpenSearchRestClient client = (OpenSearchRestClient) openSearchService.getClient();
         var indexRepo = openSearchService.getIndexNameForRepository(session.getRepositoryName());
         client.deleteIndex(indexRepo, TIMEOUT_DELETE_SECOND);
-        File mappingJsonFile = org.nuxeo.common.utils.FileUtils.getResourceFileFromContext("test-mapping.json");
+        File mappingJsonFile = com.hyland.openarch.common.utils.FileUtils.getResourceFileFromContext("test-mapping.json");
         var mappingJson = FileUtils.readFileToString(mappingJsonFile, StandardCharsets.UTF_8);
-        File settingsJsonFile = org.nuxeo.common.utils.FileUtils.getResourceFileFromContext("test-settings.json");
+        File settingsJsonFile = com.hyland.openarch.common.utils.FileUtils.getResourceFileFromContext("test-settings.json");
         var settingsJson = FileUtils.readFileToString(settingsJsonFile, StandardCharsets.UTF_8);
         client.createIndex(indexRepo, settingsJson);
         client.createMapping(indexRepo, "doc", mappingJson);
@@ -156,7 +156,7 @@ class OpenSearchComponentTest {
         OpenSearchRestClient client = (OpenSearchRestClient) openSearchService.getClient();
         var indexRepo = openSearchService.getIndexNameForRepository(session.getRepositoryName());
         client.deleteIndex(indexRepo, TIMEOUT_DELETE_SECOND);
-        File settingsJsonFile = org.nuxeo.common.utils.FileUtils.getResourceFileFromContext("test-settings.json");
+        File settingsJsonFile = com.hyland.openarch.common.utils.FileUtils.getResourceFileFromContext("test-settings.json");
         var settingsJson = FileUtils.readFileToString(settingsJsonFile, StandardCharsets.UTF_8);
         client.createIndex(indexRepo, settingsJson);
         JsonNode createIndexSettings = getApiResponse(client, indexRepo, "settings");
@@ -172,7 +172,7 @@ class OpenSearchComponentTest {
         assertThat(totalFieldsLimit).isEqualTo("1000");
 
         // update the index with opensearch dynamic settings
-        File dynamicSettingsJsonFile = org.nuxeo.common.utils.FileUtils.getResourceFileFromContext(
+        File dynamicSettingsJsonFile = com.hyland.openarch.common.utils.FileUtils.getResourceFileFromContext(
                 "test-dynamic-settings.json");
         var dynamicSettingsJson = FileUtils.readFileToString(dynamicSettingsJsonFile, StandardCharsets.UTF_8);
         client.updateIndexDynamicSettings(indexRepo, dynamicSettingsJson);
@@ -210,7 +210,7 @@ class OpenSearchComponentTest {
         OpenSearchRestClient client = (OpenSearchRestClient) openSearchService.getClient();
         var indexRepo = openSearchService.getIndexNameForRepository(session.getRepositoryName());
         client.deleteIndex(indexRepo, TIMEOUT_DELETE_SECOND);
-        File settingsJsonFile = org.nuxeo.common.utils.FileUtils.getResourceFileFromContext("test-settings.json");
+        File settingsJsonFile = com.hyland.openarch.common.utils.FileUtils.getResourceFileFromContext("test-settings.json");
         var settingsJson = FileUtils.readFileToString(settingsJsonFile, StandardCharsets.UTF_8);
         client.createIndex(indexRepo, settingsJson);
         JsonNode createIndexSettings = getApiResponse(client, indexRepo, "settings");

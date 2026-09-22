@@ -16,8 +16,8 @@
 
 package org.nuxeo.runtime.model;
 
-import org.nuxeo.common.xmap.annotation.XNode;
-import org.nuxeo.common.xmap.annotation.XObject;
+import com.hyland.openarch.common.xmap.annotation.XNode;
+import com.hyland.openarch.common.xmap.annotation.XObject;
 
 /**
  * @author Bogdan Stefanescu

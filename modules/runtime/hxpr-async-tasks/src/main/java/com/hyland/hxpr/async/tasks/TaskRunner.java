@@ -15,7 +15,7 @@
  */
 package com.hyland.hxpr.async.tasks;
 
-import org.nuxeo.common.utils.TooLargeException;
+import com.hyland.openarch.common.utils.TooLargeException;
 
 import com.hyland.hxpr.async.tasks.message.Task;
 

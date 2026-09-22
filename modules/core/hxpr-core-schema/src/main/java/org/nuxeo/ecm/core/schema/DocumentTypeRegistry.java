@@ -19,9 +19,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.nuxeo.common.xmap.Context;
-import org.nuxeo.common.xmap.XAnnotatedObject;
-import org.nuxeo.common.xmap.registry.MapRegistry;
+import com.hyland.openarch.common.xmap.Context;
+import com.hyland.openarch.common.xmap.XAnnotatedObject;
+import com.hyland.openarch.common.xmap.registry.MapRegistry;
 import org.w3c.dom.Element;
 
 /**

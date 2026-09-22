@@ -17,10 +17,10 @@ package org.nuxeo.runtime;
 
 import java.util.Optional;
 
-import org.nuxeo.common.xmap.Context;
-import org.nuxeo.common.xmap.XAnnotatedObject;
-import org.nuxeo.common.xmap.registry.AbstractRegistry;
-import org.nuxeo.common.xmap.registry.Registry;
+import com.hyland.openarch.common.xmap.Context;
+import com.hyland.openarch.common.xmap.XAnnotatedObject;
+import com.hyland.openarch.common.xmap.registry.AbstractRegistry;
+import com.hyland.openarch.common.xmap.registry.Registry;
 import org.nuxeo.runtime.api.Framework;
 import org.w3c.dom.Element;
 

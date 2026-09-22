@@ -26,7 +26,7 @@ import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.nuxeo.common.Environment;
+import com.hyland.openarch.common.Environment;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesExtension;
 import org.nuxeo.runtime.test.runner.RuntimeFeature;

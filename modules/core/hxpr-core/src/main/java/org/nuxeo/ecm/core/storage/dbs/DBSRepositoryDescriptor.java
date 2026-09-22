@@ -15,8 +15,8 @@
  */
 package org.nuxeo.ecm.core.storage.dbs;
 
-import org.nuxeo.common.xmap.annotation.XNode;
-import org.nuxeo.common.xmap.registry.XRegistryId;
+import com.hyland.openarch.common.xmap.annotation.XNode;
+import com.hyland.openarch.common.xmap.registry.XRegistryId;
 import org.nuxeo.ecm.core.api.repository.PoolConfiguration;
 
 /**

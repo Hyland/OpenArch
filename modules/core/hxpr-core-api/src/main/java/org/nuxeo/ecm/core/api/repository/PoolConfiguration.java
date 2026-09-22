@@ -15,8 +15,8 @@
  */
 package org.nuxeo.ecm.core.api.repository;
 
-import org.nuxeo.common.xmap.annotation.XNode;
-import org.nuxeo.common.xmap.annotation.XObject;
+import com.hyland.openarch.common.xmap.annotation.XNode;
+import com.hyland.openarch.common.xmap.annotation.XObject;
 
 /**
  * Descriptor of the pool of low-level Nuxeo Sessions.

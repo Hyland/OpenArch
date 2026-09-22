@@ -18,7 +18,7 @@ package org.nuxeo.runtime.model.impl;
 
 import java.net.URL;
 
-import org.nuxeo.common.xmap.Context;
+import com.hyland.openarch.common.xmap.Context;
 import org.nuxeo.runtime.model.RuntimeContext;
 
 /**

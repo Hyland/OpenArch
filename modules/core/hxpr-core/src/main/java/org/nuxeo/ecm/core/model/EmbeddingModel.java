@@ -15,7 +15,7 @@
  */
 package org.nuxeo.ecm.core.model;
 
-import static org.nuxeo.common.utils.IdUtils.isValidUUID;
+import static com.hyland.openarch.common.utils.IdUtils.isValidUUID;
 
 import java.util.ArrayList;
 import java.util.List;

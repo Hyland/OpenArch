@@ -48,12 +48,12 @@ import java.util.stream.Stream;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.nuxeo.common.Environment;
-import org.nuxeo.common.xmap.Context;
-import org.nuxeo.common.xmap.XMap;
-import org.nuxeo.common.xmap.XMapException;
-import org.nuxeo.common.xmap.registry.NullRegistry;
-import org.nuxeo.common.xmap.registry.Registry;
+import com.hyland.openarch.common.Environment;
+import com.hyland.openarch.common.xmap.Context;
+import com.hyland.openarch.common.xmap.XMap;
+import com.hyland.openarch.common.xmap.XMapException;
+import com.hyland.openarch.common.xmap.registry.NullRegistry;
+import com.hyland.openarch.common.xmap.registry.Registry;
 import org.nuxeo.runtime.RuntimeMessage;
 import org.nuxeo.runtime.RuntimeMessage.Level;
 import org.nuxeo.runtime.RuntimeMessage.Source;

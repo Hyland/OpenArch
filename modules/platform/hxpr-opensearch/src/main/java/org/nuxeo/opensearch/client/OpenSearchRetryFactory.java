@@ -20,7 +20,7 @@ import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.nuxeo.common.resilience.Resilience4jRegistries;
+import com.hyland.openarch.common.resilience.Resilience4jRegistries;
 import org.opensearch.client.opensearch._types.OpenSearchException;
 import org.opensearch.client.transport.httpclient5.ResponseException;
 
@@ -56,7 +56,7 @@ public final class OpenSearchRetryFactory {
     private static final double JITTER_FACTOR = 0.5;
 
     // HTTP statuses considered transient and therefore worth retrying, mirroring the idempotent set used by
-    // org.nuxeo.common.httpclient.JitteredExponentialBackoffRetryHandler
+    // com.hyland.openarch.common.httpclient.JitteredExponentialBackoffRetryHandler
     private static final Set<Integer> RETRYABLE_STATUS = Set.of(408, 425, 429, 500, 502, 503, 504);
 
     private OpenSearchRetryFactory() {

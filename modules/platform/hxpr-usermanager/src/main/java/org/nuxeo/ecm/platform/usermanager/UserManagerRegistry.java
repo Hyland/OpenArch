@@ -15,9 +15,9 @@
  */
 package org.nuxeo.ecm.platform.usermanager;
 
-import org.nuxeo.common.xmap.Context;
-import org.nuxeo.common.xmap.XAnnotatedObject;
-import org.nuxeo.common.xmap.registry.SingleRegistry;
+import com.hyland.openarch.common.xmap.Context;
+import com.hyland.openarch.common.xmap.XAnnotatedObject;
+import com.hyland.openarch.common.xmap.registry.SingleRegistry;
 import org.w3c.dom.Element;
 
 /**

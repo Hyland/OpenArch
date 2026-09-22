@@ -33,9 +33,9 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
-import org.nuxeo.common.utils.TooLargeException;
-import org.nuxeo.common.xmap.registry.MapRegistry;
-import org.nuxeo.common.xmap.registry.SingleRegistry;
+import com.hyland.openarch.common.utils.TooLargeException;
+import com.hyland.openarch.common.xmap.registry.MapRegistry;
+import com.hyland.openarch.common.xmap.registry.SingleRegistry;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.api.repository.RepositoryManager;
 import org.nuxeo.runtime.api.Framework;

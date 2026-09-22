@@ -22,7 +22,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.nuxeo.common.utils.RFC2231;
+import com.hyland.openarch.common.utils.RFC2231;
 import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.blob.ByteRange;
 

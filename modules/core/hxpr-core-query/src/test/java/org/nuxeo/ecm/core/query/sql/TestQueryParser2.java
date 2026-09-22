@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PATH;
 
 import org.junit.jupiter.api.Test;
-import org.nuxeo.common.utils.ExceptionUtils;
+import com.hyland.openarch.common.utils.ExceptionUtils;
 import org.nuxeo.ecm.core.query.QueryParseException;
 import org.nuxeo.ecm.core.query.sql.model.Operator;
 import org.nuxeo.ecm.core.query.sql.model.Reference;

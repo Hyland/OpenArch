@@ -13,7 +13,7 @@
 
   <modules>
     <module>hxpr-async-tasks</module>
-    <module>hxpr-common</module>
+    <module>openarch-common</module>
     <module>hxpr-config</module>
     <module>hxpr-runtime</module>
     <module>hxpr-runtime-cluster-api</module>

@@ -19,7 +19,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
 
-import org.nuxeo.common.utils.PeriodAndDuration;
+import com.hyland.openarch.common.utils.PeriodAndDuration;
 import org.nuxeo.runtime.api.Framework;
 
 /**

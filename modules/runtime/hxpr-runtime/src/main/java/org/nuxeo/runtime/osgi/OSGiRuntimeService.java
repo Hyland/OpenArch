@@ -34,8 +34,8 @@ import java.util.stream.Stream;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.nuxeo.common.Environment;
-import org.nuxeo.common.utils.TextTemplate;
+import com.hyland.openarch.common.Environment;
+import com.hyland.openarch.common.utils.TextTemplate;
 import org.nuxeo.runtime.RuntimeMessage;
 import org.nuxeo.runtime.RuntimeMessageHandler;
 import org.nuxeo.runtime.RuntimeMessageHandlerImpl;

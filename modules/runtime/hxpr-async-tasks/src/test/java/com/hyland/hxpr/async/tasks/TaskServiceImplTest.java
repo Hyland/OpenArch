@@ -21,11 +21,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.lang.reflect.Field;
 import java.util.Map;
 
+import com.hyland.openarch.common.utils.BatchUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.nuxeo.common.utils.TooLargeException;
+import com.hyland.openarch.common.utils.TooLargeException;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.test.runner.Deploy;
@@ -38,7 +39,7 @@ import com.hyland.hxpr.async.tasks.message.AbstractTask;
  * Regression test for the fix restoring propagation of {@link TooLargeException} out of
  * {@link TaskServiceImpl#submitTask}.
  * <p>
- * {@link org.nuxeo.common.utils.BatchUtils#tryWithSplit} relies on catching {@link TooLargeException} <em>by
+ * {@link BatchUtils#tryWithSplit} relies on catching {@link TooLargeException} <em>by
  * type</em> to split an oversized batch and retry. A defensive {@code catch (Exception e)} block that rewraps
  * every failure into a {@link NuxeoException} (added for HXCS-8351) silently defeated that mechanism, letting
  * SNS "message too large" failures escape all the way up instead of being retried with a smaller batch

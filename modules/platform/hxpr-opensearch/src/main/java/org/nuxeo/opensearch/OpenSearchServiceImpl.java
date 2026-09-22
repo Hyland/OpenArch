@@ -15,7 +15,7 @@
  */
 package org.nuxeo.opensearch;
 
-import static org.nuxeo.common.concurrent.ThreadFactories.newThreadFactory;
+import static com.hyland.openarch.common.concurrent.ThreadFactories.newThreadFactory;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ANCESTOR_IDS;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_MIXIN_TYPES;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_NAME;
@@ -70,8 +70,8 @@ import io.dropwizard.metrics5.Timer.Context;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.nuxeo.common.utils.BatchUtils;
-import org.nuxeo.common.xmap.registry.MapRegistry;
+import com.hyland.openarch.common.utils.BatchUtils;
+import com.hyland.openarch.common.xmap.registry.MapRegistry;
 import org.nuxeo.ecm.core.api.BulkIndexingException;
 import org.nuxeo.ecm.core.api.ConcurrentUpdateException;
 import org.nuxeo.ecm.core.api.CoreInstance;

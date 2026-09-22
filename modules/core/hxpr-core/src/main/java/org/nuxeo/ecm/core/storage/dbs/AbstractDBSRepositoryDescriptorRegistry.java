@@ -18,10 +18,10 @@ package org.nuxeo.ecm.core.storage.dbs;
 import static org.nuxeo.ecm.core.storage.dbs.DBSRepositoryRegistry.COMPONENT_NAME;
 import static org.nuxeo.ecm.core.storage.dbs.DBSRepositoryRegistry.POINT_NAME;
 
-import org.nuxeo.common.xmap.Context;
-import org.nuxeo.common.xmap.XAnnotatedObject;
-import org.nuxeo.common.xmap.registry.MapRegistry;
-import org.nuxeo.common.xmap.registry.Registry;
+import com.hyland.openarch.common.xmap.Context;
+import com.hyland.openarch.common.xmap.XAnnotatedObject;
+import com.hyland.openarch.common.xmap.registry.MapRegistry;
+import com.hyland.openarch.common.xmap.registry.Registry;
 import org.nuxeo.runtime.api.Framework;
 import org.w3c.dom.Element;
 

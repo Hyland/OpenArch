@@ -16,7 +16,7 @@
 
 package org.nuxeo.runtime;
 
-import org.nuxeo.common.xmap.registry.Registry;
+import com.hyland.openarch.common.xmap.registry.Registry;
 import org.nuxeo.runtime.model.DefaultComponent;
 
 public class ComponentWithXPoint extends DefaultComponent {

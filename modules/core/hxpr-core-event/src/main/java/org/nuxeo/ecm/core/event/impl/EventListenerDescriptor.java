@@ -20,12 +20,12 @@ import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.nuxeo.common.xmap.Context;
-import org.nuxeo.common.xmap.annotation.XNode;
-import org.nuxeo.common.xmap.annotation.XNodeList;
-import org.nuxeo.common.xmap.annotation.XObject;
-import org.nuxeo.common.xmap.registry.XEnable;
-import org.nuxeo.common.xmap.registry.XRegistry;
+import com.hyland.openarch.common.xmap.Context;
+import com.hyland.openarch.common.xmap.annotation.XNode;
+import com.hyland.openarch.common.xmap.annotation.XNodeList;
+import com.hyland.openarch.common.xmap.annotation.XObject;
+import com.hyland.openarch.common.xmap.registry.XEnable;
+import com.hyland.openarch.common.xmap.registry.XRegistry;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.event.Event;
 import org.nuxeo.ecm.core.event.EventBundle;

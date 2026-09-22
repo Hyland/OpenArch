@@ -15,7 +15,7 @@
  */
 package org.nuxeo.ecm.core.event.impl;
 
-import static org.nuxeo.common.concurrent.ThreadFactories.newThreadFactory;
+import static com.hyland.openarch.common.concurrent.ThreadFactories.newThreadFactory;
 
 import java.util.HashMap;
 import java.util.List;

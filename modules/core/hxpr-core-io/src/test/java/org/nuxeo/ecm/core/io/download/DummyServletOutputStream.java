@@ -16,7 +16,7 @@
 
 package org.nuxeo.ecm.core.io.download;
 
-import org.nuxeo.common.function.ThrowableConsumer;
+import com.hyland.openarch.common.function.ThrowableConsumer;
 
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.WriteListener;

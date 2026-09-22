@@ -30,7 +30,7 @@ import jakarta.enterprise.inject.spi.CDI;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.nuxeo.common.Environment;
+import com.hyland.openarch.common.Environment;
 import org.nuxeo.runtime.api.Framework;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleEvent;

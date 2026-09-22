@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import org.nuxeo.common.xmap.Context;
+import com.hyland.openarch.common.xmap.Context;
 import org.nuxeo.ecm.core.event.Event;
 import org.nuxeo.ecm.core.event.EventContext;
 import org.nuxeo.ecm.core.event.EventListener;

@@ -27,7 +27,7 @@ import com.flipkart.zjsonpatch.JsonPatchApplicationException;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.ws.rs.WebApplicationException;
 import org.apache.commons.lang3.StringUtils;
-import org.nuxeo.common.RetryAfterHint;
+import com.hyland.openarch.common.RetryAfterHint;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.ecm.core.api.RenditionException;

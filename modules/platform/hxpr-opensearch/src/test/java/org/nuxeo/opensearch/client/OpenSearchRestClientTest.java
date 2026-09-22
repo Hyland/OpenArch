@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.nuxeo.common.resilience.Resilience4jRegistries;
+import com.hyland.openarch.common.resilience.Resilience4jRegistries;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.opensearch.io.DocumentDTO;
 import org.opensearch.client.json.jackson3.JacksonJsonpMapper;

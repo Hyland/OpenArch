@@ -20,8 +20,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import org.nuxeo.common.xmap.registry.Registry;
-import org.nuxeo.common.xmap.registry.XRegistry;
+import com.hyland.openarch.common.xmap.registry.Registry;
+import com.hyland.openarch.common.xmap.registry.XRegistry;
 
 /**
  * Service managing components registration and processing.

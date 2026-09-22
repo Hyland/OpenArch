@@ -16,7 +16,7 @@
 package org.nuxeo.ecm.core.schema.types.resolver;
 
 import static java.lang.Boolean.TRUE;
-import static org.nuxeo.common.function.FunctionUtils.sortByKeyAndMapValue;
+import static com.hyland.openarch.common.function.FunctionUtils.sortByKeyAndMapValue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
-import org.nuxeo.common.utils.i18n.I18NUtils;
+import com.hyland.openarch.common.utils.i18n.I18NUtils;
 import org.nuxeo.ecm.core.schema.types.constraints.Constraint;
 
 /**

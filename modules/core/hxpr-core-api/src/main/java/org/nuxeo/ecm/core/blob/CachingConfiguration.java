@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Map;
 
-import org.nuxeo.common.utils.SizeUtils;
+import com.hyland.openarch.common.utils.SizeUtils;
 import org.nuxeo.runtime.api.Framework;
 
 /**

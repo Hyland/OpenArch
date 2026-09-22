@@ -15,7 +15,7 @@
  */
 package org.nuxeo.ecm.core;
 
-import org.nuxeo.common.xmap.registry.MapRegistry;
+import com.hyland.openarch.common.xmap.registry.MapRegistry;
 
 /**
  * Registry for the {@code enrichers} extension point of the document enrichment service.

@@ -21,10 +21,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.nuxeo.common.xmap.annotation.XNode;
-import org.nuxeo.common.xmap.annotation.XNodeList;
-import org.nuxeo.common.xmap.annotation.XNodeMap;
-import org.nuxeo.common.xmap.annotation.XObject;
+import com.hyland.openarch.common.xmap.annotation.XNode;
+import com.hyland.openarch.common.xmap.annotation.XNodeList;
+import com.hyland.openarch.common.xmap.annotation.XNodeMap;
+import com.hyland.openarch.common.xmap.annotation.XObject;
 
 /**
  * Descriptor for virtual users. APG-240 All attributes are defined public because the user manager service do not get

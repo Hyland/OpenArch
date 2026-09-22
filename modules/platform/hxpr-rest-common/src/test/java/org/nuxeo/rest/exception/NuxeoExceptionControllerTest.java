@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
-import org.nuxeo.common.RetryAfterHint;
+import com.hyland.openarch.common.RetryAfterHint;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.api.RenditionException;
 import org.nuxeo.ecm.core.api.local.DummyLoginFeature;

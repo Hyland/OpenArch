@@ -19,8 +19,8 @@ package org.nuxeo.runtime.registry;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.nuxeo.common.xmap.registry.MapRegistry;
-import org.nuxeo.common.xmap.registry.SingleRegistry;
+import com.hyland.openarch.common.xmap.registry.MapRegistry;
+import com.hyland.openarch.common.xmap.registry.SingleRegistry;
 import org.nuxeo.runtime.model.DefaultComponent;
 
 /**

@@ -16,10 +16,9 @@
 
 package org.nuxeo.ecm.core.query.sql.model;
 
-import static org.nuxeo.common.utils.DateUtils.formatISODateTime;
-import static org.nuxeo.common.utils.DateUtils.parseISODateTime;
+import static com.hyland.openarch.common.utils.DateUtils.formatISODateTime;
+import static com.hyland.openarch.common.utils.DateUtils.parseISODateTime;
 
-import java.time.Instant;
 import java.time.ZonedDateTime;
 
 /**

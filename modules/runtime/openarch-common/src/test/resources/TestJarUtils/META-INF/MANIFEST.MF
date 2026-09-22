@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Bundle-Name: Nuxeo JarUtils test
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: com.hyland.openarch.common.jarutils.test;singleton:=true

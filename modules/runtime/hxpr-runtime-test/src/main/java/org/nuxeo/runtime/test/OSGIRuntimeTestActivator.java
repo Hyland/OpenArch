@@ -19,7 +19,7 @@ package org.nuxeo.runtime.test;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
-import org.nuxeo.common.Environment;
+import com.hyland.openarch.common.Environment;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.osgi.OSGiComponentLoader;
 import org.nuxeo.runtime.osgi.OSGiRuntimeActivator;

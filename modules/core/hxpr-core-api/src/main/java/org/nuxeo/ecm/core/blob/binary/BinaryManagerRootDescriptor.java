@@ -31,9 +31,9 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.nuxeo.common.utils.ParserUtils;
-import org.nuxeo.common.xmap.annotation.XNode;
-import org.nuxeo.common.xmap.annotation.XObject;
+import com.hyland.openarch.common.utils.ParserUtils;
+import com.hyland.openarch.common.xmap.annotation.XNode;
+import com.hyland.openarch.common.xmap.annotation.XObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

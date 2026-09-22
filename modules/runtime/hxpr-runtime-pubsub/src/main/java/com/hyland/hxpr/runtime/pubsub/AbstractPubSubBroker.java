@@ -18,7 +18,7 @@ package com.hyland.hxpr.runtime.pubsub;
 import java.io.IOException;
 
 import org.apache.commons.io.output.StringBuilderWriter;
-import org.nuxeo.common.utils.TooLargeException;
+import com.hyland.openarch.common.utils.TooLargeException;
 import org.nuxeo.runtime.api.Framework;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

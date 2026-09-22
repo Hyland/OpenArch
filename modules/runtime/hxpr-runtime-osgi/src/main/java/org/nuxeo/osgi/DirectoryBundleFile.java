@@ -27,8 +27,8 @@ import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
-import org.nuxeo.common.utils.FileUtils;
-import org.nuxeo.common.utils.StringUtils;
+import com.hyland.openarch.common.utils.FileUtils;
+import com.hyland.openarch.common.utils.StringUtils;
 import org.osgi.framework.Constants;
 
 /**

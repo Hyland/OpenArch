@@ -16,7 +16,7 @@
 package org.nuxeo.ecm.core.schema;
 
 import static java.util.Objects.requireNonNull;
-import static org.nuxeo.common.function.FunctionUtils.sortByKeyAndMapValue;
+import static com.hyland.openarch.common.function.FunctionUtils.sortByKeyAndMapValue;
 import static org.nuxeo.ecm.core.schema.types.FieldCharacteristics.Representation.STORE;
 
 import java.util.ArrayList;

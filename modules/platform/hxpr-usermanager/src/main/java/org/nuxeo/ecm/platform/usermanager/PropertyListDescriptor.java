@@ -19,8 +19,8 @@ package org.nuxeo.ecm.platform.usermanager;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.nuxeo.common.xmap.annotation.XNodeList;
-import org.nuxeo.common.xmap.annotation.XObject;
+import com.hyland.openarch.common.xmap.annotation.XNodeList;
+import com.hyland.openarch.common.xmap.annotation.XObject;
 
 /**
  * Property list descriptor APG-240 All attributes are defined public because the user manager service do not get access

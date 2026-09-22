@@ -17,8 +17,8 @@ package org.nuxeo.ecm.core.api.repository;
 
 import java.util.concurrent.Callable;
 
-import org.nuxeo.common.xmap.annotation.XNode;
-import org.nuxeo.common.xmap.annotation.XObject;
+import com.hyland.openarch.common.xmap.annotation.XNode;
+import com.hyland.openarch.common.xmap.annotation.XObject;
 import org.nuxeo.ecm.core.api.CoreSession;
 
 /**

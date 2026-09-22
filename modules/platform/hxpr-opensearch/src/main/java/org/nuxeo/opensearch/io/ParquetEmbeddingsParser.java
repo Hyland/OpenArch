@@ -32,7 +32,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.parquet.avro.AvroParquetReader;
 import org.apache.parquet.io.LocalInputFile;
-import org.nuxeo.common.utils.IdUtils;
+import com.hyland.openarch.common.utils.IdUtils;
 import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.api.CloseableFile;
 import org.nuxeo.ecm.core.model.EmbeddingModel;

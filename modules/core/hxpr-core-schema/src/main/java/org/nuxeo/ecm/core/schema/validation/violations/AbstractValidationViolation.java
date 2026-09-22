@@ -23,7 +23,7 @@ import java.util.MissingResourceException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
-import org.nuxeo.common.utils.i18n.I18NUtils;
+import com.hyland.openarch.common.utils.i18n.I18NUtils;
 import org.nuxeo.ecm.core.schema.SchemaManagerConstants;
 import org.nuxeo.ecm.core.schema.dto.DTOPath;
 import org.nuxeo.ecm.core.schema.types.constraints.Constraint;

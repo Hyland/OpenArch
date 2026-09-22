@@ -18,7 +18,7 @@ package org.nuxeo.ecm.core.schema.validation.violations;
 import java.util.List;
 import java.util.Locale;
 
-import org.nuxeo.common.utils.i18n.I18NUtils;
+import com.hyland.openarch.common.utils.i18n.I18NUtils;
 import org.nuxeo.ecm.core.schema.types.constraints.Constraint;
 
 import com.fasterxml.jackson.annotation.JsonInclude;

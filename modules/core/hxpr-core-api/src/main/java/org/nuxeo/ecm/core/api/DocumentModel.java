@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import org.nuxeo.common.utils.Path;
+import com.hyland.openarch.common.utils.Path;
 import org.nuxeo.ecm.core.api.model.resolver.PropertyObjectResolver;
 import org.nuxeo.ecm.core.api.security.ACL;
 import org.nuxeo.ecm.core.model.InternalDocument.BlobAccessor;

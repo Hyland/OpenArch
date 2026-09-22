@@ -19,7 +19,7 @@ import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.nuxeo.common.utils.ExceptionUtils;
+import com.hyland.openarch.common.utils.ExceptionUtils;
 import org.nuxeo.runtime.RuntimeMessage;
 import org.nuxeo.runtime.RuntimeMessage.Level;
 import org.nuxeo.runtime.RuntimeMessage.Source;

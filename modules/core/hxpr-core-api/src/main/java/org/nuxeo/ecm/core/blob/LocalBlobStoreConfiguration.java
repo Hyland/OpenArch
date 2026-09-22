@@ -23,8 +23,8 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
-import org.nuxeo.common.Environment;
-import org.nuxeo.common.xmap.XMap;
+import com.hyland.openarch.common.Environment;
+import com.hyland.openarch.common.xmap.XMap;
 import org.nuxeo.ecm.core.blob.binary.BinaryManagerRootDescriptor;
 import org.nuxeo.runtime.api.Framework;
 

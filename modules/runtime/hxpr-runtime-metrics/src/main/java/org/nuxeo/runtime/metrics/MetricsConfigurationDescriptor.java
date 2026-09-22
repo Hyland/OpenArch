@@ -22,11 +22,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.nuxeo.common.xmap.annotation.XNode;
-import org.nuxeo.common.xmap.annotation.XNodeList;
-import org.nuxeo.common.xmap.annotation.XObject;
-import org.nuxeo.common.xmap.registry.XEnable;
-import org.nuxeo.common.xmap.registry.XRegistry;
+import com.hyland.openarch.common.xmap.annotation.XNode;
+import com.hyland.openarch.common.xmap.annotation.XNodeList;
+import com.hyland.openarch.common.xmap.annotation.XObject;
+import com.hyland.openarch.common.xmap.registry.XEnable;
+import com.hyland.openarch.common.xmap.registry.XRegistry;
 
 import io.dropwizard.metrics5.Metric;
 import io.dropwizard.metrics5.MetricAttribute;

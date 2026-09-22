@@ -16,7 +16,7 @@
 package org.nuxeo.ecm.core.schema.types;
 
 import static java.util.Objects.requireNonNull;
-import static org.nuxeo.common.function.FunctionUtils.sortByKeyAndMapValue;
+import static com.hyland.openarch.common.function.FunctionUtils.sortByKeyAndMapValue;
 import static org.nuxeo.ecm.core.schema.TypeConstants.PREFIX_SEPARATOR;
 
 import java.util.Collection;

@@ -15,7 +15,7 @@
  */
 package org.nuxeo.runtime.registry;
 
-import org.nuxeo.common.xmap.registry.MapRegistry;
+import com.hyland.openarch.common.xmap.registry.MapRegistry;
 
 /**
  * @since 11.5

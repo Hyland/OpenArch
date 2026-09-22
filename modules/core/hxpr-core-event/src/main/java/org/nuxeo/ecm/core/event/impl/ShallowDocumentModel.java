@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import org.nuxeo.common.utils.Path;
+import com.hyland.openarch.common.utils.Path;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentRef;

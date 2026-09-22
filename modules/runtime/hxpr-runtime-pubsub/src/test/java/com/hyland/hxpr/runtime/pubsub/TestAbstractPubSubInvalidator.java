@@ -33,7 +33,7 @@ import org.apache.commons.io.output.StringBuilderWriter;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.nuxeo.common.utils.TooLargeException;
+import com.hyland.openarch.common.utils.TooLargeException;
 import org.nuxeo.runtime.mockito.MockitoFeature;
 import org.nuxeo.runtime.mockito.RuntimeService;
 import org.nuxeo.runtime.test.runner.Features;

@@ -16,12 +16,12 @@
 
 package org.nuxeo.runtime.model.impl;
 
-import org.nuxeo.common.xmap.XMap;
-import org.nuxeo.common.xmap.annotation.XContent;
-import org.nuxeo.common.xmap.annotation.XNode;
-import org.nuxeo.common.xmap.annotation.XNodeList;
-import org.nuxeo.common.xmap.annotation.XObject;
-import org.nuxeo.common.xmap.annotation.XParent;
+import com.hyland.openarch.common.xmap.XMap;
+import com.hyland.openarch.common.xmap.annotation.XContent;
+import com.hyland.openarch.common.xmap.annotation.XNode;
+import com.hyland.openarch.common.xmap.annotation.XNodeList;
+import com.hyland.openarch.common.xmap.annotation.XObject;
+import com.hyland.openarch.common.xmap.annotation.XParent;
 import org.nuxeo.runtime.model.ExtensionPoint;
 import org.nuxeo.runtime.model.RegistrationInfo;
 

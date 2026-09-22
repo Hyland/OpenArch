@@ -45,7 +45,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
-import org.nuxeo.common.utils.ExceptionUtils;
+import com.hyland.openarch.common.utils.ExceptionUtils;
 import org.nuxeo.ecm.core.api.EmbeddingChunkTextFetcher;
 import org.nuxeo.ecm.core.api.CoreInstance;
 import org.nuxeo.ecm.core.api.CoreSession;

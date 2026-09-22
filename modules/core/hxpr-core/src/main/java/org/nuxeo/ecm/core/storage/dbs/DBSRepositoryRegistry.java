@@ -17,7 +17,7 @@ package org.nuxeo.ecm.core.storage.dbs;
 
 import java.util.List;
 
-import org.nuxeo.common.xmap.registry.MapRegistry;
+import com.hyland.openarch.common.xmap.registry.MapRegistry;
 import org.nuxeo.runtime.api.Framework;
 
 /**
