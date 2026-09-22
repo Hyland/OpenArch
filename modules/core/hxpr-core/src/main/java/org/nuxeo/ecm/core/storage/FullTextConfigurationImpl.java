@@ -37,7 +37,7 @@ import org.nuxeo.ecm.core.schema.types.SimpleTypeImpl;
 import org.nuxeo.ecm.core.schema.types.Type;
 import org.nuxeo.ecm.core.schema.types.primitives.BinaryType;
 import org.nuxeo.ecm.core.schema.types.primitives.StringType;
-import org.nuxeo.runtime.model.DefaultComponent;
+import com.hyland.openarch.runtime.model.DefaultComponent;
 
 public class FullTextConfigurationImpl extends DefaultComponent implements FullTextConfigurationService {
 

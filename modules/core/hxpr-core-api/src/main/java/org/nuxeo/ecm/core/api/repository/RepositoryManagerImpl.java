@@ -24,7 +24,7 @@ import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.nuxeo.runtime.model.DefaultComponent;
+import com.hyland.openarch.runtime.model.DefaultComponent;
 
 /**
  * High-level service to get to a {@link org.nuxeo.ecm.core.api.repository.Repository Repository} and from there to

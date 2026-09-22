@@ -98,7 +98,7 @@ import org.nuxeo.rest.upload.UploadHandlerCleaner;
 import org.nuxeo.rest.upload.handler.UploadHandler;
 import org.nuxeo.rest.user.UserDTO;
 import org.nuxeo.rest.validation.io.ValidationErrorDTO;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;

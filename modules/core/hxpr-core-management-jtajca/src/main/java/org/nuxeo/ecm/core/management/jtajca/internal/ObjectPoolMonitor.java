@@ -18,7 +18,7 @@ package org.nuxeo.ecm.core.management.jtajca.internal;
 import org.apache.commons.pool2.impl.GenericKeyedObjectPool;
 import org.nuxeo.ecm.core.management.jtajca.ConnectionPoolMonitor;
 import org.nuxeo.ecm.core.management.jtajca.internal.DefaultMonitorComponent.ServerInstance;
-import org.nuxeo.runtime.metrics.MetricsService;
+import com.hyland.openarch.runtime.metrics.MetricsService;
 
 import io.dropwizard.metrics5.MetricName;
 import io.dropwizard.metrics5.MetricRegistry;

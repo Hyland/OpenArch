@@ -31,7 +31,7 @@ import org.nuxeo.ecm.core.schema.dto.ContentModelDTO;
 import org.nuxeo.ecm.core.schema.dto.ModelMapCodec;
 import org.nuxeo.ecm.core.schema.validation.SchemaValidationUtils;
 import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 import org.springframework.stereotype.Component;
 
 import tools.jackson.databind.JsonNode;

@@ -25,7 +25,7 @@ import jakarta.ws.rs.core.Response.Status;
 import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
 import org.nuxeo.ecm.core.api.security.SecurityConstants;
-import org.nuxeo.runtime.springboot.NuxeoApplication;
+import com.hyland.openarch.runtime.springboot.NuxeoApplication;
 
 public class GreetingResourceTest extends AbstractSpringTest {
 

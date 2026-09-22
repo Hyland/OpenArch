@@ -41,7 +41,7 @@ import org.nuxeo.ecm.core.schema.types.ListType;
 import org.nuxeo.ecm.core.schema.types.Schema;
 import org.nuxeo.ecm.core.schema.types.Type;
 import org.nuxeo.ecm.core.storage.FullTextConfigurationService;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 
 /**
  * Provides sharing behavior for repository sessions and other basic functions.

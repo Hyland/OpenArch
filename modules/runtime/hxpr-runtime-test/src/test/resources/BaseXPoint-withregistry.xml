@@ -7,13 +7,13 @@
     OverrindingXPoint-withregistry.xml
   </documentation>
 
-  <implementation class="org.nuxeo.runtime.ComponentWithXPoint" />
+  <implementation class="com.hyland.openarch.runtime.ComponentWithXPoint" />
   <service>
-    <provide interface="org.nuxeo.runtime.ComponentWithXPoint" />
+    <provide interface="com.hyland.openarch.runtime.ComponentWithXPoint" />
   </service>
 
   <extension-point name="xp">
-    <object class="org.nuxeo.runtime.DummyContributionWithRegistry" />
+    <object class="com.hyland.openarch.runtime.DummyContributionWithRegistry" />
   </extension-point>
 
 </component>

@@ -19,7 +19,7 @@ import static com.hyland.hxpr.async.tasks.TaskStatus.State.COMPLETED;
 
 import com.hyland.hxpr.async.tasks.message.RepositoryTask;
 import org.nuxeo.ecm.core.transientstore.api.TransientStoreService;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

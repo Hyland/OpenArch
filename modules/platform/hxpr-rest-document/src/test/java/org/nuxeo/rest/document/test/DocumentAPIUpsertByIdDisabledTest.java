@@ -22,7 +22,7 @@ import static org.springframework.http.HttpMethod.PUT;
 import org.junit.jupiter.api.Test;
 import org.nuxeo.rest.document.DocumentAPI;
 import org.nuxeo.rest.document.DocumentMultipartController;
-import org.nuxeo.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.Features;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 

@@ -16,10 +16,10 @@
 
 package org.nuxeo.ecm.core.api;
 
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.kv.KeyValueService;
-import org.nuxeo.runtime.kv.KeyValueStore;
-import org.nuxeo.runtime.transaction.TransactionHelper;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.kv.KeyValueService;
+import com.hyland.openarch.runtime.kv.KeyValueStore;
+import com.hyland.openarch.runtime.transaction.TransactionHelper;
 
 import java.util.function.Supplier;
 

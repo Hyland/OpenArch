@@ -31,9 +31,9 @@ import org.apache.logging.log4j.Logger;
 import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.blob.KeyStrategy.WriteObserver;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.services.event.Event;
-import org.nuxeo.runtime.services.event.EventService;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.services.event.Event;
+import com.hyland.openarch.runtime.services.event.EventService;
 
 /**
  * Basic helper implementations for a {@link BlobStore}.

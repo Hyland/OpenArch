@@ -18,7 +18,7 @@ package com.hyland.hxpr.springboot.server;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import io.swagger.v3.oas.annotations.Operation;
-import org.nuxeo.runtime.springboot.actuator.ApplicationInfo;
+import com.hyland.openarch.runtime.springboot.actuator.ApplicationInfo;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

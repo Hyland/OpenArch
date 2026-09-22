@@ -18,10 +18,10 @@ package com.hyland.hxpr.async.tasks;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
-import org.nuxeo.runtime.mockito.RuntimeInject;
-import org.nuxeo.runtime.springboot.junit.RuntimeSpringBootTest;
-import org.nuxeo.runtime.springboot.junit.RuntimeTestState;
-import org.nuxeo.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.mockito.RuntimeInject;
+import com.hyland.openarch.runtime.springboot.junit.RuntimeSpringBootTest;
+import com.hyland.openarch.runtime.springboot.junit.RuntimeTestState;
+import com.hyland.openarch.runtime.test.runner.Features;
 import org.springframework.boot.test.context.SpringBootTest;
 
 /**

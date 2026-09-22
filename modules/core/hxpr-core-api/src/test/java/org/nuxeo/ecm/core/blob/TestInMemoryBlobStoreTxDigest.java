@@ -15,10 +15,10 @@
  */
 package org.nuxeo.ecm.core.blob;
 
-import org.nuxeo.runtime.test.runner.Deploy;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.test.runner.TransactionalConfig;
-import org.nuxeo.runtime.test.runner.TransactionalFeature;
+import com.hyland.openarch.runtime.test.runner.Deploy;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.TransactionalConfig;
+import com.hyland.openarch.runtime.test.runner.TransactionalFeature;
 
 @Features(TransactionalFeature.class)
 @TransactionalConfig(autoStart = false)

@@ -19,7 +19,7 @@ import static com.hyland.hxpr.async.tasks.TaskStatus.State.COMPLETED;
 
 import com.hyland.hxpr.async.tasks.TaskProcessor;
 import com.hyland.hxpr.async.tasks.TaskService;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 
 import java.util.concurrent.atomic.AtomicInteger;
 

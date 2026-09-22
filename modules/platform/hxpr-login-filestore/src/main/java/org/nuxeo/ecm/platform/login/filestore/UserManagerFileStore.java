@@ -22,7 +22,7 @@ import org.nuxeo.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.ecm.platform.login.filestore.store.UserStore;
 import org.nuxeo.ecm.platform.usermanager.UserManager;
 import org.nuxeo.ecm.platform.usermanager.UserManagerDescriptor;
-import org.nuxeo.runtime.springboot.framework.ApplicationContextHelper;
+import com.hyland.openarch.runtime.springboot.framework.ApplicationContextHelper;
 
 /**
  * File-based {@link UserManager} store.

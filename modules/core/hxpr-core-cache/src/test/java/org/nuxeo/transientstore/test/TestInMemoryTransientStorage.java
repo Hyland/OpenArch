@@ -40,10 +40,10 @@ import org.nuxeo.ecm.core.transientstore.api.MaximumTransientSpaceExceeded;
 import org.nuxeo.ecm.core.transientstore.api.TransientStore;
 import org.nuxeo.ecm.core.transientstore.api.TransientStoreProvider;
 import org.nuxeo.ecm.core.transientstore.api.TransientStoreService;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.test.runner.Deploy;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.test.runner.FeaturesExtension;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.test.runner.Deploy;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
 
 @ExtendWith(FeaturesExtension.class)
 @Features({TransientStoreFeature.class, AsyncTasksFeature.class, InMemoryTransientStoreFeature.class })

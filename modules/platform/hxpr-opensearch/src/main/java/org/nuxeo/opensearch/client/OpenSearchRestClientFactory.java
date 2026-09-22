@@ -48,7 +48,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.opensearch.api.OpenSearchClient;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 import org.opensearch.client.json.JsonpMapper;
 import org.opensearch.client.json.jackson3.JacksonJsonProvider;
 import org.opensearch.client.json.jackson3.JacksonJsonpMapper;

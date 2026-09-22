@@ -39,7 +39,7 @@ import org.nuxeo.ecm.core.api.repository.FulltextConfiguration;
 import org.nuxeo.ecm.core.model.Repository;
 import org.nuxeo.ecm.core.repository.RepositoryService;
 import org.nuxeo.ecm.core.utils.BlobsExtractor;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

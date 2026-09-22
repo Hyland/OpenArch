@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <component name="my.comp2">
 
-  <implementation class="org.nuxeo.runtime.MyTestComponent"/>
+  <implementation class="com.hyland.openarch.runtime.MyTestComponent"/>
   <extension-point name="xp1">
-    <object class="org.nuxeo.runtime.DummyContribution"/>
+    <object class="com.hyland.openarch.runtime.DummyContribution"/>
   </extension-point>
 
   <property name="myString" value="value"/>

@@ -36,7 +36,7 @@ import org.apache.logging.log4j.ThreadContext;
 import org.nuxeo.ecm.core.management.jtajca.TransactionMonitor;
 import org.nuxeo.ecm.core.management.jtajca.TransactionStatistics;
 import org.nuxeo.ecm.core.management.jtajca.internal.DefaultMonitorComponent.ServerInstance;
-import org.nuxeo.runtime.jtajca.NuxeoContainer;
+import com.hyland.openarch.runtime.jtajca.NuxeoContainer;
 
 /**
  * @author matic

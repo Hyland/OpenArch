@@ -26,7 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.hyland.openarch.common.Environment;
 import com.hyland.openarch.common.xmap.XMap;
 import org.nuxeo.ecm.core.blob.binary.BinaryManagerRootDescriptor;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 
 /**
  * Configuration for the local storage of files.

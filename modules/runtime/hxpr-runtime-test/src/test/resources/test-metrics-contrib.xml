@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <component name="org.nuxeo.runtime.metrics.test.contrib">
 
-  <extension target="org.nuxeo.runtime.metrics.MetricsService" point="configuration">
+  <extension target="com.hyland.openarch.runtime.metrics.MetricsService" point="configuration">
     <configuration enabled="true">
       <instrument name="jvm" enabled="${metrics.jvm.enabled}" />
       <filter>
@@ -26,9 +26,9 @@
     </configuration>
   </extension>
 
-  <extension target="org.nuxeo.runtime.metrics.MetricsService" point="reporter">
+  <extension target="com.hyland.openarch.runtime.metrics.MetricsService" point="reporter">
     <reporter enabled="true" name="mock" pollInterval="42"
-      class="org.nuxeo.runtime.metrics.MockReporter">
+      class="com.hyland.openarch.runtime.metrics.MockReporter">
       <option name="foo">bar</option>
     </reporter>
   </extension>

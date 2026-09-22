@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <component name="org.nuxeo.mongodb.kvstore">
-  <extension target="org.nuxeo.runtime.kv.KeyValueService" point="configuration">
+  <extension target="com.hyland.openarch.runtime.kv.KeyValueService" point="configuration">
     <store name="default" class="org.nuxeo.ecm.core.mongodb.kv.MongoDBKeyValueStore" merge="false">
       <property name="collection">kv</property>
     </store>

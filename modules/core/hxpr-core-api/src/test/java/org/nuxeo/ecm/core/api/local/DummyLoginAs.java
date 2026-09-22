@@ -21,7 +21,7 @@ import static org.nuxeo.ecm.core.api.local.DummyLoginFeature.TEST_ADMIN_USER_NAM
 import java.security.Principal;
 
 import org.nuxeo.ecm.core.api.impl.UserPrincipal;
-import org.nuxeo.runtime.api.login.PrincipalFactory;
+import com.hyland.openarch.runtime.api.login.PrincipalFactory;
 
 /**
  * Dummy {@link PrincipalFactory} implementation which logs the given user into the application.

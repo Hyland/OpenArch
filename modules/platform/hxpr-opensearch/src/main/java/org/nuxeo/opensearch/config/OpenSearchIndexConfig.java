@@ -38,7 +38,7 @@ import com.hyland.openarch.common.xmap.registry.XEnable;
 import com.hyland.openarch.common.xmap.registry.XRegistry;
 import com.hyland.openarch.common.xmap.registry.XRegistryId;
 import org.nuxeo.opensearch.core.IncrementalIndexNameGenerator;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;

@@ -18,7 +18,7 @@ package com.hyland.hxpr.config;
 import java.util.Map;
 import java.util.function.UnaryOperator;
 
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 
 /**
  * Interface implemented by a service that wishes to have its configuration persisted by the

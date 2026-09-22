@@ -19,7 +19,7 @@ import static org.nuxeo.opensearch.OpenSearchServiceImpl.PROPERTY_REINDEXING_COM
 
 import java.util.List;
 
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

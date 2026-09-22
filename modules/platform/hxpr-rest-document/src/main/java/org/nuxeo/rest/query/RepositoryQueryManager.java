@@ -35,7 +35,7 @@ import org.nuxeo.rest.query.io.EmbeddingQueryResultDTO;
 import org.nuxeo.rest.query.io.TermsAggregationQueryResultDTO;
 import org.nuxeo.rest.query.spec.NamedQueryRegistry;
 import org.nuxeo.rest.query.spec.QuerySpecification;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;

@@ -45,9 +45,9 @@ import org.nuxeo.ecm.core.query.sql.model.Reference;
 import org.nuxeo.ecm.core.query.sql.model.SelectClause;
 import org.nuxeo.ecm.core.query.sql.model.Statement;
 import org.nuxeo.ecm.core.query.sql.model.WhereClause;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.transaction.TransactionHelper;
-import org.nuxeo.runtime.transaction.TransactionRuntimeException;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.transaction.TransactionHelper;
+import com.hyland.openarch.runtime.transaction.TransactionRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

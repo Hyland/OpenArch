@@ -16,7 +16,7 @@
 
 package org.nuxeo.ecm.core.api;
 
-import static org.nuxeo.runtime.api.login.LoginService.SYSTEM_USERNAME;
+import static com.hyland.openarch.runtime.api.login.LoginService.SYSTEM_USERNAME;
 
 import java.io.Serializable;
 import java.util.Collections;

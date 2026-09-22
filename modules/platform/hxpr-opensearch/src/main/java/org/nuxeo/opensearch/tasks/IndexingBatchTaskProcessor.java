@@ -26,7 +26,7 @@ import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.opensearch.Timestamp;
 import org.nuxeo.opensearch.api.OpenSearchService;
 import org.nuxeo.opensearch.commands.IndexingCommand;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

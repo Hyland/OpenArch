@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Test;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentRef;
 import org.nuxeo.ecm.core.api.PathRef;
-import org.nuxeo.runtime.springboot.junit.RuntimeTestState;
+import com.hyland.openarch.runtime.springboot.junit.RuntimeTestState;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.hyland.hxpr.async.tasks.message.ScrollerTask;

@@ -27,14 +27,14 @@ import jakarta.transaction.TransactionManager;
 
 import org.apache.logging.log4j.LogManager;
 import org.nuxeo.ecm.core.test.CoreFeature;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.jtajca.NuxeoContainer;
-import org.nuxeo.runtime.management.ManagementFeature;
-import org.nuxeo.runtime.management.ServerLocator;
-import org.nuxeo.runtime.test.runner.Deploy;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.test.runner.FeaturesLoader;
-import org.nuxeo.runtime.test.runner.RunnerFeature;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.jtajca.NuxeoContainer;
+import com.hyland.openarch.runtime.management.ManagementFeature;
+import com.hyland.openarch.runtime.management.ServerLocator;
+import com.hyland.openarch.runtime.test.runner.Deploy;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.FeaturesLoader;
+import com.hyland.openarch.runtime.test.runner.RunnerFeature;
 
 import com.google.inject.Binder;
 import com.google.inject.Injector;

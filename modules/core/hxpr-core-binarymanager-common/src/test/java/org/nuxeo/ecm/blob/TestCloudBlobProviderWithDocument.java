@@ -35,10 +35,10 @@ import org.nuxeo.ecm.core.blob.BlobService;
 import org.nuxeo.ecm.core.blob.BlobStoreBlobProvider;
 import org.nuxeo.ecm.core.blob.KeyStrategyManaged;
 import org.nuxeo.ecm.core.blob.ManagedBlob;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.test.runner.Deploy;
-import org.nuxeo.runtime.test.runner.FeaturesExtension;
-import org.nuxeo.runtime.test.runner.TransactionalFeature;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.test.runner.Deploy;
+import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
+import com.hyland.openarch.runtime.test.runner.TransactionalFeature;
 
 /**
  * Base document-level tests for a cloud blob provider, shared by concrete provider implementations (S3, Azure, ...).

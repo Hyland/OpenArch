@@ -45,9 +45,9 @@ import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
 import org.nuxeo.ecm.core.test.CoreFeature;
 import org.nuxeo.ecm.core.test.annotations.Granularity;
 import org.nuxeo.ecm.core.test.annotations.RepositoryConfig;
-import org.nuxeo.runtime.test.runner.Deploy;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.test.runner.FeaturesExtension;
+import com.hyland.openarch.runtime.test.runner.Deploy;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
 
 @ExtendWith(FeaturesExtension.class)
 @Deploy("org.nuxeo.ecm.core.test.tests:OSGI-INF/test-validation-service-contrib.xml")

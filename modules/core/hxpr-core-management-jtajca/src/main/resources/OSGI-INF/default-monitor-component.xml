@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <component name="org.nuxeo.ecm.core.management.jtajca.component">
 
-  <require>org.nuxeo.runtime.metrics.MetricsService</require>
-  <require>org.nuxeo.runtime.management.ServerLocator</require>
+  <require>com.hyland.openarch.runtime.metrics.MetricsService</require>
+  <require>com.hyland.openarch.runtime.management.ServerLocator</require>
 
   <documentation>
     Component used to install/uninstall the monitors

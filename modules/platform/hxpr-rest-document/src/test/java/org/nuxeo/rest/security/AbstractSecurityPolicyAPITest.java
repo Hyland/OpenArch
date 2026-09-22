@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.nuxeo.rest.document.test.AbstractAPITest;
-import org.nuxeo.runtime.test.runner.Deploy;
+import com.hyland.openarch.runtime.test.runner.Deploy;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 

@@ -21,14 +21,14 @@ import static org.nuxeo.opensearch.OpenSearchServiceImpl.DEFAULT_BUCKET_SIZE;
 import static org.nuxeo.opensearch.OpenSearchServiceImpl.PROPERTY_REINDEXING_COMMAND;
 import static org.nuxeo.opensearch.tasks.IndexingBatchTaskProcessor.BATCH_INDEXING_TASK_NAME;
 import static org.nuxeo.opensearch.tasks.IndexingScrollerTaskProcessor.INDEXING_SCROLLER_TASK_NAME;
-import static org.nuxeo.runtime.api.login.LoginService.SYSTEM_USERNAME;
+import static com.hyland.openarch.runtime.api.login.LoginService.SYSTEM_USERNAME;
 
 import org.nuxeo.opensearch.Timestamp;
 import org.nuxeo.opensearch.api.OpenSearchService;
 import org.nuxeo.opensearch.commands.IndexingCommand;
 import org.nuxeo.opensearch.tasks.message.IndexingTask;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.transaction.TransactionHelper;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.transaction.TransactionHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

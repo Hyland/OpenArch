@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.MockedStatic;
 import org.nuxeo.ecm.core.blob.binary.BinaryManagerStatus;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 
 import com.hyland.hxpr.async.tasks.TaskService;
 import com.hyland.hxpr.async.tasks.TaskStatus;

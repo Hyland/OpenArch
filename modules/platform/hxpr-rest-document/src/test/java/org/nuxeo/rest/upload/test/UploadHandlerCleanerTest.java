@@ -32,11 +32,11 @@ import org.nuxeo.rest.upload.Upload;
 import org.nuxeo.rest.upload.UploadHandlerCleaner;
 import org.nuxeo.rest.upload.handler.DefaultUploadHandler;
 import org.nuxeo.rest.upload.handler.UploadHandler;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.springboot.junit.RuntimeSpringBootTest;
-import org.nuxeo.runtime.test.runner.Deploy;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.transaction.TransactionHelper;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.springboot.junit.RuntimeSpringBootTest;
+import com.hyland.openarch.runtime.test.runner.Deploy;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.transaction.TransactionHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 

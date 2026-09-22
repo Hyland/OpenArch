@@ -18,7 +18,7 @@ package org.nuxeo.ecm.core.blob;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
-import org.nuxeo.runtime.test.runner.Deploy;
+import com.hyland.openarch.runtime.test.runner.Deploy;
 
 @Deploy("org.nuxeo.ecm.core.api.tests:OSGI-INF/test-blob-provider-local-tx-digest.xml")
 public class TestLocalBlobStoreTxDigest extends TestLocalBlobStoreTxAbstract {

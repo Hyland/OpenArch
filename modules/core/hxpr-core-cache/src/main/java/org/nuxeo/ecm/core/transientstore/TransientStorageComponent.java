@@ -27,8 +27,8 @@ import org.nuxeo.ecm.core.transientstore.api.TransientStore;
 import org.nuxeo.ecm.core.transientstore.api.TransientStoreConfig;
 import org.nuxeo.ecm.core.transientstore.api.TransientStoreProvider;
 import org.nuxeo.ecm.core.transientstore.api.TransientStoreService;
-import org.nuxeo.runtime.RuntimeMessage.Level;
-import org.nuxeo.runtime.model.DefaultComponent;
+import com.hyland.openarch.runtime.RuntimeMessage.Level;
+import com.hyland.openarch.runtime.model.DefaultComponent;
 
 /**
  * Component exposing the {@link TransientStoreService} and managing the underlying extension point

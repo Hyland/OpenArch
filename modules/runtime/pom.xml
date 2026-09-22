@@ -15,7 +15,7 @@
     <module>hxpr-async-tasks</module>
     <module>openarch-common</module>
     <module>hxpr-config</module>
-    <module>hxpr-runtime</module>
+    <module>openarch-runtime</module>
     <module>hxpr-runtime-cluster-api</module>
     <module>hxpr-runtime-jtajca</module>
     <module>hxpr-runtime-kv</module>

@@ -25,8 +25,8 @@ import org.nuxeo.ecm.core.event.Event;
 import org.nuxeo.ecm.core.event.EventService;
 import org.nuxeo.ecm.core.event.impl.DocumentEventContext;
 import org.nuxeo.ecm.core.event.impl.EventImpl;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.model.DefaultComponent;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.model.DefaultComponent;
 
 import java.io.Serializable;
 import java.util.Map;

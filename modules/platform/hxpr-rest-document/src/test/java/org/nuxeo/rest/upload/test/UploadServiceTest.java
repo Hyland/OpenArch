@@ -41,10 +41,10 @@ import org.nuxeo.rest.upload.UploadDTO;
 import org.nuxeo.rest.upload.UploadServiceImpl;
 import org.nuxeo.rest.upload.handler.DefaultUploadHandler;
 import org.nuxeo.rest.upload.handler.UploadHandler;
-import org.nuxeo.runtime.mockito.MockitoFeature;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.test.runner.FeaturesExtension;
-import org.nuxeo.runtime.test.runner.RuntimeFeature;
+import com.hyland.openarch.runtime.mockito.MockitoFeature;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
+import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
 import org.springframework.http.ResponseEntity;
 
 @ExtendWith(FeaturesExtension.class)

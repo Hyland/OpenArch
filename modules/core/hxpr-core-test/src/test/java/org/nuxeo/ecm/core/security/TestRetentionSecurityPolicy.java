@@ -46,10 +46,10 @@ import org.nuxeo.ecm.core.repository.RepositoryService;
 import org.nuxeo.ecm.core.security.config.RetentionSecurityPolicyConfig;
 import org.nuxeo.ecm.core.security.config.SecurityPolicyConfig;
 import org.nuxeo.ecm.core.test.CoreFeature;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.test.runner.Deploy;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.test.runner.FeaturesExtension;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.test.runner.Deploy;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
 
 import java.time.Instant;
 import java.util.Map;

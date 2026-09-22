@@ -54,7 +54,7 @@ import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.VocabularyConstants;
 import org.nuxeo.ecm.core.api.local.WithUser;
 import org.nuxeo.rest.document.test.AbstractAPITest;
-import org.nuxeo.runtime.mockito.RuntimeInject;
+import com.hyland.openarch.runtime.mockito.RuntimeInject;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.ResultActions;

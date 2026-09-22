@@ -30,9 +30,9 @@ import org.nuxeo.rest.acl.ACEDTO;
 import org.nuxeo.rest.acl.ACEMapper;
 import org.nuxeo.rest.document.DocumentDTO;
 import org.nuxeo.rest.user.UserDTO;
-import org.nuxeo.runtime.mockito.MockitoFeature;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.test.runner.FeaturesExtension;
+import com.hyland.openarch.runtime.mockito.MockitoFeature;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
 
 @ExtendWith(FeaturesExtension.class)
 @Features({ MockitoFeature.class })

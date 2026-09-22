@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <component name="org.nuxeo.runtime.cluster.api.test-blank">
 
-  <extension target="org.nuxeo.runtime.cluster.ClusterService" point="configuration">
+  <extension target="com.hyland.openarch.runtime.cluster.ClusterService" point="configuration">
     <clusterNode enabled="" />
   </extension>
 

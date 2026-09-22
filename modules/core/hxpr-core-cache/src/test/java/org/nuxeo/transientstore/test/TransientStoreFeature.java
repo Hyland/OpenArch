@@ -19,12 +19,12 @@ import java.lang.reflect.Method;
 
 import org.nuxeo.ecm.core.transientstore.TransientStorageComponent;
 import org.nuxeo.ecm.core.transientstore.api.TransientStoreService;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.cluster.BasicClusterFeature;
-import org.nuxeo.runtime.test.runner.Deploy;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.test.runner.RunnerFeature;
-import org.nuxeo.runtime.test.runner.RuntimeFeature;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.cluster.BasicClusterFeature;
+import com.hyland.openarch.runtime.test.runner.Deploy;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.RunnerFeature;
+import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
 
 @Features({ RuntimeFeature.class, BasicClusterFeature.class })
 @Deploy("org.nuxeo.ecm.core.cache")

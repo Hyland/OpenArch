@@ -45,9 +45,9 @@ import org.nuxeo.ecm.core.model.InternalDocument.BlobAccessor;
 import org.nuxeo.ecm.core.model.InternalSession;
 import org.nuxeo.ecm.core.model.Repository;
 import org.nuxeo.ecm.core.repository.RepositoryService;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.model.DefaultComponent;
-import org.nuxeo.runtime.transaction.TransactionHelper;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.model.DefaultComponent;
+import com.hyland.openarch.runtime.transaction.TransactionHelper;
 
 /**
  * Implementation of the service managing {@link Blob}s associated to a {@link InternalDocument} or a repository.

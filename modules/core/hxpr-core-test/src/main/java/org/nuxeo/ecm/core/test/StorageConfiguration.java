@@ -27,12 +27,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.storage.dbs.DBSHelper;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.mongodb.MongoDBConnectionConfig;
-import org.nuxeo.runtime.mongodb.MongoDBConnectionHelper;
-import org.nuxeo.runtime.test.runner.FeaturesLoader;
-import org.nuxeo.runtime.test.runner.RuntimeFeature;
-import org.nuxeo.runtime.test.runner.RuntimeHarness;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.mongodb.MongoDBConnectionConfig;
+import com.hyland.openarch.runtime.mongodb.MongoDBConnectionHelper;
+import com.hyland.openarch.runtime.test.runner.FeaturesLoader;
+import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
+import com.hyland.openarch.runtime.test.runner.RuntimeHarness;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;

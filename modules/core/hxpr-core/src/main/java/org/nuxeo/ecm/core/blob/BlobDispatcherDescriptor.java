@@ -22,7 +22,7 @@ import com.hyland.openarch.common.xmap.annotation.XNode;
 import com.hyland.openarch.common.xmap.annotation.XNodeMap;
 import com.hyland.openarch.common.xmap.annotation.XObject;
 import com.hyland.openarch.common.xmap.registry.XRegistry;
-import org.nuxeo.runtime.RuntimeServiceException;
+import com.hyland.openarch.runtime.RuntimeServiceException;
 
 /**
  * Descriptor for a {@link BlobDispatcher} and its configuration.

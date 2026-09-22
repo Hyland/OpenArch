@@ -30,10 +30,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.api.repository.RepositoryManager;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.cluster.ClusterService;
-import org.nuxeo.runtime.model.Component;
-import org.nuxeo.runtime.model.DefaultComponent;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.cluster.ClusterService;
+import com.hyland.openarch.runtime.model.Component;
+import com.hyland.openarch.runtime.model.DefaultComponent;
 
 /**
  * Cache service implementation to manage nuxeo cache

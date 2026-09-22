@@ -24,8 +24,8 @@ import java.util.function.UnaryOperator;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.nuxeo.runtime.RuntimeServiceException;
-import org.nuxeo.runtime.model.DefaultComponent;
+import com.hyland.openarch.runtime.RuntimeServiceException;
+import com.hyland.openarch.runtime.model.DefaultComponent;
 
 /**
  * Implementation of the {@link ConfigurationService}.

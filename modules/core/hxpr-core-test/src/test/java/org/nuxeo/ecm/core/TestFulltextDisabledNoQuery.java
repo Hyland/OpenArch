@@ -16,8 +16,8 @@
 package org.nuxeo.ecm.core;
 
 import org.nuxeo.ecm.core.test.FulltextDisabledFeature;
-import org.nuxeo.runtime.springboot.junit.RuntimeTestState;
-import org.nuxeo.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.springboot.junit.RuntimeTestState;
+import com.hyland.openarch.runtime.test.runner.Features;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest(classes = RuntimeTestState.class)

@@ -23,7 +23,7 @@ import static org.hamcrest.Matchers.is;
 
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.nuxeo.runtime.springboot.actuator.ApplicationInfo;
+import com.hyland.openarch.runtime.springboot.actuator.ApplicationInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.TestPropertySource;
 

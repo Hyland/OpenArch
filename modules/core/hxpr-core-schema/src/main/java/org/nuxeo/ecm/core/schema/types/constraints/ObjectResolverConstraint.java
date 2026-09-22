@@ -28,7 +28,7 @@ import java.util.Objects;
 
 import org.nuxeo.ecm.core.schema.types.resolver.ObjectResolver;
 import org.nuxeo.ecm.core.schema.types.resolver.ObjectResolverService;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 
 /**
  * External references are document field with a simple type whose value refers to an external business entity. This

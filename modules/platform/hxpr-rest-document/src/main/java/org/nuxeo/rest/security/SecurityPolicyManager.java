@@ -38,7 +38,7 @@ import org.nuxeo.ecm.core.security.SecurityService;
 import org.nuxeo.ecm.core.security.SecurityService.PoliciesWithVersion;
 import org.nuxeo.ecm.core.security.config.AbstractSecurityPolicyConfig;
 import org.nuxeo.ecm.core.security.config.SecurityPolicyConfig;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;

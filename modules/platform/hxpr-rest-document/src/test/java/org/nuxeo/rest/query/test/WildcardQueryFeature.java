@@ -20,8 +20,8 @@ import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.opensearch.test.RepositoryOpenSearchFeature;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.transaction.TransactionHelper;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.transaction.TransactionHelper;
 
 @Features(RepositoryOpenSearchFeature.class)
 public class WildcardQueryFeature extends RestQuerySingleDocumentFeature {

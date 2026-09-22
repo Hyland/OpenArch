@@ -19,7 +19,7 @@ import java.io.IOException;
 
 import org.apache.commons.io.output.StringBuilderWriter;
 import com.hyland.openarch.common.utils.TooLargeException;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tools.jackson.core.JacksonException;

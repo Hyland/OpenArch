@@ -38,8 +38,8 @@ import org.nuxeo.ecm.core.event.Event;
 import org.nuxeo.ecm.core.event.EventBundle;
 import org.nuxeo.ecm.core.event.EventContext;
 import org.nuxeo.ecm.core.event.ReconnectedEventBundle;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.api.login.LoginContext;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.login.LoginContext;
 
 /**
  * Default implementation for an {@link EventBundle} that need to be reconnected to a usable Session.

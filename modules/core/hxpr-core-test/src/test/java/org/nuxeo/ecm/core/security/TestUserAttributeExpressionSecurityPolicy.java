@@ -37,8 +37,8 @@ import org.nuxeo.ecm.core.api.security.SecurityConstants;
 import org.nuxeo.ecm.core.schema.TypeConstants;
 import org.nuxeo.ecm.core.security.expr.UserAttributeExpressionSecurityPolicy;
 import org.nuxeo.ecm.core.test.CoreFeature;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.test.runner.FeaturesExtension;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
 
 import jakarta.inject.Inject;
 

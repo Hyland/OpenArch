@@ -15,6 +15,7 @@
  */
 package org.nuxeo.ecm.platform.login.filestore;
 
+import com.hyland.openarch.runtime.springboot.junit.security.MockAuthenticationSupport;
 import org.nuxeo.ecm.platform.login.filestore.config.FileStoreUsersProperties;
 import org.nuxeo.ecm.platform.usermanager.UserManager;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -46,7 +47,7 @@ import org.springframework.security.web.authentication.HttpStatusEntryPoint;
  * <p>
  * This configuration also provides a {@link SecurityFilterChain} that requires authentication for every request.
  * Unauthenticated requests receive a {@code 401 Unauthorized} response. Authentication is set up per-test by
- * {@link UserManagerFileStoreFeature} via {@link org.nuxeo.runtime.springboot.junit.security.MockAuthenticationSupport}.
+ * {@link UserManagerFileStoreFeature} via {@link MockAuthenticationSupport}.
  *
  * @see UserManagerFileStoreFeature
  * @see UserManagerFileStore

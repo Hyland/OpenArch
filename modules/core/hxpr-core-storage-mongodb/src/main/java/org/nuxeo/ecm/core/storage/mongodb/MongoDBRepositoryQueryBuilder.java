@@ -63,7 +63,7 @@ import org.nuxeo.ecm.core.schema.types.primitives.AnyType;
 import org.nuxeo.ecm.core.storage.ExpressionEvaluator.PathResolver;
 import org.nuxeo.ecm.core.storage.QueryAnnotations;
 import org.nuxeo.ecm.core.storage.dbs.DBSSession;
-import org.nuxeo.runtime.mongodb.MongoDBOperators;
+import com.hyland.openarch.runtime.mongodb.MongoDBOperators;
 
 /**
  * Query builder for a MongoDB query of the repository from a {@link Predicate}.

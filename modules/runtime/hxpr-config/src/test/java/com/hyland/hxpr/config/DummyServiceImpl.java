@@ -17,8 +17,8 @@ package com.hyland.hxpr.config;
 
 import java.util.Map;
 
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.model.DefaultComponent;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.model.DefaultComponent;
 
 public class DummyServiceImpl extends DefaultComponent implements DummyService, Configurable<String> {
 

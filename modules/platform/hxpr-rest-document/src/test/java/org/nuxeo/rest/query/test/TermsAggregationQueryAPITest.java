@@ -47,7 +47,7 @@ import org.nuxeo.rest.query.OpenSearchQueryManager;
 import org.nuxeo.rest.query.QueryAPI;
 import org.nuxeo.rest.query.io.DocumentQueryDTO;
 import org.nuxeo.rest.query.io.TermsAggregationQueryResultDTO;
-import org.nuxeo.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.Features;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

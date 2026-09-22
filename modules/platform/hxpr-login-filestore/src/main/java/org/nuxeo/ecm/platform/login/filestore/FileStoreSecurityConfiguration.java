@@ -17,7 +17,7 @@ package org.nuxeo.ecm.platform.login.filestore;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
-import org.nuxeo.runtime.springboot.security.PublicEndpoints;
+import com.hyland.openarch.runtime.springboot.security.PublicEndpoints;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;

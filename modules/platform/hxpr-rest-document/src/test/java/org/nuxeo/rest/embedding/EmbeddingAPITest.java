@@ -43,9 +43,9 @@ import org.nuxeo.opensearch.test.RepositoryOpenSearchFeature;
 import org.nuxeo.opensearch.test.util.ParquetBlobGenerator;
 import org.nuxeo.rest.query.test.AbstractQueryAPITest;
 import org.nuxeo.rest.query.test.QueryAPITestConfiguration;
-import org.nuxeo.runtime.mockito.RuntimeInject;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.test.runner.TransactionalFeature;
+import com.hyland.openarch.runtime.mockito.RuntimeInject;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.TransactionalFeature;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 

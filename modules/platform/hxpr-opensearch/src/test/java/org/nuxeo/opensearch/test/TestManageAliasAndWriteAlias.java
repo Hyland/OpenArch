@@ -35,10 +35,10 @@ import org.nuxeo.opensearch.OpenSearchConstants;
 import org.nuxeo.opensearch.api.OpenSearchClient;
 import org.nuxeo.opensearch.api.OpenSearchService;
 import org.nuxeo.opensearch.core.IncrementalIndexNameGenerator;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.test.runner.Deploy;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.test.runner.FeaturesExtension;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.test.runner.Deploy;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
 
 /**
  * @since 9.3

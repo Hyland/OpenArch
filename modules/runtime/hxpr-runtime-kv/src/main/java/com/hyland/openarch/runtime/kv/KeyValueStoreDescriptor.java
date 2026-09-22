@@ -1,0 +1,72 @@
+/*
+ * (C) Copyright 2017-2026 Hyland (https://www.hyland.com/).
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.hyland.openarch.runtime.kv;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import com.hyland.openarch.common.xmap.annotation.XNode;
+import com.hyland.openarch.common.xmap.annotation.XNodeMap;
+import com.hyland.openarch.common.xmap.annotation.XObject;
+import com.hyland.openarch.common.xmap.registry.XRegistry;
+import com.hyland.openarch.common.xmap.registry.XRegistryId;
+
+/**
+ * Descriptor of Key/Value store contribution.
+ *
+ * @since 9.1
+ */
+@XObject("store")
+@XRegistry(compatWarnOnMerge = true)
+public class KeyValueStoreDescriptor {
+
+    @XNode("@name")
+    @XRegistryId
+    public String name;
+
+    @XNode("@class")
+    public Class<? extends KeyValueStoreProvider> klass;
+
+    /**
+     * An optional namespace that may be used to disambiguate otherwise similar descriptors (in particular, copies).
+     *
+     * @since 10.10
+     */
+    @XNode("namespace")
+    public String namespace;
+
+    @XNodeMap(value = "property", key = "@name", type = HashMap.class, componentType = String.class)
+    public Map<String, String> properties = new HashMap<>();
+
+    /**
+     * Empty constructor.
+     */
+    public KeyValueStoreDescriptor() {
+    }
+
+    /**
+     * Copy constructor.
+     *
+     * @since 10.10
+     */
+    public KeyValueStoreDescriptor(KeyValueStoreDescriptor other) {
+        name = other.name;
+        klass = other.klass;
+        namespace = other.namespace;
+        properties.putAll(other.properties);
+    }
+
+}

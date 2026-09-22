@@ -36,8 +36,8 @@ import org.nuxeo.opensearch.api.OpenSearchService;
 import org.nuxeo.opensearch.commands.IndexingCommand;
 import org.nuxeo.opensearch.commands.IndexingCommands;
 import org.nuxeo.opensearch.commands.IndexingCommandsStacker;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.transaction.TransactionHelper;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.transaction.TransactionHelper;
 
 /**
  * Synchronous Event listener used to record indexing command, submitted after commit completion.

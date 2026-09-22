@@ -1,0 +1,144 @@
+/*
+ * (C) Copyright 2006-2026 Hyland (https://www.hyland.com/).
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.hyland.openarch.runtime.model.impl;
+
+import java.io.IOException;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import com.hyland.openarch.common.xmap.DOMSerializer;
+import com.hyland.openarch.common.xmap.annotation.XContent;
+import com.hyland.openarch.common.xmap.annotation.XNode;
+import com.hyland.openarch.common.xmap.annotation.XObject;
+import com.hyland.openarch.runtime.model.ComponentInstance;
+import com.hyland.openarch.runtime.model.Extension;
+import com.hyland.openarch.runtime.model.RuntimeContext;
+import org.w3c.dom.Element;
+
+/**
+ * @author <a href="mailto:bs@nuxeo.com">Bogdan Stefanescu</a>
+ */
+@XObject("extension")
+public class ExtensionImpl implements Extension {
+
+    // used to generate the extension id if none was provided
+    private static AtomicInteger cnt = new AtomicInteger();
+
+    @XNode("@target")
+    String target;
+
+    @XNode("@point")
+    String extensionPoint;
+
+    @XNode("@id")
+    private String id;
+
+    @XContent("documentation")
+    String documentation;
+
+    @XNode("")
+    Element element;
+
+    // declaring component
+    ComponentInstance component;
+
+    @Override
+    public void dispose() {
+        element = null;
+    }
+
+    @Override
+    public Element getElement() {
+        return element;
+    }
+
+    @Override
+    public void setElement(Element element) {
+        this.element = element;
+    }
+
+    @Override
+    public String getExtensionPoint() {
+        return extensionPoint;
+    }
+
+    @Override
+    public String getTargetComponent() {
+        return target;
+    }
+
+    @Override
+    public void setComponent(ComponentInstance component) {
+        this.component = component;
+    }
+
+    @Override
+    public ComponentInstance getComponent() {
+        return component;
+    }
+
+    @Override
+    public RuntimeContext getContext() {
+        return component.getContext();
+    }
+
+    @Override
+    public String getId() {
+        if (id == null) {
+            var count = cnt.getAndIncrement();
+            if (component != null) {
+                id = component.getName() + '#' + extensionPoint + '.' + count;
+            } else {
+                id = "null#" + extensionPoint + '.' + count;
+            }
+        }
+        return id;
+    }
+
+    @Override
+    public String getDocumentation() {
+        return documentation;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(ExtensionImpl.class.getSimpleName());
+        sb.append(" {");
+        sb.append("target: ");
+        sb.append(target);
+        sb.append(", point:");
+        sb.append(extensionPoint);
+        sb.append(", contributor:");
+        sb.append(component);
+        sb.append('}');
+        return sb.toString();
+    }
+
+    /**
+     * Gets the XML string for this extension.
+     */
+    @Override
+    public String toXML() {
+        try {
+            return DOMSerializer.toStringOmitXml(element);
+        } catch (IOException e) {
+            System.err.println("Failed to serialize extension " + e);
+            return null;
+        }
+    }
+
+}

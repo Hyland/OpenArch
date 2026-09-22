@@ -31,7 +31,7 @@
   <logger level="warn" name="org.nuxeo.ecm.core.schema.XSDLoader" />
   <logger level="warn" name="org.nuxeo.opensearch.client.OpenSearchRestClient" />
   <logger level="warn" name="org.nuxeo.opensearch.OpenSearchServiceImpl" />
-  <logger level="warn" name="org.nuxeo.runtime.cluster.ClusterServiceImpl" />
+  <logger level="warn" name="com.hyland.openarch.runtime.cluster.ClusterServiceImpl" />
   <logger level="warn" name="org.nuxeo.renditions.listeners.CreateRenditionListener" />
   <logger level="warn" name="org.nuxeo.rest.exception.NuxeoExceptionController" />
   <logger level="warn" name="org.nuxeo.rest.security.SecurityPolicyManager" />

@@ -45,7 +45,7 @@ import org.nuxeo.ecm.core.schema.SchemaManager;
 import org.nuxeo.ecm.core.storage.State;
 import org.nuxeo.ecm.core.storage.State.ListDiff;
 import org.nuxeo.ecm.core.storage.State.StateDiff;
-import org.nuxeo.runtime.mongodb.MongoDBOperators;
+import com.hyland.openarch.runtime.mongodb.MongoDBOperators;
 
 import com.mongodb.client.model.Filters;
 

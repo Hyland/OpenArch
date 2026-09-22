@@ -29,7 +29,7 @@ import org.nuxeo.ecm.core.api.validation.ConstraintViolation.PathNode;
 import org.nuxeo.ecm.core.schema.types.Field;
 import org.nuxeo.ecm.core.schema.types.constraints.Constraint;
 import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
-import org.nuxeo.runtime.model.DefaultComponent;
+import com.hyland.openarch.runtime.model.DefaultComponent;
 
 public class DocumentValidationServiceImpl extends DefaultComponent implements DocumentValidationService {
 

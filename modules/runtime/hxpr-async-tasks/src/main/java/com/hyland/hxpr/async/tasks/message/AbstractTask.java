@@ -19,7 +19,7 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.nuxeo.runtime.transaction.TransactionHelper;
+import com.hyland.openarch.runtime.transaction.TransactionHelper;
 
 import java.io.Serializable;
 import java.util.HashMap;

@@ -24,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.nuxeo.ecm.platform.usermanager.UserManager;
-import org.nuxeo.runtime.springboot.junit.RuntimeSpringBootTest;
+import com.hyland.openarch.runtime.springboot.junit.RuntimeSpringBootTest;
 
 /**
  * Abstract base class for {@link GroupAPI} tests, shared between community (mock) and enterprise (real IAM) variants.

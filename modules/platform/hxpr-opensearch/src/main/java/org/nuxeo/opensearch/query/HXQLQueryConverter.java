@@ -65,7 +65,7 @@ import org.nuxeo.ecm.core.schema.types.Type;
 import org.nuxeo.ecm.core.schema.types.primitives.BooleanType;
 import org.nuxeo.ecm.core.security.SecurityPolicyService;
 import org.nuxeo.ecm.core.security.SecurityService;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 import org.opensearch.client.json.JsonData;
 import org.opensearch.client.opensearch._types.FieldValue;
 import org.opensearch.client.opensearch._types.query_dsl.BoolQuery;

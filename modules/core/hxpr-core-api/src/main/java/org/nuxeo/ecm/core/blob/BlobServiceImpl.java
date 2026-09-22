@@ -29,11 +29,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.api.NuxeoException;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.kv.KeyValueService;
-import org.nuxeo.runtime.kv.KeyValueStore;
-import org.nuxeo.runtime.kv.KeyValueStoreProvider;
-import org.nuxeo.runtime.model.DefaultComponent;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.kv.KeyValueService;
+import com.hyland.openarch.runtime.kv.KeyValueStore;
+import com.hyland.openarch.runtime.kv.KeyValueStoreProvider;
+import com.hyland.openarch.runtime.model.DefaultComponent;
 
 /**
  * Implementation of the service managing the storage and retrieval of {@link Blob}s, through internally-registered

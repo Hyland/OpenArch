@@ -27,8 +27,8 @@ import org.nuxeo.ecm.platform.vocabulary.exception.VocabularyEntryNotFoundExcept
 import org.nuxeo.ecm.platform.vocabulary.exception.VocabularyNotFoundException;
 import org.nuxeo.ecm.platform.vocabulary.model.VocabularyEntryWrapper;
 import org.nuxeo.ecm.platform.vocabulary.model.VocabularyWrapper;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.springboot.framework.ApplicationContextHelper;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.springboot.framework.ApplicationContextHelper;
 
 /**
  * This {@link ObjectResolver} allows to manage integrity for fields containing references to vocabulary's entry.

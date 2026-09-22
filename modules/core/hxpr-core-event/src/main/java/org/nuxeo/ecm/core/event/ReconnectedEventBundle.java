@@ -16,6 +16,7 @@
 
 package org.nuxeo.ecm.core.event;
 
+import com.hyland.openarch.runtime.api.Framework;
 import org.nuxeo.ecm.core.api.CoreSession;
 
 /**
@@ -26,7 +27,7 @@ import org.nuxeo.ecm.core.api.CoreSession;
  * </ul>
  * This interface is used to mark Bundles that supports this kind of processing. This basically means:
  * <ul>
- * <li>Create a JAAS session via {@link org.nuxeo.runtime.api.Framework#login()}
+ * <li>Create a JAAS session via {@link Framework#login()}
  * <li>Create a new usage {@link CoreSession}
  * <li>refetch any {@link EventContext} args / properties according to new session
  * <li>provide cleanup method

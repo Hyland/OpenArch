@@ -45,7 +45,7 @@ import org.nuxeo.ecm.core.schema.types.primitives.DateType;
 import org.nuxeo.ecm.core.schema.types.primitives.DecimalType;
 import org.nuxeo.ecm.core.schema.types.primitives.DoubleType;
 import org.nuxeo.ecm.core.schema.types.primitives.StringType;
-import org.nuxeo.runtime.test.ResourceHelper;
+import com.hyland.openarch.runtime.test.ResourceHelper;
 
 public class TestSchemaLoaderRestriction {
 

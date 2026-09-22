@@ -56,11 +56,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import org.apache.http.HttpStatus;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.nuxeo.ecm.core.api.ConcurrentUpdateException;
@@ -99,8 +97,8 @@ import org.nuxeo.ecm.core.storage.State.StateDiff;
 import org.nuxeo.ecm.core.storage.StateHelper;
 import org.nuxeo.ecm.core.storage.dbs.DBSSession.ChildrenSelector;
 import org.nuxeo.ecm.core.storage.dbs.DBSSession.ChildrenSelectorTestContext;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.transaction.TransactionHelper;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.transaction.TransactionHelper;
 
 import com.hyland.hxpr.async.tasks.TaskService;
 import com.hyland.hxpr.async.tasks.message.DocumentTask;

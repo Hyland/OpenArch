@@ -36,7 +36,7 @@ import org.nuxeo.ecm.core.api.PropertyException;
 import org.nuxeo.ecm.core.api.model.Delta;
 import org.nuxeo.ecm.core.storage.State.ListDiff;
 import org.nuxeo.ecm.core.storage.State.StateDiff;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 
 /**
  * Helpers for deep copy and deep diff of {@link State} objects.

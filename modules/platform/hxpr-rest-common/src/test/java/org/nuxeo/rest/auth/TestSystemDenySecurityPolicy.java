@@ -24,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.nuxeo.ecm.core.api.security.SecurityConstants;
-import org.nuxeo.runtime.springboot.junit.RuntimeSpringBootTest;
+import com.hyland.openarch.runtime.springboot.junit.RuntimeSpringBootTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;

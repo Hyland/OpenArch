@@ -46,7 +46,7 @@ import org.nuxeo.ecm.core.schema.types.primitives.DateType;
 import org.nuxeo.ecm.core.storage.ExpressionEvaluator;
 import org.nuxeo.ecm.core.storage.QueryAnnotations;
 import org.nuxeo.ecm.core.storage.QueryAnnotations.PrefixInfo;
-import org.nuxeo.runtime.mongodb.MongoDBOperators;
+import com.hyland.openarch.runtime.mongodb.MongoDBOperators;
 
 /**
  * Abstract query builder for a MongoDB query from a {@link Predicate}.

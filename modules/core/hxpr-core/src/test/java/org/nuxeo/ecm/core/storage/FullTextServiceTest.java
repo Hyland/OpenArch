@@ -29,7 +29,7 @@ import org.nuxeo.ecm.core.model.Repository;
 import org.nuxeo.ecm.core.repository.RepositoryService;
 import org.nuxeo.ecm.core.schema.SchemaManager;
 import org.nuxeo.ecm.core.schema.TypeService;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 
 class FullTextServiceTest {
 

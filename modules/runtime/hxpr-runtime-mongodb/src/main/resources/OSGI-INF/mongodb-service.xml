@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
-<component name="org.nuxeo.runtime.mongodb.MongoDBComponent">
+<component name="com.hyland.openarch.runtime.mongodb.MongoDBComponent">
 
-  <implementation class="org.nuxeo.runtime.mongodb.MongoDBComponent" />
+  <implementation class="com.hyland.openarch.runtime.mongodb.MongoDBComponent" />
 
   <service>
-    <provide interface="org.nuxeo.runtime.mongodb.MongoDBConnectionService" />
+    <provide interface="com.hyland.openarch.runtime.mongodb.MongoDBConnectionService" />
   </service>
 
   <extension-point name="connection">
@@ -29,7 +29,7 @@
       See http://docs.mongodb.org/manual/reference/connection-string/ for the mongodb:// URI syntax.
     </documentation>
 
-    <object class="org.nuxeo.runtime.mongodb.MongoDBConnectionConfig" />
+    <object class="com.hyland.openarch.runtime.mongodb.MongoDBConnectionConfig" />
   </extension-point>
 
 </component>

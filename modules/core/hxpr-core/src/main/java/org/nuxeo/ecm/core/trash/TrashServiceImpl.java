@@ -63,8 +63,8 @@ import org.nuxeo.ecm.core.query.sql.model.Predicates;
 import org.nuxeo.ecm.core.query.sql.model.SelectClause;
 import org.nuxeo.ecm.core.query.sql.model.Statement;
 import org.nuxeo.ecm.core.query.sql.model.WhereClause;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.model.DefaultComponent;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.model.DefaultComponent;
 
 import com.hyland.hxpr.async.tasks.TaskService;
 import com.hyland.hxpr.async.tasks.message.ScrollerTask;

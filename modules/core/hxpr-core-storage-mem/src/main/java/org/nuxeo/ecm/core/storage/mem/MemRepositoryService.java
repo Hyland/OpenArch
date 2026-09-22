@@ -17,7 +17,7 @@ package org.nuxeo.ecm.core.storage.mem;
 
 import org.nuxeo.ecm.core.storage.dbs.AbstractDBSRepositoryDescriptorRegistry;
 import org.nuxeo.ecm.core.storage.dbs.DBSRepositoryRegistry;
-import org.nuxeo.runtime.model.DefaultComponent;
+import com.hyland.openarch.runtime.model.DefaultComponent;
 
 /**
  * Service holding the configuration for Memory repositories.

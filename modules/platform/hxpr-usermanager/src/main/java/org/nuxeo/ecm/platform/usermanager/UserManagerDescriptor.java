@@ -18,7 +18,7 @@ package org.nuxeo.ecm.platform.usermanager;
 import com.hyland.openarch.common.xmap.annotation.XNode;
 import com.hyland.openarch.common.xmap.annotation.XObject;
 import com.hyland.openarch.common.xmap.registry.XRegistry;
-import org.nuxeo.runtime.model.ComponentStartOrders;
+import com.hyland.openarch.runtime.model.ComponentStartOrders;
 
 /**
  * APG-240 All attributes are defined public because the user manager service do not get access to the fields. OSGI

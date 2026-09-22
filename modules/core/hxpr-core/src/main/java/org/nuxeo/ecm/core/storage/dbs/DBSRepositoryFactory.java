@@ -16,7 +16,7 @@
 package org.nuxeo.ecm.core.storage.dbs;
 
 import org.nuxeo.ecm.core.repository.RepositoryFactory;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 
 /**
  * Base DBS implementation of a {@link RepositoryFactory}, creating a subclass of {@link DBSRepository}.

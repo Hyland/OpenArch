@@ -38,10 +38,10 @@ import org.nuxeo.ecm.platform.vocabulary.model.CreateVocabulary;
 import org.nuxeo.ecm.platform.vocabulary.model.CreateVocabularyEntry;
 import org.nuxeo.ecm.platform.vocabulary.model.VocabularyEntryWrapper;
 import org.nuxeo.ecm.platform.vocabulary.model.VocabularyWrapper;
-import org.nuxeo.runtime.mockito.RuntimeInject;
-import org.nuxeo.runtime.springboot.junit.RuntimeSpringBootTest;
-import org.nuxeo.runtime.test.runner.Deploy;
-import org.nuxeo.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.mockito.RuntimeInject;
+import com.hyland.openarch.runtime.springboot.junit.RuntimeSpringBootTest;
+import com.hyland.openarch.runtime.test.runner.Deploy;
+import com.hyland.openarch.runtime.test.runner.Features;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @Features(CoreFeature.class)

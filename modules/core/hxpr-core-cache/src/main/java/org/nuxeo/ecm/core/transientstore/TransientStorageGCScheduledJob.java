@@ -21,7 +21,7 @@ import com.hyland.hxpr.async.tasks.TaskService;
 import com.hyland.hxpr.async.tasks.message.RepositoryTask;
 import org.nuxeo.ecm.core.scheduler.ScheduledJob;
 import org.nuxeo.ecm.core.transientstore.api.TransientStore;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 
 /**
  * Simple Listener used to GC Work for {@link TransientStore}s

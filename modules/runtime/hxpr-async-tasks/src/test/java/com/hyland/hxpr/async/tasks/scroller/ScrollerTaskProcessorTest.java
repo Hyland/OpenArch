@@ -21,8 +21,8 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.test.runner.FeaturesExtension;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
 
 import com.hyland.hxpr.async.tasks.AsyncTasksFeature;
 import com.hyland.hxpr.async.tasks.message.ScrollerTask;

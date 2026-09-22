@@ -22,8 +22,8 @@ import javax.security.auth.login.LoginException;
 import org.nuxeo.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.ecm.platform.usermanager.NuxeoPrincipalImpl;
 import org.nuxeo.ecm.platform.usermanager.UserManager;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.api.login.PrincipalFactory;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.login.PrincipalFactory;
 
 public class UserManagerPrincipalFactory implements PrincipalFactory {
 

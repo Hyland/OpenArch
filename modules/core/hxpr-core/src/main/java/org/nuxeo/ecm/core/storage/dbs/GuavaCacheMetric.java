@@ -15,7 +15,7 @@
  */
 package org.nuxeo.ecm.core.storage.dbs;
 
-import org.nuxeo.runtime.metrics.NuxeoMetricSet;
+import com.hyland.openarch.runtime.metrics.NuxeoMetricSet;
 
 import com.google.common.cache.Cache;
 

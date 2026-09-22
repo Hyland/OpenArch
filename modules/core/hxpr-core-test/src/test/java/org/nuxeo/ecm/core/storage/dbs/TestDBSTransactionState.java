@@ -48,11 +48,11 @@ import org.nuxeo.ecm.core.security.SecurityPolicyService;
 import org.nuxeo.ecm.core.security.SecurityService;
 import org.nuxeo.ecm.core.storage.State;
 import org.nuxeo.ecm.core.test.CoreFeature;
-import org.nuxeo.runtime.mockito.MockitoFeature;
-import org.nuxeo.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.mockito.MockitoFeature;
+import com.hyland.openarch.runtime.test.runner.Features;
 
 import com.hyland.hxpr.async.tasks.message.DocumentTask;
-import org.nuxeo.runtime.test.runner.FeaturesExtension;
+import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
 
 @ExtendWith(FeaturesExtension.class)
 @Features({CoreFeature.class, MockitoFeature.class})

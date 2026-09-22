@@ -20,7 +20,7 @@ import org.nuxeo.ecm.core.api.local.DummyLoginFeature;
 import org.nuxeo.ecm.platform.login.filestore.UserManagerFileStoreFeature;
 import org.nuxeo.ecm.platform.login.filestore.UserManagerFileStoreTestConfiguration;
 import org.nuxeo.rest.exception.NuxeoExceptionController;
-import org.nuxeo.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.Features;
 import org.springframework.boot.test.context.SpringBootTest;
 
 /**

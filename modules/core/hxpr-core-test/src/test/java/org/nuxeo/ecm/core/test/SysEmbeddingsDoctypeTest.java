@@ -41,9 +41,9 @@ import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.api.validation.DocumentValidationException;
 import org.nuxeo.ecm.core.schema.MixinNames;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.test.runner.FeaturesExtension;
-import org.nuxeo.runtime.test.runner.LogFeature;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
+import com.hyland.openarch.runtime.test.runner.LogFeature;
 
 import jakarta.inject.Inject;
 

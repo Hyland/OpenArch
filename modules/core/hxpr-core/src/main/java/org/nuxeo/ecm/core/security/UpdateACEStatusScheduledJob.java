@@ -17,13 +17,13 @@
 package org.nuxeo.ecm.core.security;
 
 import static org.nuxeo.ecm.core.async.tasks.UpdateACEStatusTaskProcessor.UPDATE_ACE_STATUS_TASK_NAME;
-import static org.nuxeo.runtime.api.login.LoginService.SYSTEM_USERNAME;
+import static com.hyland.openarch.runtime.api.login.LoginService.SYSTEM_USERNAME;
 
 import com.hyland.hxpr.async.tasks.TaskService;
 import com.hyland.hxpr.async.tasks.message.RepositoryTask;
 import org.nuxeo.ecm.core.api.repository.RepositoryManager;
 import org.nuxeo.ecm.core.scheduler.ScheduledJob;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 
 /**
  * Listener triggering the work updating ACE status.

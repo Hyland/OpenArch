@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.nuxeo.ecm.core.api.local.WithUser;
 import org.nuxeo.rest.query.QueryAPI;
-import org.nuxeo.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.Features;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpMethod;

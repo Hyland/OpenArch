@@ -168,7 +168,7 @@ import org.nuxeo.ecm.core.security.SecurityPolicyService;
 import org.nuxeo.ecm.core.security.SecurityService;
 import org.nuxeo.ecm.core.storage.State;
 import org.nuxeo.ecm.core.storage.StateHelper;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 
 /**
  * Implementation of a {@link InternalDocument} for Document-Based Storage. The document is stored as a JSON-like Map. The keys

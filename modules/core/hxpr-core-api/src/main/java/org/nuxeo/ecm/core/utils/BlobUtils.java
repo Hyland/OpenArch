@@ -35,7 +35,7 @@ import com.hyland.openarch.common.utils.StringUtils;
 import com.hyland.openarch.common.utils.ZipUtils;
 import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.api.Blobs;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 
 /**
  * Blob utility methods.

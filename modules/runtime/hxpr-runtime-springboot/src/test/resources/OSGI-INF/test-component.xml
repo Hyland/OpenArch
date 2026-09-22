@@ -4,8 +4,8 @@
   <property name="myReferenceProperty" value="${component.property.reference.value}" />
   <property name="myReferenceProperty2" value="${component.property.value} Reference" />
   <property name="mySysProperty" value="${java.specification.version}" />
-  <implementation class="org.nuxeo.runtime.springboot.mock.MockComponent" />
+  <implementation class="com.hyland.openarch.runtime.springboot.mock.MockComponent" />
   <service>
-    <provide interface="org.nuxeo.runtime.springboot.mock.IMockComponent" />
+    <provide interface="com.hyland.openarch.runtime.springboot.mock.IMockComponent" />
   </service>
 </component>

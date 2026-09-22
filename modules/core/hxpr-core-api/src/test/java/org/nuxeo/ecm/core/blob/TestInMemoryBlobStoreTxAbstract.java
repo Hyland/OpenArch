@@ -21,10 +21,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
 
 import org.junit.jupiter.api.Test;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.test.runner.TransactionalConfig;
-import org.nuxeo.runtime.test.runner.TransactionalFeature;
-import org.nuxeo.runtime.transaction.TransactionHelper;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.TransactionalConfig;
+import com.hyland.openarch.runtime.test.runner.TransactionalFeature;
+import com.hyland.openarch.runtime.transaction.TransactionHelper;
 
 @Features(TransactionalFeature.class)
 @TransactionalConfig(autoStart = false)

@@ -63,10 +63,10 @@ import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
 import org.nuxeo.ecm.core.security.config.SecurityLevelSecurityPolicyConfig;
 import org.nuxeo.ecm.core.security.config.SecurityPolicyConfig;
 import org.nuxeo.ecm.core.test.CoreFeature;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.test.runner.Deploy;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.test.runner.FeaturesExtension;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.test.runner.Deploy;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;

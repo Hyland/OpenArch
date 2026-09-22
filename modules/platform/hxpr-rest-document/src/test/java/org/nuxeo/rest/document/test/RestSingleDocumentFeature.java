@@ -33,10 +33,10 @@ import org.nuxeo.ecm.core.test.annotations.Granularity;
 import org.nuxeo.ecm.core.test.annotations.RepositoryConfig;
 import org.nuxeo.ecm.platform.test.UserManagerMockFeature;
 import org.nuxeo.ecm.platform.test.UserManagerMockTestConfiguration;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.test.runner.FeaturesLoader;
-import org.nuxeo.runtime.test.runner.RunnerFeature;
-import org.nuxeo.runtime.transaction.TransactionHelper;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.FeaturesLoader;
+import com.hyland.openarch.runtime.test.runner.RunnerFeature;
+import com.hyland.openarch.runtime.transaction.TransactionHelper;
 import org.springframework.context.annotation.Import;
 
 import com.google.inject.Binder;

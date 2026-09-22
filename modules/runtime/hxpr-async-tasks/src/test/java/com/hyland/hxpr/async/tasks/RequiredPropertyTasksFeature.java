@@ -15,9 +15,9 @@
  */
 package com.hyland.hxpr.async.tasks;
 
-import org.nuxeo.runtime.test.runner.Deploy;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.test.runner.FeaturesLoader;
+import com.hyland.openarch.runtime.test.runner.Deploy;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.FeaturesLoader;
 
 /**
  * Test feature that sets the {@code test.async.tasks.required.present} system property before the runtime starts, so a

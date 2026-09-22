@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 
-import org.nuxeo.runtime.springboot.auth.NuxeoLoginFilter;
+import com.hyland.openarch.runtime.springboot.auth.NuxeoLoginFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;

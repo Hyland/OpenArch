@@ -40,7 +40,7 @@ import org.nuxeo.ecm.core.schema.types.CompositeTypeImpl;
 import org.nuxeo.ecm.core.schema.types.Schema;
 import org.nuxeo.ecm.core.schema.types.Type;
 import org.nuxeo.ecm.core.schema.types.TypeException;
-import org.nuxeo.runtime.RuntimeServiceException;
+import com.hyland.openarch.runtime.RuntimeServiceException;
 import org.xml.sax.SAXException;
 
 /**

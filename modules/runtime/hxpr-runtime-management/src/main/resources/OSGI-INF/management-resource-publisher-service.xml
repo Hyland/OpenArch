@@ -1,17 +1,17 @@
 <?xml version="1.0"?>
-<component name="org.nuxeo.runtime.management.ResourcePublisher">
+<component name="com.hyland.openarch.runtime.management.ResourcePublisher">
 
 	<documentation>
 	Management resource publishers, resources can be nuxeo services or factories.
 	</documentation>
 
-  <implementation class="org.nuxeo.runtime.management.ResourcePublisherService" />
+  <implementation class="com.hyland.openarch.runtime.management.ResourcePublisherService" />
 
   <service>
-    <provide interface="org.nuxeo.runtime.management.ResourcePublisher" />
+    <provide interface="com.hyland.openarch.runtime.management.ResourcePublisher" />
   </service>
 
-  <require>org.nuxeo.runtime.management.ServerLocator</require>
+  <require>com.hyland.openarch.runtime.management.ServerLocator</require>
 
   <extension-point name="services">
     <documentation>
@@ -21,10 +21,10 @@
         the <emph>ifaceClass</emph> is used to locate the service,
         the <emph>class</emph> is instrumented for publishing management information.</p>
         <p>The following line figures out how we have published the runtime management service itself.
-        <br/>&lt;service name="managementResourcePublisher" class="org.nuxeo.runtime.management.ResourcePublisher" ifaceClass="prg.nuxeo.runtime.management.ResourcePublisherService"&gt;
+        <br/>&lt;service name="managementResourcePublisher" class="com.hyland.openarch.runtime.management.ResourcePublisher" ifaceClass="prg.nuxeo.runtime.management.ResourcePublisherService"&gt;
         </p>
     </documentation>
-    <object class="org.nuxeo.runtime.management.ServiceDescriptor" />
+    <object class="com.hyland.openarch.runtime.management.ServiceDescriptor" />
   </extension-point>
 
   <extension-point name="factories">
@@ -37,7 +37,7 @@
 	&lt;factory class="my.FactoryClass"&gt;
 	</p>
       </documentation>
-    <object class="org.nuxeo.runtime.management.ResourceFactoryDescriptor" />
+    <object class="com.hyland.openarch.runtime.management.ResourceFactoryDescriptor" />
   </extension-point>
 
   <extension-point name="shortcuts">
@@ -49,12 +49,12 @@
         &lt;shortcut name="publisher" qualifiedName="org.nuxeo:name=managementResourcePublisher,type=service" locator="org.nuxeo"/&gt;
         </p>
       </documentation>
-    <object class="org.nuxeo.runtime.management.ShortcutDescriptor" />
+    <object class="com.hyland.openarch.runtime.management.ShortcutDescriptor" />
   </extension-point>
 
-  <extension target="org.nuxeo.runtime.management.ResourcePublisher"
+  <extension target="com.hyland.openarch.runtime.management.ResourcePublisher"
     point="services">
-    <service name="managementResourcePublisher" class="org.nuxeo.runtime.management.ResourcePublisher" ifaceClass="prg.nuxeo.runtime.management.ResourcePublisherService"/>
+    <service name="managementResourcePublisher" class="com.hyland.openarch.runtime.management.ResourcePublisher" ifaceClass="prg.nuxeo.runtime.management.ResourcePublisherService"/>
   </extension>
 
 </component>

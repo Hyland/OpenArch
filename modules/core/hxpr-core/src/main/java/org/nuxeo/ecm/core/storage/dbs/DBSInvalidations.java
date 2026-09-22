@@ -32,9 +32,9 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.exc.UnrecognizedPropertyException;
 import com.hyland.hxpr.runtime.pubsub.SerializableAccumulableInvalidations;
 import org.apache.commons.io.IOUtils;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.cluster.ClusterService;
-import org.nuxeo.runtime.transaction.TransactionHelper;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.cluster.ClusterService;
+import com.hyland.openarch.runtime.transaction.TransactionHelper;
 
 /**
  * A set of invalidations for a given repository.

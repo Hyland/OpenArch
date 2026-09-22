@@ -34,8 +34,8 @@ import org.nuxeo.ecm.core.api.ConcurrentUpdateException;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.blob.binary.BinaryGarbageCollector;
 import org.nuxeo.ecm.core.utils.BlobUtils;
-import org.nuxeo.runtime.jtajca.NuxeoContainer;
-import org.nuxeo.runtime.transaction.TransactionHelper;
+import com.hyland.openarch.runtime.jtajca.NuxeoContainer;
+import com.hyland.openarch.runtime.transaction.TransactionHelper;
 
 /**
  * Transactional Blob Store.

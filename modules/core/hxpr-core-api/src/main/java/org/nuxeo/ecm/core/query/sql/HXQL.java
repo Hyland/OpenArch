@@ -20,7 +20,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
 
 import com.hyland.openarch.common.utils.PeriodAndDuration;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 
 /**
  * This defines the constants for HXQL queries.

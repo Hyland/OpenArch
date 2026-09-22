@@ -32,9 +32,9 @@ import java.time.Duration;
 
 import org.junit.jupiter.api.Test;
 import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.runtime.springboot.junit.RuntimeTestState;
-import org.nuxeo.runtime.test.runner.Deploy;
-import org.nuxeo.runtime.transaction.TransactionHelper;
+import com.hyland.openarch.runtime.springboot.junit.RuntimeTestState;
+import com.hyland.openarch.runtime.test.runner.Deploy;
+import com.hyland.openarch.runtime.transaction.TransactionHelper;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.hyland.hxpr.async.tasks.message.DocumentTask;

@@ -16,8 +16,8 @@
 
 package org.nuxeo.ecm.core.test;
 
-import org.nuxeo.runtime.test.runner.FeaturesLoader;
-import org.nuxeo.runtime.test.runner.RunnerFeature;
+import com.hyland.openarch.runtime.test.runner.FeaturesLoader;
+import com.hyland.openarch.runtime.test.runner.RunnerFeature;
 
 public class FulltextDisabledFeature implements RunnerFeature {
     private static final String KEY = "nuxeo.test.fulltext.disabled";

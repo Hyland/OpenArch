@@ -48,7 +48,7 @@ import org.nuxeo.rest.query.spec.NamedQueryRegistry;
 import org.nuxeo.rest.query.spec.QueryAssembler;
 import org.nuxeo.rest.query.spec.QueryAssembler.AssembledQuery;
 import org.nuxeo.rest.query.spec.QuerySpecification;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 
 
 public abstract class AbstractQueryManager implements QueryManager {

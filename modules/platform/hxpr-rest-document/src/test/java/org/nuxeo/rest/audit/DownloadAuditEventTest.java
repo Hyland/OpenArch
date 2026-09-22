@@ -47,10 +47,10 @@ import org.nuxeo.rest.download.DownloadAPI;
 import org.nuxeo.rest.download.DownloadManager;
 import org.nuxeo.rest.download.DownloadStudioFormDataAPI;
 import org.nuxeo.rest.utils.Versions;
-import org.nuxeo.runtime.mockito.RuntimeInject;
-import org.nuxeo.runtime.test.runner.Deploy;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.test.runner.WithApplicationProperties;
+import com.hyland.openarch.runtime.mockito.RuntimeInject;
+import com.hyland.openarch.runtime.test.runner.Deploy;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.WithApplicationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MvcResult;
 

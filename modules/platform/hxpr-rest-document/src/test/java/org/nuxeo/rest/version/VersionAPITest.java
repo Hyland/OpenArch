@@ -46,9 +46,9 @@ import org.nuxeo.rest.document.test.AbstractAPITest;
 import org.nuxeo.rest.document.test.DocumentAPITestConfiguration;
 import org.nuxeo.rest.document.test.RestSingleDocumentFeature;
 import org.nuxeo.rest.document.utils.ACLChangesHandler;
-import org.nuxeo.runtime.mockito.RuntimeInject;
-import org.nuxeo.runtime.test.runner.Deploy;
-import org.nuxeo.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.mockito.RuntimeInject;
+import com.hyland.openarch.runtime.test.runner.Deploy;
+import com.hyland.openarch.runtime.test.runner.Features;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 

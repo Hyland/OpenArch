@@ -16,7 +16,7 @@
 package org.nuxeo.ecm.core.api.security;
 
 import org.nuxeo.ecm.core.api.CoreSession;
-import org.nuxeo.runtime.api.login.LoginService;
+import com.hyland.openarch.runtime.api.login.LoginService;
 
 /**
  * @author Bogdan Stefanescu

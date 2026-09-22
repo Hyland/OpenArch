@@ -52,7 +52,7 @@ import org.nuxeo.ecm.core.storage.StateHelper;
 import org.nuxeo.ecm.core.storage.dbs.DBSDocumentState;
 import org.nuxeo.ecm.core.storage.dbs.DBSSession;
 import org.nuxeo.ecm.core.storage.dbs.StateAccessor;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 
 import com.hyland.hxpr.async.tasks.TaskService;
 import com.hyland.hxpr.async.tasks.message.ScrollerTask;

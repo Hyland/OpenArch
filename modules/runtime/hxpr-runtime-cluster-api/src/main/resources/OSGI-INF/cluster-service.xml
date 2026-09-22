@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<component name="org.nuxeo.runtime.cluster.ClusterService">
+<component name="com.hyland.openarch.runtime.cluster.ClusterService">
 
   <documentation>
     The Cluster service allows registration of the cluster node id and
@@ -7,10 +7,10 @@
   </documentation>
 
   <service>
-    <provide interface="org.nuxeo.runtime.cluster.ClusterService" />
+    <provide interface="com.hyland.openarch.runtime.cluster.ClusterService" />
   </service>
 
-  <implementation class="org.nuxeo.runtime.cluster.BasicClusterService" />
+  <implementation class="com.hyland.openarch.runtime.cluster.BasicClusterService" />
 
   <extension-point name="configuration">
     <documentation>
@@ -20,7 +20,7 @@
       </code>
     </documentation>
 
-    <object class="org.nuxeo.runtime.cluster.ClusterNodeDescriptor" />
+    <object class="com.hyland.openarch.runtime.cluster.ClusterNodeDescriptor" />
   </extension-point>
 
 </component>

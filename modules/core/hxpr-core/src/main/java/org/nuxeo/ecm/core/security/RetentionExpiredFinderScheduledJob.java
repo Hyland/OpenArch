@@ -22,7 +22,7 @@ import java.time.Instant;
 import org.nuxeo.ecm.core.api.security.SecurityConstants;
 import org.nuxeo.ecm.core.repository.RepositoryService;
 import org.nuxeo.ecm.core.scheduler.ScheduledJob;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 
 import com.hyland.hxpr.async.tasks.TaskService;
 import com.hyland.hxpr.async.tasks.message.ScrollerTask;

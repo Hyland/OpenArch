@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
-<component name="org.nuxeo.runtime.management.ServerLocator">
+<component name="com.hyland.openarch.runtime.management.ServerLocator">
 
-  <implementation class="org.nuxeo.runtime.management.ServerLocatorService" />
+  <implementation class="com.hyland.openarch.runtime.management.ServerLocatorService" />
 
   <documentation>
   <p>Locate or define mbeans server that will be available to the resource publisher.</p>
   </documentation>
 
   <service>
-    <provide interface="org.nuxeo.runtime.management.ServerLocator" />
+    <provide interface="com.hyland.openarch.runtime.management.ServerLocator" />
   </service>
 
   <extension-point name="locators">
@@ -24,7 +24,7 @@
       </p>
     </documentation>
 
-    <object class="org.nuxeo.runtime.management.ServerLocatorDescriptor" />
+    <object class="com.hyland.openarch.runtime.management.ServerLocatorDescriptor" />
   </extension-point>
 
 </component>

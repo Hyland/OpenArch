@@ -28,7 +28,7 @@ import org.nuxeo.ecm.core.api.SystemPrincipal;
 import org.nuxeo.ecm.core.api.security.SecurityConstants;
 import org.nuxeo.ecm.core.schema.types.resolver.AbstractObjectResolver;
 import org.nuxeo.ecm.core.schema.types.resolver.ObjectResolver;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 
 /**
  * This {@link ObjectResolver} allows to manage integrity for fields containing group or user references.

@@ -38,7 +38,7 @@ import org.nuxeo.ecm.core.schema.types.CompositeType;
 import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
 import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation.Type;
 import org.nuxeo.ecm.core.security.config.SecurityPolicyConfig;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 
 public abstract class AbstractSecurityPolicy implements SecurityPolicy {
 

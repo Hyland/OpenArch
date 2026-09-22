@@ -30,8 +30,8 @@ import org.nuxeo.ecm.core.schema.SchemaManagerDTO;
 import org.nuxeo.ecm.core.schema.TypeService;
 import org.nuxeo.ecm.core.storage.FullTextConfigurationService;
 import org.nuxeo.ecm.core.test.CoreFeature;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.test.runner.FeaturesExtension;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
 
 import tools.jackson.databind.ObjectMapper;
 import com.flipkart.zjsonpatch.Jackson3JsonPatch;

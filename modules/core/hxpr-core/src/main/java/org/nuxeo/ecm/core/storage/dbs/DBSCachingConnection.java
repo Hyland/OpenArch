@@ -40,8 +40,8 @@ import org.nuxeo.ecm.core.storage.dbs.DBSTransactionState.ConditionalUpdates;
 
 import com.google.common.cache.Cache;
 import com.google.common.collect.ImmutableMap;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.cluster.ClusterService;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.cluster.ClusterService;
 
 /**
  * The DBS Cache layer used to cache some method call of real repository

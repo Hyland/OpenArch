@@ -9,8 +9,8 @@
 
   <!-- define new existion point with registry that will target the original one -->
   <extension-point name="xp">
-    <object class="org.nuxeo.runtime.DummyContributionOverridenWithRegistry" />
-    <registry class="org.nuxeo.runtime.DummyRegistry" />
+    <object class="com.hyland.openarch.runtime.DummyContributionOverridenWithRegistry" />
+    <registry class="com.hyland.openarch.runtime.DummyRegistry" />
   </extension-point>
 
   <extension target="BaseXPoint" point="xp">

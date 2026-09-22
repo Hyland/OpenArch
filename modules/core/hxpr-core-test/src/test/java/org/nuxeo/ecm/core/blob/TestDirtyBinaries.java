@@ -20,11 +20,8 @@ import static org.nuxeo.ecm.core.api.DocumentConstants.SYSFILES_BLOBS;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSFILE_BLOB;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_DESCRIPTION;
 import static org.nuxeo.ecm.core.schema.TypeConstants.BLOB_TYPE;
-import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_KEY;
 import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FILE;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -37,8 +34,8 @@ import org.nuxeo.ecm.core.api.Blobs;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.test.CoreFeature;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.test.runner.FeaturesExtension;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
 
 /**
  * Test class validating the behavior of the dirty binaries.

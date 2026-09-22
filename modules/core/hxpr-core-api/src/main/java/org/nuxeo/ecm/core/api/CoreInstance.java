@@ -20,7 +20,7 @@ import java.util.function.Function;
 
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.nuxeo.ecm.core.api.repository.RepositoryManager;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 
 /**
  * The CoreInstance is the main access point to a CoreSession.

@@ -40,12 +40,12 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.test.runner.Deploy;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.test.runner.FeaturesExtension;
-import org.nuxeo.runtime.test.runner.LogCaptureFeature;
-import org.nuxeo.runtime.test.runner.LogFeature;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.test.runner.Deploy;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
+import com.hyland.openarch.runtime.test.runner.LogCaptureFeature;
+import com.hyland.openarch.runtime.test.runner.LogFeature;
 
 @ExtendWith(FeaturesExtension.class)
 @Features({ BlobManagerFeature.class, LogFeature.class, LogCaptureFeature.class })

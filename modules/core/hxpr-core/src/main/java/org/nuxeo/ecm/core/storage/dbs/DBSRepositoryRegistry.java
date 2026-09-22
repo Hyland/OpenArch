@@ -18,7 +18,7 @@ package org.nuxeo.ecm.core.storage.dbs;
 import java.util.List;
 
 import com.hyland.openarch.common.xmap.registry.MapRegistry;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 
 /**
  * Registry for {@link DBSRepositoryDescriptor} contributions retrieval, based on {@link DBSRepositoryContributor}

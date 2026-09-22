@@ -52,7 +52,7 @@ import org.nuxeo.rest.swagger.annotation.ApiResponse200;
 import org.nuxeo.rest.swagger.annotation.ApiResponse404DocumentNotFound;
 import org.nuxeo.rest.swagger.annotation.Authenticated;
 import org.nuxeo.rest.swagger.annotation.ParameterRepoId;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;

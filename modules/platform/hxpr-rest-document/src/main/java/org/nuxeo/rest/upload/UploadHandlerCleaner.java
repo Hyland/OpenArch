@@ -21,7 +21,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.nuxeo.rest.upload.handler.UploadHandler;
-import org.nuxeo.runtime.transaction.TransactionHelper;
+import com.hyland.openarch.runtime.transaction.TransactionHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;

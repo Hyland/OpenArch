@@ -30,7 +30,7 @@ import org.apache.logging.log4j.Logger;
 import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.blob.BlobStore.OptionalOrUnknown;
 import org.nuxeo.ecm.core.blob.binary.BinaryGarbageCollector;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 
 /**
  * A {@link BlobProvider} implemented on top of an underlying {@link BlobStore}.

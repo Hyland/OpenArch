@@ -19,7 +19,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.nuxeo.rest.swagger.annotation.ApiResponse200;
 import org.nuxeo.rest.swagger.annotation.Authenticated;
-import org.nuxeo.runtime.springboot.NuxeoApplication;
+import com.hyland.openarch.runtime.springboot.NuxeoApplication;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;

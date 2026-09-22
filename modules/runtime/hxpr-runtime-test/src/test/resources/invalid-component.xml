@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <component name="invalid.comp">
 
-  <implementation class="org.nuxeo.runtime.RuntimeInitializationTestComponent" />
+  <implementation class="com.hyland.openarch.runtime.RuntimeInitializationTestComponent" />
 
   <extension target="invalid.comp" point="xp">
     <echo>Unknown target</echo>

@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 import tools.jackson.databind.ObjectMapper;
 import com.hyland.hxpr.async.tasks.TaskProcessor;
 import com.hyland.hxpr.async.tasks.message.Task;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 
 public class MemTaskQueue<T extends Task> implements Runnable {
 

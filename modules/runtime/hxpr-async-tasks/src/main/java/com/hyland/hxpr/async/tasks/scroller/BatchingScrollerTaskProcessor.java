@@ -17,7 +17,7 @@ package com.hyland.hxpr.async.tasks.scroller;
 
 import java.util.List;
 
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 
 import com.hyland.hxpr.async.tasks.TaskService;
 import com.hyland.hxpr.async.tasks.message.BatchTask;

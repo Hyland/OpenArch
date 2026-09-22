@@ -69,7 +69,7 @@ import org.nuxeo.ecm.core.schema.types.constraints.PatternConstraint;
 import org.nuxeo.ecm.core.schema.types.resolver.ObjectResolver;
 import org.nuxeo.ecm.core.schema.types.resolver.ObjectResolverService;
 import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;

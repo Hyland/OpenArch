@@ -15,13 +15,13 @@
  */
 package com.hyland.hxpr.async.tasks;
 
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.test.runner.Deploy;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.test.runner.FeaturesLoader;
-import org.nuxeo.runtime.test.runner.RunnerFeature;
-import org.nuxeo.runtime.test.runner.RuntimeFeature;
-import org.nuxeo.runtime.test.runner.TransactionalFeature;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.test.runner.Deploy;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.FeaturesLoader;
+import com.hyland.openarch.runtime.test.runner.RunnerFeature;
+import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
+import com.hyland.openarch.runtime.test.runner.TransactionalFeature;
 
 @Deploy("org.nuxeo.runtime.kv")
 @Deploy("com.hyland.hxpr.async.tasks")

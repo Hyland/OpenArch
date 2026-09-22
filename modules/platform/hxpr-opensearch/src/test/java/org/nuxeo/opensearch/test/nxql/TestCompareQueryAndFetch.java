@@ -44,10 +44,10 @@ import org.nuxeo.opensearch.api.OpenSearchResult;
 import org.nuxeo.opensearch.core.OpenSearchResultSetImpl;
 import org.nuxeo.opensearch.query.OpenSearchQueryBuilder;
 import org.nuxeo.opensearch.test.RepositoryOpenSearchFeature;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.test.runner.FeaturesExtension;
-import org.nuxeo.runtime.transaction.TransactionHelper;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
+import com.hyland.openarch.runtime.transaction.TransactionHelper;
 
 @ExtendWith(FeaturesExtension.class)
 @Features(RepositoryOpenSearchFeature.class)

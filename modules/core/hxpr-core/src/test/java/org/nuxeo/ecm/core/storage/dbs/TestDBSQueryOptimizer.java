@@ -34,9 +34,9 @@ import org.nuxeo.ecm.core.query.sql.model.Statement;
 import org.nuxeo.ecm.core.storage.QueryAnnotations;
 import org.nuxeo.ecm.core.storage.QueryAnnotations.PrefixInfo;
 import org.nuxeo.ecm.core.storage.QueryOptimizer;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.test.runner.FeaturesExtension;
-import org.nuxeo.runtime.test.runner.RuntimeFeature;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
+import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
 
 @ExtendWith(FeaturesExtension.class)
 @Features(RuntimeFeature.class)

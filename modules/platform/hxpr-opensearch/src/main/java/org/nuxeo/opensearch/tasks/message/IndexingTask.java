@@ -16,7 +16,7 @@
 package org.nuxeo.opensearch.tasks.message;
 
 import static org.nuxeo.opensearch.tasks.IndexingTaskProcessor.INDEXING_TASK_NAME;
-import static org.nuxeo.runtime.api.login.LoginService.SYSTEM_USERNAME;
+import static com.hyland.openarch.runtime.api.login.LoginService.SYSTEM_USERNAME;
 
 import java.util.ArrayList;
 import java.util.List;

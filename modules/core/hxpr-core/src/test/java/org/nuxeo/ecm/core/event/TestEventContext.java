@@ -22,9 +22,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.nuxeo.ecm.core.event.impl.EventContextImpl;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.test.runner.FeaturesExtension;
-import org.nuxeo.runtime.test.runner.RuntimeFeature;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
+import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
 
 /**
  * This test probably should be in org.nuxeo.ecm.core.event.test.EventListenerTest but this would create dependency

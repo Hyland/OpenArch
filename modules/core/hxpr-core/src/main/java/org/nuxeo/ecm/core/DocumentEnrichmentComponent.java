@@ -22,7 +22,7 @@ import org.apache.logging.log4j.Logger;
 import org.nuxeo.ecm.core.api.DocumentEnricher;
 import org.nuxeo.ecm.core.api.DocumentEnrichmentContext;
 import org.nuxeo.ecm.core.api.DocumentEnrichmentService;
-import org.nuxeo.runtime.model.DefaultComponent;
+import com.hyland.openarch.runtime.model.DefaultComponent;
 
 /**
  * Default {@link DocumentEnrichmentService} implementation. Collects the {@link DocumentEnricher}

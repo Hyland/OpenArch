@@ -33,11 +33,11 @@ import org.junit.jupiter.api.Test;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.IdRef;
 import org.nuxeo.ecm.core.test.CoreFeature;
-import org.nuxeo.runtime.mockito.RuntimeInject;
-import org.nuxeo.runtime.springboot.junit.RuntimeSpringBootTest;
-import org.nuxeo.runtime.test.runner.Deploy;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.transaction.TransactionHelper;
+import com.hyland.openarch.runtime.mockito.RuntimeInject;
+import com.hyland.openarch.runtime.springboot.junit.RuntimeSpringBootTest;
+import com.hyland.openarch.runtime.test.runner.Deploy;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.transaction.TransactionHelper;
 
 @Features(CoreFeature.class)
 @Deploy("com.hyland.hxpr.async.tasks")

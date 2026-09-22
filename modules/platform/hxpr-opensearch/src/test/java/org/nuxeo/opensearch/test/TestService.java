@@ -32,8 +32,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.nuxeo.opensearch.api.OpenSearchClient;
 import org.nuxeo.opensearch.api.OpenSearchIndexStoreStats;
 import org.nuxeo.opensearch.api.OpenSearchService;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.test.runner.FeaturesExtension;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
 
 @ExtendWith(FeaturesExtension.class)
 @Features(RepositoryOpenSearchFeature.class)

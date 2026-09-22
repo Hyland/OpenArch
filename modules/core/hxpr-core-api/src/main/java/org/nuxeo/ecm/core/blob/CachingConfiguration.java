@@ -20,7 +20,7 @@ import java.nio.file.Path;
 import java.util.Map;
 
 import com.hyland.openarch.common.utils.SizeUtils;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 
 /**
  * Configuration for a cache.

@@ -15,9 +15,9 @@
  */
 package org.nuxeo.transientstore.test;
 
-import org.nuxeo.runtime.test.runner.Deploy;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.test.runner.RunnerFeature;
+import com.hyland.openarch.runtime.test.runner.Deploy;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.RunnerFeature;
 
 /**
  * @author <a href="mailto:tdelprat@nuxeo.com">Tiry</a>

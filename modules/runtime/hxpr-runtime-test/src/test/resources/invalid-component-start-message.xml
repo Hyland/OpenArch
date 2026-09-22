@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <component name="invalid.comp.start.message">
 
-  <implementation class="org.nuxeo.runtime.RuntimeInitializationTestComponent" />
+  <implementation class="com.hyland.openarch.runtime.RuntimeInitializationTestComponent" />
   <property name="actionType" value="message" />
   <property name="actionTypeOn" value="start" />
 

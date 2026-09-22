@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
-<component name="org.nuxeo.runtime.kv.KeyValueService.test">
+<component name="com.hyland.openarch.runtime.kv.KeyValueService.test">
 
-  <extension target="org.nuxeo.runtime.kv.KeyValueService" point="configuration">
-    <store name="default" class="org.nuxeo.runtime.kv.MemKeyValueStore">
+  <extension target="com.hyland.openarch.runtime.kv.KeyValueService" point="configuration">
+    <store name="default" class="com.hyland.openarch.runtime.kv.MemKeyValueStore">
     </store>
   </extension>
 

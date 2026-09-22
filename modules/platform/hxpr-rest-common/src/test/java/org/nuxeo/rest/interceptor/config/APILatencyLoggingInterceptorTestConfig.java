@@ -25,7 +25,7 @@ import java.io.IOException;
 import org.nuxeo.rest.config.RestInterceptorConfiguration;
 import org.nuxeo.rest.interceptor.APILatencyLoggingInterceptor;
 import org.nuxeo.rest.swagger.annotation.Authenticated;
-import org.nuxeo.runtime.springboot.auth.NuxeoLoginFilter;
+import com.hyland.openarch.runtime.springboot.auth.NuxeoLoginFilter;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;

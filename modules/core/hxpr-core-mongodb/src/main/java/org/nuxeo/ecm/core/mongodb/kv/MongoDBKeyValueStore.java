@@ -45,10 +45,10 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.Binary;
 import org.nuxeo.ecm.core.api.NuxeoException;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.kv.AbstractKeyValueStoreProvider;
-import org.nuxeo.runtime.kv.KeyValueStoreDescriptor;
-import org.nuxeo.runtime.mongodb.MongoDBConnectionService;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.kv.AbstractKeyValueStoreProvider;
+import com.hyland.openarch.runtime.kv.KeyValueStoreDescriptor;
+import com.hyland.openarch.runtime.mongodb.MongoDBConnectionService;
 
 import com.mongodb.ErrorCategory;
 import com.mongodb.MongoCommandException;

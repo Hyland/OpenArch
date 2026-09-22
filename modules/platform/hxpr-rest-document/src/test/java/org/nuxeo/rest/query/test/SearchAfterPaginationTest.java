@@ -34,7 +34,7 @@ import org.nuxeo.rest.query.QueryAPI;
 import org.nuxeo.rest.query.io.DocumentAdvancedQueryDTO;
 import org.nuxeo.rest.query.io.DocumentQueryResultDTO;
 import org.nuxeo.rest.query.io.SearchAfterToken;
-import org.nuxeo.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.Features;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;

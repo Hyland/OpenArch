@@ -56,7 +56,7 @@ import org.nuxeo.ecm.core.security.expr.UserAttributeExpressionSecurityPolicy;
 import org.nuxeo.ecm.core.security.expr.UserAttributeExpressionSecurityPolicyConfig;
 import org.nuxeo.ecm.core.storage.dbs.DBSSession;
 import org.nuxeo.ecm.core.storage.dbs.StateAccessor;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 
 import com.hyland.hxpr.config.Configurable;
 import com.hyland.hxpr.config.ConfigurationService;

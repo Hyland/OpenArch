@@ -16,7 +16,7 @@
 
 package org.nuxeo.ecm.core.api;
 
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 
 /**
  * Helper class to run code with an unrestricted session.

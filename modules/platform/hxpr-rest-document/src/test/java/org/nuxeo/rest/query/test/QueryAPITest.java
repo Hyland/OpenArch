@@ -52,7 +52,7 @@ import org.nuxeo.rest.query.RepositoryQueryManager;
 import org.nuxeo.rest.query.io.DocumentQueryDTO;
 import org.nuxeo.rest.query.io.DocumentQueryResultDTO;
 import org.nuxeo.rest.query.io.EmbeddingQueryDTO;
-import org.nuxeo.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.Features;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;

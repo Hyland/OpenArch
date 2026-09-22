@@ -35,10 +35,10 @@ import org.nuxeo.ecm.core.api.DocumentModelList;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.opensearch.api.OpenSearchService;
 import org.nuxeo.opensearch.query.OpenSearchQueryBuilder;
-import org.nuxeo.runtime.test.runner.Deploy;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.test.runner.FeaturesExtension;
-import org.nuxeo.runtime.transaction.TransactionHelper;
+import com.hyland.openarch.runtime.test.runner.Deploy;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
+import com.hyland.openarch.runtime.transaction.TransactionHelper;
 
 @ExtendWith(FeaturesExtension.class)
 @Features(RepositoryOpenSearchFeature.class)

@@ -29,12 +29,12 @@ import org.nuxeo.ecm.core.api.repository.Repository;
 import org.nuxeo.ecm.core.api.repository.RepositoryManager;
 import org.nuxeo.ecm.core.storage.dbs.DBSRepositoryDescriptor;
 import org.nuxeo.ecm.core.storage.dbs.DBSRepositoryService;
-import org.nuxeo.runtime.cluster.BasicClusterFeature;
-import org.nuxeo.runtime.test.runner.Deploy;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.test.runner.FeaturesExtension;
-import org.nuxeo.runtime.test.runner.RuntimeFeature;
-import org.nuxeo.runtime.test.runner.TransactionalFeature;
+import com.hyland.openarch.runtime.cluster.BasicClusterFeature;
+import com.hyland.openarch.runtime.test.runner.Deploy;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
+import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
+import com.hyland.openarch.runtime.test.runner.TransactionalFeature;
 
 /**
  * @since 11.5

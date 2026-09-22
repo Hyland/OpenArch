@@ -54,10 +54,10 @@ import org.nuxeo.opensearch.api.OpenSearchService;
 import org.nuxeo.opensearch.io.DocumentDTO;
 import org.nuxeo.opensearch.query.OpenSearchQueryBuilder;
 import org.nuxeo.opensearch.test.util.ParquetBlobGenerator;
-import org.nuxeo.runtime.test.runner.Deploy;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.test.runner.FeaturesExtension;
-import org.nuxeo.runtime.test.runner.TransactionalFeature;
+import com.hyland.openarch.runtime.test.runner.Deploy;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
+import com.hyland.openarch.runtime.test.runner.TransactionalFeature;
 import org.opensearch.client.opensearch._types.aggregations.Aggregate;
 import org.opensearch.client.opensearch.core.search.HitsMetadata;
 

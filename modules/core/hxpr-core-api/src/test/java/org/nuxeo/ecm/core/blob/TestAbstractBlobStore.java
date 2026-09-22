@@ -43,8 +43,8 @@ import org.nuxeo.ecm.core.blob.BlobStore.OptionalOrUnknown;
 import org.nuxeo.ecm.core.blob.binary.BinaryGarbageCollector;
 import org.nuxeo.ecm.core.blob.binary.BinaryManagerStatus;
 import org.nuxeo.ecm.core.utils.BlobUtils;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.test.runner.FeaturesExtension;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
 
 @ExtendWith(FeaturesExtension.class)
 @Features(BlobManagerFeature.class)

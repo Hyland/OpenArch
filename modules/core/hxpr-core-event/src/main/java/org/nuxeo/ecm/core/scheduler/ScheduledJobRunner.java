@@ -21,9 +21,9 @@ import javax.security.auth.login.LoginException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.api.login.LoginContext;
-import org.nuxeo.runtime.transaction.TransactionHelper;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.login.LoginContext;
+import com.hyland.openarch.runtime.transaction.TransactionHelper;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobDataMap;

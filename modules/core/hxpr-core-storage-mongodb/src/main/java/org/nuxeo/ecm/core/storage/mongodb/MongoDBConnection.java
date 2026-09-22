@@ -80,9 +80,9 @@ import org.nuxeo.ecm.core.storage.dbs.DBSExpressionEvaluator;
 import org.nuxeo.ecm.core.storage.dbs.DBSStateFlattener;
 import org.nuxeo.ecm.core.storage.dbs.DBSTransactionState.ConditionalUpdates;
 import org.nuxeo.ecm.core.storage.mongodb.MongoDBConverter.ConditionsAndUpdates;
-import org.nuxeo.runtime.mongodb.MongoDBOperators;
-import org.nuxeo.runtime.transaction.TransactionHelper;
-import org.nuxeo.runtime.transaction.TransactionRuntimeException;
+import com.hyland.openarch.runtime.mongodb.MongoDBOperators;
+import com.hyland.openarch.runtime.transaction.TransactionHelper;
+import com.hyland.openarch.runtime.transaction.TransactionRuntimeException;
 
 import com.mongodb.DuplicateKeyException;
 import com.mongodb.MongoBulkWriteException;

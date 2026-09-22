@@ -18,7 +18,7 @@ package org.nuxeo.ecm.platform.usermanager;
 
 import org.nuxeo.ecm.platform.login.filestore.UserManagerFileStoreFeature;
 import org.nuxeo.ecm.platform.login.filestore.UserManagerFileStoreTestConfiguration;
-import org.nuxeo.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.Features;
 import org.springframework.boot.test.context.SpringBootTest;
 
 /**

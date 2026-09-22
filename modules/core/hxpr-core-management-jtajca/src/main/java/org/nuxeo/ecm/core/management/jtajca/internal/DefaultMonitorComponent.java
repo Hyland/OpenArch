@@ -35,11 +35,11 @@ import org.nuxeo.ecm.core.management.jtajca.CoreSessionMonitor;
 import org.nuxeo.ecm.core.management.jtajca.Defaults;
 import org.nuxeo.ecm.core.management.jtajca.TransactionMonitor;
 import org.nuxeo.ecm.core.repository.RepositoryService;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.management.ServerLocator;
-import org.nuxeo.runtime.metrics.MetricsService;
-import org.nuxeo.runtime.model.Component;
-import org.nuxeo.runtime.model.DefaultComponent;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.management.ServerLocator;
+import com.hyland.openarch.runtime.metrics.MetricsService;
+import com.hyland.openarch.runtime.model.Component;
+import com.hyland.openarch.runtime.model.DefaultComponent;
 
 /**
  * Component used to install/uninstall the monitors (transaction and connections).

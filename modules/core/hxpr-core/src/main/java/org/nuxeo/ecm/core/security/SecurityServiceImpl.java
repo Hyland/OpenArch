@@ -40,9 +40,9 @@ import org.nuxeo.ecm.core.schema.validation.ValidationReport;
 import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
 import org.nuxeo.ecm.core.security.config.AbstractSecurityPolicyConfig;
 import org.nuxeo.ecm.core.security.config.SecurityPolicyConfig;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.model.ComponentStartOrders;
-import org.nuxeo.runtime.model.DefaultComponent;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.model.ComponentStartOrders;
+import com.hyland.openarch.runtime.model.DefaultComponent;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;

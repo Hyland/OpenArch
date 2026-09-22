@@ -97,8 +97,8 @@ import org.nuxeo.ecm.core.query.sql.model.Statement;
 import org.nuxeo.ecm.core.repository.RepositoryService;
 import org.nuxeo.ecm.core.schema.SchemaManager;
 import org.nuxeo.ecm.core.storage.dbs.DBSDocument;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.metrics.MetricsService;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.metrics.MetricsService;
 
 public class SessionImpl implements CoreSession {
 

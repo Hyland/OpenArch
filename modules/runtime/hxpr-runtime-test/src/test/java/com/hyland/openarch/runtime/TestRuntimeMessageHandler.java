@@ -1,0 +1,107 @@
+/*
+ * (C) Copyright 2020-2026 Hyland (https://www.hyland.com/).
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.hyland.openarch.runtime;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.junit.jupiter.api.extension.ExtendWith;
+import com.hyland.openarch.runtime.RuntimeMessage.Level;
+import com.hyland.openarch.runtime.RuntimeMessage.Source;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
+import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
+
+/**
+ * Test runtime message handler api.
+ *
+ * @see RuntimeInitializationTest for default usage tests.
+ * @since 11.3
+ */
+@TestInstance(Lifecycle.PER_CLASS)
+@TestMethodOrder(OrderAnnotation.class)
+@ExtendWith(FeaturesExtension.class)
+@Features(RuntimeFeature.class)
+public class TestRuntimeMessageHandler {
+
+    protected static final String PATTERN = "%s (Level '%s')";
+
+    protected static RuntimeMessageHandler getMessageHandler() {
+        return Framework.getRuntime().getMessageHandler();
+    }
+
+    protected static void addTestMessages(String prefix) {
+        getMessageHandler().addMessage(new RuntimeMessage(Level.ERROR, String.format(PATTERN, prefix, Level.ERROR),
+                Source.UNKNOWN, TestRuntimeMessageHandler.class.getName()));
+        getMessageHandler().addMessage(new RuntimeMessage(Level.WARNING, String.format(PATTERN, prefix, Level.WARNING),
+                Source.UNKNOWN, TestRuntimeMessageHandler.class.getName()));
+    }
+
+    protected void checkHasMessage(boolean hasMessage, Level level, String msg) {
+        assertEquals(hasMessage, getMessageHandler().getMessages(level).contains(msg));
+    }
+
+    protected void checkHasMessages(boolean hasMessage, String prefix) {
+        checkHasMessage(hasMessage, Level.ERROR, String.format(PATTERN, prefix, Level.ERROR));
+        checkHasMessage(hasMessage, Level.WARNING, String.format(PATTERN, prefix, Level.WARNING));
+    }
+
+    @BeforeAll
+    public static void addMessageBeforeClass() {
+        addTestMessages("Before class message");
+    }
+
+    @Test
+    @Order(1)
+    public void testAddMessageBefore() {
+        assertEquals(2, getMessageHandler().getMessages(m -> true).size());
+        checkHasMessages(true, "Before class message");
+    }
+
+    @Test
+    @Order(2)
+    public void testAddMessage() {
+        checkHasMessages(false, "foo");
+        assertEquals(2, getMessageHandler().getMessages(m -> true).size());
+
+        addTestMessages("Test add message");
+
+        checkHasMessages(false, "foo");
+        checkHasMessages(true, "Test add message");
+        assertEquals(4, getMessageHandler().getMessages(m -> true).size());
+
+        getMessageHandler().addMessage(
+                new RuntimeMessage(Level.ERROR, "test message with source", Source.CODE, "testId"));
+
+        checkHasMessage(true, Level.ERROR, "test message with source");
+        assertEquals(5, getMessageHandler().getMessages(m -> true).size());
+        assertEquals(3, getMessageHandler().getMessages(Level.ERROR).size());
+        assertEquals(3, getMessageHandler().getRuntimeMessages(Level.ERROR).size());
+        assertEquals(2, getMessageHandler().getMessages(Level.WARNING).size());
+        assertEquals(2, getMessageHandler().getRuntimeMessages(Level.WARNING).size());
+
+        assertEquals(1, getMessageHandler().getRuntimeMessages(m -> Source.CODE.equals(m.getSource())).size());
+        assertEquals(1, getMessageHandler().getRuntimeMessages(m -> "testId".equals(m.getSourceId())).size());
+    }
+
+}

@@ -19,7 +19,7 @@ import static com.hyland.hxpr.async.tasks.DummyBatchTaskProcessor.DUMMY_TASK_NAM
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
-import org.nuxeo.runtime.springboot.junit.RuntimeTestState;
+import com.hyland.openarch.runtime.springboot.junit.RuntimeTestState;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.hyland.hxpr.async.tasks.AbstractTestAsyncTasksService;

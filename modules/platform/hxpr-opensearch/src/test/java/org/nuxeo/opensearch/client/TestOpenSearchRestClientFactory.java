@@ -49,15 +49,15 @@ import org.junit.jupiter.api.io.TempDir;
 import com.hyland.openarch.common.resilience.Resilience4jRegistries;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.opensearch.api.OpenSearchClient;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.test.runner.FeaturesExtension;
-import org.nuxeo.runtime.test.runner.RuntimeFeature;
-import org.nuxeo.runtime.test.runner.WithFrameworkProperty;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
+import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
+import com.hyland.openarch.runtime.test.runner.WithFrameworkProperty;
 
 /**
  * Tests for {@link OpenSearchRestClientFactory#create()} that exercise the different configuration branches driven by
- * {@link org.nuxeo.runtime.api.Framework#getProperty(String)}. Runs on top of a minimal Nuxeo runtime so that
+ * {@link Framework#getProperty(String)}. Runs on top of a minimal Nuxeo runtime so that
  * {@link WithFrameworkProperty} can be used to set properties declaratively.
  */
 @ExtendWith(FeaturesExtension.class)

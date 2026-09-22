@@ -40,10 +40,10 @@ import org.nuxeo.ecm.core.schema.types.resolver.ObjectResolver;
 import org.nuxeo.ecm.core.test.CoreFeature;
 import org.nuxeo.ecm.core.test.annotations.Granularity;
 import org.nuxeo.ecm.core.test.annotations.RepositoryConfig;
-import org.nuxeo.runtime.mockito.RuntimeInject;
-import org.nuxeo.runtime.springboot.junit.RuntimeSpringBootTest;
-import org.nuxeo.runtime.test.runner.Deploy;
-import org.nuxeo.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.mockito.RuntimeInject;
+import com.hyland.openarch.runtime.springboot.junit.RuntimeSpringBootTest;
+import com.hyland.openarch.runtime.test.runner.Deploy;
+import com.hyland.openarch.runtime.test.runner.Features;
 
 /**
  * Abstract base test for {@link UserManagerResolver} that exercises the resolver with a concrete {@link UserManager}

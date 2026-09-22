@@ -36,11 +36,11 @@ import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.api.Blobs;
 import org.nuxeo.ecm.core.api.repository.RepositoryManager;
 import org.nuxeo.ecm.core.model.InternalDocument;
-import org.nuxeo.runtime.mockito.MockitoFeature;
-import org.nuxeo.runtime.mockito.RuntimeService;
-import org.nuxeo.runtime.test.runner.Deploy;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.test.runner.FeaturesExtension;
+import com.hyland.openarch.runtime.mockito.MockitoFeature;
+import com.hyland.openarch.runtime.mockito.RuntimeService;
+import com.hyland.openarch.runtime.test.runner.Deploy;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
 
 @ExtendWith(FeaturesExtension.class)
 @Features({ BlobManagerFeature.class, DocumentBlobServiceFeature.class, MockitoFeature.class })

@@ -34,7 +34,7 @@ import org.nuxeo.ecm.core.api.security.SecurityConstants;
 import org.nuxeo.ecm.platform.usermanager.UserManager;
 import org.nuxeo.rest.user.GroupDTO;
 import org.nuxeo.rest.user.UserDTO;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 import org.springframework.stereotype.Component;
 
 /**

@@ -28,7 +28,7 @@ import org.nuxeo.ecm.core.api.security.ACL;
 import org.nuxeo.ecm.core.api.security.Access;
 import org.nuxeo.ecm.core.api.security.AdministratorGroupsProvider;
 import org.nuxeo.ecm.core.api.security.SecurityConstants;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 
 /**
  * An ACL implementation.

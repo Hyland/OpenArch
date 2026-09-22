@@ -19,9 +19,9 @@ import java.util.Map;
 
 import com.hyland.hxpr.async.tasks.TaskService;
 import org.nuxeo.ecm.core.async.tasks.ComputeDigestTask;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.services.event.Event;
-import org.nuxeo.runtime.services.event.EventListener;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.services.event.Event;
+import com.hyland.openarch.runtime.services.event.EventListener;
 
 /**
  * Schedules the async digest work.

@@ -172,9 +172,8 @@ import org.nuxeo.ecm.core.schema.types.primitives.LongType;
 import org.nuxeo.ecm.core.schema.types.primitives.DateType;
 import org.nuxeo.ecm.core.schema.types.primitives.StringType;
 import org.nuxeo.ecm.core.storage.dbs.DBSRepositoryBase;
-import org.nuxeo.ecm.core.storage.dbs.DBSSession;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.mongodb.MongoDBConnectionService;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.mongodb.MongoDBConnectionService;
 
 import com.hyland.hxpr.config.ConfigurationService;
 import com.hyland.hxpr.config.ConfigurationServiceIO;

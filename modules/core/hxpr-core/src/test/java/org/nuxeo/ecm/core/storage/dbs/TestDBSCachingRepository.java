@@ -49,9 +49,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.nuxeo.ecm.core.storage.State;
 import org.nuxeo.ecm.core.storage.State.StateDiff;
-import org.nuxeo.runtime.cluster.BasicClusterFeature;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.test.runner.FeaturesExtension;
+import com.hyland.openarch.runtime.cluster.BasicClusterFeature;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
 
 @ExtendWith(FeaturesExtension.class)
 @Features(BasicClusterFeature.class)

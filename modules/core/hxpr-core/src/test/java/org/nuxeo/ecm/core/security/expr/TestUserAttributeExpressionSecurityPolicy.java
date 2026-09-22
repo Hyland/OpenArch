@@ -35,10 +35,10 @@ import org.nuxeo.ecm.core.api.query.QueryParameters;
 import org.nuxeo.ecm.core.model.InternalDocument;
 import org.nuxeo.ecm.core.query.sql.model.Operand;
 import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
-import org.nuxeo.runtime.test.runner.Deploy;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.test.runner.FeaturesExtension;
-import org.nuxeo.runtime.test.runner.RuntimeFeature;
+import com.hyland.openarch.runtime.test.runner.Deploy;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
+import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
 
 @ExtendWith(FeaturesExtension.class)
 @Features(RuntimeFeature.class)

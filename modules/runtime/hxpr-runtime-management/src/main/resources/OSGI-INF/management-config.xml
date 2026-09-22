@@ -6,14 +6,14 @@
        another place-->
 
   <!-- use jboss mbean server as default  -->
-  <extension target="org.nuxeo.runtime.management.ServerLocator"
+  <extension target="com.hyland.openarch.runtime.management.ServerLocator"
     point="locators">
     <locator domain="jboss" default="true" />
   </extension>
 
   <!-- use a dedicated mbean server bound
        server URL can be found in the server log at line "Started a mbean server : ..."
-  <extension target="org.nuxeo.runtime.management.ServerLocator"
+  <extension target="com.hyland.openarch.runtime.management.ServerLocator"
     point="locators">
     <locator domain="org.nuxeo" exist="false" rmiPort="2100"/>
   </extension> -->

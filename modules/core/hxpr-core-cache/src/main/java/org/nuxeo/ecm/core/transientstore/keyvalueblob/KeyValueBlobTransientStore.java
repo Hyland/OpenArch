@@ -45,10 +45,10 @@ import org.nuxeo.ecm.core.transientstore.api.MaximumTransientSpaceExceeded;
 import org.nuxeo.ecm.core.transientstore.api.TransientStore;
 import org.nuxeo.ecm.core.transientstore.api.TransientStoreConfig;
 import org.nuxeo.ecm.core.transientstore.api.TransientStoreProvider;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.kv.KeyValueService;
-import org.nuxeo.runtime.kv.KeyValueStore;
-import org.nuxeo.runtime.kv.KeyValueStoreProvider;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.kv.KeyValueService;
+import com.hyland.openarch.runtime.kv.KeyValueStore;
+import com.hyland.openarch.runtime.kv.KeyValueStoreProvider;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.type.TypeReference;

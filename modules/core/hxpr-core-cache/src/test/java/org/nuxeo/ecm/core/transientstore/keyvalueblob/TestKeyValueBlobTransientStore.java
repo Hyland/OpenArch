@@ -72,11 +72,11 @@ import org.nuxeo.ecm.core.transientstore.api.MaximumTransientSpaceExceeded;
 import org.nuxeo.ecm.core.transientstore.api.TransientStore;
 import org.nuxeo.ecm.core.transientstore.api.TransientStoreProvider;
 import org.nuxeo.ecm.core.transientstore.api.TransientStoreService;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.kv.KeyValueService;
-import org.nuxeo.runtime.kv.KeyValueStore;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.test.runner.FeaturesExtension;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.kv.KeyValueService;
+import com.hyland.openarch.runtime.kv.KeyValueStore;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
 
 /**
  * @since 9.3

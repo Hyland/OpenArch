@@ -18,7 +18,7 @@ package org.nuxeo.ecm.core.event.raiser;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.nuxeo.runtime.model.DefaultComponent;
+import com.hyland.openarch.runtime.model.DefaultComponent;
 
 /**
  * This component exposing the {@code raisers} extension point and implementing

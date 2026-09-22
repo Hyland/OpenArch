@@ -28,9 +28,9 @@ import org.nuxeo.ecm.core.api.repository.FulltextConfiguration;
 import org.nuxeo.ecm.core.model.InternalSession;
 import org.nuxeo.ecm.core.schema.SchemaManager;
 import org.nuxeo.ecm.core.storage.State;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.cluster.ClusterService;
-import org.nuxeo.runtime.metrics.MetricsService;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.cluster.ClusterService;
+import com.hyland.openarch.runtime.metrics.MetricsService;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;

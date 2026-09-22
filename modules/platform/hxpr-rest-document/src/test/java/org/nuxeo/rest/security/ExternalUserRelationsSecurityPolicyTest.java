@@ -32,7 +32,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.nuxeo.rest.document.test.AbstractAPITest;
-import org.nuxeo.runtime.test.runner.Deploy;
+import com.hyland.openarch.runtime.test.runner.Deploy;
 
 import org.springframework.boot.test.context.SpringBootTest;
 

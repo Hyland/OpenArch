@@ -32,7 +32,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-runtime</artifactId>
+      <artifactId>openarch-runtime</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

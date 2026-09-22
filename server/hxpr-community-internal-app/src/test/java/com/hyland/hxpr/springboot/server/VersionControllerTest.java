@@ -19,7 +19,7 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 
 import org.junit.jupiter.api.Test;
-import org.nuxeo.runtime.springboot.actuator.ApplicationInfo;
+import com.hyland.openarch.runtime.springboot.actuator.ApplicationInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 

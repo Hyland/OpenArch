@@ -17,7 +17,7 @@ package org.nuxeo.ecm.core.event;
 
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.event.impl.EventContextImpl;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonIgnore;

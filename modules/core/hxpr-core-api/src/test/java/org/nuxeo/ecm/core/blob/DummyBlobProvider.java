@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.io.IOUtils;
 import org.nuxeo.ecm.core.api.Blob;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 
 /**
  * Dummy storage in memory.

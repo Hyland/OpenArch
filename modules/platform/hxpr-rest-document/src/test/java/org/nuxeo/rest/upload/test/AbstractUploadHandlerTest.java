@@ -50,12 +50,12 @@ import org.nuxeo.ecm.core.transientstore.api.TransientStoreProvider;
 import org.nuxeo.ecm.core.transientstore.api.TransientStoreService;
 import org.nuxeo.rest.upload.Upload;
 import org.nuxeo.rest.upload.handler.UploadHandler;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.api.login.LoginService;
-import org.nuxeo.runtime.mockito.RuntimeInject;
-import org.nuxeo.runtime.springboot.junit.RuntimeSpringBootTest;
-import org.nuxeo.runtime.test.runner.Deploy;
-import org.nuxeo.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.login.LoginService;
+import com.hyland.openarch.runtime.mockito.RuntimeInject;
+import com.hyland.openarch.runtime.springboot.junit.RuntimeSpringBootTest;
+import com.hyland.openarch.runtime.test.runner.Deploy;
+import com.hyland.openarch.runtime.test.runner.Features;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Features(UploadFeature.class)

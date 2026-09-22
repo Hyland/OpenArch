@@ -17,7 +17,7 @@ package org.nuxeo.ecm.core.storage.mongodb;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.nuxeo.ecm.core.storage.mongodb.MongoDBConverter.DEFAULT_CONVERTER;
-import static org.nuxeo.runtime.mongodb.MongoDBOperators.AND;
+import static com.hyland.openarch.runtime.mongodb.MongoDBOperators.AND;
 
 import java.util.Date;
 import java.util.List;

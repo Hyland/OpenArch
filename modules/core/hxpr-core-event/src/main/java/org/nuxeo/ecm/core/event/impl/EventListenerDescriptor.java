@@ -32,7 +32,7 @@ import org.nuxeo.ecm.core.event.EventBundle;
 import org.nuxeo.ecm.core.event.EventListener;
 import org.nuxeo.ecm.core.event.PostCommitEventListener;
 import org.nuxeo.ecm.core.event.PostCommitFilteringEventListener;
-import org.nuxeo.runtime.model.RuntimeContext;
+import com.hyland.openarch.runtime.model.RuntimeContext;
 
 /**
  * XObject descriptor to declare event listeners

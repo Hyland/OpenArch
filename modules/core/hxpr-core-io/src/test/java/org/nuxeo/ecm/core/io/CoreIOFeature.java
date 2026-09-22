@@ -15,10 +15,10 @@
  */
 package org.nuxeo.ecm.core.io;
 
-import org.nuxeo.runtime.test.runner.Deploy;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.test.runner.RunnerFeature;
-import org.nuxeo.runtime.test.runner.RuntimeFeature;
+import com.hyland.openarch.runtime.test.runner.Deploy;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.RunnerFeature;
+import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
 
 /**
  * Intermediate feature for nuxeo-core-io module.

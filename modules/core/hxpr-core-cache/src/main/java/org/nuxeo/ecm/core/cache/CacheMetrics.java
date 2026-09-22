@@ -15,7 +15,7 @@
  */
 package org.nuxeo.ecm.core.cache;
 
-import org.nuxeo.runtime.metrics.MetricsService;
+import com.hyland.openarch.runtime.metrics.MetricsService;
 
 import io.dropwizard.metrics5.Counter;
 import io.dropwizard.metrics5.Gauge;

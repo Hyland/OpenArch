@@ -48,12 +48,12 @@ import org.nuxeo.opensearch.OpenSearchServiceImpl;
 import org.nuxeo.opensearch.api.OpenSearchService;
 import org.nuxeo.opensearch.listener.OpenSearchInlineListener;
 import org.nuxeo.opensearch.query.OpenSearchQueryBuilder;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.test.runner.ConsoleLogLevelThreshold;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.test.runner.FeaturesExtension;
-import org.nuxeo.runtime.test.runner.LogCaptureFeature;
-import org.nuxeo.runtime.transaction.TransactionHelper;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.test.runner.ConsoleLogLevelThreshold;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
+import com.hyland.openarch.runtime.test.runner.LogCaptureFeature;
+import com.hyland.openarch.runtime.transaction.TransactionHelper;
 
 /**
  * Test "on the fly" indexing via the listener system

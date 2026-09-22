@@ -65,7 +65,7 @@ import org.nuxeo.rest.swagger.annotation.Authenticated;
 import org.nuxeo.rest.swagger.annotation.ParameterRepoId;
 import org.nuxeo.rest.swagger.annotation.ParameterValidateOnly;
 import org.nuxeo.rest.swagger.annotation.SwaggerRequestBody;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 import org.springframework.core.annotation.AliasFor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

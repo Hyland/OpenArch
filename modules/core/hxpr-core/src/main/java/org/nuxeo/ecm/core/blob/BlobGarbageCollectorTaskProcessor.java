@@ -18,7 +18,7 @@ package org.nuxeo.ecm.core.blob;
 import static com.hyland.hxpr.async.tasks.TaskStatus.State.COMPLETED;
 
 import org.nuxeo.ecm.core.blob.binary.BinaryManagerStatus;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

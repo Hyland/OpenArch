@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
+import com.hyland.openarch.runtime.api.Framework;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpRequest;
@@ -37,7 +38,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 /**
  * Pure unit tests for {@link OpenSearchRestClientFactory} methods that do not depend on the Nuxeo Framework. Tests
- * that exercise {@code create()} (and therefore {@link org.nuxeo.runtime.api.Framework#getProperty(String)}) live in
+ * that exercise {@code create()} (and therefore {@link Framework#getProperty(String)}) live in
  * {@code TestOpenSearchRestClientFactory} and run inside a minimal Nuxeo runtime context.
  */
 @ExtendWith(MockitoExtension.class)

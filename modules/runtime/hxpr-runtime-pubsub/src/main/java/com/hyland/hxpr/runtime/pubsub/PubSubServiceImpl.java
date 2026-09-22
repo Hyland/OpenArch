@@ -15,8 +15,8 @@
  */
 package com.hyland.hxpr.runtime.pubsub;
 
-import org.nuxeo.runtime.RuntimeServiceException;
-import org.nuxeo.runtime.model.DefaultComponent;
+import com.hyland.openarch.runtime.RuntimeServiceException;
+import com.hyland.openarch.runtime.model.DefaultComponent;
 
 import java.util.List;
 import java.util.Map;

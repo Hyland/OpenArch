@@ -30,7 +30,7 @@ import java.util.function.Function;
 
 import org.nuxeo.ecm.core.schema.types.TypeException;
 import org.nuxeo.ecm.core.schema.types.primitives.DateType;
-import org.nuxeo.runtime.RuntimeServiceException;
+import com.hyland.openarch.runtime.RuntimeServiceException;
 
 /**
  * Some usefull utils for Constraint API.

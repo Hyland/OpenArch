@@ -19,9 +19,9 @@ import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.api.repository.Repository;
 import org.nuxeo.ecm.core.api.repository.RepositoryManager;
 import org.nuxeo.ecm.core.repository.RepositoryFactory;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.model.ComponentStartOrders;
-import org.nuxeo.runtime.model.DefaultComponent;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.model.ComponentStartOrders;
+import com.hyland.openarch.runtime.model.DefaultComponent;
 
 /**
  * Service holding the configuration for DBS repositories.

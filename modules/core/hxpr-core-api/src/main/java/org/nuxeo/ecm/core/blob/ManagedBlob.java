@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.nuxeo.ecm.core.api.Blob;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 
 /**
  * Interface for {@link Blob}s created and managed by the {@link BlobService}.

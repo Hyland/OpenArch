@@ -34,9 +34,9 @@ import org.mockito.exceptions.base.MockitoException;
 import org.nuxeo.ecm.core.api.SystemPrincipal;
 import org.nuxeo.ecm.core.schema.DocumentType;
 import org.nuxeo.ecm.core.storage.dbs.DBSDocument;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.test.runner.FeaturesExtension;
-import org.nuxeo.runtime.test.runner.RuntimeFeature;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
+import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
 
 @ExtendWith(FeaturesExtension.class)
 @Features(RuntimeFeature.class)

@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.nuxeo.runtime.api.login.LoginContext;
-import org.nuxeo.runtime.api.login.LoginServiceImpl.SystemID;
+import com.hyland.openarch.runtime.api.login.LoginContext;
+import com.hyland.openarch.runtime.api.login.LoginServiceImpl.SystemID;
 
 /**
  * Class to represent a principal in Nuxeo. This class holds the list of roles and groups for this principal.

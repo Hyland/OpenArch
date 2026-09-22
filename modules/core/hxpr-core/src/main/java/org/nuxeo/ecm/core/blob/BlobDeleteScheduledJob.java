@@ -16,7 +16,7 @@
 package org.nuxeo.ecm.core.blob;
 
 import org.nuxeo.ecm.core.scheduler.ScheduledJob;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 
 /**
  * Called periodically by a scheduler to delete the blobs marked for deletion, if enough time has elapsed.

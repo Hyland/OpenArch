@@ -18,10 +18,10 @@ package org.nuxeo.ecm.core.mongodb.kv;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
-import org.nuxeo.runtime.kv.AbstractKeyValueStoreTest;
-import org.nuxeo.runtime.mongodb.MongoDBFeature;
-import org.nuxeo.runtime.test.runner.Deploy;
-import org.nuxeo.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.kv.AbstractKeyValueStoreTest;
+import com.hyland.openarch.runtime.mongodb.MongoDBFeature;
+import com.hyland.openarch.runtime.test.runner.Deploy;
+import com.hyland.openarch.runtime.test.runner.Features;
 
 @Features(MongoDBFeature.class)
 @Deploy("org.nuxeo.ecm.core.mongodb:OSGI-INF/mongodb-kvstore-config.xml")

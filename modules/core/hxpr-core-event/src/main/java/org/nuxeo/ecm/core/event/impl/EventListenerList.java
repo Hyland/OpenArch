@@ -27,10 +27,10 @@ import com.hyland.openarch.common.xmap.XAnnotatedObject;
 import com.hyland.openarch.common.xmap.registry.MapRegistry;
 import org.nuxeo.ecm.core.event.EventListener;
 import org.nuxeo.ecm.core.event.PostCommitEventListener;
-import org.nuxeo.runtime.RuntimeMessage;
-import org.nuxeo.runtime.RuntimeMessage.Level;
-import org.nuxeo.runtime.RuntimeMessage.Source;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.RuntimeMessage;
+import com.hyland.openarch.runtime.RuntimeMessage.Level;
+import com.hyland.openarch.runtime.RuntimeMessage.Source;
+import com.hyland.openarch.runtime.api.Framework;
 import org.w3c.dom.Element;
 
 /**

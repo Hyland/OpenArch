@@ -16,9 +16,9 @@
 package org.nuxeo.rest.upload.test;
 
 import org.nuxeo.ecm.core.test.CoreFeature;
-import org.nuxeo.runtime.test.runner.Deploy;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.test.runner.RunnerFeature;
+import com.hyland.openarch.runtime.test.runner.Deploy;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.RunnerFeature;
 
 @Features(CoreFeature.class)
 @Deploy("org.nuxeo.springboot.rest.document")

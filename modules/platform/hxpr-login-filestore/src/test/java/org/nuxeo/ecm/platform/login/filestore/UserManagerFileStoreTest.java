@@ -30,7 +30,7 @@ import org.nuxeo.ecm.platform.login.filestore.store.GroupEntry;
 import org.nuxeo.ecm.platform.login.filestore.store.UserEntry;
 import org.nuxeo.ecm.platform.login.filestore.store.UserStore;
 import org.nuxeo.ecm.platform.login.filestore.store.UsersFileModel;
-import org.nuxeo.runtime.springboot.framework.ApplicationContextHelper;
+import com.hyland.openarch.runtime.springboot.framework.ApplicationContextHelper;
 import org.springframework.context.ApplicationContext;
 
 /**

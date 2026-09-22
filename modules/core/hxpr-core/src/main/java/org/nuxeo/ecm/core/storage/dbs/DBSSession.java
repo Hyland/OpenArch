@@ -137,9 +137,9 @@ import com.hyland.hxpr.expr.ExprPredicates;
 import org.nuxeo.ecm.core.storage.QueryOptimizer;
 import org.nuxeo.ecm.core.storage.State;
 import org.nuxeo.ecm.core.storage.StateHelper;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.metrics.MetricsService;
-import org.nuxeo.runtime.transaction.TransactionHelper;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.metrics.MetricsService;
+import com.hyland.openarch.runtime.transaction.TransactionHelper;
 
 import com.hyland.hxpr.async.tasks.TaskService;
 import com.hyland.hxpr.async.tasks.message.ScrollerTask;

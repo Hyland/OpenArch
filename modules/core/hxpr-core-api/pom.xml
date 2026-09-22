@@ -43,7 +43,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-runtime</artifactId>
+      <artifactId>openarch-runtime</artifactId>
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>

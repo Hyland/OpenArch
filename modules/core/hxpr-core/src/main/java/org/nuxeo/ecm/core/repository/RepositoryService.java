@@ -44,12 +44,12 @@ import org.nuxeo.ecm.core.api.repository.PoolConfiguration;
 import org.nuxeo.ecm.core.api.repository.RepositoryManager;
 import org.nuxeo.ecm.core.model.Repository;
 import org.nuxeo.ecm.core.model.InternalSession;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.cluster.ClusterService;
-import org.nuxeo.runtime.model.ComponentManager;
-import org.nuxeo.runtime.model.ComponentStartOrders;
-import org.nuxeo.runtime.model.DefaultComponent;
-import org.nuxeo.runtime.transaction.TransactionHelper;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.cluster.ClusterService;
+import com.hyland.openarch.runtime.model.ComponentManager;
+import com.hyland.openarch.runtime.model.ComponentStartOrders;
+import com.hyland.openarch.runtime.model.DefaultComponent;
+import com.hyland.openarch.runtime.transaction.TransactionHelper;
 
 /**
  * Component and service managing low-level repository instances.

@@ -18,10 +18,10 @@ package org.nuxeo.ecm.platform.login.filestore;
 import java.lang.reflect.Method;
 
 import org.nuxeo.ecm.core.api.local.WithUser;
-import org.nuxeo.runtime.springboot.junit.security.MockAuthenticationSupport;
-import org.nuxeo.runtime.test.runner.Deploy;
-import org.nuxeo.runtime.test.runner.FeaturesLoader;
-import org.nuxeo.runtime.test.runner.RunnerFeature;
+import com.hyland.openarch.runtime.springboot.junit.security.MockAuthenticationSupport;
+import com.hyland.openarch.runtime.test.runner.Deploy;
+import com.hyland.openarch.runtime.test.runner.FeaturesLoader;
+import com.hyland.openarch.runtime.test.runner.RunnerFeature;
 
 /**
  * Test feature that provides the file-based {@link org.nuxeo.ecm.platform.usermanager.UserManager} implementation

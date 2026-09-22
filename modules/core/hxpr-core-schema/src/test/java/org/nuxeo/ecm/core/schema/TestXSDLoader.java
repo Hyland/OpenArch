@@ -44,7 +44,7 @@ import org.nuxeo.ecm.core.schema.types.constraints.ConstraintUtils;
 import org.nuxeo.ecm.core.schema.types.constraints.EnumConstraint;
 import org.nuxeo.ecm.core.schema.types.primitives.LongType;
 import org.nuxeo.ecm.core.schema.types.primitives.StringType;
-import org.nuxeo.runtime.test.ResourceHelper;
+import com.hyland.openarch.runtime.test.ResourceHelper;
 
 public class TestXSDLoader {
 

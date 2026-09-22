@@ -21,15 +21,15 @@ import javax.security.auth.login.LoginException;
 
 import org.nuxeo.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.ecm.core.api.impl.UserPrincipal;
-import org.nuxeo.runtime.RuntimeServiceException;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.api.login.LoginContext;
-import org.nuxeo.runtime.api.login.LoginService;
-import org.nuxeo.runtime.test.runner.Deploy;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.test.runner.FeaturesLoader;
-import org.nuxeo.runtime.test.runner.RunnerFeature;
-import org.nuxeo.runtime.test.runner.RuntimeFeature;
+import com.hyland.openarch.runtime.RuntimeServiceException;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.login.LoginContext;
+import com.hyland.openarch.runtime.api.login.LoginService;
+import com.hyland.openarch.runtime.test.runner.Deploy;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.FeaturesLoader;
+import com.hyland.openarch.runtime.test.runner.RunnerFeature;
+import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
 
 import com.google.inject.Binder;
 

@@ -1,22 +1,22 @@
 <?xml version="1.0"?>
-<component name="org.nuxeo.runtime.metrics.MetricsService">
+<component name="com.hyland.openarch.runtime.metrics.MetricsService">
 
   <documentation>
     Filter and Report Dropwizzard Metrics and Tracing.
   </documentation>
 
   <service>
-    <provide interface="org.nuxeo.runtime.metrics.MetricsService" />
+    <provide interface="com.hyland.openarch.runtime.metrics.MetricsService" />
   </service>
 
-  <implementation class="org.nuxeo.runtime.metrics.MetricsServiceImpl" />
+  <implementation class="com.hyland.openarch.runtime.metrics.MetricsServiceImpl" />
 
   <extension-point name="configuration">
-    <object class="org.nuxeo.runtime.metrics.MetricsConfigurationDescriptor" />
+    <object class="com.hyland.openarch.runtime.metrics.MetricsConfigurationDescriptor" />
   </extension-point>
 
   <extension-point name="reporter">
-    <object class="org.nuxeo.runtime.metrics.MetricsReporterDescriptor" />
+    <object class="com.hyland.openarch.runtime.metrics.MetricsReporterDescriptor" />
   </extension-point>
 
 </component>

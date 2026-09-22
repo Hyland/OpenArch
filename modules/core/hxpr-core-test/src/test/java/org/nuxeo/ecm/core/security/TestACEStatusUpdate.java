@@ -32,8 +32,8 @@ import org.junit.jupiter.api.Test;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.security.ACE;
 import org.nuxeo.ecm.core.api.security.ACL;
-import org.nuxeo.runtime.mockito.RuntimeInject;
-import org.nuxeo.runtime.springboot.junit.RuntimeTestState;
+import com.hyland.openarch.runtime.mockito.RuntimeInject;
+import com.hyland.openarch.runtime.springboot.junit.RuntimeTestState;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.hyland.hxpr.async.tasks.AbstractTestAsyncTask;

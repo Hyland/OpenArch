@@ -29,7 +29,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.api.CloseableFile;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 
 /**
  * Abstract implementation of a {@link Blob} storing the information other than the byte stream.

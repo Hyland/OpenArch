@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 <component name="invalid.comp.registration">
 
-  <implementation class="org.nuxeo.runtime.RuntimeInitializationTestComponent" />
+  <implementation class="com.hyland.openarch.runtime.RuntimeInitializationTestComponent" />
   <property name="actionType" value="fail" />
   <property name="actionTypeOn" value="register" />
 
   <extension-point name="xp">
-    <object class="org.nuxeo.runtime.DummyContribution" />
+    <object class="com.hyland.openarch.runtime.DummyContribution" />
   </extension-point>
   <extension target="invalid.comp.registration" point="xp">
     <printer>

@@ -21,9 +21,9 @@ import com.hyland.hxpr.async.tasks.message.BatchTask;
 import com.hyland.hxpr.async.tasks.message.DocumentTask;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.nuxeo.runtime.test.runner.Features;
-import org.nuxeo.runtime.test.runner.FeaturesExtension;
-import org.nuxeo.runtime.transaction.TransactionHelper;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
+import com.hyland.openarch.runtime.transaction.TransactionHelper;
 
 import java.time.Instant;
 

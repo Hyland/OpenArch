@@ -82,7 +82,7 @@ import org.nuxeo.ecm.core.schema.types.CompositeType;
 import org.nuxeo.ecm.core.security.SecurityService;
 import org.nuxeo.ecm.core.storage.dbs.DBSDocument;
 import org.nuxeo.ecm.core.storage.dbs.DBSSession;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 
 public class DocumentImpl implements DocumentModel {
 

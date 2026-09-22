@@ -19,7 +19,7 @@ import static org.nuxeo.ecm.core.api.security.SecurityConstants.SYSTEM_USERNAME;
 
 import java.io.IOException;
 
-import org.nuxeo.runtime.springboot.security.SpringSecurityHelper;
+import com.hyland.openarch.runtime.springboot.security.SpringSecurityHelper;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 

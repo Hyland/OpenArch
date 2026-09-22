@@ -18,7 +18,7 @@ package org.nuxeo.ecm.core.blob;
 import static org.nuxeo.ecm.core.blob.BlobGarbageCollectorTaskProcessor.BLOB_GC_TASK_NAME;
 
 import org.nuxeo.ecm.core.scheduler.ScheduledJob;
-import org.nuxeo.runtime.api.Framework;
+import com.hyland.openarch.runtime.api.Framework;
 
 import com.hyland.hxpr.async.tasks.TaskService;
 import com.hyland.hxpr.async.tasks.message.RepositoryTask;

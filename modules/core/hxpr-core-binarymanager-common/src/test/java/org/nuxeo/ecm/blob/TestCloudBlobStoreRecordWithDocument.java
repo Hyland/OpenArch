@@ -26,9 +26,9 @@ import org.nuxeo.ecm.core.api.Blobs;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.blob.DocumentBlobService;
 import org.nuxeo.ecm.core.blob.binary.BinaryManagerStatus;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.test.runner.Deploy;
-import org.nuxeo.runtime.test.runner.FeaturesExtension;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.test.runner.Deploy;
+import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
 
 /**
  * Base record-mode document-level test for a cloud blob provider, shared by concrete provider implementations

@@ -17,8 +17,8 @@ package org.nuxeo.ecm.core.api;
 
 import org.nuxeo.ecm.core.SessionImpl;
 import org.nuxeo.ecm.core.repository.RepositoryService;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.model.DefaultComponent;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.model.DefaultComponent;
 
 /**
  * Implementation for the service managing the acquisition/release of {@link CoreSession} instances.
