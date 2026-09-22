@@ -16,6 +16,7 @@
 package org.nuxeo.ecm.core.storage.dbs;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ID;
 
@@ -148,6 +149,34 @@ public class TestDBSExpressionEvaluator {
                         map("cmp_addresses/*1/city", "London", "cmp_addresses/*2/city", "Paris"), //
                         map("cmp_addresses/*1/city", "London", "cmp_addresses/*2/city", "London")), //
                 projections);
+    }
+
+    @Test
+    public void toStringRendersMultiPredicateQueryWithOrderBy() {
+        Statement query = HXQLParser.parse("SELECT sys_id FROM D WHERE " //
+                + "cmp_addresses/*1/city = 'Paris' AND cmp_addresses/*1/number = 1 ORDER BY sys_id");
+        DBSExpressionEvaluator evaluator = new DBSExpressionEvaluator(null, query);
+        evaluator.parse(schemaManager);
+
+        String rendered = evaluator.toString();
+
+        assertTrue(rendered.startsWith("SELECT "));
+        assertTrue(rendered.contains(" WHERE "));
+        assertTrue(rendered.contains(" AND "));
+        assertTrue(rendered.contains(" ORDER BY "));
+    }
+
+    @Test
+    public void toStringRendersQueryWithoutOrderBy() {
+        Statement query = HXQLParser.parse("SELECT sys_id FROM D WHERE cmp_addresses/*1/city = 'Paris'");
+        DBSExpressionEvaluator evaluator = new DBSExpressionEvaluator(null, query);
+        evaluator.parse(schemaManager);
+
+        String rendered = evaluator.toString();
+
+        assertTrue(rendered.startsWith("SELECT "));
+        assertTrue(rendered.contains(" WHERE "));
+        assertFalse(rendered.contains(" ORDER BY "));
     }
 
 }

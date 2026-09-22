@@ -16,16 +16,28 @@
 package org.nuxeo.ecm.core.storage.dbs;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSFILE_BLOB;
+import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ID;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import jakarta.transaction.Status;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,9 +46,12 @@ import org.mockito.Mock;
 import org.nuxeo.ecm.core.api.repository.FulltextConfiguration;
 import org.nuxeo.ecm.core.security.SecurityPolicyService;
 import org.nuxeo.ecm.core.security.SecurityService;
+import org.nuxeo.ecm.core.storage.State;
 import org.nuxeo.ecm.core.test.CoreFeature;
 import org.nuxeo.runtime.mockito.MockitoFeature;
 import org.nuxeo.runtime.test.runner.Features;
+
+import com.hyland.hxpr.async.tasks.message.DocumentTask;
 import org.nuxeo.runtime.test.runner.FeaturesExtension;
 
 @ExtendWith(FeaturesExtension.class)
@@ -59,10 +74,14 @@ public class TestDBSTransactionState {
     @Mock
     private DBSRepository repository;
 
+    @Mock
+    private DBSConnection connection;
+
     @BeforeEach
     public void setUp() {
         when(securityService.getSecurityPolicyService(REPO_ID)).thenReturn(securityPolicyService);
         doReturn(REPO_ID).when(repository).getName();
+        doReturn(connection).when(repository).getConnection();
         FulltextConfiguration mockFulltextConfiguration = mock(FulltextConfiguration.class);
         doReturn(mockFulltextConfiguration).when(repository).getFulltextConfiguration();
         when(mockFulltextConfiguration.isFulltextIndexable(any())).thenReturn(true);
@@ -137,5 +156,70 @@ public class TestDBSTransactionState {
 
         // Then all properties should be condensed to wildcard syntax
         assertThat(result).containsExactlyInAnyOrder("files/*/name", "files/*/size");
+    }
+
+    @Test
+    public void getKeyValuedStatesCombinesTransientAndRepositoryMatches() {
+        DBSDocumentState match = mock(DBSDocumentState.class);
+        doReturn("t1").when(match).getId();
+        doReturn("wanted").when(match).get("k");
+        DBSDocumentState noMatch = mock(DBSDocumentState.class);
+        doReturn("t2").when(noMatch).getId();
+        doReturn("other").when(noMatch).get("k");
+        state.transientStates.put("t1", match);
+        state.transientStates.put("t2", noMatch);
+
+        State repoState = new State();
+        repoState.put(SYS_ID, "r1");
+        doReturn(List.of(repoState)).when(connection).queryKeyValue(eq("k"), eq("wanted"), anySet());
+
+        List<DBSDocumentState> result = state.getKeyValuedStates("k", "wanted");
+
+        assertEquals(2, result.size());
+        assertTrue(result.contains(match));
+        assertTrue(result.stream().anyMatch(s -> "r1".equals(s.getId())));
+    }
+
+    @Test
+    public void getKeyValuedStatesWithTwoKeysCombinesMatches() {
+        DBSDocumentState match = mock(DBSDocumentState.class);
+        doReturn("t1").when(match).getId();
+        doReturn("v1").when(match).get("k1");
+        doReturn("v2").when(match).get("k2");
+        DBSDocumentState noMatch = mock(DBSDocumentState.class);
+        doReturn("t2").when(noMatch).getId();
+        doReturn("v1").when(noMatch).get("k1");
+        doReturn("nope").when(noMatch).get("k2");
+        state.transientStates.put("t1", match);
+        state.transientStates.put("t2", noMatch);
+
+        State repoState = new State();
+        repoState.put(SYS_ID, "r1");
+        doReturn(List.of(repoState)).when(connection).queryKeyValue(eq("k1"), eq("v1"), eq("k2"), eq("v2"), anySet());
+
+        List<DBSDocumentState> result = state.getKeyValuedStates("k1", "v1", "k2", "v2");
+
+        assertEquals(2, result.size());
+        assertTrue(result.contains(match));
+        assertTrue(result.stream().anyMatch(s -> "r1".equals(s.getId())));
+    }
+
+    @Test
+    public void afterCompletionSchedulesTasksOnCommit() {
+        DBSTransactionState.TASKS.set(new ArrayList<>(List.of(mock(DocumentTask.class))));
+        doNothing().when(state).scheduleTasks(anyList());
+
+        state.afterCompletion(Status.STATUS_COMMITTED);
+
+        verify(state).scheduleTasks(anyList());
+    }
+
+    @Test
+    public void afterCompletionDoesNotScheduleTasksWhenNotCommitted() {
+        DBSTransactionState.TASKS.set(new ArrayList<>(List.of(mock(DocumentTask.class))));
+
+        state.afterCompletion(Status.STATUS_ROLLEDBACK);
+
+        verify(state, never()).scheduleTasks(anyList());
     }
 }

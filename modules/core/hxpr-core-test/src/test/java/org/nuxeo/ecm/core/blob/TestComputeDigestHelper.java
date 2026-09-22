@@ -17,6 +17,7 @@ package org.nuxeo.ecm.core.blob;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSFILE_BLOB;
 import static org.nuxeo.ecm.core.api.event.CoreEventConstants.BLOB_DIGEST_UPDATED_NEW_DIGEST;
 import static org.nuxeo.ecm.core.api.event.CoreEventConstants.BLOB_DIGEST_UPDATED_NEW_KEY;
@@ -38,6 +39,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.nuxeo.ecm.core.api.Blobs;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
+import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.api.impl.blob.StringBlob;
 import org.nuxeo.ecm.core.event.Event;
 import org.nuxeo.ecm.core.event.test.CapturingEventListener;
@@ -133,6 +135,38 @@ public class TestComputeDigestHelper {
         ManagedBlob blob = (ManagedBlob) doc1.getPropertyValue(SYSFILE_BLOB);
         assertEquals(BAR_SHA256, blob.getKey());
         assertEquals(BAR_SHA256, blob.getDigest());
+    }
+
+    @Test
+    public void computeAndReplaceDigestThrowsForUnknownProvider() {
+        ComputeDigestHelper helper = new ComputeDigestHelper("nosuchprovider", "key");
+        assertThrows(NuxeoException.class, helper::computeAndReplaceDigest);
+    }
+
+    @Test
+    public void computeAndReplaceDigestIsNoOpWhenBlobMissing() {
+        // no blob stored for this key: computeDigest returns null, so nothing is replaced
+        ComputeDigestHelper helper = new ComputeDigestHelper("test", "nosuchkey");
+
+        helper.computeAndReplaceDigest();
+
+        assertNull(helper.newKey); // no replacement happened
+    }
+
+    @Test
+    public void computeAndReplaceDigestIsNoOpWhenKeyAlreadyEqualsDigest() {
+        DocumentModel doc = session.createDocumentModel("/", "doc1", SYS_FILE);
+        doc.setPropertyValue(SYSFILE_BLOB, Blobs.createBlob(FOO));
+        doc.create();
+        session.save();
+
+        // the blob's key already equals its digest, so the helper short-circuits without replacing
+        ComputeDigestHelper helper = new ComputeDigestHelper("test", FOO_SHA256);
+
+        helper.computeAndReplaceDigest();
+
+        assertEquals(FOO_SHA256, helper.digest);
+        assertNull(helper.newKey); // no replacement happened
     }
 
 }

@@ -17,6 +17,7 @@ package org.nuxeo.ecm.core.storage.dbs;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -377,5 +378,66 @@ public class TestDBSCachingRepository {
 
         // guarantee 2: a bookkeeping failure must not surface to the caller and fail the request
         assertNull(escaped, "the caches-status failure escaped the drain: " + escaped);
+    }
+
+    @Test
+    public void testGetLockDelegatesToSubConnection() {
+        connection.getLock("ID");
+
+        verify(subConnection).getLock("ID");
+    }
+
+    @Test
+    public void testSetLockDelegatesAndInvalidates() {
+        connection.setLock("ID", null);
+
+        verify(subConnection).setLock("ID", null);
+    }
+
+    @Test
+    public void testRemoveLockDelegatesAndInvalidates() {
+        connection.removeLock("ID", "owner");
+
+        verify(subConnection).removeLock("ID", "owner");
+    }
+
+    @Test
+    public void testCreateClusterInvalidatorThrowsWhenClassMissing() {
+        DBSRepositoryDescriptor descriptor = new DBSRepositoryDescriptor();
+
+        assertThrows(org.nuxeo.ecm.core.api.NuxeoException.class,
+                () -> repository.createClusterInvalidator(descriptor));
+    }
+
+    @Test
+    public void testCreateClusterInvalidatorInstantiatesConfiguredClass() {
+        DBSRepositoryDescriptor descriptor = new DBSRepositoryDescriptor();
+        descriptor.clusterInvalidatorClass = DummyClusterInvalidator.class;
+
+        DBSClusterInvalidator createdInvalidator = repository.createClusterInvalidator(descriptor);
+
+        assertTrue(createdInvalidator instanceof DummyClusterInvalidator);
+    }
+
+    public static class DummyClusterInvalidator implements DBSClusterInvalidator {
+        @Override
+        public void initialize(String nodeId, String repositoryName) {
+            // no-op: this test stub only needs to be instantiable to verify createClusterInvalidator wiring
+        }
+
+        @Override
+        public void close() {
+            // no-op: this test stub holds no resources to release
+        }
+
+        @Override
+        public DBSInvalidationsList receiveInvalidations() {
+            return null;
+        }
+
+        @Override
+        public void sendInvalidations(DBSInvalidationsList invalidations) {
+            // no-op: this test stub only verifies createClusterInvalidator wiring, it never propagates invalidations
+        }
     }
 }

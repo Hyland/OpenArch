@@ -275,4 +275,26 @@ public class TestDBSInvalidations {
         invals.setNodeId("node123");
         assertEquals("DBSInvalidations(ids=[bar, foo], nodeId=node123, timestamp=12345)", invals.toString());
     }
+
+    @Test
+    public void testClearResetsAllState() {
+        DBSInvalidations all = new DBSInvalidations();
+        all.setAll();
+        assertFalse(all.isEmpty());
+
+        all.clear();
+
+        assertTrue(all.isEmpty());
+        assertFalse(all.all);
+
+        DBSInvalidations withIds = new DBSInvalidations();
+        withIds.add("foo");
+        withIds.setNodeId("node123");
+        withIds.setTimestamp(12345L);
+        assertFalse(withIds.isEmpty());
+
+        withIds.clear();
+
+        assertTrue(withIds.isEmpty());
+    }
 }

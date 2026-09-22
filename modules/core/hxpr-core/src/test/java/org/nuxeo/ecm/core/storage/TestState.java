@@ -113,4 +113,25 @@ public class TestState {
         }
     }
 
+    @Test
+    public void testHashCodeArrayRepresentation() {
+        State s1 = new State();
+        s1.put("a", "1");
+        s1.put("b", "2");
+        State s2 = new State();
+        s2.put("a", "1");
+        s2.put("b", "2");
+        assertEquals(s1.hashCode(), s2.hashCode());
+    }
+
+    @Test
+    public void testHashCodeMapRepresentation() {
+        // a thread-safe State uses an internal map rather than the key/value arrays
+        State s1 = new State(true);
+        s1.put("a", "1");
+        State s2 = new State(true);
+        s2.put("a", "1");
+        assertEquals(s1.hashCode(), s2.hashCode());
+    }
+
 }
