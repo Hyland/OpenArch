@@ -108,11 +108,14 @@ public class RFC2231 {
         }
     }
 
+    // used when no filename is available, so callers still get a well-formed Content-Disposition instead of an NPE
+    private static final String DEFAULT_FILENAME = "file";
+
     /**
      * Encodes a {@code Content-Disposition} header. For some user agents the full RFC-2231 encoding won't be performed
      * as they don't understand it.
      *
-     * @param filename the filename
+     * @param filename the filename, or {@code null} if unknown
      * @param inline {@code true} for an inline disposition, {@code false} for an attachment
      * @return a full string to set as value of a {@code Content-Disposition} header
      */
@@ -120,7 +123,7 @@ public class RFC2231 {
         StringBuilder sb = new StringBuilder();
         sb.append(inline ? "inline" : "attachment");
         sb.append("; filename");
-        encodeRFC2231(sb, filename);
+        encodeRFC2231(sb, filename == null ? DEFAULT_FILENAME : filename);
         return sb.toString();
     }
 

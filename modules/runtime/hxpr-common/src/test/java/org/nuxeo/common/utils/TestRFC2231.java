@@ -65,6 +65,12 @@ public class TestRFC2231 {
     }
 
     @Test
+    public void testEncodeContentDispositionWithNullFilename() {
+        assertEquals("attachment; filename=file", RFC2231.encodeContentDisposition(null, false));
+        assertEquals("inline; filename=file", RFC2231.encodeContentDisposition(null, true));
+    }
+
+    @Test
     public void testGetFileNameFromContentDisposition() {
         assertEquals("cafe",
             RFC2231.getFileNameFromContentDisposition(RFC2231.encodeContentDisposition("cafe", true)));
