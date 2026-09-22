@@ -43,7 +43,18 @@ import org.nuxeo.ecm.core.security.config.ExternalUserRelationsSecurityPolicyCon
 
 import com.hyland.hxpr.config.Configurable;
 
-public class ExternalUserRelationsSecurityPolicy extends AbstractSecurityPolicy implements Configurable {
+public class ExternalUserRelationsSecurityPolicy extends AbstractSecurityPolicy
+        implements Configurable<ExternalUserRelationsSecurityPolicy.RelationsState> {
+
+    /**
+     * The configuration this policy holds: the relations, in the internal form this policy queries them in rather than
+     * the public form the API exchanges, and when they last changed.
+     *
+     * @param relations the relations, inverted
+     * @param lastModified when the relations last changed
+     */
+    public record RelationsState(Map<String, Map<String, List<String>>> relations, Instant lastModified) {
+    }
 
     private static final Logger log = LogManager.getLogger(ExternalUserRelationsSecurityPolicy.class);
 
@@ -55,11 +66,9 @@ public class ExternalUserRelationsSecurityPolicy extends AbstractSecurityPolicy 
 
     private static final String CONFIG_LAST_MODIFIED = "lastModified";
 
-    // map of user to map of relation to users managed by this user for this relation
-    // this is a thread-safe datastructure, only read after construction and volatile for safe publishing
-    private volatile Map<String, Map<String, List<String>>> externalUserRelations; // NOSONAR
-
-    private volatile Instant externalUserRelationsLastModified;
+    // the relations (a map of user to map of relation to users managed by this user for this relation) and when they
+    // last changed; an immutable record holding read-only maps, in a volatile field for safe publishing
+    private volatile RelationsState relationsState; // NOSONAR
 
     // cache for fast access
     private String docEmployeeIdProperty;
@@ -70,8 +79,7 @@ public class ExternalUserRelationsSecurityPolicy extends AbstractSecurityPolicy 
         checkRelations(violations);
         checkUserAttribute(violations);
         // until it's filled in from persisted configuration or user-provided data
-        externalUserRelations = Map.of();
-        externalUserRelationsLastModified = Instant.now();
+        relationsState = new RelationsState(Map.of(), Instant.now());
     }
 
     private void checkRelations(List<ValidationViolation> violations) {
@@ -198,7 +206,7 @@ public class ExternalUserRelationsSecurityPolicy extends AbstractSecurityPolicy 
      * Checks if the first user is in relation with the other user.
      */
     private boolean hasRelationBetween(String id, String otherId) {
-        Map<String, List<String>> relationToUsers = externalUserRelations.get(id);
+        Map<String, List<String>> relationToUsers = relationsState.relations().get(id);
         if (relationToUsers != null) {
             for (String relation : getRelations()) {
                 List<String> relationUsers = relationToUsers.get(relation);
@@ -216,7 +224,7 @@ public class ExternalUserRelationsSecurityPolicy extends AbstractSecurityPolicy 
      * Gets all the users in relation with the given user.
      */
     private void getUsersInRelationWith(String id, Set<String> ids) {
-        Map<String, List<String>> relationToUsers = externalUserRelations.get(id);
+        Map<String, List<String>> relationToUsers = relationsState.relations().get(id);
         if (relationToUsers != null) {
             for (String relation : getRelations()) {
                 List<String> relationUsers = relationToUsers.get(relation);
@@ -254,10 +262,19 @@ public class ExternalUserRelationsSecurityPolicy extends AbstractSecurityPolicy 
      * manager.
      */
     public void setExternalUserRelations(Map<String, Map<String, List<String>>> publicConfig) {
-        // set locally
-        setConfigLocally(publicConfig, Instant.now());
-        // persist (sends cluster invalidations) through ConfigurationService
-        writeConfigurationGlobally(getRepositoryName());
+        // Set locally and persist (sending cluster invalidations) as one operation, which also gives the comparison
+        // below a configuration no concurrent writer can change under it.
+        // Keep the current lastModified when the relations do not change: it then really means "when the relations last
+        // changed", and the resulting configuration is identical, so the configuration service skips the write and its
+        // invalidations rather than persisting a fresh timestamp. The comparison is against the persisted relations,
+        // which is what "current" is here: comparing with the ones this node holds would keep a timestamp older than
+        // the stored one when this node lags behind, and so move lastModified backwards for relations that did change.
+        updateConfigurationGlobally(getRepositoryName(), current -> {
+            Map<String, Map<String, List<String>>> relations = invertRelations(publicConfig);
+            // a stored configuration with no usable timestamp counts as changed, so that one is written for it
+            boolean unchanged = relations.equals(current.relations()) && current.lastModified() != null;
+            return new RelationsState(relations, unchanged ? current.lastModified() : Instant.now());
+        });
         var sanitizedConfig = StringUtils.truncate(publicConfig.toString(), 1024);
         log.info("Setting external user relations on repository {} for policy {} with {} user(s): {}",
                 getRepositoryName(), getName(), publicConfig.size(), sanitizedConfig);
@@ -267,7 +284,7 @@ public class ExternalUserRelationsSecurityPolicy extends AbstractSecurityPolicy 
      * Gets the external user relations.
      */
     public Map<String, Object> getExternalUserRelations() {
-        var inverted = invertRelations(externalUserRelations);
+        var inverted = invertRelations(relationsState.relations());
         @SuppressWarnings("unchecked")
         Map<String, Object> publicConfig = (Map<String, Object>) (Object) inverted;
         var sanitizedConfig = StringUtils.truncate(publicConfig.toString(), 1024);
@@ -282,7 +299,7 @@ public class ExternalUserRelationsSecurityPolicy extends AbstractSecurityPolicy 
      * Gets the last modified date for the external user relations.
      */
     public Instant getExternalUserRelationsLastModified() {
-        return externalUserRelationsLastModified;
+        return relationsState.lastModified();
     }
 
     /**
@@ -326,10 +343,20 @@ public class ExternalUserRelationsSecurityPolicy extends AbstractSecurityPolicy 
         return output;
     }
 
-    private void setConfigLocally(Map<String, Map<String, List<String>>> publicConfig, Instant lastModified) {
-        // set to a volatile field for safe publication, the map is read-only afterwards
-        externalUserRelations = invertRelations(publicConfig);
-        externalUserRelationsLastModified = lastModified;
+    // Configurable
+    @Override
+    public RelationsState getLocalState(String repositoryName) {
+        return relationsState;
+    }
+
+    // Configurable
+    @Override
+    public void setLocalState(String repositoryName, RelationsState state) {
+        if (!this.getRepositoryName().equals(repositoryName)) {
+            // we don't want to set the config for another repository, nothing to do
+            return;
+        }
+        relationsState = state;
     }
 
     // Configurable
@@ -362,18 +389,14 @@ public class ExternalUserRelationsSecurityPolicy extends AbstractSecurityPolicy 
      * </pre>
      */
     @Override
-    public Map<String, Object> getLocalConfiguration(String repositoryName) {
-        return Map.of(CONFIG_RELATIONS, invertRelations(externalUserRelations), //
-                CONFIG_LAST_MODIFIED, formatInstant(externalUserRelationsLastModified));
+    public Map<String, Object> toConfigMap(RelationsState state) {
+        return Map.of(CONFIG_RELATIONS, invertRelations(state.relations()), //
+                CONFIG_LAST_MODIFIED, formatInstant(state.lastModified()));
     }
 
     // Configurable
     @Override
-    public void setLocalConfiguration(String repositoryName, Map<String, Object> config) {
-        if (!this.getRepositoryName().equals(repositoryName)) {
-            // we don't want to set the config for another repository, nothing to do
-            return;
-        }
+    public RelationsState fromConfigMap(String repositoryName, Map<String, Object> config) {
         Object relations = config.get(CONFIG_RELATIONS);
         if (!(relations instanceof Map)) {
             log.debug("Invalid persisted relations: {}", relations);
@@ -382,8 +405,7 @@ public class ExternalUserRelationsSecurityPolicy extends AbstractSecurityPolicy 
         @SuppressWarnings("unchecked")
         Map<String, Map<String, List<String>>> publicConfig = (Map<String, Map<String, List<String>>>) relations;
         Object lm = config.get(CONFIG_LAST_MODIFIED);
-        Instant lastModified = parseInstant(lm);
-        setConfigLocally(publicConfig, lastModified);
+        return new RelationsState(invertRelations(publicConfig), parseInstant(lm));
     }
 
     private String formatInstant(Instant instant) {

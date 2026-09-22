@@ -112,7 +112,7 @@ public class TestRetentionSecurityPolicy {
 
     private static void setSinglePolicyWithPermissions() {
         SecurityPolicyConfig config = new RetentionSecurityPolicyConfig();
-        ((SecurityServiceImpl) securityService).setLocalConfiguration(REPOSITORY, Map.of(POLICY_NAME, asMap(config)));
+        ((SecurityServiceImpl) securityService).setLocalFromConfigMap(REPOSITORY, Map.of(POLICY_NAME, asMap(config)));
     }
 
     private static Map<String, Object> asMap(Object config) {

@@ -23,7 +23,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.nuxeo.runtime.RuntimeServiceException;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.model.DefaultComponent;
 import org.springframework.beans.BeansException;
@@ -32,6 +31,7 @@ import org.springframework.context.ApplicationContextAware;
 
 import com.hyland.hxpr.config.Configurable;
 import com.hyland.hxpr.config.ConfigurationService;
+import com.hyland.hxpr.config.ConfigurationWithVersion;
 import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
 import org.nuxeo.ecm.core.schema.dto.ModelMapCodec;
 import org.nuxeo.ecm.core.schema.dto.SchemaDTO;
@@ -46,7 +46,8 @@ import java.util.LinkedHashMap;
  * <p>
  * The implementation is delegated to the SchemaManager.
  */
-public class TypeServiceImpl extends DefaultComponent implements TypeService, Configurable, ApplicationContextAware {
+public class TypeServiceImpl extends DefaultComponent
+        implements TypeService, Configurable<SchemaManager>, ApplicationContextAware {
 
     private static final Logger log = LogManager.getLogger(TypeServiceImpl.class);
 
@@ -114,15 +115,42 @@ public class TypeServiceImpl extends DefaultComponent implements TypeService, Co
 
     @Override
     public void setSchemaManager(String repositoryName, SchemaManager schemaManager) {
-        schemaManager = new SchemaManagerDTO(withCoreSystemDefinitions(schemaManager.toContentModel()), List.of(),
-                false);
-        // set locally
-        setSchemaManagerLocally(repositoryName, schemaManager);
-        // persist it (sends cluster invalidations)
-        writeConfigurationGlobally(repositoryName);
+        // set locally and persist (sending cluster invalidations) as one operation, so that concurrent writers cannot
+        // set the local schema manager in one order and persist in the other; the configuration service skips the write
+        // if nothing changed
+        setConfigurationGlobally(repositoryName, withCoreSystemDefinitions(schemaManager));
     }
 
-    private void setSchemaManagerLocally(String repositoryName, SchemaManager schemaManager) {
+    @Override
+    public void setSchemaManager(String repositoryName, SchemaManager schemaManager, long expectedVersion) {
+        // Persist with optimistic locking, then set locally, as one operation: if the persisted version has moved the
+        // write is rejected and the local schema manager is left untouched, and two concurrent writers set the local
+        // schema manager in the order they persisted, so this node cannot end up serving an older model than it stored.
+        // An unchanged configuration is not written at all and keeps its version, so applying the same content model
+        // repeatedly is free.
+        setConfigurationGloballyIfVersionMatches(repositoryName, withCoreSystemDefinitions(schemaManager),
+                expectedVersion);
+    }
+
+    @Override
+    public ModelWithVersion getModelWithVersion(String repositoryName) {
+        ConfigurationWithVersion snapshot = Framework.getService(ConfigurationService.class)
+                                                    .readConfigurationForUpdate(repositoryName, this);
+        // shape violations are not reported here: this is a read of already-persisted configuration, and the caller
+        // validates the update it computes from it
+        ContentModelDTO model = ModelMapCodec.read(snapshot.config(), new ArrayList<>());
+        return new ModelWithVersion(model, snapshot.version());
+    }
+
+    // Configurable
+    @Override
+    public SchemaManager getLocalState(String repositoryName) {
+        return getSchemaManager(repositoryName);
+    }
+
+    // Configurable
+    @Override
+    public void setLocalState(String repositoryName, SchemaManager schemaManager) {
         schemaManagers.put(repositoryName, schemaManager);
         // send local invalidation
         if (applicationContext != null) {
@@ -140,36 +168,38 @@ public class TypeServiceImpl extends DefaultComponent implements TypeService, Co
 
     // Configurable
     @Override
-    public Map<String, Object> getLocalConfiguration(String repositoryName) {
-        return getSchemaManager(repositoryName).toMap();
+    public Map<String, Object> toConfigMap(SchemaManager schemaManager) {
+        return schemaManager.toMap();
     }
 
     // Configurable
     @Override
-    public void setLocalConfiguration(String repositoryName, Map<String, Object> config) {
-        SchemaManager schemaManager;
-        try {
-            List<ValidationViolation> violations = new ArrayList<>();
-            AtomicBoolean legacyShape = new AtomicBoolean();
-            ContentModelDTO model = ModelMapCodec.read(config, violations, legacyShape);
-            model = withCoreSystemDefinitions(model);
-            if (legacyShape.get()) {
-                log.warn("Content model for repository {} is stored in the legacy shape; "
-                        + "it will be rewritten in the current shape the next time the model is updated",
-                        repositoryName);
-            }
-            schemaManager = new SchemaManagerDTO(model, violations, false);
-        } catch (NullPointerException | ClassCastException | RuntimeServiceException e) {
-            log.error("Failed to read types for repository: {}", repositoryName, e);
-            return;
+    public SchemaManager fromConfigMap(String repositoryName, Map<String, Object> config) {
+        List<ValidationViolation> violations = new ArrayList<>();
+        AtomicBoolean legacyShape = new AtomicBoolean();
+        ContentModelDTO model = withCoreSystemDefinitions(ModelMapCodec.read(config, violations, legacyShape));
+        if (legacyShape.get()) {
+            log.warn("Content model for repository {} is stored in the legacy shape; "
+                    + "it will be rewritten in the current shape the next time the model is updated", repositoryName);
         }
-        setSchemaManagerLocally(repositoryName, schemaManager);
+        return new SchemaManagerDTO(model, violations, false);
+    }
+
+    /**
+     * The same schema manager with the core system schemas and types reset to their current bootstrap definitions, so
+     * that no write can redefine them. Every write goes through this.
+     * <p>
+     * The violations of {@code schemaManager} are not carried over: the model it holds has already been validated by
+     * the time it gets here, and the rebuilt one is validated again on construction.
+     */
+    private SchemaManager withCoreSystemDefinitions(SchemaManager schemaManager) {
+        return new SchemaManagerDTO(withCoreSystemDefinitions(schemaManager.toContentModel()), List.of(), false);
     }
 
     /**
      * Replaces persisted core system schemas and types with their current bootstrap definitions.
      */
-    protected ContentModelDTO withCoreSystemDefinitions(ContentModelDTO model) {
+    private ContentModelDTO withCoreSystemDefinitions(ContentModelDTO model) {
         return withCoreSystemDefinitions(model, defaultSchemaManager.toContentModel());
     }
 

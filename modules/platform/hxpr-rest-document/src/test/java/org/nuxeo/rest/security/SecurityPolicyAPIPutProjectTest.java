@@ -21,12 +21,26 @@ import static jakarta.ws.rs.core.Response.Status.NO_CONTENT;
 import static jakarta.ws.rs.core.Response.Status.OK;
 import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.nuxeo.ecm.core.api.local.DummyLoginFeature.TEST_ANONYMOUS_USER;
+import static org.nuxeo.ecm.core.security.SecurityServiceImpl.CONFIG_SECURITY;
+import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.PUT;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+
+import org.json.JSONObject;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.nuxeo.ecm.core.api.local.WithUser;
+import org.nuxeo.runtime.api.Framework;
+
+import com.hyland.hxpr.config.ConfigurationService;
 
 class SecurityPolicyAPIPutProjectTest extends AbstractSecurityPolicyAPITest {
 
@@ -91,5 +105,52 @@ class SecurityPolicyAPIPutProjectTest extends AbstractSecurityPolicyAPITest {
                 checkResponseBodyEquals(UPDATED_PROJECT, result);
             }
         });
+    }
+
+    /**
+     * Reproduces a cluster invalidation lag: the policy is written straight to storage, so the persisted policies have
+     * it while this node's local ones do not.
+     */
+    private void addPolicyToStorageOnly(String policyName, String policyProjectId) {
+        ConfigurationService configurationService = Framework.getService(ConfigurationService.class);
+        Map<String, Object> stored = new HashMap<>(
+                configurationService.readConfiguration(REPO_ID, CONFIG_SECURITY).config());
+        stored.put(policyName,
+                Map.of("engine", "securitylevel", "mixin", "ClearanceElsewhere", "contentTypes",
+                        List.of("TestDocument"), "permissions", List.of("Everything"), "userAttribute", "clearance",
+                        "projectId", policyProjectId));
+        configurationService.writeConfiguration(REPO_ID, CONFIG_SECURITY, stored);
+    }
+
+    /** The names of the policies as they are actually stored, hidden ones included. */
+    private Set<String> storedPolicyNames() {
+        return new TreeSet<>(Framework.getService(ConfigurationService.class)
+                                      .readConfiguration(REPO_ID, CONFIG_SECURITY)
+                                      .config()
+                                      .keySet());
+    }
+
+    /**
+     * A project write merges into the persisted policies, not the ones this node holds: this node's copy lags behind
+     * while a cluster invalidation is in flight, and the write replaces the whole configuration, so merging into the
+     * local copy would drop a policy another node has just added for a different project.
+     */
+    @Test
+    void testPutProjectKeepsPoliciesOfOtherProjectsAddedElsewhere() throws Exception {
+        resetAfterChange((String original) -> {
+            addPolicyToStorageOnly("other project policy", "OTHERPROJ");
+
+            checkResponseWithPayload(OK, PUT, REPO_ID, NEW_POLICY, API_PROJECT_PATH);
+
+            // the other project's policy is still stored, and this node now reports it too
+            assertTrue(storedPolicyNames().contains("other project policy"), storedPolicyNames().toString());
+            assertTrue(getPolicies().has("other project policy"), getPolicies().toString());
+        });
+    }
+
+    /** The policies this node reports, as the version-unaware API returns them. */
+    private JSONObject getPolicies() throws Exception {
+        var result = checkResponse(OK, GET, REPO_ID, SecurityPolicyAPI.API_PATH);
+        return new JSONObject(result.andReturn().getResponse().getContentAsString());
     }
 }

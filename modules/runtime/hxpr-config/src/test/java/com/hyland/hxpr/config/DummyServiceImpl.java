@@ -20,7 +20,7 @@ import java.util.Map;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.model.DefaultComponent;
 
-public class DummyServiceImpl extends DefaultComponent implements DummyService, Configurable {
+public class DummyServiceImpl extends DefaultComponent implements DummyService, Configurable<String> {
 
     public static final String CONFIG_DUMMY = "dummy";
 
@@ -46,16 +46,10 @@ public class DummyServiceImpl extends DefaultComponent implements DummyService, 
         return settings;
     }
 
-    private void setLocalSettings(String settings) {
-        this.settings = settings;
-    }
-
     @Override
     public void setSettings(String settings) {
-        // set locally
-        setLocalSettings(settings);
-        // persist it (sends cluster invalidations)
-        writeConfigurationGlobally(DUMMY_REPO);
+        // set locally and persist it (sends cluster invalidations), as one operation
+        setConfigurationGlobally(DUMMY_REPO, settings);
     }
 
     // Configurable
@@ -66,14 +60,26 @@ public class DummyServiceImpl extends DefaultComponent implements DummyService, 
 
     // Configurable
     @Override
-    public Map<String, Object> getLocalConfiguration(String repositoryName) {
-        return Map.of(SETTINGS, settings);
+    public String getLocalState(String repositoryName) {
+        return settings;
     }
 
     // Configurable
     @Override
-    public void setLocalConfiguration(String repositoryName, Map<String, Object> config) {
-        settings = (String) config.get(SETTINGS);
+    public void setLocalState(String repositoryName, String state) {
+        settings = state;
+    }
+
+    // Configurable
+    @Override
+    public Map<String, Object> toConfigMap(String state) {
+        return Map.of(SETTINGS, state);
+    }
+
+    // Configurable
+    @Override
+    public String fromConfigMap(String repositoryName, Map<String, Object> config) {
+        return (String) config.get(SETTINGS);
     }
 
 }

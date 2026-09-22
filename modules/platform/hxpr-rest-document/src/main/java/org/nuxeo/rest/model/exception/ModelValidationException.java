@@ -15,16 +15,22 @@
  */
 package org.nuxeo.rest.model.exception;
 
-import jakarta.ws.rs.core.Response;
-
+import org.apache.http.HttpStatus;
 import org.nuxeo.ecm.core.api.validation.AbstractValidationException;
 import org.nuxeo.ecm.core.schema.validation.ValidationReport;
 
+/**
+ * A content model the repository refuses, reported as {@code 422 Unprocessable Entity} like every other validation
+ * failure.
+ * <p>
+ * The version-unaware (v1) endpoints report it as {@code 409 Conflict} for backward compatibility, by wrapping their
+ * writes in {@code ValidationStatus.conflictOnValidationFailure}.
+ */
 public class ModelValidationException extends AbstractValidationException {
 
     private static final long serialVersionUID = 1L;
 
     public ModelValidationException(ValidationReport report) {
-        super(report, Response.Status.CONFLICT.getStatusCode());
+        super(report, HttpStatus.SC_UNPROCESSABLE_ENTITY);
     }
 }

@@ -124,7 +124,7 @@ public class TestSecurityLevelSecurityPolicy {
     private static void setSinglePolicyWithPermissions(Set<String> permissions) {
         SecurityPolicyConfig config = new SecurityLevelSecurityPolicyConfig(null, Set.of(TYPE_NAME), permissions,
                 POLICY_MIXIN, POLICY_USER_ATTRIBUTE);
-        ((SecurityServiceImpl) securityService).setLocalConfiguration(REPOSITORY, Map.of(POLICY_NAME, asMap(config)));
+        ((SecurityServiceImpl) securityService).setLocalFromConfigMap(REPOSITORY, Map.of(POLICY_NAME, asMap(config)));
     }
 
     private static Map<String, Object> asMap(Object config) {

@@ -25,6 +25,9 @@ import java.util.function.Predicate;
 import org.nuxeo.ecm.core.schema.SchemaManager;
 import org.nuxeo.ecm.core.schema.SchemaManagerDTO;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
@@ -38,13 +41,20 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * </ul>
  * {@link SchemaManagerDTO} reads it into the {@link SchemaManager} object graph;
  * {@link SchemaManager#toContentModel()} produces it from one.
+ * <p>
+ * {@link #version} is the optimistic-locking counter of the v2 REST API. It is <em>not</em> part of the content: it is
+ * {@code null} everywhere except on a v2 request or response, so it is omitted from both serializations above (and thus
+ * absent from the persisted shape, where the version is document metadata). Use {@link #withVersion} to attach it at
+ * the REST boundary and {@link #withoutVersion} to drop it before the model is validated or persisted.
  */
 @Schema(name = "Model", description = "Represents a model.")
 public record ContentModelDTO( //
         Map<String, SchemaDTO> schemas, //
         Map<String, TypeDTO> types, //
         Map<String, MixinTypeDTO> mixinTypes, //
-        Map<String, PrimaryTypeDTO> primaryTypes) {
+        Map<String, PrimaryTypeDTO> primaryTypes, //
+        @Schema(description = "Optimistic-locking version, present on the v2 API only.") //
+        @JsonInclude(Include.NON_NULL) Long version) {
 
     public ContentModelDTO {
         // iteration order is part of the persisted shape, so keep it
@@ -52,6 +62,25 @@ public record ContentModelDTO( //
         types = immutableCopy(types);
         mixinTypes = immutableCopy(mixinTypes);
         primaryTypes = immutableCopy(primaryTypes);
+    }
+
+    /**
+     * Constructor without a version, for the content model itself: the version is left {@code null} so it stays out of
+     * both serializations.
+     */
+    public ContentModelDTO(Map<String, SchemaDTO> schemas, Map<String, TypeDTO> types,
+            Map<String, MixinTypeDTO> mixinTypes, Map<String, PrimaryTypeDTO> primaryTypes) {
+        this(schemas, types, mixinTypes, primaryTypes, null);
+    }
+
+    /** Returns a copy of this model carrying the given optimistic-locking {@code version}. */
+    public ContentModelDTO withVersion(Long version) {
+        return new ContentModelDTO(schemas, types, mixinTypes, primaryTypes, version);
+    }
+
+    /** Returns a copy of this model without any optimistic-locking version, i.e. the content alone. */
+    public ContentModelDTO withoutVersion() {
+        return version == null ? this : withVersion(null);
     }
 
     static <V> Map<String, V> immutableCopy(Map<String, V> map) {

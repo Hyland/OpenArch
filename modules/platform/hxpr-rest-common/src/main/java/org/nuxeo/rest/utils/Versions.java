@@ -21,6 +21,8 @@ public final class Versions {
 
     public static final String APP_HXCS_JSON_V1 = "application/vnd.hxcs.v1+json";
 
+    public static final String APP_HXCS_JSON_V2 = "application/vnd.hxcs.v2+json";
+
     public static final String APP_HXCS_OCTET_STREAM_V1 = "application/vnd.hxcs.v1+octet-stream";
 
     public static final String APP_HXCS_OCTET_STREAM = "application/vnd.hxcs+octet-stream";

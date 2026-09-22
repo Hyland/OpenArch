@@ -15,6 +15,8 @@
  */
 package org.nuxeo.ecm.core.storage.mongodb;
 
+import static com.mongodb.ErrorCategory.DUPLICATE_KEY;
+import static com.mongodb.ErrorCategory.fromErrorCode;
 import static org.nuxeo.ecm.core.api.DocumentConstants.CINCONTEXT_PREFIX;
 import static org.nuxeo.ecm.core.api.DocumentConstants.CINREMOTE_INGEST_EVENT_VERSION;
 import static org.nuxeo.ecm.core.api.DocumentConstants.CINREMOTE_INGEST_RAW;
@@ -161,6 +163,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bson.Document;
 import org.bson.conversions.Bson;
+import org.nuxeo.ecm.core.api.ConcurrentUpdateException;
 import org.nuxeo.ecm.core.model.Repository;
 import org.nuxeo.ecm.core.schema.types.primitives.AnyType;
 import org.nuxeo.ecm.core.schema.types.primitives.BooleanType;
@@ -175,7 +178,9 @@ import org.nuxeo.runtime.mongodb.MongoDBConnectionService;
 
 import com.hyland.hxpr.config.ConfigurationService;
 import com.hyland.hxpr.config.ConfigurationServiceIO;
+import com.hyland.hxpr.config.ConfigurationWithVersion;
 import com.mongodb.MongoClientException;
+import com.mongodb.MongoWriteException;
 import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
@@ -183,6 +188,7 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Projections;
 import com.mongodb.client.model.ReplaceOptions;
+import com.mongodb.client.result.UpdateResult;
 
 /**
  * MongoDB implementation of a {@link Repository}.
@@ -200,6 +206,19 @@ public class MongoDBRepository extends DBSRepositoryBase implements Configuratio
     public static final Double ONE = Double.valueOf(1);
 
     public static final String MONGODB_ID = "_id";
+
+    /**
+     * Field storing the optimistic-locking version of a configuration document (see
+     * {@link #writeConfiguration(String, Map, long)}). Absent on documents written before optimistic locking existed,
+     * which are then treated as version {@code 0}.
+     */
+    public static final String MONGODB_CONFIG_VERSION = "_version";
+
+    /**
+     * Number of attempts of a version-unaware configuration write before giving up on a configuration that keeps being
+     * updated concurrently (see {@link #writeConfiguration(String, Map)}).
+     */
+    protected static final int WRITE_CONFIG_ATTEMPTS = 5;
 
     public static final String MONGODB_INC = "$inc";
 
@@ -367,26 +386,141 @@ public class MongoDBRepository extends DBSRepositoryBase implements Configuratio
 
     // ConfigurationServiceIO
     @Override
-    public Map<String, Object> readConfiguration(String configName) {
+    public ConfigurationWithVersion readConfiguration(String configName) {
         Bson filter = Filters.eq(MONGODB_ID, configName);
         Document doc = configColl.find(filter).first();
-        if (doc != null) {
-            doc.remove(MONGODB_ID);
-            if (migrateConfiguration(configName, doc)) {
-                // it's been fixed up, write it back so that migration is persisted
-                writeConfiguration(configName, doc);
-                log.info("Old configuration has been migrated for: " + configName);
+        if (doc == null) {
+            return new ConfigurationWithVersion(null, 0L);
+        }
+        // the version is document metadata, not part of the configuration payload; a document written before
+        // optimistic locking existed has no version field and is treated as version 0
+        long version = doc.get(MONGODB_CONFIG_VERSION) instanceof Number n ? n.longValue() : 0L;
+        doc.remove(MONGODB_ID);
+        doc.remove(MONGODB_CONFIG_VERSION);
+        if (migrateConfiguration(configName, doc)) {
+            // It's been fixed up, write it back so that migration is persisted, keeping the same version: a shape
+            // migration is content-equivalent and must not disturb optimistic locking (dropping the version would
+            // reset the counter and make the version returned here inconsistent with what is persisted).
+            if (writeMigratedConfiguration(configName, doc, version)) {
+                log.info("Old configuration has been migrated for: {}", configName);
+            } else {
+                // The configuration has been updated concurrently, so persisting the migration would revert that
+                // update. The content and the version returned below still describe each other, which is what callers
+                // need: a write conditioned on that version is rejected, and the node is invalidated by whoever wrote,
+                // so it re-reads and sees their version.
+                log.debug("Old configuration has been migrated in memory but updated concurrently, "
+                        + "not persisting the migration for: {}", configName);
             }
         }
-        return doc;
+        return new ConfigurationWithVersion(doc, version);
     }
 
     // ConfigurationServiceIO
     @Override
     public void writeConfiguration(String configName, Map<String, Object> config) {
         Objects.requireNonNull(config);
-        Bson filter = Filters.eq(MONGODB_ID, configName);
-        configColl.replaceOne(filter, new Document(config), new ReplaceOptions().upsert(true));
+        // Last-write-wins write, used for bootstrap and for the version-unaware (v1) writes. It is the conditional
+        // write retried on conflict, which is what gives both of the properties needed here:
+        // - the whole document is replaced, so a top-level entry the new configuration no longer has really goes away;
+        //   for the configurations keyed by entity name, like the security policies and the renditions, that is how a
+        //   removal reaches storage,
+        // - the version is only ever advanced atomically, so a concurrent optimistic-locking writer holding the
+        //   previous version gets a conflict instead of being silently overwritten under an unchanged version.
+        // A conflict here only means that someone else wrote first, and the last write wins, so we retry from the
+        // version they left. Contention on a single configuration document is admin-level, so exhausting the attempts
+        // means something pathological is going on and is worth reporting rather than papering over.
+        for (int attempt = 1;; attempt++) {
+            try {
+                writeConfiguration(configName, config, readConfigurationVersion(configName));
+                return;
+            } catch (ConcurrentUpdateException e) {
+                if (attempt == WRITE_CONFIG_ATTEMPTS) {
+                    throw e;
+                }
+            }
+        }
+    }
+
+    // ConfigurationServiceIO
+    @Override
+    public Long tryWriteConfiguration(String configName, Map<String, Object> config, long expectedVersion) {
+        try {
+            return writeConfiguration(configName, config, expectedVersion);
+        } catch (ConcurrentUpdateException e) {
+            // the caller recomputes its update from what the other writer left, so the conflict is its answer, not a
+            // failure to report
+            return null;
+        }
+    }
+
+    // ConfigurationServiceIO
+    @Override
+    public long writeConfiguration(String configName, Map<String, Object> config, long expectedVersion) {
+        Objects.requireNonNull(config);
+        long newVersion = expectedVersion + 1;
+        // A missing document is reported as version 0 by readConfigurationWithVersion, and legacy documents written
+        // before optimistic locking have no version field (also treated as 0). So expectedVersion 0 must be able to
+        // create the document (upsert); any other expected version requires the document to already carry it.
+        boolean mayCreate = expectedVersion == 0L;
+        Bson filter = Filters.and(Filters.eq(MONGODB_ID, configName), configurationVersionFilter(expectedVersion));
+        Document replacement = new Document(config);
+        replacement.put(MONGODB_CONFIG_VERSION, newVersion);
+        try {
+            // atomic conditional replace: matches only if the persisted version is still expectedVersion. With
+            // expectedVersion 0, upsert creates the document when it is truly missing; a concurrent create (or a
+            // document that already holds a different version) then fails the unique _id index and is mapped to a
+            // conflict below.
+            UpdateResult result = configColl.replaceOne(filter, replacement, new ReplaceOptions().upsert(mayCreate));
+            if (!mayCreate && result.getMatchedCount() == 0) {
+                throw newConfigurationConflict(configName, expectedVersion);
+            }
+        } catch (MongoWriteException e) {
+            if (DUPLICATE_KEY.equals(fromErrorCode(e.getCode()))) {
+                throw newConfigurationConflict(configName, expectedVersion);
+            }
+            throw e;
+        }
+        return newVersion;
+    }
+
+    /** Reads only the optimistic-locking version of a configuration, {@code 0} if it doesn't have one. */
+    private long readConfigurationVersion(String configName) {
+        Document doc = configColl.find(Filters.eq(MONGODB_ID, configName))
+                                 .projection(Projections.include(MONGODB_CONFIG_VERSION))
+                                 .first();
+        return doc != null && doc.get(MONGODB_CONFIG_VERSION) instanceof Number n ? n.longValue() : 0L;
+    }
+
+    /**
+     * Writes back a configuration whose shape has just been migrated on read, keeping the optimistic-locking version it
+     * was read with.
+     * <p>
+     * The write is conditioned on that version, so that a configuration updated concurrently is never reverted to this
+     * older content, and its version never rolled back.
+     *
+     * @return {@code true} if the migrated configuration was written, {@code false} if it was updated concurrently
+     */
+    private boolean writeMigratedConfiguration(String configName, Map<String, Object> config, long version) {
+        Bson filter = Filters.and(Filters.eq(MONGODB_ID, configName), configurationVersionFilter(version));
+        Document replacement = new Document(config);
+        replacement.put(MONGODB_CONFIG_VERSION, version);
+        // no upsert: the document was just read, and if it has meanwhile been deleted it must not be resurrected
+        return configColl.replaceOne(filter, replacement, new ReplaceOptions().upsert(false)).getMatchedCount() > 0;
+    }
+
+    /**
+     * Filter matching a configuration document that still holds the given optimistic-locking version. Version {@code 0}
+     * also matches a document written before optimistic locking existed, which has no version field.
+     */
+    private static Bson configurationVersionFilter(long version) {
+        return version == 0L
+                ? Filters.or(Filters.eq(MONGODB_CONFIG_VERSION, 0L), Filters.exists(MONGODB_CONFIG_VERSION, false))
+                : Filters.eq(MONGODB_CONFIG_VERSION, version);
+    }
+
+    private static ConcurrentUpdateException newConfigurationConflict(String configName, long expectedVersion) {
+        return new ConcurrentUpdateException("Optimistic lock failure for configuration '" + configName
+                + "': expected version " + expectedVersion + " but the persisted version has changed");
     }
 
     private boolean migrateConfiguration(String configName, Map<String, Object> config) {

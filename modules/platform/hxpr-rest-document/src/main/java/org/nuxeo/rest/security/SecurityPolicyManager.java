@@ -35,6 +35,7 @@ import org.nuxeo.ecm.core.security.SecurityPolicy;
 import org.nuxeo.ecm.core.security.SecurityPolicyService;
 import org.nuxeo.ecm.core.security.SecurityPolicyValidationException;
 import org.nuxeo.ecm.core.security.SecurityService;
+import org.nuxeo.ecm.core.security.SecurityService.PoliciesWithVersion;
 import org.nuxeo.ecm.core.security.config.AbstractSecurityPolicyConfig;
 import org.nuxeo.ecm.core.security.config.SecurityPolicyConfig;
 import org.nuxeo.runtime.api.Framework;
@@ -112,7 +113,26 @@ public class SecurityPolicyManager {
         if (validateOnly) {
             return null; // NOSONAR
         }
-        SecurityPolicyService securityPolicyService = getSecurityService().getSecurityPolicyService(repoId);
+        return withoutHidden(getSecurityService().getSecurityPolicyService(repoId), projectId);
+    }
+
+    /**
+     * The persisted security policies without the hidden ones, together with the optimistic-locking version to send a
+     * write back with. Both come from one read, so the version always describes the policies returned: pairing the
+     * policies held locally with the persisted version would hand out a version describing content the caller never saw.
+     */
+    public ConfigWithVersion getPersistedConfigWithoutHidden(String repoId, String projectId) {
+        PoliciesWithVersion snapshot = getSecurityService().getSecurityPoliciesWithVersion(repoId);
+        return new ConfigWithVersion(withoutHidden(snapshot.policies(), projectId), snapshot.version());
+    }
+
+    /** Security policies and the version they were read at. */
+    public record ConfigWithVersion(Map<String, SecurityPolicyConfig> config, long version) {
+    }
+
+    /** The policies of {@code securityPolicyService} without the hidden ones, restricted to a project if given. */
+    private Map<String, SecurityPolicyConfig> withoutHidden(SecurityPolicyService securityPolicyService,
+            String projectId) {
         Set<String> hidden = securityPolicyService.getSecurityPolicies()
                                                   .stream()
                                                   .filter(SecurityPolicy::isHidden)
@@ -159,6 +179,41 @@ public class SecurityPolicyManager {
             boolean validateOnly) {
         List<ValidationViolation> violations = new ArrayList<>();
         getSecurityService().setSecurityPolicies(repoId, config, projectId, violations, validateOnly);
+        ValidationReport.checkViolations(violations, !validateOnly, SecurityPolicyValidationException::new);
+    }
+
+    /**
+     * Sets the security policies with optimistic locking. The resulting version is read back with
+     * {@link #getPersistedConfigWithoutHidden}, which reports it together with the policies it describes.
+     *
+     * @param expectedVersion the version the caller last read
+     */
+    public void put(String repoId, boolean validateOnly, Map<String, SecurityPolicyConfig> config,
+            long expectedVersion) {
+        log.info("Setting security policies: {}", config == null ? null : config.keySet());
+        persistConfig(repoId, config, null, validateOnly, expectedVersion);
+    }
+
+    /**
+     * Sets the security policies of a project with optimistic locking, see
+     * {@link #put(String, boolean, Map, long)}.
+     *
+     * @param expectedVersion the version the caller last read
+     */
+    public void putProject(String repoId, String projectId, boolean validateOnly,
+            Map<String, SecurityPolicyConfig> config, long expectedVersion) {
+        Objects.requireNonNull(projectId);
+        if (log.isInfoEnabled()) {
+            log.info("Setting security policies for project {}: {}", projectIdLogToken(projectId),
+                    config == null ? null : config.keySet());
+        }
+        persistConfig(repoId, config, projectId, validateOnly, expectedVersion);
+    }
+
+    private void persistConfig(String repoId, Map<String, SecurityPolicyConfig> config, String projectId,
+            boolean validateOnly, long expectedVersion) {
+        List<ValidationViolation> violations = new ArrayList<>();
+        getSecurityService().setSecurityPolicies(repoId, config, projectId, violations, validateOnly, expectedVersion);
         ValidationReport.checkViolations(violations, !validateOnly, SecurityPolicyValidationException::new);
     }
 

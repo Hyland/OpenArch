@@ -16,6 +16,8 @@
 package com.hyland.hxpr.springboot.server.config;
 
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 import static org.apache.http.HttpStatus.SC_BAD_REQUEST;
 import static org.apache.http.HttpStatus.SC_NOT_ACCEPTABLE;
 import static org.apache.http.HttpStatus.SC_UNSUPPORTED_MEDIA_TYPE;
@@ -24,9 +26,15 @@ import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_HAS_LEGAL_HOLD;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_IS_RECORD;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_RETAIN_UNTIL;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -40,6 +48,7 @@ import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.tags.Tag;
 import org.nuxeo.runtime.springboot.actuator.ApplicationInfo;
 import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springframework.context.annotation.Bean;
@@ -60,6 +69,9 @@ public class OpenApiConfiguration implements WebMvcConfigurer {
     private static final String NOT_ACCEPTABLE = String.valueOf(SC_NOT_ACCEPTABLE);
 
     private static final String UNSUPPORTED_MEDIA_TYPE = String.valueOf(SC_UNSUPPORTED_MEDIA_TYPE);
+
+    /** A tag of the form {@code "<prefix> v<number>"} names a version of the API the prefix names. */
+    private static final Pattern VERSIONED_TAG = Pattern.compile("(?<prefix>.+) (?<version>v\\d+)");
 
     // Sort parameters by type in the order path, query, header
     private static List<Parameter> getSortedParameterList(Operation operation) {
@@ -114,6 +126,75 @@ public class OpenApiConfiguration implements WebMvcConfigurer {
             @SuppressWarnings("rawtypes") Map<String, Schema> schemas = openApi.getComponents().getSchemas();
             openApi.getComponents().setSchemas(new TreeMap<>(schemas));
         };
+    }
+
+    /**
+     * Keeps a single tag on each operation that declares one of its own, the one it declares.
+     * <p>
+     * springdoc adds the tag a controller declares at class level to every operation it holds, on top of any tag the
+     * operation declares itself, and puts the operation's own tags first. An operation carrying two tags is generated
+     * once per tag by the SDK generator, so the v2 endpoints, which live in the same controller as their v1
+     * counterparts and name their own tag, would also be generated into the v1 API class.
+     */
+    @Bean
+    @Order(14)
+    public OpenApiCustomizer keepOnlyTheTagAnOperationDeclares() {
+        return openApi -> openApi.getPaths().forEach((path, pathItem) -> {
+            for (Operation operation : pathItem.readOperations()) {
+                List<String> tags = operation.getTags();
+                if (tags != null && tags.size() > 1) {
+                    operation.setTags(List.of(tags.get(0)));
+                }
+            }
+        });
+    }
+
+    /**
+     * Declares the versioned tags that only the operations name, so they are documented like the ones a controller
+     * declares.
+     * <p>
+     * A controller serving several versions of an API declares the tag of the first at class level, and each operation
+     * of a later one names its own tag (see {@link #keepOnlyTheTagAnOperationDeclares}). Only the first is a
+     * declaration, so the later ones would be listed with no description. A {@code "<prefix> v<number>"} tag covers
+     * the same API as {@code prefix}, so it is described as that API, at that version. Any other tag is left as it
+     * is.
+     */
+    @Bean
+    @Order(15)
+    public OpenApiCustomizer declareVersionedTags() {
+        return openApi -> {
+            List<Tag> tags = openApi.getTags() == null ? new ArrayList<>() : new ArrayList<>(openApi.getTags());
+            Map<String, String> descriptions = tags.stream()
+                                                   .filter(tag -> tag.getDescription() != null)
+                                                   .collect(toMap(Tag::getName, Tag::getDescription));
+            Set<String> declared = tags.stream().map(Tag::getName).collect(toSet());
+            openApi.getPaths()
+                   .values()
+                   .stream()
+                   .flatMap(pathItem -> pathItem.readOperations().stream())
+                   .map(Operation::getTags)
+                   .filter(Objects::nonNull)
+                   .flatMap(List::stream)
+                   .distinct()
+                   .filter(name -> !declared.contains(name))
+                   .forEach(name -> describeVersionedTag(name, descriptions).ifPresent(
+                           description -> tags.add(new Tag().name(name).description(description))));
+            openApi.setTags(tags);
+        };
+    }
+
+    /**
+     * The description of a versioned tag: the one of the API it is a version of, marked with that version. Empty for a
+     * tag that is not a version, or whose API has no description of its own; there is then nothing to declare and the
+     * tag is left as it is.
+     */
+    private static Optional<String> describeVersionedTag(String name, Map<String, String> descriptions) {
+        Matcher matcher = VERSIONED_TAG.matcher(name);
+        if (!matcher.matches()) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(descriptions.get(matcher.group("prefix")))
+                       .map(described -> described + ", " + matcher.group("version"));
     }
 
     /*

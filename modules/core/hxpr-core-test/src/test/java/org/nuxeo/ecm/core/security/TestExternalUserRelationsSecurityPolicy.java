@@ -17,6 +17,7 @@ package org.nuxeo.ecm.core.security;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -27,6 +28,7 @@ import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FILE;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -147,7 +149,7 @@ class TestExternalUserRelationsSecurityPolicy {
         String permissionsJson = permissions == null ? null : MAPPER.writeValueAsString(permissions);
         String configJson = POLICY_CONFIG_JSON_WITH_PERMISSIONS.formatted(permissionsJson);
         Map<String, Object> configMap = MAPPER.readValue(configJson, Map.class);
-        ((SecurityServiceImpl) securityService).setLocalConfiguration(REPOSITORY, Map.of(POLICY_NAME, configMap));
+        ((SecurityServiceImpl) securityService).setLocalFromConfigMap(REPOSITORY, Map.of(POLICY_NAME, configMap));
         // fetch the created policy
         List<SecurityPolicy> policies = securityService.getSecurityPolicyService(REPOSITORY).getSecurityPolicies();
         assertEquals(1, policies.size());
@@ -176,6 +178,63 @@ class TestExternalUserRelationsSecurityPolicy {
         config.newSecurityPolicy(REPOSITORY, POLICY_NAME, violations);
         assertEquals(1, violations.size());
         assertEquals(expected, violations.get(0).getMessage(null));
+    }
+
+    @Test
+    void testLastModifiedOnlyMovesWhenRelationsChange() {
+        ExternalUserRelationsSecurityPolicy policy = setSinglePolicyWithPermissions(Set.of(READ, MANAGE_SECURITY));
+        Map<String, Object> relations = policy.getExternalUserRelations();
+        Instant before = policy.getExternalUserRelationsLastModified();
+        assertNotNull(before);
+
+        // re-applying the same relations changes nothing, so the timestamp stays put and the configuration stays
+        // identical, which is what lets the configuration service skip the write entirely
+        @SuppressWarnings("unchecked")
+        Map<String, Map<String, List<String>>> same = (Map<String, Map<String, List<String>>>) (Map<String, ?>) relations;
+        policy.setExternalUserRelations(same);
+        assertEquals(before, policy.getExternalUserRelationsLastModified());
+        assertEquals(relations, policy.getExternalUserRelations());
+
+        // a real change does move it
+        policy.setExternalUserRelations(Map.of("erin", Map.of("HRAdmin", List.of("bob"))));
+        assertNotEquals(before, policy.getExternalUserRelationsLastModified());
+        assertEquals(Set.of("erin"), policy.getExternalUserRelations().keySet());
+
+        // the relations are persisted, so restore them for the tests that share this configuration
+        policy.setExternalUserRelations(same);
+        assertEquals(relations, policy.getExternalUserRelations());
+    }
+
+    /**
+     * Whether the relations changed, and therefore whether the timestamp moves, is decided against the persisted
+     * relations and not against the ones this node holds — which lag behind while a cluster invalidation is in flight.
+     * Deciding against the local ones would carry this node's older timestamp into storage for relations that did
+     * change, and stamp a fresh one on relations that did not.
+     */
+    @Test
+    void testLastModifiedFollowsThePersistedRelationsNotTheLocalOnes() {
+        ExternalUserRelationsSecurityPolicy policy = setSinglePolicyWithPermissions(Set.of(READ, MANAGE_SECURITY));
+        Map<String, Object> relations = policy.getExternalUserRelations();
+        @SuppressWarnings("unchecked")
+        Map<String, Map<String, List<String>>> stored = (Map<String, Map<String, List<String>>>) (Map<String, ?>) relations;
+        Instant storedLastModified = policy.getExternalUserRelationsLastModified();
+
+        // this node holds the stored relations, but with an older timestamp: what it looks like to have missed the
+        // invalidation of a change that went away again
+        var local = policy.getLocalState(REPOSITORY);
+        policy.setLocalState(REPOSITORY, new ExternalUserRelationsSecurityPolicy.RelationsState(local.relations(),
+                storedLastModified.minusSeconds(3600)));
+        policy.setExternalUserRelations(stored);
+        // nothing changed against what is stored, so the stored timestamp stays rather than being moved backwards
+        assertEquals(storedLastModified, policy.getExternalUserRelationsLastModified());
+
+        // this node holds relations it has not yet seen replaced by the stored ones
+        policy.setLocalState(REPOSITORY,
+                new ExternalUserRelationsSecurityPolicy.RelationsState(Map.of(), storedLastModified));
+        policy.setExternalUserRelations(stored);
+        // the relations asked for are the stored ones, so the timestamp is not moved for a change that did not happen
+        assertEquals(storedLastModified, policy.getExternalUserRelationsLastModified());
+        assertEquals(relations, policy.getExternalUserRelations());
     }
 
     @Test

@@ -30,7 +30,10 @@ public class Constants {
     }
 
     // Model API REST Path
-    public static final String API_PATH = "/api/repository/model";
+    public static final String API_PATH = "/api/repository/model"; // NOSONAR
+
+    // Model API REST Path (v2, with optimistic locking)
+    public static final String API_PATH_V2 = "/api/v2/repository/model"; // NOSONAR
 
     // For error reporting only
     public static final String MIXINTYPE = "MixinType";

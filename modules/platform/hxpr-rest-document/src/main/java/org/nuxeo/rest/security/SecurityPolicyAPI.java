@@ -18,7 +18,6 @@ package org.nuxeo.rest.security;
 // We keep jakarta MediaType.APPLICATION_JSON_PATCH import here as there in no spring equivalent
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON;
 import static org.nuxeo.rest.document.DocumentManager.DEFAULT_REPOSITORY_ID;
-import static org.nuxeo.rest.security.SecurityPolicyAPI.API_PATH;
 import static org.nuxeo.rest.security.SecurityPolicyRequestConstants.PATCH_REQUEST_EXAMPLE;
 import static org.nuxeo.rest.security.SecurityPolicyRequestConstants.PATCH_RESPONSE_EXAMPLE;
 import static org.nuxeo.rest.security.SecurityPolicyRequestConstants.PUT_FOR_PROJECT_REQUEST_EXAMPLE;
@@ -26,8 +25,10 @@ import static org.nuxeo.rest.security.SecurityPolicyRequestConstants.PUT_FOR_PRO
 import static org.nuxeo.rest.security.SecurityPolicyRequestConstants.PUT_REQUEST_EXAMPLE;
 import static org.nuxeo.rest.security.SecurityPolicyRequestConstants.PUT_RESPONSE_EXAMPLE;
 import static org.nuxeo.rest.utils.Headers.HXCS_REPOSITORY;
+import static org.nuxeo.rest.utils.OptimisticLocking.requireVersion;
 import static org.nuxeo.rest.utils.Versions.APP_HXCS_JSON;
 import static org.nuxeo.rest.utils.Versions.APP_HXCS_JSON_V1;
+import static org.nuxeo.rest.utils.Versions.APP_HXCS_JSON_V2;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.MediaType.ALL_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -51,10 +52,13 @@ import java.util.Map;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.api.repository.RepositoryManager;
 import org.nuxeo.ecm.core.security.config.SecurityPolicyConfig;
+import org.nuxeo.rest.security.SecurityPolicyManager.ConfigWithVersion;
 import org.nuxeo.rest.auth.AdministratorAccess;
 import org.nuxeo.rest.swagger.annotation.ApiResponse200;
 import org.nuxeo.rest.swagger.annotation.ApiResponse204;
+import org.nuxeo.rest.swagger.annotation.ApiResponse400MissingVersion;
 import org.nuxeo.rest.swagger.annotation.ApiResponse404RepositoryNotFound;
+import org.nuxeo.rest.swagger.annotation.ApiResponse409OptimisticLock;
 import org.nuxeo.rest.swagger.annotation.ApiResponse409;
 import org.nuxeo.rest.swagger.annotation.ApiResponse422;
 import org.nuxeo.rest.swagger.annotation.Authenticated;
@@ -70,7 +74,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -80,12 +83,17 @@ import tools.jackson.databind.ObjectMapper;
  * Security Policy REST API.
  */
 @RestController
-@RequestMapping(path = API_PATH, produces = { APP_HXCS_JSON_V1, APP_HXCS_JSON, APPLICATION_JSON_VALUE })
 @Tag(name = "Security", description = "Security Policy API")
 @Authenticated
 public class SecurityPolicyAPI {
 
     public static final String API_PATH = "/api/repository/security/policies"; // NOSONAR
+
+    /** Same API with optimistic locking, see {@link SecurityPoliciesDTO}. */
+    public static final String API_PATH_V2 = "/api/v2/repository/security/policies"; // NOSONAR
+
+    /** Swagger tag grouping the v2 operations. */
+    private static final String TAG_V2 = "Security v2";
 
     private static final String SECURITY_POLICY_VALIDATE_ONLY = "validateOnly";
 
@@ -135,7 +143,7 @@ public class SecurityPolicyAPI {
         public static final String DESCRIPTION = "Validation error.";
     }
 
-    @GetMapping(consumes = ALL_VALUE)
+    @GetMapping(path = API_PATH, consumes = ALL_VALUE, produces = { APP_HXCS_JSON_V1, APP_HXCS_JSON, APPLICATION_JSON_VALUE })
     @Operation(summary = "Returns the security policies for the repository.", operationId = "getSecurityPolicies")
     @ApiResponse200(description = "Returns the security policies for the repository.", content = {
             @Content(schema = @Schema(type = "object", additionalPropertiesSchema = SecurityPolicyConfigDTO.class),
@@ -149,7 +157,22 @@ public class SecurityPolicyAPI {
         return configMapper.convertToDTO(configWithoutHidden);
     }
 
-    @PutMapping(consumes = APPLICATION_JSON_VALUE)
+    @GetMapping(path = API_PATH_V2, consumes = ALL_VALUE, produces = { APP_HXCS_JSON_V2, APP_HXCS_JSON, APPLICATION_JSON_VALUE })
+    @Operation(summary = "Returns the security policies and their version for the repository.", operationId = "getSecurityPoliciesV2", tags = {
+            TAG_V2 })
+    @ApiResponse200(description = "Returns the security policies and their version for the repository.", content = {
+            @Content(schema = @Schema(implementation = SecurityPoliciesDTO.class)) })
+    @ApiResponse404RepositoryNotFound
+    public SecurityPoliciesDTO doGetV2(
+            @ParameterRepoId @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) String repoId) {
+        // This endpoint is not restricted to administrators
+        checkRepoExists(repoId);
+        // the policies and the version come from one read of the persisted configuration, so a client sending the version
+        // back is writing on top of the very policies it was given
+        return getPersistedPoliciesDTO(repoId, null);
+    }
+
+    @PutMapping(path = API_PATH, consumes = APPLICATION_JSON_VALUE, produces = { APP_HXCS_JSON_V1, APP_HXCS_JSON, APPLICATION_JSON_VALUE })
     @Operation(summary = "Sets the security policies for the repository. "
             + "Changes to fixed security policies (such as acl, lock and retention) will be ignored.", operationId = "setSecurityPolicies")
     @ApiResponse200(description = "Sets and returns security policies for the repository.", content = {
@@ -174,7 +197,34 @@ public class SecurityPolicyAPI {
                 : ResponseEntity.ok(configMapper.convertToDTO(configWithoutHidden));
     }
 
-    @PutMapping(path = "/project/{projectId}", consumes = APPLICATION_JSON_VALUE)
+    @PutMapping(path = API_PATH_V2, consumes = APPLICATION_JSON_VALUE, produces = { APP_HXCS_JSON_V2, APP_HXCS_JSON, APPLICATION_JSON_VALUE })
+    @Operation(summary = "Sets the security policies for the repository, using optimistic locking. "
+            + "Changes to fixed security policies (such as acl, lock and retention) will be ignored.", operationId = "setSecurityPoliciesV2", tags = {
+                    TAG_V2 })
+    @ApiResponse200(description = "Sets and returns the security policies and their new version for the repository.", content = {
+            @Content(schema = @Schema(implementation = SecurityPoliciesDTO.class)) })
+    @ApiResponse204SecurityPolicyValid
+    @ApiResponse404RepositoryNotFound
+    @ApiResponse409OptimisticLock
+    @ApiResponse400MissingVersion
+    @ApiResponse422ValidationError
+    @AdministratorAccess
+    public ResponseEntity<SecurityPoliciesDTO> doPutV2(
+            @ParameterRepoId @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) String repoId,
+            @ParameterValidateOnly @RequestParam(name = SECURITY_POLICY_VALIDATE_ONLY, defaultValue = "false") boolean validateOnly,
+            @RequestBody SecurityPoliciesDTO policies) {
+        checkRepoExists(repoId);
+        Map<String, SecurityPolicyConfig> config = configMapper.convertFromDTO(policies.policies());
+        manager.put(repoId, validateOnly, config, requireVersion(policies.version()));
+        if (validateOnly) {
+            return ResponseEntity.noContent().build();
+        }
+        // report the policies and their version from one read, rather than pairing the version this write produced with
+        // separately read policies: a write landing in between would make the two describe different states
+        return ResponseEntity.ok(getPersistedPoliciesDTO(repoId, null));
+    }
+
+    @PutMapping(path = API_PATH + "/project/{projectId}", consumes = APPLICATION_JSON_VALUE, produces = { APP_HXCS_JSON_V1, APP_HXCS_JSON, APPLICATION_JSON_VALUE })
     @Operation(summary = "Sets security policies for a specific project. Any security policies in the request that "
             + "have the same name as a system-wide security policy or one for another project or will be ignored. "
             + "The projectId is automatically set in security policies in the request.", operationId = "setSecurityPoliciesForProject")
@@ -199,7 +249,34 @@ public class SecurityPolicyAPI {
                 : ResponseEntity.ok(configMapper.convertToDTO(configWithoutHidden));
     }
 
-    @PatchMapping(consumes = APPLICATION_JSON_PATCH_JSON )
+    @PutMapping(path = API_PATH_V2 + "/project/{projectId}", consumes = APPLICATION_JSON_VALUE, produces = { APP_HXCS_JSON_V2, APP_HXCS_JSON, APPLICATION_JSON_VALUE })
+    @Operation(summary = "Sets security policies for a specific project, using optimistic locking. Any security policies "
+            + "in the request that have the same name as a system-wide security policy or one for another project will "
+            + "be ignored. The projectId is automatically set in security policies in the request.", operationId = "setSecurityPoliciesForProjectV2", tags = {
+                    TAG_V2 })
+    @ApiResponse200(description = "Sets the security policies specific to a project and returns the security policies and their new version for the repository.", content = {
+            @Content(schema = @Schema(implementation = SecurityPoliciesDTO.class)) })
+    @ApiResponse204SecurityPolicyValid
+    @ApiResponse404RepositoryNotFound
+    @ApiResponse409OptimisticLock
+    @ApiResponse400MissingVersion
+    @ApiResponse422ValidationError
+    @AdministratorAccess
+    public ResponseEntity<SecurityPoliciesDTO> doPutForProjectV2(@PathVariable("projectId") String projectId,
+            @ParameterValidateOnly @RequestParam(name = SECURITY_POLICY_VALIDATE_ONLY, defaultValue = "false") boolean validateOnly,
+            @ParameterRepoId @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) String repoId,
+            @RequestBody SecurityPoliciesDTO policies) {
+        checkRepoExists(repoId);
+        Map<String, SecurityPolicyConfig> config = configMapper.convertFromDTO(policies.policies());
+        manager.putProject(repoId, projectId, validateOnly, config, requireVersion(policies.version()));
+        if (validateOnly) {
+            return ResponseEntity.noContent().build();
+        }
+        // the policies and their version come from one read, see doPutV2
+        return ResponseEntity.ok(getPersistedPoliciesDTO(repoId, projectId));
+    }
+
+    @PatchMapping(path = API_PATH, consumes = APPLICATION_JSON_PATCH_JSON, produces = { APP_HXCS_JSON_V1, APP_HXCS_JSON, APPLICATION_JSON_VALUE })
     @Operation(summary = "Patches the security policies for the repository. "
             + "Changes to or even tests on fixed security policies (such as acl, lock and retention) will result in an error.", operationId = "patchSecurityPolicies")
     @ApiResponse200(description = "Patches and returns the security policies for the repository.", content = {
@@ -221,11 +298,22 @@ public class SecurityPolicyAPI {
                 : ResponseEntity.ok(configMapper.convertToDTO(configWithoutHidden));
     }
 
-
     private void checkRepoExists(String repoId) {
         if (getRepositoryManager().getRepository(repoId) == null) {
             throw new NuxeoException(NOT_FOUND.value());
         }
+    }
+
+    /**
+     * The v2 body for the persisted security policies, of the whole repository or of one project: the policies as DTOs,
+     * carrying the version they were read at.
+     *
+     * @param repoId the repository id
+     * @param projectId the project to restrict the policies to, or {@code null} for all of them
+     */
+    private SecurityPoliciesDTO getPersistedPoliciesDTO(String repoId, String projectId) {
+        ConfigWithVersion config = manager.getPersistedConfigWithoutHidden(repoId, projectId);
+        return SecurityPoliciesDTO.of(configMapper.convertToDTO(config.config()), config.version());
     }
 
 }

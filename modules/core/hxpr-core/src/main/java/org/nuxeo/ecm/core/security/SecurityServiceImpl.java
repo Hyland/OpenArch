@@ -48,11 +48,12 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 import com.hyland.hxpr.config.Configurable;
 import com.hyland.hxpr.config.ConfigurationService;
+import com.hyland.hxpr.config.ConfigurationWithVersion;
 
 /**
  * Component for permissions-related contributions.
  */
-public class SecurityServiceImpl extends DefaultComponent implements SecurityService, Configurable {
+public class SecurityServiceImpl extends DefaultComponent implements SecurityService, Configurable<SecurityPolicyService> {
 
     private static final Logger log = LogManager.getLogger(SecurityServiceImpl.class);
 
@@ -211,18 +212,63 @@ public class SecurityServiceImpl extends DefaultComponent implements SecuritySer
     @Override
     public void setSecurityPolicies(String repositoryName, Map<String, SecurityPolicyConfig> config, String projectId,
             List<ValidationViolation> violations, boolean validateOnly) {
-        SecurityPolicyService service = getSecurityPolicyService(repositoryName).applyUpdate(config, projectId, violations);
+        if (validateOnly) {
+            // validate against the persisted policies, which is what a write would be computed from
+            getSecurityPoliciesWithVersion(repositoryName).policies().applyUpdate(config, projectId, violations);
+            return;
+        }
+        // Merge into the persisted policies, not the ones held locally: those lag behind while a cluster invalidation is
+        // in flight, and this write replaces the whole configuration, so a project update computed from them would drop
+        // a policy another node has just added for a different project. The update runs under the lock of this
+        // configuration, and setting the policies locally and persisting them is one operation, so that concurrent
+        // writers cannot set the local policies in one order and persist in the other.
+        updateConfigurationGlobally(repositoryName, current -> {
+            // the update is applied again when another node writes in between, so the violations are collected afresh
+            // each time and only those of the run that went through are reported
+            violations.clear();
+            SecurityPolicyService updated = current.applyUpdate(config, projectId, violations);
+            // an update with errors is not applied: keeping the policies as they are stored writes nothing, since they
+            // are what the configuration service just read
+            return new ValidationReport(violations).removeWarnings().hasViolation() ? current : updated;
+        });
+    }
+
+    // called from the v2 REST endpoints to modify security policies with optimistic locking
+    @Override
+    public void setSecurityPolicies(String repositoryName, Map<String, SecurityPolicyConfig> config, String projectId,
+            List<ValidationViolation> violations, boolean validateOnly, long expectedVersion) {
+        // merge into and validate against the persisted policies the version refers to, not the ones held locally: those
+        // lag behind while a cluster invalidation is in flight, and this write replaces the whole configuration
+        SecurityPolicyService service = getSecurityPoliciesWithVersion(repositoryName).policies()
+                                                                                     .applyUpdate(config, projectId,
+                                                                                             violations);
         if (validateOnly || new ValidationReport(violations).removeWarnings().hasViolation()) {
             return;
         }
-
-        // set locally
-        setLocally(repositoryName, service);
-        // persist (sends cluster invalidations) through ConfigurationService
-        writeConfigurationGlobally(repositoryName);
+        // Persist with optimistic locking, then set locally, as one operation: if the stored version has moved the write
+        // is rejected and the local policies are left unchanged, and two concurrent writers set the local policies in
+        // the order they persisted, so this node cannot end up enforcing older policies than it stored.
+        setConfigurationGloballyIfVersionMatches(repositoryName, service, expectedVersion);
     }
 
-    private void setLocally(String repositoryName, SecurityPolicyService newService) {
+    @Override
+    public PoliciesWithVersion getSecurityPoliciesWithVersion(String repositoryName) {
+        ConfigurationWithVersion snapshot = Framework.getService(ConfigurationService.class)
+                                                    .readConfigurationForUpdate(repositoryName, this);
+        // reading the persisted policies may fail, and is then left to fail: an update computed from the local policies
+        // instead would be persisted under a version describing different content, overwriting what this node has not seen
+        return new PoliciesWithVersion(fromConfigMap(repositoryName, snapshot.config()), snapshot.version());
+    }
+
+    // Configurable
+    @Override
+    public SecurityPolicyService getLocalState(String repositoryName) {
+        return getSecurityPolicyService(repositoryName);
+    }
+
+    // Configurable
+    @Override
+    public void setLocalState(String repositoryName, SecurityPolicyService newService) {
         SecurityPolicyService oldService = securityPolicyServices.put(repositoryName, newService);
         // make sure that security policies that are Configurable are properly registered/unregistered
         if (oldService != null) {
@@ -237,10 +283,11 @@ public class SecurityServiceImpl extends DefaultComponent implements SecuritySer
         return CONFIG_SECURITY;
     }
 
+    /** The persisted form of the policies held by {@code service}. */
     // Configurable
     @Override
-    public Map<String, Object> getLocalConfiguration(String repositoryName) {
-        Map<String, SecurityPolicyConfig> config = getSecurityPolicyService(repositoryName).getSecurityPolicyConfigMap();
+    public Map<String, Object> toConfigMap(SecurityPolicyService service) {
+        Map<String, SecurityPolicyConfig> config = service.getSecurityPolicyConfigMap();
         try {
             return MAPPER.readValue(MAPPER.writeValueAsString(config), Map.class);
         } catch (JacksonException e) {
@@ -250,22 +297,20 @@ public class SecurityServiceImpl extends DefaultComponent implements SecuritySer
         }
     }
 
+    /**
+     * A detached {@link SecurityPolicyService} over the given persisted configuration, i.e. the policies as they are
+     * stored rather than the ones registered on this node. Used both to set a configuration locally and to compute an
+     * optimistic-locking update from the persisted state.
+     */
     // Configurable
     @Override
-    public void setLocalConfiguration(String repositoryName, Map<String, Object> map) {
-        try {
-            Map<String, SecurityPolicyConfig> config = AbstractSecurityPolicyConfig.toSecurityPolicyConfigMap(
-                    MAPPER.writeValueAsString(map));
-
-            List<ValidationViolation> violations = new ArrayList<>();
-            SecurityPolicyService service = new SecurityPolicyServiceImpl(this, repositoryName, config, violations);
-            logViolations(violations);
-
-            setLocally(repositoryName, service);
-        } catch (JacksonException e) {
-            // Should not get here
-            log.error("Invalid config reading security policy: {}", map);
-        }
+    public SecurityPolicyService fromConfigMap(String repositoryName, Map<String, Object> map) {
+        Map<String, SecurityPolicyConfig> config = AbstractSecurityPolicyConfig.toSecurityPolicyConfigMap(
+                MAPPER.writeValueAsString(map));
+        List<ValidationViolation> violations = new ArrayList<>();
+        SecurityPolicyService service = new SecurityPolicyServiceImpl(this, repositoryName, config, violations);
+        logViolations(violations);
+        return service;
     }
 
     private void logViolations(List<ValidationViolation> violations) {
