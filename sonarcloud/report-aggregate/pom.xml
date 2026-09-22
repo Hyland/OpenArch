@@ -52,7 +52,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-runtime-metrics</artifactId>
+      <artifactId>openarch-runtime-metrics</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

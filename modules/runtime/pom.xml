@@ -21,7 +21,7 @@
     <module>hxpr-runtime-kv</module>
     <module>openarch-runtime-management</module>
     <module>hxpr-runtime-osgi</module>
-    <module>hxpr-runtime-metrics</module>
+    <module>openarch-runtime-metrics</module>
     <module>hxpr-runtime-mongodb</module>
     <module>hxpr-runtime-pubsub</module>
     <module>hxpr-runtime-springboot</module>

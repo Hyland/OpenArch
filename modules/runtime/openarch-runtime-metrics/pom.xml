@@ -7,7 +7,7 @@
     <version>12.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>hxpr-runtime-metrics</artifactId>
+  <artifactId>openarch-runtime-metrics</artifactId>
   <name>HxPR Runtime Metrics</name>
 
   <properties>

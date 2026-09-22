@@ -73,7 +73,7 @@
 
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-runtime-metrics</artifactId>
+      <artifactId>openarch-runtime-metrics</artifactId>
     </dependency>
   </dependencies>
 
