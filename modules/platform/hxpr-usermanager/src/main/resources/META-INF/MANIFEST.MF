@@ -16,8 +16,8 @@ Nuxeo-Component: OSGI-INF/UserService.xml,
  OSGI-INF/usermanager-resolver-contrib.xml
 Bundle-ManifestVersion: 2
 Import-Package: org.apache.commons.logging,
- org.nuxeo.common.collections,
- org.nuxeo.common.xmap.annotation,
+ com.hyland.openarch.common.collections,
+ com.hyland.openarch.common.xmap.annotation,
  org.nuxeo.ecm.core;api=split,
  org.nuxeo.ecm.core.api;api=split,
  org.nuxeo.ecm.core.api.impl,

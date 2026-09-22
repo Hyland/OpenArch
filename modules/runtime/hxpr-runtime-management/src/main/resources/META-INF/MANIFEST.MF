@@ -18,7 +18,7 @@ Import-Package: javax.management,
  javax.management.remote.rmi,
  org.apache.commons.lang,
  org.apache.commons.logging,
- org.nuxeo.common.xmap.annotation,
+ com.hyland.openarch.common.xmap.annotation,
  org.nuxeo.runtime.api,
  org.nuxeo.runtime.model,
  org.osgi.framework;version="1.4"
