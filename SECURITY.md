@@ -1,5 +1,5 @@
 # Our Commitment to Security
-The [PROJECT NAME PLACEHOLDER] team takes the security of our software seriously. We appreciate your efforts to responsibly disclose your findings and will make every effort to acknowledge your contributions.
+The Hyland OpenArch team takes the security of our software seriously. We appreciate your efforts to responsibly disclose your findings and will make every effort to acknowledge your contributions.
 
 ## Supported Versions
 The latest version is supported.
@@ -63,12 +63,12 @@ Please allow us:
 ### In Scope
 Security vulnerabilities in:
 
-- [PROJECT NAME PLACEHOLDER] core code
-- Official [PROJECT NAME PLACEHOLDER] extensions and plugins
-- Official [PROJECT NAME PLACEHOLDER] Docker images
-- [PROJECT NAME PLACEHOLDER] REST APIs
-- [PROJECT NAME PLACEHOLDER] authentication and authorization
-- [PROJECT NAME PLACEHOLDER] data handling and storage
+- Hyland OpenArch core code
+- Official Hyland OpenArch extensions and plugins
+- Official Hyland OpenArch Docker images
+- Hyland OpenArch REST APIs
+- Hyland OpenArch authentication and authorization
+- Hyland OpenArch data handling and storage
 
 ### Out of Scope
 The following are generally NOT considered security vulnerabilities:
@@ -95,10 +95,10 @@ When testing for vulnerabilities, please:
 - DON'T: Exploit a vulnerability beyond demonstrating it exists
 
 ## Security Best Practices
-While using [PROJECT NAME PLACEHOLDER], we recommend:
+While using Hyland OpenArch, we recommend:
 
 ### For Deployment
-- Keep [PROJECT NAME PLACEHOLDER] updated to the latest stable version
+- Keep Hyland OpenArch updated to the latest stable version
 - Use strong, unique passwords for all accounts
 - Enable HTTPS/TLS for all communications
 - Regularly backup your data
@@ -127,7 +127,7 @@ Follow secure coding practices
 We publish security advisories for all resolved vulnerabilities:
 
 ### Where to Find Advisories
-- GitHub Security Advisories: [PLACEHOLDER: Link to GitHub Security tab]
+- [GitHub Security Advisories](https://github.com/Hyland/OpenArch/security)
 
 ### Advisory Format
 Each advisory includes:
@@ -191,4 +191,4 @@ By participating in our vulnerability disclosure program, you agree that:
 - [Common Vulnerability Scoring System (CVSS)](https://www.first.org/cvss/)
 - [HackerOne Disclosure Guidelines](https://www.hackerone.com/disclosure-guidelines)
 
-Thank you for helping keep [PROJECT NAME PLACEHOLDER] and our users safe!
+Thank you for helping keep Hyland OpenArch and our users safe!
