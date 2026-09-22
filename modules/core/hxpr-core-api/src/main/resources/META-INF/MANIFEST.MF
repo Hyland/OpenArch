@@ -53,11 +53,11 @@ Import-Package: javax.security.auth,
  org.nuxeo.ecm.core.schema,
  org.nuxeo.ecm.core.schema.types,
  org.nuxeo.ecm.core.schema.types.primitives,
- org.nuxeo.runtime,
- org.nuxeo.runtime.api,
- org.nuxeo.runtime.api.login,
- org.nuxeo.runtime.model,
- org.nuxeo.runtime.services.streaming
+ com.hyland.openarch.runtime,
+ com.hyland.openarch.runtime.api,
+ com.hyland.openarch.runtime.api.login,
+ com.hyland.openarch.runtime.model,
+ com.hyland.openarch.runtime.services.streaming
 Bundle-SymbolicName: org.nuxeo.ecm.core.api;singleton:=true
-Eclipse-RegisterBuddy: org.nuxeo.runtime
+Eclipse-RegisterBuddy: com.hyland.openarch.runtime
 Eclipse-ExtensibleAPI: true

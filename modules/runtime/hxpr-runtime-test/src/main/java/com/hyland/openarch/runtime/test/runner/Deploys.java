@@ -27,13 +27,13 @@ import java.lang.annotation.Target;
  * Deployable artifacts are either bundles either components: Example
  *
  * <pre>
- * &#64;Deploy({"org.nuxeo.runtime", "org.nuxeo.core:OSGI-INF/component.xml"})
+ * &#64;Deploy({"com.hyland.openarch.runtime", "org.nuxeo.core:OSGI-INF/component.xml"})
  * </pre>
  *
  * can now be written: *
  *
  * <pre>
- * &#64;Deploy("org.nuxeo.runtime")
+ * &#64;Deploy("com.hyland.openarch.runtime")
  * &#64;Deploy("org.nuxeo.core:OSGI-INF/component.xml")
  * </pre>
  */

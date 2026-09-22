@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<component name="org.nuxeo.runtime.LoginService">
+<component name="com.hyland.openarch.runtime.LoginService">
   <documentation>
   The login component is defining the login infrastructure
   @author Bogdan Stefanescu (bs@nuxeo.com)

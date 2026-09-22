@@ -23,8 +23,8 @@ Import-Package: javax.annotation,
  org.apache.geronimo.connector.outbound.connectiontracking,
  org.apache.geronimo.transaction,
  org.apache.geronimo.transaction.manager,
- org.nuxeo.runtime.api,
- org.nuxeo.runtime.transaction,
+ com.hyland.openarch.runtime.api,
+ com.hyland.openarch.runtime.transaction,
  org.osgi.framework
 Bundle-SymbolicName: org.nuxeo.runtime.jtajca;singleton:=true
 Nuxeo-Component: OSGI-INF/JtaActivator.xml

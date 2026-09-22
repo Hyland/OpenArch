@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<component name="org.nuxeo.runtime.EventService">
+<component name="com.hyland.openarch.runtime.EventService">
 
   <implementation class="com.hyland.openarch.runtime.services.event.EventService"/>
 

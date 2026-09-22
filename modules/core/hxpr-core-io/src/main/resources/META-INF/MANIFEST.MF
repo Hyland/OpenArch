@@ -25,6 +25,6 @@ Import-Package: javax.security.auth.login,
  org.nuxeo.ecm.core.api.security.impl,
  org.nuxeo.ecm.core.schema,
  org.nuxeo.ecm.core.schema.types,
- org.nuxeo.runtime.api,
- org.nuxeo.runtime.services.streaming
+ com.hyland.openarch.runtime.api,
+ com.hyland.openarch.runtime.services.streaming
 Bundle-SymbolicName: org.nuxeo.ecm.core.io;singleton:=true

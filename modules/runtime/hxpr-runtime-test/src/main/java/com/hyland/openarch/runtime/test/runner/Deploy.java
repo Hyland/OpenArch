@@ -34,13 +34,13 @@ import java.lang.annotation.Target;
  * Example with one module:
  *
  * <pre>
- * &#64;Deploy("org.nuxeo.runtime")
+ * &#64;Deploy("com.hyland.openarch.runtime")
  * </pre>
  *
  * Example with several modules:
  *
  * <pre>
- * &#64;Deploy({"org.nuxeo.runtime", "org.nuxeo.core:OSGI-INF/component.xml"})
+ * &#64;Deploy({"com.hyland.openarch.runtime", "org.nuxeo.core:OSGI-INF/component.xml"})
  * </pre>
  */
 @Inherited

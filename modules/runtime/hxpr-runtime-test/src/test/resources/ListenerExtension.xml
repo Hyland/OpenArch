@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <component name="MyListener">
 
-  <extension target="org.nuxeo.runtime.EventService" point="listeners">
+  <extension target="com.hyland.openarch.runtime.EventService" point="listeners">
     <listener class="com.hyland.openarch.runtime.MyListener">
       <topic>repository</topic>
       <topic>schema</topic>

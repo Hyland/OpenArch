@@ -22,7 +22,7 @@ import com.hyland.openarch.runtime.model.RuntimeContext;
 import org.osgi.framework.BundleException;
 
 /**
- * TODO: Move this to org.nuxeo.runtime package
+ * TODO: Move this to com.hyland.openarch.runtime package
  *
  * @author <a href="mailto:bs@nuxeo.com">Bogdan Stefanescu</a>
  */

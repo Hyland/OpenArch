@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
-<component name="org.nuxeo.runtime.trackers.files">
+<component name="com.hyland.openarch.runtime.trackers.files">
 
-  <require>org.nuxeo.runtime.EventService</require>
+  <require>com.hyland.openarch.runtime.EventService</require>
 
   <implementation class="com.hyland.openarch.runtime.trackers.files.FileEventTracker" />
 

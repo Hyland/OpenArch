@@ -77,7 +77,7 @@ public final class Framework {
      * @since 5.6
      * @see #isTestModeSet()
      */
-    public static final String NUXEO_TESTING_SYSTEM_PROP = "org.nuxeo.runtime.testing";
+    public static final String NUXEO_TESTING_SYSTEM_PROP = "com.hyland.openarch.runtime.testing";
 
     /**
      * Property for strict mode startup.

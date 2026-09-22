@@ -31,7 +31,7 @@ import com.hyland.openarch.runtime.model.DefaultComponent;
  */
 public class EventService extends DefaultComponent {
 
-    public static final String NAME = "org.nuxeo.runtime.EventService";
+    public static final String NAME = "com.hyland.openarch.runtime.EventService";
 
     private static final Logger log = LogManager.getLogger(EventService.class);
 

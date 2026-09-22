@@ -24,9 +24,9 @@ Import-Package: com.google.inject,
  org.nuxeo.ecm.core.storage.sql;core=split,
  org.nuxeo.ecm.core.test,
  org.nuxeo.ecm.core.test.annotations,
- org.nuxeo.runtime.api,
+ com.hyland.openarch.runtime.api,
  org.nuxeo.runtime.test.runner,
  org.osgi.framework,
  org.nuxeo.ecm.core.work,
- org.nuxeo.runtime
+ com.hyland.openarch.runtime
 Require-Bundle: org.nuxeo.ecm.core

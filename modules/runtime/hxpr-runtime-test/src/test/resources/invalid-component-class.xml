@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <component name="invalid.comp.class">
 
-  <implementation class="org.nuxeo.runtime.Foo" />
+  <implementation class="com.hyland.openarch.runtime.Foo" />
 
 </component>

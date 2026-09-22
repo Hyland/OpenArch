@@ -19,8 +19,8 @@ Import-Package: com.sun.xml.xsom,
  org.apache.commons.logging,
  com.hyland.openarch.common.utils,
  com.hyland.openarch.common.xmap.annotation,
- org.nuxeo.runtime,
- org.nuxeo.runtime.api,
- org.nuxeo.runtime.model,
+ com.hyland.openarch.runtime,
+ com.hyland.openarch.runtime.api,
+ com.hyland.openarch.runtime.model,
  org.xml.sax
 Bundle-SymbolicName: org.nuxeo.ecm.core.schema;singleton:=true

@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 
-<component name="org.nuxeo.runtime.trackers.files.threadstracking.config" enable="false">
+<component name="com.hyland.openarch.runtime.trackers.files.threadstracking.config" enable="false">
 
-  <extension target="org.nuxeo.runtime.trackers.files" point="configs">
+  <extension target="com.hyland.openarch.runtime.trackers.files" point="configs">
     <enableThreadsTracking />
   </extension>
 

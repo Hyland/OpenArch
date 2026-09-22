@@ -23,11 +23,11 @@ Import-Package: javax.annotation;version="1.0",
  org.nuxeo.ecm.directory;api=split,
  org.nuxeo.ecm.platform.api.login,
  org.nuxeo.ecm.platform.usermanager,
- org.nuxeo.runtime,
- org.nuxeo.runtime.api,
- org.nuxeo.runtime.api.login,
- org.nuxeo.runtime.model
+ com.hyland.openarch.runtime,
+ com.hyland.openarch.runtime.api,
+ com.hyland.openarch.runtime.api.login,
+ com.hyland.openarch.runtime.model
 Bundle-SymbolicName: org.nuxeo.ecm.platform.login
-Eclipse-RegisterBuddy: org.nuxeo.runtime
+Eclipse-RegisterBuddy: com.hyland.openarch.runtime
 Eclipse-BuddyPolicy: registered
 Nuxeo-Component: OSGI-INF/login-as-contrib.xml

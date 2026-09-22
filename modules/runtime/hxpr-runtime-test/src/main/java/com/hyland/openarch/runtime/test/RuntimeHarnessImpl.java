@@ -184,7 +184,7 @@ public class RuntimeHarnessImpl implements RuntimeHarness {
 
     @Override
     public void start() {
-        System.setProperty("org.nuxeo.runtime.testing", "true");
+        System.setProperty("com.hyland.openarch.runtime.testing", "true");
         wipeEmptyTestSystemProperties();
         wipeRuntime();
         initUrls();
@@ -241,7 +241,7 @@ public class RuntimeHarnessImpl implements RuntimeHarness {
         bundleLoader.setScanForNestedJARs(false); // for now
         bundleLoader.setExtractNestedJARs(false);
 
-        BundleFile bundleFile = lookupBundle("org.nuxeo.runtime");
+        BundleFile bundleFile = lookupBundle("com.hyland.openarch.runtime");
         runtimeBundle = new RootRuntimeBundle(osgi, bundleFile, bundleLoader.getClass().getClassLoader());
         runtimeBundle.start();
 

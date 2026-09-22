@@ -1,6 +1,6 @@
 <component name="test:dummy">
-	<implementation class="org.nuxeo.runtime.annotated.DummyComponent"/>
+	<implementation class="com.hyland.openarch.runtime.annotated.DummyComponent"/>
     <service>
-      <provide interface="org.nuxeo.runtime.annotated.DummyAnnotated"/>
+      <provide interface="com.hyland.openarch.runtime.annotated.DummyAnnotated"/>
   </service>
 </component>

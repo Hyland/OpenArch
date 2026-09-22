@@ -124,7 +124,7 @@ public class RuntimeInitializationTest {
     @Deploy("org.nuxeo.runtime.test.tests:invalid-component-class.xml")
     public void testInvalidComponentClass() {
         assertEquals(List.of(
-                "Failed to instantiate component: org.nuxeo.runtime.Foo (com.hyland.openarch.runtime.RuntimeServiceException: java.lang.ClassNotFoundException: org.nuxeo.runtime.Foo)"),
+                "Failed to instantiate component: com.hyland.openarch.runtime.Foo (com.hyland.openarch.runtime.RuntimeServiceException: java.lang.ClassNotFoundException: com.hyland.openarch.runtime.Foo)"),
                 Framework.getRuntime().getMessageHandler().getMessages(Level.ERROR));
         checkErrorSource(Source.COMPONENT, "invalid.comp.class");
         assertTrue(Framework.getRuntime().getMessageHandler().getMessages(Level.WARNING).isEmpty());

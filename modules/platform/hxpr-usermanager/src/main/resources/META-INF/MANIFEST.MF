@@ -25,8 +25,8 @@ Import-Package: org.apache.commons.logging,
  org.nuxeo.ecm.directory;api=split,
  org.nuxeo.ecm.directory.api,
  org.nuxeo.ecm.platform.usermanager.exceptions,
- org.nuxeo.runtime,
- org.nuxeo.runtime.api,
- org.nuxeo.runtime.model,
- org.nuxeo.runtime.services.event
+ com.hyland.openarch.runtime,
+ com.hyland.openarch.runtime.api,
+ com.hyland.openarch.runtime.model,
+ com.hyland.openarch.runtime.services.event
 Bundle-SymbolicName: org.nuxeo.ecm.platform.usermanager
