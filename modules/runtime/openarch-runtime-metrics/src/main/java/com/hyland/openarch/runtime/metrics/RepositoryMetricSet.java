@@ -26,30 +26,30 @@ import io.dropwizard.metrics5.MetricName;
 import io.dropwizard.metrics5.MetricSet;
 
 /**
- * Just a helper to easily declare metrics inside a {@link MetricSet} with th ease of Java 8 Lambda expression.
+ * Just a helper to easily declare metrics inside a {@link MetricSet} with the ease of Java 8 Lambda expression.
  *
  * @since 8.10-HF08, 9.2
  */
-public class NuxeoMetricSet implements MetricSet {
+public class RepositoryMetricSet implements MetricSet {
 
     protected final Map<MetricName, Metric> metrics;
 
     protected final MetricName prefixName;
 
-    public NuxeoMetricSet() {
+    public RepositoryMetricSet() {
         // we can inject null as prefix because MetricRegistry#name(String, String...) doesn't print null value
         this(null);
     }
 
-    public NuxeoMetricSet(String name, String... names) {
+    public RepositoryMetricSet(String name, String... names) {
         this(MetricName.build(name).append(MetricName.build(names)));
     }
 
-    public NuxeoMetricSet(MetricName name) {
+    public RepositoryMetricSet(MetricName name) {
         this(HashMap::new, name);
     }
 
-    public NuxeoMetricSet(Supplier<Map<MetricName, Metric>> metricsSupplier, MetricName name) {
+    public RepositoryMetricSet(Supplier<Map<MetricName, Metric>> metricsSupplier, MetricName name) {
         this.metrics = metricsSupplier.get();
         this.prefixName = name;
     }

@@ -1,7 +1,6 @@
-# About nuxeo-runtime-metrics
+# About openarc-runtime-metrics
 
 
-Since Nuxeo 5.7 Coda Hale Yammer Metrics is used to add metrics to Nuxeo.
 This module is here to configure the metrics reporter and add
 default metrics.
 
@@ -21,7 +20,7 @@ metrics.log4j.enabled=true
 ```
 
 Access Grafana using [http://localhost:3000](http://localhost:3000) with user: admin pwd: admin,
-you should have a Nuxeo Grafana dashboard up and running.
+you should have an OpenArch Grafana dashboard up and running.
 
 Graphite is also reachable [http://localhost:8000](http://localhost:8000)
 
@@ -37,5 +36,4 @@ You can also find old example of json graphite dashboard [graphite](./graphite) 
 To use it from Graphite Dashboard > Edit Dashboard, paste the content
 
 
-See <http://doc.nuxeo.org/> for full documentation.
 See <http://metrics.codahale.com/> for Metrics documentation.

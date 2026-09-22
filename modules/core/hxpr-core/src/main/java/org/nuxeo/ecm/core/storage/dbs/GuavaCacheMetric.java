@@ -15,7 +15,7 @@
  */
 package org.nuxeo.ecm.core.storage.dbs;
 
-import com.hyland.openarch.runtime.metrics.NuxeoMetricSet;
+import com.hyland.openarch.runtime.metrics.RepositoryMetricSet;
 
 import com.google.common.cache.Cache;
 
@@ -27,7 +27,7 @@ import io.dropwizard.metrics5.MetricSet;
  *
  * @since 8.10
  */
-public class GuavaCacheMetric extends NuxeoMetricSet {
+public class GuavaCacheMetric extends RepositoryMetricSet {
 
     private GuavaCacheMetric(MetricName name) {
         super(name);

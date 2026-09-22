@@ -102,7 +102,7 @@ public abstract class AbstractMetricsReporter implements MetricsReporter {
         return pollInterval;
     }
 
-    protected String getHostnameFromNuxeoUrl() {
+    protected String getHostnameFromRepositoryUrl() {
         try {
             String url = Framework.getProperty("nuxeo.url");
             if (isBlank(url)) {

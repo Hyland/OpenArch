@@ -30,11 +30,11 @@ import io.dropwizard.metrics5.MetricName;
 /**
  * @since 8.10-HF08, 9.2
  */
-public class TestNuxeoMetricSet {
+public class TestRepositoryMetricSet {
 
     @Test
     public void testInstantiation() {
-        NuxeoMetricSet metrics = new NuxeoMetricSet();
+        RepositoryMetricSet metrics = new RepositoryMetricSet();
         assertNull(metrics.getPrefixName());
         assertNotNull(metrics.getMetrics());
         assertTrue(metrics.getMetrics().isEmpty());
@@ -42,7 +42,7 @@ public class TestNuxeoMetricSet {
 
     @Test
     public void testInstantiationWithPrefix() {
-        NuxeoMetricSet metrics = new NuxeoMetricSet(MetricName.build("nuxeo", "prefix"));
+        RepositoryMetricSet metrics = new RepositoryMetricSet(MetricName.build("nuxeo", "prefix"));
         assertEquals(MetricName.build("nuxeo.prefix"), metrics.getPrefixName());
         assertNotNull(metrics.getMetrics());
         assertTrue(metrics.getMetrics().isEmpty());
@@ -51,7 +51,7 @@ public class TestNuxeoMetricSet {
     @Test
     @SuppressWarnings("unchecked")
     public void testPutGauge() {
-        NuxeoMetricSet metrics = new NuxeoMetricSet(MetricName.build("nuxeo", "prefix"));
+        RepositoryMetricSet metrics = new RepositoryMetricSet(MetricName.build("nuxeo", "prefix"));
         Integer value = Integer.valueOf(10);
         metrics.putGauge(() -> value, MetricName.build("special", "value"));
         assertNotNull(metrics.getMetrics());

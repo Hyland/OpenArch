@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 1
-Bundle-Name: Nuxeo Runtime Metrics
+Bundle-Name: OpenArch Runtime Metrics
 Bundle-SymbolicName: com.hyland.openarch.runtime.metrics;singleton:=true
-Bundle-Vendor: Nuxeo
+Bundle-Vendor: Hyland
 Nuxeo-Component: OSGI-INF/runtime-metrics-service.xml
