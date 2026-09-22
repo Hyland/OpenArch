@@ -148,6 +148,8 @@ public class ModelAPI {
     @ApiResponse200Model(description = "Sets and returns the model for the repository.")
     @ApiResponse204ModelValid
     @ApiResponse404RepositoryNotFound
+    @ApiResponse409(description = "The content model failed request-level validation: a field default value is not of"
+            + " the declared type, a constraint bound cannot be read, or a primary type omits the system schema.")
     @ApiResponse422ValidationError
     @SwaggerRequestBody(content = { @Content(examples = { @ExampleObject(value = PUT_REQUEST_EXAMPLE) }) })
     @AdministratorAccess

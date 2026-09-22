@@ -1,0 +1,12 @@
+{
+  "errors": [
+    {
+      "invalidValue": "badBoolean",
+      "message": "The default value not-a-boolean cannot be added to the field badBoolean from schema hxcs7598 as it is not a valid boolean type",
+      "messageKey": "The default value not-a-boolean cannot be added to the field badBoolean from schema hxcs7598 as it is not a valid boolean type",
+      "parameters": [
+        "badBoolean"
+      ]
+    }
+  ]
+}

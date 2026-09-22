@@ -144,6 +144,7 @@ public class UploadAPI {
 
     @PostMapping
     @Operation(summary = "Uploads a file or a chunk to a given upload.", description = "Upload can be done in several parts, chunk by chunk.", operationId = "upload")
+    @ApiResponse400(description = "The bodyEncoding parameter is not a supported encoding.", content = @Content)
     @ApiResponse201(description = "Returns the upload information after upload is finished.")
     @ApiResponse202(description = "Returns the upload information after chunk addition to the upload.")
     @ApiResponse404(description = "Upload with the given id not found or cannot be accessed by user.")
@@ -171,6 +172,7 @@ public class UploadAPI {
 
     @GetMapping(ID)
     @Operation(summary = "Returns the upload information for given id.", operationId = "getUploadInfo")
+    @ApiResponse400(description = "The upload id is not a valid upload identifier.", content = @Content)
     @ApiResponse200(description = "Returns the upload information and upload is finished when upload has content.")
     @ApiResponse202(description = "Returns the upload information and upload by chunk is not finished.")
     @ApiResponse204(description = "Upload with the given id has no content.")
@@ -189,6 +191,7 @@ public class UploadAPI {
     @DeleteMapping(ID)
     @ResponseStatus(NO_CONTENT)
     @Operation(summary = "Cancels the upload with the given id.", operationId = "deleteUpload")
+    @ApiResponse400(description = "The upload id is not a valid upload identifier.", content = @Content)
     @ApiResponse204(description = "Upload has been removed.", content = { @Content(mediaType = APP_HXCS_JSON_V1),
             @Content(mediaType = APP_HXCS_JSON), @Content(mediaType = APPLICATION_JSON_VALUE) })
     @ApiResponse404(description = "Upload with the given id not found or cannot be accessed by user.")
@@ -199,6 +202,7 @@ public class UploadAPI {
 
     @PostMapping(ID + "/renewCredentials")
     @Operation(summary = "Renews the credentials for the upload with the given id.", operationId = "renewCredentials")
+    @ApiResponse400(description = "The upload id is not a valid upload identifier.", content = @Content)
     @ApiResponse200(description = "Token has been refreshed.", content = @Content)
     @ApiResponse404(description = "Upload with the given id not found.")
     @ApiResponse501(description = "Token cannot be refreshed with current upload handler.")

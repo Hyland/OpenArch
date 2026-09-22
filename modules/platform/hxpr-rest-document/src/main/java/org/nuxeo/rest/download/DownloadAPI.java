@@ -24,6 +24,7 @@ import static org.springframework.http.MediaType.ALL_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_OCTET_STREAM_VALUE;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -63,6 +64,10 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 @Authenticated
 public class DownloadAPI {
 
+    private static final String NOT_MODIFIED_DESCRIPTION = "The blob matches the If-None-Match or If-Modified-Since"
+            + " condition, so no body is returned. Last-Modified is sent when available; ETag is sent when the"
+            + " response is selected by If-None-Match.";
+
     public static final String PATH = "/api/download"; // NOSONAR
 
     public static final String PATH_DOC_ID_X_PATH = "/{docId}/{*propertyXPathAndFilename}"; // NOSONAR
@@ -82,6 +87,10 @@ public class DownloadAPI {
 
     @RequestMapping(method = RequestMethod.HEAD, path = PATH_DOC_ID_X_PATH)
     @Operation(summary = "Returns the document blob information.", operationId = "downloadInfoByIdAndXPath")
+    // content = @Content: a 304 carries no body (RFC 7232), and without this springdoc
+    // falls back to the handler's producible media types, which widens the Accept header
+    // the generated SDK clients send on these operations.
+    @ApiResponse(responseCode = "304", description = NOT_MODIFIED_DESCRIPTION, content = @Content)
     @ApiResponse204(description = "Returns the document blob information.", content = {
             @Content(mediaType = ALL_VALUE) })
     @ApiResponse404DocumentNotFound
@@ -95,6 +104,10 @@ public class DownloadAPI {
 
     @GetMapping(PATH_DOC_ID_X_PATH)
     @Operation(summary = "Returns the document blob.", operationId = "downloadByIdAndXPath")
+    // content = @Content: a 304 carries no body (RFC 7232), and without this springdoc
+    // falls back to the handler's producible media types, which widens the Accept header
+    // the generated SDK clients send on these operations.
+    @ApiResponse(responseCode = "304", description = NOT_MODIFIED_DESCRIPTION, content = @Content)
     @ApiResponse200(description = "Returns the document blob.", content = {
             @Content(mediaType = ALL_VALUE, schema = @Schema(type = "string", format = "binary")) })
     @ApiResponse404DocumentNotFound

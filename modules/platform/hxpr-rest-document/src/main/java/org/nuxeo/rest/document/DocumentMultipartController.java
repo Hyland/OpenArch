@@ -67,6 +67,8 @@ public class DocumentMultipartController extends AbstractDocumentAPI {
     @RequestBodyMultiPart
     @ApiResponse200DocumentPost
     @ApiResponse404ParentDocumentNotFound
+    @ApiResponse409DuplicateDocumentName
+    @ApiResponse422ValidationError
     public DocumentDTO createDocumentByIdMultiPart(
             @PathVariable("docId") @Parameter(description = "The parent document id.") String parentId,
             @RequestParam(name = ENFORCE_SYS_NAME, defaultValue = "false") @ParameterEnforceSysName boolean enforceSysName,
@@ -82,6 +84,8 @@ public class DocumentMultipartController extends AbstractDocumentAPI {
     @RequestBodyMultiPart
     @ApiResponse200DocumentPost
     @ApiResponse404ParentDocumentNotFound
+    @ApiResponse409DuplicateDocumentName
+    @ApiResponse422ValidationError
     public DocumentDTO createDocumentByPathMultiPart(
             @RequestParam(name = ENFORCE_SYS_NAME, defaultValue = "false") @ParameterEnforceSysName boolean enforceSysName,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId,
@@ -97,6 +101,7 @@ public class DocumentMultipartController extends AbstractDocumentAPI {
     @ApiResponse200Document
     @ApiResponse400SingleAcePerPrincipal
     @ApiResponse404DocumentNotFound
+    @ApiResponse422ValidationError
     public DocumentDTO updateDocumentByIdMultiPart(@PathVariable("docId") @ParameterDocId String docId,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId,
             @RequestPart(DOCUMENT_REQUEST_PART) DocumentDTO doc, HttpServletRequest request)
@@ -110,6 +115,7 @@ public class DocumentMultipartController extends AbstractDocumentAPI {
     @ApiResponse200Document
     @ApiResponse400SingleAcePerPrincipal
     @ApiResponse404DocumentNotFound
+    @ApiResponse422ValidationError
     public DocumentDTO updateDocumentByPathMultiPart(
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId,
             @PathVariable() @ParameterDocPath String docPath, @RequestPart(DOCUMENT_REQUEST_PART) DocumentDTO doc,

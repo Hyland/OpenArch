@@ -124,6 +124,8 @@ public class DocumentAPI extends AbstractDocumentAPI {
     @Operation(summary = "Creates a document under parent with given id.", operationId = "createDocumentUnderParentById")
     @ApiResponse200DocumentPost
     @ApiResponse404ParentDocumentNotFound
+    @ApiResponse409DuplicateDocumentName
+    @ApiResponse422ValidationError
     public DocumentDTO createDocumentById(
             @PathVariable("docId") @Parameter(description = "The parent document id.") String parentId,
             @RequestParam(name = ENFORCE_SYS_NAME, defaultValue = "false") @ParameterEnforceSysName boolean enforceSysName,
@@ -136,6 +138,8 @@ public class DocumentAPI extends AbstractDocumentAPI {
     @Operation(summary = "Creates a document under parent with given path.", operationId = "createDocumentUnderParentByPath")
     @ApiResponse200DocumentPost
     @ApiResponse404ParentDocumentNotFound
+    @ApiResponse409DuplicateDocumentName
+    @ApiResponse422ValidationError
     public DocumentDTO createDocumentByPath(
             @RequestParam(name = ENFORCE_SYS_NAME, defaultValue = "false") @ParameterEnforceSysName boolean enforceSysName,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId,
@@ -152,6 +156,7 @@ public class DocumentAPI extends AbstractDocumentAPI {
     @ApiResponse404DocumentNotFound
     @ApiResponse409(description = "Upsert conflict: re-parenting attempted, or a concurrent modification.")
     @ApiResponse412(description = "Condition evaluated to false.")
+    @ApiResponse422ValidationError
     public ResponseEntity<DocumentDTO> updateDocumentById(@PathVariable("docId") @ParameterDocId String docId,
             @RequestParam(name = CONDITION, defaultValue = "") @ParameterCondition String hxql,
             @RequestParam(name = IF, defaultValue = "") @ParameterIf String expr,
@@ -179,6 +184,7 @@ public class DocumentAPI extends AbstractDocumentAPI {
     @ApiResponse404DocumentNotFound
     @ApiResponse409(description = "Upsert conflict: re-parenting attempted, or a concurrent modification.")
     @ApiResponse412(description = "Condition evaluated to false.")
+    @ApiResponse422ValidationError
     public ResponseEntity<DocumentDTO> updateDocumentByPath(
             @RequestParam(name = CONDITION, defaultValue = "") @ParameterCondition String hxql,
             @RequestParam(name = IF, defaultValue = "") @ParameterIf String expr,
@@ -215,6 +221,7 @@ public class DocumentAPI extends AbstractDocumentAPI {
     @ApiResponse400PatchMissingField
     @ApiResponse404DocumentNotFound
     @ApiResponse412(description = "Condition evaluated to false.")
+    @ApiResponse422ValidationError
     public DocumentDTO patchDocumentById(@PathVariable("docId") @ParameterDocId String docId,
             @RequestParam(name = CONDITION, defaultValue = "") @ParameterCondition String hxql,
             @RequestParam(name = IF, defaultValue = "") @ParameterIf String expr,
@@ -231,6 +238,7 @@ public class DocumentAPI extends AbstractDocumentAPI {
     @ApiResponse400PatchMissingField
     @ApiResponse404DocumentNotFound
     @ApiResponse412(description = "Condition evaluated to false.")
+    @ApiResponse422ValidationError
     public DocumentDTO patchDocumentByPath(
             @RequestParam(name = CONDITION, defaultValue = "") @ParameterCondition String hxql,
             @RequestParam(name = IF, defaultValue = "") @ParameterIf String expr,

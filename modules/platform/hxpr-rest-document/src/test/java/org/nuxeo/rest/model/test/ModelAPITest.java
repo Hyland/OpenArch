@@ -396,6 +396,36 @@ class ModelAPITest extends AbstractAPITest {
         checkResponseBody("rest/model.json", result);
     }
 
+    /**
+     * The root model PUT runs request-level validation before any schema generation, and a violation there is
+     * reported as CONFLICT rather than as the UNPROCESSABLE_ENTITY used by the schema layer. Pin that HTTP
+     * boundary so the declared 409 stays backed by an executable assertion.
+     */
+    @Test
+    void testPutValidationConflictWithInvalidBooleanDefault() throws Exception {
+        String body = """
+                {
+                  "schemas": {
+                    "hxcs7598": {
+                      "prefix": "hxcs7598",
+                      "fields": {
+                        "badBoolean": {
+                          "type": "boolean",
+                          "default": "not-a-boolean"
+                        }
+                      }
+                    }
+                  }
+                }
+                """;
+
+        var result = checkResponseWithPayload(CONFLICT, PUT, REPO_ID, body, PATH_VALIDATE_ONLY_TRUE);
+        checkResponseBody("rest/validation_error_for_root_model_invalid_boolean_default.json", result);
+
+        // validateOnly=true must not persist, and a rejected model must not persist either
+        checkResponseBody("rest/model.json", checkResponse(OK, GET, REPO_ID, API_PATH));
+    }
+
     @ParameterizedTest
     @ValueSource(strings = { "", PARAM_VALIDATE_ONLY_FALSE })
     void testPutWithMixin(String queryParam) throws Exception {

@@ -23,11 +23,13 @@ import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ID;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PARENT_ID;
 import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FOLDER;
 import static org.nuxeo.rest.document.AbstractDocumentAPI.PATH;
+import static org.nuxeo.rest.document.test.ContentTestHelper.checkErrorResponse;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import jakarta.ws.rs.core.Response.Status;
 
@@ -37,6 +39,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
+import org.nuxeo.ecm.core.api.DocumentRef;
 import org.nuxeo.rest.document.DocumentAPI;
 import org.nuxeo.rest.document.test.AbstractAPITest;
 import org.nuxeo.rest.document.test.ContentTestHelper;
@@ -45,6 +48,7 @@ import org.nuxeo.rest.document.test.RestSingleDocumentFeature;
 import org.nuxeo.rest.move.MoveAPI;
 import org.nuxeo.rest.utils.QueryParameters;
 import org.nuxeo.runtime.mockito.RuntimeInject;
+import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
@@ -55,6 +59,7 @@ import org.springframework.test.web.servlet.ResultActions;
  * Move Rest API tests.
  */
 @Features(RestSingleDocumentFeature.class)
+@Deploy("org.nuxeo.springboot.rest.document.test:OSGI-INF/test-write-types-contrib.xml")
 @Import({ DocumentAPITestConfiguration.class })
 @SpringBootTest(classes = { MoveAPI.class, DocumentAPI.class })
 public class MoveAPITest extends AbstractAPITest {
@@ -155,5 +160,18 @@ public class MoveAPITest extends AbstractAPITest {
         var result = checkMoveApiResponse(BAD_REQUEST, "{}");
         ContentTestHelper.checkErrorResponse(BAD_REQUEST,
                 "Missing destination folder id to move document: targetParentId", result);
+    }
+
+    @Test
+    public void testMoveVersion() throws Exception {
+        DocumentModel versionableDocument = coreSession.createDocumentModel("/", "versionable", "MyFile");
+        versionableDocument.create();
+        coreSession.save();
+        DocumentRef versionRef = coreSession.checkIn(versionableDocument.getRef());
+        coreSession.save();
+
+        String path = PATH + "/" + versionRef + "/move";
+        var result = checkResponseWithPayload(UNPROCESSABLE_ENTITY, POST, REPO_ID, getMoveBody(), path);
+        checkErrorResponse(UNPROCESSABLE_ENTITY, Pattern.compile("Cannot move a version: .*"), result);
     }
 }

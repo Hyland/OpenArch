@@ -537,6 +537,26 @@ public abstract class AbstractDocumentAPITest extends AbstractAPITest {
     }
 
     @Test
+    public void testMultipartUpdateValidation() throws Exception {
+        String creationJson = """
+                {
+                  "sys_title": "Test Document for Multipart Update Validation",
+                  "sys_primaryType": "TestDocument"
+                }
+                """;
+        var result = checkResponseWithPayload(OK, POST, REPO_ID, creationJson, getRootApiPath());
+
+        String updateJson = """
+                {
+                  "mydc_subjects": "foo"
+                }
+                """;
+        checkResponseWithPayloadForMultipartFormData(UNPROCESSABLE_ENTITY, PUT, REPO_ID, updateJson,
+                getApiPath(result), new MockMultipartFile[] {}).andExpectAll(jsonPath("errors").isArray(),
+                jsonPath("errors[0].path").value("mydc_subjects"));
+    }
+
+    @Test
     public void testInvalidCreate() throws Exception {
         // missing type
         String json = getInvalidCreationJson();
@@ -840,6 +860,28 @@ public abstract class AbstractDocumentAPITest extends AbstractAPITest {
                 """;
         // Expects 400 Bad Request with proper JSON Patch error message
         checkResponseWithPayload(BAD_REQUEST, PATCH, patchMediaType, REPO_ID, patchJson, apiPath);
+    }
+
+    @Test
+    public void testPatchValidation() throws Exception {
+        String creationJson = """
+                {
+                  "sys_title": "Test Document for Patch Validation",
+                  "sys_primaryType": "TestDocument"
+                }
+                """;
+        var result = checkResponseWithPayload(OK, POST, REPO_ID, creationJson, getRootApiPath());
+        String apiPath = getApiPath(result);
+
+        String patchJson = """
+                [
+                  { "op": "add", "path": "/mydc_subjects", "value": "foo" }
+                ]
+                """;
+
+        checkResponseWithPayload(UNPROCESSABLE_ENTITY, PATCH, APPLICATION_JSON_PATCH_JSON, REPO_ID, patchJson,
+                apiPath).andExpectAll(jsonPath("errors").isArray(),
+                jsonPath("errors[0].path").value("mydc_subjects"));
     }
 
     @Test
@@ -2520,8 +2562,11 @@ public abstract class AbstractDocumentAPITest extends AbstractAPITest {
         result.andExpect(jsonPath(SYS_NAME).value(startsWith("myfile.")));
 
         // again with the same name, passing enforceSysName=true, to cause a CONFLICT
-        checkResponseWithPayload(CONFLICT, POST, REPO_ID, creationJson,
+        var conflict = checkResponseWithPayload(CONFLICT, POST, REPO_ID, creationJson,
                 getRootApiPath() + "?" + ENFORCE_SYS_NAME + "=true");
+        // the 409 this operation declares is this one, so pin the response a client actually reads: both
+        // create operations declare it, and both run this test through their own subclass
+        ContentTestHelper.checkErrorResponse(CONFLICT, "Duplicate name in parent: myfile", conflict);
     }
 
 }

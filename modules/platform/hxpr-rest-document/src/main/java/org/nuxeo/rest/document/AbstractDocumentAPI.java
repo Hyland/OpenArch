@@ -39,6 +39,8 @@ import org.nuxeo.rest.swagger.annotation.ApiResponse201;
 import org.nuxeo.rest.swagger.annotation.ApiResponse204;
 import org.nuxeo.rest.swagger.annotation.ApiResponse400;
 import org.nuxeo.rest.swagger.annotation.ApiResponse404;
+import org.nuxeo.rest.swagger.annotation.ApiResponse409;
+import org.nuxeo.rest.swagger.annotation.ApiResponse422;
 import org.nuxeo.rest.swagger.annotation.SwaggerRequestBody;
 import org.springframework.core.annotation.AliasFor;
 import org.springframework.http.HttpStatus;
@@ -154,6 +156,26 @@ public abstract class AbstractDocumentAPI {
     protected @interface ApiResponse404ParentDocumentNotFound {
         @AliasFor(annotation = ApiResponse404.class, attribute = "description")
         String description() default "Parent Document not found.";
+    }
+
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Inherited
+    @ApiResponse409()
+    protected @interface ApiResponse409DuplicateDocumentName {
+        @AliasFor(annotation = ApiResponse409.class, attribute = "description")
+        String description() default "A document with the requested sys_name already exists under the parent"
+                + " and sys_name enforcement is enabled (enforceSysName=true).";
+    }
+
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Inherited
+    @ApiResponse422()
+    protected @interface ApiResponse422ValidationError {
+        @AliasFor(annotation = ApiResponse422.class, attribute = "description")
+        String description() default "A property value failed validation: it could not be converted to the property"
+                + " type, violated a schema constraint, or referenced an unknown upload id or blob key.";
     }
 
     @Target(ElementType.METHOD)

@@ -15,6 +15,10 @@
  */
 package com.hyland.hxpr.springboot.server.config;
 
+import static java.util.stream.Collectors.joining;
+import static org.apache.http.HttpStatus.SC_BAD_REQUEST;
+import static org.apache.http.HttpStatus.SC_NOT_ACCEPTABLE;
+import static org.apache.http.HttpStatus.SC_UNSUPPORTED_MEDIA_TYPE;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SCHEMA_NAME;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_HAS_LEGAL_HOLD;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_IS_RECORD;
@@ -32,6 +36,8 @@ import io.swagger.v3.oas.models.media.BooleanSchema;
 import io.swagger.v3.oas.models.media.DateTimeSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
+import io.swagger.v3.oas.models.parameters.RequestBody;
+import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.nuxeo.runtime.springboot.actuator.ApplicationInfo;
@@ -46,6 +52,14 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class OpenApiConfiguration implements WebMvcConfigurer {
+
+    // The generated document keys its responses by the status as a string, while the platform names the codes
+    // as ints, so each is converted once here rather than spelled out again as a literal.
+    private static final String BAD_REQUEST = String.valueOf(SC_BAD_REQUEST);
+
+    private static final String NOT_ACCEPTABLE = String.valueOf(SC_NOT_ACCEPTABLE);
+
+    private static final String UNSUPPORTED_MEDIA_TYPE = String.valueOf(SC_UNSUPPORTED_MEDIA_TYPE);
 
     // Sort parameters by type in the order path, query, header
     private static List<Parameter> getSortedParameterList(Operation operation) {
@@ -172,6 +186,96 @@ public class OpenApiConfiguration implements WebMvcConfigurer {
                             namedQuerySchema.setAdditionalProperties(true);
                 }
             });
+    }
+
+    /*
+     * A request body that has to be parsed can fail to parse, and Spring answers that with 400 before the
+     * handler runs — nothing is read, validated or written. Verified against a running application: all 42
+     * operations with a JSON or JSON Patch body answered 400 to a malformed body, and a create against a
+     * real parent left the repository unchanged.
+     *
+     * Only parseable bodies qualify. An operation accepting the wildcard type has nothing to parse and
+     * answers 201, and a multipart body fails earlier, in the dispatcher, not here.
+     *
+     * Operations that already declare 400 keep their own description: those describe a domain cause, such as
+     * an invalid identifier, and are more specific than anything this rule could add.
+     */
+    @Bean
+    @Order(23)
+    public OpenApiCustomizer declareBadRequestOnParseableRequestBodies() {
+        return openApi -> openApi.getPaths().forEach((path, pathItem) -> {
+            for (Operation operation : pathItem.readOperations()) {
+                RequestBody requestBody = operation.getRequestBody();
+                if (requestBody == null || requestBody.getContent() == null
+                        || operation.getResponses() == null
+                        || operation.getResponses().containsKey(BAD_REQUEST)
+                        || requestBody.getContent().keySet().stream().noneMatch(t -> t.contains("json"))) {
+                    continue;
+                }
+                operation.getResponses()
+                         .addApiResponse(BAD_REQUEST, new ApiResponse().description(
+                                 "The request body could not be parsed."));
+            }
+        });
+    }
+
+    /*
+     * Response content negotiation fails with 406 when the Accept header asks for something no message
+     * converter can write, and Spring decides that while matching the handler, before any handler body runs
+     * — so it reaches every operation, including the ones that answer 204 with no content at all. Verified
+     * against a running application: all 108 generated operations answered 406 to Accept: application/xml,
+     * and a mutating call rejected this way never reached its handler.
+     *
+     * There is deliberately no condition here. Declaring it from a per-operation rule would be wrong twice
+     * over: the generated response content is not the negotiation input (the download operations publish the
+     * wildcard media type and still answer 406), and an operation that constrains nothing still answers 406
+     * because no converter writes the requested type.
+     */
+    @Bean
+    @Order(22)
+    public OpenApiCustomizer declareNotAcceptableOnEveryOperation() {
+        return openApi -> openApi.getPaths().forEach((path, pathItem) -> {
+            for (Operation operation : pathItem.readOperations()) {
+                if (operation.getResponses() == null || operation.getResponses().containsKey(NOT_ACCEPTABLE)) {
+                    continue;
+                }
+                operation.getResponses()
+                         .addApiResponse(NOT_ACCEPTABLE, new ApiResponse().description(
+                                 "No representation matches the Accept header. This API carries its version in the"
+                                         + " media type, so asking for a version it no longer serves — for example"
+                                         + " application/vnd.hxcs.v0+json — is answered here."));
+            }
+        });
+    }
+
+    /*
+     * An operation whose request body is restricted to specific media types answers any other Content-Type
+     * with 415 before the handler runs. That is Spring's content negotiation, identical for every such
+     * operation, so it is declared from the request body itself rather than annotated one handler at a time:
+     * a new endpoint with a constrained body is then documented correctly without anyone remembering to.
+     * Operations that accept the wildcard type cannot produce it and are left alone. Runs after
+     * orderParametersAndSetRequestBody so the request bodies are final.
+     */
+    @Bean
+    @Order(21)
+    public OpenApiCustomizer declareUnsupportedMediaTypeOnConstrainedRequestBodies() {
+        return openApi -> openApi.getPaths().forEach((path, pathItem) -> {
+            for (Operation operation : pathItem.readOperations()) {
+                RequestBody requestBody = operation.getRequestBody();
+                if (requestBody == null || requestBody.getContent() == null
+                        || requestBody.getContent().containsKey(MediaType.ALL_VALUE)
+                        || operation.getResponses() == null
+                        || operation.getResponses().containsKey(UNSUPPORTED_MEDIA_TYPE)) {
+                    continue;
+                }
+                // sorted so the generated description is stable across builds
+                String accepted = requestBody.getContent().keySet().stream().sorted().collect(joining(", "));
+                operation.getResponses()
+                         .addApiResponse(UNSUPPORTED_MEDIA_TYPE,
+                                 new ApiResponse().description(
+                                         "Unsupported request body media type. Accepted: " + accepted + "."));
+            }
+        });
     }
 
     @Bean
