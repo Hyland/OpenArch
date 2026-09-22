@@ -2,7 +2,7 @@
 <component name="com.hyland.openarch.runtime.management.ResourcePublisher">
 
 	<documentation>
-	Management resource publishers, resources can be nuxeo services or factories.
+	Management resource publishers, resources can be OpenArch services or factories.
 	</documentation>
 
   <implementation class="com.hyland.openarch.runtime.management.ResourcePublisherService" />
@@ -15,13 +15,13 @@
 
   <extension-point name="services">
     <documentation>
-        <p>Publish a nuxeo service as a management resource.</p>
+        <p>Publish a OpenArch service as a management resource.</p>
         <p>Here is the parameters description :
         the <emph>name</emph> is used as a shortcut name,
         the <emph>ifaceClass</emph> is used to locate the service,
         the <emph>class</emph> is instrumented for publishing management information.</p>
         <p>The following line figures out how we have published the runtime management service itself.
-        <br/>&lt;service name="managementResourcePublisher" class="com.hyland.openarch.runtime.management.ResourcePublisher" ifaceClass="prg.nuxeo.runtime.management.ResourcePublisherService"&gt;
+        <br/>&lt;service name="managementResourcePublisher" class="com.hyland.openarch.runtime.management.ResourcePublisher" ifaceClass="prg.openarch.runtime.management.ResourcePublisherService"&gt;
         </p>
     </documentation>
     <object class="com.hyland.openarch.runtime.management.ServiceDescriptor" />
@@ -46,7 +46,7 @@
         <p>Nuxeo's published resources are published by the service using that shortcut</p>
         <p>The following information have to be provided : the shortcut <emph>name</emph>, the management <emph>qualifiedName</emph> and the mbean server <emph>locator</emph> pattern.</p>
         <p>The following line figures out how using it.<br/>
-        &lt;shortcut name="publisher" qualifiedName="org.nuxeo:name=managementResourcePublisher,type=service" locator="org.nuxeo"/&gt;
+        &lt;shortcut name="publisher" qualifiedName="org.openarch:name=managementResourcePublisher,type=service" locator="org.openarch"/&gt;
         </p>
       </documentation>
     <object class="com.hyland.openarch.runtime.management.ShortcutDescriptor" />
@@ -54,7 +54,7 @@
 
   <extension target="com.hyland.openarch.runtime.management.ResourcePublisher"
     point="services">
-    <service name="managementResourcePublisher" class="com.hyland.openarch.runtime.management.ResourcePublisher" ifaceClass="prg.nuxeo.runtime.management.ResourcePublisherService"/>
+    <service name="managementResourcePublisher" class="com.hyland.openarch.runtime.management.ResourcePublisher" ifaceClass="prg.openarch.runtime.management.ResourcePublisherService"/>
   </extension>
 
 </component>

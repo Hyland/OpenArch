@@ -8,7 +8,7 @@
   </parent>
 
   <artifactId>openarch-runtime-management</artifactId>
-  <name>HxPR Runtime Management</name>
+  <name>OpenArch Runtime Management</name>
 
   <properties>
     <manifest.file>src/main/resources/META-INF/MANIFEST.MF</manifest.file>
