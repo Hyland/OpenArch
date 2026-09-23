@@ -33,7 +33,7 @@ public class SystemBundleFile extends DirectoryBundleFile {
     public static Manifest createManifest() {
         Manifest mf = new Manifest();
         Attributes attrs = mf.getMainAttributes();
-        attrs.putValue("Bundle-SymbolicName", "org.nuxeo.osgi.app");
+        attrs.putValue("Bundle-SymbolicName", "com.hyland.openarch.osgi.app");
         attrs.putValue("Bundle-Name", "Nuxeo App System Bundle");
         attrs.putValue("Bundle-Vendor", "Nuxeo");
         attrs.putValue("Bundle-Version", "1.0.0");

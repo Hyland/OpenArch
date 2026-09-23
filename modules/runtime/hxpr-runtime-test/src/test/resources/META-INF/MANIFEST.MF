@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.nuxeo.runtime.test.tests
 Import-Package: com.hyland.openarch.common,
- org.nuxeo.osgi,
+ com.hyland.openarch.osgi,
  com.hyland.openarch.runtime,
  org.osgi.framework
 Nuxeo-Component: MyComp4.xml,

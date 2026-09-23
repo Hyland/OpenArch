@@ -1,8 +1,8 @@
-Export-Package: org.nuxeo.osgi,
- org.nuxeo.osgi.application,
- org.nuxeo.osgi.application.client,
- org.nuxeo.osgi.application.loader,
- org.nuxeo.osgi.services
+Export-Package: com.hyland.openarch.osgi,
+ com.hyland.openarch.osgi.application,
+ com.hyland.openarch.osgi.application.client,
+ com.hyland.openarch.osgi.application.loader,
+ com.hyland.openarch.osgi.services
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
 Manifest-Version: 1.0
@@ -24,4 +24,4 @@ Import-Package: org.apache.commons.logging,
  com.hyland.openarch.common.utils,
  org.osgi.framework,
  org.osgi.service.packageadmin
-Bundle-SymbolicName: org.nuxeo.osgi;singleton:=true
+Bundle-SymbolicName: com.hyland.openarch.osgi;singleton:=true

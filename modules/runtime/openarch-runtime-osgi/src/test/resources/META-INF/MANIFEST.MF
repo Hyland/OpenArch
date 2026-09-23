@@ -1,1 +1,1 @@
-Bundle-SymbolicName: org.nuxeo.osgi.tests;
+Bundle-SymbolicName: com.hyland.openarch.osgi.tests;
