@@ -1,4 +1,4 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-SymbolicName: org.nuxeo.runtime.kv
+Bundle-SymbolicName: com.hyland.openarch.runtime.kv
 Nuxeo-Component: OSGI-INF/keyvalue-service.xml

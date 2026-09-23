@@ -23,7 +23,7 @@ import com.hyland.openarch.runtime.test.runner.RunnerFeature;
 import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
 import com.hyland.openarch.runtime.test.runner.TransactionalFeature;
 
-@Deploy("org.nuxeo.runtime.kv")
+@Deploy("com.hyland.openarch.runtime.kv")
 @Deploy("com.hyland.hxpr.async.tasks")
 @Deploy("com.hyland.hxpr.async.tasks.tests")
 @Features({ RuntimeFeature.class, TransactionalFeature.class })

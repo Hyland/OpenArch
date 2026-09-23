@@ -55,7 +55,7 @@ import com.hyland.openarch.runtime.transaction.TransactionHelper;
  */
 @ExtendWith(FeaturesExtension.class)
 @Features({ RuntimeFeature.class, TransactionalFeature.class })
-@Deploy("org.nuxeo.runtime.kv")
+@Deploy("com.hyland.openarch.runtime.kv")
 public abstract class AbstractKeyValueStoreTest {
 
     protected static final String BAR = "bar";

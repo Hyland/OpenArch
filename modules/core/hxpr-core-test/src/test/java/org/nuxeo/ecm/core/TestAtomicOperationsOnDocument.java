@@ -51,7 +51,7 @@ import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
 @ExtendWith(FeaturesExtension.class)
 @Features(CoreFeature.class)
 @RepositoryConfig(cleanup = Granularity.METHOD)
-@Deploy("org.nuxeo.runtime.kv")
+@Deploy("com.hyland.openarch.runtime.kv")
 public class TestAtomicOperationsOnDocument {
 
     protected static final int NB_THREADS = 5;

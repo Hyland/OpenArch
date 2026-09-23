@@ -26,7 +26,7 @@ import com.mongodb.client.MongoClient;
  * @since 9.1
  */
 @Features(RuntimeFeature.class)
-@Deploy("org.nuxeo.runtime.kv")
+@Deploy("com.hyland.openarch.runtime.kv")
 @Deploy("org.nuxeo.runtime.mongodb")
 @Deploy("org.nuxeo.runtime.mongodb.test")
 public class MongoDBFeature implements RunnerFeature {
