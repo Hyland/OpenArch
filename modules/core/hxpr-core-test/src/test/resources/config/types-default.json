@@ -483,7 +483,7 @@
           }
         },
         "sys_creator": {
-          "extends": "system#principal",
+          "extends": "string",
           "managed": {
             "systemOwned": true
           }
@@ -583,7 +583,7 @@
           }
         },
         "sys_lastContributor": {
-          "extends": "system#principal",
+          "extends": "string",
           "managed": {
             "systemOwned": true
           }
@@ -944,7 +944,7 @@
     },
     "system#contributorList": {
       "list": {
-        "type": "system#principal"
+        "type": "string"
       }
     }
   },

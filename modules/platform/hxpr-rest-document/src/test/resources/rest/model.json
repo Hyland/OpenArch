@@ -248,7 +248,15 @@
     },
     "system#contributorList": {
       "list": {
-        "type": "system#principal"
+        "extends": "string",
+        "constraints": {
+          "nullable": true,
+          "resolver": {
+            "name": "userManagerResolver",
+            "validation": false,
+            "type": "user"
+          }
+        }
       }
     }
   },
@@ -305,7 +313,15 @@
           }
         },
         "sys_creator": {
-          "extends": "system#principal",
+          "extends": "string",
+          "constraints": {
+            "nullable": true,
+            "resolver": {
+              "name": "userManagerResolver",
+              "validation": false,
+              "type": "user"
+            }
+          },
           "managed": {
             "systemOwned": true
           }
@@ -405,7 +421,15 @@
           }
         },
         "sys_lastContributor": {
-          "extends": "system#principal",
+          "extends": "string",
+          "constraints": {
+            "nullable": true,
+            "resolver": {
+              "name": "userManagerResolver",
+              "validation": false,
+              "type": "user"
+            }
+          },
           "managed": {
             "systemOwned": true
           }

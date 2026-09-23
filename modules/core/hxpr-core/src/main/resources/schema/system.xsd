@@ -14,7 +14,11 @@
   </xs:simpleType>
 
   <xs:simpleType name="contributorList">
-    <xs:list itemType="nxs:principal" />
+    <xs:list>
+      <xs:simpleType>
+        <xs:restriction base="xs:string" ref:resolver="userManagerResolver" ref:type="user" ref:validation="false" />
+      </xs:simpleType>
+    </xs:list>
   </xs:simpleType>
 
   <xs:complexType name="ace">
@@ -51,8 +55,11 @@
               m:systemOwned="true" />
   <xs:element name="created" type="xs:date"
               m:systemOwned="true" />
-  <xs:element name="creator" type="nxs:principal"
-              m:systemOwned="true" />
+  <xs:element name="creator" m:systemOwned="true">
+    <xs:simpleType>
+      <xs:restriction base="xs:string" ref:resolver="userManagerResolver" ref:type="user" ref:validation="false" />
+    </xs:simpleType>
+  </xs:element>
   <xs:element name="description" type="xs:string" />
   <xs:element name="effectiveAcl" type="nxs:aceList"
               m:systemOwned="true" m:source="COMPUTED"
@@ -78,8 +85,11 @@
               m:systemOwned="true" m:falseAsNull="STORE" />
   <xs:element name="isTrashed" type="xs:boolean"
               m:systemOwned="true" m:falseAsNull="STORE,REST,INDEX" />
-  <xs:element name="lastContributor" type="nxs:principal"
-              m:systemOwned="true" />
+  <xs:element name="lastContributor" m:systemOwned="true">
+    <xs:simpleType>
+      <xs:restriction base="xs:string" ref:resolver="userManagerResolver" ref:type="user" ref:validation="false" />
+    </xs:simpleType>
+  </xs:element>
   <xs:element name="lifecycleState" type="xs:string"
               m:versionWritePermission="STANDARD" />
   <xs:element name="lockCreated" type="xs:date"
