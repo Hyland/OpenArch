@@ -43,7 +43,7 @@ import com.hyland.openarch.runtime.test.runner.TransactionalFeature;
 @Deploy("org.nuxeo.runtime.mongodb")
 @Deploy("org.nuxeo.ecm.core:OSGI-INF/RepositoryService.xml")
 @Deploy("org.nuxeo.ecm.core:OSGI-INF/dbs-repository-service.xml")
-@Deploy("org.nuxeo.ecm.core.schema")
+@Deploy("com.hyland.openarch.ecm.core.schema")
 @Deploy("org.nuxeo.ecm.core.storage.mongodb")
 @Deploy("org.nuxeo.ecm.core.storage.mongodb:mock-repo-manager-contrib.xml")
 public class TestMongoDBRepositoryService {

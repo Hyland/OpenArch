@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <component name="org.nuxeo.ecm.core.tests.resolver">
 
-  <extension target="org.nuxeo.ecm.core.schema.ObjectResolverService" point="resolvers">
+  <extension target="com.hyland.openarch.ecm.core.schema.ObjectResolverService" point="resolvers">
     <resolver type="colorResolver" class="com.hyland.openarch.ecm.core.schema.types.resolver.TestingColorResolver" />
   </extension>
 

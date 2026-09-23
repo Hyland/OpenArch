@@ -1,4 +1,4 @@
-<component name="org.nuxeo.ecm.core.test">
+<component name="com.hyland.openarch.ecm.core.test">
 
   <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="schema">
     <schema name="schema-lib" src="schema/schema-lib.xsd" /> <!-- includes first -->

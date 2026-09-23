@@ -47,7 +47,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import com.hyland.openarch.ecm.core.schema.SchemaManager;
 import com.hyland.openarch.ecm.core.schema.TypeService;
-import org.nuxeo.ecm.core.schema.types.primitives.*;
+import com.hyland.openarch.ecm.core.schema.types.primitives.*;
 import com.hyland.openarch.runtime.test.runner.Deploy;
 import com.hyland.openarch.runtime.test.runner.Features;
 import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
@@ -55,7 +55,7 @@ import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
 
 @ExtendWith(FeaturesExtension.class)
 @Features(RuntimeFeature.class)
-@Deploy("org.nuxeo.ecm.core.schema")
+@Deploy("com.hyland.openarch.ecm.core.schema")
 public class TestTypes {
 
     @Inject
@@ -361,7 +361,7 @@ public class TestTypes {
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.schema:OSGI-INF/test-advanced-schema.xml")
+    @Deploy("com.hyland.openarch.ecm.core.schema:OSGI-INF/test-advanced-schema.xml")
     public void testFieldFromXpath() throws Exception {
         Field field = schemaManager.getField("tp_foo");
         assertNull(field);

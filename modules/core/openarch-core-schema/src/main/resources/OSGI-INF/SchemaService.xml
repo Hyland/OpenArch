@@ -6,7 +6,7 @@
     @author Bogdan Stefanescu (bs@nuxeo.com)
   </documentation>
 
-  <require>org.nuxeo.ecm.core.schema.ObjectResolverService</require>
+  <require>com.hyland.openarch.ecm.core.schema.ObjectResolverService</require>
 
   <service>
     <provide interface="com.hyland.openarch.ecm.core.schema.TypeService" />

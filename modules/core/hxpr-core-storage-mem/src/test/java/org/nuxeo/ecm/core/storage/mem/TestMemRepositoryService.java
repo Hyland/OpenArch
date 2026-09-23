@@ -43,7 +43,7 @@ import com.hyland.openarch.runtime.test.runner.TransactionalFeature;
 @Features({ RuntimeFeature.class, BasicClusterFeature.class, TransactionalFeature.class })
 @Deploy("org.nuxeo.ecm.core:OSGI-INF/RepositoryService.xml")
 @Deploy("org.nuxeo.ecm.core:OSGI-INF/dbs-repository-service.xml")
-@Deploy("org.nuxeo.ecm.core.schema")
+@Deploy("com.hyland.openarch.ecm.core.schema")
 @Deploy("org.nuxeo.ecm.core.storage.mem")
 @Deploy("org.nuxeo.ecm.core.storage.mem:mock-repo-manager-contrib.xml")
 public class TestMemRepositoryService {

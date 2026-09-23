@@ -49,7 +49,7 @@ import static org.nuxeo.ecm.core.api.security.SecurityConstants.WRITE;
 
 @ExtendWith(FeaturesExtension.class)
 @Features({ RuntimeFeature.class, MockitoFeature.class })
-@Deploy("org.nuxeo.ecm.core.schema")
+@Deploy("com.hyland.openarch.ecm.core.schema")
 @Deploy("org.nuxeo.ecm.core")
 public class RetentionSecurityPolicyTest {
 

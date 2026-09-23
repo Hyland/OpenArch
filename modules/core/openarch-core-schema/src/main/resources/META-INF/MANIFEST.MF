@@ -1,12 +1,12 @@
-Export-Package: org.nuxeo.ecm.core.schema,
- org.nuxeo.ecm.core.schema.types,
- org.nuxeo.ecm.core.schema.types.constraints,
- org.nuxeo.ecm.core.schema.types.primitives,
- org.nuxeo.ecm.core.schema.utils
+Export-Package: com.hyland.openarch.ecm.core.schema,
+ com.hyland.openarch.ecm.core.schema.types,
+ com.hyland.openarch.ecm.core.schema.types.constraints,
+ com.hyland.openarch.ecm.core.schema.types.primitives,
+ com.hyland.openarch.ecm.core.schema.utils
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
 Manifest-Version: 1.0
-Bundle-Name: org.nuxeo.ecm.core.schema
+Bundle-Name: com.hyland.openarch.ecm.core.schema
 Created-By: 1.6.0_20 (Sun Microsystems Inc.)
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Version: 5.4.2.qualifier
@@ -23,4 +23,4 @@ Import-Package: com.sun.xml.xsom,
  com.hyland.openarch.runtime.api,
  com.hyland.openarch.runtime.model,
  org.xml.sax
-Bundle-SymbolicName: org.nuxeo.ecm.core.schema;singleton:=true
+Bundle-SymbolicName: com.hyland.openarch.ecm.core.schema;singleton:=true

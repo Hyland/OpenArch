@@ -18,7 +18,7 @@ Export-Package: org.nuxeo.ecm.core;uses:="org.nuxeo.ecm.core.lifecycle
  :="SQLQuery,org.nuxeo.ecm.core.lifecycle,org.nuxeo.ecm.core.model,org
  .nuxeo.ecm.core.versioning,com.hyland.openarch.runtime.test",org.nuxeo.ecm.core
  .versioning;uses:="org.nuxeo.ecm.core.model",schema
-Require-Bundle: org.nuxeo.ecm.core.api,org.nuxeo.ecm.core.schema,org.n
+Require-Bundle: org.nuxeo.ecm.core.api,com.hyland.openarch.ecm.core.schema,org.n
  uxeo.ecm.core.query
 Bundle-Vendor: Nuxeo
 Tool: Bundlor 1.0.0.RELEASE

@@ -46,7 +46,7 @@ import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
 
 @ExtendWith(FeaturesExtension.class)
 @Features(RuntimeFeature.class)
-@Deploy("org.nuxeo.ecm.core.schema")
+@Deploy("com.hyland.openarch.ecm.core.schema")
 public class TestSchemaManager {
 
     @Inject
@@ -60,7 +60,7 @@ public class TestSchemaManager {
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.schema.tests:OSGI-INF/test-system-characteristics.xml")
+    @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/test-system-characteristics.xml")
     public void testIsSecurityProperty() {
         // non-system properties are not security properties
         assertFalse(schemaManager.isSecurityProperty("dc_title"));
@@ -82,7 +82,7 @@ public class TestSchemaManager {
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.schema.tests:OSGI-INF/test-system-characteristics.xml")
+    @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/test-system-characteristics.xml")
     public void testFalseStoredAsNullBooleansAreUsableInAQuery() {
         Stream.of("sys_isFolderish", "sys_isTrashed", "sysgov_hasLegalHold", "sysgov_isRecord", "sysver_isCheckedIn",
                 "sysver_isVersion")
@@ -91,7 +91,7 @@ public class TestSchemaManager {
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.schema.tests:OSGI-INF/test-system-characteristics.xml")
+    @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/test-system-characteristics.xml")
     public void testIsFalseStoredAsNullBoolean() {
         assertTrue(schemaManager.isFalseStoredAsNull("sys_isFolderish"));
         assertEquals(Set.of(STORE), schemaManager.getField("sys_isFolderish").getCharacteristics().falseAsNull());
@@ -103,7 +103,7 @@ public class TestSchemaManager {
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.schema.tests:OSGI-INF/test-system-characteristics.xml")
+    @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/test-system-characteristics.xml")
     public void testNoAutoCheckout() {
         assertTrue(schemaManager.getField("sys_acl").getCharacteristics().noAutoCheckout());
         assertTrue(schemaManager.getField("sysgov_isRecord").getCharacteristics().noAutoCheckout());
@@ -111,7 +111,7 @@ public class TestSchemaManager {
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.schema.tests:OSGI-INF/test-system-characteristics.xml")
+    @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/test-system-characteristics.xml")
     public void testPropertyPermissions() {
         assertEquals("ManageSecurity", schemaManager.getField("sys_acl").getCharacteristics().readPermission());
         assertEquals("ManageSecurity", schemaManager.getField("sys_acl").getCharacteristics().writePermission());
@@ -123,7 +123,7 @@ public class TestSchemaManager {
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.schema.tests:OSGI-INF/test-system-characteristics.xml")
+    @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/test-system-characteristics.xml")
     public void testNotOutput() {
         assertEquals(Set.of(INDEX),
                 schemaManager.getField("sys_acl").getCharacteristics().notOutput());
@@ -142,8 +142,8 @@ public class TestSchemaManager {
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.schema.tests:OSGI-INF/test-facet.xml")
-    @Deploy("org.nuxeo.ecm.core.schema.tests:OSGI-INF/test-facet-derived.xml")
+    @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/test-facet.xml")
+    @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/test-facet-derived.xml")
     public void testFacetsCache() throws Exception {
         assertNotNull(schemaManager.getDocumentType("Parent"));
         assertEquals(3, schemaManager.getDocumentTypes().length);
@@ -169,7 +169,7 @@ public class TestSchemaManager {
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.schema.tests:OSGI-INF/test-type-inheritance.xml")
+    @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/test-type-inheritance.xml")
     public void testInheritanceCache() {
         checkInheritanceCache();
     }
@@ -230,7 +230,7 @@ public class TestSchemaManager {
      * Check that registering a child type before the parent works.
      */
     @Test
-    @Deploy("org.nuxeo.ecm.core.schema.tests:OSGI-INF/test-facet-reversed.xml")
+    @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/test-facet-reversed.xml")
     public void testFacetsCacheReversedRegistration() {
         Set<String> tff = schemaManager.getDocumentTypeNamesForMixin("parent1");
         assertNotNull(tff);
@@ -247,14 +247,14 @@ public class TestSchemaManager {
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.schema.tests:OSGI-INF/test-type-inheritance-reversed.xml")
+    @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/test-type-inheritance-reversed.xml")
     public void testInheritanceCacheReversedRegistration() {
         checkInheritanceCache();
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.schema.tests:OSGI-INF/CoreTestExtensions.xml")
-    @Deploy("org.nuxeo.ecm.core.schema.tests:OSGI-INF/test-change-doctype.xml")
+    @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/CoreTestExtensions.xml")
+    @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/test-change-doctype.xml")
     public void testMerge() throws Exception {
 
         DocumentType t = schemaManager.getDocumentType("myDoc3");
@@ -263,7 +263,7 @@ public class TestSchemaManager {
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.schema.tests:OSGI-INF/test-supertype-loop.xml")
+    @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/test-supertype-loop.xml")
     public void testSupertypeLoop() {
         DocumentType t = schemaManager.getDocumentType("someDocInLoop");
         DocumentType t2 = schemaManager.getDocumentType("someDocInLoop2");
@@ -272,7 +272,7 @@ public class TestSchemaManager {
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.schema.tests:OSGI-INF/test-missing-supertype.xml")
+    @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/test-missing-supertype.xml")
     public void testMissingSupertype() {
         DocumentType t = schemaManager.getDocumentType("someDoc");
         DocumentType t2 = schemaManager.getDocumentType("someDoc2");
@@ -281,20 +281,20 @@ public class TestSchemaManager {
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.schema.tests:OSGI-INF/test-facet-missing-schema.xml")
+    @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/test-facet-missing-schema.xml")
     public void testFacetMissingSchema() {
         CompositeType f = schemaManager.getMixin("someFacet");
         assertEquals(Set.of("common"), f.getSchemaNames());
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.schema.tests:OSGI-INF/test-facet-per-document.xml")
+    @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/test-facet-per-document.xml")
     public void testFacetNoPerDocumentQuery() throws Exception {
         assertTrue(schemaManager.getNoPerDocumentQueryMixins().contains("someFacet"));
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.schema.tests:OSGI-INF/test-facet-disabled.xml")
+    @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/test-facet-disabled.xml")
     public void testFacetDisabled() {
         CompositeType f = schemaManager.getMixin("someFacet");
         assertNull(f);
@@ -305,7 +305,7 @@ public class TestSchemaManager {
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.schema.tests:OSGI-INF/test-schema-disabled.xml")
+    @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/test-schema-disabled.xml")
     public void testSchemaDisabled() {
         Schema s = schemaManager.getSchema("someSchema");
         assertNull(s);
@@ -322,8 +322,8 @@ public class TestSchemaManager {
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.schema.tests:OSGI-INF/CoreTestExtensions.xml")
-    @Deploy("org.nuxeo.ecm.core.schema.tests:OSGI-INF/test-merge-doctype.xml")
+    @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/CoreTestExtensions.xml")
+    @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/test-merge-doctype.xml")
     public void testMergeDocumentType() throws Exception {
 
         DocumentType t = schemaManager.getDocumentType("myDoc");
@@ -336,7 +336,7 @@ public class TestSchemaManager {
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.schema.tests:OSGI-INF/testSchemaWithImportInclude.xml")
+    @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/testSchemaWithImportInclude.xml")
     public void testDeployWithIncludeAndImport() {
 
         Schema schema = schemaManager.getSchema("schemaWithIncludeAndImport");
@@ -353,7 +353,7 @@ public class TestSchemaManager {
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.schema.tests:OSGI-INF/test-extends-append-doctypes.xml")
+    @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/test-extends-append-doctypes.xml")
     public void testExtendsAppendTypes() {
         // test appending types which extend another document
         DocumentType t = schemaManager.getDocumentType("MyMergeableFolder");
@@ -361,7 +361,7 @@ public class TestSchemaManager {
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.schema.tests:OSGI-INF/CoreTestExtensions.xml")
+    @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/CoreTestExtensions.xml")
     public void testGetFacet() {
         CompositeType component = schemaManager.getMixin("fakeFacet1");
         assertNotNull(component, String.format("Facet %s should exist", "fakeFacet1"));

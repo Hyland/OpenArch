@@ -1,4 +1,4 @@
-<component name="org.nuxeo.ecm.core.test.advanced.schema">
+<component name="com.hyland.openarch.ecm.core.test.advanced.schema">
 
   <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="schema">
     <schema name="dublincore" prefix="dc" src="schema/dublincore.xsd" />

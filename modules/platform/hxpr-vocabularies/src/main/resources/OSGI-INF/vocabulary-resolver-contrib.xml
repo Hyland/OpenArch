@@ -6,7 +6,7 @@
     vocabulary.
   </documentation>
 
-  <extension target="org.nuxeo.ecm.core.schema.ObjectResolverService" point="resolvers">
+  <extension target="com.hyland.openarch.ecm.core.schema.ObjectResolverService" point="resolvers">
     <resolver type="vocabularyResolver" class="org.nuxeo.ecm.platform.vocabulary.VocabularyEntryResolver" />
   </extension>
 

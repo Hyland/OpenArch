@@ -25,7 +25,7 @@ public final class CoreUTConstants {
 
     public static final String CORE_TESTS_BUNDLE = "org.nuxeo.ecm.core.tests";
 
-    public static final String SCHEMA_BUNDLE = "org.nuxeo.ecm.core.schema";
+    public static final String SCHEMA_BUNDLE = "com.hyland.openarch.ecm.core.schema";
 
     private CoreUTConstants() {
     }

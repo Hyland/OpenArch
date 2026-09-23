@@ -1,4 +1,4 @@
-<component name="org.nuxeo.ecm.core.test.merge-doctype">
+<component name="com.hyland.openarch.ecm.core.test.merge-doctype">
 
   <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="schema">
     <schema name="newschema" src="schema/schema.xsd"/>

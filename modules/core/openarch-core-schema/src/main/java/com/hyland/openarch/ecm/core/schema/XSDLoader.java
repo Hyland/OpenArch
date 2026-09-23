@@ -538,7 +538,7 @@ public class XSDLoader {
                     simpleType.setResolver(resolver);
                     constraints.add(new ObjectResolverConstraint(resolver));
                 } else {
-                    log.info("type of {} | {} targets ObjectResolver namespace but has no matching resolver registered (please contribute to component : org.nuxeo.ecm.core.schema.ObjectResolverService)" ,
+                    log.info("type of {} | {} targets ObjectResolver namespace but has no matching resolver registered (please contribute to component : com.hyland.openarch.ecm.core.schema.ObjectResolverService)" ,
                             fieldName, type.getName());
                 }
             }

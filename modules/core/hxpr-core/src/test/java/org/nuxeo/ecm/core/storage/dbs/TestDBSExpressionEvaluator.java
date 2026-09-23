@@ -44,7 +44,7 @@ import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
 
 @ExtendWith(FeaturesExtension.class)
 @Features(RuntimeFeature.class)
-@Deploy("org.nuxeo.ecm.core.schema")
+@Deploy("com.hyland.openarch.ecm.core.schema")
 @Deploy("org.nuxeo.ecm.core")
 @Deploy("org.nuxeo.ecm.core.tests:OSGI-INF/test-complex.xml")
 public class TestDBSExpressionEvaluator {
