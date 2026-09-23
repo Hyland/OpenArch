@@ -7,7 +7,7 @@
     <version>12.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>hxpr-runtime-jtajca</artifactId>
+  <artifactId>openarch-runtime-jtajca</artifactId>
   <name>HxPR Runtime JTA/JCA Implementation</name>
 
   <properties>

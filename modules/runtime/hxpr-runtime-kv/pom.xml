@@ -38,7 +38,7 @@
     <!-- for transactional tests -->
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-runtime-jtajca</artifactId>
+      <artifactId>openarch-runtime-jtajca</artifactId>
       <scope>test</scope>
     </dependency>
 
