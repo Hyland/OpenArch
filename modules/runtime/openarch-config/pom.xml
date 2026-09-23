@@ -7,9 +7,8 @@
     <version>12.0-SNAPSHOT</version>
   </parent>
 
-  <groupId>com.hyland.hxpr</groupId>
   <artifactId>openarch-config</artifactId>
-  <name>HxPR Configuration Persistence Service</name>
+  <name>OpenArch Configuration Persistence Service</name>
 
   <properties>
     <manifest.file>src/main/resources/META-INF/MANIFEST.MF</manifest.file>
