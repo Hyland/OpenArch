@@ -19,7 +19,7 @@
       registered under namespace http://www.nuxeo.org/ecm/schemas/core/external-references/. The resolver class must
       implement com.hyland.openarch.ecm.core.schema.types.resolver.ObjectResolver.
       Example :
-      <resolver type="productReference" class="org.mycompany.product.ProductNuxeoResolver" />
+      <resolver type="productReference" class="org.mycompany.product.ProductResolver" />
 
       By default, a constraint is added to documents about to be saved in order to validate if the property reference
       an existing external entity. You can disable this validation by setting attribute validation to false, for instance:

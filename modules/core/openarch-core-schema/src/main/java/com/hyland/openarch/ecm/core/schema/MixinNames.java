@@ -68,9 +68,6 @@ public final class MixinNames {
      */
     public static final String CIN_CONTEXT = "CinContext";
 
-    /**
-     * If your Nuxeo target version is 5.3.2 or higher, you'll be able to manage the order of this document children
-     */
     public static final String SYS_ORDERABLE = "SysOrderable";
 
     public static final String SYS_FULL_TEXT_INDEXABLE = "SysFullTextIndexable";

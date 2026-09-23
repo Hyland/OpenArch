@@ -27,7 +27,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * {@code Map<String, Object>}, which swagger resolves as a free-form object; a {@code resolver}
  * property typed as {@link ResolverDTO} therefore documents as an inline map and generates as
  * {@code Map<String, Object>} in the SDK. To keep the generated SDK type
- * {@code com.hyland.hxpr.sdk.model.Resolver}, {@link ConstraintsDTO#resolver()} references this
+ * {@code Resolver}, {@link ConstraintsDTO#resolver()} references this
  * record via {@link Schema#implementation()} so the OpenAPI description keeps a named {@code Resolver}
  * object with these named properties, independently of how {@link ResolverDTO} serializes at runtime.
  * <p>

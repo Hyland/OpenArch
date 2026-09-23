@@ -114,7 +114,7 @@
 
   <!-- nillable element cases -->
 
-  <!-- the 3 following cases are not XSD compliant because of Nuxeo existing statement (properties are not mandatory) -->
+  <!-- the 3 following cases are not XSD compliant because of OpenArch existing statement (properties are not mandatory) -->
   <xs:element name="elementShouldNotBeNullButCanBeNull1" type="xs:string" />
   <xs:element name="elementShouldNotBeNullButCanBeNull2" type="xs:string" nillable="false" />
   <xs:element name="elementShouldNotBeNullButCanBeNull3" type="xs:string" nillable="false" nxsv:nillable="true" />

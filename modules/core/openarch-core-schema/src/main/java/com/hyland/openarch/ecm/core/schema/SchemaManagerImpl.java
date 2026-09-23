@@ -216,7 +216,7 @@ public class SchemaManagerImpl extends SchemaManagerBase {
         documentTypes.clear();
 
         Schema systemSchema = schemas.get(SYSTEM_SCHEMA);
-        // The schema module can be used standalone for tests without the hxpr-core system schema contribution.
+        // The schema module can be used standalone for tests without the openarch-core system schema contribution.
         List<Schema> systemSchemas = systemSchema == null ? List.of() : List.of(systemSchema);
         registerDocumentType(
                 new DocumentTypeImpl(TypeConstants.SYS_CONTENT, null, systemSchemas, List.of(), null)); // SysContent

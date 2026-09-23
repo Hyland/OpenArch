@@ -93,7 +93,7 @@ import com.sun.xml.xsom.impl.RestrictionSimpleTypeImpl;
 import com.sun.xml.xsom.parser.XSOMParser;
 
 /**
- * Loader of XSD schemas into Nuxeo Schema objects.
+ * Loader of XSD schemas into OpenArch Schema objects.
  */
 public class XSDLoader {
 
@@ -267,7 +267,7 @@ public class XSDLoader {
     }
 
     /**
-     * Create Nuxeo schema from a XSD resource.
+     * Create OpenARch schema from a XSD resource.
      *
      * @since 5.7
      * @param name schema name
@@ -319,7 +319,7 @@ public class XSDLoader {
     }
 
     /**
-     * @param schema the nuxeo schema into we register the type.
+     * @param schema the OpenArch schema into we register the type.
      * @param type the XSD type to load
      * @param fieldName the field name owning this type, this is used when type is anonymous/local
      * @return the loaded type

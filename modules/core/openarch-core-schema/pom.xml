@@ -6,7 +6,7 @@
     <version>12.0-SNAPSHOT</version>
   </parent>
   <artifactId>openarch-core-schema</artifactId>
-  <name>HxPR Core Schema</name>
+  <name>OpenArch Core Schema</name>
 
   <properties>
     <manifest.file>src/main/resources/META-INF/MANIFEST.MF</manifest.file>
