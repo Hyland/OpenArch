@@ -53,8 +53,8 @@ import jakarta.inject.Inject;
 @TestInstance(Lifecycle.PER_CLASS)
 @ExtendWith(FeaturesExtension.class)
 @Features(RuntimeFeature.class)
-@Deploy("com.hyland.hxpr.config")
-@Deploy("com.hyland.hxpr.config.test:OSGI-INF/dummy-service.xml")
+@Deploy("com.hyland.openarch.config")
+@Deploy("com.hyland.openarch.config.test:OSGI-INF/dummy-service.xml")
 public class TestConfigurationService {
 
     @Inject

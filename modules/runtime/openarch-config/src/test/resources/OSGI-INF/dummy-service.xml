@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<component name="com.hyland.hxpr.config.test.DummyService">
+<component name="com.hyland.openarch.config.test.DummyService">
 
   <require>com.hyland.openarch.config.ConfigurationService</require>
 

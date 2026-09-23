@@ -70,7 +70,7 @@ import com.hyland.hxpr.async.tasks.TaskService;
 @Deploy("com.hyland.openarch.runtime.management")
 @Deploy("com.hyland.openarch.runtime.metrics")
 @Deploy("com.hyland.openarch.runtime.pubsub")
-@Deploy("com.hyland.hxpr.config")
+@Deploy("com.hyland.openarch.config")
 @Deploy("org.nuxeo.runtime.mongodb")
 @Deploy("org.nuxeo.ecm.core.schema")
 @Deploy("org.nuxeo.ecm.core.query")

@@ -1,4 +1,4 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-SymbolicName: com.hyland.hxpr.config
+Bundle-SymbolicName: com.hyland.openarch.config
 Nuxeo-Component: OSGI-INF/configuration-service.xml
