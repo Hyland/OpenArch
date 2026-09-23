@@ -26,7 +26,7 @@ import javax.management.ObjectName;
  */
 public class ObjectNameFactory {
 
-    public static final String NUXEO_DOMAIN_NAME = "org.nuxeo";
+    public static final String NUXEO_DOMAIN_NAME = "com.hyland.openarch";
 
     private ObjectNameFactory() {
     }

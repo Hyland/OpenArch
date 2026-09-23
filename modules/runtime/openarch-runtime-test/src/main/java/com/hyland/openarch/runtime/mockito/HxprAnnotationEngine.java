@@ -26,9 +26,9 @@ import org.mockito.internal.configuration.InjectingAnnotationEngine;
 import org.mockito.plugins.AnnotationEngine;
 
 /**
- * Custom Mockito {@link AnnotationEngine} that registers the Nuxeo specific
- * {@link NuxeoServiceMockAnnotationProcessor} for {@link Mock} annotated fields, so that mocks
- * created by Mockito are automatically published to the Nuxeo service registry.
+ * Custom Mockito {@link AnnotationEngine} that registers the OpenArch specific
+ * {@link RepositoryServiceMockAnnotationProcessor} for {@link Mock} annotated fields, so that mocks
+ * created by Mockito are automatically published to the OpenArch service registry.
  * <p>
  * Replaces the former {@code org.mockito.configuration.MockitoConfiguration#getAnnotationEngine()}
  * override (removed in Mockito 5). Registered through the Mockito plugin SPI in
@@ -43,7 +43,7 @@ public class HxprAnnotationEngine extends InjectingAnnotationEngine {
     public HxprAnnotationEngine() {
         // InjectingAnnotationEngine internally uses an IndependentAnnotationEngine as 'delegate'
         // to handle field-level annotations such as @Mock. We swap the default @Mock processor
-        // with our Nuxeo-aware one via reflection (no public API is exposed for that).
+        // with our OpenArch-aware one via reflection (no public API is exposed for that).
         try {
             Object delegate = FieldUtils.readField(this, DELEGATE_FIELD_NAME, true);
             if (!(delegate instanceof IndependentAnnotationEngine independent)) {
@@ -54,10 +54,10 @@ public class HxprAnnotationEngine extends InjectingAnnotationEngine {
             Map<Class<? extends Annotation>, FieldAnnotationProcessor<?>> processors =
                     (Map<Class<? extends Annotation>, FieldAnnotationProcessor<?>>) FieldUtils.readField(
                             independent, ANNOTATION_PROCESSOR_MAP_FIELD_NAME, true);
-            processors.put(Mock.class, new NuxeoServiceMockAnnotationProcessor());
+            processors.put(Mock.class, new RepositoryServiceMockAnnotationProcessor());
         } catch (ReflectiveOperationException e) {
             throw new IllegalStateException(
-                    "Unable to install NuxeoServiceMockAnnotationProcessor into Mockito's InjectingAnnotationEngine",
+                    "Unable to install RepositoryServiceMockAnnotationProcessor into Mockito's InjectingAnnotationEngine",
                     e);
         }
     }

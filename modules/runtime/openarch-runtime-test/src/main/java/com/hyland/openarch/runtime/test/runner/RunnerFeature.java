@@ -28,7 +28,7 @@ import com.google.inject.Injector;
  * new feature()        --&gt; constructor
  * COLLECT DEFINED DEPLOYMENTS
  * START FRAMEWORK
- * feature.initialize() --&gt; can be used to configure nuxeo home or register JNDI objects
+ * feature.initialize() --&gt; can be used to configure OpenArch home or register JNDI objects
  * feature.start()
  * feature.beforeRun()
  * feature.configure() --&gt; can be used to add guice bindings and to dynamically deploy components using the harness

@@ -26,7 +26,7 @@ import com.hyland.openarch.runtime.api.DefaultServiceProvider;
 /**
  * @since 5.7.8
  */
-public class NuxeoServiceMockAnnotationProcessor implements FieldAnnotationProcessor<Mock> {
+public class RepositoryServiceMockAnnotationProcessor implements FieldAnnotationProcessor<Mock> {
 
     @Override
     public Object process(Mock annotation, final Field field) {
@@ -35,14 +35,14 @@ public class NuxeoServiceMockAnnotationProcessor implements FieldAnnotationProce
 
         for (Annotation ann : field.getAnnotations()) {
             if (ann.annotationType().equals(RuntimeService.class)) {
-                bindMockAsNuxeoService(field, mock);
+                bindMockAsRepositoryService(field, mock);
             }
         }
 
         return mock;
     }
 
-    protected void bindMockAsNuxeoService(final Field field, Object mock) {
+    protected void bindMockAsRepositoryService(final Field field, Object mock) {
         MockProvider provider = (MockProvider) DefaultServiceProvider.getProvider();
         provider.bind(field.getType(), mock);
     }

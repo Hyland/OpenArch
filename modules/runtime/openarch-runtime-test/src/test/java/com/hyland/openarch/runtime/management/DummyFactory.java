@@ -22,7 +22,7 @@ public class DummyFactory extends AbstractResourceFactory {
 
     @Override
     public void registerResources() {
-        service.registerResource("dummy", "org.nuxeo:name=dummy", DummyMBean.class, new DummyService());
+        service.registerResource("dummy", "com.hyland.openarch:name=dummy", DummyMBean.class, new DummyService());
     }
 
 }

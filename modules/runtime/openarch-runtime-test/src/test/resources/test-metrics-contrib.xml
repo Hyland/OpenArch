@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<component name="org.nuxeo.runtime.metrics.test.contrib">
+<component name="com.hyland.openarch.runtime.metrics.test.contrib">
 
   <extension target="com.hyland.openarch.runtime.metrics.MetricsService" point="configuration">
     <configuration enabled="true">

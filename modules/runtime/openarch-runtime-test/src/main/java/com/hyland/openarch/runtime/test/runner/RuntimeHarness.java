@@ -42,7 +42,7 @@ public interface RuntimeHarness {
      * Deploys a whole OSGI bundle.
      * <p>
      * The lookup is first done on symbolic name, as set in <code>MANIFEST.MF</code> and then falls back to the bundle
-     * url (e.g., <code>nuxeo-platform-search-api</code>) for backwards compatibility.
+     * url (e.g., <code>openarch-runtime-springboot</code>) for backwards compatibility.
      *
      * @param bundle the symbolic name
      */

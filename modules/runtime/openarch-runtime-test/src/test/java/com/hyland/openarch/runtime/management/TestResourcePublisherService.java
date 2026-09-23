@@ -34,9 +34,9 @@ public class TestResourcePublisherService extends ManagementTestCase {
 
     @Test
     public void testRegisterResource() {
-        publisherService.registerResource("dummy", "org.nuxeo:name=dummy", DummyMBean.class, new DummyService());
+        publisherService.registerResource("dummy", "com.hyland.openarch:name=dummy", DummyMBean.class, new DummyService());
         publisherService.bindResources();
-        Set<ObjectName> registeredNames = doQuery("org.nuxeo:name=dummy");
+        Set<ObjectName> registeredNames = doQuery("com.hyland.openarch:name=dummy");
         assertNotNull(registeredNames);
         assertEquals(1, registeredNames.size());
     }
@@ -45,7 +45,7 @@ public class TestResourcePublisherService extends ManagementTestCase {
     @Deploy("com.hyland.openarch.runtime.test.tests:management-tests-service.xml")
     @Deploy("com.hyland.openarch.runtime.test.tests:management-tests-contrib.xml")
     public void testRegisterFactory() {
-        Set<ObjectName> registeredNames = doQuery("org.nuxeo:name=dummy");
+        Set<ObjectName> registeredNames = doQuery("com.hyland.openarch:name=dummy");
         assertNotNull(registeredNames);
         assertEquals(1, registeredNames.size());
     }

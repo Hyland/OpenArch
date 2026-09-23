@@ -29,13 +29,13 @@ public class TestObjectNameFactory {
     @Test
     public void testSimpleForm() {
         ObjectName name = ObjectNameFactory.getObjectName("simple");
-        assertEquals("org.nuxeo:name=simple,type=service", name.getCanonicalName());
+        assertEquals("com.hyland.openarch:name=simple,type=service", name.getCanonicalName());
     }
 
     @Test
     public void testAvaForm() {
         ObjectName name = ObjectNameFactory.getObjectName("name=value");
-        assertEquals("org.nuxeo:name=value", name.getCanonicalName());
+        assertEquals("com.hyland.openarch:name=value", name.getCanonicalName());
     }
 
     @Test

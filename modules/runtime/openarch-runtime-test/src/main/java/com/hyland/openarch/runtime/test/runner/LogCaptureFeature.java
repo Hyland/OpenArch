@@ -103,7 +103,7 @@ public class LogCaptureFeature implements RunnerFeature {
     }
 
     /**
-     * Default Nuxeo filter which takes a logger name and a log level to accept only events matching both.
+     * Default OpenArch filter which takes a logger name and a log level to accept only events matching both.
      * <p>
      * Null or empty criteria are converted to match all of them.
      * <p>

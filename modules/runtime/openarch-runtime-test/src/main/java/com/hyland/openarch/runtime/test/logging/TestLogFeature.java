@@ -50,17 +50,17 @@ import ch.qos.logback.core.spi.FilterReply;
  */
 @ExtendWith(FeaturesExtension.class)
 @Features({ RuntimeFeature.class, LogFeature.class })
-@LoggerLevel(name = "org.nuxeo.FakeClass2", level = "DEBUG")
-@LoggerLevel(name = "org.nuxeo.FakeClass3", level = "ERROR")
+@LoggerLevel(name = "com.hyland.openarch.FakeClass2", level = "DEBUG")
+@LoggerLevel(name = "com.hyland.openarch.FakeClass3", level = "ERROR")
 public class TestLogFeature {
 
     protected static final Logger log = LoggerFactory.getLogger(TestLogFeature.class);
 
-    protected static final String FAKE_LOGGER_NAME_1 = "org.nuxeo.FakeClass1";
+    protected static final String FAKE_LOGGER_NAME_1 = "com.hyland.openarch.FakeClass1";
 
-    protected static final String FAKE_LOGGER_NAME_2 = "org.nuxeo.FakeClass2";
+    protected static final String FAKE_LOGGER_NAME_2 = "com.hyland.openarch.FakeClass2";
 
-    protected static final String FAKE_LOGGER_NAME_3 = "org.nuxeo.FakeClass3";
+    protected static final String FAKE_LOGGER_NAME_3 = "com.hyland.openarch.FakeClass3";
 
     @Test
     @LoggerLevel(name = FAKE_LOGGER_NAME_1, level = "TRACE")

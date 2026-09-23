@@ -24,17 +24,17 @@ import java.lang.annotation.Target;
 /**
  * Allow the usage of multiple @Deploy
  * <p>
- * Deployable artifacts are either bundles either components: Example
+ * Deployable artifacts are either bundles or components: Example
  *
  * <pre>
- * &#64;Deploy({"com.hyland.openarch.runtime", "org.nuxeo.core:OSGI-INF/component.xml"})
+ * &#64;Deploy({"com.hyland.openarch.runtime", "com.hyland.openarch.core:OSGI-INF/component.xml"})
  * </pre>
  *
  * can now be written: *
  *
  * <pre>
  * &#64;Deploy("com.hyland.openarch.runtime")
- * &#64;Deploy("org.nuxeo.core:OSGI-INF/component.xml")
+ * &#64;Deploy("com.hyland.openarch.core:OSGI-INF/component.xml")
  * </pre>
  */
 

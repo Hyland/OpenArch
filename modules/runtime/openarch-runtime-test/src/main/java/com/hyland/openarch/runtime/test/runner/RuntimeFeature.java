@@ -38,7 +38,7 @@ public class RuntimeFeature implements RunnerFeature {
     protected FeaturesLoader loader;
 
     /**
-     * Providers contributed by other features to override the default service provider used for a nuxeo service.
+     * Providers contributed by other features to override the default service provider used for an OpenArch service.
      */
     protected final Map<Class<?>, ServiceProvider<?>> serviceProviders;
 

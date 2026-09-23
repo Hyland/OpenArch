@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<component name="org.nuxeo.runtime.management.tests.ResourcePublisherContrib">
+<component name="com.hyland.openarch.runtime.management.tests.ResourcePublisherContrib">
 
   <extension target="com.hyland.openarch.runtime.management.ResourcePublisher" point="services">
 
@@ -21,7 +21,7 @@
   </extension>
 
   <extension target="com.hyland.openarch.runtime.management.ResourcePublisher" point="shortcuts">
-    <shortcut name="dummy" qualifiedName="org.nuxeo:type=service,name=rg.nuxeo.runtime.management.Dummy" />
+    <shortcut name="dummy" qualifiedName="com.hyland.openarch:type=service,name=com.hyland.openarch.runtime.management.Dummy" />
   </extension>
 
   <extension target="com.hyland.openarch.runtime.management.ServerLocator" point="locators">
