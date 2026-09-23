@@ -24,7 +24,7 @@ import static org.mockito.Mockito.verify;
 
 import org.junit.jupiter.api.Test;
 
-import com.hyland.hxpr.runtime.pubsub.SerializableAccumulableInvalidations;
+import com.hyland.openarch.runtime.pubsub.SerializableAccumulableInvalidations;
 
 class InvalidationsQueueTest {
 

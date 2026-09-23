@@ -78,7 +78,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-runtime-pubsub</artifactId>
+      <artifactId>openarch-runtime-pubsub</artifactId>
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>

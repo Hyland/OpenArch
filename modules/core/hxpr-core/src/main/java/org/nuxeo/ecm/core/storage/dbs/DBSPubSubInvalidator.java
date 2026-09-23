@@ -17,7 +17,7 @@ package org.nuxeo.ecm.core.storage.dbs;
 
 import java.io.IOException;
 
-import com.hyland.hxpr.runtime.pubsub.AbstractPubSubInvalidationsAccumulator;
+import com.hyland.openarch.runtime.pubsub.AbstractPubSubInvalidationsAccumulator;
 
 /**
  * PubSub implementation of {@link DBSClusterInvalidator}.

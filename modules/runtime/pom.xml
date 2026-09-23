@@ -23,7 +23,7 @@
     <module>openarch-runtime-osgi</module>
     <module>openarch-runtime-metrics</module>
     <module>hxpr-runtime-mongodb</module>
-    <module>hxpr-runtime-pubsub</module>
+    <module>openarch-runtime-pubsub</module>
     <module>hxpr-runtime-springboot</module>
     <module>hxpr-runtime-springboot-test</module>
     <module>openarch-runtime-test</module>

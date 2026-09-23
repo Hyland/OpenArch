@@ -269,7 +269,7 @@
       </dependency>
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
-        <artifactId>hxpr-runtime-pubsub</artifactId>
+        <artifactId>openarch-runtime-pubsub</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

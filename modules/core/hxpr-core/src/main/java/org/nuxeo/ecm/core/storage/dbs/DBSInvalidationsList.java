@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.exc.MismatchedInputException;
-import com.hyland.hxpr.runtime.pubsub.SerializableAccumulableInvalidations;
+import com.hyland.openarch.runtime.pubsub.SerializableAccumulableInvalidations;
 
 import java.io.IOException;
 import java.io.Writer;

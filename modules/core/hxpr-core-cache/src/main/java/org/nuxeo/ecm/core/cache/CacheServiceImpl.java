@@ -24,8 +24,8 @@ import java.io.Writer;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.hyland.hxpr.runtime.pubsub.AbstractPubSubBroker;
-import com.hyland.hxpr.runtime.pubsub.SerializableMessage;
+import com.hyland.openarch.runtime.pubsub.AbstractPubSubBroker;
+import com.hyland.openarch.runtime.pubsub.SerializableMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.nuxeo.ecm.core.api.NuxeoException;

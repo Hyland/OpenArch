@@ -30,7 +30,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.exc.UnrecognizedPropertyException;
-import com.hyland.hxpr.runtime.pubsub.SerializableAccumulableInvalidations;
+import com.hyland.openarch.runtime.pubsub.SerializableAccumulableInvalidations;
 import org.apache.commons.io.IOUtils;
 import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.cluster.ClusterService;

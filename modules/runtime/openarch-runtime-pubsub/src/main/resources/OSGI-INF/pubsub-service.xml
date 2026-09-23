@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<component name="com.hyland.openarch.runtime.pubsub.PubSubService">
+
+  <documentation>
+    The PubSub service allows cross-instance notifications through simple messages sent to topics.
+  </documentation>
+
+  <service>
+    <provide interface="com.hyland.openarch.runtime.pubsub.PubSubService" />
+  </service>
+
+  <implementation class="com.hyland.openarch.runtime.pubsub.PubSubServiceImpl" />
+
+  <extension-point name="configuration">
+    <documentation>
+      Defines the implementation of the PubSub provider to use.
+      The provider is responsible for sending and receiving messages to/from other instances.
+      <code>
+        <provider class="com.hyland.openarch.runtime.pubsub.MemPubSubProvider"/>
+      </code>
+      The class must implement com.hyland.openarch.runtime.pubsub.PubSubProvider.
+    </documentation>
+
+    <object class="com.hyland.openarch.runtime.pubsub.PubSubProviderDescriptor" />
+  </extension-point>
+
+</component>

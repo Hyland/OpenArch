@@ -15,7 +15,7 @@
  */
 package org.nuxeo.ecm.core.storage;
 
-import com.hyland.hxpr.runtime.pubsub.SerializableAccumulableInvalidations;
+import com.hyland.openarch.runtime.pubsub.SerializableAccumulableInvalidations;
 
 import java.util.ArrayList;
 import java.util.List;
