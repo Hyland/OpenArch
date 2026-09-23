@@ -41,7 +41,7 @@ import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
 import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation.Type;
 import org.nuxeo.ecm.core.security.config.ExternalUserRelationsSecurityPolicyConfig;
 
-import com.hyland.hxpr.config.Configurable;
+import com.hyland.openarch.config.Configurable;
 
 public class ExternalUserRelationsSecurityPolicy extends AbstractSecurityPolicy
         implements Configurable<ExternalUserRelationsSecurityPolicy.RelationsState> {

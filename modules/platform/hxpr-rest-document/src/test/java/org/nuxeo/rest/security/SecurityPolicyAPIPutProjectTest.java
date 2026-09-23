@@ -40,7 +40,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.nuxeo.ecm.core.api.local.WithUser;
 import com.hyland.openarch.runtime.api.Framework;
 
-import com.hyland.hxpr.config.ConfigurationService;
+import com.hyland.openarch.config.ConfigurationService;
 
 class SecurityPolicyAPIPutProjectTest extends AbstractSecurityPolicyAPITest {
 

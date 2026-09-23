@@ -2,7 +2,7 @@
 <component name="org.nuxeo.ecm.core.storage.mongodb.MongoDBRepositoryService">
 
   <require>org.nuxeo.ecm.core.storage.dbs.DBSRepositoryService</require>
-  <require>com.hyland.hxpr.config.ConfigurationService</require>
+  <require>com.hyland.openarch.config.ConfigurationService</require>
 
   <documentation>
     Manages MongoDB repositories.

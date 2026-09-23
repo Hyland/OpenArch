@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hyland.hxpr.config;
+package com.hyland.openarch.config;
 
-import static com.hyland.hxpr.config.DummyServiceImpl.CONFIG_DUMMY;
-import static com.hyland.hxpr.config.DummyServiceImpl.DUMMY_REPO;
-import static com.hyland.hxpr.config.DummyServiceImpl.SETTINGS;
+import static com.hyland.openarch.config.DummyServiceImpl.CONFIG_DUMMY;
+import static com.hyland.openarch.config.DummyServiceImpl.DUMMY_REPO;
+import static com.hyland.openarch.config.DummyServiceImpl.SETTINGS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;

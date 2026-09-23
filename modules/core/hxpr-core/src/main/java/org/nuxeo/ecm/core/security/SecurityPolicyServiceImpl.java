@@ -58,8 +58,8 @@ import org.nuxeo.ecm.core.storage.dbs.DBSSession;
 import org.nuxeo.ecm.core.storage.dbs.StateAccessor;
 import com.hyland.openarch.runtime.api.Framework;
 
-import com.hyland.hxpr.config.Configurable;
-import com.hyland.hxpr.config.ConfigurationService;
+import com.hyland.openarch.config.Configurable;
+import com.hyland.openarch.config.ConfigurationService;
 
 /**
  * Implementation for security policy service (security for one repository).

@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<component name="com.hyland.openarch.config.ConfigurationService">
+
+  <implementation class="com.hyland.openarch.config.ConfigurationServiceImpl" />
+
+  <service>
+    <provide interface="com.hyland.openarch.config.ConfigurationService" />
+  </service>
+
+</component>

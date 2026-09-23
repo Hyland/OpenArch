@@ -32,7 +32,7 @@ import org.nuxeo.ecm.core.security.config.SecurityPolicyConfig;
 import org.nuxeo.ecm.core.storage.dbs.DBSSession;
 import org.nuxeo.ecm.core.storage.dbs.StateAccessor;
 
-import com.hyland.hxpr.config.Configurable;
+import com.hyland.openarch.config.Configurable;
 
 /**
  * Security policy service, dealing with the security for one repository.

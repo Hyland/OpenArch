@@ -29,8 +29,8 @@ import org.nuxeo.ecm.core.test.annotations.RepositoryConfig;
 import com.hyland.openarch.runtime.test.runner.Features;
 import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
 
-import com.hyland.hxpr.config.ConfigurationService;
-import com.hyland.hxpr.config.ConfigurationWithVersion;
+import com.hyland.openarch.config.ConfigurationService;
+import com.hyland.openarch.config.ConfigurationWithVersion;
 
 import jakarta.inject.Inject;
 

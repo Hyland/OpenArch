@@ -8,7 +8,7 @@
   </parent>
 
   <groupId>com.hyland.hxpr</groupId>
-  <artifactId>hxpr-config</artifactId>
+  <artifactId>openarch-config</artifactId>
   <name>HxPR Configuration Persistence Service</name>
 
   <properties>

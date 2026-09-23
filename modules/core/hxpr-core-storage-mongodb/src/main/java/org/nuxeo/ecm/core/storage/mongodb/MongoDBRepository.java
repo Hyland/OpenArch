@@ -175,9 +175,9 @@ import org.nuxeo.ecm.core.storage.dbs.DBSRepositoryBase;
 import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.mongodb.MongoDBConnectionService;
 
-import com.hyland.hxpr.config.ConfigurationService;
-import com.hyland.hxpr.config.ConfigurationServiceIO;
-import com.hyland.hxpr.config.ConfigurationWithVersion;
+import com.hyland.openarch.config.ConfigurationService;
+import com.hyland.openarch.config.ConfigurationServiceIO;
+import com.hyland.openarch.config.ConfigurationWithVersion;
 import com.mongodb.MongoClientException;
 import com.mongodb.MongoWriteException;
 import com.mongodb.client.ClientSession;

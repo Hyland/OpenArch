@@ -29,9 +29,9 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
-import com.hyland.hxpr.config.Configurable;
-import com.hyland.hxpr.config.ConfigurationService;
-import com.hyland.hxpr.config.ConfigurationWithVersion;
+import com.hyland.openarch.config.Configurable;
+import com.hyland.openarch.config.ConfigurationService;
+import com.hyland.openarch.config.ConfigurationWithVersion;
 import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
 import org.nuxeo.ecm.core.schema.dto.ModelMapCodec;
 import org.nuxeo.ecm.core.schema.dto.SchemaDTO;

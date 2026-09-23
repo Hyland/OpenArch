@@ -23,7 +23,7 @@
   <logger level="warn" name="com.hyland.transform.clients.sns.SnsHelperImpl" />
   <logger level="warn" name="com.hyland.transform.clients.sqs.SqsHelperImpl" />
 
-  <logger level="warn" name="com.hyland.hxpr.config.ConfigurationServiceImpl" />
+  <logger level="warn" name="com.hyland.openarch.config.ConfigurationServiceImpl" />
   <logger level="warn" name="com.hyland.hxpr.runtime.insight.event.InsightEventServiceImpl" />
   <logger level="warn" name="com.hyland.hxpr.transform.TransformComponent" />
   <logger level="warn" name="org.nuxeo.ecm.blob.s3.S3BlobStore" />

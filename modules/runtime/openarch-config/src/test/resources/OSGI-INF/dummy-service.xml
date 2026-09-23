@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<component name="com.hyland.hxpr.config.test.DummyService">
+
+  <require>com.hyland.openarch.config.ConfigurationService</require>
+
+  <implementation class="com.hyland.openarch.config.DummyServiceImpl" />
+
+  <service>
+    <provide interface="com.hyland.openarch.config.DummyService" />
+  </service>
+
+</component>

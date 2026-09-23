@@ -33,7 +33,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-config</artifactId>
+      <artifactId>openarch-config</artifactId>
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>

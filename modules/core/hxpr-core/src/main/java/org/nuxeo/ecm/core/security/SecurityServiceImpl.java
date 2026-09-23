@@ -46,9 +46,9 @@ import com.hyland.openarch.runtime.model.DefaultComponent;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
-import com.hyland.hxpr.config.Configurable;
-import com.hyland.hxpr.config.ConfigurationService;
-import com.hyland.hxpr.config.ConfigurationWithVersion;
+import com.hyland.openarch.config.Configurable;
+import com.hyland.openarch.config.ConfigurationService;
+import com.hyland.openarch.config.ConfigurationWithVersion;
 
 /**
  * Component for permissions-related contributions.
