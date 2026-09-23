@@ -8,7 +8,7 @@
   </parent>
 
   <artifactId>openarch-runtime-pubsub</artifactId>
-  <name>HxPR Runtime Publish/Subscribe Service</name>
+  <name>OpenArch Runtime Publish/Subscribe Service</name>
 
   <properties>
     <manifest.file>src/main/resources/META-INF/MANIFEST.MF</manifest.file>
