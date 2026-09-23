@@ -20,7 +20,7 @@ import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ACL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.nuxeo.ecm.core.schema.SchemaManager;
+import com.hyland.openarch.ecm.core.schema.SchemaManager;
 import org.nuxeo.ecm.core.storage.QueryOptimizer;
 
 /**

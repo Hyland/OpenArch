@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <component name="org.nuxeo.ecm.core.test.propmodel.types">
 
-  <extension target="org.nuxeo.ecm.core.schema.TypeService" point="schema">
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="schema">
     <schema name="test" src="schemas/TestSchema.xsd" prefix="book" />
     <schema name="noblob" prefix="nb" src="schemas/noblob.xsd" />
     <schema name="simpleblob" src="schemas/simpleblob.xsd" />
@@ -11,7 +11,7 @@
     <schema name="blobinlist" prefix="bil" src="schemas/blobinlist.xsd" />
   </extension>
 
-  <extension target="org.nuxeo.ecm.core.schema.TypeService" point="doctype">
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="doctype">
     <doctype name="NoBlobDocument" extends="SysContent">
       <schema name="noblob" />
     </doctype>

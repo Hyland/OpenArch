@@ -27,8 +27,8 @@ import org.mockito.MockedStatic;
 import org.nuxeo.ecm.core.api.repository.FulltextConfiguration;
 import org.nuxeo.ecm.core.model.Repository;
 import org.nuxeo.ecm.core.repository.RepositoryService;
-import org.nuxeo.ecm.core.schema.SchemaManager;
-import org.nuxeo.ecm.core.schema.TypeService;
+import com.hyland.openarch.ecm.core.schema.SchemaManager;
+import com.hyland.openarch.ecm.core.schema.TypeService;
 import com.hyland.openarch.runtime.api.Framework;
 
 class FullTextServiceTest {

@@ -33,11 +33,11 @@ import org.nuxeo.ecm.core.query.sql.model.Reference;
 import org.nuxeo.ecm.core.query.sql.model.SelectClause;
 import org.nuxeo.ecm.core.query.sql.model.StringLiteral;
 import org.nuxeo.ecm.core.query.QueryParseException;
-import org.nuxeo.ecm.core.schema.SchemaManager;
-import org.nuxeo.ecm.core.schema.types.Field;
-import org.nuxeo.ecm.core.schema.types.FieldCharacteristics;
-import org.nuxeo.ecm.core.schema.types.primitives.AnyType;
-import org.nuxeo.ecm.core.schema.types.primitives.BooleanType;
+import com.hyland.openarch.ecm.core.schema.SchemaManager;
+import com.hyland.openarch.ecm.core.schema.types.Field;
+import com.hyland.openarch.ecm.core.schema.types.FieldCharacteristics;
+import com.hyland.openarch.ecm.core.schema.types.primitives.AnyType;
+import com.hyland.openarch.ecm.core.schema.types.primitives.BooleanType;
 import org.nuxeo.ecm.core.storage.ExpressionEvaluator.PathResolver;
 
 /**

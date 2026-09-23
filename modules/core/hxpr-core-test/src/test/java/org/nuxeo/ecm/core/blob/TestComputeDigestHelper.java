@@ -24,7 +24,7 @@ import static org.nuxeo.ecm.core.api.event.CoreEventConstants.BLOB_DIGEST_UPDATE
 import static org.nuxeo.ecm.core.api.event.CoreEventConstants.BLOB_DIGEST_UPDATED_OLD_DIGEST;
 import static org.nuxeo.ecm.core.api.event.CoreEventConstants.BLOB_DIGEST_UPDATED_OLD_KEY;
 import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.BLOB_DIGEST_UPDATED;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FILE;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
 
 import java.io.IOException;
 import java.io.Serializable;

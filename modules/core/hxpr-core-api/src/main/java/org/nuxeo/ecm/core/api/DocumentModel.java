@@ -27,9 +27,9 @@ import com.hyland.openarch.common.utils.Path;
 import org.nuxeo.ecm.core.api.model.resolver.PropertyObjectResolver;
 import org.nuxeo.ecm.core.api.security.ACL;
 import org.nuxeo.ecm.core.model.InternalDocument.BlobAccessor;
-import org.nuxeo.ecm.core.schema.DocumentType;
-import org.nuxeo.ecm.core.schema.MixinNames;
-import org.nuxeo.ecm.core.schema.TypeConstants;
+import com.hyland.openarch.ecm.core.schema.DocumentType;
+import com.hyland.openarch.ecm.core.schema.MixinNames;
+import com.hyland.openarch.ecm.core.schema.TypeConstants;
 
 /**
  * The document model is a representation of a core document.

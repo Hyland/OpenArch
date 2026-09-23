@@ -18,7 +18,7 @@ package org.nuxeo.ecm.core;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSFILE_BLOB;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FILE;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
 
 import java.io.InputStream;
 

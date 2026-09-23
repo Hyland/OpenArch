@@ -1,11 +1,11 @@
 <component name="org.nuxeo.rest.facetsandtypes.test">
 
-  <extension target="org.nuxeo.ecm.core.schema.TypeService" point="schema">
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="schema">
     <schema name="mycustomschema" prefix="mcs" src="schema/customschema.xsd" />
     <schema name="mycustomschema2" prefix="mcs2" src="schema/customschema2.xsd" />
   </extension>
 
-  <extension target="org.nuxeo.ecm.core.schema.TypeService" point="doctype">
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="doctype">
     <doctype name="File2" extends="SysContent">
       <schema name="mycustomschema" />
       <mixin name="File2Facet" />

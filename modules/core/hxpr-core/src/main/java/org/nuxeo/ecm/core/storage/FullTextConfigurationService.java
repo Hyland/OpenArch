@@ -16,7 +16,7 @@
 package org.nuxeo.ecm.core.storage;
 
 import org.nuxeo.ecm.core.api.repository.FulltextConfiguration;
-import org.nuxeo.ecm.core.schema.SchemaManager;
+import com.hyland.openarch.ecm.core.schema.SchemaManager;
 
 /**
  * Service for managing the FullText configuration of all repositories.

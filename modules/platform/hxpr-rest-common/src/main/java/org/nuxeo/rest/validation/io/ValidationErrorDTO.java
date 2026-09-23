@@ -15,15 +15,15 @@
  */
 package org.nuxeo.rest.validation.io;
 
-import static org.nuxeo.ecm.core.schema.types.constraints.Constraint.MESSAGES_DEFAULT_LANG;
+import static com.hyland.openarch.ecm.core.schema.types.constraints.Constraint.MESSAGES_DEFAULT_LANG;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;
 import java.util.Locale;
 
-import org.nuxeo.ecm.core.schema.validation.violations.AbstractBaseValidationViolation;
-import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
+import com.hyland.openarch.ecm.core.schema.validation.violations.AbstractBaseValidationViolation;
+import com.hyland.openarch.ecm.core.schema.validation.violations.ValidationViolation;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;

@@ -18,8 +18,8 @@ package org.nuxeo.ecm.core.storage;
 import static java.util.stream.Collectors.groupingBy;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_MIXIN_TYPES;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PRIMARY_TYPE;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_CONTENT;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_ROOT;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_CONTENT;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_ROOT;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,7 +51,7 @@ import org.nuxeo.ecm.core.query.sql.model.SelectClause;
 import org.nuxeo.ecm.core.query.sql.model.Statement;
 import org.nuxeo.ecm.core.query.sql.model.StringLiteral;
 import org.nuxeo.ecm.core.query.sql.model.WhereClause;
-import org.nuxeo.ecm.core.schema.SchemaManager;
+import com.hyland.openarch.ecm.core.schema.SchemaManager;
 
 import org.nuxeo.ecm.core.storage.QueryAnnotations.PrefixInfo;
 

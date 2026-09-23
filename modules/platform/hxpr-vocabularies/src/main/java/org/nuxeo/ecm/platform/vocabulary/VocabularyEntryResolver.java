@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import org.nuxeo.ecm.core.schema.types.resolver.AbstractObjectResolver;
-import org.nuxeo.ecm.core.schema.types.resolver.ObjectResolver;
+import com.hyland.openarch.ecm.core.schema.types.resolver.AbstractObjectResolver;
+import com.hyland.openarch.ecm.core.schema.types.resolver.ObjectResolver;
 import org.nuxeo.ecm.platform.vocabulary.exception.VocabularyEntryNotFoundException;
 import org.nuxeo.ecm.platform.vocabulary.exception.VocabularyNotFoundException;
 import org.nuxeo.ecm.platform.vocabulary.model.VocabularyEntryWrapper;

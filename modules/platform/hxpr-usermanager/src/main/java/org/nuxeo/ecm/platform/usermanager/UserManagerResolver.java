@@ -26,8 +26,8 @@ import org.nuxeo.ecm.core.api.NuxeoGroup;
 import org.nuxeo.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.ecm.core.api.SystemPrincipal;
 import org.nuxeo.ecm.core.api.security.SecurityConstants;
-import org.nuxeo.ecm.core.schema.types.resolver.AbstractObjectResolver;
-import org.nuxeo.ecm.core.schema.types.resolver.ObjectResolver;
+import com.hyland.openarch.ecm.core.schema.types.resolver.AbstractObjectResolver;
+import com.hyland.openarch.ecm.core.schema.types.resolver.ObjectResolver;
 import com.hyland.openarch.runtime.api.Framework;
 
 /**

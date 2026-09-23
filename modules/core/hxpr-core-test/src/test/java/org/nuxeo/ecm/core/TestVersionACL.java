@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.READ;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.READ_VERSION;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FOLDER;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FOLDER;
 
 import java.util.Iterator;
 

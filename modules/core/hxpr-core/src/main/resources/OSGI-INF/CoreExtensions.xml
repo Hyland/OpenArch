@@ -7,7 +7,7 @@
     @author <a href="mailto:bs@nuxeo.com">Bogdan Stefanescu</a>
   </documentation>
 
-  <extension target="org.nuxeo.ecm.core.schema.TypeService"
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService"
       point="schema">
     <documentation>The core schemas</documentation>
     <!-- XXX AT: prefixes should be set, see NXP-1152 -->
@@ -45,7 +45,7 @@
     <schema name="sysmdtext" prefix="sysmdtext" src="schema/metadata-text.xsd"/>
   </extension>
 
-  <extension target="org.nuxeo.ecm.core.schema.TypeService"
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService"
       point="doctype">
     <documentation>The core document types</documentation>
 

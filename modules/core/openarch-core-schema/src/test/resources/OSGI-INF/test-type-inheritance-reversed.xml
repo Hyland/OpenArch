@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.ecm.core.test.type-inheritance">
+
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="doctype">
+
+    <!-- Check that registering a child type before the parent works -->
+    <doctype name="Child" extends="Parent" />
+    <doctype name="Parent" extends="SysContent" />
+    <doctype name="TopLevel" extends="SysContent" />
+
+  </extension>
+
+</component>

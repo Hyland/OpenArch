@@ -21,8 +21,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
 
-import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
-import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation.Type;
+import com.hyland.openarch.ecm.core.schema.validation.violations.ValidationViolation;
+import com.hyland.openarch.ecm.core.schema.validation.violations.ValidationViolation.Type;
 import org.nuxeo.ecm.core.security.SecurityPolicy;
 import org.nuxeo.ecm.core.security.SecurityPolicyViolation;
 import org.nuxeo.ecm.core.security.config.SecurityPolicyConfig;

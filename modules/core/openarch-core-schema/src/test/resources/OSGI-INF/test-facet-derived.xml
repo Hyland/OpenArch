@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.ecm.core.test.facet-derived">
+
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="doctype">
+
+    <doctype name="Child" extends="Parent">
+      <mixin name="child" />
+    </doctype>
+
+  </extension>
+
+</component>

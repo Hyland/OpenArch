@@ -95,7 +95,7 @@ import org.nuxeo.ecm.core.query.sql.model.Reference;
 import org.nuxeo.ecm.core.query.sql.model.SelectClause;
 import org.nuxeo.ecm.core.query.sql.model.Statement;
 import org.nuxeo.ecm.core.repository.RepositoryService;
-import org.nuxeo.ecm.core.schema.SchemaManager;
+import com.hyland.openarch.ecm.core.schema.SchemaManager;
 import org.nuxeo.ecm.core.storage.dbs.DBSDocument;
 import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.metrics.MetricsService;

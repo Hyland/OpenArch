@@ -21,8 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.READ_WRITE;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FILE;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FOLDER;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FOLDER;
 
 import java.util.ArrayList;
 import java.util.Arrays;

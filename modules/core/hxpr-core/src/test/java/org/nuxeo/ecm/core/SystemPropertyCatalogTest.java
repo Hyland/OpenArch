@@ -19,8 +19,8 @@ import static java.lang.reflect.Modifier.isStatic;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_CONTENT;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FILE;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_CONTENT;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
 
 import java.lang.reflect.Field;
 
@@ -29,8 +29,8 @@ import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.nuxeo.ecm.core.api.DocumentConstants;
-import org.nuxeo.ecm.core.schema.SchemaManager;
-import org.nuxeo.ecm.core.schema.TypeService;
+import com.hyland.openarch.ecm.core.schema.SchemaManager;
+import com.hyland.openarch.ecm.core.schema.TypeService;
 import com.hyland.openarch.runtime.test.runner.Deploy;
 import com.hyland.openarch.runtime.test.runner.Features;
 import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
@@ -55,7 +55,7 @@ public class SystemPropertyCatalogTest {
                 continue;
             }
             String propertyName = (String) constant.get(null);
-            org.nuxeo.ecm.core.schema.types.Field field = schemaManager.getField(propertyName);
+            com.hyland.openarch.ecm.core.schema.types.Field field = schemaManager.getField(propertyName);
             assertNotNull(field, propertyName);
             assertTrue(field.isRepositoryManaged(), propertyName);
         }

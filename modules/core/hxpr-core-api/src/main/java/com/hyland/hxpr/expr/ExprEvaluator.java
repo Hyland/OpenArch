@@ -16,17 +16,16 @@
 package com.hyland.hxpr.expr;
 
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PREFIX;
-import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_DIGEST;
-import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_ENCODING;
-import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_FILENAME;
-import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_KEY;
-import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_LENGTH;
-import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_MIME_TYPE;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.KEY_BLOB_DIGEST;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.KEY_BLOB_ENCODING;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.KEY_BLOB_FILENAME;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.KEY_BLOB_KEY;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.KEY_BLOB_LENGTH;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.KEY_BLOB_MIME_TYPE;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.nuxeo.ecm.core.api.NuxeoPrincipal;
@@ -43,7 +42,7 @@ import org.nuxeo.ecm.core.query.sql.model.Operator;
 import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Reference;
 import org.nuxeo.ecm.core.query.sql.model.StringLiteral;
-import org.nuxeo.ecm.core.schema.SchemaManager;
+import com.hyland.openarch.ecm.core.schema.SchemaManager;
 import com.hyland.hxpr.expr.ast.Expr;
 import com.hyland.hxpr.expr.ast.ExprBin;
 import com.hyland.hxpr.expr.ast.ExprTern;

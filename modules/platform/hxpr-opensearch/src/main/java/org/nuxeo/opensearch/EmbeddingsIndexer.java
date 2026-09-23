@@ -22,8 +22,8 @@ import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PRIMARY_TYPE;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY_ON_PREM;
 import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_TYPE;
-import static org.nuxeo.ecm.core.schema.MixinNames.SYS_HAS_EMBEDDINGS;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_EMBEDDINGS;
+import static com.hyland.openarch.ecm.core.schema.MixinNames.SYS_HAS_EMBEDDINGS;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_EMBEDDINGS;
 
 import java.util.ArrayList;
 import java.util.Collection;

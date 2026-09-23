@@ -15,36 +15,37 @@
  */
 package org.nuxeo.rest.model.validation;
 
-import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.LIST;
-import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.MAX_EXCLUSIVE;
-import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.MAX_INCLUSIVE;
-import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.MIN_EXCLUSIVE;
-import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.MIN_INCLUSIVE;
-import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.PATH_DELIMITER;
-import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_KEY;
+import static com.hyland.openarch.ecm.core.schema.SchemaManagerConstants.LIST;
+import static com.hyland.openarch.ecm.core.schema.SchemaManagerConstants.MAX_EXCLUSIVE;
+import static com.hyland.openarch.ecm.core.schema.SchemaManagerConstants.MAX_INCLUSIVE;
+import static com.hyland.openarch.ecm.core.schema.SchemaManagerConstants.MIN_EXCLUSIVE;
+import static com.hyland.openarch.ecm.core.schema.SchemaManagerConstants.MIN_INCLUSIVE;
+import static com.hyland.openarch.ecm.core.schema.SchemaManagerConstants.PATH_DELIMITER;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.KEY_BLOB_KEY;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import com.hyland.openarch.ecm.core.schema.dto.ModelMapCodec;
 import org.apache.commons.lang3.StringUtils;
-import org.nuxeo.ecm.core.schema.SchemaManager;
-import org.nuxeo.ecm.core.schema.TypeConstants;
-import org.nuxeo.ecm.core.schema.XSDTypes;
-import org.nuxeo.ecm.core.schema.dto.ConstraintsDTO;
-import org.nuxeo.ecm.core.schema.dto.ContentModelDTO;
-import org.nuxeo.ecm.core.schema.dto.FieldDTO;
-import org.nuxeo.ecm.core.schema.types.ComplexType;
-import org.nuxeo.ecm.core.schema.types.ListType;
-import org.nuxeo.ecm.core.schema.types.SimpleTypeImpl;
-import org.nuxeo.ecm.core.schema.types.Type;
-import org.nuxeo.ecm.core.schema.types.constraints.ConstraintUtils;
-import org.nuxeo.ecm.core.schema.types.TypeException;
-import org.nuxeo.ecm.core.schema.types.primitives.BinaryType;
-import org.nuxeo.ecm.core.schema.types.primitives.BooleanType;
-import org.nuxeo.ecm.core.schema.types.primitives.DateType;
-import org.nuxeo.ecm.core.schema.types.primitives.StringType;
-import org.nuxeo.ecm.core.schema.validation.ValidationReport;
-import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
+import com.hyland.openarch.ecm.core.schema.SchemaManager;
+import com.hyland.openarch.ecm.core.schema.TypeConstants;
+import com.hyland.openarch.ecm.core.schema.XSDTypes;
+import com.hyland.openarch.ecm.core.schema.dto.ConstraintsDTO;
+import com.hyland.openarch.ecm.core.schema.dto.ContentModelDTO;
+import com.hyland.openarch.ecm.core.schema.dto.FieldDTO;
+import com.hyland.openarch.ecm.core.schema.types.ComplexType;
+import com.hyland.openarch.ecm.core.schema.types.ListType;
+import com.hyland.openarch.ecm.core.schema.types.SimpleTypeImpl;
+import com.hyland.openarch.ecm.core.schema.types.Type;
+import com.hyland.openarch.ecm.core.schema.types.constraints.ConstraintUtils;
+import com.hyland.openarch.ecm.core.schema.types.TypeException;
+import com.hyland.openarch.ecm.core.schema.types.primitives.BinaryType;
+import com.hyland.openarch.ecm.core.schema.types.primitives.BooleanType;
+import com.hyland.openarch.ecm.core.schema.types.primitives.DateType;
+import com.hyland.openarch.ecm.core.schema.types.primitives.StringType;
+import com.hyland.openarch.ecm.core.schema.validation.ValidationReport;
+import com.hyland.openarch.ecm.core.schema.validation.violations.ValidationViolation;
 import org.nuxeo.rest.model.Constants;
 import org.nuxeo.rest.model.exception.ModelValidationException;
 import org.springframework.stereotype.Component;
@@ -266,7 +267,7 @@ public class ModelValidator {
      * <p>
      * Length bounds are not checked here: a length is held as a {@link Long} and so a non-integer value cannot survive
      * deserialization to reach this point, which is why {@code minLength}/{@code maxLength} are validated by
-     * {@link org.nuxeo.ecm.core.schema.dto.ModelMapCodec} as the model is read instead.
+     * {@link ModelMapCodec} as the model is read instead.
      */
     private void validateConstraintBounds(ConstraintsDTO constraints, String fieldName, String formRequestFieldType) {
         if (constraints == null) {

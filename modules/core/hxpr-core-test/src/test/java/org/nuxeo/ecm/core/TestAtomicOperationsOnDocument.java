@@ -43,7 +43,7 @@ import java.util.concurrent.CountDownLatch;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FILE;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
 
 /**
  * @since 9.3

@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.nuxeo.ecm.core.api.local.DummyLoginFeature.TEST_ADMIN_USER;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.READ;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FOLDER;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FOLDER;
 
 import java.time.Duration;
 import java.time.Instant;

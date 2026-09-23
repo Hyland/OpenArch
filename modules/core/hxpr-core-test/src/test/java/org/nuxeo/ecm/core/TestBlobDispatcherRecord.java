@@ -20,8 +20,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSFILE_BLOB;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.GENERIC_DOCUMENT_SECURITY_ERROR;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FILE;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FOLDER;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FOLDER;
 
 import jakarta.inject.Inject;
 

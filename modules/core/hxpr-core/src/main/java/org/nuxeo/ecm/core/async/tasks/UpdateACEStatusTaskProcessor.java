@@ -18,7 +18,7 @@ package org.nuxeo.ecm.core.async.tasks;
 import static com.hyland.hxpr.async.tasks.TaskStatus.State.COMPLETED;
 import static java.util.Objects.requireNonNullElse;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ID;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_CONTENT;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_CONTENT;
 
 import java.time.Duration;
 import java.time.Instant;

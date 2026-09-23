@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PATH;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
 import static org.nuxeo.ecm.core.api.local.DummyLoginFeature.TEST_ADMIN_USER;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FOLDER;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FOLDER;
 
 import java.time.Duration;
 import java.time.Instant;

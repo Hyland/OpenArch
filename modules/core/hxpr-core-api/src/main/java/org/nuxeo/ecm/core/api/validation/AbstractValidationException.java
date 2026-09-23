@@ -18,8 +18,8 @@ package org.nuxeo.ecm.core.api.validation;
 import static jakarta.servlet.http.HttpServletResponse.SC_CONFLICT;
 
 import org.nuxeo.ecm.core.api.NuxeoException;
-import org.nuxeo.ecm.core.schema.validation.ValidationException;
-import org.nuxeo.ecm.core.schema.validation.ValidationReport;
+import com.hyland.openarch.ecm.core.schema.validation.ValidationException;
+import com.hyland.openarch.ecm.core.schema.validation.ValidationReport;
 
 public abstract class AbstractValidationException extends NuxeoException implements ValidationException {
 

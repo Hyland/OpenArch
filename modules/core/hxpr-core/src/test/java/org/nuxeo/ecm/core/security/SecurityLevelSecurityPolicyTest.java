@@ -18,7 +18,7 @@ package org.nuxeo.ecm.core.security;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.READ;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FILE;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
+import com.hyland.openarch.ecm.core.schema.validation.violations.ValidationViolation;
 import org.nuxeo.ecm.core.security.config.SecurityLevelSecurityPolicyConfig;
 import com.hyland.openarch.runtime.mockito.MockitoFeature;
 import com.hyland.openarch.runtime.test.runner.Deploy;

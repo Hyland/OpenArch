@@ -39,7 +39,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-core-schema</artifactId>
+      <artifactId>openarch-core-schema</artifactId>
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
@@ -107,7 +107,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-core-schema</artifactId>
+      <artifactId>openarch-core-schema</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>

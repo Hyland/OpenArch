@@ -19,8 +19,8 @@ import static org.nuxeo.ecm.core.api.local.DummyLoginFeature.TEST_ADMIN_USER;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.EVERYTHING;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.READ;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.WRITE;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FILE;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FOLDER;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FOLDER;
 
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;

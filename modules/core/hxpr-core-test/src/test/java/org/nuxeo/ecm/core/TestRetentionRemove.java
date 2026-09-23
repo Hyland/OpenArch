@@ -29,7 +29,7 @@ import static org.nuxeo.ecm.core.api.security.SecurityConstants.DELETE;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.DELETE_CHILD;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.WRITE;
 import static org.nuxeo.ecm.core.model.InternalSession.PROP_RETENTION_COMPLIANCE_MODE_ENABLED;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FOLDER;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FOLDER;
 
 import java.time.Instant;
 import java.util.Collections;

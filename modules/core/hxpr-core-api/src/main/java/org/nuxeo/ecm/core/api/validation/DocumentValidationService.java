@@ -22,7 +22,7 @@ import java.util.Map;
 
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.ValuesVisitor;
-import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
+import com.hyland.openarch.ecm.core.schema.validation.violations.ValidationViolation;
 
 /**
  * Provides a way to validate {@link DocumentModel} according to their schema's constraints.

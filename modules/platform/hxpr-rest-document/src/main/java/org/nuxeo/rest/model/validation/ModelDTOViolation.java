@@ -17,7 +17,7 @@ package org.nuxeo.rest.model.validation;
 
 import java.util.List;
 
-import org.nuxeo.ecm.core.schema.validation.violations.AbstractBaseValidationViolation;
+import com.hyland.openarch.ecm.core.schema.validation.violations.AbstractBaseValidationViolation;
 
 public class ModelDTOViolation extends AbstractBaseValidationViolation {
 

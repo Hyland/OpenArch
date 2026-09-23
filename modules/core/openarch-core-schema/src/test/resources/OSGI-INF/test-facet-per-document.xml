@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.ecm.core.test.facet.per-document">
+
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService"
+    point="doctype">
+    <mixin name="someFacet" perDocumentQuery="false"/>
+  </extension>
+
+</component>

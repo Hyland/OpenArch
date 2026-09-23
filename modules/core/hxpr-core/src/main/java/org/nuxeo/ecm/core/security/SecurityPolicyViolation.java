@@ -20,9 +20,9 @@ import java.util.List;
 import java.util.Locale;
 
 import com.hyland.openarch.common.utils.i18n.I18NUtils;
-import org.nuxeo.ecm.core.schema.types.constraints.Constraint;
-import org.nuxeo.ecm.core.schema.validation.violations.AbstractBaseValidationViolation;
-import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
+import com.hyland.openarch.ecm.core.schema.types.constraints.Constraint;
+import com.hyland.openarch.ecm.core.schema.validation.violations.AbstractBaseValidationViolation;
+import com.hyland.openarch.ecm.core.schema.validation.violations.ValidationViolation;
 
 public class SecurityPolicyViolation extends AbstractBaseValidationViolation {
 

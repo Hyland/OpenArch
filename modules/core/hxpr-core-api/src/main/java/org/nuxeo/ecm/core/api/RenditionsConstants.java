@@ -15,7 +15,7 @@
  */
 package org.nuxeo.ecm.core.api;
 
-import static org.nuxeo.ecm.core.schema.TypeConstants.PREFIX_SEPARATOR;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.PREFIX_SEPARATOR;
 
 /**
  * Constants for Renditions document models.

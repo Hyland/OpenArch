@@ -17,7 +17,7 @@
 package org.nuxeo.ecm.core.mongodb;
 
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FILE;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
 
 import java.util.List;
 import java.util.concurrent.BrokenBarrierException;

@@ -27,8 +27,8 @@ import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_LAST_CONTRIBUTOR;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_MODIFIED;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
 import static org.nuxeo.ecm.core.api.local.DummyLoginFeature.TEST_ADMIN_USER;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FILE;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FOLDER;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FOLDER;
 
 import java.time.Instant;
 import java.util.Collections;

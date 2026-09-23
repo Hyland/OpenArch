@@ -22,7 +22,7 @@ import java.util.Set;
 
 import org.nuxeo.ecm.core.api.ConcurrentUpdateException;
 import org.nuxeo.ecm.core.api.NuxeoPrincipal;
-import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
+import com.hyland.openarch.ecm.core.schema.validation.violations.ValidationViolation;
 import org.nuxeo.ecm.core.security.config.SecurityPolicyConfig;
 
 /**

@@ -30,8 +30,8 @@ import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentRef;
 import org.nuxeo.ecm.core.api.IdRef;
 import org.nuxeo.ecm.core.api.PathRef;
-import org.nuxeo.ecm.core.schema.types.resolver.AbstractObjectResolver;
-import org.nuxeo.ecm.core.schema.types.resolver.ObjectResolver;
+import com.hyland.openarch.ecm.core.schema.types.resolver.AbstractObjectResolver;
+import com.hyland.openarch.ecm.core.schema.types.resolver.ObjectResolver;
 
 /**
  * This {@link ObjectResolver} allows to manage integrity for fields containing {@link DocumentModel} references (id or

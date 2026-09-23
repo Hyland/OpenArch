@@ -21,8 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FILE;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FOLDER;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FOLDER;
 
 import jakarta.inject.Inject;
 import jakarta.transaction.RollbackException;

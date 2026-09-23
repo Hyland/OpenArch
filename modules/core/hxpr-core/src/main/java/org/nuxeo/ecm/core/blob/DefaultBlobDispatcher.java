@@ -19,11 +19,11 @@ import static org.nuxeo.ecm.core.api.DocumentConstants.SYSFILE_BLOB;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_IS_RECORD;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PATH;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_REPOSITORY;
-import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_DIGEST;
-import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_ENCODING;
-import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_LENGTH;
-import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_MIME_TYPE;
-import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_FILENAME;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.KEY_BLOB_DIGEST;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.KEY_BLOB_ENCODING;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.KEY_BLOB_LENGTH;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.KEY_BLOB_MIME_TYPE;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.KEY_BLOB_FILENAME;
 
 import java.time.Instant;
 import java.time.format.DateTimeParseException;

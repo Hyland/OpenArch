@@ -25,7 +25,7 @@ import java.util.Set;
 import java.util.SortedSet;
 
 import org.junit.jupiter.api.Test;
-import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
+import com.hyland.openarch.ecm.core.schema.validation.violations.ValidationViolation;
 import org.nuxeo.ecm.core.security.SecurityPolicy;
 
 public class AbstractSecurityPolicyConfigTest {

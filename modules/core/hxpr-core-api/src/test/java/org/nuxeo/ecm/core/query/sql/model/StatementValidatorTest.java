@@ -25,7 +25,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.nuxeo.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.ecm.core.query.QueryParseException;
-import org.nuxeo.ecm.core.schema.SchemaManager;
+import com.hyland.openarch.ecm.core.schema.SchemaManager;
 
 public class StatementValidatorTest {
 

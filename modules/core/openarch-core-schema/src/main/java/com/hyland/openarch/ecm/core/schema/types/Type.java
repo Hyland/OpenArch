@@ -1,0 +1,165 @@
+/*
+ * (C) Copyright 2006-2026 Hyland (https://www.hyland.com/).
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.hyland.openarch.ecm.core.schema.types;
+
+import java.util.Set;
+
+import com.hyland.openarch.ecm.core.schema.SchemaManager;
+import com.hyland.openarch.ecm.core.schema.dto.TypeDTO;
+import com.hyland.openarch.ecm.core.schema.types.constraints.Constraint;
+import com.hyland.openarch.ecm.core.schema.types.resolver.ObjectResolver;
+
+/**
+ * A Type object is used to describe some ECM content.
+ * <p>
+ * There are two groups of content types:
+ * <ul>
+ * <li>primitive types - these are builtin types used to describe simple values like string, integers, dates etc
+ * <li>custom types - these are used defined types based on the primitive types
+ * </ul>
+ * Custom types are structured in two groups:
+ * <ul>
+ * <li>simple types - constrained primitive types. Constraints are specific to each primitive type. <br>
+ * For example the "string" type may have constraints like maximum length, regular expression pattern etc. <br>
+ * So you can define a custom simple type as being a string that match the regular expression <code>.+@.+</code>
+ * <li>complex types - structured types that can be expressed as a tree like structure of other primitive, simple or
+ * complex types.
+ * </ul>
+ * The typing system is mainly inspired from XML schemas.
+ * <p>
+ * There is a root type called <code>ANY</code> type. <br>
+ * Apart this special type, each type has a super type (a type from which it is derived)
+ * <p>
+ * On top of this typing system there are two high level content types:
+ * <ul>
+ * <li>schemas - a schema is a complex that can be used to form composite types <br>
+ * Because multiple schemas may live together in a composite type they must provide a namespace to avoid name collisions
+ * inside a composite type
+ * <li>composite types - a composite type is made of several schemas. <br>
+ * You can see a composite type as a type derived from multiple complex super types. <br>
+ * Composite types are used to define ECM documents
+ * </ul>
+ * Type names must not contains a <code>:</code> character. This character may be used internally to prefix the type
+ * name so it must not be used in the type name.
+ */
+public interface Type {
+
+    /**
+     * Gets the name of this type.
+     *
+     * @return the type name
+     */
+    String getName();
+
+    /**
+     * Gets the project id used by this type.
+     *
+     * @return the project id, or {@code null}
+     */
+    String getProjectId();
+
+    /**
+     * Gets the super type.
+     *
+     * @return the super type or null if this is a primitive type
+     */
+    Type getSuperType();
+
+    /**
+     * Tests whether this type is a simple type.
+     *
+     * @return true if this type is a simple type, false otherwise
+     */
+    boolean isSimpleType();
+
+    /**
+     * Tests whether this type is a complex type.
+     *
+     * @return true if this type is a complex type, false otherwise
+     */
+    boolean isComplexType();
+
+    /**
+     * Tests whether this type is a list type.
+     *
+     * @return true if is a list type, false otherwise
+     */
+    boolean isListType();
+
+    /**
+     * Tests whether this is a composite type.
+     *
+     * @return true if this is a composite type, false otherwise
+     */
+    boolean isCompositeType();
+
+    /**
+     * Tests whether the given object is of this type.
+     *
+     * @param object the object to test
+     * @return true if the given object if of this type, false otherwise
+     */
+    boolean validate(Object object);
+
+    // TODO this actually decodes from XSD types. XSD decoding should be moved
+    // to a separate class and not kept inside the Type model.
+    /**
+     * Decodes the string representation into an object of this type.
+     * <p>
+     * Returns null if the string can not be decoded.
+     *
+     * @param string the string to decode
+     * @return the converted object that can be use as a value for an object of this type or null if the given object
+     *         cannot be converted
+     */
+    Object decode(String string);
+
+    /**
+     * Encodes the given object that is assumed to be of this type into a string representation.
+     * <p>
+     * Null is returned if the object cannot be converted.
+     *
+     * @param object the object to convert
+     * @return the string representation of the given object or null if object cannot be converted
+     */
+    String encode(Object object);
+
+    /**
+     * Converts the given value to an object compatible with the associated type.
+     *
+     * @param value the value to convert
+     * @return the converted value
+     * @throws TypeException if the value to convert is not compatible with the associated type
+     */
+    Object convert(Object value) throws TypeException;
+
+    /**
+     * @return this type's constraints
+     * @since 7.1
+     */
+    Set<Constraint> getConstraints();
+
+    /**
+     * Provides a {@link ObjectResolver} if this type is a reference to an external entity.
+     *
+     * @return a resolver if available, null otherwise.
+     * @since 7.1
+     */
+    ObjectResolver getObjectResolver();
+
+    TypeDTO toTypeDTO(SchemaManager schemaManager);
+
+}

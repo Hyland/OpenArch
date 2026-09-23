@@ -32,8 +32,8 @@ import org.nuxeo.ecm.core.api.Lock;
 import org.nuxeo.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.ecm.core.api.PropertyException;
 import org.nuxeo.ecm.core.api.UpdateCondition;
-import org.nuxeo.ecm.core.schema.DocumentType;
-import org.nuxeo.ecm.core.schema.SchemaManager;
+import com.hyland.openarch.ecm.core.schema.DocumentType;
+import com.hyland.openarch.ecm.core.schema.SchemaManager;
 
 /**
  * A low-level document from a {@link InternalSession}.

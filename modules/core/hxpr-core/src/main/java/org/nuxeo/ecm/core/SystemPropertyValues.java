@@ -17,19 +17,19 @@ package org.nuxeo.ecm.core;
 
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_MINOR_VERSION;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_VERSION;
-import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.SYSTEM_SCHEMAS;
-import static org.nuxeo.ecm.core.schema.types.FieldCharacteristics.Representation.REST;
+import static com.hyland.openarch.ecm.core.schema.SchemaManagerConstants.SYSTEM_SCHEMAS;
+import static com.hyland.openarch.ecm.core.schema.types.FieldCharacteristics.Representation.REST;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.ecm.core.schema.SchemaManager;
-import org.nuxeo.ecm.core.schema.types.Field;
-import org.nuxeo.ecm.core.schema.types.FieldCharacteristics;
-import org.nuxeo.ecm.core.schema.types.FieldCharacteristics.Representation;
-import org.nuxeo.ecm.core.schema.types.Schema;
+import com.hyland.openarch.ecm.core.schema.SchemaManager;
+import com.hyland.openarch.ecm.core.schema.types.Field;
+import com.hyland.openarch.ecm.core.schema.types.FieldCharacteristics;
+import com.hyland.openarch.ecm.core.schema.types.FieldCharacteristics.Representation;
+import com.hyland.openarch.ecm.core.schema.types.Schema;
 
 /**
  * Produces schema-typed raw system values. Transport adapters own any wire-specific conversion.

@@ -23,7 +23,7 @@ import org.nuxeo.ecm.core.query.sql.model.BooleanLiteral;
 import org.nuxeo.ecm.core.query.sql.model.Operand;
 import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Predicates;
-import org.nuxeo.ecm.core.schema.SchemaManager;
+import com.hyland.openarch.ecm.core.schema.SchemaManager;
 
 import com.hyland.hxpr.expr.ast.Expr;
 

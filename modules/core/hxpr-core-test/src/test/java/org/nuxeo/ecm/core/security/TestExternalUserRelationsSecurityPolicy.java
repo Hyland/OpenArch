@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.MANAGE_SECURITY;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.READ;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.WRITE;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FILE;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
 
 import java.util.ArrayList;
 import java.time.Instant;
@@ -49,7 +49,7 @@ import org.nuxeo.ecm.core.api.impl.UserPrincipal;
 import org.nuxeo.ecm.core.api.local.DummyLoginFeature;
 import org.nuxeo.ecm.core.model.InternalDocument;
 import org.nuxeo.ecm.core.model.InternalSession;
-import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
+import com.hyland.openarch.ecm.core.schema.validation.violations.ValidationViolation;
 import org.nuxeo.ecm.core.security.config.ExternalUserRelationsSecurityPolicyConfig;
 import org.nuxeo.ecm.core.test.CoreFeature;
 import com.hyland.openarch.runtime.api.Framework;

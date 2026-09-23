@@ -24,12 +24,12 @@ import static org.nuxeo.ecm.core.api.DocumentConstants.SYSFILES_BLOBS;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSFILE_BLOB;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.MANAGE_SECURITY;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.READ;
-import static org.nuxeo.ecm.core.schema.TypeConstants.BLOB_TYPE;
-import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_FILENAME;
-import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_KEY;
-import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_LENGTH;
-import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_MIME_TYPE;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FILE;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.BLOB_TYPE;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.KEY_BLOB_FILENAME;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.KEY_BLOB_KEY;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.KEY_BLOB_LENGTH;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.KEY_BLOB_MIME_TYPE;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
 import static org.nuxeo.rest.document.DocumentMapper.UPLOAD_ID_MARKER;
 
 import java.io.ByteArrayInputStream;

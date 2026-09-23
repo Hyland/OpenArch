@@ -16,7 +16,7 @@
 package org.nuxeo.ecm.core.version.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FOLDER;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FOLDER;
 
 import org.junit.jupiter.api.Test;
 import org.nuxeo.ecm.core.api.DocumentModel;

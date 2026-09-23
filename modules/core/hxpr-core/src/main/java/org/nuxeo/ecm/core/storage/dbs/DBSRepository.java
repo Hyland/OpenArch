@@ -19,7 +19,7 @@ import java.util.List;
 
 import org.nuxeo.ecm.core.api.lock.LockManager;
 import org.nuxeo.ecm.core.model.Repository;
-import org.nuxeo.ecm.core.schema.SchemaManager;
+import com.hyland.openarch.ecm.core.schema.SchemaManager;
 
 /**
  * Interface for a {@link Repository} for Document-Based Storage.

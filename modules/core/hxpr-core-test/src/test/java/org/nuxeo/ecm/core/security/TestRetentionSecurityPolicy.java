@@ -24,7 +24,7 @@ import static org.mockito.Mockito.mock;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.DELETE;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.READ;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.WRITE;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FILE;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;

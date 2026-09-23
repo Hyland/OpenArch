@@ -26,7 +26,7 @@ import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_LOCAT
 import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_TEXT;
 import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_TYPE;
 import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_VECTOR;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_CONTENT;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_CONTENT;
 import static org.nuxeo.opensearch.OpenSearchServiceImpl.SAMPLE_AGGREGATION_NAME;
 import static org.nuxeo.opensearch.OpenSearchServiceImpl.TERMS_AGGREGATION_NAME;
 

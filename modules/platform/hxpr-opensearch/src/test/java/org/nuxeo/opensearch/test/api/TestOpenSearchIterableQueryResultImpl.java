@@ -23,7 +23,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FOLDER;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FOLDER;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.ecm.core.schema.types.Type;
+import com.hyland.openarch.ecm.core.schema.types.Type;
 import org.nuxeo.opensearch.api.OpenSearchScrollResult;
 import org.nuxeo.opensearch.api.OpenSearchService;
 import org.nuxeo.opensearch.api.OpenSearchIterableQueryResultImpl;

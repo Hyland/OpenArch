@@ -20,7 +20,7 @@ import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_NAME;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PRIMARY_TYPE;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
 
-import org.nuxeo.ecm.core.schema.TypeConstants;
+import com.hyland.openarch.ecm.core.schema.TypeConstants;
 import org.nuxeo.ecm.core.storage.State;
 
 /**

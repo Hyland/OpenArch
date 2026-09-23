@@ -18,7 +18,7 @@ package org.nuxeo.opensearch.fetcher;
 import static java.util.stream.Collectors.toMap;
 
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ID;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_CONTENT;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_CONTENT;
 
 import java.util.ArrayList;
 import java.util.Comparator;

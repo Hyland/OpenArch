@@ -34,7 +34,7 @@ import org.nuxeo.ecm.core.api.impl.UserPrincipal;
 import org.nuxeo.ecm.core.api.query.QueryParameters;
 import org.nuxeo.ecm.core.model.InternalDocument;
 import org.nuxeo.ecm.core.query.sql.model.Operand;
-import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
+import com.hyland.openarch.ecm.core.schema.validation.violations.ValidationViolation;
 import com.hyland.openarch.runtime.test.runner.Deploy;
 import com.hyland.openarch.runtime.test.runner.Features;
 import com.hyland.openarch.runtime.test.runner.FeaturesExtension;

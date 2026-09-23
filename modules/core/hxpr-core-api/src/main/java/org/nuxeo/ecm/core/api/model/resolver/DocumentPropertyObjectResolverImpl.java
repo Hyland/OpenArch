@@ -19,9 +19,9 @@ package org.nuxeo.ecm.core.api.model.resolver;
 import java.util.List;
 
 import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.ecm.core.schema.SchemaManager;
-import org.nuxeo.ecm.core.schema.types.Field;
-import org.nuxeo.ecm.core.schema.types.resolver.ObjectResolver;
+import com.hyland.openarch.ecm.core.schema.SchemaManager;
+import com.hyland.openarch.ecm.core.schema.types.Field;
+import com.hyland.openarch.ecm.core.schema.types.resolver.ObjectResolver;
 
 /**
  * @since 7.1

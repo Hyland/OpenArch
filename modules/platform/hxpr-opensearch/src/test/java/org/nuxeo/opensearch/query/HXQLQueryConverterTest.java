@@ -19,10 +19,10 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.nuxeo.ecm.core.schema.types.FieldCharacteristics.Representation.INDEX;
-import static org.nuxeo.ecm.core.schema.types.FieldCharacteristics.Representation.REST;
-import static org.nuxeo.ecm.core.schema.types.FieldCharacteristics.Representation.STORE;
-import static org.nuxeo.ecm.core.schema.types.FieldCharacteristics.ValueSource.QUERY_VIRTUAL;
+import static com.hyland.openarch.ecm.core.schema.types.FieldCharacteristics.Representation.INDEX;
+import static com.hyland.openarch.ecm.core.schema.types.FieldCharacteristics.Representation.REST;
+import static com.hyland.openarch.ecm.core.schema.types.FieldCharacteristics.Representation.STORE;
+import static com.hyland.openarch.ecm.core.schema.types.FieldCharacteristics.ValueSource.QUERY_VIRTUAL;
 
 import java.util.List;
 import java.util.Map;
@@ -32,12 +32,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.nuxeo.ecm.core.query.QueryParseException;
 import org.nuxeo.ecm.core.query.sql.HXQLParser;
-import org.nuxeo.ecm.core.schema.SchemaManagerDTO;
-import org.nuxeo.ecm.core.schema.dto.ContentModelDTO;
-import org.nuxeo.ecm.core.schema.dto.FieldDTO;
-import org.nuxeo.ecm.core.schema.dto.SchemaDTO;
-import org.nuxeo.ecm.core.schema.types.Field;
-import org.nuxeo.ecm.core.schema.types.FieldCharacteristics;
+import com.hyland.openarch.ecm.core.schema.SchemaManagerDTO;
+import com.hyland.openarch.ecm.core.schema.dto.ContentModelDTO;
+import com.hyland.openarch.ecm.core.schema.dto.FieldDTO;
+import com.hyland.openarch.ecm.core.schema.dto.SchemaDTO;
+import com.hyland.openarch.ecm.core.schema.types.Field;
+import com.hyland.openarch.ecm.core.schema.types.FieldCharacteristics;
 
 public class HXQLQueryConverterTest {
 

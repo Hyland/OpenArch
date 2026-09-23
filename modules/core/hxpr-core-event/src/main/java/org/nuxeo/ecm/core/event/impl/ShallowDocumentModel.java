@@ -40,8 +40,8 @@ import org.nuxeo.ecm.core.api.security.ACL;
 import org.nuxeo.ecm.core.event.Event;
 import org.nuxeo.ecm.core.event.EventBundle;
 import org.nuxeo.ecm.core.model.InternalDocument.BlobAccessor;
-import org.nuxeo.ecm.core.schema.DocumentType;
-import org.nuxeo.ecm.core.schema.MixinNames;
+import com.hyland.openarch.ecm.core.schema.DocumentType;
+import com.hyland.openarch.ecm.core.schema.MixinNames;
 
 /**
  * Light weight {@link DocumentModel} implementation Only holds {@link DocumentRef}, RepositoryName, name, path and

@@ -32,11 +32,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.nuxeo.ecm.core.api.DocumentSecurityException;
 import org.nuxeo.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.ecm.core.model.InternalDocument;
-import org.nuxeo.ecm.core.schema.SchemaManager;
-import org.nuxeo.ecm.core.schema.TypeService;
-import org.nuxeo.ecm.core.schema.types.CompositeType;
-import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
-import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation.Type;
+import com.hyland.openarch.ecm.core.schema.SchemaManager;
+import com.hyland.openarch.ecm.core.schema.TypeService;
+import com.hyland.openarch.ecm.core.schema.types.CompositeType;
+import com.hyland.openarch.ecm.core.schema.validation.violations.ValidationViolation;
+import com.hyland.openarch.ecm.core.schema.validation.violations.ValidationViolation.Type;
 import org.nuxeo.ecm.core.security.config.SecurityPolicyConfig;
 import com.hyland.openarch.runtime.api.Framework;
 

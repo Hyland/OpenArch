@@ -16,7 +16,7 @@
 package org.nuxeo.ecm.core;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FILE;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
 
 import jakarta.inject.Inject;
 

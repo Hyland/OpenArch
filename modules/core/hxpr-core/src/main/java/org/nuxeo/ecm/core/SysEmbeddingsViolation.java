@@ -18,8 +18,8 @@ package org.nuxeo.ecm.core;
 import java.util.List;
 
 import org.nuxeo.ecm.core.api.DocumentConstants;
-import org.nuxeo.ecm.core.schema.validation.violations.AbstractBaseValidationViolation;
-import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
+import com.hyland.openarch.ecm.core.schema.validation.violations.AbstractBaseValidationViolation;
+import com.hyland.openarch.ecm.core.schema.validation.violations.ValidationViolation;
 
 /**
  * Validation violation for SysEmbeddings-related rules.

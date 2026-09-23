@@ -17,7 +17,7 @@ package org.nuxeo.rest.model.exception;
 
 import org.apache.http.HttpStatus;
 import org.nuxeo.ecm.core.api.validation.AbstractValidationException;
-import org.nuxeo.ecm.core.schema.validation.ValidationReport;
+import com.hyland.openarch.ecm.core.schema.validation.ValidationReport;
 
 /**
  * A content model the repository refuses, reported as {@code 422 Unprocessable Entity} like every other validation

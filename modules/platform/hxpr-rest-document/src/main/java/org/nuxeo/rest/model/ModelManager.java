@@ -23,14 +23,14 @@ import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.nuxeo.ecm.core.api.ConcurrentUpdateException;
-import org.nuxeo.ecm.core.schema.SchemaManager;
-import org.nuxeo.ecm.core.schema.SchemaManagerDTO;
-import org.nuxeo.ecm.core.schema.TypeService;
-import org.nuxeo.ecm.core.schema.TypeService.ModelWithVersion;
-import org.nuxeo.ecm.core.schema.dto.ContentModelDTO;
-import org.nuxeo.ecm.core.schema.dto.ModelMapCodec;
-import org.nuxeo.ecm.core.schema.validation.SchemaValidationUtils;
-import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
+import com.hyland.openarch.ecm.core.schema.SchemaManager;
+import com.hyland.openarch.ecm.core.schema.SchemaManagerDTO;
+import com.hyland.openarch.ecm.core.schema.TypeService;
+import com.hyland.openarch.ecm.core.schema.TypeService.ModelWithVersion;
+import com.hyland.openarch.ecm.core.schema.dto.ContentModelDTO;
+import com.hyland.openarch.ecm.core.schema.dto.ModelMapCodec;
+import com.hyland.openarch.ecm.core.schema.validation.SchemaValidationUtils;
+import com.hyland.openarch.ecm.core.schema.validation.violations.ValidationViolation;
 import com.hyland.openarch.runtime.api.Framework;
 import org.springframework.stereotype.Component;
 

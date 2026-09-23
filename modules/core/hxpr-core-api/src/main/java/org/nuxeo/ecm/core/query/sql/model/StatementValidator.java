@@ -17,7 +17,7 @@ package org.nuxeo.ecm.core.query.sql.model;
 
 import org.nuxeo.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.ecm.core.query.QueryParseException;
-import org.nuxeo.ecm.core.schema.SchemaManager;
+import com.hyland.openarch.ecm.core.schema.SchemaManager;
 
 /**
  * Validates restrictions on a {@link Statement}.

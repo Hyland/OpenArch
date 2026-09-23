@@ -18,9 +18,9 @@ package org.nuxeo.ecm.core.storage.mongodb;
 import java.util.Map;
 import java.util.Set;
 
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_CONTENT;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FOLDER;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_ROOT;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_CONTENT;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FOLDER;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_ROOT;
 
 public class MongoDBPrimaryTypeParentMigrator {
 

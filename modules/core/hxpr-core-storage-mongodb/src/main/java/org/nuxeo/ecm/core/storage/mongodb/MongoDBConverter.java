@@ -41,7 +41,7 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.Decimal128;
 import org.nuxeo.ecm.core.api.model.Delta;
-import org.nuxeo.ecm.core.schema.SchemaManager;
+import com.hyland.openarch.ecm.core.schema.SchemaManager;
 import org.nuxeo.ecm.core.storage.State;
 import org.nuxeo.ecm.core.storage.State.ListDiff;
 import org.nuxeo.ecm.core.storage.State.StateDiff;

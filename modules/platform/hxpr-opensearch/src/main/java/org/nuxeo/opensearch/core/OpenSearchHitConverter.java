@@ -21,9 +21,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.nuxeo.ecm.core.schema.types.SimpleType;
-import org.nuxeo.ecm.core.schema.types.Type;
-import org.nuxeo.ecm.core.schema.types.primitives.DateType;
+import com.hyland.openarch.ecm.core.schema.types.SimpleType;
+import com.hyland.openarch.ecm.core.schema.types.Type;
+import com.hyland.openarch.ecm.core.schema.types.primitives.DateType;
 import org.nuxeo.opensearch.io.DocumentDTO;
 import org.opensearch.client.opensearch.core.search.Hit;
 

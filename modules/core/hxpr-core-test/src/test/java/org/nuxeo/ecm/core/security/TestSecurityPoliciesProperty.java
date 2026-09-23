@@ -29,7 +29,7 @@ import static org.nuxeo.ecm.core.api.security.SecurityConstants.MANAGE_RETENTION
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.MANAGE_SECURITY;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.READ;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.WRITE;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FILE;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
 
 import java.util.List;
 import java.util.Map;

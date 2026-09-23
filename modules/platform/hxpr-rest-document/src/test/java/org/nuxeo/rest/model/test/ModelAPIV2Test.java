@@ -24,7 +24,7 @@ import static jakarta.ws.rs.core.Response.Status.NO_CONTENT;
 import static jakarta.ws.rs.core.Response.Status.OK;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.nuxeo.ecm.core.schema.TypeServiceImpl.CONFIG_TYPES;
+import static com.hyland.openarch.ecm.core.schema.TypeServiceImpl.CONFIG_TYPES;
 import static org.nuxeo.ecm.core.storage.mongodb.MongoDBRepository.MONGODB_CONFIG_VERSION;
 import static org.nuxeo.ecm.core.storage.mongodb.MongoDBRepository.MONGODB_ID;
 import static org.nuxeo.rest.utils.Headers.HXCS_REPOSITORY;
@@ -40,7 +40,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.nuxeo.ecm.core.schema.TypeService;
+import com.hyland.openarch.ecm.core.schema.TypeService;
 import org.nuxeo.ecm.core.test.CoreFeature;
 import org.nuxeo.rest.document.test.AbstractAPITest;
 import org.nuxeo.rest.model.Constants;

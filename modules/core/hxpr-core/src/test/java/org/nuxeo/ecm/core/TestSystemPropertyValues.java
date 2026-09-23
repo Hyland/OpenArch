@@ -19,9 +19,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.nuxeo.ecm.core.schema.types.FieldCharacteristics.Representation.INDEX;
-import static org.nuxeo.ecm.core.schema.types.FieldCharacteristics.Representation.REST;
-import static org.nuxeo.ecm.core.schema.types.FieldCharacteristics.Representation.STORE;
+import static com.hyland.openarch.ecm.core.schema.types.FieldCharacteristics.Representation.INDEX;
+import static com.hyland.openarch.ecm.core.schema.types.FieldCharacteristics.Representation.REST;
+import static com.hyland.openarch.ecm.core.schema.types.FieldCharacteristics.Representation.STORE;
 
 import java.util.Map;
 import java.util.Set;
@@ -29,11 +29,11 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.ecm.core.schema.SchemaManager;
-import org.nuxeo.ecm.core.schema.types.FieldCharacteristics;
-import org.nuxeo.ecm.core.schema.types.SchemaImpl;
-import org.nuxeo.ecm.core.schema.types.primitives.BooleanType;
-import org.nuxeo.ecm.core.schema.types.primitives.StringType;
+import com.hyland.openarch.ecm.core.schema.SchemaManager;
+import com.hyland.openarch.ecm.core.schema.types.FieldCharacteristics;
+import com.hyland.openarch.ecm.core.schema.types.SchemaImpl;
+import com.hyland.openarch.ecm.core.schema.types.primitives.BooleanType;
+import com.hyland.openarch.ecm.core.schema.types.primitives.StringType;
 
 public class TestSystemPropertyValues {
 

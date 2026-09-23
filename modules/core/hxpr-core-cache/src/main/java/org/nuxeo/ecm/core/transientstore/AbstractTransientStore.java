@@ -16,10 +16,10 @@
 
 package org.nuxeo.ecm.core.transientstore;
 
-import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_DIGEST;
-import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_ENCODING;
-import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_FILENAME;
-import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_MIME_TYPE;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.KEY_BLOB_DIGEST;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.KEY_BLOB_ENCODING;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.KEY_BLOB_FILENAME;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.KEY_BLOB_MIME_TYPE;
 
 import java.io.File;
 import java.io.IOException;

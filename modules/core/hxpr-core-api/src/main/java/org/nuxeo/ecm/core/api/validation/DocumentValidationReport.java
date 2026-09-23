@@ -18,8 +18,8 @@ package org.nuxeo.ecm.core.api.validation;
 
 import java.util.List;
 
-import org.nuxeo.ecm.core.schema.validation.ValidationReport;
-import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
+import com.hyland.openarch.ecm.core.schema.validation.ValidationReport;
+import com.hyland.openarch.ecm.core.schema.validation.violations.ValidationViolation;
 
 /**
  * A managed set of {@link ValidationViolation}.

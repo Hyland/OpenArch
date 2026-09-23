@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <component name="org.nuxeo.ecm.core.security.extrel.tests">
-  <extension target="org.nuxeo.ecm.core.schema.TypeService" point="schema">
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="schema">
     <schema name="wdemployee" src="schemas/wdemployee.xsd" />
   </extension>
-  <extension target="org.nuxeo.ecm.core.schema.TypeService" point="doctype">
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="doctype">
     <mixin name="WDEmployee">
       <schema name="wdemployee" />
     </mixin>

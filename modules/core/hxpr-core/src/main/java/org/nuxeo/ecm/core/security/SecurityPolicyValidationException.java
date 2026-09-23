@@ -17,7 +17,7 @@ package org.nuxeo.ecm.core.security;
 
 import org.apache.http.HttpStatus;
 import org.nuxeo.ecm.core.api.validation.AbstractValidationException;
-import org.nuxeo.ecm.core.schema.validation.ValidationReport;
+import com.hyland.openarch.ecm.core.schema.validation.ValidationReport;
 
 public class SecurityPolicyValidationException extends AbstractValidationException {
     private static final long serialVersionUID = 1L;

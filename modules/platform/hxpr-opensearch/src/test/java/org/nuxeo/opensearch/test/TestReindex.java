@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSFILE_BLOB;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_DESCRIPTION;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FOLDER;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FOLDER;
 import static org.nuxeo.opensearch.OpenSearchConstants.INDEX_BULK_MAX_SIZE_PROPERTY;
 
 import java.time.Duration;

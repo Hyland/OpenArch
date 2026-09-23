@@ -30,8 +30,8 @@ import org.nuxeo.ecm.core.query.sql.model.BooleanLiteral;
 import org.nuxeo.ecm.core.query.sql.model.Operand;
 import org.nuxeo.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.ecm.core.query.sql.model.Predicates;
-import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
-import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation.Type;
+import com.hyland.openarch.ecm.core.schema.validation.violations.ValidationViolation;
+import com.hyland.openarch.ecm.core.schema.validation.violations.ValidationViolation.Type;
 import org.nuxeo.ecm.core.security.config.SecurityLevelSecurityPolicyConfig;
 
 public class SecurityLevelSecurityPolicy extends AbstractSecurityPolicy {

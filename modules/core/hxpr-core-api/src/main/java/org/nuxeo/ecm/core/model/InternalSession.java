@@ -28,7 +28,7 @@ import org.nuxeo.ecm.core.api.ScrollResult;
 import org.nuxeo.ecm.core.api.UpdateCondition;
 import org.nuxeo.ecm.core.api.lock.LockManager;
 import org.nuxeo.ecm.core.api.security.SecurityConstants;
-import org.nuxeo.ecm.core.schema.SchemaManager;
+import com.hyland.openarch.ecm.core.schema.SchemaManager;
 import com.hyland.openarch.runtime.api.Framework;
 import org.nuxeo.ecm.core.api.query.QueryParameters;
 import org.nuxeo.ecm.core.query.sql.model.Statement;

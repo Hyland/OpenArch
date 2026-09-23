@@ -21,7 +21,7 @@ import static org.nuxeo.ecm.core.api.security.SecurityConstants.WRITE;
 import java.util.List;
 import java.util.Set;
 
-import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
+import com.hyland.openarch.ecm.core.schema.validation.violations.ValidationViolation;
 import org.nuxeo.ecm.core.security.RetentionSecurityPolicy;
 
 /**

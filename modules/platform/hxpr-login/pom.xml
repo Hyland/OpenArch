@@ -28,7 +28,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-core-schema</artifactId>
+      <artifactId>openarch-core-schema</artifactId>
       <scope>runtime</scope>
     </dependency>
     <dependency>

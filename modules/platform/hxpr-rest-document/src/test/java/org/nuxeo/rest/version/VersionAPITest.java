@@ -21,7 +21,7 @@ import static jakarta.ws.rs.core.Response.Status.PRECONDITION_FAILED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FILE;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
 import static org.nuxeo.rest.document.AbstractDocumentAPI.PATH;
 import static org.springframework.http.HttpMethod.POST;
 

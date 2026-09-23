@@ -16,14 +16,13 @@
 package org.nuxeo.ecm.core.utils;
 
 import static java.util.stream.Collectors.toSet;
-import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_KEY;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.KEY_BLOB_KEY;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;

@@ -19,7 +19,7 @@ import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ID;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_IS_TRASHED;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PARENT_ID;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_IS_VERSION;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_CONTENT;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_CONTENT;
 import static org.nuxeo.ecm.core.event.async.TrashBatchTaskProcessor.PARAM_NAME;
 import static org.nuxeo.ecm.core.event.async.TrashBatchTaskProcessor.BATCH_TRASH_TASK_NAME;
 

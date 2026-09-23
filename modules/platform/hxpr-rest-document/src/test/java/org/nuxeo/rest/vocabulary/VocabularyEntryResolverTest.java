@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.nuxeo.ecm.core.api.VocabularyConstants.VOCABULARY_REPOSITORY_SUFFIX;
-import static org.nuxeo.ecm.core.schema.types.resolver.ObjectResolver.NAME_KEY;
+import static com.hyland.openarch.ecm.core.schema.types.resolver.ObjectResolver.NAME_KEY;
 import static org.nuxeo.ecm.platform.vocabulary.VocabularyEntryResolver.PARAM_REPOSITORY;
 import static org.nuxeo.ecm.platform.vocabulary.VocabularyEntryResolver.PARAM_VOCABULARY;
 

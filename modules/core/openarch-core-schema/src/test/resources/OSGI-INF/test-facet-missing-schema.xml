@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.ecm.core.test.supertype-loop">
+
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="schema">
+    <schema name="common" src="schema/common.xsd"/>
+  </extension>
+
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService"
+    point="doctype">
+    <mixin name="someFacet">
+      <schema name="noSuchSchema"/>
+      <schema name="common"/>
+    </mixin>
+  </extension>
+
+</component>

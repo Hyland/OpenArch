@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import org.nuxeo.ecm.core.schema.types.resolver.AbstractObjectResolver;
+import com.hyland.openarch.ecm.core.schema.types.resolver.AbstractObjectResolver;
 
 /**
  * Dummy resolver which just wrap the input value with {@link Dummy}.

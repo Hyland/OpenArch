@@ -15,7 +15,7 @@
  */
 package org.nuxeo.ecm.core.api.repository;
 
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_ROOT;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_ROOT;
 
 import java.util.HashMap;
 import java.util.HashSet;

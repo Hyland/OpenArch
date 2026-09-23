@@ -18,7 +18,7 @@ package org.nuxeo.ecm.core.api;
 import java.util.Comparator;
 import java.util.List;
 
-import org.nuxeo.ecm.core.schema.types.Field;
+import com.hyland.openarch.ecm.core.schema.types.Field;
 
 /**
  * A visitor for a document's values.

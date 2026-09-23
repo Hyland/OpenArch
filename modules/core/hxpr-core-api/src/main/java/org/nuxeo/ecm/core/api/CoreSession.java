@@ -22,7 +22,7 @@ import java.util.Map;
 
 import org.nuxeo.ecm.core.api.DocumentModel.DocumentModelRefresh;
 import org.nuxeo.ecm.core.query.sql.model.Statement;
-import org.nuxeo.ecm.core.schema.SchemaManager;
+import com.hyland.openarch.ecm.core.schema.SchemaManager;
 
 /**
  * A session to the Nuxeo Core.

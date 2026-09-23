@@ -19,8 +19,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSFILES_BLOBS;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSFILE_BLOB;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_DESCRIPTION;
-import static org.nuxeo.ecm.core.schema.TypeConstants.BLOB_TYPE;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FILE;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.BLOB_TYPE;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
 
 import java.util.List;
 import java.util.Map;

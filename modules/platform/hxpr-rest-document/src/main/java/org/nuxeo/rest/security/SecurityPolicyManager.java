@@ -29,8 +29,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.nuxeo.ecm.core.schema.validation.ValidationReport;
-import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
+import com.hyland.openarch.ecm.core.schema.validation.ValidationReport;
+import com.hyland.openarch.ecm.core.schema.validation.violations.ValidationViolation;
 import org.nuxeo.ecm.core.security.SecurityPolicy;
 import org.nuxeo.ecm.core.security.SecurityPolicyService;
 import org.nuxeo.ecm.core.security.SecurityPolicyValidationException;

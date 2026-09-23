@@ -22,7 +22,7 @@ import org.nuxeo.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.ecm.core.api.query.QueryParameters;
 import org.nuxeo.ecm.core.model.InternalDocument;
 import org.nuxeo.ecm.core.query.sql.model.Predicate;
-import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
+import com.hyland.openarch.ecm.core.schema.validation.violations.ValidationViolation;
 import org.nuxeo.ecm.core.security.config.SecurityPolicyConfig;
 
 public class TestSecurityPolicy extends AbstractSecurityPolicy {

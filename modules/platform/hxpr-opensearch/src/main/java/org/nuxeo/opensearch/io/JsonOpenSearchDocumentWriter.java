@@ -20,7 +20,7 @@ import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_FULLTEXT_BINARY;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_MIXIN_TYPES;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_READ_ACL;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_SECURITY_POLICIES;
-import static org.nuxeo.ecm.core.schema.types.FieldCharacteristics.Representation.INDEX;
+import static com.hyland.openarch.ecm.core.schema.types.FieldCharacteristics.Representation.INDEX;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -34,12 +34,12 @@ import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.api.ValuesVisitor;
-import org.nuxeo.ecm.core.schema.types.Field;
-import org.nuxeo.ecm.core.schema.types.Type;
-import org.nuxeo.ecm.core.schema.types.primitives.BooleanType;
-import org.nuxeo.ecm.core.schema.types.primitives.DecimalType;
-import org.nuxeo.ecm.core.schema.types.primitives.DoubleType;
-import org.nuxeo.ecm.core.schema.types.primitives.LongType;
+import com.hyland.openarch.ecm.core.schema.types.Field;
+import com.hyland.openarch.ecm.core.schema.types.Type;
+import com.hyland.openarch.ecm.core.schema.types.primitives.BooleanType;
+import com.hyland.openarch.ecm.core.schema.types.primitives.DecimalType;
+import com.hyland.openarch.ecm.core.schema.types.primitives.DoubleType;
+import com.hyland.openarch.ecm.core.schema.types.primitives.LongType;
 import org.opensearch.client.json.JsonpMapper;
 
 import jakarta.json.stream.JsonGenerator;

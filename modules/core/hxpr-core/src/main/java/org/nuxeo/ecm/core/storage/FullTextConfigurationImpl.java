@@ -15,7 +15,7 @@
  */
 package org.nuxeo.ecm.core.storage;
 
-import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_KEY;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.KEY_BLOB_KEY;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -26,17 +26,17 @@ import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.nuxeo.ecm.core.api.repository.FulltextConfiguration;
-import org.nuxeo.ecm.core.schema.DocumentType;
-import org.nuxeo.ecm.core.schema.SchemaManager;
-import org.nuxeo.ecm.core.schema.TypeConstants;
-import org.nuxeo.ecm.core.schema.types.ComplexType;
-import org.nuxeo.ecm.core.schema.types.Field;
-import org.nuxeo.ecm.core.schema.types.ListType;
-import org.nuxeo.ecm.core.schema.types.Schema;
-import org.nuxeo.ecm.core.schema.types.SimpleTypeImpl;
-import org.nuxeo.ecm.core.schema.types.Type;
-import org.nuxeo.ecm.core.schema.types.primitives.BinaryType;
-import org.nuxeo.ecm.core.schema.types.primitives.StringType;
+import com.hyland.openarch.ecm.core.schema.DocumentType;
+import com.hyland.openarch.ecm.core.schema.SchemaManager;
+import com.hyland.openarch.ecm.core.schema.TypeConstants;
+import com.hyland.openarch.ecm.core.schema.types.ComplexType;
+import com.hyland.openarch.ecm.core.schema.types.Field;
+import com.hyland.openarch.ecm.core.schema.types.ListType;
+import com.hyland.openarch.ecm.core.schema.types.Schema;
+import com.hyland.openarch.ecm.core.schema.types.SimpleTypeImpl;
+import com.hyland.openarch.ecm.core.schema.types.Type;
+import com.hyland.openarch.ecm.core.schema.types.primitives.BinaryType;
+import com.hyland.openarch.ecm.core.schema.types.primitives.StringType;
 import com.hyland.openarch.runtime.model.DefaultComponent;
 
 public class FullTextConfigurationImpl extends DefaultComponent implements FullTextConfigurationService {

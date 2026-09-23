@@ -21,7 +21,7 @@ import static jakarta.ws.rs.core.Response.Status.PRECONDITION_FAILED;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ID;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PARENT_ID;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FOLDER;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FOLDER;
 import static org.nuxeo.rest.document.AbstractDocumentAPI.PATH;
 import static org.nuxeo.rest.document.test.ContentTestHelper.checkErrorResponse;
 import static org.springframework.http.HttpMethod.POST;

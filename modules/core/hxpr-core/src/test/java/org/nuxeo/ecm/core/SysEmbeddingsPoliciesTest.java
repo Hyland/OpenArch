@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.api.validation.DocumentValidationException;
 import org.nuxeo.ecm.core.model.InternalDocument;
-import org.nuxeo.ecm.core.schema.DocumentType;
+import com.hyland.openarch.ecm.core.schema.DocumentType;
 
 class SysEmbeddingsPoliciesTest {
 

@@ -16,7 +16,7 @@
 package org.nuxeo.ecm.core;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.nuxeo.ecm.core.schema.TypeServiceImpl.CONFIG_TYPES;
+import static com.hyland.openarch.ecm.core.schema.TypeServiceImpl.CONFIG_TYPES;
 import static org.nuxeo.ecm.core.storage.mongodb.MongoDBRepository.MONGODB_ID;
 
 import java.io.File;
@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import com.hyland.openarch.common.utils.FileUtils;
 import org.nuxeo.ecm.core.api.CoreSession;
-import org.nuxeo.ecm.core.schema.SchemaManager;
+import com.hyland.openarch.ecm.core.schema.SchemaManager;
 import org.nuxeo.ecm.core.test.CoreFeature;
 import org.nuxeo.ecm.core.test.annotations.Granularity;
 import org.nuxeo.ecm.core.test.annotations.RepositoryConfig;

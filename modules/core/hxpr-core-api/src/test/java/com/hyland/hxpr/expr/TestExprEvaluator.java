@@ -39,8 +39,7 @@ import org.nuxeo.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.ecm.core.api.impl.UserPrincipal;
 import org.nuxeo.ecm.core.model.InternalDocument;
 import org.nuxeo.ecm.core.query.sql.model.Operand;
-import org.nuxeo.ecm.core.schema.SchemaManager;
-import com.hyland.hxpr.expr.ExpressionVisitor;
+import com.hyland.openarch.ecm.core.schema.SchemaManager;
 import com.hyland.hxpr.expr.ast.Expr;
 
 public class TestExprEvaluator {

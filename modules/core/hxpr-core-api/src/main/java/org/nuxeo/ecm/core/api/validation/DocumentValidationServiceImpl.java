@@ -26,9 +26,9 @@ import org.nuxeo.ecm.core.api.BaseValuesVisitor;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.ValuesVisitor;
 import org.nuxeo.ecm.core.api.validation.ConstraintViolation.PathNode;
-import org.nuxeo.ecm.core.schema.types.Field;
-import org.nuxeo.ecm.core.schema.types.constraints.Constraint;
-import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
+import com.hyland.openarch.ecm.core.schema.types.Field;
+import com.hyland.openarch.ecm.core.schema.types.constraints.Constraint;
+import com.hyland.openarch.ecm.core.schema.validation.violations.ValidationViolation;
 import com.hyland.openarch.runtime.model.DefaultComponent;
 
 public class DocumentValidationServiceImpl extends DefaultComponent implements DocumentValidationService {

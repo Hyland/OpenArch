@@ -25,9 +25,9 @@ import static org.nuxeo.ecm.core.SysEmbeddingsPolicies.EMBEDDINGS_NAME_PREFIX;
 import static org.nuxeo.ecm.core.api.CoreSession.ENFORCE_SYS_NAME;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_CHUNKS;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_EMBEDDINGS;
-import static org.nuxeo.ecm.core.schema.MixinNames.SYS_HAS_EMBEDDINGS;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_EMBEDDINGS;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FILE;
+import static com.hyland.openarch.ecm.core.schema.MixinNames.SYS_HAS_EMBEDDINGS;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_EMBEDDINGS;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
 
 import java.io.IOException;
 
@@ -40,7 +40,7 @@ import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.api.validation.DocumentValidationException;
-import org.nuxeo.ecm.core.schema.MixinNames;
+import com.hyland.openarch.ecm.core.schema.MixinNames;
 import com.hyland.openarch.runtime.test.runner.Features;
 import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
 import com.hyland.openarch.runtime.test.runner.LogFeature;

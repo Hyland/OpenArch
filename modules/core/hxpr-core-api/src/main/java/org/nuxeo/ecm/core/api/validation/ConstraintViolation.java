@@ -17,7 +17,7 @@
 package org.nuxeo.ecm.core.api.validation;
 
 import static org.nuxeo.ecm.core.api.DocumentConstants.PREFIX_SEPARATOR;
-import static org.nuxeo.ecm.core.schema.SchemaManagerConstants.MESSAGE_KEY_SEPARATOR;
+import static com.hyland.openarch.ecm.core.schema.SchemaManagerConstants.MESSAGE_KEY_SEPARATOR;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,9 +28,9 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.nuxeo.ecm.core.schema.types.Field;
-import org.nuxeo.ecm.core.schema.types.constraints.Constraint;
-import org.nuxeo.ecm.core.schema.validation.violations.AbstractValidationViolation;
+import com.hyland.openarch.ecm.core.schema.types.Field;
+import com.hyland.openarch.ecm.core.schema.types.constraints.Constraint;
+import com.hyland.openarch.ecm.core.schema.validation.violations.AbstractValidationViolation;
 
 /**
  * A constraint violation description. Use {@link #getMessage(Locale)} to get the constraint violation description.

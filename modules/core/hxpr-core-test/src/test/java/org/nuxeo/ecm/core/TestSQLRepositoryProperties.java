@@ -26,7 +26,7 @@ import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_FULLTEXT_BINARY;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_FULLTEXT_JOB_ID;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_IS_TRASHED;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FILE;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -66,7 +66,7 @@ import org.nuxeo.ecm.core.api.model.DeltaLong;
 import org.nuxeo.ecm.core.api.model.PropertyNotFoundException;
 import org.nuxeo.ecm.core.model.Repository;
 import org.nuxeo.ecm.core.repository.RepositoryService;
-import org.nuxeo.ecm.core.schema.SchemaManager;
+import com.hyland.openarch.ecm.core.schema.SchemaManager;
 import org.nuxeo.ecm.core.storage.State;
 import org.nuxeo.ecm.core.storage.State.StateDiff;
 import org.nuxeo.ecm.core.storage.dbs.DBSConnection;

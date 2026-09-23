@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
+import com.hyland.openarch.ecm.core.schema.validation.violations.ValidationViolation;
 import org.nuxeo.ecm.core.security.SecurityLevelSecurityPolicy;
 
 import com.fasterxml.jackson.annotation.JsonInclude;

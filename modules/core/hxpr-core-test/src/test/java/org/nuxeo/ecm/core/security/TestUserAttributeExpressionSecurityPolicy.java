@@ -34,7 +34,7 @@ import org.nuxeo.ecm.core.api.local.DummyLoginFeature;
 import org.nuxeo.ecm.core.api.security.ACE;
 import org.nuxeo.ecm.core.api.security.ACL;
 import org.nuxeo.ecm.core.api.security.SecurityConstants;
-import org.nuxeo.ecm.core.schema.TypeConstants;
+import com.hyland.openarch.ecm.core.schema.TypeConstants;
 import org.nuxeo.ecm.core.security.expr.UserAttributeExpressionSecurityPolicy;
 import org.nuxeo.ecm.core.test.CoreFeature;
 import com.hyland.openarch.runtime.test.runner.Features;

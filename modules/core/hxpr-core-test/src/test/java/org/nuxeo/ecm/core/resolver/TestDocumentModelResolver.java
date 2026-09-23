@@ -26,8 +26,8 @@ import static org.nuxeo.ecm.core.model.DocumentModelResolver.STORE_ID_ONLY;
 import static org.nuxeo.ecm.core.model.DocumentModelResolver.STORE_PATH_ONLY;
 import static org.nuxeo.ecm.core.model.DocumentModelResolver.STORE_REPO_AND_ID;
 import static org.nuxeo.ecm.core.model.DocumentModelResolver.STORE_REPO_AND_PATH;
-import static org.nuxeo.ecm.core.schema.types.resolver.ObjectResolver.NAME_KEY;
-import static org.nuxeo.ecm.core.schema.types.resolver.ObjectResolver.VALIDATION_PARAMETER_KEY;
+import static com.hyland.openarch.ecm.core.schema.types.resolver.ObjectResolver.NAME_KEY;
+import static com.hyland.openarch.ecm.core.schema.types.resolver.ObjectResolver.VALIDATION_PARAMETER_KEY;
 
 import java.util.Collections;
 import java.util.HashMap;

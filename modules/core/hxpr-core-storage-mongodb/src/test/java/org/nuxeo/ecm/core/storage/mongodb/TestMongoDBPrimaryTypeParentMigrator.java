@@ -18,9 +18,9 @@ package org.nuxeo.ecm.core.storage.mongodb;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_CONTENT;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FOLDER;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_ROOT;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_CONTENT;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FOLDER;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_ROOT;
 
 import java.util.HashMap;
 import java.util.Map;

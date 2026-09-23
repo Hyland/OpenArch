@@ -16,7 +16,7 @@
 package org.nuxeo.ecm.core.storage.dbs;
 
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_FULLTEXT_BINARY;
-import static org.nuxeo.ecm.core.schema.TypeConstants.KEY_BLOB_KEY;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.KEY_BLOB_KEY;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -30,16 +30,16 @@ import org.nuxeo.ecm.core.api.Lock;
 import org.nuxeo.ecm.core.api.lock.LockManager;
 import org.nuxeo.ecm.core.api.repository.FulltextConfiguration;
 import org.nuxeo.ecm.core.model.InternalSession;
-import org.nuxeo.ecm.core.schema.DocumentType;
-import org.nuxeo.ecm.core.schema.SchemaManager;
-import org.nuxeo.ecm.core.schema.TypeConstants;
-import org.nuxeo.ecm.core.schema.TypeService;
-import org.nuxeo.ecm.core.schema.types.ComplexType;
-import org.nuxeo.ecm.core.schema.types.CompositeType;
-import org.nuxeo.ecm.core.schema.types.Field;
-import org.nuxeo.ecm.core.schema.types.ListType;
-import org.nuxeo.ecm.core.schema.types.Schema;
-import org.nuxeo.ecm.core.schema.types.Type;
+import com.hyland.openarch.ecm.core.schema.DocumentType;
+import com.hyland.openarch.ecm.core.schema.SchemaManager;
+import com.hyland.openarch.ecm.core.schema.TypeConstants;
+import com.hyland.openarch.ecm.core.schema.TypeService;
+import com.hyland.openarch.ecm.core.schema.types.ComplexType;
+import com.hyland.openarch.ecm.core.schema.types.CompositeType;
+import com.hyland.openarch.ecm.core.schema.types.Field;
+import com.hyland.openarch.ecm.core.schema.types.ListType;
+import com.hyland.openarch.ecm.core.schema.types.Schema;
+import com.hyland.openarch.ecm.core.schema.types.Type;
 import org.nuxeo.ecm.core.storage.FullTextConfigurationService;
 import com.hyland.openarch.runtime.api.Framework;
 

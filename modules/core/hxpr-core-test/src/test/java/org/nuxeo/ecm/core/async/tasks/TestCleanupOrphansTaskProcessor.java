@@ -18,8 +18,8 @@ package org.nuxeo.ecm.core.async.tasks;
 import static com.hyland.hxpr.async.tasks.TaskStatus.State.SCHEDULED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FILE;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FOLDER;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FOLDER;
 
 import com.google.inject.Inject;
 import com.hyland.hxpr.async.tasks.AsyncTasksFeature;

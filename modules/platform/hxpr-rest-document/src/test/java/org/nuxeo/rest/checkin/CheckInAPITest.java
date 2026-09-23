@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ID;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_FILE;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
 import static org.nuxeo.rest.document.AbstractDocumentAPI.PATH;
 import static org.nuxeo.rest.document.test.ContentTestHelper.checkErrorResponse;
 import static org.nuxeo.rest.document.test.ContentTestHelper.getJsonPath;

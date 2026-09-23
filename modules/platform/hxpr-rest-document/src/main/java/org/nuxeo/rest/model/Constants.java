@@ -15,12 +15,14 @@
  */
 package org.nuxeo.rest.model;
 
+import com.hyland.openarch.ecm.core.schema.SchemaManagerConstants;
+
 /**
  * Constants for the Model REST API.
  * <p>
  * The names of the content model's JSON properties are not here: they belong to the DTOs in
  * {@code org.nuxeo.ecm.core.schema.dto} and to
- * {@link org.nuxeo.ecm.core.schema.SchemaManagerConstants SchemaManagerConstants}, which is the single
+ * {@link SchemaManagerConstants SchemaManagerConstants}, which is the single
  * place they are declared.
  */
 public class Constants {

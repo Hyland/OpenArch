@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.nuxeo.ecm.core.schema.SchemaManager;
-import org.nuxeo.ecm.core.schema.types.Field;
+import com.hyland.openarch.ecm.core.schema.SchemaManager;
+import com.hyland.openarch.ecm.core.schema.types.Field;
 import org.nuxeo.ecm.core.storage.State;
 
 /**

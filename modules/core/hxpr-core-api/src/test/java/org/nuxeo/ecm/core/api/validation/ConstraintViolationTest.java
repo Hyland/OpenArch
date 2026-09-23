@@ -17,8 +17,8 @@ package org.nuxeo.ecm.core.api.validation;
 
 import java.util.List;
 
-import org.nuxeo.ecm.core.schema.validation.violations.AbstractValidationViolation;
-import org.nuxeo.ecm.core.schema.validation.violations.AbstractValidationViolationTest;
+import com.hyland.openarch.ecm.core.schema.validation.violations.AbstractValidationViolation;
+import com.hyland.openarch.ecm.core.schema.validation.violations.AbstractValidationViolationTest;
 
 public class ConstraintViolationTest extends AbstractValidationViolationTest {
 

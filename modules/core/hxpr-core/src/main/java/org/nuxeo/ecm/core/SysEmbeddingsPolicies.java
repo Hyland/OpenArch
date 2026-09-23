@@ -16,8 +16,8 @@
 package org.nuxeo.ecm.core;
 
 import static jakarta.servlet.http.HttpServletResponse.SC_CONFLICT;
-import static org.nuxeo.ecm.core.schema.MixinNames.SYS_HAS_EMBEDDINGS;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_EMBEDDINGS;
+import static com.hyland.openarch.ecm.core.schema.MixinNames.SYS_HAS_EMBEDDINGS;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_EMBEDDINGS;
 
 import java.util.Collection;
 import java.util.List;
@@ -26,7 +26,7 @@ import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.api.validation.DocumentValidationException;
 import org.nuxeo.ecm.core.api.validation.DocumentValidationReport;
 import org.nuxeo.ecm.core.model.InternalDocument;
-import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
+import com.hyland.openarch.ecm.core.schema.validation.violations.ValidationViolation;
 
 /**
   * Centralized policies for SysEmbeddings document type related rules.

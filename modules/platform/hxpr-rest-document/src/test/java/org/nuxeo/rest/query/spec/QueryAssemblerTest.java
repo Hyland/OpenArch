@@ -33,7 +33,7 @@ import org.nuxeo.ecm.core.query.QueryParseException;
 import org.nuxeo.ecm.core.query.QuerySyntax;
 import org.nuxeo.ecm.core.query.nxql.SortInfo;
 import org.nuxeo.ecm.core.query.sql.model.Predicate;
-import org.nuxeo.ecm.core.schema.SchemaManager;
+import com.hyland.openarch.ecm.core.schema.SchemaManager;
 import org.nuxeo.rest.query.io.DocumentAdvancedQueryDTO;
 import org.nuxeo.rest.query.io.DocumentQueryDTO;
 import org.nuxeo.rest.query.io.WhereClauseDTO;

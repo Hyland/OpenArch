@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.nuxeo.ecm.core.schema.types.Field;
+import com.hyland.openarch.ecm.core.schema.types.Field;
 
 /**
  * Base implementation for a {@link ValuesVisitor} maintaining the xpath.

@@ -18,8 +18,8 @@ package org.nuxeo.ecm.core.api.validation;
 import java.util.List;
 import java.util.Locale;
 
-import org.nuxeo.ecm.core.schema.types.constraints.Constraint;
-import org.nuxeo.ecm.core.schema.validation.violations.AbstractBaseValidationViolation;
+import com.hyland.openarch.ecm.core.schema.types.constraints.Constraint;
+import com.hyland.openarch.ecm.core.schema.validation.violations.AbstractBaseValidationViolation;
 
 /**
  * Global validation violation simply handling a message key.

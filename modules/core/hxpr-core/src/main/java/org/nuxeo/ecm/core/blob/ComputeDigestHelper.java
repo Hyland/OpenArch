@@ -17,7 +17,7 @@ package org.nuxeo.ecm.core.blob;
 
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_BLOB_KEYS;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ID;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_CONTENT;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_CONTENT;
 
 import java.io.IOException;
 import java.nio.file.Files;

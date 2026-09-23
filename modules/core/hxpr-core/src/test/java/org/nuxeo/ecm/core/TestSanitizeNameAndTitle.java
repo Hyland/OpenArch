@@ -22,7 +22,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
-import static org.nuxeo.ecm.core.schema.TypeConstants.SYS_CONTENT;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_CONTENT;
 
 import java.util.List;
 
@@ -32,7 +32,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.exceptions.base.MockitoException;
 import org.nuxeo.ecm.core.api.SystemPrincipal;
-import org.nuxeo.ecm.core.schema.DocumentType;
+import com.hyland.openarch.ecm.core.schema.DocumentType;
 import org.nuxeo.ecm.core.storage.dbs.DBSDocument;
 import com.hyland.openarch.runtime.test.runner.Features;
 import com.hyland.openarch.runtime.test.runner.FeaturesExtension;

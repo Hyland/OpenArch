@@ -28,7 +28,7 @@ import org.nuxeo.ecm.core.model.InternalDocument;
 import org.nuxeo.ecm.core.query.sql.model.BooleanLiteral;
 import org.nuxeo.ecm.core.query.sql.model.Operand;
 import org.nuxeo.ecm.core.query.sql.model.Predicate;
-import org.nuxeo.ecm.core.schema.validation.violations.ValidationViolation;
+import com.hyland.openarch.ecm.core.schema.validation.violations.ValidationViolation;
 import org.nuxeo.ecm.core.security.AbstractSecurityPolicy;
 import com.hyland.hxpr.expr.ExprEvaluator;
 import com.hyland.hxpr.expr.ExpressionVisitor;
