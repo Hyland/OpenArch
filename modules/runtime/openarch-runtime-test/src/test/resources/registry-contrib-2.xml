@@ -1,6 +1,6 @@
-<component name="org.nuxeo.runtime.test.Registry.override">
+<component name="com.hyland.openarch.runtime.test.Registry.override">
 
-  <extension target="org.nuxeo.runtime.test.Registry.framework" point="single">
+  <extension target="com.hyland.openarch.runtime.test.Registry.framework" point="single">
 
     <descriptor name="sample1">
       <value>Sample 1 Overridden</value>
@@ -8,7 +8,7 @@
 
   </extension>
 
-  <extension target="org.nuxeo.runtime.test.Registry.framework" point="map">
+  <extension target="com.hyland.openarch.runtime.test.Registry.framework" point="map">
 
     <descriptor name="sample1">
       <value>Sample 1 Additions</value>
@@ -21,7 +21,7 @@
 
   </extension>
 
-  <extension target="org.nuxeo.runtime.test.Registry.framework" point="map_compat_warn">
+  <extension target="com.hyland.openarch.runtime.test.Registry.framework" point="map_compat_warn">
 
     <descriptor name="sample1">
       <value>Sample 1 Implicit Merge</value>
@@ -33,7 +33,7 @@
 
   </extension>
 
-  <extension target="org.nuxeo.runtime.test.Registry.framework" point="custom">
+  <extension target="com.hyland.openarch.runtime.test.Registry.framework" point="custom">
 
     <descriptor name="sample1">
       <value>Sample 1 Additions</value>
@@ -46,7 +46,7 @@
 
   </extension>
 
-  <extension target="org.nuxeo.runtime.test.Registry.framework" point="legacy">
+  <extension target="com.hyland.openarch.runtime.test.Registry.framework" point="legacy">
 
     <descriptor name="sample1">
       <value>Sample 1 Additions</value>

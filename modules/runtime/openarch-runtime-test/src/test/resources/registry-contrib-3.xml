@@ -1,12 +1,12 @@
-<component name="org.nuxeo.runtime.test.Registry.disablement">
+<component name="com.hyland.openarch.runtime.test.Registry.disablement">
 
-  <extension target="org.nuxeo.runtime.test.Registry.framework" point="single">
+  <extension target="com.hyland.openarch.runtime.test.Registry.framework" point="single">
 
     <descriptor enable="false" />
 
   </extension>
 
-  <extension target="org.nuxeo.runtime.test.Registry.framework" point="map_compat_warn">
+  <extension target="com.hyland.openarch.runtime.test.Registry.framework" point="map_compat_warn">
 
     <descriptor name="sample1" enable="false" />
 

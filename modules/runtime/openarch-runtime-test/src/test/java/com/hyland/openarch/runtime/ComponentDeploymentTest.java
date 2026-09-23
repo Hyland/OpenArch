@@ -42,8 +42,8 @@ import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
 public class ComponentDeploymentTest {
 
     @Test
-    @Deploy("org.nuxeo.runtime.test.tests:MyComp1.xml")
-    @Deploy("org.nuxeo.runtime.test.tests:MyComp2.xml")
+    @Deploy("com.hyland.openarch.runtime.test.tests:MyComp1.xml")
+    @Deploy("com.hyland.openarch.runtime.test.tests:MyComp2.xml")
     public void testContributions() throws Exception {
         RuntimeService runtime = Framework.getRuntime();
         ComponentManager mgr = runtime.getComponentManager();
@@ -59,8 +59,8 @@ public class ComponentDeploymentTest {
     }
 
     @Test
-    @Deploy("org.nuxeo.runtime.test.tests:CompA.xml")
-    @Deploy("org.nuxeo.runtime.test.tests:CompB.xml")
+    @Deploy("com.hyland.openarch.runtime.test.tests:CompA.xml")
+    @Deploy("com.hyland.openarch.runtime.test.tests:CompB.xml")
     public void testStartupStatus() throws Exception {
         RuntimeService runtime = Framework.getRuntime();
         ComponentManager mgr = runtime.getComponentManager();
@@ -102,8 +102,8 @@ public class ComponentDeploymentTest {
     }
 
     @Test
-    @Deploy("org.nuxeo.runtime.test.tests:CompA.xml")
-    @Deploy("org.nuxeo.runtime.test.tests:CompB.xml")
+    @Deploy("com.hyland.openarch.runtime.test.tests:CompA.xml")
+    @Deploy("com.hyland.openarch.runtime.test.tests:CompB.xml")
     public void testStartupErrors() throws Exception {
         assertTrue(Framework.getRuntime().hasErrors());
     }

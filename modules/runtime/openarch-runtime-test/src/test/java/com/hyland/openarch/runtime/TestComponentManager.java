@@ -35,8 +35,8 @@ import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
  */
 @ExtendWith(FeaturesExtension.class)
 @Features(RuntimeFeature.class)
-@Deploy("org.nuxeo.runtime.test.tests:component-manager-listener-dep.xml")
-@Deploy("org.nuxeo.runtime.test.tests:component-manager-listener2.xml")
+@Deploy("com.hyland.openarch.runtime.test.tests:component-manager-listener-dep.xml")
+@Deploy("com.hyland.openarch.runtime.test.tests:component-manager-listener2.xml")
 public class TestComponentManager {
 
     protected MyListener listener = new MyListener();

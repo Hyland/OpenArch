@@ -44,8 +44,8 @@ import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
 public class RuntimeInitializationTest {
 
     @Test
-    @Deploy("org.nuxeo.runtime.test.tests:MyComp1.xml")
-    @Deploy("org.nuxeo.runtime.test.tests:MyComp2.xml")
+    @Deploy("com.hyland.openarch.runtime.test.tests:MyComp1.xml")
+    @Deploy("com.hyland.openarch.runtime.test.tests:MyComp2.xml")
     public void testContributions() { // NOSONAR (no need to assert anything)
         // do nothing
     }
@@ -72,24 +72,24 @@ public class RuntimeInitializationTest {
     }
 
     @Test
-    @Deploy("org.nuxeo.runtime.test.tests:MyComp1.xml")
-    @Deploy("org.nuxeo.runtime.test.tests:MyComp2.xml")
-    @Deploy("org.nuxeo.runtime.test.tests:CopyOfMyComp2.xml")
+    @Deploy("com.hyland.openarch.runtime.test.tests:MyComp1.xml")
+    @Deploy("com.hyland.openarch.runtime.test.tests:MyComp2.xml")
+    @Deploy("com.hyland.openarch.runtime.test.tests:CopyOfMyComp2.xml")
     public void testContributionsWithDuplicateComponent() {
         checkDupe(true);
     }
 
     @Test
-    @Deploy("org.nuxeo.runtime.test.tests:MyComp1.xml")
-    @Deploy("org.nuxeo.runtime.test.tests:MyComp2.xml")
-    @Deploy("org.nuxeo.runtime.test.tests:MyComp2.xml")
+    @Deploy("com.hyland.openarch.runtime.test.tests:MyComp1.xml")
+    @Deploy("com.hyland.openarch.runtime.test.tests:MyComp2.xml")
+    @Deploy("com.hyland.openarch.runtime.test.tests:MyComp2.xml")
     public void testContributionsWithDuplicateComponentSameFile() {
         // dupe annotation on tests not detected (?)
         checkDupe(false);
     }
 
     @Test
-    @Deploy("org.nuxeo.runtime.test.tests:invalid-component-activate.xml")
+    @Deploy("com.hyland.openarch.runtime.test.tests:invalid-component-activate.xml")
     public void testInvalidComponentActivate() {
         assertEquals(List.of(
                 "Failed to activate component: com.hyland.openarch.runtime.RuntimeInitializationTestComponent (java.lang.RuntimeException: Fail on activate)"),
@@ -99,7 +99,7 @@ public class RuntimeInitializationTest {
     }
 
     @Test
-    @Deploy("org.nuxeo.runtime.test.tests:invalid-component-activate-message.xml")
+    @Deploy("com.hyland.openarch.runtime.test.tests:invalid-component-activate-message.xml")
     public void testInvalidComponentActivateMessage() {
         assertEquals(List.of("Error message on activate"),
                 Framework.getRuntime().getMessageHandler().getMessages(Level.ERROR));
@@ -109,7 +109,7 @@ public class RuntimeInitializationTest {
     }
 
     @Test
-    @Deploy("org.nuxeo.runtime.test.tests:invalid-component.xml")
+    @Deploy("com.hyland.openarch.runtime.test.tests:invalid-component.xml")
     public void testInvalidComponent() {
         assertEquals(List.of(
                 "Bad extension declaration (no target attribute specified) on component 'invalid.comp'",
@@ -121,7 +121,7 @@ public class RuntimeInitializationTest {
     }
 
     @Test
-    @Deploy("org.nuxeo.runtime.test.tests:invalid-component-class.xml")
+    @Deploy("com.hyland.openarch.runtime.test.tests:invalid-component-class.xml")
     public void testInvalidComponentClass() {
         assertEquals(List.of(
                 "Failed to instantiate component: com.hyland.openarch.runtime.Foo (com.hyland.openarch.runtime.RuntimeServiceException: java.lang.ClassNotFoundException: com.hyland.openarch.runtime.Foo)"),
@@ -131,7 +131,7 @@ public class RuntimeInitializationTest {
     }
 
     @Test
-    @Deploy("org.nuxeo.runtime.test.tests:invalid-component-start.xml")
+    @Deploy("com.hyland.openarch.runtime.test.tests:invalid-component-start.xml")
     public void testInvalidComponentStart() {
         assertEquals(List.of(
                 "Component invalid.comp.start notification of application started failed: Fail on start"),
@@ -141,7 +141,7 @@ public class RuntimeInitializationTest {
     }
 
     @Test
-    @Deploy("org.nuxeo.runtime.test.tests:invalid-component-start-message.xml")
+    @Deploy("com.hyland.openarch.runtime.test.tests:invalid-component-start-message.xml")
     public void testInvalidComponentStartMessage() {
         assertEquals(List.of("Error message on start"),
                 Framework.getRuntime().getMessageHandler().getMessages(Level.ERROR));
@@ -155,7 +155,7 @@ public class RuntimeInitializationTest {
      */
     @Test
     @Order(Order.DEFAULT + 1) // run last
-    @Deploy("org.nuxeo.runtime.test.tests")
+    @Deploy("com.hyland.openarch.runtime.test.tests")
     public void testInvalidBundle() throws Exception {
         List<RuntimeMessage> messages = Framework.getRuntime().getMessageHandler().getRuntimeMessages(Level.ERROR);
         assertEquals(4, messages.size());
@@ -167,21 +167,21 @@ public class RuntimeInitializationTest {
                                   + "The markup in the document preceding the root element must be well-formed.)"));
         assertEquals(Level.ERROR, message.getLevel());
         assertEquals(Source.BUNDLE, message.getSource());
-        assertEquals("org.nuxeo.runtime.test.tests", message.getSourceId());
+        assertEquals("com.hyland.openarch.runtime.test.tests", message.getSourceId());
 
         message = messages.get(1);
         assertTrue(message.getMessage().startsWith("Could not resolve registration from file:"));
         assertTrue(message.getMessage().endsWith("invalid-xml-other.xml)"));
         assertEquals(Level.ERROR, message.getLevel());
         assertEquals(Source.BUNDLE, message.getSource());
-        assertEquals("org.nuxeo.runtime.test.tests", message.getSourceId());
+        assertEquals("com.hyland.openarch.runtime.test.tests", message.getSourceId());
 
         message = messages.get(2);
-        assertEquals("Unknown component 'invalid-file.xml' referenced by bundle 'org.nuxeo.runtime.test.tests'",
+        assertEquals("Unknown component 'invalid-file.xml' referenced by bundle 'com.hyland.openarch.runtime.test.tests'",
                 message.getMessage());
         assertEquals(Level.ERROR, message.getLevel());
         assertEquals(Source.BUNDLE, message.getSource());
-        assertEquals("org.nuxeo.runtime.test.tests", message.getSourceId());
+        assertEquals("com.hyland.openarch.runtime.test.tests", message.getSourceId());
 
         message = messages.get(3);
         assertTrue(message.getMessage().startsWith("Could not resolve registration from file:"));
@@ -192,7 +192,7 @@ public class RuntimeInitializationTest {
                                        + "resolved object 'ExtensionImpl {target: my.comp, point:xp, contributor:null}' instead.)"));
         assertEquals(Level.ERROR, message.getLevel());
         assertEquals(Source.BUNDLE, message.getSource());
-        assertEquals("org.nuxeo.runtime.test.tests", message.getSourceId());
+        assertEquals("com.hyland.openarch.runtime.test.tests", message.getSourceId());
     }
 
 }

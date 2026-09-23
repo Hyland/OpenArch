@@ -42,8 +42,8 @@ public class TestResourcePublisherService extends ManagementTestCase {
     }
 
     @Test
-    @Deploy("org.nuxeo.runtime.test.tests:management-tests-service.xml")
-    @Deploy("org.nuxeo.runtime.test.tests:management-tests-contrib.xml")
+    @Deploy("com.hyland.openarch.runtime.test.tests:management-tests-service.xml")
+    @Deploy("com.hyland.openarch.runtime.test.tests:management-tests-contrib.xml")
     public void testRegisterFactory() {
         Set<ObjectName> registeredNames = doQuery("org.nuxeo:name=dummy");
         assertNotNull(registeredNames);
@@ -62,8 +62,8 @@ public class TestResourcePublisherService extends ManagementTestCase {
     }
 
     @Test
-    @Deploy("org.nuxeo.runtime.test.tests:management-tests-service.xml")
-    @Deploy("org.nuxeo.runtime.test.tests:management-tests-contrib.xml")
+    @Deploy("com.hyland.openarch.runtime.test.tests:management-tests-service.xml")
+    @Deploy("com.hyland.openarch.runtime.test.tests:management-tests-contrib.xml")
     public void testXMLConfiguration() throws Exception {
         assertEquals(4, doQuery(ObjectNameFactory.formatTypeQuery("service")).size());
 

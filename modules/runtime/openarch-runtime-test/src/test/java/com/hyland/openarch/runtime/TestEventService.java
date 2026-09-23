@@ -31,7 +31,7 @@ import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
  */
 @ExtendWith(FeaturesExtension.class)
 @Features(RuntimeFeature.class)
-@Deploy("org.nuxeo.runtime.test.tests:ListenerExtension.xml")
+@Deploy("com.hyland.openarch.runtime.test.tests:ListenerExtension.xml")
 public class TestEventService {
     @Inject
     protected EventService eventService;

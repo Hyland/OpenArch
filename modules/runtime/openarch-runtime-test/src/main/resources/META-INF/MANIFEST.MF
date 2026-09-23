@@ -1,9 +1,9 @@
-Export-Package: org.nuxeo.runtime.test,
- org.nuxeo.runtime.test.runner.web,
- org.nuxeo.runtime.test.runner.distrib,
+Export-Package: com.hyland.openarch.runtime.test,
+ com.hyland.openarch.runtime.test.runner.web,
+ com.hyland.openarch.runtime.test.runner.distrib,
  org.openqa.selenium.support.ui,
  jetty,
- org.nuxeo.runtime.test.runner
+ com.hyland.openarch.runtime.test.runner
 Private-Package: .
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
@@ -13,7 +13,7 @@ Created-By: 1.6.0_20 (Sun Microsystems Inc.)
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Version: 0.0.0.SNAPSHOT
 Bundle-ManifestVersion: 2
-Bundle-SymbolicName: org.nuxeo.runtime.test;singleton:=true
+Bundle-SymbolicName: com.hyland.openarch.runtime.test;singleton:=true
 Import-Package: com.google.common.base,
  com.google.inject;version="1.2",
  com.google.inject.binder;version="1.2",

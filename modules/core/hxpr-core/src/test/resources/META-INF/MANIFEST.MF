@@ -1,12 +1,12 @@
 Manifest-Version: 1.0
 Export-Package: org.nuxeo.ecm.core;uses:="org.nuxeo.ecm.core.lifecycle
  ,org.nuxeo.ecm.core.model,org.nuxeo.ecm.core.repository,org.nuxeo.ecm
- .core.security,org.nuxeo.ecm.core.versioning,org.nuxeo.runtime.test",
+ .core.security,org.nuxeo.ecm.core.versioning,com.hyland.openarch.runtime.test",
  org.nuxeo.ecm.core.api;uses:="org.nuxeo.ecm.core.model,org.nuxeo.ecm.
  core.security",org.nuxeo.ecm.core.api.local;uses:="org.nuxeo.ecm.core
  .api,org.nuxeo.ecm.core.model",org.nuxeo.ecm.core.event;uses:="org.jm
- ock,org.nuxeo.runtime.test",org.nuxeo.ecm.core.lifecycle;uses:="org.n
- uxeo.ecm.core.model,org.nuxeo.runtime.test",org.nuxeo.ecm.core.lifecy
+ ock,com.hyland.openarch.runtime.test",org.nuxeo.ecm.core.lifecycle;uses:="org.n
+ uxeo.ecm.core.model,com.hyland.openarch.runtime.test",org.nuxeo.ecm.core.lifecy
  cle.event,org.nuxeo.ecm.core.lifecycle.extensions;uses:="org.nuxeo.ec
  m.core.lifecycle,org.w3c.dom",org.nuxeo.ecm.core.lifecycle.impl;uses:
  ="org.nuxeo.ecm.core.lifecycle,org.nuxeo.ecm.core.model",org.nuxeo.ec
@@ -16,7 +16,7 @@ Export-Package: org.nuxeo.ecm.core;uses:="org.nuxeo.ecm.core.lifecycle
  unit.framework,org.apache.xml.serialize,org.nuxeo.ecm.core.model,org.
  nuxeo.ecm.core.security,org.w3c.dom",org.nuxeo.ecm.core.security;uses
  :="SQLQuery,org.nuxeo.ecm.core.lifecycle,org.nuxeo.ecm.core.model,org
- .nuxeo.ecm.core.versioning,org.nuxeo.runtime.test",org.nuxeo.ecm.core
+ .nuxeo.ecm.core.versioning,com.hyland.openarch.runtime.test",org.nuxeo.ecm.core
  .versioning;uses:="org.nuxeo.ecm.core.model",schema
 Require-Bundle: org.nuxeo.ecm.core.api,org.nuxeo.ecm.core.schema,org.n
  uxeo.ecm.core.query

@@ -25,7 +25,7 @@ Import-Package: com.google.inject,
  org.nuxeo.ecm.core.test,
  org.nuxeo.ecm.core.test.annotations,
  com.hyland.openarch.runtime.api,
- org.nuxeo.runtime.test.runner,
+ com.hyland.openarch.runtime.test.runner,
  org.osgi.framework,
  org.nuxeo.ecm.core.work,
  com.hyland.openarch.runtime

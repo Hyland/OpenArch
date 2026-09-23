@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-SymbolicName: org.nuxeo.runtime.test.tests
+Bundle-SymbolicName: com.hyland.openarch.runtime.test.tests
 Import-Package: com.hyland.openarch.common,
  com.hyland.openarch.osgi,
  com.hyland.openarch.runtime,

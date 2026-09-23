@@ -36,7 +36,7 @@ import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
 @Features({ RuntimeFeature.class, RestartFeature.class })
 @Deploy("com.hyland.openarch.runtime.management:OSGI-INF/management-server-locator-service.xml")
 @Deploy("com.hyland.openarch.runtime.management:OSGI-INF/management-resource-publisher-service.xml")
-@Deploy("org.nuxeo.runtime.test:isolated-server.xml")
+@Deploy("com.hyland.openarch.runtime.test:isolated-server.xml")
 public abstract class ManagementTestCase {
 
     protected ResourcePublisherService publisherService;

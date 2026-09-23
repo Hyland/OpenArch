@@ -32,7 +32,7 @@ import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
 public class TestComponentRegistry {
 
     @Test
-    @Deploy("org.nuxeo.runtime.test.tests:CompA.xml")
+    @Deploy("com.hyland.openarch.runtime.test.tests:CompA.xml")
     public void testA() throws Exception {
         // requires CompB and CompC
         ComponentManager componentManager = Framework.getRuntime().getComponentManager();
@@ -40,8 +40,8 @@ public class TestComponentRegistry {
     }
 
     @Test
-    @Deploy("org.nuxeo.runtime.test.tests:CompA.xml")
-    @Deploy("org.nuxeo.runtime.test.tests:CompB.xml")
+    @Deploy("com.hyland.openarch.runtime.test.tests:CompA.xml")
+    @Deploy("com.hyland.openarch.runtime.test.tests:CompB.xml")
     public void testAB() throws Exception {
         // still requires CompC
         ComponentManager componentManager = Framework.getRuntime().getComponentManager();
@@ -49,9 +49,9 @@ public class TestComponentRegistry {
     }
 
     @Test
-    @Deploy("org.nuxeo.runtime.test.tests:CompA.xml")
-    @Deploy("org.nuxeo.runtime.test.tests:CompB.xml")
-    @Deploy("org.nuxeo.runtime.test.tests:CompC.xml")
+    @Deploy("com.hyland.openarch.runtime.test.tests:CompA.xml")
+    @Deploy("com.hyland.openarch.runtime.test.tests:CompB.xml")
+    @Deploy("com.hyland.openarch.runtime.test.tests:CompC.xml")
     public void testABC() throws Exception {
         ComponentManager componentManager = Framework.getRuntime().getComponentManager();
         assertNotNull(componentManager.getComponent("CompA"));
@@ -63,7 +63,7 @@ public class TestComponentRegistry {
      * Deploy then reset
      */
     @Test
-    @Deploy("org.nuxeo.runtime.test.tests:CompC.xml")
+    @Deploy("com.hyland.openarch.runtime.test.tests:CompC.xml")
     public void testReset() throws Exception {
         ComponentManager componentManager = Framework.getRuntime().getComponentManager();
         assertNotNull(componentManager.getComponent("CompC"));
