@@ -7,7 +7,7 @@
     <version>12.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>hxpr-runtime-kv</artifactId>
+  <artifactId>openarch-runtime-kv</artifactId>
   <name>HxPR Runtime Key/Value Storage</name>
 
   <properties>

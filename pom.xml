@@ -223,12 +223,12 @@
       </dependency>
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
-        <artifactId>hxpr-runtime-kv</artifactId>
+        <artifactId>openarch-runtime-kv</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
-        <artifactId>hxpr-runtime-kv</artifactId>
+        <artifactId>openarch-runtime-kv</artifactId>
         <type>test-jar</type>
         <scope>test</scope>
         <version>${project.version}</version>
