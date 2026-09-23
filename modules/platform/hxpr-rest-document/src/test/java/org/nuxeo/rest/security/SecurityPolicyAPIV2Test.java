@@ -46,7 +46,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.nuxeo.ecm.core.test.CoreFeature;
 import org.nuxeo.rest.utils.Versions;
-import org.nuxeo.runtime.mockito.RuntimeInject;
+import com.hyland.openarch.runtime.mockito.RuntimeInject;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.ResultActions;
 
