@@ -74,7 +74,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-runtime-osgi</artifactId>
+      <artifactId>openarch-runtime-osgi</artifactId>
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>

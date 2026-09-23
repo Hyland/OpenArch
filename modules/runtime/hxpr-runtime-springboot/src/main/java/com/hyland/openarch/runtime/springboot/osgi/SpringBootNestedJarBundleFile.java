@@ -15,7 +15,7 @@
  */
 package com.hyland.openarch.runtime.springboot.osgi;
 
-import org.nuxeo.osgi.NestedJarBundleFile;
+import com.hyland.openarch.osgi.NestedJarBundleFile;
 import org.springframework.boot.loader.jar.NestedJarFile;
 
 /**

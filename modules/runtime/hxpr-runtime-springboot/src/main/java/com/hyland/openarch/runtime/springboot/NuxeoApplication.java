@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
-import org.nuxeo.osgi.BundleManifestReader;
+import com.hyland.openarch.osgi.BundleManifestReader;
 import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.springboot.application.loader.SpringBootFrameworkLoader;
 import com.hyland.openarch.runtime.springboot.framework.ApplicationContextHelper;

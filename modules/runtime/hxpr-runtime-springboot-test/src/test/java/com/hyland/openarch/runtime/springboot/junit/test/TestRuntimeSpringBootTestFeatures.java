@@ -29,7 +29,7 @@ import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.nuxeo.osgi.application.SharedClassLoader;
+import com.hyland.openarch.osgi.application.SharedClassLoader;
 import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.springboot.junit.RuntimeSpringBootTest;
 import com.hyland.openarch.runtime.springboot.junit.RuntimeTestState;

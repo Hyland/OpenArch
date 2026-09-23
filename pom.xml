@@ -240,12 +240,12 @@
       </dependency>
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
-        <artifactId>hxpr-runtime-osgi</artifactId>
+        <artifactId>openarch-runtime-osgi</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
-        <artifactId>hxpr-runtime-osgi</artifactId>
+        <artifactId>openarch-runtime-osgi</artifactId>
         <version>${project.version}</version>
         <type>test-jar</type>
         <scope>test</scope>

@@ -16,9 +16,9 @@
 
 package com.hyland.openarch.runtime.test;
 
-import org.nuxeo.osgi.BundleFile;
-import org.nuxeo.osgi.BundleImpl;
-import org.nuxeo.osgi.OSGiAdapter;
+import com.hyland.openarch.osgi.BundleFile;
+import com.hyland.openarch.osgi.BundleImpl;
+import com.hyland.openarch.osgi.OSGiAdapter;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleException;
 

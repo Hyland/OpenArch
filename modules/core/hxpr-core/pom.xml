@@ -123,7 +123,7 @@
 
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-runtime-osgi</artifactId>
+      <artifactId>openarch-runtime-osgi</artifactId>
       <scope>test</scope>
     </dependency>
 

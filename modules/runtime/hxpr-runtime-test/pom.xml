@@ -38,7 +38,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-runtime-osgi</artifactId>
+      <artifactId>openarch-runtime-osgi</artifactId>
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
@@ -56,7 +56,7 @@
 
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-runtime-osgi</artifactId>
+      <artifactId>openarch-runtime-osgi</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>

@@ -23,10 +23,10 @@ import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.nuxeo.osgi.BundleFile;
-import org.nuxeo.osgi.BundleImpl;
-import org.nuxeo.osgi.OSGiAdapter;
-import org.nuxeo.osgi.application.loader.FrameworkLoader;
+import com.hyland.openarch.osgi.BundleFile;
+import com.hyland.openarch.osgi.BundleImpl;
+import com.hyland.openarch.osgi.OSGiAdapter;
+import com.hyland.openarch.osgi.application.loader.FrameworkLoader;
 import com.hyland.openarch.runtime.springboot.osgi.SpringBootNestedJarBundleFile;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.FrameworkEvent;

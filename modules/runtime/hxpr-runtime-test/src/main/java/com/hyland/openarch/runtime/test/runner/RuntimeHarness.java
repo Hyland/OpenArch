@@ -17,7 +17,7 @@ package com.hyland.openarch.runtime.test.runner;
 
 import java.io.File;
 
-import org.nuxeo.osgi.OSGiAdapter;
+import com.hyland.openarch.osgi.OSGiAdapter;
 import com.hyland.openarch.runtime.model.RuntimeContext;
 import org.osgi.framework.BundleException;
 
