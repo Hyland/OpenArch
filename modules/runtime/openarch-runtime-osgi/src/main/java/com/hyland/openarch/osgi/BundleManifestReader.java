@@ -40,7 +40,7 @@ public final class BundleManifestReader {
 
     private static final Pattern PARAMS_PATTERN = Pattern.compile("\\s*([^:\\s]+)\\s*:=\\s*([^;\\s]+)\\s*;?");
 
-    public static final String NUXEO_COMPONENT = "Nuxeo-Component";
+    public static final String REPOSITORY_COMPONENT = "Nuxeo-Component";
 
     // Utility class
     private BundleManifestReader() {
@@ -127,10 +127,10 @@ public final class BundleManifestReader {
         if (val != null) {
             headers.put(Constants.REQUIRE_BUNDLE, val);
         }
-        // Nuxeo headers
-        val = attrs.getValue(NUXEO_COMPONENT);
+        // Repository headers
+        val = attrs.getValue(REPOSITORY_COMPONENT);
         if (val != null) {
-            headers.put(NUXEO_COMPONENT, val);
+            headers.put(REPOSITORY_COMPONENT, val);
         }
         return headers;
     }

@@ -290,7 +290,7 @@ public class FrameworkLoader {
         String hr = "======================================================================";
         StringBuilder msg = new StringBuilder(newline);
         msg.append(hr).append(newline);
-        msg.append("= Starting Nuxeo Framework").append(newline);
+        msg.append("= Starting OpenArch Framework").append(newline);
         msg.append(hr).append(newline);
         msg.append("  * Server home = ").append(env.getServerHome()).append(newline);
         msg.append("  * Runtime home = ").append(env.getRuntimeHome()).append(newline);

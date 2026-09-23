@@ -9,11 +9,11 @@ The OSGi package from NXRuntime (see NXRuntime: com.hyland.openarch.runtime.osgi
 
 When using OSGI host frameworks like an Eclipse environment you don't need an OSGI adapter to correctly run your code. The OSGi environment is taking care of the bundle deployment.
 
-Be aware that Nuxeo Runtime *is not* an OSGi framework. It is working on top of an OSGi framework.
+Be aware that OpenArch Runtime *is not* an OSGi framework. It is working on top of an OSGi framework.
 
-As our first target for Nuxeo Runtime was JBoss which is not an OSGi compliant framework I wrote an OSGi adapter over JBoss microkernel. but this adapter is implementing only the OSGi features we currently need. And also the JBoss adapter is using the JBoss class loader logic that is not OSGi compliant.
+As our first target for OpenArch Runtime was JBoss which is not an OSGi compliant framework I wrote an OSGi adapter over JBoss microkernel. but this adapter is implementing only the OSGi features we currently need. And also the JBoss adapter is using the JBoss class loader logic that is not OSGi compliant.
 
-But this is enough for us to be able to deploy a Nuxeo OSGi bundle on both JBoss or Eclipse. If you want to use OSGi functionalities not supported by the jboss adapter you need to contribute code that implement these functionalities.
+But this is enough for us to be able to deploy a OpenArch OSGi bundle on both JBoss or Eclipse. If you want to use OSGi functionalities not supported by the jboss adapter you need to contribute code that implement these functionalities.
 
 Thus, not all the OSGi specs are emulated - only a small part. I will add more features as we will need them in future.
 

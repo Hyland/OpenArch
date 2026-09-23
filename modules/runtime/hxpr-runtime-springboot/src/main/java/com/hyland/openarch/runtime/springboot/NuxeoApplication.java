@@ -228,7 +228,7 @@ public class NuxeoApplication {
                         if (pn > 0) {
                             name = name.substring(0, pn).trim();
                         }
-                        if (attrs.containsKey(new Name(BundleManifestReader.NUXEO_COMPONENT))) {
+                        if (attrs.containsKey(new Name(BundleManifestReader.REPOSITORY_COMPONENT))) {
                             bundles.put(name, getFileFromUrl(url));
                         }
                     }

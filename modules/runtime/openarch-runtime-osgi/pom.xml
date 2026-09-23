@@ -8,7 +8,7 @@
   </parent>
 
   <artifactId>openarch-runtime-osgi</artifactId>
-  <name>HxPR Runtime OSGI Adapter</name>
+  <name>OpenArch Runtime OSGI Adapter</name>
 
   <properties>
     <manifest.file>src/main/resources/META-INF/MANIFEST.MF</manifest.file>
