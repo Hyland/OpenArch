@@ -46,7 +46,7 @@ import jakarta.inject.Named;
 @TestMethodOrder(OrderAnnotation.class)
 @ExtendWith(FeaturesExtension.class)
 @Features(CacheFeature.class)
-@Deploy("com.hyland.hxpr.runtime.pubsub")
+@Deploy("com.hyland.openarch.runtime.pubsub")
 @Deploy("org.nuxeo.ecm.core.cache:inmemory-cache-config.xml")
 @Deploy("org.nuxeo.ecm.core.cache:test-cluster.xml")
 @Deploy("org.nuxeo.ecm.core.cache:test-cache-no-cluster-invalidation.xml")

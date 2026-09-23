@@ -37,7 +37,7 @@ import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
 
 @ExtendWith(FeaturesExtension.class)
 @Features(RuntimeFeature.class)
-@Deploy("com.hyland.hxpr.runtime.pubsub")
+@Deploy("com.hyland.openarch.runtime.pubsub")
 public class TestMemPubSubProvider {
 
     @Inject
