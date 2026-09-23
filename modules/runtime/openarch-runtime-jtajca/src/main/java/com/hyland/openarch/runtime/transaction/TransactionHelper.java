@@ -41,7 +41,7 @@ import jakarta.transaction.UserTransaction;
 import javax.transaction.xa.XAResource;
 
 import org.apache.commons.lang3.reflect.FieldUtils;
-import com.hyland.openarch.runtime.jtajca.NuxeoContainer;
+import com.hyland.openarch.runtime.jtajca.RepositoryContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,7 +81,7 @@ public class TransactionHelper {
      * @throws TransactionRuntimeException if not found
      */
     public static UserTransaction lookupUserTransaction() {
-        UserTransaction ut = NuxeoContainer.getUserTransaction();
+        UserTransaction ut = RepositoryContainer.getUserTransaction();
         if (ut == null) {
             throw new TransactionRuntimeException("tx manager not installed");
         }
@@ -96,7 +96,7 @@ public class TransactionHelper {
      * @see Status
      */
     public static int getTransactionStatus() {
-        UserTransaction ut = NuxeoContainer.getUserTransaction();
+        UserTransaction ut = RepositoryContainer.getUserTransaction();
         if (ut == null) {
             return -1;
         }
@@ -114,7 +114,7 @@ public class TransactionHelper {
      * @throws TransactionRuntimeException if not found
      */
     public static TransactionManager lookupTransactionManager() {
-        TransactionManager tm = NuxeoContainer.getTransactionManager();
+        TransactionManager tm = RepositoryContainer.getTransactionManager();
         if (tm == null) {
             throw new TransactionRuntimeException("tx manager not installed");
         }
@@ -128,7 +128,7 @@ public class TransactionHelper {
      * @throws TransactionRuntimeException if not found
      */
     public static TransactionSynchronizationRegistry lookupSynchronizationRegistry() {
-        TransactionSynchronizationRegistry synch = NuxeoContainer.getTransactionSynchronizationRegistry();
+        TransactionSynchronizationRegistry synch = RepositoryContainer.getTransactionSynchronizationRegistry();
         if (synch == null) {
             throw new TransactionRuntimeException("tx manager not installed");
         }
@@ -187,7 +187,7 @@ public class TransactionHelper {
      * @since 7.1
      */
     public static boolean isTransactionTimedOut() {
-        TransactionManager tm = NuxeoContainer.getTransactionManager();
+        TransactionManager tm = RepositoryContainer.getTransactionManager();
         if (tm == null) {
             return false;
         }
@@ -217,7 +217,7 @@ public class TransactionHelper {
      * @since 11.5
      */
     public static int getTransactionTimeToLive() {
-        TransactionManager tm = NuxeoContainer.getTransactionManager();
+        TransactionManager tm = RepositoryContainer.getTransactionManager();
         if (tm == null) {
             return -1;
         }
@@ -260,7 +260,7 @@ public class TransactionHelper {
      */
     public static boolean startTransaction() {
         setTransactionStart();
-        UserTransaction ut = NuxeoContainer.getUserTransaction();
+        UserTransaction ut = RepositoryContainer.getUserTransaction();
         if (ut == null) {
             return false;
         }
@@ -285,7 +285,7 @@ public class TransactionHelper {
         if (timeout < 0) {
             timeout = 0;
         }
-        TransactionManager tm = NuxeoContainer.getTransactionManager();
+        TransactionManager tm = RepositoryContainer.getTransactionManager();
         if (tm == null) {
             return false;
         }
@@ -311,7 +311,7 @@ public class TransactionHelper {
      * Commits or rolls back the User Transaction depending on the transaction status.
      */
     public static void commitOrRollbackTransaction() {
-        UserTransaction ut = NuxeoContainer.getUserTransaction();
+        UserTransaction ut = RepositoryContainer.getUserTransaction();
         if (ut == null) {
             return;
         }
@@ -434,7 +434,7 @@ public class TransactionHelper {
         if (log.isTraceEnabled()) {
             log.trace("Rollback stack trace", new Throwable("Rollback stack trace"));
         }
-        UserTransaction ut = NuxeoContainer.getUserTransaction();
+        UserTransaction ut = RepositoryContainer.getUserTransaction();
         if (ut == null) {
             return false;
         }
@@ -465,7 +465,7 @@ public class TransactionHelper {
             throw new TransactionRuntimeException("Cannot register Synchronization if transaction is not active");
         }
         try {
-            NuxeoContainer.getTransactionManager().getTransaction().registerSynchronization(handler);
+            RepositoryContainer.getTransactionManager().getTransaction().registerSynchronization(handler);
         } catch (IllegalStateException | RollbackException | SystemException cause) {
             throw new RuntimeException("Cannot register synch handler in current tx", cause);
         }
@@ -482,7 +482,7 @@ public class TransactionHelper {
             throw new TransactionRuntimeException("Cannot enlist XA resource if transaction is not active");
         }
         try {
-            NuxeoContainer.getTransactionManager().getTransaction().enlistResource(xaRes);
+            RepositoryContainer.getTransactionManager().getTransaction().enlistResource(xaRes);
         } catch (IllegalStateException | RollbackException | SystemException cause) {
             throw new RuntimeException("Cannot enlist XA resource in current tx", cause);
         }

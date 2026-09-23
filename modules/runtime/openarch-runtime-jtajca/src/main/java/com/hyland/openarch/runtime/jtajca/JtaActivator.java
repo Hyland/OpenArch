@@ -18,7 +18,7 @@ package com.hyland.openarch.runtime.jtajca;
 import com.hyland.openarch.runtime.model.DefaultComponent;
 
 /**
- * If this bundle is present in the running platform it should automatically install the NuxeoContainer.
+ * If this bundle is present in the running platform it should automatically install the RepositoryContainer.
  *
  * @author <a href="mailto:bs@nuxeo.com">Bogdan Stefanescu</a>
  */
@@ -28,12 +28,12 @@ public class JtaActivator extends DefaultComponent {
 
     @Override
     public void activate() {
-        NuxeoContainer.install();
+        RepositoryContainer.install();
     }
 
     @Override
     public void deactivate() {
-        NuxeoContainer.uninstall();
+        RepositoryContainer.uninstall();
     }
 
 }

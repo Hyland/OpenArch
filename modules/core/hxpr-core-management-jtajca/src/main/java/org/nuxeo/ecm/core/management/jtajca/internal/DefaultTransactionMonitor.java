@@ -36,7 +36,7 @@ import org.apache.logging.log4j.ThreadContext;
 import org.nuxeo.ecm.core.management.jtajca.TransactionMonitor;
 import org.nuxeo.ecm.core.management.jtajca.TransactionStatistics;
 import org.nuxeo.ecm.core.management.jtajca.internal.DefaultMonitorComponent.ServerInstance;
-import com.hyland.openarch.runtime.jtajca.NuxeoContainer;
+import com.hyland.openarch.runtime.jtajca.RepositoryContainer;
 
 /**
  * @author matic
@@ -83,7 +83,7 @@ public class DefaultTransactionMonitor implements TransactionManagerMonitor, Tra
     }
 
     protected TransactionManagerImpl lookup() {
-        TransactionManager localtm = NuxeoContainer.getTransactionManager();
+        TransactionManager localtm = RepositoryContainer.getTransactionManager();
         if (!(localtm instanceof TransactionManagerImpl tmi)) {
             return null;
         }

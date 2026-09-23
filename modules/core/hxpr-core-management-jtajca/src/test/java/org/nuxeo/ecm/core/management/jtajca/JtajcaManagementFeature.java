@@ -28,7 +28,7 @@ import jakarta.transaction.TransactionManager;
 import org.apache.logging.log4j.LogManager;
 import org.nuxeo.ecm.core.test.CoreFeature;
 import com.hyland.openarch.runtime.api.Framework;
-import com.hyland.openarch.runtime.jtajca.NuxeoContainer;
+import com.hyland.openarch.runtime.jtajca.RepositoryContainer;
 import com.hyland.openarch.runtime.management.ManagementFeature;
 import com.hyland.openarch.runtime.management.ServerLocator;
 import com.hyland.openarch.runtime.test.runner.Deploy;
@@ -119,7 +119,7 @@ public class JtajcaManagementFeature implements RunnerFeature {
         MBeanServer mbs = Framework.getService(ServerLocator.class).lookupServer();
         bind(binder, mbs, ConnectionPoolMonitor.class);
         bind(binder, mbs, CoreSessionMonitor.class);
-        TransactionManager tm = NuxeoContainer.getTransactionManager();
+        TransactionManager tm = RepositoryContainer.getTransactionManager();
         if (tm != null) {
             bind(binder, mbs, TransactionMonitor.class);
             binder.bind(TransactionManager.class).toInstance(tm);

@@ -54,13 +54,13 @@ import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
 
 /**
- * Internal helper for the Nuxeo-defined transaction manager and connection manager.
+ * Internal helper for the OpenArch-defined transaction manager and connection manager.
  * <p>
  * This code is called by the factories registered through JNDI, or by unit tests mimicking JNDI bindings.
  */
-public class NuxeoContainer {
+public class RepositoryContainer {
 
-    protected static final Logger log = LogManager.getLogger(NuxeoContainer.class);
+    protected static final Logger log = LogManager.getLogger(RepositoryContainer.class);
 
     public static final String TX_TIMEOUT_PROPERTY = "nuxeo.db.transactiontimeout";
 
@@ -91,7 +91,7 @@ public class NuxeoContainer {
 
     protected static final ConcurrentHashMap<Transaction, Timer.Context> timers = new ConcurrentHashMap<>();
 
-    private NuxeoContainer() {
+    private RepositoryContainer() {
     }
 
     public static class InstallContext extends Throwable {
@@ -113,7 +113,7 @@ public class NuxeoContainer {
     }
 
     protected static void uninstall() {
-        log.trace("Uninstalling nuxeo container");
+        log.trace("Uninstalling Repository container");
         tm = null;
         tmRecoverable = null;
         tmSynchRegistry = null;

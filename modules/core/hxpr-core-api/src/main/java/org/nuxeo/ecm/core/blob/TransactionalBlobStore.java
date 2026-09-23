@@ -34,7 +34,7 @@ import org.nuxeo.ecm.core.api.ConcurrentUpdateException;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.blob.binary.BinaryGarbageCollector;
 import org.nuxeo.ecm.core.utils.BlobUtils;
-import com.hyland.openarch.runtime.jtajca.NuxeoContainer;
+import com.hyland.openarch.runtime.jtajca.RepositoryContainer;
 import com.hyland.openarch.runtime.transaction.TransactionHelper;
 
 /**
@@ -267,7 +267,7 @@ public class TransactionalBlobStore extends AbstractBlobStore implements Synchro
 
     protected Transaction getTransaction() {
         try {
-            return NuxeoContainer.getTransactionManager().getTransaction();
+            return RepositoryContainer.getTransactionManager().getTransaction();
         } catch (NullPointerException | SystemException e) {
             throw new NuxeoException(e);
         }
