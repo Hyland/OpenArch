@@ -43,7 +43,7 @@ import com.hyland.openarch.runtime.transaction.TransactionHelper;
 
 @ExtendWith(FeaturesExtension.class)
 @Features({ TransactionalFeature.class, AsyncTasksFeature.class, BasicClusterFeature.class })
-@Deploy("org.nuxeo.runtime.jtajca")
+@Deploy("com.hyland.openarch.runtime.jtajca")
 @Deploy("org.nuxeo.ecm.core.event")
 public class TestEventServiceComponent {
 

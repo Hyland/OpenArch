@@ -1,4 +1,4 @@
-Export-Package: org.nuxeo.runtime.jtajca
+Export-Package: com.hyland.openarch.runtime.jtajca
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
 Manifest-Version: 1.0
@@ -26,5 +26,5 @@ Import-Package: javax.annotation,
  com.hyland.openarch.runtime.api,
  com.hyland.openarch.runtime.transaction,
  org.osgi.framework
-Bundle-SymbolicName: org.nuxeo.runtime.jtajca;singleton:=true
+Bundle-SymbolicName: com.hyland.openarch.runtime.jtajca;singleton:=true
 Nuxeo-Component: OSGI-INF/JtaActivator.xml

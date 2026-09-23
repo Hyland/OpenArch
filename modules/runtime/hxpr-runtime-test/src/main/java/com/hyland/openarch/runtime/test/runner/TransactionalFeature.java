@@ -34,7 +34,7 @@ import com.hyland.openarch.runtime.transaction.TransactionHelper;
  *
  * @since 10.2
  */
-@Deploy("org.nuxeo.runtime.jtajca")
+@Deploy("com.hyland.openarch.runtime.jtajca")
 @Features(RuntimeFeature.class)
 public class TransactionalFeature implements RunnerFeature {
 
