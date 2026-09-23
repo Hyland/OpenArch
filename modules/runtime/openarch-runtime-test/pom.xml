@@ -7,7 +7,7 @@
     <version>12.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>hxpr-runtime-test</artifactId>
+  <artifactId>openarch-runtime-test</artifactId>
   <name>HxPR Runtime Tests</name>
 
   <properties>

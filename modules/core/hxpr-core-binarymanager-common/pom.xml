@@ -47,7 +47,7 @@
     <!-- Test dependencies, for the shared cloud blob provider test bases -->
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-runtime-test</artifactId>
+      <artifactId>openarch-runtime-test</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

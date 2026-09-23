@@ -34,7 +34,7 @@
     <!-- tests dependencies -->
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-runtime-test</artifactId>
+      <artifactId>openarch-runtime-test</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

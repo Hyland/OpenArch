@@ -26,7 +26,7 @@
     <module>hxpr-runtime-pubsub</module>
     <module>hxpr-runtime-springboot</module>
     <module>hxpr-runtime-springboot-test</module>
-    <module>hxpr-runtime-test</module>
+    <module>openarch-runtime-test</module>
   </modules>
 
   <dependencies>

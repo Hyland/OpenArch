@@ -27,7 +27,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-runtime-test</artifactId>
+      <artifactId>openarch-runtime-test</artifactId>
       <scope>compile</scope>
     </dependency>
     <dependency>
