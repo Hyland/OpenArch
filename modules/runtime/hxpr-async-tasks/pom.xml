@@ -30,7 +30,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-core-query</artifactId>
+      <artifactId>openarch-core-query</artifactId>
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>

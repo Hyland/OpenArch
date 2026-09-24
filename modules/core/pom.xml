@@ -20,7 +20,7 @@
     <module>hxpr-core-io</module>
     <module>hxpr-core-management-jtajca</module>
     <module>hxpr-core-mongodb</module>
-    <module>hxpr-core-query</module>
+    <module>openarch-core-query</module>
     <module>openarch-core-schema</module>
     <module>hxpr-core-storage-mem</module>
     <module>hxpr-core-storage-mongodb</module>
