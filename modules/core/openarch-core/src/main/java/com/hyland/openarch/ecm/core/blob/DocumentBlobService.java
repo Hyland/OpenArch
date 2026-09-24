@@ -130,8 +130,9 @@ public interface DocumentBlobService {
     /**
      * Garbage collect the unused binaries.
      *
-     * @param delete if {@code false} don't actually delete the garbage collected binaries (but still return statistics
-     *            about them), if {@code true} delete them
+     * @param delete if {@code false} don't actually collect the garbage binaries (but still return statistics about
+     *            them), if {@code true} move them to recovery storage or permanently delete them according to the
+     *            hardcoded policy
      * @return a status about the number of garbage collected binaries
      * @since 7.4
      */

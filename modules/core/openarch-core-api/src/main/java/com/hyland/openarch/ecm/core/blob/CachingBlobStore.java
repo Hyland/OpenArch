@@ -451,9 +451,9 @@ public class CachingBlobStore extends AbstractBlobStore {
         }
 
         @Override
-        public void start() {
-            delegate.start();
-            cacheDelegate.start();
+        public void start(boolean delete) {
+            delegate.start(delete);
+            cacheDelegate.start(delete);
         }
 
         @Override

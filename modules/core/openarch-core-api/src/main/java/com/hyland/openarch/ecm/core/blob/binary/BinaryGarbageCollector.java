@@ -18,7 +18,7 @@ package com.hyland.openarch.ecm.core.blob.binary;
 /**
  * A Garbage Collector for a {@link BinaryManager}.
  * <p>
- * First, inform the GC that it is started by calling {@link #start}.
+ * First, inform the GC that it is started by calling {@link #start(boolean)}.
  * <p>
  * Then for all binaries to mark, call {@link #mark}.
  * <p>
@@ -40,12 +40,14 @@ public interface BinaryGarbageCollector {
      * Starts the garbage collection process.
      * <p>
      * After this, all active binaries must be fed to the {@link #mark} method.
+     *
+     * @param delete the deletion mode that will be passed to {@link #stop(boolean)}
      */
-    void start();
+    void start(boolean delete);
 
     /**
-     * Returns {@code true} if the blob store is empty after {@link #start()}, meaning the mark
-     * phase can be skipped. Only meaningful to call just after {@link #start()}.
+     * Returns {@code true} if the blob store is empty after {@link #start(boolean)}, meaning the mark
+     * phase can be skipped. Only meaningful to call just after {@link #start(boolean)}.
      */
     default boolean isToDeleteEmpty() {
         return false;

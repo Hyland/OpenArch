@@ -2980,7 +2980,7 @@ public class TestSQLRepositoryAPI {
         Repository repository = repositoryService.getRepository(session.getRepositoryName());
 
         assertFalse(gc.isInProgress());
-        gc.start();
+        gc.start(delete);
         assertTrue(gc.isInProgress());
         repository.markReferencedBlobs((key, repositoryName) -> {
             gc.mark(key);

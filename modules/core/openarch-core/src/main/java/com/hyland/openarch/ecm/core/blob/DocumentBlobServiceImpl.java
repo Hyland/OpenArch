@@ -341,7 +341,7 @@ public class DocumentBlobServiceImpl extends DefaultComponent implements Documen
             // start gc
             long start = System.nanoTime();
             for (BinaryGarbageCollector gc : gcs) {
-                gc.start();
+                gc.start(delete);
             }
             BiConsumer<String, String> markerCallback;
             if (sharedStorage) {

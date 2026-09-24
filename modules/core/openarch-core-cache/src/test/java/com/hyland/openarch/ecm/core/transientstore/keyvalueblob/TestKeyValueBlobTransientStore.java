@@ -355,7 +355,7 @@ public class TestKeyValueBlobTransientStore {
     protected void removeAllBlobsFromBlobProvider() throws Exception {
         BinaryGarbageCollector gc = ((KeyValueBlobTransientStore) ts).getBlobProvider()
                                                                      .getBinaryGarbageCollector();
-        gc.start();
+        gc.start(true);
         // mark nothing, so remove everything
         gc.stop(true);
     }
@@ -693,7 +693,7 @@ public class TestKeyValueBlobTransientStore {
         // given the GC supplied by the test case
 
         // when GC is started and isToDeleteEmpty is queried
-        garbageCollector.start();
+        garbageCollector.start(false);
         boolean actualResult = garbageCollector.isToDeleteEmpty();
         garbageCollector.stop(false);
 
@@ -769,7 +769,7 @@ public class TestKeyValueBlobTransientStore {
         transientStore.remove("gcFastExitEntry");
         transientStore.doGC(); // first GC: clears the blob from the InMemory store, toDelete now empty
 
-        // when doGC is called again with empty blob store (toDelete will be empty after gc.start())
+        // when doGC is called again with empty blob store (toDelete will be empty after gc.start(true))
         transientStore.doGC();
 
         // then storage size is 0 and no exception was thrown (fast-exit path completed cleanly)

@@ -20,12 +20,15 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.Test;
+import com.hyland.openarch.ecm.core.blob.binary.BinaryGarbageCollector;
 import com.hyland.openarch.runtime.test.runner.Deploy;
 
 @Deploy("com.hyland.openarch.ecm.core.api.tests:OSGI-INF/test-blob-provider-local-digest.xml")
@@ -95,6 +98,31 @@ public class TestLocalBlobStoreDigest extends TestAbstractBlobStore {
         assertEquals(n, done.get());
     }
 
+    @Test
+    public void testGCRecoveryCollision() throws IOException {
+        LocalBlobStore localBlobStore = (LocalBlobStore) bs;
+        String keptKey = bs.writeBlob(blobContext(ID1, FOO));
+        String recoveredKey = bs.writeBlob(blobContext(ID2, BAR));
+        Path blobPath = localBlobStore.pathStrategy.getPathForKey(recoveredKey);
+        Path relativePath = localBlobStore.pathStrategy.dir.relativize(blobPath);
+        Path recoveryPath = localBlobStore.pathStrategy.dir.resolve(AbstractBlobGarbageCollector.GC_RECOVERY_DIRECTORY)
+                                                      .resolve(relativePath);
+        assertFalse(Files.exists(recoveryPath));
 
+        BinaryGarbageCollector gc = bs.getBinaryGarbageCollector();
+        gc.start(true);
+        gc.mark(keptKey);
+        gc.stop(true);
+
+        assertFalse(Files.exists(blobPath));
+        assertTrue(Files.exists(recoveryPath));
+
+        Files.createDirectories(blobPath.getParent());
+        Files.writeString(blobPath, "new");
+
+        ((LocalBlobStore.LocalBlobGarbageCollector) gc).recoverRecoveryDirectory();
+        assertEquals("new", Files.readString(blobPath));
+        assertEquals(BAR, Files.readString(recoveryPath));
+    }
 
 }

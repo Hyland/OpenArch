@@ -56,6 +56,8 @@ public class InMemoryBlobStore extends AbstractBlobStore {
 
     protected Map<String, Boolean> legalHold = new ConcurrentHashMap<>();
 
+    protected Map<String, byte[]> recoveryMap = new ConcurrentHashMap<>();
+
     protected final InMemoryBlobGarbageCollector gc = new InMemoryBlobGarbageCollector();
 
     // used by unit tests to emulate absence of stream, to test copy
@@ -255,6 +257,7 @@ public class InMemoryBlobStore extends AbstractBlobStore {
     @Override
     public void clear() {
         map.clear();
+        recoveryMap.clear();
         legalHold.clear();
     }
 
@@ -290,10 +293,35 @@ public class InMemoryBlobStore extends AbstractBlobStore {
                 return -1;
             }
             if (delete) {
+                long t0 = System.currentTimeMillis();
+                if (DELETE_WITH_RECOVERY) {
+                    recoveryMap.put(key, bytes);
+                }
                 map.remove(key);
                 legalHold.remove(key);
+                log.debug("{} blob {} in {}ms", DELETE_WITH_RECOVERY ? "Moved to recovery" : "Deleted", key,
+                        System.currentTimeMillis() - t0);
             }
             return bytes.length;
+        }
+
+        @Override
+        protected void removeRecoveryDirectory() {
+            long t0 = System.currentTimeMillis();
+            recoveryMap.clear();
+            log.debug("Deleted recovery map in {}ms", System.currentTimeMillis() - t0);
+        }
+
+        @Override
+        protected void recoverRecoveryDirectory() {
+            long t0 = System.currentTimeMillis();
+            for (var it = recoveryMap.entrySet().iterator(); it.hasNext();) {
+                var entry = it.next();
+                if (map.putIfAbsent(entry.getKey(), entry.getValue()) == null) {
+                    it.remove();
+                }
+            }
+            log.debug("Recovered recovery map in {}ms", System.currentTimeMillis() - t0);
         }
     }
 

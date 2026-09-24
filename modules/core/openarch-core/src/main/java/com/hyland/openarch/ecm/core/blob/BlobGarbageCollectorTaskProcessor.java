@@ -29,9 +29,8 @@ import com.hyland.openarch.async.tasks.message.RepositoryTask;
 /**
  * Task processor running the blob garbage collector.
  * <p>
- * For now the GC always runs in non-delete (dry-run) mode: it only computes and logs statistics about the blobs that
- * would be collected, without actually deleting anything. This is meant for inspection until we decide to activate the
- * real deletion.
+ * The deletion behavior is controlled by hardcoded constants. When recovery is enabled, deleted blobs are moved under
+ * {@code .gcrecovery}; otherwise they and any existing recovery directory are permanently deleted.
  */
 public class BlobGarbageCollectorTaskProcessor implements TaskProcessor<RepositoryTask> {
 
@@ -39,8 +38,8 @@ public class BlobGarbageCollectorTaskProcessor implements TaskProcessor<Reposito
 
     public static final String BLOB_GC_TASK_NAME = "blobGarbageCollector";
 
-    /** Whether to actually delete the garbage collected blobs. For now we only run in dry-run mode. */
-    private static final boolean DELETE = false;
+    /** Whether to actually delete the garbage collected blobs. */
+    static boolean DELETE = true;
 
     @Override
     public String getName() {
@@ -55,13 +54,16 @@ public class BlobGarbageCollectorTaskProcessor implements TaskProcessor<Reposito
     @Override
     public void process(RepositoryTask task) {
         String taskId = task.getTaskId();
-        log.info("Starting blob GC task {} (delete={})", taskId, DELETE);
+        log.info("Starting blob GC task {} (delete={}, deleteWithRecovery={}, recoverRecovery={})", taskId, DELETE,
+                AbstractBlobGarbageCollector.DELETE_WITH_RECOVERY, AbstractBlobGarbageCollector.RECOVER_RECOVERY);
         boolean success = true;
         String errorMessage = null;
         try {
             DocumentBlobService documentBlobService = Framework.getService(DocumentBlobService.class);
             BinaryManagerStatus status = documentBlobService.garbageCollectBinaries(DELETE);
-            log.info("Completed blob GC task {} (delete={}): {}", taskId, DELETE, status);
+            log.info("Completed blob GC task {} (delete={}, deleteWithRecovery={}, recoverRecovery={}): {}", taskId,
+                    DELETE, AbstractBlobGarbageCollector.DELETE_WITH_RECOVERY,
+                    AbstractBlobGarbageCollector.RECOVER_RECOVERY, status);
         } catch (RuntimeException e) {
             log.error("Failed blob GC task {}", taskId, e);
             success = false;

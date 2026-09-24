@@ -87,6 +87,8 @@ public abstract class TestAbstractBlobStore {
     public void tearDown() throws IOException {
         bs.clear();
         Files.deleteIfExists(tmpFile);
+        AbstractBlobGarbageCollector.DELETE_WITH_RECOVERY = true;
+        AbstractBlobGarbageCollector.RECOVER_RECOVERY = false;
     }
 
     // we can't check the size on files encrypted when stored
@@ -365,7 +367,7 @@ public abstract class TestAbstractBlobStore {
         // GC in non-delete mode
         BinaryGarbageCollector gc = bs.getBinaryGarbageCollector();
         assertFalse(gc.isInProgress());
-        gc.start();
+        gc.start(false);
         assertTrue(gc.isInProgress());
         gc.mark(key1);
         assertTrue(gc.isInProgress());
@@ -385,7 +387,7 @@ public abstract class TestAbstractBlobStore {
 
         // real GC
         assertFalse(gc.isInProgress());
-        gc.start();
+        gc.start(true);
         assertTrue(gc.isInProgress());
         // when caching, create a tmp/other file in the cache that shouldn't disappear during GC
         Path cacheTmp = null;
@@ -437,7 +439,7 @@ public abstract class TestAbstractBlobStore {
 
         BinaryGarbageCollector gc = bs.getBinaryGarbageCollector();
         assertFalse(gc.isInProgress());
-        gc.start();
+        gc.start(true);
         assertTrue(gc.isInProgress());
         // when caching, create a tmp/other file in the cache that shouldn't disappear during GC
         Path cacheTmp = null;
@@ -479,6 +481,64 @@ public abstract class TestAbstractBlobStore {
         if (cacheOther != null) {
             assertTrue(Files.exists(cacheOther));
         }
+    }
+
+    @Test
+    public void testGCRecovery() throws IOException {
+        assumeFalse(bp.isTransactional(), "GC not tested in transactional blob store");
+
+        String keptKey = bs.writeBlob(blobContext(ID1, FOO));
+        String recoveredKey = bs.writeBlob(blobContext(ID2, BAR));
+        BinaryGarbageCollector gc = bs.getBinaryGarbageCollector();
+
+        gc.start(true);
+        gc.mark(keptKey);
+        gc.stop(true);
+        assertBlob(keptKey, FOO);
+        assertNoBlob(recoveredKey);
+
+        // Recovery storage is excluded from a normal dry run.
+        gc.start(false);
+        gc.mark(keptKey);
+        gc.stop(false);
+        assertEquals(0, gc.getStatus().getNumBinariesGC());
+        assertNoBlob(recoveredKey);
+
+        AbstractBlobGarbageCollector.RECOVER_RECOVERY = true;
+        gc.start(false);
+        gc.mark(keptKey);
+        gc.mark(recoveredKey);
+        gc.stop(false);
+        assertBlob(recoveredKey, BAR);
+    }
+
+    @Test
+    public void testGCPermanentDeletionAndRecoveryCleanup() throws IOException {
+        assumeFalse(bp.isTransactional(), "GC not tested in transactional blob store");
+
+        String keptKey = bs.writeBlob(blobContext(ID1, FOO));
+        String recoveredKey = bs.writeBlob(blobContext(ID2, BAR));
+        BinaryGarbageCollector gc = bs.getBinaryGarbageCollector();
+
+        gc.start(true);
+        gc.mark(keptKey);
+        gc.stop(true);
+        assertNoBlob(recoveredKey);
+
+        String deletedKey = bs.writeBlob(blobContext(ID4, "deleted"));
+        AbstractBlobGarbageCollector.DELETE_WITH_RECOVERY = false;
+        gc.start(true);
+        gc.mark(keptKey);
+        gc.stop(true);
+        assertNoBlob(deletedKey);
+
+        // Permanent deletion also removed the previous recovery storage.
+        AbstractBlobGarbageCollector.RECOVER_RECOVERY = true;
+        gc.start(false);
+        gc.mark(keptKey);
+        gc.stop(false);
+        assertNoBlob(recoveredKey);
+        assertNoBlob(deletedKey);
     }
 
 }

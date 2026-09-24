@@ -18,6 +18,7 @@ package com.hyland.openarch.ecm.core.blob;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
@@ -244,11 +245,18 @@ public class LocalBlobStore extends AbstractBlobStore {
         @Override
         public void computeToDelete() {
             Path dir = pathStrategy.dir;
+            Path recoveryDir = dir.resolve(GC_RECOVERY_DIRECTORY);
             if (!Files.isDirectory(dir)) {
                 return;
             }
             try {
                 Files.walkFileTree(dir, new SimpleFileVisitor<>() {
+                    @Override
+                    public FileVisitResult preVisitDirectory(Path currentDir, BasicFileAttributes attrs) {
+                        return currentDir.equals(recoveryDir) ? FileVisitResult.SKIP_SUBTREE
+                                : FileVisitResult.CONTINUE;
+                    }
+
                     @Override
                     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
                         // skip temp files: they are in-flight writes, not blobs (their random name isn't a key,
@@ -289,13 +297,73 @@ public class LocalBlobStore extends AbstractBlobStore {
                 return -1;
             }
             if (delete) {
+                long t0 = System.currentTimeMillis();
                 try {
-                    Files.delete(path);
+                    if (DELETE_WITH_RECOVERY) {
+                        Path relativePath = pathStrategy.dir.relativize(path);
+                        Path recoveryPath = pathStrategy.dir.resolve(GC_RECOVERY_DIRECTORY).resolve(relativePath);
+                        Files.createDirectories(recoveryPath.getParent());
+                        PathStrategy.atomicMove(path, recoveryPath);
+                        log.debug("Moved blob {} to recovery in {}ms", key, System.currentTimeMillis() - t0);
+                    } else {
+                        Files.delete(path);
+                        log.debug("Deleted blob {} in {}ms", key, System.currentTimeMillis() - t0);
+                    }
                 } catch (IOException e) {
                     log.error("Binary garbage collector failed to delete file for key: {}", key, e);
                 }
             }
             return length;
+        }
+
+        @Override
+        protected void removeRecoveryDirectory() {
+            Path recoveryDir = pathStrategy.dir.resolve(GC_RECOVERY_DIRECTORY);
+            long t0 = System.currentTimeMillis();
+            try {
+                FileUtils.deleteDirectory(recoveryDir.toFile());
+                log.debug("Deleted recovery directory {} in {}ms", recoveryDir, System.currentTimeMillis() - t0);
+            } catch (IOException e) {
+                log.error("Binary garbage collector failed to delete recovery directory: {}", recoveryDir, e);
+            }
+        }
+
+        @Override
+        protected void recoverRecoveryDirectory() {
+            Path recoveryDir = pathStrategy.dir.resolve(GC_RECOVERY_DIRECTORY);
+            if (!Files.isDirectory(recoveryDir)) {
+                return;
+            }
+            long t0 = System.currentTimeMillis();
+            try {
+                Files.walkFileTree(recoveryDir, new SimpleFileVisitor<>() {
+                    @Override
+                    public FileVisitResult visitFile(Path recoveryPath, BasicFileAttributes attrs) throws IOException {
+                        Path path = pathStrategy.dir.resolve(recoveryDir.relativize(recoveryPath));
+                        if (!Files.exists(path)) {
+                            Files.createDirectories(path.getParent());
+                            PathStrategy.atomicMove(recoveryPath, path);
+                        }
+                        return FileVisitResult.CONTINUE;
+                    }
+
+                    @Override
+                    public FileVisitResult postVisitDirectory(Path dir, IOException e) throws IOException {
+                        if (e != null) {
+                            throw e;
+                        }
+                        try {
+                            Files.delete(dir);
+                        } catch (DirectoryNotEmptyException ignored) {
+                            // recovery files with live-path collisions remain untouched
+                        }
+                        return FileVisitResult.CONTINUE;
+                    }
+                });
+                log.debug("Recovered directory {} in {}ms", recoveryDir, System.currentTimeMillis() - t0);
+            } catch (IOException e) {
+                log.error("Binary garbage collector failed to recover directory: {}", recoveryDir, e);
+            }
         }
 
     }

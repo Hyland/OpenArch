@@ -33,6 +33,18 @@ public abstract class AbstractBlobGarbageCollector implements BinaryGarbageColle
 
     private static final Logger log = LogManager.getLogger(AbstractBlobGarbageCollector.class);
 
+    public static final String GC_RECOVERY_DIRECTORY = ".gcrecovery";
+
+    /**
+     * Whether garbage collection with deletion moves blobs to the recovery directory instead of deleting them.
+     */
+    public static boolean DELETE_WITH_RECOVERY = true;
+
+    /**
+     * Whether garbage collection without deletion restores blobs from the recovery directory.
+     */
+    public static boolean RECOVER_RECOVERY = false;
+
     // volatile as this is designed to be called from another thread
     protected volatile long startTime;
 
@@ -55,11 +67,14 @@ public abstract class AbstractBlobGarbageCollector implements BinaryGarbageColle
     }
 
     @Override
-    public void start() {
+    public void start(boolean delete) {
         if (startTime != 0) {
             throw new GCAlreadyStartedException("Already started");
         }
         log.info("Starting blob GC for {}", getId());
+        if (!delete && RECOVER_RECOVERY) {
+            recoverRecoveryDirectory();
+        }
         startTime = System.nanoTime();
         status = new BinaryManagerStatus();
         // allocate the thread-safe marked set before computeToDelete(), so that blobs written concurrently during the
@@ -98,6 +113,9 @@ public abstract class AbstractBlobGarbageCollector implements BinaryGarbageColle
                 status.setSizeBinaries(status.getSizeBinaries() - length);
                 status.setNumBinaries(status.getNumBinaries() - 1);
             }
+            if (delete && !DELETE_WITH_RECOVERY) {
+                removeRecoveryDirectory();
+            }
             status.setDuration(Duration.ofNanos(System.nanoTime() - startTime));
             log.info("Completed blob GC for {}: {}", getId(), status);
         } catch (RuntimeException e) {
@@ -116,6 +134,20 @@ public abstract class AbstractBlobGarbageCollector implements BinaryGarbageColle
      * @return the blob length, or a negative value if the blob is not present (then it isn't counted in the status)
      */
     protected abstract long removeUnmarkedBlob(String key, boolean delete);
+
+    /**
+     * Permanently removes the recovery directory.
+     */
+    protected void removeRecoveryDirectory() {
+        // no recovery directory by default
+    }
+
+    /**
+     * Restores blobs from the recovery directory.
+     */
+    protected void recoverRecoveryDirectory() {
+        // no recovery directory by default
+    }
 
     @Override
     public void mark(String key) {

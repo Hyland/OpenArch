@@ -258,7 +258,7 @@ public class KeyValueBlobTransientStore implements TransientStoreProvider {
         BlobProvider bp = getBlobProvider();
         BinaryGarbageCollector gc = bp.getBinaryGarbageCollector();
         boolean delete = false;
-        gc.start();
+        gc.start(true);
         // if a concurrent user of the key/value store adds new keys after this point,
         // it's ok because the GC doesn't delete keys created after GC start
         boolean blobStoreNotEmpty = !gc.isToDeleteEmpty();

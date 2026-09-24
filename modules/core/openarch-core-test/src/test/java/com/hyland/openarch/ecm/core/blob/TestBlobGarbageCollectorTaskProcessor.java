@@ -26,6 +26,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.MockedStatic;
@@ -46,6 +47,11 @@ public class TestBlobGarbageCollectorTaskProcessor {
 
     private final BlobGarbageCollectorTaskProcessor processor = new BlobGarbageCollectorTaskProcessor();
 
+    @AfterEach
+    void resetDelete() {
+        BlobGarbageCollectorTaskProcessor.DELETE = true;
+    }
+
     @Test
     void testTaskProcessorBasicFunctionality() {
         assertEquals(BlobGarbageCollectorTaskProcessor.BLOB_GC_TASK_NAME, processor.getName());
@@ -53,7 +59,7 @@ public class TestBlobGarbageCollectorTaskProcessor {
     }
 
     @Test
-    void testProcessRunsGCInNonDeleteMode() {
+    void testProcessRunsGCInDeleteMode() {
         DocumentBlobService documentBlobService = mock(DocumentBlobService.class);
         when(documentBlobService.garbageCollectBinaries(anyBoolean())).thenReturn(new BinaryManagerStatus());
         TaskService taskService = mock(TaskService.class);
@@ -70,10 +76,10 @@ public class TestBlobGarbageCollectorTaskProcessor {
             processor.process(task);
         }
 
-        // GC must run in non-delete (dry-run) mode
+        // GC must run in delete mode
         ArgumentCaptor<Boolean> deleteCaptor = ArgumentCaptor.forClass(Boolean.class);
         verify(documentBlobService).garbageCollectBinaries(deleteCaptor.capture());
-        assertEquals(Boolean.FALSE, deleteCaptor.getValue());
+        assertEquals(Boolean.TRUE, deleteCaptor.getValue());
 
         // The task status must be marked completed with no error
         assertEquals(State.COMPLETED, status.getState());
@@ -109,7 +115,7 @@ public class TestBlobGarbageCollectorTaskProcessor {
     }
 
     @Test
-    void testProcessNeverDeletesBlobs() {
+    void testProcessDeletesBlobs() {
         DocumentBlobService documentBlobService = mock(DocumentBlobService.class);
         when(documentBlobService.garbageCollectBinaries(anyBoolean())).thenReturn(new BinaryManagerStatus());
         TaskService taskService = mock(TaskService.class);
@@ -125,7 +131,26 @@ public class TestBlobGarbageCollectorTaskProcessor {
             processor.process(task);
         }
 
-        // Only the dry-run call is ever made; delete mode is never triggered
+        verify(documentBlobService).garbageCollectBinaries(true);
+        verify(documentBlobService, never()).garbageCollectBinaries(false);
+    }
+
+    @Test
+    void testProcessRunsGCInDryRunMode() {
+        BlobGarbageCollectorTaskProcessor.DELETE = false;
+        DocumentBlobService documentBlobService = mock(DocumentBlobService.class);
+        when(documentBlobService.garbageCollectBinaries(anyBoolean())).thenReturn(new BinaryManagerStatus());
+        TaskService taskService = mock(TaskService.class);
+        when(taskService.getStatus(TASK_ID)).thenReturn(new TaskStatus(TASK_ID));
+        RepositoryTask task = mock(RepositoryTask.class);
+        when(task.getTaskId()).thenReturn(TASK_ID);
+
+        try (MockedStatic<Framework> framework = mockStatic(Framework.class)) {
+            framework.when(() -> Framework.getService(DocumentBlobService.class)).thenReturn(documentBlobService);
+            framework.when(() -> Framework.getService(TaskService.class)).thenReturn(taskService);
+            processor.process(task);
+        }
+
         verify(documentBlobService).garbageCollectBinaries(false);
         verify(documentBlobService, never()).garbageCollectBinaries(true);
     }
