@@ -8,10 +8,10 @@
     dispatches to the raiser that supports that event.
   </documentation>
 
-  <implementation class="org.nuxeo.ecm.core.event.raiser.DocumentEventRaiserComponent" />
+  <implementation class="com.hyland.openarch.ecm.core.event.raiser.DocumentEventRaiserComponent" />
 
   <service>
-    <provide interface="org.nuxeo.ecm.core.event.raiser.DocumentEventRaiserService" />
+    <provide interface="com.hyland.openarch.ecm.core.event.raiser.DocumentEventRaiserService" />
   </service>
 
     <extension-point name="raisers">
@@ -26,15 +26,15 @@
                         class="org.nuxeo.ecm.core.event.raise.DocumentBlobModifiedEventRaiser" />
             </code>
         </documentation>
-        <object class="org.nuxeo.ecm.core.event.raiser.DocumentEventRaiserDescriptor" />
-        <registry class="org.nuxeo.ecm.core.event.raiser.DocumentEventRaiserRegistry" />
+        <object class="com.hyland.openarch.ecm.core.event.raiser.DocumentEventRaiserDescriptor" />
+        <registry class="com.hyland.openarch.ecm.core.event.raiser.DocumentEventRaiserRegistry" />
     </extension-point>
 
     <extension target="org.nuxeo.ecm.core.event.raise.DocumentEventRaiserService" point="raisers">
         <raiser name="DOCUMENT_UPDATED"
-                class="org.nuxeo.ecm.core.event.raiser.DocumentUpdatedEventRaiser" />
+                class="com.hyland.openarch.ecm.core.event.raiser.DocumentUpdatedEventRaiser" />
         <raiser name="DOCUMENT_BLOB_MODIFIED"
-                class="org.nuxeo.ecm.core.event.raiser.DocumentBlobModifiedEventRaiser" />
+                class="com.hyland.openarch.ecm.core.event.raiser.DocumentBlobModifiedEventRaiser" />
     </extension>
 
 </component>

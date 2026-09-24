@@ -15,17 +15,17 @@
  */
 package org.nuxeo.opensearch.query;
 
-import static org.nuxeo.ecm.core.api.DocumentConstants.CIN_SOURCE_ID;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ID;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_BLOB_REF;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_DOCUMENT_ID;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_ID;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_LOCATION;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_TEXT;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_TYPE;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_VECTOR;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.HYBRID_PIPELINE;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.CIN_SOURCE_ID;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ID;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_BLOB_REF;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_DOCUMENT_ID;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_ID;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_LOCATION;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_TEXT;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_TYPE;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_VECTOR;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.HYBRID_PIPELINE;
 import static org.nuxeo.opensearch.OpenSearchConstants.OPENSEARCH_SCORE_FIELD;
 
 import java.util.ArrayList;
@@ -38,11 +38,11 @@ import java.util.function.BiConsumer;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.nuxeo.ecm.core.api.CoreInstance;
-import org.nuxeo.ecm.core.api.CoreSession;
-import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.ecm.core.query.nxql.SortInfo;
-import org.nuxeo.ecm.core.query.sql.model.Statement;
+import com.hyland.openarch.ecm.core.api.CoreInstance;
+import com.hyland.openarch.ecm.core.api.CoreSession;
+import com.hyland.openarch.ecm.core.api.DocumentModel;
+import com.hyland.openarch.ecm.core.query.nxql.SortInfo;
+import com.hyland.openarch.ecm.core.query.sql.model.Statement;
 import com.hyland.openarch.ecm.core.schema.SchemaManager;
 import com.hyland.openarch.ecm.core.schema.types.Type;
 import org.nuxeo.opensearch.OpenSearchConstants;

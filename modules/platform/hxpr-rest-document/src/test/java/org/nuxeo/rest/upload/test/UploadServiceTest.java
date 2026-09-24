@@ -33,9 +33,9 @@ import java.io.IOException;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.nuxeo.ecm.core.api.Blob;
-import org.nuxeo.ecm.core.api.NuxeoException;
-import org.nuxeo.ecm.core.test.CoreFeature;
+import com.hyland.openarch.ecm.core.api.Blob;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.test.CoreFeature;
 import org.nuxeo.rest.upload.Upload;
 import org.nuxeo.rest.upload.UploadDTO;
 import org.nuxeo.rest.upload.UploadServiceImpl;

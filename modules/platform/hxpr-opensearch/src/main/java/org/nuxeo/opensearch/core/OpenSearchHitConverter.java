@@ -15,7 +15,7 @@
  */
 package org.nuxeo.opensearch.core;
 
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_FULLTEXT_SCORE;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_FULLTEXT_SCORE;
 
 import java.util.HashMap;
 import java.util.List;

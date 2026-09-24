@@ -24,8 +24,8 @@ import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
-import org.nuxeo.ecm.core.query.QuerySyntax;
-import org.nuxeo.ecm.core.query.nxql.SortInfo;
+import com.hyland.openarch.ecm.core.query.QuerySyntax;
+import com.hyland.openarch.ecm.core.query.nxql.SortInfo;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;

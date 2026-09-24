@@ -35,7 +35,7 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.nuxeo.ecm.core.api.DocumentModel;
+import com.hyland.openarch.ecm.core.api.DocumentModel;
 import org.nuxeo.opensearch.api.OpenSearchClient;
 import org.nuxeo.opensearch.commands.IndexingCommand;
 import org.nuxeo.opensearch.commands.IndexingCommand.Type;

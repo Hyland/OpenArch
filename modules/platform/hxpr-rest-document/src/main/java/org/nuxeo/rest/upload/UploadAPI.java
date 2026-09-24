@@ -45,7 +45,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Map;
 
-import org.nuxeo.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
 import org.nuxeo.rest.swagger.annotation.ApiResponse200;
 import org.nuxeo.rest.swagger.annotation.ApiResponse201;
 import org.nuxeo.rest.swagger.annotation.ApiResponse202;

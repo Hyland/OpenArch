@@ -21,9 +21,9 @@ import java.net.URISyntaxException;
 
 import jakarta.servlet.http.HttpServletRequest;
 
-import org.nuxeo.ecm.core.blob.BlobService;
-import org.nuxeo.ecm.core.blob.LocalBlobProvider;
-import org.nuxeo.ecm.core.blob.ManagedBlob;
+import com.hyland.openarch.ecm.core.blob.BlobService;
+import com.hyland.openarch.ecm.core.blob.LocalBlobProvider;
+import com.hyland.openarch.ecm.core.blob.ManagedBlob;
 
 /**
  * Simple Url provider based on the LocalBlobProvider used in the DownloadApi tests. It returns a dummy S3 URI for the

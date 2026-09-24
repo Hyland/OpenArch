@@ -17,12 +17,12 @@ package com.hyland.hxpr.async.tasks.executors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.nuxeo.ecm.core.api.CoreInstance;
-import org.nuxeo.ecm.core.api.CoreSession;
-import org.nuxeo.ecm.core.api.DocumentRef;
-import org.nuxeo.ecm.core.api.IdRef;
-import org.nuxeo.ecm.core.api.NuxeoException;
-import org.nuxeo.ecm.core.api.PropertyException;
+import com.hyland.openarch.ecm.core.api.CoreInstance;
+import com.hyland.openarch.ecm.core.api.CoreSession;
+import com.hyland.openarch.ecm.core.api.DocumentRef;
+import com.hyland.openarch.ecm.core.api.IdRef;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.PropertyException;
 
 import com.hyland.hxpr.async.tasks.message.BatchTask;
 

@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <component name="org.nuxeo.ecm.core.scheduler.test.config">
   <extension
-    target="org.nuxeo.ecm.core.scheduler.SchedulerService"
+    target="com.hyland.openarch.ecm.core.scheduler.SchedulerService"
     point="schedule">
     <schedule id="testing">
       <userid>Administrator</userid>
-      <class>org.nuxeo.ecm.core.scheduler.DummyScheduledJob</class>
+      <class>com.hyland.openarch.ecm.core.scheduler.DummyScheduledJob</class>
       <!-- every second -->
       <cronExpression>*/1 * * * * ?</cronExpression>
     </schedule>

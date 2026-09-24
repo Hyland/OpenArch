@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.nuxeo.ecm.core.model.EmbeddingModel.VECTOR_SIZE;
+import static com.hyland.openarch.ecm.core.model.EmbeddingModel.VECTOR_SIZE;
 
 import java.io.File;
 import java.net.URISyntaxException;
@@ -30,10 +30,10 @@ import java.util.UUID;
 import org.apache.avro.generic.GenericData;
 import org.junit.jupiter.api.Test;
 import com.hyland.openarch.common.utils.IdUtils;
-import org.nuxeo.ecm.core.api.Blob;
-import org.nuxeo.ecm.core.api.Blobs;
-import org.nuxeo.ecm.core.model.EmbeddingModel;
-import org.nuxeo.ecm.core.model.LocationModel;
+import com.hyland.openarch.ecm.core.api.Blob;
+import com.hyland.openarch.ecm.core.api.Blobs;
+import com.hyland.openarch.ecm.core.model.EmbeddingModel;
+import com.hyland.openarch.ecm.core.model.LocationModel;
 
 public class ParquetEmbeddingsParserTest {
 

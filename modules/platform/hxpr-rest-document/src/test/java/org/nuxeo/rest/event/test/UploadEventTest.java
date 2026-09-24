@@ -17,17 +17,17 @@ package org.nuxeo.rest.event.test;
 
 import static jakarta.ws.rs.core.Response.Status.OK;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.nuxeo.ecm.core.api.impl.blob.AbstractBlob.TEXT_PLAIN;
-import static org.nuxeo.ecm.core.api.impl.blob.AbstractBlob.UTF_8;
+import static com.hyland.openarch.ecm.core.api.impl.blob.AbstractBlob.TEXT_PLAIN;
+import static com.hyland.openarch.ecm.core.api.impl.blob.AbstractBlob.UTF_8;
 import static org.nuxeo.rest.document.AbstractDocumentAPI.PATH;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import org.junit.jupiter.api.Test;
-import org.nuxeo.ecm.core.api.Blobs;
-import org.nuxeo.ecm.core.event.Event;
-import org.nuxeo.ecm.core.event.impl.document.UploadEvent;
-import org.nuxeo.ecm.core.event.test.CapturingEventListener;
+import com.hyland.openarch.ecm.core.api.Blobs;
+import com.hyland.openarch.ecm.core.event.Event;
+import com.hyland.openarch.ecm.core.event.impl.document.UploadEvent;
+import com.hyland.openarch.ecm.core.event.test.CapturingEventListener;
 import org.nuxeo.rest.document.DocumentAPI;
 import org.nuxeo.rest.document.test.AbstractAPITest;
 import org.nuxeo.rest.document.test.DocumentAPITestConfiguration;

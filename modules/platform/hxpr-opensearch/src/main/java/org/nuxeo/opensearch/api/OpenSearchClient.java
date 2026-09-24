@@ -17,7 +17,7 @@ package org.nuxeo.opensearch.api;
 
 import java.util.Collection;
 
-import org.nuxeo.ecm.core.api.ConcurrentUpdateException;
+import com.hyland.openarch.ecm.core.api.ConcurrentUpdateException;
 import org.nuxeo.opensearch.io.DocumentDTO;
 import org.opensearch.client.json.JsonpMapper;
 import org.opensearch.client.json.JsonpSerializable;

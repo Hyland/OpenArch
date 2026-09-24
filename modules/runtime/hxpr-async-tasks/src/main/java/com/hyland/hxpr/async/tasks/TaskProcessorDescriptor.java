@@ -20,7 +20,7 @@ import com.hyland.openarch.common.xmap.annotation.XObject;
 import com.hyland.openarch.common.xmap.registry.XEnable;
 import com.hyland.openarch.common.xmap.registry.XRegistry;
 import com.hyland.openarch.common.xmap.registry.XRegistryId;
-import org.nuxeo.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
 
 @XObject("asyncTask")
 @XRegistry

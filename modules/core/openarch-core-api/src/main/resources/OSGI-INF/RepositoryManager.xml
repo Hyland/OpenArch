@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<component name="com.hyland.openarch.ecm.core.api.repository.RepositoryManager">
+  <documentation>
+    Manages repositories.
+  </documentation>
+
+  <implementation class="com.hyland.openarch.ecm.core.api.repository.RepositoryManagerImpl" />
+
+  <service>
+    <provide interface="com.hyland.openarch.ecm.core.api.repository.RepositoryManager" />
+  </service>
+
+</component>

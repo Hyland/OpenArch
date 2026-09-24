@@ -16,9 +16,7 @@
 package com.hyland.hxpr.async.tasks;
 
 import com.hyland.hxpr.async.tasks.message.DocumentTask;
-import org.nuxeo.ecm.core.api.NuxeoException;
-
-import java.io.IOException;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
 
 public class FailTaskProcessor implements TaskProcessor<DocumentTask> {
 

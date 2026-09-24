@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <component name="org.nuxeo.ecm.core.test.repository">
 
-  <extension target="org.nuxeo.ecm.core.storage.mongodb.MongoDBRepositoryService" point="repository">
+  <extension target="com.hyland.openarch.ecm.core.storage.mongodb.MongoDBRepositoryService" point="repository">
     <repository name="test" label="MongoDB Repository">
       <fulltext disabled="${nuxeo.test.fulltext.disabled}"
                 storedInBlob="${nuxeo.test.fulltext.storedInBlob}">

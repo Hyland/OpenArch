@@ -15,37 +15,37 @@
  */
 package org.nuxeo.opensearch.io;
 
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_BOTTOM;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_COLUMN;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_END;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_LEFT;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_PAGE;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_PARAGRAPH;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_POSITION;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_RIGHT;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_ROW;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_SHEET;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_SPREADSHEET;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_START;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_TEXT;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_TIMESTAMP;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_TOP;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_BLOB_REF;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_ID;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_LOCATION;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_TEXT;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_TYPE;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY_CLOUD;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY_ON_PREM;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_VECTOR;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_BOTTOM;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_COLUMN;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_END;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_LEFT;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_PAGE;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_PARAGRAPH;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_POSITION;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_RIGHT;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_ROW;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_SHEET;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_SPREADSHEET;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_START;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_TEXT;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_TIMESTAMP;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_TOP;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_BLOB_REF;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_ID;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_LOCATION;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_TEXT;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_TYPE;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY_CLOUD;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY_ON_PREM;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_VECTOR;
 
 import java.io.IOException;
 
 import org.apache.commons.io.output.CountingOutputStream;
 import org.apache.commons.io.output.NullOutputStream;
-import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.ecm.core.model.EmbeddingModel;
+import com.hyland.openarch.ecm.core.api.DocumentModel;
+import com.hyland.openarch.ecm.core.model.EmbeddingModel;
 import org.opensearch.client.json.JsonpMapper;
 import org.opensearch.client.json.JsonpSerializable;
 

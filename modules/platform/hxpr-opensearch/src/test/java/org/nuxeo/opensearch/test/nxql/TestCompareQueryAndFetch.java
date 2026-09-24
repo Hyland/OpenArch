@@ -17,7 +17,7 @@ package org.nuxeo.opensearch.test.nxql;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_TITLE;
 import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FOLDER;
 
 import java.time.Duration;
@@ -34,11 +34,11 @@ import com.hyland.hxpr.async.tasks.TaskService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.nuxeo.ecm.core.api.CoreSession;
-import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.ecm.core.api.IterableQueryResult;
-import org.nuxeo.ecm.core.api.PathRef;
-import org.nuxeo.ecm.core.api.trash.TrashService;
+import com.hyland.openarch.ecm.core.api.CoreSession;
+import com.hyland.openarch.ecm.core.api.DocumentModel;
+import com.hyland.openarch.ecm.core.api.IterableQueryResult;
+import com.hyland.openarch.ecm.core.api.PathRef;
+import com.hyland.openarch.ecm.core.api.trash.TrashService;
 import org.nuxeo.opensearch.api.OpenSearchService;
 import org.nuxeo.opensearch.api.OpenSearchResult;
 import org.nuxeo.opensearch.core.OpenSearchResultSetImpl;

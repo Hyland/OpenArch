@@ -52,8 +52,8 @@ import java.lang.annotation.Target;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.NonNull;
-import org.nuxeo.ecm.core.api.NuxeoException;
-import org.nuxeo.ecm.core.api.repository.RepositoryManager;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.repository.RepositoryManager;
 import com.hyland.openarch.ecm.core.schema.SchemaManager;
 import com.hyland.openarch.ecm.core.schema.TypeService;
 import com.hyland.openarch.ecm.core.schema.TypeService.ModelWithVersion;

@@ -19,7 +19,7 @@ import static jakarta.servlet.http.HttpServletResponse.SC_CONFLICT;
 
 import java.util.function.Supplier;
 
-import org.nuxeo.ecm.core.api.validation.AbstractValidationException;
+import com.hyland.openarch.ecm.core.api.validation.AbstractValidationException;
 
 /**
  * The status a configuration the repository refuses is reported with.

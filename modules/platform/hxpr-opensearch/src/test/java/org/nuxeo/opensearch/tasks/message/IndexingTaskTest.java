@@ -25,7 +25,7 @@ import com.hyland.hxpr.async.tasks.AsyncTasksFeature;
 import com.hyland.hxpr.async.tasks.TaskServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.nuxeo.ecm.core.api.DocumentModel;
+import com.hyland.openarch.ecm.core.api.DocumentModel;
 import org.nuxeo.opensearch.commands.IndexingCommand;
 import com.hyland.openarch.runtime.cluster.BasicClusterFeature;
 import com.hyland.openarch.runtime.test.runner.Deploy;

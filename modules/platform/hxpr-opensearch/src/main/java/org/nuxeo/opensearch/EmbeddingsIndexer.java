@@ -15,13 +15,13 @@
  */
 package org.nuxeo.opensearch;
 
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_MIXIN_TYPES;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_NAME;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PARENT_ID;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PRIMARY_TYPE;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY_ON_PREM;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_TYPE;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_MIXIN_TYPES;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_NAME;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PARENT_ID;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PRIMARY_TYPE;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY_ON_PREM;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_TYPE;
 import static com.hyland.openarch.ecm.core.schema.MixinNames.SYS_HAS_EMBEDDINGS;
 import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_EMBEDDINGS;
 
@@ -37,13 +37,13 @@ import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.nuxeo.ecm.core.SysEmbeddingsPolicies;
-import org.nuxeo.ecm.core.api.Blob;
-import org.nuxeo.ecm.core.api.DocumentConstants;
-import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.ecm.core.api.NuxeoException;
-import org.nuxeo.ecm.core.api.OnPremChunkTextWriter;
-import org.nuxeo.ecm.core.model.EmbeddingModel;
+import com.hyland.openarch.ecm.core.SysEmbeddingsPolicies;
+import com.hyland.openarch.ecm.core.api.Blob;
+import com.hyland.openarch.ecm.core.api.DocumentConstants;
+import com.hyland.openarch.ecm.core.api.DocumentModel;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.OnPremChunkTextWriter;
+import com.hyland.openarch.ecm.core.model.EmbeddingModel;
 import org.nuxeo.opensearch.commands.IndexingCommand;
 import org.nuxeo.opensearch.config.EmbeddingsParserDescriptor;
 import org.nuxeo.opensearch.io.DocumentDTO;

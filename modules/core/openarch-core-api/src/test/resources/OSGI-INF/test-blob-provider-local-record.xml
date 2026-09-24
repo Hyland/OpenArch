@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.ecm.core.blob.local-record">
+  <extension target="com.hyland.openarch.ecm.core.blob.BlobService" point="configuration">
+    <blobprovider name="test">
+      <class>com.hyland.openarch.ecm.core.blob.LocalBlobProvider</class>
+      <property name="path">test</property>
+      <property name="record">true</property>
+    </blobprovider>
+    <blobprovider name="other">
+      <class>com.hyland.openarch.ecm.core.blob.LocalBlobProvider</class>
+      <property name="path">other</property>
+      <property name="record">true</property>
+    </blobprovider>
+  </extension>
+</component>

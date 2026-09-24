@@ -15,10 +15,10 @@
  */
 package org.nuxeo.rest.query.test;
 
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_TITLE;
 
-import org.nuxeo.ecm.core.api.CoreSession;
-import org.nuxeo.ecm.core.api.DocumentModel;
+import com.hyland.openarch.ecm.core.api.CoreSession;
+import com.hyland.openarch.ecm.core.api.DocumentModel;
 import org.nuxeo.opensearch.test.RepositoryOpenSearchFeature;
 import com.hyland.openarch.runtime.test.runner.Features;
 import com.hyland.openarch.runtime.transaction.TransactionHelper;

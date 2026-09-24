@@ -26,12 +26,12 @@ import java.io.IOException;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.nuxeo.ecm.core.blob.BlobProvider;
-import org.nuxeo.ecm.core.blob.BlobStore;
-import org.nuxeo.ecm.core.blob.BlobStoreBlobProvider;
-import org.nuxeo.ecm.core.blob.InMemoryBlobStore;
-import org.nuxeo.ecm.core.blob.KeyStrategyDigest;
-import org.nuxeo.ecm.core.blob.TestAbstractBlobStore;
+import com.hyland.openarch.ecm.core.blob.BlobProvider;
+import com.hyland.openarch.ecm.core.blob.BlobStore;
+import com.hyland.openarch.ecm.core.blob.BlobStoreBlobProvider;
+import com.hyland.openarch.ecm.core.blob.InMemoryBlobStore;
+import com.hyland.openarch.ecm.core.blob.KeyStrategyDigest;
+import com.hyland.openarch.ecm.core.blob.TestAbstractBlobStore;
 
 /**
  * Base blob-store tests for a cloud blob provider (S3, Azure, ...), covering the copy/move code path optimized for two

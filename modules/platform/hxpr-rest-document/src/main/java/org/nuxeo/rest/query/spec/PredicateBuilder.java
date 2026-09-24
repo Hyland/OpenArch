@@ -15,7 +15,7 @@
  */
 package org.nuxeo.rest.query.spec;
 
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_FULLTEXT;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_FULLTEXT;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 import java.util.ArrayList;
@@ -25,18 +25,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.nuxeo.ecm.core.api.NuxeoException;
-import org.nuxeo.ecm.core.query.QueryParseException;
-import org.nuxeo.ecm.core.query.nxql.FulltextSanitizer;
-import org.nuxeo.ecm.core.query.sql.HXQLParser;
-import org.nuxeo.ecm.core.query.sql.model.Literal;
-import org.nuxeo.ecm.core.query.sql.model.LiteralList;
-import org.nuxeo.ecm.core.query.sql.model.Literals;
-import org.nuxeo.ecm.core.query.sql.model.MultiExpression;
-import org.nuxeo.ecm.core.query.sql.model.Operator;
-import org.nuxeo.ecm.core.query.sql.model.Predicate;
-import org.nuxeo.ecm.core.query.sql.model.Reference;
-import org.nuxeo.ecm.core.query.sql.model.StringLiteral;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.query.QueryParseException;
+import com.hyland.openarch.ecm.core.query.nxql.FulltextSanitizer;
+import com.hyland.openarch.ecm.core.query.sql.HXQLParser;
+import com.hyland.openarch.ecm.core.query.sql.model.Literal;
+import com.hyland.openarch.ecm.core.query.sql.model.LiteralList;
+import com.hyland.openarch.ecm.core.query.sql.model.Literals;
+import com.hyland.openarch.ecm.core.query.sql.model.MultiExpression;
+import com.hyland.openarch.ecm.core.query.sql.model.Operator;
+import com.hyland.openarch.ecm.core.query.sql.model.Predicate;
+import com.hyland.openarch.ecm.core.query.sql.model.Reference;
+import com.hyland.openarch.ecm.core.query.sql.model.StringLiteral;
 import org.nuxeo.rest.query.io.WhereClauseDTO.RestPredicate;
 import org.nuxeo.rest.query.io.WhereClauseDTO.RestPredicateParameter;
 

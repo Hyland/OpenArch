@@ -47,7 +47,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import com.hyland.openarch.common.resilience.Resilience4jRegistries;
-import org.nuxeo.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
 import org.nuxeo.opensearch.api.OpenSearchClient;
 import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.test.runner.Features;

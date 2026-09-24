@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 import com.hyland.openarch.ecm.core.schema.TypeService;
 import com.hyland.openarch.ecm.core.schema.dto.ContentModelDTO;
-import org.nuxeo.ecm.core.test.CoreFeature;
+import com.hyland.openarch.ecm.core.test.CoreFeature;
 import org.nuxeo.rest.document.ObjectMapperConfiguration;
 import org.nuxeo.rest.model.exception.ModelValidationException;
 import org.nuxeo.rest.model.validation.ModelValidator;

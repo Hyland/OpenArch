@@ -17,7 +17,7 @@ package org.nuxeo.ecm.platform.login.filestore;
 
 import java.lang.reflect.Method;
 
-import org.nuxeo.ecm.core.api.local.WithUser;
+import com.hyland.openarch.ecm.core.api.local.WithUser;
 import com.hyland.openarch.runtime.springboot.junit.security.MockAuthenticationSupport;
 import com.hyland.openarch.runtime.test.runner.Deploy;
 import com.hyland.openarch.runtime.test.runner.FeaturesLoader;

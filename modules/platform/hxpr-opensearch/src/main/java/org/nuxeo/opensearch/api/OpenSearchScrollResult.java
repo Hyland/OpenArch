@@ -15,8 +15,8 @@
  */
 package org.nuxeo.opensearch.api;
 
-import org.nuxeo.ecm.core.api.DocumentModelList;
-import org.nuxeo.ecm.core.api.IterableQueryResult;
+import com.hyland.openarch.ecm.core.api.DocumentModelList;
+import com.hyland.openarch.ecm.core.api.IterableQueryResult;
 import org.nuxeo.opensearch.io.DocumentDTO;
 import org.nuxeo.opensearch.query.OpenSearchQueryBuilder;
 import org.opensearch.client.opensearch.core.SearchResponse;

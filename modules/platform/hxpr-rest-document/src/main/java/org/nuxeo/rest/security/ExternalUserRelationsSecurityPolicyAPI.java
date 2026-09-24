@@ -33,12 +33,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.nuxeo.ecm.core.api.NuxeoException;
-import org.nuxeo.ecm.core.api.repository.RepositoryManager;
-import org.nuxeo.ecm.core.security.ExternalUserRelationsSecurityPolicy;
-import org.nuxeo.ecm.core.security.SecurityPolicy;
-import org.nuxeo.ecm.core.security.SecurityPolicyService;
-import org.nuxeo.ecm.core.security.SecurityService;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.repository.RepositoryManager;
+import com.hyland.openarch.ecm.core.security.ExternalUserRelationsSecurityPolicy;
+import com.hyland.openarch.ecm.core.security.SecurityPolicy;
+import com.hyland.openarch.ecm.core.security.SecurityPolicyService;
+import com.hyland.openarch.ecm.core.security.SecurityService;
 import org.nuxeo.rest.auth.AdministratorAccess;
 import org.nuxeo.rest.swagger.annotation.ApiResponse200;
 import org.nuxeo.rest.swagger.annotation.ApiResponse204;

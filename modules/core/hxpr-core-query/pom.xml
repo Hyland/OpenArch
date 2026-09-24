@@ -17,7 +17,7 @@
   <dependencies>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-core-api</artifactId>
+      <artifactId>openarch-core-api</artifactId>
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>

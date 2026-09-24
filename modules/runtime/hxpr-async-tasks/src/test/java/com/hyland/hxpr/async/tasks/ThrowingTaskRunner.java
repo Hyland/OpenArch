@@ -18,12 +18,13 @@ package com.hyland.hxpr.async.tasks;
 import com.hyland.hxpr.async.tasks.message.Task;
 import com.hyland.openarch.common.utils.BatchUtils;
 import com.hyland.openarch.common.utils.TooLargeException;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
 
 /**
  * Fake {@link TaskRunner} used to test how {@link TaskServiceImpl#submitTask} reacts to failures raised
  * synchronously by the runner, in particular whether {@link TooLargeException} is
  * propagated unwrapped (as required by {@link BatchUtils#tryWithSplit}) or swallowed into a
- * generic {@link org.nuxeo.ecm.core.api.NuxeoException}.
+ * generic {@link NuxeoException}.
  * <p>
  * Injected directly into {@link TaskServiceImpl}'s internal runner registry by tests (via reflection), replacing
  * the runner otherwise bound to a task by the {@code runner} extension point. The exception to raise is configured

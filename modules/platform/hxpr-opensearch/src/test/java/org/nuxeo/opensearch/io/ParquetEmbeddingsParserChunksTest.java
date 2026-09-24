@@ -29,10 +29,10 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
-import org.nuxeo.ecm.core.api.Blob;
-import org.nuxeo.ecm.core.api.impl.blob.FileBlob;
-import org.nuxeo.ecm.core.api.impl.blob.StringBlob;
-import org.nuxeo.ecm.core.model.EmbeddingModel;
+import com.hyland.openarch.ecm.core.api.Blob;
+import com.hyland.openarch.ecm.core.api.impl.blob.FileBlob;
+import com.hyland.openarch.ecm.core.api.impl.blob.StringBlob;
+import com.hyland.openarch.ecm.core.model.EmbeddingModel;
 import org.nuxeo.opensearch.test.util.ParquetBlobGenerator;
 
 /**

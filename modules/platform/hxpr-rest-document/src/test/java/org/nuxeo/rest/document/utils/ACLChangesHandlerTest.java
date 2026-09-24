@@ -25,7 +25,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.nuxeo.ecm.core.api.security.ACE;
+import com.hyland.openarch.ecm.core.api.security.ACE;
 import org.nuxeo.rest.acl.ACEDTO;
 import org.nuxeo.rest.acl.ACEMapper;
 import org.nuxeo.rest.document.DocumentDTO;

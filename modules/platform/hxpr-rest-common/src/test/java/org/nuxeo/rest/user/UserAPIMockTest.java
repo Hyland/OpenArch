@@ -15,7 +15,7 @@
  */
 package org.nuxeo.rest.user;
 
-import org.nuxeo.ecm.core.api.local.DummyLoginFeature;
+import com.hyland.openarch.ecm.core.api.local.DummyLoginFeature;
 import org.nuxeo.ecm.platform.test.UserManagerMockFeature;
 import org.nuxeo.ecm.platform.test.UserManagerMockTestConfiguration;
 import org.nuxeo.rest.exception.NuxeoExceptionController;

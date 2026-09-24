@@ -37,7 +37,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.nuxeo.ecm.core.io.download.DownloadHelper;
+import com.hyland.openarch.ecm.core.io.download.DownloadHelper;
 import org.nuxeo.rest.swagger.annotation.ApiResponse200;
 import org.nuxeo.rest.swagger.annotation.ApiResponse204;
 import org.nuxeo.rest.swagger.annotation.ApiResponse404DocumentNotFound;

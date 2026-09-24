@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
-import org.nuxeo.ecm.core.query.QuerySyntax;
+import com.hyland.openarch.ecm.core.query.QuerySyntax;
 import org.nuxeo.rest.query.spec.NamedQueryDefinition;
 
 /**

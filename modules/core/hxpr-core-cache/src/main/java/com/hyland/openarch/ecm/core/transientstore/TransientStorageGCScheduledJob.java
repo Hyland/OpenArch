@@ -1,0 +1,40 @@
+/*
+ * (C) Copyright 2015-2026 Hyland (https://www.hyland.com/).
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.hyland.openarch.ecm.core.transientstore;
+
+import static com.hyland.openarch.ecm.core.transientstore.TransientStorageGCTaskProcessor.TRANSIENT_STORAGE_GC_TASK_NAME;
+
+import com.hyland.hxpr.async.tasks.TaskService;
+import com.hyland.hxpr.async.tasks.message.RepositoryTask;
+import com.hyland.openarch.ecm.core.scheduler.ScheduledJob;
+import com.hyland.openarch.ecm.core.transientstore.api.TransientStore;
+import com.hyland.openarch.runtime.api.Framework;
+
+/**
+ * Simple Listener used to GC Work for {@link TransientStore}s
+ *
+ * @author <a href="mailto:tdelprat@nuxeo.com">Tiry</a>
+ * @since 7.2
+ */
+public class TransientStorageGCScheduledJob implements ScheduledJob {
+
+    @Override
+    public void run() {
+        TaskService taskService = Framework.getService(TaskService.class);
+        // Force the timestamp to be null as it is not related to a cache invalidation
+        taskService.submitTask(new RepositoryTask(TRANSIENT_STORAGE_GC_TASK_NAME, null, null));
+    }
+}

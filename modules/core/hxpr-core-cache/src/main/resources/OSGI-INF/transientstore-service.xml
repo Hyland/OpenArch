@@ -1,15 +1,15 @@
 <?xml version="1.0"?>
-<component name="org.nuxeo.ecm.core.transientstore.TransientStorageComponent">
+<component name="com.hyland.openarch.ecm.core.transientstore.TransientStorageComponent">
 
   <service>
-    <provide interface="org.nuxeo.ecm.core.transientstore.api.TransientStoreService" />
+    <provide interface="com.hyland.openarch.ecm.core.transientstore.api.TransientStoreService" />
   </service>
 
    <documentation>
     Provide a way to manage TransientStores where temporary data can be stored by key.
    </documentation>
 
-  <implementation class="org.nuxeo.ecm.core.transientstore.TransientStorageComponent" />
+  <implementation class="com.hyland.openarch.ecm.core.transientstore.TransientStorageComponent" />
 
   <extension-point name="store">
 
@@ -40,15 +40,15 @@
      </ul>
 
     </documentation>
-    <object class="org.nuxeo.ecm.core.transientstore.api.TransientStoreConfig"/>
+    <object class="com.hyland.openarch.ecm.core.transientstore.api.TransientStoreConfig"/>
 
   </extension-point>
 
   <extension
-    target="org.nuxeo.ecm.core.scheduler.SchedulerService"
+    target="com.hyland.openarch.ecm.core.scheduler.SchedulerService"
     point="schedule">
     <schedule id="transientStoreGC">
-      <class>org.nuxeo.ecm.core.transientstore.TransientStorageGCScheduledJob</class>
+      <class>com.hyland.openarch.ecm.core.transientstore.TransientStorageGCScheduledJob</class>
       <!-- cleanup every 20 minutes -->
       <cronExpression>0 0/20 * * * ?</cronExpression>
     </schedule>

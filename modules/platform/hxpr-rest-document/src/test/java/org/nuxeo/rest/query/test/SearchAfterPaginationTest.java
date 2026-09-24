@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_TITLE;
 
 import java.util.Base64;
 import java.util.List;

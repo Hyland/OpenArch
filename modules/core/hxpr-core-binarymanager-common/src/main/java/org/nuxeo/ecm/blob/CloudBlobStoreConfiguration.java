@@ -18,9 +18,9 @@ package org.nuxeo.ecm.blob;
 import java.io.IOException;
 import java.util.Map;
 
-import org.nuxeo.ecm.core.blob.AbstractBlobStoreConfiguration;
-import org.nuxeo.ecm.core.blob.CachingConfiguration;
-import org.nuxeo.ecm.core.blob.DigestConfiguration;
+import com.hyland.openarch.ecm.core.blob.AbstractBlobStoreConfiguration;
+import com.hyland.openarch.ecm.core.blob.CachingConfiguration;
+import com.hyland.openarch.ecm.core.blob.DigestConfiguration;
 
 /**
  * Abstract blob store configuration for cloud providers.

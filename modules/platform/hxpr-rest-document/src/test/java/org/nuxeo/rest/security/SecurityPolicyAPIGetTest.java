@@ -21,12 +21,12 @@ import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 import static jakarta.ws.rs.core.Response.Status.NOT_ACCEPTABLE;
 import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
 import static jakarta.ws.rs.core.Response.Status.OK;
-import static org.nuxeo.ecm.core.api.local.DummyLoginFeature.TEST_ANONYMOUS_USER;
+import static com.hyland.openarch.ecm.core.api.local.DummyLoginFeature.TEST_ANONYMOUS_USER;
 import static org.nuxeo.rest.utils.Headers.HXCS_REPOSITORY;
 import static org.springframework.http.HttpMethod.GET;
 
 import org.junit.jupiter.api.Test;
-import org.nuxeo.ecm.core.api.local.WithUser;
+import com.hyland.openarch.ecm.core.api.local.WithUser;
 import org.springframework.http.HttpHeaders;
 
 class SecurityPolicyAPIGetTest extends AbstractSecurityPolicyAPITest {

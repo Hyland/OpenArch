@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.security.Principal;
 
-import org.nuxeo.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

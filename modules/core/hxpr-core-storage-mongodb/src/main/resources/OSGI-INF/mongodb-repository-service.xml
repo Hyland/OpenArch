@@ -1,17 +1,17 @@
 <?xml version="1.0"?>
-<component name="org.nuxeo.ecm.core.storage.mongodb.MongoDBRepositoryService">
+<component name="com.hyland.openarch.ecm.core.storage.mongodb.MongoDBRepositoryService">
 
-  <require>org.nuxeo.ecm.core.storage.dbs.DBSRepositoryService</require>
+  <require>com.hyland.openarch.ecm.core.storage.dbs.DBSRepositoryService</require>
   <require>com.hyland.openarch.config.ConfigurationService</require>
 
   <documentation>
     Manages MongoDB repositories.
   </documentation>
 
-  <implementation class="org.nuxeo.ecm.core.storage.mongodb.MongoDBRepositoryService" />
+  <implementation class="com.hyland.openarch.ecm.core.storage.mongodb.MongoDBRepositoryService" />
 
   <service>
-    <provide interface="org.nuxeo.ecm.core.storage.mongodb.MongoDBRepositoryService" />
+    <provide interface="com.hyland.openarch.ecm.core.storage.mongodb.MongoDBRepositoryService" />
   </service>
 
   <extension-point name="repository">
@@ -26,8 +26,8 @@
         </repository>
       </code>
     </documentation>
-    <object class="org.nuxeo.ecm.core.storage.mongodb.MongoDBRepositoryDescriptor" />
-    <registry class="org.nuxeo.ecm.core.storage.mongodb.MongoDBRepositoryService$Registry" />
+    <object class="com.hyland.openarch.ecm.core.storage.mongodb.MongoDBRepositoryDescriptor" />
+    <registry class="com.hyland.openarch.ecm.core.storage.mongodb.MongoDBRepositoryService$Registry" />
   </extension-point>
 
 </component>

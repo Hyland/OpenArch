@@ -3,8 +3,8 @@
 
   <require>rest.upload.handler.store</require>
 
-  <extension target="org.nuxeo.ecm.core.transientstore.TransientStorageComponent" point="store">
-    <store name="default" class="org.nuxeo.ecm.core.transientstore.keyvalueblob.KeyValueBlobTransientStore">
+  <extension target="com.hyland.openarch.ecm.core.transientstore.TransientStorageComponent" point="store">
+    <store name="default" class="com.hyland.openarch.ecm.core.transientstore.keyvalueblob.KeyValueBlobTransientStore">
     </store>
   </extension>
 

@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.nuxeo.ecm.core.api.local.DummyLoginFeature.TEST_ADMIN_USER;
+import static com.hyland.openarch.ecm.core.api.local.DummyLoginFeature.TEST_ADMIN_USER;
 import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
 
 import com.hyland.hxpr.async.tasks.message.BatchTask;
@@ -31,7 +31,7 @@ import com.hyland.hxpr.async.tasks.message.BatchTask;
 import java.time.Duration;
 
 import org.junit.jupiter.api.Test;
-import org.nuxeo.ecm.core.api.DocumentModel;
+import com.hyland.openarch.ecm.core.api.DocumentModel;
 import com.hyland.openarch.runtime.springboot.junit.RuntimeTestState;
 import com.hyland.openarch.runtime.test.runner.Deploy;
 import com.hyland.openarch.runtime.transaction.TransactionHelper;

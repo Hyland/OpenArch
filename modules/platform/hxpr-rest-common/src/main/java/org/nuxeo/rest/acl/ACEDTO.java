@@ -19,7 +19,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.Instant;
 
-import org.nuxeo.ecm.core.api.security.ACE;
+import com.hyland.openarch.ecm.core.api.security.ACE;
 import org.nuxeo.rest.user.GroupDTO;
 import org.nuxeo.rest.user.UserDTO;
 

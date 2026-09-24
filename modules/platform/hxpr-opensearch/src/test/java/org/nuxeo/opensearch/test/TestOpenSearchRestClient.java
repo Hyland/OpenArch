@@ -27,7 +27,7 @@ import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.nuxeo.ecm.core.api.ConcurrentUpdateException;
+import com.hyland.openarch.ecm.core.api.ConcurrentUpdateException;
 import com.hyland.openarch.common.resilience.Resilience4jRegistries;
 import org.nuxeo.opensearch.api.OpenSearchClient;
 import org.nuxeo.opensearch.client.OpenSearchCircuitBreakerFactory;

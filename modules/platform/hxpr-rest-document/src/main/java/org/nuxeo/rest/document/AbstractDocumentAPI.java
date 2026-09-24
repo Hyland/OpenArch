@@ -32,8 +32,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.apache.commons.lang3.StringUtils;
-import org.nuxeo.ecm.core.api.NuxeoException;
-import org.nuxeo.ecm.core.api.UpdateCondition;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.UpdateCondition;
 import org.nuxeo.rest.swagger.annotation.ApiResponse200;
 import org.nuxeo.rest.swagger.annotation.ApiResponse201;
 import org.nuxeo.rest.swagger.annotation.ApiResponse204;

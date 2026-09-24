@@ -16,7 +16,7 @@
 package com.hyland.hxpr.springboot.server;
 
 import static io.restassured.RestAssured.given;
-import static org.nuxeo.ecm.core.api.local.DummyLoginFeature.TEST_ADMIN_USER_NAME;
+import static com.hyland.openarch.ecm.core.api.local.DummyLoginFeature.TEST_ADMIN_USER_NAME;
 
 import io.restassured.RestAssured;
 import io.restassured.specification.RequestSpecification;

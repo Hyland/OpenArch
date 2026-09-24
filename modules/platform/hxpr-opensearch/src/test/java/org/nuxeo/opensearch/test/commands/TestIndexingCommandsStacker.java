@@ -29,8 +29,8 @@ import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.ecm.core.api.event.DocumentEventTypes;
+import com.hyland.openarch.ecm.core.api.DocumentModel;
+import com.hyland.openarch.ecm.core.api.event.DocumentEventTypes;
 import org.nuxeo.opensearch.commands.IndexingCommand;
 import org.nuxeo.opensearch.commands.IndexingCommand.Type;
 import org.nuxeo.opensearch.commands.IndexingCommands;

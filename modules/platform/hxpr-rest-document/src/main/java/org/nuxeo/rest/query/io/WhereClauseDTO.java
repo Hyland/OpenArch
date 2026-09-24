@@ -20,7 +20,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.nuxeo.ecm.core.query.QuerySyntax;
+import com.hyland.openarch.ecm.core.query.QuerySyntax;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;

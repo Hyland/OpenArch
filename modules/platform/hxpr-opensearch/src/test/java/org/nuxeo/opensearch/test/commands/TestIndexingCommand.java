@@ -24,7 +24,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
-import org.nuxeo.ecm.core.api.DocumentModel;
+import com.hyland.openarch.ecm.core.api.DocumentModel;
 import org.nuxeo.opensearch.commands.IndexingCommand;
 import org.nuxeo.opensearch.commands.IndexingCommand.Type;
 

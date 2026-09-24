@@ -37,10 +37,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
-import org.nuxeo.ecm.core.api.IdRef;
-import org.nuxeo.ecm.core.api.NuxeoException;
-import org.nuxeo.ecm.core.api.PathRef;
-import org.nuxeo.ecm.core.api.PathRefUtils;
+import com.hyland.openarch.ecm.core.api.IdRef;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.PathRef;
+import com.hyland.openarch.ecm.core.api.PathRefUtils;
 import org.nuxeo.rest.swagger.annotation.ApiResponse200;
 import org.nuxeo.rest.swagger.annotation.ApiResponse404DocumentNotFound;
 import org.nuxeo.rest.swagger.annotation.ApiResponse409;

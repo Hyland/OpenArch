@@ -21,8 +21,8 @@ import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.nuxeo.ecm.core.api.NuxeoGroup;
-import org.nuxeo.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.NuxeoGroup;
+import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
 
 /**
  * Unit tests for {@link UserStore}.

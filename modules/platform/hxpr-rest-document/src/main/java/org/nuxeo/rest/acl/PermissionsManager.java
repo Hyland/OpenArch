@@ -15,7 +15,7 @@
  */
 package org.nuxeo.rest.acl;
 
-import static org.nuxeo.ecm.core.api.security.SecurityConstants.EVERYONE;
+import static com.hyland.openarch.ecm.core.api.security.SecurityConstants.EVERYONE;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,11 +24,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.nuxeo.ecm.core.api.CoreSession;
-import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.ecm.core.api.DocumentRef;
-import org.nuxeo.ecm.core.api.NuxeoPrincipal;
-import org.nuxeo.ecm.core.api.security.ACE;
+import com.hyland.openarch.ecm.core.security.SecurityServiceImpl;
+import com.hyland.openarch.ecm.core.api.CoreSession;
+import com.hyland.openarch.ecm.core.api.DocumentModel;
+import com.hyland.openarch.ecm.core.api.DocumentRef;
+import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.security.ACE;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -39,7 +40,7 @@ public class PermissionsManager {
      * including external user mappings and external group memberships from Nucleus System Integration
      * if present on the principal's properties.
      *
-     * Similar to the method {@link org.nuxeo.ecm.core.security.SecurityServiceImpl#expandPrincipal} but using the info from IDP
+     * Similar to the method {@link SecurityServiceImpl#expandPrincipal} but using the info from IDP
      */
     public List<String> expandUserPrincipal(NuxeoPrincipal principal) {
         Set<String> groups = new HashSet<>(principal.getGroups());

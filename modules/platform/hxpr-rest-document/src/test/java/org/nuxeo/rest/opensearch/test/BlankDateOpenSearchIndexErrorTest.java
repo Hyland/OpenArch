@@ -18,9 +18,9 @@ package org.nuxeo.rest.opensearch.test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSFILE_BLOB;
-import static org.nuxeo.ecm.core.api.impl.blob.AbstractBlob.TEXT_PLAIN;
-import static org.nuxeo.ecm.core.api.impl.blob.AbstractBlob.UTF_8;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSFILE_BLOB;
+import static com.hyland.openarch.ecm.core.api.impl.blob.AbstractBlob.TEXT_PLAIN;
+import static com.hyland.openarch.ecm.core.api.impl.blob.AbstractBlob.UTF_8;
 
 import java.time.Duration;
 import java.util.List;
@@ -28,10 +28,10 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.nuxeo.ecm.core.api.Blob;
-import org.nuxeo.ecm.core.api.Blobs;
-import org.nuxeo.ecm.core.api.CoreSession;
-import org.nuxeo.ecm.core.api.DocumentModel;
+import com.hyland.openarch.ecm.core.api.Blob;
+import com.hyland.openarch.ecm.core.api.Blobs;
+import com.hyland.openarch.ecm.core.api.CoreSession;
+import com.hyland.openarch.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.platform.test.UserManagerMockFeature;
 import org.nuxeo.ecm.platform.test.UserManagerMockTestConfiguration;
 import org.nuxeo.opensearch.api.OpenSearchService;

@@ -15,7 +15,7 @@
  */
 package org.nuxeo.rest.auth;
 
-import static org.nuxeo.ecm.core.api.security.SecurityConstants.SYSTEM_USERNAME;
+import static com.hyland.openarch.ecm.core.api.security.SecurityConstants.SYSTEM_USERNAME;
 
 import java.io.IOException;
 

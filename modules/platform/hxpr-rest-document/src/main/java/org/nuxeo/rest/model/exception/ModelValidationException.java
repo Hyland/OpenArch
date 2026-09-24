@@ -16,7 +16,7 @@
 package org.nuxeo.rest.model.exception;
 
 import org.apache.http.HttpStatus;
-import org.nuxeo.ecm.core.api.validation.AbstractValidationException;
+import com.hyland.openarch.ecm.core.api.validation.AbstractValidationException;
 import com.hyland.openarch.ecm.core.schema.validation.ValidationReport;
 
 /**

@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-import org.nuxeo.ecm.core.api.IterableQueryResult;
+import com.hyland.openarch.ecm.core.api.IterableQueryResult;
 import com.hyland.openarch.ecm.core.schema.types.Type;
 import org.nuxeo.opensearch.io.DocumentDTO;
 import org.opensearch.client.opensearch.core.SearchResponse;

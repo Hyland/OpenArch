@@ -20,7 +20,7 @@ import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
 import static jakarta.ws.rs.core.Response.Status.NO_CONTENT;
 import static jakarta.ws.rs.core.Response.Status.OK;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.nuxeo.ecm.core.security.ExternalUserRelationsSecurityPolicy.EXTERNAL_USER_RELATIONS_ENGINE_NAME;
+import static com.hyland.openarch.ecm.core.security.ExternalUserRelationsSecurityPolicy.EXTERNAL_USER_RELATIONS_ENGINE_NAME;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.PUT;
 

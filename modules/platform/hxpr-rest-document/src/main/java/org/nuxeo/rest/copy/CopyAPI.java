@@ -27,8 +27,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.apache.commons.lang3.StringUtils;
-import org.nuxeo.ecm.core.api.IdRef;
-import org.nuxeo.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.IdRef;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
 import org.nuxeo.rest.document.AbstractDocumentAPI;
 import org.nuxeo.rest.document.DocumentDTO;
 import org.nuxeo.rest.document.DocumentManager;

@@ -16,7 +16,7 @@
 
 package org.nuxeo.rest.user;
 
-import org.nuxeo.ecm.core.api.local.DummyLoginFeature;
+import com.hyland.openarch.ecm.core.api.local.DummyLoginFeature;
 import org.nuxeo.ecm.platform.login.filestore.UserManagerFileStoreFeature;
 import org.nuxeo.ecm.platform.login.filestore.UserManagerFileStoreTestConfiguration;
 import org.nuxeo.rest.exception.NuxeoExceptionController;

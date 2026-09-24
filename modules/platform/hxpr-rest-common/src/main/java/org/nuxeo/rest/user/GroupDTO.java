@@ -18,7 +18,7 @@ package org.nuxeo.rest.user;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-import org.nuxeo.ecm.core.api.NuxeoGroup;
+import com.hyland.openarch.ecm.core.api.NuxeoGroup;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;

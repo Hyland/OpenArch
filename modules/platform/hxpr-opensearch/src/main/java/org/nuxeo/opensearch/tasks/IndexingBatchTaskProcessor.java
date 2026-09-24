@@ -21,8 +21,8 @@ import static org.nuxeo.opensearch.tasks.IndexingScrollerTaskProcessor.PROPERTY_
 import java.util.ArrayList;
 import java.util.List;
 
-import org.nuxeo.ecm.core.api.CoreSession;
-import org.nuxeo.ecm.core.api.DocumentModel;
+import com.hyland.openarch.ecm.core.api.CoreSession;
+import com.hyland.openarch.ecm.core.api.DocumentModel;
 import org.nuxeo.opensearch.Timestamp;
 import org.nuxeo.opensearch.api.OpenSearchService;
 import org.nuxeo.opensearch.commands.IndexingCommand;

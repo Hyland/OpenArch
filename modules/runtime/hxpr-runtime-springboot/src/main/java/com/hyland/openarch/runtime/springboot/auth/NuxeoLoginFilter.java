@@ -21,7 +21,7 @@ import java.io.IOException;
 
 import javax.security.auth.login.LoginException;
 
-import org.nuxeo.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.api.login.LoginContext;
 import com.hyland.openarch.runtime.springboot.security.SpringSecurityHelper;

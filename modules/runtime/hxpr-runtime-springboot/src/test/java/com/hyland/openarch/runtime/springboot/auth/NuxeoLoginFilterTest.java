@@ -29,7 +29,7 @@ import javax.security.auth.login.LoginException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
-import org.nuxeo.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.springboot.auth.test.config.NuxeoLoginTestEndpointConfig;
 import com.hyland.openarch.runtime.springboot.config.HxprRuntimeSpringbootAutoConfiguration;

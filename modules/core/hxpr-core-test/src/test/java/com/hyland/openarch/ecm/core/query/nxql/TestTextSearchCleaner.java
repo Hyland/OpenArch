@@ -1,0 +1,68 @@
+/*
+ * (C) Copyright 2011-2026 Hyland (https://www.hyland.com/).
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.hyland.openarch.ecm.core.query.nxql;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
+import com.hyland.openarch.ecm.core.query.sql.HXQLSerializer;
+import com.hyland.openarch.ecm.core.query.sql.model.StringLiteral;
+
+public class TestTextSearchCleaner {
+
+    /** A full-text predicate's right-hand side: the term sanitized, then escaped as a literal. */
+    protected static String serializeFullText(String value) {
+        return "= " + HXQLSerializer.serialize(new StringLiteral(FulltextSanitizer.sanitize(value)));
+    }
+
+    @Test
+    public void testCleaner() throws Exception {
+        assertEquals("= 'a'", serializeFullText("a"));
+        assertEquals("= 'a b'", serializeFullText("a b"));
+        assertEquals("= 'a b'", serializeFullText(" a b "));
+        assertEquals("= 'a b'", serializeFullText("a  b"));
+        assertEquals("= 'a b'", serializeFullText("a & b"));
+        assertEquals("= 'a b'", serializeFullText("a : b"));
+        assertEquals("= 'a b'", serializeFullText("a | b"));
+
+        assertEquals("= 'a b'", serializeFullText("a { b"));
+
+        assertEquals("= 'a b c d e f'", serializeFullText("a#b|c  d+e*f"));
+        assertEquals("= '\"a b\"'", serializeFullText("\"a b\""));
+        assertEquals("= '\"a b\"'", serializeFullText("\"a-b\""));
+        assertEquals("= '\"a -b \"'", serializeFullText("\"a -b \""));
+
+        assertEquals("= 'a* b'", serializeFullText("a* b-"));
+
+        assertEquals("= 'a b'", serializeFullText("a*b"));
+
+        assertEquals("= 'a  b'", serializeFullText("a*-b"));
+
+        assertEquals("= 'a -b'", serializeFullText("*a -b"));
+
+        assertEquals("= 'a -bc*'", serializeFullText("a | -bc*"));
+
+        assertEquals("= 'a b'", serializeFullText("a !#$%&()*+,-./:;<=>?@^`{|}~ b"));
+
+        // raw sanitizeFulltextInput API that does not wrap the input with the
+        // quote and the predicate operator
+        assertEquals("some stuff", FulltextSanitizer.sanitize("some & stuff\\"));
+
+        // test negative queries
+        assertEquals("= 'a -b'", serializeFullText("a !#$%&()*+,-./:;<=>?@^`{|}~ -b"));
+    }
+
+}

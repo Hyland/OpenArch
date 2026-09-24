@@ -27,8 +27,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
 
-import org.nuxeo.ecm.core.api.NuxeoException;
-import org.nuxeo.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.ecm.platform.usermanager.UserManager;
 import org.nuxeo.rest.swagger.annotation.ApiResponse200;
 import org.nuxeo.rest.swagger.annotation.ApiResponse400;

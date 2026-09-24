@@ -21,7 +21,7 @@ import static jakarta.ws.rs.core.Response.Status.OK;
 import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.nuxeo.ecm.core.api.local.DummyLoginFeature.TEST_ANONYMOUS_USER;
+import static com.hyland.openarch.ecm.core.api.local.DummyLoginFeature.TEST_ANONYMOUS_USER;
 import static org.skyscreamer.jsonassert.JSONCompareMode.NON_EXTENSIBLE;
 import static org.springframework.http.HttpMethod.PUT;
 
@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.nuxeo.ecm.core.api.local.WithUser;
+import com.hyland.openarch.ecm.core.api.local.WithUser;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 /**

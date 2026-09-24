@@ -25,10 +25,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
-import org.nuxeo.ecm.core.query.sql.HXQLParser;
-import org.nuxeo.ecm.core.query.sql.model.Statement;
+import com.hyland.openarch.ecm.core.query.sql.HXQLParser;
+import com.hyland.openarch.ecm.core.query.sql.model.Statement;
 import org.nuxeo.rest.query.io.DocumentAdvancedQueryDTO;
-import org.nuxeo.ecm.core.query.QuerySyntax;
+import com.hyland.openarch.ecm.core.query.QuerySyntax;
 import org.nuxeo.rest.query.io.DocumentQueryDTO;
 import org.nuxeo.rest.query.spec.QueryAssembler.AssembledQuery;
 

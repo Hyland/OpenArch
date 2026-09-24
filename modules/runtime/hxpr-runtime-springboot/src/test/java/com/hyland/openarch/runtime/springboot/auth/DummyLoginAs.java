@@ -20,7 +20,7 @@ import java.security.Principal;
 import javax.security.auth.login.LoginException;
 
 import com.hyland.openarch.runtime.api.login.PrincipalFactory;
-import org.nuxeo.ecm.core.api.impl.UserPrincipal;
+import com.hyland.openarch.ecm.core.api.impl.UserPrincipal;
 
 /**
  * @since 10.3

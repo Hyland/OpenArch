@@ -19,8 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.nuxeo.ecm.core.api.security.ACE;
-import org.nuxeo.ecm.core.api.security.ACL;
+import com.hyland.openarch.ecm.core.api.security.ACE;
+import com.hyland.openarch.ecm.core.api.security.ACL;
 import org.springframework.stereotype.Component;
 
 /**

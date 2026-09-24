@@ -25,7 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-import org.nuxeo.ecm.core.api.NuxeoGroup;
+import com.hyland.openarch.ecm.core.api.NuxeoGroup;
 
 public class TestNuxeoGroupImpl {
 

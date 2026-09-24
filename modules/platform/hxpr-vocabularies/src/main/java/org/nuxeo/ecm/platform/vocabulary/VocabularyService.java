@@ -18,12 +18,12 @@ package org.nuxeo.ecm.platform.vocabulary;
 import java.util.Comparator;
 import java.util.List;
 
-import org.nuxeo.ecm.core.api.CoreInstance;
-import org.nuxeo.ecm.core.api.CoreSession;
-import org.nuxeo.ecm.core.api.DocumentNotFoundException;
-import org.nuxeo.ecm.core.api.PathRef;
-import org.nuxeo.ecm.core.api.PathRefUtils;
-import org.nuxeo.ecm.core.api.VocabularyConstants;
+import com.hyland.openarch.ecm.core.api.CoreInstance;
+import com.hyland.openarch.ecm.core.api.CoreSession;
+import com.hyland.openarch.ecm.core.api.DocumentNotFoundException;
+import com.hyland.openarch.ecm.core.api.PathRef;
+import com.hyland.openarch.ecm.core.api.PathRefUtils;
+import com.hyland.openarch.ecm.core.api.VocabularyConstants;
 import org.nuxeo.ecm.platform.vocabulary.exception.VocabularyAlreadyExistsException;
 import org.nuxeo.ecm.platform.vocabulary.exception.VocabularyEntryAlreadyExistsException;
 import org.nuxeo.ecm.platform.vocabulary.exception.VocabularyEntryNotFoundException;

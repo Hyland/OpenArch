@@ -21,15 +21,15 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_CHUNKS;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_EMBEDDINGS;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY_CLOUD;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY_ON_PREM;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_BLOB_REF;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_TEXT;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_TYPE;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_VECTOR;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_CHUNKS;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_EMBEDDINGS;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY_CLOUD;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY_ON_PREM;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_BLOB_REF;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_TEXT;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_TYPE;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_VECTOR;
 import static org.nuxeo.opensearch.OpenSearchConstants.INDEX_BULK_MAX_SIZE_PROPERTY;
 
 import java.io.IOException;
@@ -43,21 +43,22 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Stream;
 
+import com.hyland.openarch.ecm.core.model.EmbeddingModel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.nuxeo.ecm.core.SysEmbeddingsPolicies;
-import org.nuxeo.ecm.core.api.Blob;
-import org.nuxeo.ecm.core.api.CoreInstance;
-import org.nuxeo.ecm.core.api.CoreSession;
-import org.nuxeo.ecm.core.api.DocumentConstants;
-import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.ecm.core.api.NuxeoException;
-import org.nuxeo.ecm.core.api.PathRef;
-import org.nuxeo.ecm.core.api.impl.blob.StringBlob;
+import com.hyland.openarch.ecm.core.SysEmbeddingsPolicies;
+import com.hyland.openarch.ecm.core.api.Blob;
+import com.hyland.openarch.ecm.core.api.CoreInstance;
+import com.hyland.openarch.ecm.core.api.CoreSession;
+import com.hyland.openarch.ecm.core.api.DocumentConstants;
+import com.hyland.openarch.ecm.core.api.DocumentModel;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.PathRef;
+import com.hyland.openarch.ecm.core.api.impl.blob.StringBlob;
 import com.hyland.openarch.ecm.core.schema.MixinNames;
 import com.hyland.openarch.ecm.core.schema.TypeConstants;
 import org.nuxeo.opensearch.EmbeddingsIndexer;
@@ -1023,7 +1024,7 @@ class TestEmbeddingsIndexing {
             }
             if (variant != EmbeddingVariant.NEW && log.isTraceEnabled()) {
                 log.trace("[PARSE-IDS] variant={} parsedIds={}", variant,
-                        parsed.stream().map(org.nuxeo.ecm.core.model.EmbeddingModel::id).toList());
+                        parsed.stream().map(EmbeddingModel::id).toList());
             }
             emb.setPropertyValue(SYSEMB_EMBEDDINGS, blob);
         } catch (IOException e) {

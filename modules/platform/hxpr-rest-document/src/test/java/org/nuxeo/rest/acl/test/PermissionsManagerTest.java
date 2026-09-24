@@ -16,10 +16,10 @@
 package org.nuxeo.rest.acl.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.nuxeo.ecm.core.api.security.SecurityConstants.EVERYONE;
-import static org.nuxeo.ecm.core.api.security.SecurityConstants.EVERYTHING;
-import static org.nuxeo.ecm.core.api.security.SecurityConstants.READ;
-import static org.nuxeo.ecm.core.api.security.SecurityConstants.READ_WRITE;
+import static com.hyland.openarch.ecm.core.api.security.SecurityConstants.EVERYONE;
+import static com.hyland.openarch.ecm.core.api.security.SecurityConstants.EVERYTHING;
+import static com.hyland.openarch.ecm.core.api.security.SecurityConstants.READ;
+import static com.hyland.openarch.ecm.core.api.security.SecurityConstants.READ_WRITE;
 import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
 import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FOLDER;
 
@@ -28,12 +28,12 @@ import java.util.List;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
-import org.nuxeo.ecm.core.api.CoreSession;
-import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.ecm.core.api.NuxeoGroup;
-import org.nuxeo.ecm.core.api.security.ACE;
-import org.nuxeo.ecm.core.api.security.ACL;
-import org.nuxeo.ecm.core.test.CoreFeature;
+import com.hyland.openarch.ecm.core.api.CoreSession;
+import com.hyland.openarch.ecm.core.api.DocumentModel;
+import com.hyland.openarch.ecm.core.api.NuxeoGroup;
+import com.hyland.openarch.ecm.core.api.security.ACE;
+import com.hyland.openarch.ecm.core.api.security.ACL;
+import com.hyland.openarch.ecm.core.test.CoreFeature;
 import org.nuxeo.ecm.platform.usermanager.NuxeoGroupImpl;
 import org.nuxeo.ecm.platform.usermanager.NuxeoPrincipalImpl;
 import org.nuxeo.rest.acl.PermissionsManager;

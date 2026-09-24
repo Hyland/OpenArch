@@ -10,7 +10,7 @@
   <service>
     <provide interface="org.nuxeo.ecm.platform.usermanager.UserManager" />
     <provide interface="com.hyland.openarch.runtime.api.login.Authenticator" />
-    <provide interface="org.nuxeo.ecm.core.api.security.AdministratorGroupsProvider" />
+    <provide interface="com.hyland.openarch.ecm.core.api.security.AdministratorGroupsProvider" />
   </service>
 
   <extension-point name="userManager">

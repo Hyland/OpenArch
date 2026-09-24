@@ -16,9 +16,9 @@
 package org.nuxeo.rest.document.test;
 
 import static jakarta.ws.rs.core.Response.Status.OK;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_NAME;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PATH;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_NAME;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PATH;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_TITLE;
 import static org.nuxeo.rest.document.AbstractDocumentAPI.PATH;
 import static org.nuxeo.rest.document.test.ContentTestHelper.getJsonPath;
 import static org.springframework.http.HttpMethod.GET;

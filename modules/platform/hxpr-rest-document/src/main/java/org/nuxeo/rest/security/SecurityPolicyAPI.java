@@ -49,9 +49,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Map;
 
-import org.nuxeo.ecm.core.api.NuxeoException;
-import org.nuxeo.ecm.core.api.repository.RepositoryManager;
-import org.nuxeo.ecm.core.security.config.SecurityPolicyConfig;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.repository.RepositoryManager;
+import com.hyland.openarch.ecm.core.security.config.SecurityPolicyConfig;
 import org.nuxeo.rest.security.SecurityPolicyManager.ConfigWithVersion;
 import org.nuxeo.rest.auth.AdministratorAccess;
 import org.nuxeo.rest.swagger.annotation.ApiResponse200;

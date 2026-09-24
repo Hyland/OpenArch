@@ -20,7 +20,7 @@ import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
 import static jakarta.ws.rs.core.Response.Status.NO_CONTENT;
 import static jakarta.ws.rs.core.Response.Status.OK;
 import static org.hamcrest.Matchers.is;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ID;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ID;
 import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
 import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FOLDER;
 import static org.nuxeo.rest.document.AbstractDocumentAPI.PATH;
@@ -29,7 +29,7 @@ import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import org.junit.jupiter.api.Test;
-import org.nuxeo.ecm.core.api.IdRef;
+import com.hyland.openarch.ecm.core.api.IdRef;
 import org.nuxeo.rest.document.DocumentAPI;
 import org.nuxeo.rest.document.DocumentDTO;
 import org.nuxeo.rest.document.DocumentManager;

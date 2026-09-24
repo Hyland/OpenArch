@@ -17,7 +17,7 @@ package org.nuxeo.rest.upload;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BoundedInputStream;
-import org.nuxeo.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

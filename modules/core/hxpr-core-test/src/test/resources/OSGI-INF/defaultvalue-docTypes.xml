@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <component name="org.nuxeo.core.tests.types.defaultvalue">
-  <!-- used by org.nuxeo.ecm.core.TestSQLRepositoryDefaultValues -->
+  <!-- used by com.hyland.openarch.ecm.core.TestSQLRepositoryDefaultValues -->
 
   <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="schema">
     <schema name="defaultvalue" prefix="dv" src="schema/defaultvalues.xsd" />

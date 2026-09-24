@@ -21,13 +21,13 @@ import static jakarta.ws.rs.core.Response.Status.NO_CONTENT;
 import static jakarta.ws.rs.core.Response.Status.OK;
 import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.nuxeo.ecm.core.api.local.DummyLoginFeature.TEST_ANONYMOUS_USER;
+import static com.hyland.openarch.ecm.core.api.local.DummyLoginFeature.TEST_ANONYMOUS_USER;
 import static org.springframework.http.HttpMethod.PATCH;
 import static org.springframework.http.HttpMethod.PUT;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.nuxeo.ecm.core.api.local.WithUser;
+import com.hyland.openarch.ecm.core.api.local.WithUser;
 
 import jakarta.ws.rs.core.MediaType;
 

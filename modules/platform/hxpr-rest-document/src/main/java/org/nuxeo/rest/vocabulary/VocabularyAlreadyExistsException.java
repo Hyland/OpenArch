@@ -15,7 +15,7 @@
  */
 package org.nuxeo.rest.vocabulary;
 
-import org.nuxeo.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
 
 import static jakarta.servlet.http.HttpServletResponse.SC_CONFLICT;
 

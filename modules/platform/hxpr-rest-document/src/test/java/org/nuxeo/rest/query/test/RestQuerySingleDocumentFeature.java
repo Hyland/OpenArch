@@ -21,9 +21,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.nuxeo.ecm.core.api.CoreSession;
-import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.CoreSession;
+import com.hyland.openarch.ecm.core.api.DocumentModel;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
 import org.nuxeo.opensearch.api.OpenSearchService;
 import org.nuxeo.opensearch.test.RepositoryOpenSearchFeature;
 import org.nuxeo.rest.document.test.RestSingleDocumentFeature;

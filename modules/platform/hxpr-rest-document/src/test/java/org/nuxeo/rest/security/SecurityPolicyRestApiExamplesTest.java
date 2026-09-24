@@ -26,8 +26,8 @@ import static org.nuxeo.rest.security.SecurityPolicyRequestConstants.PUT_RESPONS
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
-import org.nuxeo.ecm.core.security.config.AbstractSecurityPolicyConfig;
-import org.nuxeo.ecm.core.security.config.SecurityPolicyConfig;
+import com.hyland.openarch.ecm.core.security.config.AbstractSecurityPolicyConfig;
+import com.hyland.openarch.ecm.core.security.config.SecurityPolicyConfig;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 

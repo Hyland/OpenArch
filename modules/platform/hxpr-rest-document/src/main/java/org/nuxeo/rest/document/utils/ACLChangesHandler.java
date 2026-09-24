@@ -18,9 +18,9 @@ package org.nuxeo.rest.document.utils;
 import java.util.List;
 import java.util.Objects;
 
-import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.ecm.core.api.security.ACL;
-import org.nuxeo.ecm.core.api.security.impl.ACLImpl;
+import com.hyland.openarch.ecm.core.api.DocumentModel;
+import com.hyland.openarch.ecm.core.api.security.ACL;
+import com.hyland.openarch.ecm.core.api.security.impl.ACLImpl;
 import org.nuxeo.rest.acl.ACEDTO;
 import org.nuxeo.rest.acl.ACEMapper;
 import org.nuxeo.rest.document.DocumentDTO;

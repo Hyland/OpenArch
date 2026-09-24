@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import org.nuxeo.ecm.core.api.NuxeoGroup;
+import com.hyland.openarch.ecm.core.api.NuxeoGroup;
 
 /**
  * @author <a href="mailto:glefter@nuxeo.com">George Lefter</a>

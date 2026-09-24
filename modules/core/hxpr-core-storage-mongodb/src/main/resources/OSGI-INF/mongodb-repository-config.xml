@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <component name="org.nuxeo.ecm.core.storage.mongodb.repository.default.config">
 
-  <extension target="org.nuxeo.ecm.core.storage.mongodb.MongoDBRepositoryService" point="repository">
+  <extension target="com.hyland.openarch.ecm.core.storage.mongodb.MongoDBRepositoryService" point="repository">
 
     <repository name="default" label="label.default.repository">
       <pool minPoolSize="${nuxeo.dbs.min-pool-size:=0}" maxPoolSize="${nuxeo.dbs.max-pool-size:=20}"
@@ -12,7 +12,7 @@
       <cache enabled="true" maxSize="${nuxeo.dbs.cache.maxSize:=1000}"
              concurrencyLevel="${nuxeo.dbs.cache.concurrencyLevel:=10}" ttl="${nuxeo.dbs.cache.ttl:=10}" />
       <clustering>
-        <invalidatorClass>org.nuxeo.ecm.core.storage.dbs.DBSPubSubInvalidator</invalidatorClass>
+        <invalidatorClass>com.hyland.openarch.ecm.core.storage.dbs.DBSPubSubInvalidator</invalidatorClass>
       </clustering>
     </repository>
 
@@ -25,7 +25,7 @@
       <cache enabled="true" maxSize="${nuxeo.dbs.cache.maxSize:=1000}"
              concurrencyLevel="${nuxeo.dbs.cache.concurrencyLevel:=10}" ttl="${nuxeo.dbs.cache.ttl:=10}" />
       <clustering>
-        <invalidatorClass>org.nuxeo.ecm.core.storage.dbs.DBSPubSubInvalidator</invalidatorClass>
+        <invalidatorClass>com.hyland.openarch.ecm.core.storage.dbs.DBSPubSubInvalidator</invalidatorClass>
       </clustering>
     </repository>
 
@@ -38,7 +38,7 @@
       <cache enabled="true" maxSize="${nuxeo.dbs.cache.maxSize:=1000}"
              concurrencyLevel="${nuxeo.dbs.cache.concurrencyLevel:=10}" ttl="${nuxeo.dbs.cache.ttl:=10}" />
       <clustering>
-        <invalidatorClass>org.nuxeo.ecm.core.storage.dbs.DBSPubSubInvalidator</invalidatorClass>
+        <invalidatorClass>com.hyland.openarch.ecm.core.storage.dbs.DBSPubSubInvalidator</invalidatorClass>
       </clustering>
     </repository>
 

@@ -1,18 +1,18 @@
 <?xml version="1.0"?>
 <component name="org.nuxeo.ecm.core.schedulers">
 
-  <extension target="org.nuxeo.ecm.core.scheduler.SchedulerService"
+  <extension target="com.hyland.openarch.ecm.core.scheduler.SchedulerService"
     point="schedule">
 
     <schedule id="aceScheduler">
-      <class>org.nuxeo.ecm.core.security.UpdateACEStatusScheduledJob</class>
+      <class>com.hyland.openarch.ecm.core.security.UpdateACEStatusScheduledJob</class>
       <!-- every 5 mins; cron is overridable per environment to stagger the run
            across environments and avoid a synchronized IDP token-exchange storm -->
       <cronExpression>${hxpr.ace.scheduler.cron:=0 0/5 * * * ?}</cronExpression>
     </schedule>
 
     <schedule id="blobGarbageCollectorScheduler">
-      <class>org.nuxeo.ecm.core.blob.BlobGarbageCollectorScheduledJob</class>
+      <class>com.hyland.openarch.ecm.core.blob.BlobGarbageCollectorScheduledJob</class>
       <!-- every day at 02:00; overridable per environment -->
       <cronExpression>${hxpr.blob.gc.scheduler.cron:=0 0 2 * * ?}</cronExpression>
     </schedule>

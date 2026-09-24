@@ -18,10 +18,10 @@ package org.nuxeo.rest.query.io;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_TITLE;
 
 import org.junit.jupiter.api.Test;
-import org.nuxeo.ecm.core.query.QuerySyntax;
+import com.hyland.openarch.ecm.core.query.QuerySyntax;
 
 public class DocumentQueryDTOTest extends AbstractQueryIOTest {
 

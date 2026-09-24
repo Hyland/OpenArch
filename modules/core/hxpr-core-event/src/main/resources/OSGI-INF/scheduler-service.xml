@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<component name="org.nuxeo.ecm.core.scheduler.SchedulerService">
+<component name="com.hyland.openarch.ecm.core.scheduler.SchedulerService">
 
   <require>com.hyland.openarch.runtime.cluster.ClusterService</require>
 
@@ -8,10 +8,10 @@
   </documentation>
 
   <service>
-    <provide interface="org.nuxeo.ecm.core.scheduler.SchedulerService" />
+    <provide interface="com.hyland.openarch.ecm.core.scheduler.SchedulerService" />
   </service>
 
-  <implementation class="org.nuxeo.ecm.core.scheduler.SchedulerServiceImpl" />
+  <implementation class="com.hyland.openarch.ecm.core.scheduler.SchedulerServiceImpl" />
 
   <extension-point name="schedule">
 
@@ -34,16 +34,16 @@
           <timezone>UTC</timezone>
         </schedule>
       </code>
-      The class must be an instance of org.nuxeo.ecm.core.scheduler.ScheduledJob,
+      The class must be an instance of scheduler.com.hyland.openarch.ecm.core.ScheduledJob,
       having a run() method.
 
       @see org.quartz.CronTrigger
-      @see org.nuxeo.ecm.core.scheduler.ScheduledJob
+      @see scheduler.com.hyland.openarch.ecm.core.ScheduledJob
       @see http://www.quartz-scheduler.org/docs/api/1.8.1/org/quartz/CronExpression.html
       @see http://www.quartz-scheduler.org/docs/tutorials/crontrigger.html
     </documentation>
 
-    <object class="org.nuxeo.ecm.core.scheduler.ScheduleDescriptor"/>
+    <object class="com.hyland.openarch.ecm.core.scheduler.ScheduleDescriptor"/>
 
   </extension-point>
 

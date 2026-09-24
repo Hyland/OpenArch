@@ -18,8 +18,8 @@ package org.nuxeo.opensearch.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_DESCRIPTION;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_DESCRIPTION;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_TITLE;
 import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
 
 import java.util.concurrent.TimeUnit;
@@ -29,10 +29,10 @@ import jakarta.inject.Inject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.nuxeo.ecm.core.api.CoreSession;
-import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.ecm.core.api.DocumentModelList;
-import org.nuxeo.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.CoreSession;
+import com.hyland.openarch.ecm.core.api.DocumentModel;
+import com.hyland.openarch.ecm.core.api.DocumentModelList;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
 import org.nuxeo.opensearch.api.OpenSearchService;
 import org.nuxeo.opensearch.query.OpenSearchQueryBuilder;
 import com.hyland.openarch.runtime.test.runner.Deploy;

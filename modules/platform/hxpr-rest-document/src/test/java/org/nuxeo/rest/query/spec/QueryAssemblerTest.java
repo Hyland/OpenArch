@@ -20,19 +20,19 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ACL;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ACL;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_TITLE;
 
 import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
-import org.nuxeo.ecm.core.api.NuxeoException;
-import org.nuxeo.ecm.core.api.NuxeoPrincipal;
-import org.nuxeo.ecm.core.query.QueryParseException;
-import org.nuxeo.ecm.core.query.QuerySyntax;
-import org.nuxeo.ecm.core.query.nxql.SortInfo;
-import org.nuxeo.ecm.core.query.sql.model.Predicate;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.query.QueryParseException;
+import com.hyland.openarch.ecm.core.query.QuerySyntax;
+import com.hyland.openarch.ecm.core.query.nxql.SortInfo;
+import com.hyland.openarch.ecm.core.query.sql.model.Predicate;
 import com.hyland.openarch.ecm.core.schema.SchemaManager;
 import org.nuxeo.rest.query.io.DocumentAdvancedQueryDTO;
 import org.nuxeo.rest.query.io.DocumentQueryDTO;
@@ -40,7 +40,7 @@ import org.nuxeo.rest.query.io.WhereClauseDTO;
 import org.nuxeo.rest.query.spec.QueryAssembler.AssembledQuery;
 import org.nuxeo.rest.query.io.WhereClauseDTO.RestPredicate;
 
-import com.hyland.hxpr.expr.ExprPredicates;
+import com.hyland.openarch.expr.ExprPredicates;
 
 public class QueryAssemblerTest {
 

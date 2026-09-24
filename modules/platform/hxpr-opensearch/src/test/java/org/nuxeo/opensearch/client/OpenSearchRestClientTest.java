@@ -43,7 +43,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.apache.hc.core5.http.HttpStatus;
 import com.hyland.openarch.common.resilience.Resilience4jRegistries;
 import com.hyland.openarch.common.RetryAfterHint;
-import org.nuxeo.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
 import org.nuxeo.opensearch.io.DocumentDTO;
 import org.opensearch.client.json.jackson3.JacksonJsonpMapper;
 import org.opensearch.client.opensearch.OpenSearchClient;

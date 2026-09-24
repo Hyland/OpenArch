@@ -15,9 +15,9 @@
  */
 package org.nuxeo.rest.bulkimport;
 
-import static org.nuxeo.ecm.core.api.DocumentConstants.DESTINATION_FOLDER_ID;
-import static org.nuxeo.ecm.core.api.DocumentConstants.DESTINATION_FOLDER_PATH;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSFILE_BLOB;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.DESTINATION_FOLDER_ID;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.DESTINATION_FOLDER_PATH;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSFILE_BLOB;
 
 import java.io.Serial;
 import java.io.Serializable;

@@ -15,9 +15,9 @@
  */
 package org.nuxeo.rest.acl;
 
-import static org.nuxeo.ecm.core.api.security.ACE.EXTERNAL_SYSTEM_SEPARATOR;
-import static org.nuxeo.ecm.core.api.security.ACE.GROUP_PREFIX;
-import static org.nuxeo.ecm.core.api.security.ACE.USER_PREFIX;
+import static com.hyland.openarch.ecm.core.api.security.ACE.EXTERNAL_SYSTEM_SEPARATOR;
+import static com.hyland.openarch.ecm.core.api.security.ACE.GROUP_PREFIX;
+import static com.hyland.openarch.ecm.core.api.security.ACE.USER_PREFIX;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,10 +27,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.nuxeo.ecm.core.api.NuxeoGroup;
-import org.nuxeo.ecm.core.api.NuxeoPrincipal;
-import org.nuxeo.ecm.core.api.security.ACE;
-import org.nuxeo.ecm.core.api.security.SecurityConstants;
+import com.hyland.openarch.ecm.core.api.NuxeoGroup;
+import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.security.ACE;
+import com.hyland.openarch.ecm.core.api.security.SecurityConstants;
 import org.nuxeo.ecm.platform.usermanager.UserManager;
 import org.nuxeo.rest.user.GroupDTO;
 import org.nuxeo.rest.user.UserDTO;

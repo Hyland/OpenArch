@@ -22,7 +22,7 @@ import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-import org.nuxeo.ecm.core.api.DocumentModel;
+import com.hyland.openarch.ecm.core.api.DocumentModel;
 import org.nuxeo.opensearch.commands.IndexingCommand.Type;
 
 /*

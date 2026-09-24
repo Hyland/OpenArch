@@ -15,27 +15,27 @@
  */
 package org.nuxeo.opensearch.test.util;
 
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_BLOB_REF;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_ID;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_BOTTOM;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_COLUMN;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_END;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_LEFT;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_PAGE;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_PARAGRAPH;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_POSITION;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_RIGHT;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_ROW;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_SHEET;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_SPREADSHEET;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_START;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_TEXT;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_TIMESTAMP;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_TOP;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_TEXT;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_TYPE;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_VECTOR;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_BLOB_REF;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_ID;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_BOTTOM;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_COLUMN;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_END;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_LEFT;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_PAGE;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_PARAGRAPH;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_POSITION;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_RIGHT;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_ROW;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_SHEET;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_SPREADSHEET;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_START;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_TEXT;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_TIMESTAMP;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_LOCATION_TOP;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_TEXT;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_TYPE;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_FIELD_VECTOR;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,17 +43,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.hyland.openarch.ecm.core.api.impl.blob.FileBlob;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.parquet.avro.AvroParquetWriter;
 import org.apache.parquet.hadoop.ParquetFileWriter;
 import org.apache.parquet.io.LocalOutputFile;
-import org.nuxeo.ecm.core.api.Blob;
-import org.nuxeo.ecm.core.api.Blobs;
-import org.nuxeo.ecm.core.api.NuxeoException;
-import org.nuxeo.ecm.core.model.EmbeddingModel;
-import org.nuxeo.ecm.core.model.LocationModel;
+import com.hyland.openarch.ecm.core.api.Blob;
+import com.hyland.openarch.ecm.core.api.Blobs;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.model.EmbeddingModel;
+import com.hyland.openarch.ecm.core.model.LocationModel;
 
 /**
  * Utility class for generating test Parquet files with embeddings without Hadoop dependencies.
@@ -125,7 +126,7 @@ public class ParquetBlobGenerator {
     /**
      * Creates the backing blob for a generated parquet. Uses {@link Blobs#createBlobWithExtension} by default so
      * tests running under the Nuxeo runtime get file tracking; subclasses may override to create a plain
-     * {@link org.nuxeo.ecm.core.api.impl.blob.FileBlob} when the runtime isn't available.
+     * {@link FileBlob} when the runtime isn't available.
      */
     protected Blob newParquetBlob() throws IOException {
         Blob blob = Blobs.createBlobWithExtension(PARQUET_FILE_EXTENSION);

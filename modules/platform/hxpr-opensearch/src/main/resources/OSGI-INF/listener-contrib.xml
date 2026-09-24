@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <component name="org.nuxeo.opensearch.core.listener">
 
-  <extension point="listener" target="org.nuxeo.ecm.core.event.EventService">
+  <extension point="listener" target="com.hyland.openarch.ecm.core.event.EventService">
 
     <listener name="openSearchInlineListener" class="org.nuxeo.opensearch.listener.OpenSearchInlineListener" priority="500">
       <event>documentModified</event>

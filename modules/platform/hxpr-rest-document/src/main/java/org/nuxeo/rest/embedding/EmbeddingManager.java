@@ -19,7 +19,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import java.util.List;
 
-import org.nuxeo.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
 import org.nuxeo.rest.query.OpenSearchQueryManager;
 import org.nuxeo.rest.query.io.EmbeddingQueryResultDTO;
 import org.springframework.beans.factory.annotation.Autowired;

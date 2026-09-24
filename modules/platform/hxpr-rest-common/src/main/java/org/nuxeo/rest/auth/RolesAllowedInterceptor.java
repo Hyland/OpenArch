@@ -15,7 +15,7 @@
  */
 package org.nuxeo.rest.auth;
 
-import static org.nuxeo.ecm.core.api.security.SecurityConstants.ADMINISTRATORS_GROUP;
+import static com.hyland.openarch.ecm.core.api.security.SecurityConstants.ADMINISTRATORS_GROUP;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -28,8 +28,8 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
-import org.nuxeo.ecm.core.api.NuxeoException;
-import org.nuxeo.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 

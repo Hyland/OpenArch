@@ -15,22 +15,22 @@
  */
 package org.nuxeo.rest.document.test;
 
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSFILE_BLOB;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSFILE_BLOB;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_TITLE;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
-import org.nuxeo.ecm.core.api.Blob;
-import org.nuxeo.ecm.core.api.Blobs;
-import org.nuxeo.ecm.core.api.CoreSession;
-import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.ecm.core.api.IdRef;
-import org.nuxeo.ecm.core.test.CoreFeature;
-import org.nuxeo.ecm.core.test.annotations.Granularity;
-import org.nuxeo.ecm.core.test.annotations.RepositoryConfig;
+import com.hyland.openarch.ecm.core.api.Blob;
+import com.hyland.openarch.ecm.core.api.Blobs;
+import com.hyland.openarch.ecm.core.api.CoreSession;
+import com.hyland.openarch.ecm.core.api.DocumentModel;
+import com.hyland.openarch.ecm.core.api.IdRef;
+import com.hyland.openarch.ecm.core.test.CoreFeature;
+import com.hyland.openarch.ecm.core.test.annotations.Granularity;
+import com.hyland.openarch.ecm.core.test.annotations.RepositoryConfig;
 import org.nuxeo.ecm.platform.test.UserManagerMockFeature;
 import org.nuxeo.ecm.platform.test.UserManagerMockTestConfiguration;
 import com.hyland.openarch.runtime.test.runner.Features;

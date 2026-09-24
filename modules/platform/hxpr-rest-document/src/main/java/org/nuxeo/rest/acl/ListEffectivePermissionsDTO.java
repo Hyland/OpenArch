@@ -15,7 +15,7 @@
  */
 package org.nuxeo.rest.acl;
 
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ID;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ID;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

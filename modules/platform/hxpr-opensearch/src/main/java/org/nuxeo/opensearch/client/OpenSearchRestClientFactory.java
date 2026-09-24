@@ -46,7 +46,7 @@ import org.apache.hc.core5.ssl.SSLContexts;
 import org.apache.hc.core5.util.Timeout;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.nuxeo.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
 import org.nuxeo.opensearch.api.OpenSearchClient;
 import com.hyland.openarch.runtime.api.Framework;
 import org.opensearch.client.json.JsonpMapper;

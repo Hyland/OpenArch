@@ -17,12 +17,12 @@ package com.hyland.hxpr.async.tasks;
 
 import static com.hyland.hxpr.async.tasks.TaskStatus.State.COMPLETED;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.nuxeo.ecm.core.async.tasks.DeleteBatchTaskProcessor.BATCH_DELETE_TASK_NAME;
-import static org.nuxeo.ecm.core.test.DocumentSetRepositoryInit.CREATED_TOTAL;
+import static com.hyland.openarch.ecm.core.async.tasks.DeleteBatchTaskProcessor.BATCH_DELETE_TASK_NAME;
+import static com.hyland.openarch.ecm.core.test.DocumentSetRepositoryInit.CREATED_TOTAL;
 
 import org.junit.jupiter.api.Test;
-import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.ecm.core.api.PathRef;
+import com.hyland.openarch.ecm.core.api.DocumentModel;
+import com.hyland.openarch.ecm.core.api.PathRef;
 import com.hyland.openarch.runtime.springboot.junit.RuntimeTestState;
 import org.springframework.boot.test.context.SpringBootTest;
 

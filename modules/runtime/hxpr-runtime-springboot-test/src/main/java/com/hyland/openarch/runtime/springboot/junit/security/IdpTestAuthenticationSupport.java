@@ -31,8 +31,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.lang3.StringUtils;
-import org.nuxeo.ecm.core.api.NuxeoException;
-import org.nuxeo.ecm.core.api.local.WithUser;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.local.WithUser;
 import com.hyland.openarch.runtime.api.Framework;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.oauth2.jwt.Jwt;

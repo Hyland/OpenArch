@@ -43,9 +43,9 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
-import org.nuxeo.ecm.core.api.Blob;
-import org.nuxeo.ecm.core.transientstore.TransientStorageComponent;
-import org.nuxeo.ecm.core.transientstore.api.TransientStoreService;
+import com.hyland.openarch.ecm.core.api.Blob;
+import com.hyland.openarch.ecm.core.transientstore.TransientStorageComponent;
+import com.hyland.openarch.ecm.core.transientstore.api.TransientStoreService;
 import org.nuxeo.rest.upload.Upload;
 import org.nuxeo.rest.upload.UploadAPI;
 import org.nuxeo.rest.upload.UploadServiceImpl;

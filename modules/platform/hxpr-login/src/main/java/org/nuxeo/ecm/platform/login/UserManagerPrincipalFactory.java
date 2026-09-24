@@ -19,7 +19,7 @@ import java.security.Principal;
 
 import javax.security.auth.login.LoginException;
 
-import org.nuxeo.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.ecm.platform.usermanager.NuxeoPrincipalImpl;
 import org.nuxeo.ecm.platform.usermanager.UserManager;
 import com.hyland.openarch.runtime.api.Framework;

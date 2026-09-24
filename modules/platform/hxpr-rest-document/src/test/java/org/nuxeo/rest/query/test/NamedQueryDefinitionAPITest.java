@@ -20,7 +20,7 @@ import static jakarta.ws.rs.core.Response.Status.OK;
 import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.nuxeo.ecm.core.api.local.DummyLoginFeature.TEST_ANONYMOUS_USER;
+import static com.hyland.openarch.ecm.core.api.local.DummyLoginFeature.TEST_ANONYMOUS_USER;
 import static org.nuxeo.rest.query.QueryAPI.PATH;
 import static org.nuxeo.rest.query.conf.NamedQueryHelper.TITLE_SORT;
 import static org.nuxeo.rest.query.spec.QueryAssembler.DEFAULT_SELECT_STATEMENT;
@@ -34,7 +34,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.nuxeo.ecm.core.api.local.WithUser;
+import com.hyland.openarch.ecm.core.api.local.WithUser;
 import org.nuxeo.rest.document.test.ContentTestHelper;
 import org.nuxeo.rest.query.OpenSearchQueryManager;
 import org.nuxeo.rest.query.QueryAPI;

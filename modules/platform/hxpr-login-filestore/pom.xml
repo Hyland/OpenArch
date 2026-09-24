@@ -33,7 +33,7 @@
     <!-- Test dependencies -->
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-core-api</artifactId>
+      <artifactId>openarch-core-api</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>

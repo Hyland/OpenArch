@@ -29,8 +29,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.io.IOException;
 
-import org.nuxeo.ecm.core.api.IdRef;
-import org.nuxeo.ecm.core.api.PathRefUtils;
+import com.hyland.openarch.ecm.core.api.IdRef;
+import com.hyland.openarch.ecm.core.api.PathRefUtils;
 import org.nuxeo.rest.swagger.annotation.ApiResponse404DocumentNotFound;
 import org.nuxeo.rest.swagger.annotation.Authenticated;
 import org.nuxeo.rest.swagger.annotation.ParameterDocId;

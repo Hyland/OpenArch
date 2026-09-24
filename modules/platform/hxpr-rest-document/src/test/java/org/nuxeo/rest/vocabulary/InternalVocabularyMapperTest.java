@@ -18,12 +18,12 @@ package org.nuxeo.rest.vocabulary;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.nuxeo.ecm.core.api.VocabularyConstants.VOCABULARY_ID;
-import static org.nuxeo.ecm.core.api.VocabularyConstants.VOCABULARY_KEY;
-import static org.nuxeo.ecm.core.api.VocabularyConstants.VOCABULARY_LABEL;
+import static com.hyland.openarch.ecm.core.api.VocabularyConstants.VOCABULARY_ID;
+import static com.hyland.openarch.ecm.core.api.VocabularyConstants.VOCABULARY_KEY;
+import static com.hyland.openarch.ecm.core.api.VocabularyConstants.VOCABULARY_LABEL;
 
 import org.junit.jupiter.api.Test;
-import org.nuxeo.ecm.core.api.DocumentModel;
+import com.hyland.openarch.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.platform.vocabulary.model.CreateVocabulary;
 import org.nuxeo.ecm.platform.vocabulary.model.CreateVocabularyEntry;
 import org.nuxeo.ecm.platform.vocabulary.model.VocabularyEntryWrapper;

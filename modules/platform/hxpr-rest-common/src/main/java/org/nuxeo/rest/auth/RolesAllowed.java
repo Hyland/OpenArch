@@ -22,7 +22,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import org.nuxeo.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
 
 /**
  * The RolesAllowed annotation is used to specify the roles permitted to access a resource or method. If applied at the

@@ -17,7 +17,7 @@ package org.nuxeo.opensearch.fetcher;
 
 import static java.util.stream.Collectors.toMap;
 
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ID;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ID;
 import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_CONTENT;
 
 import java.util.ArrayList;
@@ -26,15 +26,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.nuxeo.ecm.core.api.CoreInstance;
-import org.nuxeo.ecm.core.api.CoreSession;
-import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.ecm.core.api.impl.DocumentModelListImpl;
-import org.nuxeo.ecm.core.query.sql.model.FromClause;
-import org.nuxeo.ecm.core.query.sql.model.Predicates;
-import org.nuxeo.ecm.core.query.sql.model.SelectClause;
-import org.nuxeo.ecm.core.query.sql.model.Statement;
-import org.nuxeo.ecm.core.query.sql.model.WhereClause;
+import com.hyland.openarch.ecm.core.api.CoreInstance;
+import com.hyland.openarch.ecm.core.api.CoreSession;
+import com.hyland.openarch.ecm.core.api.DocumentModel;
+import com.hyland.openarch.ecm.core.api.impl.DocumentModelListImpl;
+import com.hyland.openarch.ecm.core.query.sql.model.FromClause;
+import com.hyland.openarch.ecm.core.query.sql.model.Predicates;
+import com.hyland.openarch.ecm.core.query.sql.model.SelectClause;
+import com.hyland.openarch.ecm.core.query.sql.model.Statement;
+import com.hyland.openarch.ecm.core.query.sql.model.WhereClause;
 import org.nuxeo.opensearch.io.DocumentDTO;
 import org.nuxeo.opensearch.query.OpenSearchQueryBuilder.HitDocConsumer;
 import org.opensearch.client.opensearch.core.SearchResponse;

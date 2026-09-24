@@ -16,9 +16,9 @@
 
 package org.nuxeo.rest.vocabulary.io;
 
-import static org.nuxeo.ecm.core.api.VocabularyConstants.VOCABULARY_ID;
-import static org.nuxeo.ecm.core.api.VocabularyConstants.VOCABULARY_KEY;
-import static org.nuxeo.ecm.core.api.VocabularyConstants.VOCABULARY_LABEL;
+import static com.hyland.openarch.ecm.core.api.VocabularyConstants.VOCABULARY_ID;
+import static com.hyland.openarch.ecm.core.api.VocabularyConstants.VOCABULARY_KEY;
+import static com.hyland.openarch.ecm.core.api.VocabularyConstants.VOCABULARY_LABEL;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

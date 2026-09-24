@@ -23,8 +23,8 @@ import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.nuxeo.ecm.core.security.config.SecurityLevelSecurityPolicyConfig;
-import org.nuxeo.ecm.core.security.config.SecurityPolicyConfig;
+import com.hyland.openarch.ecm.core.security.config.SecurityLevelSecurityPolicyConfig;
+import com.hyland.openarch.ecm.core.security.config.SecurityPolicyConfig;
 
 class SecurityPolicyConfigMapperTest {
 

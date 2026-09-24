@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.Future;
 
-import org.nuxeo.ecm.core.api.DocumentModelList;
+import com.hyland.openarch.ecm.core.api.DocumentModelList;
 import org.nuxeo.opensearch.commands.IndexingCommand;
 import org.nuxeo.opensearch.query.OpenSearchQueryBuilder;
 

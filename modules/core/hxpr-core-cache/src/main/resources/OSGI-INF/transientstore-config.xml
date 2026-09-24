@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <component name="org.nuxeo.ecm.core.transient.store.config">
 
-  <extension target="org.nuxeo.ecm.core.transientstore.TransientStorageComponent"
+  <extension target="com.hyland.openarch.ecm.core.transientstore.TransientStorageComponent"
              point="store">
 
-    <store name="default" class="org.nuxeo.ecm.core.transientstore.keyvalueblob.KeyValueBlobTransientStore">
+    <store name="default" class="com.hyland.openarch.ecm.core.transientstore.keyvalueblob.KeyValueBlobTransientStore">
       <targetMaxSizeMB>-1</targetMaxSizeMB>
       <absoluteMaxSizeMB>-1</absoluteMaxSizeMB>
       <firstLevelTTL>${nuxeo.transientstore.ttl:=4320}</firstLevelTTL>
@@ -19,7 +19,7 @@
   </extension>
 
   <extension target="com.hyland.hxpr.async.tasks.AsyncTasksService" point="asyncTasks">
-    <asyncTask name="transientStorageGC" class="org.nuxeo.ecm.core.transientstore.TransientStorageGCTaskProcessor"/>
+    <asyncTask name="transientStorageGC" class="com.hyland.openarch.ecm.core.transientstore.TransientStorageGCTaskProcessor"/>
   </extension>
 
 

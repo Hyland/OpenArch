@@ -22,7 +22,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;
 
-import org.nuxeo.ecm.core.query.QuerySyntax;
+import com.hyland.openarch.ecm.core.query.QuerySyntax;
 import org.nuxeo.rest.embedding.EmbeddingRestDTO;
 import org.nuxeo.rest.query.spec.QuerySpecification;
 

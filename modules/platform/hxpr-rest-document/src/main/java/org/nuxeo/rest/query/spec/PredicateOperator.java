@@ -23,8 +23,8 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.nuxeo.ecm.core.api.NuxeoException;
-import org.nuxeo.ecm.core.query.sql.model.Operator;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.query.sql.model.Operator;
 
 /**
  * The operators a query predicate can use, as spelled in a request.

@@ -15,13 +15,13 @@
  */
 package org.nuxeo.rest.query.conf;
 
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSVER_IS_VERSION;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_FULLTEXT;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_MIXIN_TYPES;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PARENT_ID;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PATH;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_POS;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSVER_IS_VERSION;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_FULLTEXT;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_MIXIN_TYPES;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PARENT_ID;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PATH;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_POS;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_TITLE;
 import static org.nuxeo.rest.query.spec.QueryAssembler.DEFAULT_SELECT_STATEMENT;
 import static org.nuxeo.rest.query.spec.QueryAssembler.SORTED_COLUMN;
 

@@ -13,9 +13,9 @@
     </doctype>
   </extension>
 
-  <extension target="org.nuxeo.ecm.core.blob.DocumentBlobService" point="configuration">
+  <extension target="com.hyland.openarch.ecm.core.blob.DocumentBlobService" point="configuration">
     <blobdispatcher>
-      <class>org.nuxeo.ecm.core.blob.DefaultBlobDispatcher</class>
+      <class>com.hyland.openarch.ecm.core.blob.DefaultBlobDispatcher</class>
       <property name="blob_xpath=cloud-test_blob">test</property>
       <property name="blob_xpath=cloud-other_blob">other</property>
       <property name="default">test</property>

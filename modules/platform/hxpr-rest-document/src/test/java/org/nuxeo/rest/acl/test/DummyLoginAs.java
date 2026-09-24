@@ -15,12 +15,12 @@
  */
 package org.nuxeo.rest.acl.test;
 
-import static org.nuxeo.ecm.core.api.local.DummyLoginFeature.TEST_ADMIN_USER;
-import static org.nuxeo.ecm.core.api.local.DummyLoginFeature.TEST_ADMIN_USER_NAME;
+import static com.hyland.openarch.ecm.core.api.local.DummyLoginFeature.TEST_ADMIN_USER;
+import static com.hyland.openarch.ecm.core.api.local.DummyLoginFeature.TEST_ADMIN_USER_NAME;
 
 import java.security.Principal;
 
-import org.nuxeo.ecm.core.api.impl.UserPrincipal;
+import com.hyland.openarch.ecm.core.api.impl.UserPrincipal;
 import com.hyland.openarch.runtime.api.login.PrincipalFactory;
 
 public class DummyLoginAs implements PrincipalFactory {

@@ -4,7 +4,7 @@
     Default permissions (atomic and compound) used by the core.
   </documentation>
 
-  <extension target="org.nuxeo.ecm.core.security.SecurityService"
+  <extension target="com.hyland.openarch.ecm.core.security.SecurityService"
     point="permissions">
 
     <permission name="Everything">

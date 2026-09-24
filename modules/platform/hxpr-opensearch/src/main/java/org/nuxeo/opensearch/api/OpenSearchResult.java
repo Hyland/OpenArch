@@ -17,8 +17,8 @@ package org.nuxeo.opensearch.api;
 
 import java.util.List;
 
-import org.nuxeo.ecm.core.api.DocumentModelList;
-import org.nuxeo.ecm.core.api.IterableQueryResult;
+import com.hyland.openarch.ecm.core.api.DocumentModelList;
+import com.hyland.openarch.ecm.core.api.IterableQueryResult;
 import org.nuxeo.opensearch.io.DocumentDTO;
 import org.nuxeo.opensearch.query.FieldValueConverter;
 import org.opensearch.client.opensearch.core.SearchResponse;

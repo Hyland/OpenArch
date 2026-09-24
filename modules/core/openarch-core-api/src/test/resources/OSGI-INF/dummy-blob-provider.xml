@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<component name="com.hyland.openarch.ecm.core.blob.DummyBlobProvider">
+  <require>org.nuxeo.ecm.core.blobprovider.default.config</require>
+  <extension target="com.hyland.openarch.ecm.core.blob.BlobService" point="configuration">
+    <blobprovider name="default">
+      <class>com.hyland.openarch.ecm.core.blob.DummyBlobProvider</class>
+      <property name="kind">main</property>
+    </blobprovider>
+    <blobprovider name="otherdefault">
+      <class>com.hyland.openarch.ecm.core.blob.DummyBlobProvider</class>
+      <property name="kind">other</property>
+    </blobprovider>
+    <blobprovider name="dummy">
+      <class>com.hyland.openarch.ecm.core.blob.DummyBlobProvider</class>
+    </blobprovider>
+    <blobprovider name="fromdoc">
+      <class>com.hyland.openarch.ecm.core.blob.DummyBlobProvider</class>
+    </blobprovider>
+    <blobprovider name="fromdoc2">
+      <class>com.hyland.openarch.ecm.core.blob.DummyBlobProvider</class>
+    </blobprovider>
+    <blobprovider name="memwithbyterange">
+      <class>com.hyland.openarch.ecm.core.blob.InMemoryBlobProvider</class>
+      <property name="allowByteRange">true</property>
+    </blobprovider>
+  </extension>
+</component>

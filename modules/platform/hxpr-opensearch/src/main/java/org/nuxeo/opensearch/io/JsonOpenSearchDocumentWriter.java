@@ -16,10 +16,10 @@
 package org.nuxeo.opensearch.io;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_FULLTEXT_BINARY;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_MIXIN_TYPES;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_READ_ACL;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_SECURITY_POLICIES;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_FULLTEXT_BINARY;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_MIXIN_TYPES;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_READ_ACL;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_SECURITY_POLICIES;
 import static com.hyland.openarch.ecm.core.schema.types.FieldCharacteristics.Representation.INDEX;
 
 import java.math.BigDecimal;
@@ -29,11 +29,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
-import org.nuxeo.ecm.core.SystemPropertyValues;
-import org.nuxeo.ecm.core.api.Blob;
-import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.ecm.core.api.NuxeoException;
-import org.nuxeo.ecm.core.api.ValuesVisitor;
+import com.hyland.openarch.ecm.core.SystemPropertyValues;
+import com.hyland.openarch.ecm.core.api.Blob;
+import com.hyland.openarch.ecm.core.api.DocumentModel;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.ValuesVisitor;
 import com.hyland.openarch.ecm.core.schema.types.Field;
 import com.hyland.openarch.ecm.core.schema.types.Type;
 import com.hyland.openarch.ecm.core.schema.types.primitives.BooleanType;

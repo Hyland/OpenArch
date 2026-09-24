@@ -15,40 +15,40 @@
  */
 package org.nuxeo.rest.query.spec;
 
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ID;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ID;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.nuxeo.ecm.core.api.NuxeoException;
-import org.nuxeo.ecm.core.api.NuxeoPrincipal;
-import org.nuxeo.ecm.core.query.QueryParseException;
-import org.nuxeo.ecm.core.query.QuerySyntax;
-import org.nuxeo.ecm.core.query.nxql.SortInfo;
-import org.nuxeo.ecm.core.query.sql.HXQLParser;
-import org.nuxeo.ecm.core.query.sql.HXQLSerializer;
-import org.nuxeo.ecm.core.query.sql.QueryParameterBinder;
-import org.nuxeo.ecm.core.query.sql.model.Function;
-import org.nuxeo.ecm.core.query.sql.model.MultiExpression;
-import org.nuxeo.ecm.core.query.sql.model.Operand;
-import org.nuxeo.ecm.core.query.sql.model.OperandList;
-import org.nuxeo.ecm.core.query.sql.model.Operator;
-import org.nuxeo.ecm.core.query.sql.model.OrderByClause;
-import org.nuxeo.ecm.core.query.sql.model.OrderByExpr;
-import org.nuxeo.ecm.core.query.sql.model.Predicate;
-import org.nuxeo.ecm.core.query.sql.model.Reference;
-import org.nuxeo.ecm.core.query.sql.model.SelectClause;
-import org.nuxeo.ecm.core.query.sql.model.Statement;
-import org.nuxeo.ecm.core.query.sql.model.WhereClause;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.query.QueryParseException;
+import com.hyland.openarch.ecm.core.query.QuerySyntax;
+import com.hyland.openarch.ecm.core.query.nxql.SortInfo;
+import com.hyland.openarch.ecm.core.query.sql.HXQLParser;
+import com.hyland.openarch.ecm.core.query.sql.HXQLSerializer;
+import com.hyland.openarch.ecm.core.query.sql.QueryParameterBinder;
+import com.hyland.openarch.ecm.core.query.sql.model.Function;
+import com.hyland.openarch.ecm.core.query.sql.model.MultiExpression;
+import com.hyland.openarch.ecm.core.query.sql.model.Operand;
+import com.hyland.openarch.ecm.core.query.sql.model.OperandList;
+import com.hyland.openarch.ecm.core.query.sql.model.Operator;
+import com.hyland.openarch.ecm.core.query.sql.model.OrderByClause;
+import com.hyland.openarch.ecm.core.query.sql.model.OrderByExpr;
+import com.hyland.openarch.ecm.core.query.sql.model.Predicate;
+import com.hyland.openarch.ecm.core.query.sql.model.Reference;
+import com.hyland.openarch.ecm.core.query.sql.model.SelectClause;
+import com.hyland.openarch.ecm.core.query.sql.model.Statement;
+import com.hyland.openarch.ecm.core.query.sql.model.WhereClause;
 import com.hyland.openarch.ecm.core.schema.SchemaManager;
 import com.hyland.openarch.ecm.core.schema.TypeService;
 import org.nuxeo.rest.query.io.DocumentAdvancedQueryDTO;
 import org.nuxeo.rest.query.io.WhereClauseDTO;
 import com.hyland.openarch.runtime.api.Framework;
 
-import com.hyland.hxpr.expr.ExprPredicates;
+import com.hyland.openarch.expr.ExprPredicates;
 
 /**
  * Builds the NXQL a query request asks for.

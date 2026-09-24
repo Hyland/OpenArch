@@ -15,35 +15,35 @@
  */
 package org.nuxeo.opensearch.commands;
 
-import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.ABOUT_TO_CHECKIN;
-import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.AFTER_EXTEND_RETENTION;
-import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.AFTER_MAKE_RECORD;
-import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.AFTER_REMOVE_LEGAL_HOLD;
-import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.AFTER_SET_LEGAL_HOLD;
-import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.AFTER_SET_RETENTION;
-import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.BINARYTEXT_UPDATED;
-import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_CHECKEDIN;
-import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_CHECKEDOUT;
-import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_CHILDREN_ORDER_CHANGED;
-import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_CREATED;
-import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_CREATED_BY_COPY;
-import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_MOVED;
-import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_REMOVED;
-import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_RESTORED;
-import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_SECURITY_UPDATED;
-import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_UPDATED;
-import static org.nuxeo.ecm.core.api.trash.TrashService.DOCUMENT_TRASHED;
-import static org.nuxeo.ecm.core.api.trash.TrashService.DOCUMENT_UNTRASHED;
+import static com.hyland.openarch.ecm.core.api.event.DocumentEventTypes.ABOUT_TO_CHECKIN;
+import static com.hyland.openarch.ecm.core.api.event.DocumentEventTypes.AFTER_EXTEND_RETENTION;
+import static com.hyland.openarch.ecm.core.api.event.DocumentEventTypes.AFTER_MAKE_RECORD;
+import static com.hyland.openarch.ecm.core.api.event.DocumentEventTypes.AFTER_REMOVE_LEGAL_HOLD;
+import static com.hyland.openarch.ecm.core.api.event.DocumentEventTypes.AFTER_SET_LEGAL_HOLD;
+import static com.hyland.openarch.ecm.core.api.event.DocumentEventTypes.AFTER_SET_RETENTION;
+import static com.hyland.openarch.ecm.core.api.event.DocumentEventTypes.BINARYTEXT_UPDATED;
+import static com.hyland.openarch.ecm.core.api.event.DocumentEventTypes.DOCUMENT_CHECKEDIN;
+import static com.hyland.openarch.ecm.core.api.event.DocumentEventTypes.DOCUMENT_CHECKEDOUT;
+import static com.hyland.openarch.ecm.core.api.event.DocumentEventTypes.DOCUMENT_CHILDREN_ORDER_CHANGED;
+import static com.hyland.openarch.ecm.core.api.event.DocumentEventTypes.DOCUMENT_CREATED;
+import static com.hyland.openarch.ecm.core.api.event.DocumentEventTypes.DOCUMENT_CREATED_BY_COPY;
+import static com.hyland.openarch.ecm.core.api.event.DocumentEventTypes.DOCUMENT_MOVED;
+import static com.hyland.openarch.ecm.core.api.event.DocumentEventTypes.DOCUMENT_REMOVED;
+import static com.hyland.openarch.ecm.core.api.event.DocumentEventTypes.DOCUMENT_RESTORED;
+import static com.hyland.openarch.ecm.core.api.event.DocumentEventTypes.DOCUMENT_SECURITY_UPDATED;
+import static com.hyland.openarch.ecm.core.api.event.DocumentEventTypes.DOCUMENT_UPDATED;
+import static com.hyland.openarch.ecm.core.api.trash.TrashService.DOCUMENT_TRASHED;
+import static com.hyland.openarch.ecm.core.api.trash.TrashService.DOCUMENT_UNTRASHED;
 
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.nuxeo.ecm.core.api.CoreInstance;
-import org.nuxeo.ecm.core.api.CoreSession;
-import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.ecm.core.api.DocumentModelList;
-import org.nuxeo.ecm.core.event.impl.DocumentEventContext;
+import com.hyland.openarch.ecm.core.api.CoreInstance;
+import com.hyland.openarch.ecm.core.api.CoreSession;
+import com.hyland.openarch.ecm.core.api.DocumentModel;
+import com.hyland.openarch.ecm.core.api.DocumentModelList;
+import com.hyland.openarch.ecm.core.event.impl.DocumentEventContext;
 import org.nuxeo.opensearch.OpenSearchConstants;
 import org.nuxeo.opensearch.commands.IndexingCommand.Type;
 

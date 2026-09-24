@@ -20,8 +20,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.nuxeo.ecm.core.api.Blob;
-import org.nuxeo.ecm.core.model.EmbeddingModel;
+import com.hyland.openarch.ecm.core.api.Blob;
+import com.hyland.openarch.ecm.core.model.EmbeddingModel;
 
 /**
  * Contract used to parse an embeddings {@link Blob} and build a collection of {@link EmbeddingOSDTO}.

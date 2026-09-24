@@ -19,8 +19,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
-import org.nuxeo.ecm.core.transientstore.SimpleTransientStore;
-import org.nuxeo.ecm.core.transientstore.api.TransientStore;
+import com.hyland.openarch.ecm.core.transientstore.SimpleTransientStore;
+import com.hyland.openarch.ecm.core.transientstore.api.TransientStore;
 import org.nuxeo.rest.upload.Upload;
 import org.nuxeo.rest.upload.handler.DefaultUploadHandler;
 import org.springframework.boot.test.context.SpringBootTest;

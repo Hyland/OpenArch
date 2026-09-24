@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <component name="org.nuxeo.ecm.core.cache.config">
 
-  <extension target="org.nuxeo.ecm.core.cache.CacheService"
+  <extension target="com.hyland.openarch.ecm.core.cache.CacheService"
     point="caches">
     <cache name="default-cache">
       <ttl>${nuxeo.cache.ttl:=20}</ttl><!-- minutes -->

@@ -17,7 +17,7 @@ package org.nuxeo.opensearch.client;
 
 import org.apache.hc.core5.http.HttpStatus;
 import com.hyland.openarch.common.RetryAfterHint;
-import org.nuxeo.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
 
 /**
  * Thrown when the circuit breaker guarding OpenSearch is open, so the call was refused without being attempted.

@@ -2,14 +2,14 @@
 <component name="org.nuxeo.ecm.core.blob.asyncdigest.listener">
 
   <extension target="com.hyland.openarch.runtime.EventService" point="listeners">
-    <listener class="org.nuxeo.ecm.core.blob.AsyncDigestListener">
+    <listener class="com.hyland.openarch.ecm.core.blob.AsyncDigestListener">
       <topic>asyncDigest</topic>
     </listener>
   </extension>
 
-  <extension target="org.nuxeo.ecm.core.scheduler.SchedulerService" point="schedule">
+  <extension target="com.hyland.openarch.ecm.core.scheduler.SchedulerService" point="schedule">
     <schedule id="blobManagerDeleteMarkedBlobsSchedule">
-      <class>org.nuxeo.ecm.core.blob.BlobDeleteScheduledJob</class>
+      <class>com.hyland.openarch.ecm.core.blob.BlobDeleteScheduledJob</class>
       <!-- every 15 minutes -->
       <cronExpression>0 0/15 * * * ?</cronExpression>
     </schedule>

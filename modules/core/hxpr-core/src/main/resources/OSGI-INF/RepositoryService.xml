@@ -4,13 +4,13 @@
     Service to manage core repositories.
   </documentation>
 
-  <require>org.nuxeo.ecm.core.api.repository.RepositoryManager</require>
+  <require>com.hyland.openarch.ecm.core.api.repository.RepositoryManager</require>
   <require>com.hyland.openarch.runtime.cluster.ClusterService</require>
 
-  <implementation class="org.nuxeo.ecm.core.repository.RepositoryService" />
+  <implementation class="com.hyland.openarch.ecm.core.repository.RepositoryService" />
 
   <service>
-    <provide interface="org.nuxeo.ecm.core.repository.RepositoryService" />
+    <provide interface="com.hyland.openarch.ecm.core.repository.RepositoryService" />
   </service>
 
 </component>

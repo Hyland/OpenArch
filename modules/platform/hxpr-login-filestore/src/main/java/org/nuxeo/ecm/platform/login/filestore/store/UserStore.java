@@ -27,8 +27,8 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
-import org.nuxeo.ecm.core.api.NuxeoGroup;
-import org.nuxeo.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.NuxeoGroup;
+import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.ecm.platform.usermanager.NuxeoGroupImpl;
 import org.nuxeo.ecm.platform.usermanager.NuxeoPrincipalImpl;
 

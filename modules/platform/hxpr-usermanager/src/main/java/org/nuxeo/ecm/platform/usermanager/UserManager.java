@@ -18,9 +18,9 @@ package org.nuxeo.ecm.platform.usermanager;
 import java.io.Serializable;
 import java.util.List;
 
-import org.nuxeo.ecm.core.api.NuxeoGroup;
-import org.nuxeo.ecm.core.api.NuxeoPrincipal;
-import org.nuxeo.ecm.core.api.security.AdministratorGroupsProvider;
+import com.hyland.openarch.ecm.core.api.NuxeoGroup;
+import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.security.AdministratorGroupsProvider;
 
 /**
  * UserManager interface containing methods that are actually used for user and groups management.

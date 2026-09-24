@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 <component name="test-sync-postcommit-listener">
 
-  <extension target="org.nuxeo.ecm.core.event.EventService"
+  <extension target="com.hyland.openarch.ecm.core.event.EventService"
     point="listener">
-    <listener name="testPostCommit1" class="org.nuxeo.ecm.core.event.test.DummyPostCommitEventListener">
+    <listener name="testPostCommit1" class="com.hyland.openarch.ecm.core.event.test.DummyPostCommitEventListener">
       <event>testsyncpostcommit</event>
     </listener>
-    <listener name="testPostCommit2" class="org.nuxeo.ecm.core.event.test.DummyPostCommitEventListener">
+    <listener name="testPostCommit2" class="com.hyland.openarch.ecm.core.event.test.DummyPostCommitEventListener">
       <event>testsyncpostcommit</event>
     </listener>
   </extension>

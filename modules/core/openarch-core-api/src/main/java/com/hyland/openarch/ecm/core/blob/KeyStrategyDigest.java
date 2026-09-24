@@ -1,0 +1,125 @@
+/*
+ * (C) Copyright 2019-2026 Hyland (https://www.hyland.com/).
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.hyland.openarch.ecm.core.blob;
+
+import java.io.OutputStream;
+import java.security.DigestOutputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+import java.util.regex.Pattern;
+
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.mutable.MutableObject;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
+
+/**
+ * Represents computation of blob keys based on a message digest.
+ *
+ * @since 11.1
+ */
+public class KeyStrategyDigest implements KeyStrategy {
+
+    public final String digestAlgorithm;
+
+    public final Pattern digestPattern;
+
+    public KeyStrategyDigest(String digestAlgorithm) {
+        Objects.requireNonNull(digestAlgorithm);
+        this.digestAlgorithm = digestAlgorithm;
+        digestPattern = getDigestPattern(digestAlgorithm);
+    }
+
+    @Override
+    public boolean useDeDuplication() {
+        return true;
+    }
+
+    @Override
+    public String getDigestFromKey(String key) {
+        return isValidDigest(key) ? key : null;
+    }
+
+    public boolean isValidDigest(String key) {
+        return digestPattern.matcher(key).matches();
+    }
+
+    protected static Pattern getDigestPattern(String digestAlgorithm) {
+        // compute a dummy digest (from 0-length input) to know its length and derive a regexp
+        int len = new DigestUtils(digestAlgorithm).digestAsHex(new byte[0]).length();
+        return Pattern.compile("[0-9a-f]{" + len + "}");
+    }
+
+    @Override
+    public BlobWriteContext getBlobWriteContext(BlobContext blobContext)  {
+        MutableObject<String> keyHolder = new MutableObject<>();
+        WriteObserver writeObserver = new WriteObserverDigest(digestAlgorithm, keyHolder::setValue);
+        Supplier<String> keyComputer = keyHolder::getValue;
+        return new BlobWriteContext(blobContext, writeObserver, keyComputer, this);
+    }
+
+    /**
+     * Write observer computing a digest. The final digest is made available to the key consumer.
+     *
+     * @since 11.1
+     */
+    public static class WriteObserverDigest implements WriteObserver {
+
+        protected final MessageDigest messageDigest;
+
+        protected final Consumer<String> keyConsumer;
+
+        protected DigestOutputStream dos;
+
+        public WriteObserverDigest(String digestAlgorithm, Consumer<String> keyConsumer) {
+            try {
+                messageDigest = MessageDigest.getInstance(digestAlgorithm);
+            } catch (NoSuchAlgorithmException e) {
+                throw new NuxeoException(e);
+            }
+            this.keyConsumer = keyConsumer;
+        }
+
+        @Override
+        public OutputStream wrap(OutputStream out) {
+            dos = new DigestOutputStream(out, messageDigest);
+            return dos;
+        }
+
+        @Override
+        public void done() {
+            String key = Hex.encodeHexString(dos.getMessageDigest().digest());
+            keyConsumer.accept(key);
+        }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof KeyStrategyDigest other)) {
+            return false;
+        }
+        return digestAlgorithm.equals(other.digestAlgorithm);
+    }
+
+    @Override
+    public int hashCode() {
+        return digestAlgorithm.hashCode();
+    }
+
+}

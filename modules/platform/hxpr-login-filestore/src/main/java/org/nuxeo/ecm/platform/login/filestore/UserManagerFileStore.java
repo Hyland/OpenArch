@@ -17,8 +17,8 @@ package org.nuxeo.ecm.platform.login.filestore;
 
 import java.util.List;
 
-import org.nuxeo.ecm.core.api.NuxeoGroup;
-import org.nuxeo.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.NuxeoGroup;
+import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.ecm.platform.login.filestore.store.UserStore;
 import org.nuxeo.ecm.platform.usermanager.UserManager;
 import org.nuxeo.ecm.platform.usermanager.UserManagerDescriptor;

@@ -17,8 +17,8 @@ package org.nuxeo.rest.upload.handler;
 
 import java.util.Map;
 
-import org.nuxeo.ecm.core.api.DocumentSecurityException;
-import org.nuxeo.ecm.core.transientstore.api.TransientStore;
+import com.hyland.openarch.ecm.core.api.DocumentSecurityException;
+import com.hyland.openarch.ecm.core.transientstore.api.TransientStore;
 import org.nuxeo.rest.upload.Upload;
 import org.nuxeo.rest.upload.UploadFileInfo;
 

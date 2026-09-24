@@ -17,8 +17,8 @@
 package org.nuxeo.opensearch.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSFILE_BLOB;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSFILE_BLOB;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_TITLE;
 import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
 
 import java.time.Duration;
@@ -28,13 +28,13 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.nuxeo.ecm.core.api.Blob;
-import org.nuxeo.ecm.core.api.Blobs;
-import org.nuxeo.ecm.core.api.CoreSession;
-import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.ecm.core.blob.BlobProvider;
-import org.nuxeo.ecm.core.blob.BlobService;
-import org.nuxeo.ecm.core.blob.BlobStoreBlobProvider;
+import com.hyland.openarch.ecm.core.api.Blob;
+import com.hyland.openarch.ecm.core.api.Blobs;
+import com.hyland.openarch.ecm.core.api.CoreSession;
+import com.hyland.openarch.ecm.core.api.DocumentModel;
+import com.hyland.openarch.ecm.core.blob.BlobProvider;
+import com.hyland.openarch.ecm.core.blob.BlobService;
+import com.hyland.openarch.ecm.core.blob.BlobStoreBlobProvider;
 import org.nuxeo.opensearch.OpenSearchConstants;
 import org.nuxeo.opensearch.api.OpenSearchService;
 import org.nuxeo.opensearch.commands.IndexingCommand;

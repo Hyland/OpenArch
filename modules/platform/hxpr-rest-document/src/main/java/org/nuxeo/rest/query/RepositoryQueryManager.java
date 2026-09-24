@@ -20,11 +20,11 @@ import java.util.UUID;
 
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
-import org.nuxeo.ecm.core.api.CoreInstance;
-import org.nuxeo.ecm.core.api.CoreSession;
-import org.nuxeo.ecm.core.api.DocumentModelList;
-import org.nuxeo.ecm.core.api.NuxeoException;
-import org.nuxeo.ecm.core.api.repository.RepositoryManager;
+import com.hyland.openarch.ecm.core.api.CoreInstance;
+import com.hyland.openarch.ecm.core.api.CoreSession;
+import com.hyland.openarch.ecm.core.api.DocumentModelList;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.repository.RepositoryManager;
 import org.nuxeo.rest.document.DocumentDTO;
 import org.nuxeo.rest.document.DocumentMapper;
 import org.nuxeo.rest.query.io.DocumentAdvancedQueryDTO;

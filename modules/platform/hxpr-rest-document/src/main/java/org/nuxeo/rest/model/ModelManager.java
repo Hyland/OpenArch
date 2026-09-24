@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
-import org.nuxeo.ecm.core.api.ConcurrentUpdateException;
+import com.hyland.openarch.ecm.core.api.ConcurrentUpdateException;
 import com.hyland.openarch.ecm.core.schema.SchemaManager;
 import com.hyland.openarch.ecm.core.schema.SchemaManagerDTO;
 import com.hyland.openarch.ecm.core.schema.TypeService;

@@ -18,7 +18,7 @@ package org.nuxeo.rest.query.spec;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_TITLE;
 
 import java.time.Instant;
 import java.util.List;
@@ -26,9 +26,9 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
-import org.nuxeo.ecm.core.api.NuxeoException;
-import org.nuxeo.ecm.core.query.sql.HXQLSerializer;
-import org.nuxeo.ecm.core.query.sql.model.Predicate;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.query.sql.HXQLSerializer;
+import com.hyland.openarch.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.rest.query.io.WhereClauseDTO.RestPredicate;
 import org.nuxeo.rest.query.io.WhereClauseDTO.RestPredicateParameter;
 

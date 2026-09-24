@@ -16,22 +16,22 @@
 package com.hyland.hxpr.async.tasks;
 
 import static com.hyland.hxpr.async.tasks.TaskStatus.State.COMPLETED;
-import static org.nuxeo.ecm.core.event.async.TrashBatchTaskProcessor.BATCH_TRASH_TASK_NAME;
+import static com.hyland.openarch.ecm.core.event.async.TrashBatchTaskProcessor.BATCH_TRASH_TASK_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.nuxeo.ecm.core.api.trash.TrashService.DOCUMENT_TRASHED;
-import static org.nuxeo.ecm.core.test.DocumentSetRepositoryInit.CREATED_TOTAL;
+import static com.hyland.openarch.ecm.core.api.trash.TrashService.DOCUMENT_TRASHED;
+import static com.hyland.openarch.ecm.core.test.DocumentSetRepositoryInit.CREATED_TOTAL;
 
 import java.time.Duration;
 
 import org.junit.jupiter.api.Test;
-import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.ecm.core.api.PathRef;
-import org.nuxeo.ecm.core.event.test.CapturingEventListener;
+import com.hyland.openarch.ecm.core.api.DocumentModel;
+import com.hyland.openarch.ecm.core.api.PathRef;
+import com.hyland.openarch.ecm.core.event.test.CapturingEventListener;
 import com.hyland.openarch.runtime.springboot.junit.RuntimeTestState;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.nuxeo.ecm.core.event.async.TrashBatchTaskProcessor;
+import com.hyland.openarch.ecm.core.event.async.TrashBatchTaskProcessor;
 import com.hyland.hxpr.async.tasks.message.ScrollerTask;
 
 @SpringBootTest(classes = RuntimeTestState.class)

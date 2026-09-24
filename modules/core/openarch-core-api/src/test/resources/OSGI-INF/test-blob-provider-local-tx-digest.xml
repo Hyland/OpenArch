@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.ecm.core.blob.local.tx.digest">
+  <extension target="com.hyland.openarch.ecm.core.blob.BlobService" point="configuration">
+    <blobprovider name="test">
+      <class>com.hyland.openarch.ecm.core.blob.LocalBlobProvider</class>
+      <property name="transactional">true</property>
+      <property name="path">test</property>
+    </blobprovider>
+    <blobprovider name="other">
+      <class>com.hyland.openarch.ecm.core.blob.LocalBlobProvider</class>
+      <property name="transactional">true</property>
+      <property name="path">other</property>
+    </blobprovider>
+  </extension>
+</component>

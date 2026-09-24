@@ -16,7 +16,7 @@
 package org.nuxeo.opensearch.io;
 
 
-import org.nuxeo.ecm.core.api.DocumentModel;
+import com.hyland.openarch.ecm.core.api.DocumentModel;
 import org.opensearch.client.json.JsonpMapper;
 
 import jakarta.json.stream.JsonGenerator;

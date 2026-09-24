@@ -23,9 +23,9 @@ import java.util.function.BiFunction;
 
 import com.hyland.openarch.ecm.core.schema.validation.violations.ValidationViolation;
 import com.hyland.openarch.ecm.core.schema.validation.violations.ValidationViolation.Type;
-import org.nuxeo.ecm.core.security.SecurityPolicy;
-import org.nuxeo.ecm.core.security.SecurityPolicyViolation;
-import org.nuxeo.ecm.core.security.config.SecurityPolicyConfig;
+import com.hyland.openarch.ecm.core.security.SecurityPolicy;
+import com.hyland.openarch.ecm.core.security.SecurityPolicyViolation;
+import com.hyland.openarch.ecm.core.security.config.SecurityPolicyConfig;
 import org.springframework.stereotype.Component;
 
 /**

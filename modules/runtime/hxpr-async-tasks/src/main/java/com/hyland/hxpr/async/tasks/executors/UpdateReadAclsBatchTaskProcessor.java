@@ -15,7 +15,7 @@
  */
 package com.hyland.hxpr.async.tasks.executors;
 
-import org.nuxeo.ecm.core.api.CoreSession;
+import com.hyland.openarch.ecm.core.api.CoreSession;
 
 import com.hyland.hxpr.async.tasks.message.BatchTask;
 

@@ -15,10 +15,10 @@
  */
 package com.hyland.hxpr.async.tasks;
 
-import org.nuxeo.ecm.core.api.CoreSession;
-import org.nuxeo.ecm.core.test.CoreFeature;
-import org.nuxeo.ecm.core.test.DocumentSetRepositoryInit;
-import org.nuxeo.ecm.core.test.annotations.RepositoryConfig;
+import com.hyland.openarch.ecm.core.api.CoreSession;
+import com.hyland.openarch.ecm.core.test.CoreFeature;
+import com.hyland.openarch.ecm.core.test.DocumentSetRepositoryInit;
+import com.hyland.openarch.ecm.core.test.annotations.RepositoryConfig;
 import com.hyland.openarch.runtime.mockito.RuntimeInject;
 import com.hyland.openarch.runtime.springboot.junit.RuntimeSpringBootTest;
 import com.hyland.openarch.runtime.test.runner.Deploy;

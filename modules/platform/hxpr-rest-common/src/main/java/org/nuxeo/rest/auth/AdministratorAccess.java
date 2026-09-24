@@ -15,7 +15,7 @@
  */
 package org.nuxeo.rest.auth;
 
-import static org.nuxeo.ecm.core.api.security.SecurityConstants.ADMINISTRATORS_GROUP;
+import static com.hyland.openarch.ecm.core.api.security.SecurityConstants.ADMINISTRATORS_GROUP;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -23,7 +23,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.nuxeo.ecm.core.api.security.SecurityConstants;
+import com.hyland.openarch.ecm.core.api.security.SecurityConstants;
 
 /**
  * Annotation to be used on methods or classes to restrict access to administrators.

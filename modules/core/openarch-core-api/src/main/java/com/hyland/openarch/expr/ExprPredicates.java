@@ -1,0 +1,91 @@
+/*
+ * (C) Copyright 2026 Hyland (https://www.hyland.com/).
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.hyland.openarch.expr;
+
+import java.util.Map;
+
+import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.query.QueryParseException;
+import com.hyland.openarch.ecm.core.query.sql.model.BooleanLiteral;
+import com.hyland.openarch.ecm.core.query.sql.model.Operand;
+import com.hyland.openarch.ecm.core.query.sql.model.Predicate;
+import com.hyland.openarch.ecm.core.query.sql.model.Predicates;
+import com.hyland.openarch.ecm.core.schema.SchemaManager;
+
+import com.hyland.openarch.expr.ast.Expr;
+
+/**
+ * Turns an expression about a content object into the query predicate it means, for the standard context where
+ * {@code content} is the content object the expression is about and {@code user} is the current user.
+ *
+ * @see ExprEvaluator
+ */
+public class ExprPredicates {
+
+    private ExprPredicates() {
+        // utility class
+    }
+
+    /**
+     * Converts an expression into a query operand.
+     * <p>
+     * The result is a {@link Predicate}, or a {@link BooleanLiteral} when the expression does not depend on the content
+     * and the evaluator could therefore reduce it to a constant.
+     * <p>
+     * Security properties are usable when the expression is evaluated for an administrator.
+     *
+     * @param expr the expression
+     * @param principal the current user
+     * @param schemaManager the schema manager
+     * @return the operand
+     * @throws QueryParseException if the expression is invalid
+     */
+    public static Operand toOperand(String expr, NuxeoPrincipal principal, SchemaManager schemaManager) {
+        try {
+            Expr parsed = new ExpressionVisitor().parse(expr);
+            Map<String, Object> context = ExprEvaluator.queryContext(principal);
+            // an administrator sees security properties anyway, so there is nothing to protect from them
+            boolean administrator = principal != null && principal.isAdministrator();
+            return new ExprEvaluator(context, schemaManager, administrator).evaluateOperand(parsed);
+        } catch (IllegalArgumentException e) {
+            // both the parser and the evaluator signal errors this way
+            throw new QueryParseException("Invalid expression: " + expr + ": " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Converts an expression into a predicate usable as a query filter.
+     * <p>
+     * An expression that does not depend on the content is reduced to a constant by the evaluator: an always true one
+     * filters nothing out and is returned as {@code null}, an always false one as {@link Predicates#FALSE} which no
+     * document matches.
+     *
+     * @param expr the expression
+     * @param principal the current user
+     * @param schemaManager the schema manager
+     * @return the predicate, or {@code null} if the expression filters nothing out
+     * @throws QueryParseException if the expression is invalid or is not a predicate
+     */
+    public static Predicate toPredicate(String expr, NuxeoPrincipal principal, SchemaManager schemaManager) {
+        Operand operand = toOperand(expr, principal, schemaManager);
+        return switch (operand) {
+            case Predicate predicate -> predicate;
+            case BooleanLiteral(var value) -> value ? null : Predicates.FALSE;
+            case null, default -> throw new QueryParseException("Expression is not a predicate: " + expr);
+        };
+    }
+
+}

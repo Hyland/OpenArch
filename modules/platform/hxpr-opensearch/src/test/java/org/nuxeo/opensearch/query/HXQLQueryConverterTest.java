@@ -30,8 +30,8 @@ import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.nuxeo.ecm.core.query.QueryParseException;
-import org.nuxeo.ecm.core.query.sql.HXQLParser;
+import com.hyland.openarch.ecm.core.query.QueryParseException;
+import com.hyland.openarch.ecm.core.query.sql.HXQLParser;
 import com.hyland.openarch.ecm.core.schema.SchemaManagerDTO;
 import com.hyland.openarch.ecm.core.schema.dto.ContentModelDTO;
 import com.hyland.openarch.ecm.core.schema.dto.FieldDTO;

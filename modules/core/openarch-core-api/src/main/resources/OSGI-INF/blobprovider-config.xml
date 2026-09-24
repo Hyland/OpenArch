@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.ecm.core.blobprovider.default.config">
+
+  <extension target="com.hyland.openarch.ecm.core.blob.BlobService" point="configuration">
+    <blobprovider name="default">
+      <class>${nuxeo.core.binarymanager:=com.hyland.openarch.ecm.core.blob.LocalBlobProvider}</class>
+      <property name="path">${nuxeo.binarystores.root:=/tmp}/binaries</property>
+      <property name="key">${nuxeo.core.binarymanager_key:=}</property>
+    </blobprovider>
+  </extension>
+
+</component>

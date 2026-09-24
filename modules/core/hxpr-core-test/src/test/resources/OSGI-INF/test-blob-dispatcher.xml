@@ -1,30 +1,30 @@
 <?xml version="1.0"?>
 <component name="org.nuxeo.ecm.core.blob.test-blob-dispatcher">
-  <extension target="org.nuxeo.ecm.core.blob.BlobService" point="configuration">
+  <extension target="com.hyland.openarch.ecm.core.blob.BlobService" point="configuration">
     <blobprovider name="test2">
-      <class>org.nuxeo.ecm.core.blob.LocalBlobProvider</class>
+      <class>com.hyland.openarch.ecm.core.blob.LocalBlobProvider</class>
       <property name="path">binaries2</property>
     </blobprovider>
     <blobprovider name="test3">
-      <class>org.nuxeo.ecm.core.blob.LocalBlobProvider</class>
+      <class>com.hyland.openarch.ecm.core.blob.LocalBlobProvider</class>
       <property name="path">binaries3</property>
     </blobprovider>
     <blobprovider name="test4">
-      <class>org.nuxeo.ecm.core.blob.LocalBlobProvider</class>
+      <class>com.hyland.openarch.ecm.core.blob.LocalBlobProvider</class>
       <property name="path">binaries4</property>
     </blobprovider>
     <blobprovider name="transient">
-      <class>org.nuxeo.ecm.core.blob.LocalBlobProvider</class>
+      <class>com.hyland.openarch.ecm.core.blob.LocalBlobProvider</class>
       <property name="transient">true</property>
       <property name="path">binariestransient</property>
     </blobprovider>
     <blobprovider name="dummy">
-      <class>org.nuxeo.ecm.core.DummyBlobProvider</class>
+      <class>com.hyland.openarch.ecm.core.DummyBlobProvider</class>
     </blobprovider>
   </extension>
-  <extension target="org.nuxeo.ecm.core.blob.DocumentBlobService" point="configuration">
+  <extension target="com.hyland.openarch.ecm.core.blob.DocumentBlobService" point="configuration">
     <blobdispatcher>
-      <class>org.nuxeo.ecm.core.blob.DefaultBlobDispatcher</class>
+      <class>com.hyland.openarch.ecm.core.blob.DefaultBlobDispatcher</class>
       <property name="sys_title=video">test2</property>
       <property name="nosuchschema_nosuchprop=foo">test2</property>
       <property name="blob_mimeType=video/mp4,nosuchschema_nosuchprop=foo">test3</property>

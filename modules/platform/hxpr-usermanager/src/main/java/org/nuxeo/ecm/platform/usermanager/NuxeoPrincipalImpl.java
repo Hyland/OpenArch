@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.nuxeo.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
 import com.hyland.openarch.runtime.api.Framework;
 
 public class NuxeoPrincipalImpl implements NuxeoPrincipal {

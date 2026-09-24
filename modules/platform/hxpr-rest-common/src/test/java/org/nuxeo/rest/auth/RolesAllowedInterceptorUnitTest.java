@@ -26,7 +26,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.nuxeo.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
 import org.springframework.security.access.AccessDeniedException;
 
 @ExtendWith(MockitoExtension.class)

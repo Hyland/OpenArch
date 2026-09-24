@@ -19,7 +19,7 @@ import static java.util.Objects.requireNonNull;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-import org.nuxeo.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;

@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
-<component name="org.nuxeo.ecm.core.storage.FullTextService">
+<component name="com.hyland.openarch.ecm.core.storage.FullTextService">
 
   <documentation>
     Manages FullText configuration per repositories.
   </documentation>
 
-  <implementation class="org.nuxeo.ecm.core.storage.FullTextConfigurationImpl" />
+  <implementation class="com.hyland.openarch.ecm.core.storage.FullTextConfigurationImpl" />
 
   <service>
-    <provide interface="org.nuxeo.ecm.core.storage.FullTextConfigurationService" />
+    <provide interface="com.hyland.openarch.ecm.core.storage.FullTextConfigurationService" />
   </service>
 </component>

@@ -21,10 +21,10 @@ import static java.util.stream.Collectors.toSet;
 import static org.apache.http.HttpStatus.SC_BAD_REQUEST;
 import static org.apache.http.HttpStatus.SC_NOT_ACCEPTABLE;
 import static org.apache.http.HttpStatus.SC_UNSUPPORTED_MEDIA_TYPE;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SCHEMA_NAME;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_HAS_LEGAL_HOLD;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_IS_RECORD;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSGOV_RETAIN_UNTIL;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SCHEMA_NAME;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSGOV_HAS_LEGAL_HOLD;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSGOV_IS_RECORD;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSGOV_RETAIN_UNTIL;
 
 import java.util.ArrayList;
 import java.util.List;

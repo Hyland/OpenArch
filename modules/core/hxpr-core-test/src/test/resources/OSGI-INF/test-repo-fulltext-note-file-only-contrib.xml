@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <component name="org.nuxeo.ecm.core.storage.sql.test.repo.repository.fulltext.noteonly">
-  <extension target="org.nuxeo.ecm.core.storage.mongodb.MongoDBRepositoryService"
+  <extension target="com.hyland.openarch.ecm.core.storage.mongodb.MongoDBRepositoryService"
     point="repository">
     <repository name="test">
       <fulltext>

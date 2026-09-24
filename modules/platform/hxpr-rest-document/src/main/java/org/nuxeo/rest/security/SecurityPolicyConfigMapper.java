@@ -15,12 +15,12 @@
  */
 package org.nuxeo.rest.security;
 
-import static org.nuxeo.ecm.core.security.ACLSecurityPolicy.ACL_ENGINE_NAME;
-import static org.nuxeo.ecm.core.security.ExternalUserRelationsSecurityPolicy.EXTERNAL_USER_RELATIONS_ENGINE_NAME;
-import static org.nuxeo.ecm.core.security.LockSecurityPolicy.LOCK_ENGINE_NAME;
-import static org.nuxeo.ecm.core.security.RetentionSecurityPolicy.RETENTION_ENGINE_NAME;
-import static org.nuxeo.ecm.core.security.SecurityLevelSecurityPolicy.SECURITY_LEVEL_ENGINE_NAME;
-import static org.nuxeo.ecm.core.security.expr.ExpressionSecurityPolicy.EXPRESSION_ENGINE_NAME;
+import static com.hyland.openarch.ecm.core.security.ACLSecurityPolicy.ACL_ENGINE_NAME;
+import static com.hyland.openarch.ecm.core.security.ExternalUserRelationsSecurityPolicy.EXTERNAL_USER_RELATIONS_ENGINE_NAME;
+import static com.hyland.openarch.ecm.core.security.LockSecurityPolicy.LOCK_ENGINE_NAME;
+import static com.hyland.openarch.ecm.core.security.RetentionSecurityPolicy.RETENTION_ENGINE_NAME;
+import static com.hyland.openarch.ecm.core.security.SecurityLevelSecurityPolicy.SECURITY_LEVEL_ENGINE_NAME;
+import static com.hyland.openarch.ecm.core.security.expr.ExpressionSecurityPolicy.EXPRESSION_ENGINE_NAME;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,13 +28,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.nuxeo.ecm.core.security.config.ACLSecurityPolicyConfig;
-import org.nuxeo.ecm.core.security.config.ExternalUserRelationsSecurityPolicyConfig;
-import org.nuxeo.ecm.core.security.config.LockSecurityPolicyConfig;
-import org.nuxeo.ecm.core.security.config.RetentionSecurityPolicyConfig;
-import org.nuxeo.ecm.core.security.config.SecurityLevelSecurityPolicyConfig;
-import org.nuxeo.ecm.core.security.config.SecurityPolicyConfig;
-import org.nuxeo.ecm.core.security.expr.ExpressionSecurityPolicyConfig;
+import com.hyland.openarch.ecm.core.security.config.ACLSecurityPolicyConfig;
+import com.hyland.openarch.ecm.core.security.config.ExternalUserRelationsSecurityPolicyConfig;
+import com.hyland.openarch.ecm.core.security.config.LockSecurityPolicyConfig;
+import com.hyland.openarch.ecm.core.security.config.RetentionSecurityPolicyConfig;
+import com.hyland.openarch.ecm.core.security.config.SecurityLevelSecurityPolicyConfig;
+import com.hyland.openarch.ecm.core.security.config.SecurityPolicyConfig;
+import com.hyland.openarch.ecm.core.security.expr.ExpressionSecurityPolicyConfig;
 import org.springframework.stereotype.Component;
 
 @Component

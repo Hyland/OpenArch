@@ -1,16 +1,16 @@
 <?xml version="1.0"?>
-<component name="org.nuxeo.ecm.core.storage.mem.MemRepositoryService">
+<component name="com.hyland.openarch.ecm.core.storage.mem.MemRepositoryService">
 
-  <require>org.nuxeo.ecm.core.storage.dbs.DBSRepositoryService</require>
+  <require>com.hyland.openarch.ecm.core.storage.dbs.DBSRepositoryService</require>
 
   <documentation>
     Manages Memory repositories.
   </documentation>
 
-  <implementation class="org.nuxeo.ecm.core.storage.mem.MemRepositoryService" />
+  <implementation class="com.hyland.openarch.ecm.core.storage.mem.MemRepositoryService" />
 
   <service>
-    <provide interface="org.nuxeo.ecm.core.storage.mem.MemRepositoryService" />
+    <provide interface="com.hyland.openarch.ecm.core.storage.mem.MemRepositoryService" />
   </service>
 
   <extension-point name="repository">
@@ -22,8 +22,8 @@
         </repository>
       </code>
     </documentation>
-    <object class="org.nuxeo.ecm.core.storage.mem.MemRepositoryDescriptor" />
-    <registry class="org.nuxeo.ecm.core.storage.mem.MemRepositoryService$Registry" />
+    <object class="com.hyland.openarch.ecm.core.storage.mem.MemRepositoryDescriptor" />
+    <registry class="com.hyland.openarch.ecm.core.storage.mem.MemRepositoryService$Registry" />
   </extension-point>
 
 </component>

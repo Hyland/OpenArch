@@ -34,7 +34,7 @@ import java.util.Optional;
 import jakarta.ws.rs.core.Response;
 
 import org.apache.http.entity.ContentType;
-import org.nuxeo.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.runtime.api.Framework;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

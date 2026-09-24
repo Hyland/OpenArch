@@ -15,9 +15,9 @@
  */
 package org.nuxeo.rest.query.test;
 
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSFILE_BLOB;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_DESCRIPTION;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSFILE_BLOB;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_DESCRIPTION;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_TITLE;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -27,18 +27,18 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.nuxeo.ecm.core.api.Blob;
-import org.nuxeo.ecm.core.api.CoreSession;
-import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.ecm.core.api.IdRef;
-import org.nuxeo.ecm.core.api.NuxeoException;
-import org.nuxeo.ecm.core.api.impl.blob.StringBlob;
-import org.nuxeo.ecm.core.api.security.ACE;
-import org.nuxeo.ecm.core.api.security.ACL;
-import org.nuxeo.ecm.core.api.security.SecurityConstants;
-import org.nuxeo.ecm.core.test.CoreFeature;
-import org.nuxeo.ecm.core.test.annotations.Granularity;
-import org.nuxeo.ecm.core.test.annotations.RepositoryConfig;
+import com.hyland.openarch.ecm.core.api.Blob;
+import com.hyland.openarch.ecm.core.api.CoreSession;
+import com.hyland.openarch.ecm.core.api.DocumentModel;
+import com.hyland.openarch.ecm.core.api.IdRef;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.impl.blob.StringBlob;
+import com.hyland.openarch.ecm.core.api.security.ACE;
+import com.hyland.openarch.ecm.core.api.security.ACL;
+import com.hyland.openarch.ecm.core.api.security.SecurityConstants;
+import com.hyland.openarch.ecm.core.test.CoreFeature;
+import com.hyland.openarch.ecm.core.test.annotations.Granularity;
+import com.hyland.openarch.ecm.core.test.annotations.RepositoryConfig;
 import org.nuxeo.ecm.platform.test.UserManagerMockFeature;
 import org.nuxeo.ecm.platform.test.UserManagerMockTestConfiguration;
 import org.nuxeo.opensearch.api.OpenSearchService;

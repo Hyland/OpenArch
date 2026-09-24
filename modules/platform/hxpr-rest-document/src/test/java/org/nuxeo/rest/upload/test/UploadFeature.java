@@ -15,7 +15,7 @@
  */
 package org.nuxeo.rest.upload.test;
 
-import org.nuxeo.ecm.core.test.CoreFeature;
+import com.hyland.openarch.ecm.core.test.CoreFeature;
 import com.hyland.openarch.runtime.test.runner.Deploy;
 import com.hyland.openarch.runtime.test.runner.Features;
 import com.hyland.openarch.runtime.test.runner.RunnerFeature;

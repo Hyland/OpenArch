@@ -10,6 +10,6 @@
   </documentation>
 
   <implementation
-    class="org.nuxeo.ecm.core.management.jtajca.internal.DefaultMonitorComponent" />
+    class="com.hyland.openarch.ecm.core.management.jtajca.internal.DefaultMonitorComponent" />
 
 </component>

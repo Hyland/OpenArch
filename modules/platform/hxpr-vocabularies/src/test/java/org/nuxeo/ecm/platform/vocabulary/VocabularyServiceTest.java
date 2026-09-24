@@ -20,18 +20,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.nuxeo.ecm.core.api.VocabularyConstants.VOCABULARY_REPOSITORY_SUFFIX;
+import static com.hyland.openarch.ecm.core.api.VocabularyConstants.VOCABULARY_REPOSITORY_SUFFIX;
 
 import jakarta.inject.Inject;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.nuxeo.ecm.core.api.CoreInstance;
-import org.nuxeo.ecm.core.api.CoreSession;
-import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.ecm.core.api.PathRef;
-import org.nuxeo.ecm.core.api.VocabularyConstants;
-import org.nuxeo.ecm.core.test.CoreFeature;
+import com.hyland.openarch.ecm.core.api.CoreInstance;
+import com.hyland.openarch.ecm.core.api.CoreSession;
+import com.hyland.openarch.ecm.core.api.DocumentModel;
+import com.hyland.openarch.ecm.core.api.PathRef;
+import com.hyland.openarch.ecm.core.api.VocabularyConstants;
+import com.hyland.openarch.ecm.core.test.CoreFeature;
 import org.nuxeo.ecm.platform.vocabulary.exception.VocabularyEntryNotFoundException;
 import org.nuxeo.ecm.platform.vocabulary.exception.VocabularyNotFoundException;
 import org.nuxeo.ecm.platform.vocabulary.model.CreateVocabulary;

@@ -20,7 +20,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import java.io.Serializable;
 
-import org.nuxeo.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
 
 /**
  * Encapsulates some information about a user and how it must be authenticated.

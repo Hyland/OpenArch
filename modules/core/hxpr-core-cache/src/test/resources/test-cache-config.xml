@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <component name="org.nuxeo.ecm.core.cache.test1">
 
-  <extension target="org.nuxeo.ecm.core.cache.CacheService" point="caches">
+  <extension target="com.hyland.openarch.ecm.core.cache.CacheService" point="caches">
 
     <cache name="myid">
       <ttl>123</ttl>

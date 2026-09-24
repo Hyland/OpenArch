@@ -18,7 +18,7 @@ package org.nuxeo.rest.upload;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.nuxeo.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
 import org.nuxeo.rest.upload.handler.UploadHandler;
 import org.springframework.http.ResponseEntity;
 

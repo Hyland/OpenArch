@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <component name="test-rollback-listener">
 
-  <extension target="org.nuxeo.ecm.core.event.EventService" point="listener">
-    <listener class="org.nuxeo.ecm.core.event.test.RollbackListener" name="testRollbackListener">
+  <extension target="com.hyland.openarch.ecm.core.event.EventService" point="listener">
+    <listener class="com.hyland.openarch.ecm.core.event.test.RollbackListener" name="testRollbackListener">
       <event>markRollback</event>
     </listener>
   </extension>

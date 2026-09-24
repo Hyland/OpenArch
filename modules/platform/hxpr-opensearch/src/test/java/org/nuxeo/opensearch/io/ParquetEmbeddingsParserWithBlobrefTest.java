@@ -26,9 +26,9 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import com.hyland.openarch.common.utils.IdUtils;
-import org.nuxeo.ecm.core.api.Blob;
-import org.nuxeo.ecm.core.api.Blobs;
-import org.nuxeo.ecm.core.model.EmbeddingModel;
+import com.hyland.openarch.ecm.core.api.Blob;
+import com.hyland.openarch.ecm.core.api.Blobs;
+import com.hyland.openarch.ecm.core.model.EmbeddingModel;
 
 public class ParquetEmbeddingsParserWithBlobrefTest {
 

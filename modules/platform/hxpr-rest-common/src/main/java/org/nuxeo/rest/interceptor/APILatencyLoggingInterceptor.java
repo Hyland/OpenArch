@@ -15,7 +15,7 @@
  */
 package org.nuxeo.rest.interceptor;
 
-import static com.hyland.hxpr.logging.LogMarkers.BYPASS_CONDENSING;
+import static com.hyland.openarch.logging.LogMarkers.BYPASS_CONDENSING;
 
 import java.io.IOException;
 import java.lang.reflect.Method;

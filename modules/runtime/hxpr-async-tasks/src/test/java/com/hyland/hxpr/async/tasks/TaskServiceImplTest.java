@@ -27,7 +27,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import com.hyland.openarch.common.utils.TooLargeException;
-import org.nuxeo.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.test.runner.Deploy;
 import com.hyland.openarch.runtime.test.runner.Features;

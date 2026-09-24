@@ -18,7 +18,7 @@ package org.nuxeo.ecm.platform.usermanager.exceptions;
 
 import static jakarta.servlet.http.HttpServletResponse.SC_CONFLICT;
 
-import org.nuxeo.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
 
 /**
  * @author <a href="mailto:glefter@nuxeo.com">George Lefter</a>

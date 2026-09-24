@@ -1,17 +1,17 @@
 <?xml version="1.0"?>
 <component name="org.nuxeo.ecm.core.blobprovider.retention.config">
     <require>org.nuxeo.ecm.core.blobprovider.default.config</require>
-    <extension target="org.nuxeo.ecm.core.blob.BlobService" point="configuration">
+    <extension target="com.hyland.openarch.ecm.core.blob.BlobService" point="configuration">
         <blobprovider name="records">
-            <class>${nuxeo.core.binarymanager:=org.nuxeo.ecm.core.blob.LocalBlobProvider}</class>
+            <class>${nuxeo.core.binarymanager:=com.hyland.openarch.ecm.core.blob.LocalBlobProvider}</class>
             <property name="record">true</property>
             <property name="bucket">${nuxeo.retention.s3storage.bucket}</property>
             <property name="bucket.prefix">${nuxeo.retention.s3storage.bucket.prefix}</property>
         </blobprovider>
     </extension>
-    <extension target="org.nuxeo.ecm.core.blob.DocumentBlobService" point="configuration">
+    <extension target="com.hyland.openarch.ecm.core.blob.DocumentBlobService" point="configuration">
         <blobdispatcher>
-            <class>org.nuxeo.ecm.core.blob.DefaultBlobDispatcher</class>
+            <class>com.hyland.openarch.ecm.core.blob.DefaultBlobDispatcher</class>
             <property name="records">records</property>
             <property name="default">default</property>
         </blobdispatcher>

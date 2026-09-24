@@ -17,12 +17,12 @@ package org.nuxeo.rest.query.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_CREATED;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ID;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_MODIFIED;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_DOCUMENT_ID;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_ID;
-import static org.nuxeo.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_SCORE;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_CREATED;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ID;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_MODIFIED;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_DOCUMENT_ID;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_ID;
+import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_SCORE;
 import static org.nuxeo.rest.query.io.DocumentQueryDTO.QUERY_STRING_PROP;
 import static org.nuxeo.rest.utils.Headers.HXCS_REPOSITORY;
 import static org.skyscreamer.jsonassert.JSONCompareMode.NON_EXTENSIBLE;

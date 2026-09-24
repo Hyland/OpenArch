@@ -17,12 +17,12 @@ package org.nuxeo.rest.document.test;
 
 import static jakarta.ws.rs.core.Response.Status.CONFLICT;
 import static jakarta.ws.rs.core.Response.Status.OK;
-import static org.nuxeo.ecm.core.SysEmbeddingsPolicies.EMBEDDINGS_NAME_PREFIX;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSEMB_EMBEDDINGS;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ID;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_NAME;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PARENT_ID;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_PRIMARY_TYPE;
+import static com.hyland.openarch.ecm.core.SysEmbeddingsPolicies.EMBEDDINGS_NAME_PREFIX;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_EMBEDDINGS;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ID;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_NAME;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PARENT_ID;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PRIMARY_TYPE;
 import static com.hyland.openarch.ecm.core.schema.TypeConstants.KEY_BLOB_DIGEST;
 import static com.hyland.openarch.ecm.core.schema.TypeConstants.KEY_BLOB_FILENAME;
 import static com.hyland.openarch.ecm.core.schema.TypeConstants.KEY_BLOB_LENGTH;
@@ -38,7 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
-import org.nuxeo.ecm.core.SysEmbeddingsViolation;
+import com.hyland.openarch.ecm.core.SysEmbeddingsViolation;
 import org.nuxeo.rest.document.DocumentAPI;
 import org.nuxeo.rest.document.DocumentMultipartController;
 import org.nuxeo.rest.exception.NuxeoExceptionController;

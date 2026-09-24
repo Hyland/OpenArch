@@ -18,16 +18,16 @@ package org.nuxeo.rest.upload.test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.nuxeo.ecm.core.api.impl.blob.AbstractBlob.TEXT_PLAIN;
-import static org.nuxeo.ecm.core.api.impl.blob.AbstractBlob.UTF_8;
+import static com.hyland.openarch.ecm.core.api.impl.blob.AbstractBlob.TEXT_PLAIN;
+import static com.hyland.openarch.ecm.core.api.impl.blob.AbstractBlob.UTF_8;
 
 import java.util.Set;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.nuxeo.ecm.core.api.Blobs;
-import org.nuxeo.ecm.core.transientstore.TransientStorageComponent;
-import org.nuxeo.ecm.core.transientstore.api.TransientStoreService;
+import com.hyland.openarch.ecm.core.api.Blobs;
+import com.hyland.openarch.ecm.core.transientstore.TransientStorageComponent;
+import com.hyland.openarch.ecm.core.transientstore.api.TransientStoreService;
 import org.nuxeo.rest.upload.Upload;
 import org.nuxeo.rest.upload.UploadHandlerCleaner;
 import org.nuxeo.rest.upload.handler.DefaultUploadHandler;

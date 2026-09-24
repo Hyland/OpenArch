@@ -26,11 +26,11 @@ import java.util.stream.Collectors;
 import javax.security.auth.login.LoginException;
 
 import org.apache.commons.collections4.ListUtils;
-import org.nuxeo.ecm.core.api.CoreInstance;
-import org.nuxeo.ecm.core.api.CoreSession;
-import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.ecm.core.api.NuxeoException;
-import org.nuxeo.ecm.core.query.sql.HXQL;
+import com.hyland.openarch.ecm.core.api.CoreInstance;
+import com.hyland.openarch.ecm.core.api.CoreSession;
+import com.hyland.openarch.ecm.core.api.DocumentModel;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.query.sql.HXQL;
 import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.transaction.TransactionHelper;
 import org.slf4j.Logger;

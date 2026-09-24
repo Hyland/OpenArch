@@ -16,7 +16,7 @@
 package org.nuxeo.rest.document.test;
 
 import static org.hamcrest.Matchers.matchesPattern;
-import static org.nuxeo.ecm.core.api.impl.blob.AbstractBlob.UTF_8;
+import static com.hyland.openarch.ecm.core.api.impl.blob.AbstractBlob.UTF_8;
 import static org.skyscreamer.jsonassert.JSONCompareMode.NON_EXTENSIBLE;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;

@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <component name="org.nuxeo.ecm.core.test.blobstore">
   <require>org.nuxeo.ecm.core.test.blobmanager</require>
-  <extension target="org.nuxeo.ecm.core.blob.BlobService" point="configuration">
+  <extension target="com.hyland.openarch.ecm.core.blob.BlobService" point="configuration">
     <blobprovider name="test">
-      <class>org.nuxeo.ecm.core.blob.LocalBlobProvider</class>
+      <class>com.hyland.openarch.ecm.core.blob.LocalBlobProvider</class>
     </blobprovider>
   </extension>
 </component>

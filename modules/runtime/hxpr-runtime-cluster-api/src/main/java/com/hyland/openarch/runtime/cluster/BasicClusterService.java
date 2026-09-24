@@ -21,7 +21,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.hyland.openarch.common.xmap.registry.SingleRegistry;
-import org.nuxeo.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.model.DefaultComponent;
 

@@ -22,10 +22,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import org.nuxeo.ecm.core.api.NuxeoGroup;
-import org.nuxeo.ecm.core.api.NuxeoPrincipal;
-import org.nuxeo.ecm.core.api.SystemPrincipal;
-import org.nuxeo.ecm.core.api.security.SecurityConstants;
+import com.hyland.openarch.ecm.core.api.NuxeoGroup;
+import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.SystemPrincipal;
+import com.hyland.openarch.ecm.core.api.security.SecurityConstants;
 import com.hyland.openarch.ecm.core.schema.types.resolver.AbstractObjectResolver;
 import com.hyland.openarch.ecm.core.schema.types.resolver.ObjectResolver;
 import com.hyland.openarch.runtime.api.Framework;

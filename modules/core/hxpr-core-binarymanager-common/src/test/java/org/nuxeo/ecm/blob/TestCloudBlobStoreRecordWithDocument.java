@@ -16,16 +16,16 @@
 package org.nuxeo.ecm.blob;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYSFILE_BLOB;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSFILE_BLOB;
 
 import jakarta.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.nuxeo.ecm.core.api.Blobs;
-import org.nuxeo.ecm.core.api.CoreSession;
-import org.nuxeo.ecm.core.blob.DocumentBlobService;
-import org.nuxeo.ecm.core.blob.binary.BinaryManagerStatus;
+import com.hyland.openarch.ecm.core.api.Blobs;
+import com.hyland.openarch.ecm.core.api.CoreSession;
+import com.hyland.openarch.ecm.core.blob.DocumentBlobService;
+import com.hyland.openarch.ecm.core.blob.binary.BinaryManagerStatus;
 import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.test.runner.Deploy;
 import com.hyland.openarch.runtime.test.runner.FeaturesExtension;

@@ -16,8 +16,8 @@
 
 package org.nuxeo.ecm.platform.usermanager;
 
-import org.nuxeo.ecm.core.api.NuxeoException;
-import org.nuxeo.ecm.core.api.security.AdministratorGroupsProvider;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.security.AdministratorGroupsProvider;
 import com.hyland.openarch.runtime.model.DefaultComponent;
 
 public class UserService extends DefaultComponent {

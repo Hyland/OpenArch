@@ -2,10 +2,10 @@
 
 <component name="rest.upload.handler.store">
 
-  <extension target="org.nuxeo.ecm.core.transientstore.TransientStorageComponent" point="store">
+  <extension target="com.hyland.openarch.ecm.core.transientstore.TransientStorageComponent" point="store">
 
     <store name="uploadTransientStore"
-      class="org.nuxeo.ecm.core.transientstore.keyvalueblob.KeyValueBlobTransientStore">
+      class="com.hyland.openarch.ecm.core.transientstore.keyvalueblob.KeyValueBlobTransientStore">
       <property name="keyValueStore">uploadTransientKV</property> <!-- not defined here: fallback on default -->
       <property name="blobProvider">uploadTransientBlobProvider</property>
       <absoluteMaxSizeMB>-1</absoluteMaxSizeMB>
@@ -15,9 +15,9 @@
 
   </extension>
 
-  <extension target="org.nuxeo.ecm.core.blob.BlobService" point="configuration">
+  <extension target="com.hyland.openarch.ecm.core.blob.BlobService" point="configuration">
     <blobprovider name="uploadTransientBlobProvider">
-      <class>${nuxeo.core.binarymanager:=org.nuxeo.ecm.core.blob.LocalBlobProvider}</class>
+      <class>${nuxeo.core.binarymanager:=com.hyland.openarch.ecm.core.blob.LocalBlobProvider}</class>
       <property name="path">${nuxeo.binarystores.root:=/tmp}/binaries/uploadTransient</property>
       <!-- this blob provider is used for transient storage -->
       <property name="transient">true</property>

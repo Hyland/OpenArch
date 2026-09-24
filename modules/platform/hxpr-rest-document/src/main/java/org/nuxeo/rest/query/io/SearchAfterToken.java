@@ -18,7 +18,7 @@ package org.nuxeo.rest.query.io;
 import java.util.Base64;
 import java.util.List;
 
-import org.nuxeo.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

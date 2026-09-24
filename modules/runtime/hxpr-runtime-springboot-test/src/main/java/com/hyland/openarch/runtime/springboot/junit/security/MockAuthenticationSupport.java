@@ -18,9 +18,9 @@ package com.hyland.openarch.runtime.springboot.junit.security;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.nuxeo.ecm.core.api.NuxeoPrincipal;
-import org.nuxeo.ecm.core.api.local.DummyLoginFeature;
-import org.nuxeo.ecm.core.api.local.WithUser;
+import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.local.DummyLoginFeature;
+import com.hyland.openarch.ecm.core.api.local.WithUser;
 import org.nuxeo.ecm.platform.usermanager.UserManager;
 import com.hyland.openarch.runtime.api.Framework;
 import org.springframework.security.authentication.TestingAuthenticationToken;

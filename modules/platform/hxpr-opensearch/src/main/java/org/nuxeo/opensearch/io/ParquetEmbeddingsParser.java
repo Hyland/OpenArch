@@ -33,10 +33,10 @@ import org.apache.logging.log4j.Logger;
 import org.apache.parquet.avro.AvroParquetReader;
 import org.apache.parquet.io.LocalInputFile;
 import com.hyland.openarch.common.utils.IdUtils;
-import org.nuxeo.ecm.core.api.Blob;
-import org.nuxeo.ecm.core.api.CloseableFile;
-import org.nuxeo.ecm.core.model.EmbeddingModel;
-import org.nuxeo.ecm.core.model.LocationModel;
+import com.hyland.openarch.ecm.core.api.Blob;
+import com.hyland.openarch.ecm.core.api.CloseableFile;
+import com.hyland.openarch.ecm.core.model.EmbeddingModel;
+import com.hyland.openarch.ecm.core.model.LocationModel;
 
 /**
  * Reads a Parquet embeddings blob and returns a collection of {@link EmbeddingModel} objects.

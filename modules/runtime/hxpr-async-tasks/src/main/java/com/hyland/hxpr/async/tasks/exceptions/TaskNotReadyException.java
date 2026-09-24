@@ -15,7 +15,7 @@
  */
 package com.hyland.hxpr.async.tasks.exceptions;
 
-import org.nuxeo.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
 
 /**
  * Exception thrown when a task is not ready to be executed compared with the linked cache invalidation message.

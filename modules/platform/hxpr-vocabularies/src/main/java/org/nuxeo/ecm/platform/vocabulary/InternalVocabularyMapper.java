@@ -16,18 +16,18 @@
 
 package org.nuxeo.ecm.platform.vocabulary;
 
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_TITLE;
-import static org.nuxeo.ecm.core.api.PathRefUtils.getPathRef;
-import static org.nuxeo.ecm.core.api.VocabularyConstants.VOCABULARY_ENTRY_TYPE;
-import static org.nuxeo.ecm.core.api.VocabularyConstants.VOCABULARY_ID;
-import static org.nuxeo.ecm.core.api.VocabularyConstants.VOCABULARY_KEY;
-import static org.nuxeo.ecm.core.api.VocabularyConstants.VOCABULARY_LABEL;
-import static org.nuxeo.ecm.core.api.VocabularyConstants.VOCABULARY_TYPE;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_TITLE;
+import static com.hyland.openarch.ecm.core.api.PathRefUtils.getPathRef;
+import static com.hyland.openarch.ecm.core.api.VocabularyConstants.VOCABULARY_ENTRY_TYPE;
+import static com.hyland.openarch.ecm.core.api.VocabularyConstants.VOCABULARY_ID;
+import static com.hyland.openarch.ecm.core.api.VocabularyConstants.VOCABULARY_KEY;
+import static com.hyland.openarch.ecm.core.api.VocabularyConstants.VOCABULARY_LABEL;
+import static com.hyland.openarch.ecm.core.api.VocabularyConstants.VOCABULARY_TYPE;
 
-import org.nuxeo.ecm.core.api.CoreSession;
-import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.ecm.core.api.PathRef;
-import org.nuxeo.ecm.core.api.PathRefUtils;
+import com.hyland.openarch.ecm.core.api.CoreSession;
+import com.hyland.openarch.ecm.core.api.DocumentModel;
+import com.hyland.openarch.ecm.core.api.PathRef;
+import com.hyland.openarch.ecm.core.api.PathRefUtils;
 import org.nuxeo.ecm.platform.vocabulary.model.CreateVocabulary;
 import org.nuxeo.ecm.platform.vocabulary.model.CreateVocabularyEntry;
 import org.nuxeo.ecm.platform.vocabulary.model.VocabularyEntryWrapper;

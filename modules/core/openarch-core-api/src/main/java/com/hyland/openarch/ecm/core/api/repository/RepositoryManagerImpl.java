@@ -1,0 +1,119 @@
+/*
+ * (C) Copyright 2006-2026 Hyland (https://www.hyland.com/).
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.hyland.openarch.ecm.core.api.repository;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.hyland.openarch.ecm.core.api.CoreSession;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import com.hyland.openarch.runtime.model.DefaultComponent;
+
+/**
+ * High-level service to get to a {@link Repository Repository} and from there to
+ * {@link CoreSession CoreSession} objects.
+ */
+public class RepositoryManagerImpl extends DefaultComponent implements RepositoryManager {
+
+    private static final Logger log = LogManager.getLogger(RepositoryManagerImpl.class);
+
+    private Map<String, Repository> repositories;
+
+    /**
+     * Start early to initialize repositories map for API.
+     * <p>
+     * Re-initialization of the map at start will ensure proper hot-reload.
+     */
+    @Override
+    public int getApplicationStartedOrder() {
+        return -100;
+    }
+
+    @Override
+    public void start() {
+        repositories = Collections.synchronizedMap(new LinkedHashMap<String, Repository>());
+    }
+
+    @Override
+    public void stop() throws InterruptedException {
+        repositories = null;
+    }
+
+    // called by low-level repository service
+    @Override
+    public void addRepository(Repository repository) {
+        String name = repository.getName();
+        if (repositories.containsKey(name)) {
+            log.debug("Overriding repository: {}" , name);
+        } else {
+            log.debug("Registering repository: {}" , name);
+        }
+        repositories.put(name, repository);
+    }
+
+    @Override
+    public Collection<Repository> getRepositories() {
+        return new ArrayList<>(repositories.values());
+    }
+
+    @Override
+    public List<String> getRepositoryNames() {
+        return new ArrayList<>(repositories.keySet());
+    }
+
+    @Override
+    public Repository getRepository(String name) {
+        return repositories.get(name);
+    }
+
+    @Override
+    public Repository getDefaultRepository() {
+        for (Repository repository : repositories.values()) {
+            if (repository.isDefault()) {
+                return repository;
+            }
+            if ("default".equals(repository.getName())) {
+                return repository;
+            }
+        }
+        // fallback to first in list
+        if (!repositories.isEmpty()) {
+            return repositories.values().iterator().next();
+        }
+        // no repository at all
+        throw new RuntimeException("No repository defined");
+    }
+
+    @Override
+    public String getDefaultRepositoryName() {
+        return getDefaultRepository().getName();
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> T getAdapter(Class<T> adapter) {
+        if (RepositoryManager.class.isAssignableFrom(adapter)) {
+            return (T) this;
+        }
+        return null;
+    }
+
+}

@@ -15,7 +15,7 @@
  */
 package org.nuxeo.rest.query;
 
-import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_QUERIED;
+import static com.hyland.openarch.ecm.core.api.event.DocumentEventTypes.DOCUMENT_QUERIED;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
@@ -24,16 +24,16 @@ import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
-import org.nuxeo.ecm.core.api.CoreSession;
-import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.ecm.core.api.NuxeoException;
-import org.nuxeo.ecm.core.api.NuxeoPrincipal;
-import org.nuxeo.ecm.core.api.event.CoreEventConstants;
-import org.nuxeo.ecm.core.event.Event;
-import org.nuxeo.ecm.core.event.EventService;
-import org.nuxeo.ecm.core.event.impl.DocumentEventContext;
-import org.nuxeo.ecm.core.event.impl.EventContextImpl;
-import org.nuxeo.ecm.core.event.impl.query.QueryEvent;
+import com.hyland.openarch.ecm.core.api.CoreSession;
+import com.hyland.openarch.ecm.core.api.DocumentModel;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.event.CoreEventConstants;
+import com.hyland.openarch.ecm.core.event.Event;
+import com.hyland.openarch.ecm.core.event.EventService;
+import com.hyland.openarch.ecm.core.event.impl.DocumentEventContext;
+import com.hyland.openarch.ecm.core.event.impl.EventContextImpl;
+import com.hyland.openarch.ecm.core.event.impl.query.QueryEvent;
 import org.nuxeo.rest.document.DocumentDTO;
 import org.nuxeo.rest.document.DocumentMapper;
 import org.nuxeo.rest.query.io.DocumentAdvancedQueryDTO;

@@ -20,7 +20,7 @@ import static org.apache.commons.lang3.BooleanUtils.isTrue;
 
 import java.util.List;
 
-import org.nuxeo.ecm.core.query.QuerySyntax;
+import com.hyland.openarch.ecm.core.query.QuerySyntax;
 import org.nuxeo.rest.document.DocumentDTO;
 import org.nuxeo.rest.query.spec.QuerySpecification;
 

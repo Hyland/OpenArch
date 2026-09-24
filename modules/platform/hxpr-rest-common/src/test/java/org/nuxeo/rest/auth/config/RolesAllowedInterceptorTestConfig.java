@@ -15,8 +15,8 @@
  */
 package org.nuxeo.rest.auth.config;
 
-import static org.nuxeo.ecm.core.api.security.SecurityConstants.ADMINISTRATORS_GROUP;
-import static org.nuxeo.ecm.core.api.security.SecurityConstants.POWER_USERS_GROUP;
+import static com.hyland.openarch.ecm.core.api.security.SecurityConstants.ADMINISTRATORS_GROUP;
+import static com.hyland.openarch.ecm.core.api.security.SecurityConstants.POWER_USERS_GROUP;
 
 import org.nuxeo.rest.auth.AdministratorAccess;
 import org.nuxeo.rest.auth.RolesAllowed;

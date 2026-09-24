@@ -20,15 +20,15 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-import static org.nuxeo.ecm.core.api.security.SecurityConstants.ADMINISTRATORS_GROUP;
-import static org.nuxeo.ecm.core.api.security.SecurityConstants.POWER_USERS_GROUP;
+import static com.hyland.openarch.ecm.core.api.security.SecurityConstants.ADMINISTRATORS_GROUP;
+import static com.hyland.openarch.ecm.core.api.security.SecurityConstants.POWER_USERS_GROUP;
 
 import org.aspectj.lang.JoinPoint;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.nuxeo.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.rest.auth.config.RolesAllowedInterceptorTestConfig;
 import org.nuxeo.rest.auth.config.RolesAllowedInterceptorTestConfig.TestBean;
 import org.nuxeo.rest.auth.config.RolesAllowedInterceptorTestConfig.TestBeanWithAdministratorAccess;

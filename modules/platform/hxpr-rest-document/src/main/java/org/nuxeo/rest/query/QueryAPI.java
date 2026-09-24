@@ -32,12 +32,11 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.nuxeo.ecm.core.api.CoreInstance;
-import org.nuxeo.ecm.core.api.CoreSession;
+import com.hyland.openarch.ecm.core.api.CoreInstance;
+import com.hyland.openarch.ecm.core.api.CoreSession;
 import org.nuxeo.rest.exception.HxprErrorResponse;
 import org.nuxeo.rest.query.io.DocumentAdvancedQueryDTO;
 import org.nuxeo.rest.query.io.DocumentNamedQueryDTO;

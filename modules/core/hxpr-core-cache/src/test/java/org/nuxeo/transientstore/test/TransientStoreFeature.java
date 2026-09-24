@@ -17,8 +17,8 @@ package org.nuxeo.transientstore.test;
 
 import java.lang.reflect.Method;
 
-import org.nuxeo.ecm.core.transientstore.TransientStorageComponent;
-import org.nuxeo.ecm.core.transientstore.api.TransientStoreService;
+import com.hyland.openarch.ecm.core.transientstore.TransientStorageComponent;
+import com.hyland.openarch.ecm.core.transientstore.api.TransientStoreService;
 import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.cluster.BasicClusterFeature;
 import com.hyland.openarch.runtime.test.runner.Deploy;

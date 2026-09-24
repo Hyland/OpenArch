@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component name="test-jobfactory">
 
-  <extension target="org.nuxeo.ecm.core.scheduler.SchedulerService" point="schedule">
+  <extension target="com.hyland.openarch.ecm.core.scheduler.SchedulerService" point="schedule">
     <schedule id="testScheduler">
       <class>com.example.Unused</class>
       <cronExpression>0 * * * * ?</cronExpression>

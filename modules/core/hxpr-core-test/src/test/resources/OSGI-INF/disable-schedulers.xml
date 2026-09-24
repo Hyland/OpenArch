@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <component name="org.nuxeo.ecm.core.disable.schedulers">
 
-  <extension target="org.nuxeo.ecm.core.scheduler.SchedulerService"
+  <extension target="com.hyland.openarch.ecm.core.scheduler.SchedulerService"
     point="schedule">
     <schedule id="workManagerCleanup" enabled="false" />
     <schedule id="softDeleteCleanup" enabled="false" />

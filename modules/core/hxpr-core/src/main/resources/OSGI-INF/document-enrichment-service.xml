@@ -7,19 +7,19 @@
     distribution) can contribute pluggable logic. Community registers no enrichers by default.
   </documentation>
 
-  <implementation class="org.nuxeo.ecm.core.DocumentEnrichmentComponent" />
+  <implementation class="com.hyland.openarch.ecm.core.DocumentEnrichmentComponent" />
 
   <service>
-    <provide interface="org.nuxeo.ecm.core.api.DocumentEnrichmentService" />
+    <provide interface="com.hyland.openarch.ecm.core.api.DocumentEnrichmentService" />
   </service>
 
   <extension-point name="enrichers">
     <documentation>
-      Register a org.nuxeo.ecm.core.api.DocumentEnricher to run custom logic on document
-      create/update.
+        Register a com.hyland.openarch.ecm.core.api.DocumentEnricher to run custom logic on document
+        create/update.
     </documentation>
-    <object class="org.nuxeo.ecm.core.DocumentEnricherDescriptor" />
-    <registry class="org.nuxeo.ecm.core.DocumentEnricherRegistry" />
+    <object class="com.hyland.openarch.ecm.core.DocumentEnricherDescriptor" />
+    <registry class="com.hyland.openarch.ecm.core.DocumentEnricherRegistry" />
   </extension-point>
 
 </component>

@@ -15,8 +15,8 @@
  */
 package org.nuxeo.rest.vocabulary;
 
-import static org.nuxeo.ecm.core.api.VocabularyConstants.VOCABULARY_ID;
-import static org.nuxeo.ecm.core.api.VocabularyConstants.VOCABULARY_KEY;
+import static com.hyland.openarch.ecm.core.api.VocabularyConstants.VOCABULARY_ID;
+import static com.hyland.openarch.ecm.core.api.VocabularyConstants.VOCABULARY_KEY;
 import static org.nuxeo.rest.document.DocumentManager.DEFAULT_REPOSITORY_ID;
 import static org.nuxeo.rest.utils.Headers.HXCS_REPOSITORY;
 import static org.nuxeo.rest.utils.Versions.APP_HXCS_JSON;
@@ -36,7 +36,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.List;
 
-import org.nuxeo.ecm.core.api.VocabularyConstants;
+import com.hyland.openarch.ecm.core.api.VocabularyConstants;
 import org.nuxeo.rest.swagger.annotation.ApiResponse200;
 import org.nuxeo.rest.swagger.annotation.ApiResponse201;
 import org.nuxeo.rest.swagger.annotation.ApiResponse204;

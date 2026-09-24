@@ -15,11 +15,11 @@
  */
 package com.hyland.hxpr.async.tasks;
 
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_DESCRIPTION;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_DESCRIPTION;
 
 import java.util.List;
 
-import org.nuxeo.ecm.core.api.CoreSession;
+import com.hyland.openarch.ecm.core.api.CoreSession;
 
 import com.hyland.hxpr.async.tasks.executors.AbstractBatchTaskProcessor;
 import com.hyland.hxpr.async.tasks.message.BatchTask;

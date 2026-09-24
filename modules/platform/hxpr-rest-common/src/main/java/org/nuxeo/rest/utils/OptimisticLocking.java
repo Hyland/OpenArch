@@ -17,7 +17,8 @@ package org.nuxeo.rest.utils;
 
 import static jakarta.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 
-import org.nuxeo.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.ConcurrentUpdateException;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
 
 /**
  * Shared pieces of the optimistic locking used by the v2 configuration APIs.
@@ -26,7 +27,7 @@ import org.nuxeo.ecm.core.api.NuxeoException;
  * reads it, computes its update, and sends it back with the version it read; the write is then conditioned on that
  * version, so a caller working from a stale read is rejected with a {@code 409 Conflict} rather than silently
  * overwriting a concurrent change. The conflict itself needs nothing here: it is raised by the storage layer as a
- * {@link org.nuxeo.ecm.core.api.ConcurrentUpdateException}, which already maps to 409.
+ * {@link ConcurrentUpdateException}, which already maps to 409.
  * <p>
  * A configuration identical to the stored one and carrying the current version is not written and keeps its version.
  * An identical configuration carrying a stale version is still rejected with {@code 409 Conflict}.

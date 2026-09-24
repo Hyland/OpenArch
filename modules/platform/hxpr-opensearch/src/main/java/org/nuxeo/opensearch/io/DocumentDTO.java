@@ -19,7 +19,7 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.nuxeo.ecm.core.api.DocumentModel;
+import com.hyland.openarch.ecm.core.api.DocumentModel;
 import org.opensearch.client.json.JsonpMapper;
 import org.opensearch.client.json.JsonpSerializable;
 

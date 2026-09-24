@@ -17,7 +17,7 @@ package org.nuxeo.rest.document.test;
 
 import static jakarta.ws.rs.core.Response.Status.NO_CONTENT;
 import static jakarta.ws.rs.core.Response.Status.OK;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ID;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ID;
 import static org.nuxeo.rest.document.AbstractDocumentAPI.PATH;
 import static org.nuxeo.rest.document.test.ContentTestHelper.getJsonPath;
 import static org.springframework.http.HttpMethod.DELETE;

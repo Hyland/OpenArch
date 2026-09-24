@@ -17,8 +17,8 @@ package org.nuxeo.rest.vocabulary.exception;
 
 import jakarta.ws.rs.core.Response;
 
-import org.nuxeo.ecm.core.api.NuxeoException;
-import org.nuxeo.ecm.core.api.PathRef;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.PathRef;
 
 public class VocabularyEntryNotFoundException extends NuxeoException {
     public VocabularyEntryNotFoundException(PathRef entryKey) {

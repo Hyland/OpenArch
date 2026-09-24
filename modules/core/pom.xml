@@ -13,7 +13,7 @@
 
   <modules>
     <module>hxpr-core</module>
-    <module>hxpr-core-api</module>
+    <module>openarch-core-api</module>
     <module>hxpr-core-binarymanager-common</module>
     <module>hxpr-core-cache</module>
     <module>hxpr-core-event</module>

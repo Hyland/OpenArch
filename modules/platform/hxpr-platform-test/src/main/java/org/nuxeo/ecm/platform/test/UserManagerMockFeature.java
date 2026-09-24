@@ -17,8 +17,8 @@ package org.nuxeo.ecm.platform.test;
 
 import java.lang.reflect.Method;
 
-import org.nuxeo.ecm.core.api.local.WithUser;
-import org.nuxeo.ecm.core.cache.InMemoryCacheFeature;
+import com.hyland.openarch.ecm.core.api.local.WithUser;
+import com.hyland.openarch.ecm.core.cache.InMemoryCacheFeature;
 import com.hyland.openarch.runtime.test.runner.Deploy;
 import com.hyland.openarch.runtime.test.runner.Features;
 import com.hyland.openarch.runtime.springboot.junit.security.MockAuthenticationSupport;

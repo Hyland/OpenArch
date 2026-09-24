@@ -29,9 +29,9 @@ import jakarta.transaction.TransactionManager;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-import org.nuxeo.ecm.core.event.Event;
-import org.nuxeo.ecm.core.event.EventListener;
-import org.nuxeo.ecm.core.event.impl.DocumentEventContext;
+import com.hyland.openarch.ecm.core.event.Event;
+import com.hyland.openarch.ecm.core.event.EventListener;
+import com.hyland.openarch.ecm.core.event.impl.DocumentEventContext;
 import org.nuxeo.opensearch.api.OpenSearchService;
 import org.nuxeo.opensearch.commands.IndexingCommand;
 import org.nuxeo.opensearch.commands.IndexingCommands;

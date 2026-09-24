@@ -17,7 +17,7 @@
 package org.nuxeo.opensearch.config;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_FULLTEXT_BINARY;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_FULLTEXT_BINARY;
 import static org.nuxeo.opensearch.OpenSearchConstants.ALL_FIELDS;
 import static org.nuxeo.opensearch.OpenSearchConstants.DOC_TYPE;
 import static org.nuxeo.opensearch.OpenSearchConstants.EMBEDDINGS_TYPE;

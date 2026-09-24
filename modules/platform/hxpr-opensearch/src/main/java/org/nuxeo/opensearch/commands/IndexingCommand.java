@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-import org.nuxeo.ecm.core.api.DocumentModel;
+import com.hyland.openarch.ecm.core.api.DocumentModel;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;

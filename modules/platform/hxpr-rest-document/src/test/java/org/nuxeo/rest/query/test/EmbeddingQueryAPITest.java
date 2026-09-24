@@ -17,7 +17,7 @@ package org.nuxeo.rest.query.test;
 
 import static jakarta.ws.rs.core.Response.Status.OK;
 import static java.util.stream.Collectors.toList;
-import static org.nuxeo.ecm.core.model.EmbeddingModel.VECTOR_SIZE;
+import static com.hyland.openarch.ecm.core.model.EmbeddingModel.VECTOR_SIZE;
 import static org.nuxeo.rest.query.test.RestQueryMultipleEmbeddingsFeature.EMBEDDING_TYPE;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -28,7 +28,7 @@ import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.nuxeo.ecm.core.api.local.WithUser;
+import com.hyland.openarch.ecm.core.api.local.WithUser;
 import org.nuxeo.rest.query.QueryAPI;
 import com.hyland.openarch.runtime.test.runner.Features;
 import org.springframework.boot.test.context.SpringBootTest;

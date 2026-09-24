@@ -1,28 +1,28 @@
 <?xml version="1.0"?>
 
-<component name="org.nuxeo.ecm.core.cache.CacheService">
+<component name="com.hyland.openarch.ecm.core.cache.CacheService">
 
   <documentation>
     Service providing a unified cache management system.
   </documentation>
 
-  <implementation class="org.nuxeo.ecm.core.cache.CacheServiceImpl" />
+  <implementation class="com.hyland.openarch.ecm.core.cache.CacheServiceImpl" />
 
   <service>
-    <provide interface="org.nuxeo.ecm.core.cache.CacheService" />
+    <provide interface="com.hyland.openarch.ecm.core.cache.CacheService" />
   </service>
 
   <extension-point name="caches">
 
     <documentation>
       Extension Point to define a new cache .
-      <cache name="newCache" class="org.nuxeo.ecm.core.cache.InMemoryCacheImpl">
+      <cache name="newCache" class="com.hyland.openarch.ecm.core.cache.InMemoryCacheImpl">
         <ttl>20</ttl>
         <option name="maxSize">10</option>
         <option name="concurrencyLevel">10</option>
       </cache>
       The class attribute may specify a class that implements the CacheManagement interface.
-      The default implementation 'org.nuxeo.ecm.core.cache.InMemoryCacheImpl'
+      The default implementation 'cache.com.hyland.openarch.ecm.core.InMemoryCacheImpl'
       is based on Google Guava.
       <p />
       The max size set the max number of elements contained in the cache
@@ -34,7 +34,7 @@
       the cache
     </documentation>
 
-    <object class="org.nuxeo.ecm.core.cache.CacheDescriptor" />
+    <object class="com.hyland.openarch.ecm.core.cache.CacheDescriptor" />
 
   </extension-point>
 

@@ -16,7 +16,7 @@
 package org.nuxeo.rest.acl;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_ID;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ID;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;

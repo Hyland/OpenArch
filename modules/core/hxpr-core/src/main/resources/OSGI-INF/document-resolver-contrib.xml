@@ -7,7 +7,7 @@
   </documentation>
 
   <extension target="com.hyland.openarch.ecm.core.schema.ObjectResolverService" point="resolvers">
-    <resolver type="documentResolver" class="org.nuxeo.ecm.core.model.DocumentModelResolver" />
+    <resolver type="documentResolver" class="com.hyland.openarch.ecm.core.model.DocumentModelResolver" />
   </extension>
 
 </component>

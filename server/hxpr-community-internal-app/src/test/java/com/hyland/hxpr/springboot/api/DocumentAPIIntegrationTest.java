@@ -28,8 +28,8 @@ import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_CREATED;
-import static org.nuxeo.ecm.core.api.DocumentConstants.SYS_MODIFIED;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_CREATED;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_MODIFIED;
 import static org.nuxeo.rest.document.AbstractDocumentAPI.PATH;
 import static org.skyscreamer.jsonassert.JSONCompareMode.NON_EXTENSIBLE;
 

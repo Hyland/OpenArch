@@ -49,7 +49,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.nuxeo.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
 import org.nuxeo.rest.upload.UriWithHeaders;
 import org.nuxeo.rest.upload.UploadExternalUriClient;
 import com.hyland.openarch.runtime.mockito.MockitoFeature;

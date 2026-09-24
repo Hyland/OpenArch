@@ -15,14 +15,14 @@
  */
 package org.nuxeo.ecm.platform.vocabulary.model;
 
-import static org.nuxeo.ecm.core.api.VocabularyConstants.VOCABULARY_ID;
-import static org.nuxeo.ecm.core.api.VocabularyConstants.VOCABULARY_KEY;
-import static org.nuxeo.ecm.core.api.VocabularyConstants.VOCABULARY_LABEL;
+import static com.hyland.openarch.ecm.core.api.VocabularyConstants.VOCABULARY_ID;
+import static com.hyland.openarch.ecm.core.api.VocabularyConstants.VOCABULARY_KEY;
+import static com.hyland.openarch.ecm.core.api.VocabularyConstants.VOCABULARY_LABEL;
 
 import java.io.Serializable;
 import java.util.Objects;
 
-import org.nuxeo.ecm.core.api.DocumentModel;
+import com.hyland.openarch.ecm.core.api.DocumentModel;
 
 /**
  * Wrapper for a DocumentModel representing a Vocabulary entry.

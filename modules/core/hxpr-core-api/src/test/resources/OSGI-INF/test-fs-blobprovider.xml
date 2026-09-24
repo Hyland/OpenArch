@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<component name="org.nuxeo.ecm.core.blob.provider.test-fs">
-  <extension target="org.nuxeo.ecm.core.blob.BlobService" point="configuration">
-    <blobprovider name="testfs">
-      <class>org.nuxeo.ecm.core.blob.FilesystemBlobProvider</class>
-      <property name="root">/</property>
-    </blobprovider>
-  </extension>
-</component>

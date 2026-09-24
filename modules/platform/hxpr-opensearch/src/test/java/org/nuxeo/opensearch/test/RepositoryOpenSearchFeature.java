@@ -22,7 +22,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.nuxeo.ecm.core.test.CoreFeature;
+import com.hyland.openarch.ecm.core.test.CoreFeature;
 import org.nuxeo.opensearch.api.OpenSearchService;
 import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.test.runner.Deploy;

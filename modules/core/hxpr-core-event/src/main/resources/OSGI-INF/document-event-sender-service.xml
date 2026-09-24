@@ -7,10 +7,10 @@
     reused and unit-tested independently.
   </documentation>
 
-  <implementation class="org.nuxeo.ecm.core.event.raiser.DocumentEventSenderComponent" />
+  <implementation class="com.hyland.openarch.ecm.core.event.raiser.DocumentEventSenderComponent" />
 
   <service>
-    <provide interface="org.nuxeo.ecm.core.event.raiser.DocumentEventSenderService" />
+    <provide interface="com.hyland.openarch.ecm.core.event.raiser.DocumentEventSenderService" />
   </service>
 
 </component>

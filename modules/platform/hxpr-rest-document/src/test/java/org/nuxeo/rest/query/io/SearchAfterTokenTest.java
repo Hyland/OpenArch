@@ -27,7 +27,7 @@ import java.util.Base64;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-import org.nuxeo.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.NuxeoException;
 
 /**
  * Tests for {@link SearchAfterToken} encoding and decoding.

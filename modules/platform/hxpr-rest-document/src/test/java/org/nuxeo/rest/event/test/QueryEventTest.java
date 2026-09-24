@@ -24,8 +24,8 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.nuxeo.ecm.core.event.Event;
-import org.nuxeo.ecm.core.event.test.CapturingEventListener;
+import com.hyland.openarch.ecm.core.event.Event;
+import com.hyland.openarch.ecm.core.event.test.CapturingEventListener;
 import org.nuxeo.rest.acl.ACEMapper;
 import org.nuxeo.rest.acl.ACLMapper;
 import org.nuxeo.rest.document.DocumentMapper;
@@ -48,7 +48,7 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.skyscreamer.jsonassert.comparator.CustomComparator;
 
-import org.nuxeo.ecm.core.event.impl.query.QueryEvent;
+import com.hyland.openarch.ecm.core.event.impl.query.QueryEvent;
 
 @Features(RestQueryMultipleDocumentsFeature.class)
 @WithApplicationProperties("usage-application.properties")

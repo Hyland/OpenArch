@@ -1,0 +1,102 @@
+/*
+ * (C) Copyright 2024-2026 Hyland (https://www.hyland.com/).
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.hyland.openarch.ecm.core;
+
+import java.io.IOException;
+import tools.jackson.databind.ObjectMapper;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.ReplaceOptions;
+import jakarta.inject.Inject;
+import org.bson.Document;
+import org.bson.conversions.Bson;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import com.hyland.openarch.common.utils.FileUtils;
+import com.hyland.openarch.ecm.core.api.CoreSession;
+import com.hyland.openarch.ecm.core.security.SecurityPolicyService;
+import com.hyland.openarch.ecm.core.security.SecurityService;
+import com.hyland.openarch.ecm.core.security.config.SecurityPolicyConfig;
+import com.hyland.openarch.ecm.core.test.CoreFeature;
+import com.hyland.openarch.ecm.core.test.annotations.Granularity;
+import com.hyland.openarch.ecm.core.test.annotations.RepositoryConfig;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
+import org.skyscreamer.jsonassert.JSONAssert;
+
+import java.io.File;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.util.Map;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static com.hyland.openarch.ecm.core.security.SecurityServiceImpl.CONFIG_SECURITY;
+import static com.hyland.openarch.ecm.core.storage.mongodb.MongoDBRepository.MONGODB_ID;
+
+@ExtendWith(FeaturesExtension.class)
+@Features(TestSecurityPoliciesMigration.CoreFeatureWithCustomDatabaseInit.class)
+@RepositoryConfig(cleanup = Granularity.METHOD)
+public class TestSecurityPoliciesMigration {
+
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+
+    private static final String OLD_POLICIES = "config/security-policies-before-migration.json";
+
+    private static final String NEW_POLICIES = "config/security-policies-after-migration.json";
+
+    protected static final String REPO_ID = "test";
+
+    @Inject
+    protected CoreSession session;
+
+    private static String readFile(String filename) {
+        File file = FileUtils.getResourceFileFromContext(filename);
+        try {
+            return new String(Files.readAllBytes(file.toPath()), UTF_8);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public static class CoreFeatureWithCustomDatabaseInit extends CoreFeature {
+        @Override
+        public void start() {
+            super.start();
+            if (storageConfiguration.isDBSMongoDB()) {
+                storageConfiguration.runWithMongoDatabase(db -> {
+                    // set an old model in the database instead of starting from nothing
+                    String repositoryName = storageConfiguration.getRepositoryName();
+                    MongoCollection<Document> configColl = db.getCollection(repositoryName + ".config");
+                    String json = readFile(OLD_POLICIES);
+                    Bson filter = Filters.eq(MONGODB_ID, CONFIG_SECURITY);
+                    configColl.replaceOne(filter, Document.parse(json), new ReplaceOptions().upsert(true));
+                });
+            }
+        }
+    }
+
+    @Test
+    public void testSecurityPolicyMigration() throws Exception {
+        SecurityService securityService = Framework.getService(SecurityService.class);
+        SecurityPolicyService securityPolicyService = securityService.getSecurityPolicyService(REPO_ID);
+        Map<String, SecurityPolicyConfig> securityPolicies =  securityPolicyService.getSecurityPolicyConfigMap();
+
+        String actual = MAPPER.writeValueAsString(securityPolicies);
+        String expected = readFile(NEW_POLICIES);
+        JSONAssert.assertEquals(actual, expected, actual, true);
+    }
+}
