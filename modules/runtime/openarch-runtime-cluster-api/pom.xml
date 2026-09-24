@@ -8,7 +8,7 @@
   </parent>
 
   <artifactId>openarch-runtime-cluster-api</artifactId>
-  <name>HxPR Runtime Cluster API</name>
+  <name>OpenArch Runtime Cluster API</name>
 
   <properties>
     <manifest.file>src/main/resources/META-INF/MANIFEST.MF</manifest.file>
