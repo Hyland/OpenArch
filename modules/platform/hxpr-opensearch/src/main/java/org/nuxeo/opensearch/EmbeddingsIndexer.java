@@ -42,6 +42,7 @@ import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.api.DocumentConstants;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.NuxeoException;
+import org.nuxeo.ecm.core.api.OnPremChunkTextWriter;
 import org.nuxeo.ecm.core.model.EmbeddingModel;
 import org.nuxeo.opensearch.commands.IndexingCommand;
 import org.nuxeo.opensearch.config.EmbeddingsParserDescriptor;
@@ -77,6 +78,7 @@ public class EmbeddingsIndexer {
 
     private static final String EMBEDDINGS_INDEXING_SCROLL_KEEP_ALIVE = Framework.getProperty(
             "hxpr.opensearch.embeddingsIndexingScrollKeepAlive", "1m");
+    private static final String ON_PREM_SYSTEM_INTEGRATION_ID_PLACEHOLDER = "placeholder-system-integration-id";
 
     private final OpenSearchServiceImpl service;
 
@@ -121,7 +123,45 @@ public class EmbeddingsIndexer {
 
             // Build and execute with byte-size based batching - writes to embeddings index
             executeWithBatching(cmd.getRepositoryName(), ctx.parentDoc(), ctx.residency(), newEmbeddings, idsToDelete, isReindexing, maxBulkSize);
+
+            // onPrem chunk text is kept out of the cloud index and instead written to the EV Store.
+            writeOnPremChunkText(embeddingsParser, cmd.getRepositoryName(), ctx, newEmbeddings, isReindexing);
         }
+    }
+
+    /**
+     * Writes the chunk text of an {@code onPrem} {@code SysEmbeddings} child to the EV Store when its embeddings are
+     * ingested. Only genuine ingests are forwarded: reindexing rebuilds the cloud index from the embeddings parquet and
+     * must not re-drive the EV Store, and cloud documents carry their text in the index so nothing is written for them.
+     * The write is skipped silently when no {@link OnPremChunkTextWriter} is registered (a cloud-only deployment) or the
+     * child holds no chunks blob. Residency is read from the child rather than re-evaluated.
+     * <p>
+     * Package-private and static so the branching can be unit-tested without a running repository.
+     */
+    static void writeOnPremChunkText(EmbeddingsParser embeddingsParser, String repository, ProcessingContext ctx,
+            Collection<EmbeddingModel> newEmbeddings, boolean isReindexing) {
+        if (isReindexing || newEmbeddings.isEmpty() || !SYSEMB_RESIDENCY_ON_PREM.equals(ctx.residency())) {
+            return;
+        }
+        OnPremChunkTextWriter writer = Framework.getService(OnPremChunkTextWriter.class);
+        if (writer == null) {
+            log.debug("No OnPremChunkTextWriter registered; onPrem chunk text for SysEmbeddings {} is not written to the EV Store",
+                    ctx.embeddingsDoc().getId());
+            return;
+        }
+        Blob chunksBlob = (Blob) ctx.embeddingsDoc().getPropertyValue(DocumentConstants.SYSEMB_CHUNKS);
+        if (chunksBlob == null) {
+            log.debug("onPrem SysEmbeddings {} has no chunks blob; nothing to write to the EV Store", ctx.embeddingsDoc().getId());
+            return;
+        }
+        Map<String, String> chunkTexts = embeddingsParser.parseChunkTexts(chunksBlob, ctx.embeddingsType());
+        if (chunkTexts.isEmpty()) {
+            log.debug("onPrem SysEmbeddings {} parsed no chunk texts; nothing to write to the EV Store", ctx.embeddingsDoc().getId());
+            return;
+        }
+        String systemIntegrationId = ON_PREM_SYSTEM_INTEGRATION_ID_PLACEHOLDER;
+        writer.writeChunkText(repository, systemIntegrationId, ctx.embeddingsDoc().getId(),
+                ctx.parentDoc().getId(), ctx.embeddingsType(), chunkTexts);
     }
 
     /**
