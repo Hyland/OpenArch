@@ -33,7 +33,7 @@ import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.mockito.RuntimeInjector;
 import com.hyland.openarch.runtime.springboot.OpenArchApplication;
 import com.hyland.openarch.runtime.springboot.auth.RepositoryLoginFilter;
-import com.hyland.openarch.runtime.springboot.junit.security.IdpTestAuthenticationSupport;
+import com.hyland.openarch.runtime.springboot.junit.security.BearerTokenProvider;
 import com.hyland.openarch.runtime.springboot.transaction.TransactionFilter;
 import com.hyland.openarch.runtime.test.runner.Deploy;
 import com.hyland.openarch.runtime.test.runner.Features;
@@ -174,7 +174,7 @@ public abstract class RuntimeSpringBootTest {
         var builder = MockMvcBuilders.webAppContextSetup(context)
                                      .apply(SecurityMockMvcConfigurers.springSecurity())
                                      .addFilters(loginFilter, transactionFilter); // login before transaction
-        String bearerToken = IdpTestAuthenticationSupport.bearerTokenOrNull();
+        String bearerToken = BearerTokenProvider.getOrNull();
         if (bearerToken != null) {
             builder.defaultRequest(MockMvcRequestBuilders.get("/")
                                                           .header(HttpHeaders.AUTHORIZATION, "Bearer " + bearerToken));
