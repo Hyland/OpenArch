@@ -8,7 +8,7 @@
   </parent>
 
   <artifactId>openarch-core-query</artifactId>
-  <name>HxPR Core Query</name>
+  <name>OpenArch Core Query</name>
 
   <properties>
     <manifest.file>src/main/resources/META-INF/MANIFEST.MF</manifest.file>
