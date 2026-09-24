@@ -91,9 +91,11 @@ public abstract class AbstractScrollerTaskProcessor implements TaskProcessor<Scr
                 status.setErrorCode(SC_BAD_REQUEST);
                 status.setErrorMessage("Invalid user or query");
             } finally {
-                // handle final processing
-                handleFinalProcessing(task, documentCount, bucketCount);
+                // Persist the terminal state before any additional work (e.g. logging) that
+                // could be interrupted, so a mid-shutdown pod can't leave the task stuck
+                // in a non-terminal state forever.
                 asyncTasksService.setStatus(status);
+                handleFinalProcessing(task, documentCount, bucketCount);
             }
         });
     }
@@ -113,7 +115,21 @@ public abstract class AbstractScrollerTaskProcessor implements TaskProcessor<Scr
     }
 
     /**
-     * Handle final processing, even if any errors occurred
+     * Handle final processing, even if any errors occurred.
+     * <p>
+     * On successful completion (or on a query/login error, which is treated as completed with
+     * an error code) this runs after the terminal {@code COMPLETED} status has already been
+     * persisted, so an unclean interruption (e.g. pod kill) partway through it leaves the task
+     * reporting success with no further retry or redelivery. On any other exception the status
+     * persisted just before this call may still be non-terminal ({@code SCROLLING_RUNNING}); the
+     * caller is responsible for eventually forcing the task to {@code ABORTED} once the exception
+     * propagates out of {@link #process(ScrollerTask)}.
+     * <p>
+     * Implementations must therefore be side-effect-free (e.g. logging/metrics only), or
+     * otherwise safe to skip or run partially. Any side effect that must survive a crash should
+     * be triggered from {@link #handlePostProcessing(ScrollerTask)} instead — that runs before the
+     * terminal status is set, not from here, since a side effect started here has no persisted
+     * status change to protect it if the pod dies before it finishes.
      */
     protected void handleFinalProcessing(ScrollerTask task, int documentCount, int bucketCount) {
         // nothing by default
