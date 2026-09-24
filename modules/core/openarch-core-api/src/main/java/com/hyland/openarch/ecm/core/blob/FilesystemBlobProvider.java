@@ -27,7 +27,7 @@ import java.util.Map;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import com.hyland.openarch.ecm.core.api.Blob;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 
 /**
  * Blob provider that can reference files on the filesystem.
@@ -62,7 +62,7 @@ public class FilesystemBlobProvider extends AbstractBlobProvider {
         super.initialize(blobProviderId, properties);
         root = properties.get(ROOT_PROP);
         if (StringUtils.isBlank(root)) {
-            throw new NuxeoException(
+            throw new RepositoryException(
                     "Missing property '" + ROOT_PROP + "' for " + getClass().getSimpleName() + ": " + blobProviderId);
         }
         if ("/".equals(root)) {

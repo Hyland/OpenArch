@@ -24,7 +24,7 @@ import java.time.ZonedDateTime;
 import java.time.temporal.Temporal;
 import java.util.List;
 
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.ecm.core.query.QueryParseException;
 
 /**
@@ -87,7 +87,7 @@ public class Literals {
         } else if (value instanceof String strVal) {
             return new StringLiteral(strVal);
         }
-        throw new NuxeoException("Unknown type to convert to literal, value=" + value);
+        throw new RepositoryException("Unknown type to convert to literal, value=" + value);
     }
 
 }

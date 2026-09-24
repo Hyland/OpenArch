@@ -15,12 +15,12 @@
  */
 package org.nuxeo.rest.vocabulary.exception;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import jakarta.ws.rs.core.Response;
 
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.ecm.core.api.PathRef;
 
-public class VocabularyNotFoundException extends NuxeoException {
+public class VocabularyNotFoundException extends RepositoryException {
     public VocabularyNotFoundException(PathRef vocabId) {
         super(String.format("Vocabulary of id=[%s] not found.", vocabId.toString()),
                 Response.Status.NOT_FOUND.getStatusCode());

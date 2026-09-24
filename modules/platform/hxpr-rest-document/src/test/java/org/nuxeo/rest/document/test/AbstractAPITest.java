@@ -36,7 +36,7 @@ import jakarta.ws.rs.core.Response.Status;
 import jakarta.ws.rs.core.Response.Status.Family;
 import jakarta.ws.rs.core.Response.StatusType;
 import org.apache.http.HttpStatus;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.local.DummyLoginFeature;
 import com.hyland.openarch.ecm.core.test.CoreFeature;
 import org.nuxeo.ecm.platform.test.UserManagerMockFeature;
@@ -98,7 +98,7 @@ public abstract class AbstractAPITest extends RuntimeSpringBootTest {
 
     protected static final String PARAM_VALIDATE_ONLY_TRUE = PARAM_VALIDATE_ONLY_PREFIX + "true";
 
-    protected static final NuxeoPrincipal ALT_PRINCIPAL = DummyLoginFeature.getTestPrincipal(ALT_USER_ID, false);
+    protected static final RepositoryPrincipal ALT_PRINCIPAL = DummyLoginFeature.getTestPrincipal(ALT_USER_ID, false);
 
     protected static final ValueMatcher<Object> NON_NULL_MATCHER = (o1, o2) -> o1 != null && o2 != null;
 

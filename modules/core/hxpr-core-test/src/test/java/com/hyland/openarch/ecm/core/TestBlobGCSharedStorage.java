@@ -22,6 +22,7 @@ import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
 
 import java.io.IOException;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import jakarta.inject.Inject;
 
 import org.junit.jupiter.api.Test;
@@ -29,7 +30,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import com.hyland.openarch.ecm.core.api.Blobs;
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.ecm.core.blob.DocumentBlobService;
 import com.hyland.openarch.ecm.core.blob.ManagedBlob;
 import com.hyland.openarch.ecm.core.blob.binary.BinaryManagerStatus;
@@ -95,7 +95,7 @@ public class TestBlobGCSharedStorage {
             Thread.sleep(3_000);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
     }
 

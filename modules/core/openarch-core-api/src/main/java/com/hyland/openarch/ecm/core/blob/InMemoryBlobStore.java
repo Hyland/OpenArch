@@ -31,13 +31,13 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.ecm.core.blob.binary.BinaryGarbageCollector;
 import com.hyland.openarch.runtime.api.Framework;
 
@@ -220,7 +220,7 @@ public class InMemoryBlobStore extends AbstractBlobStore {
             FileUtils.copyToFile(stream, tmp.toFile());
             return OptionalOrUnknown.of(tmp);
         } catch (IOException e) {
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
     }
 

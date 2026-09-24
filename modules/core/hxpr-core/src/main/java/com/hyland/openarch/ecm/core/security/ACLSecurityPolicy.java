@@ -24,7 +24,7 @@ import java.util.ListIterator;
 import java.util.Set;
 
 import com.hyland.openarch.ecm.core.api.DocumentSecurityException;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.query.QueryParameters;
 import com.hyland.openarch.ecm.core.api.security.ACL;
 import com.hyland.openarch.ecm.core.model.InternalDocument;
@@ -84,13 +84,13 @@ public class ACLSecurityPolicy extends AbstractSecurityPolicy {
     }
 
     @Override
-    public boolean appliesToDocument(InternalDocument doc, NuxeoPrincipal principal, Set<String> permissions) {
+    public boolean appliesToDocument(InternalDocument doc, RepositoryPrincipal principal, Set<String> permissions) {
         return !principalBypass(doc, principal);
     }
 
     @Override
-    public boolean hasPermission(InternalDocument doc, NuxeoPrincipal principal, Set<String> principals,
-            String permission, Set<String> permissions) {
+    public boolean hasPermission(InternalDocument doc, RepositoryPrincipal principal, Set<String> principals,
+                                 String permission, Set<String> permissions) {
         ACL effectiveAcl = doc.getEffectiveACL();
         return hasPermission(effectiveAcl, principals, permissions);
     }
@@ -105,7 +105,7 @@ public class ACLSecurityPolicy extends AbstractSecurityPolicy {
 
     @Override
     public void restrictEffectivePermissions(List<String> effectivePermissions, InternalDocument doc,
-            NuxeoPrincipal principal, Set<String> principals, SecurityService securityService) {
+                                             RepositoryPrincipal principal, Set<String> principals, SecurityService securityService) {
         if (principalBypass(doc, principal)) {
             return;
         }

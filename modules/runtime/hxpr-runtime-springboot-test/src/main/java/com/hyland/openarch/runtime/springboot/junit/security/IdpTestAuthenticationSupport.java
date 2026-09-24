@@ -30,8 +30,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.apache.commons.lang3.StringUtils;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.ecm.core.api.local.WithUser;
 import com.hyland.openarch.runtime.api.Framework;
 import org.springframework.http.HttpHeaders;
@@ -115,7 +115,7 @@ public final class IdpTestAuthenticationSupport {
     public static String bearerToken() {
         TokenContext ctx = CURRENT_TOKEN.get();
         if (ctx == null) {
-            throw new NuxeoException("No IDP token available for the current test context");
+            throw new RepositoryException("No IDP token available for the current test context");
         }
         return ctx.token();
     }
@@ -164,7 +164,7 @@ public final class IdpTestAuthenticationSupport {
                     .build();
             HttpResponse<InputStream> response = getHttpClient().send(request, HttpResponse.BodyHandlers.ofInputStream());
             if (response.statusCode() >= 400) {
-                throw new NuxeoException("IDP token endpoint returned status " + response.statusCode());
+                throw new RepositoryException("IDP token endpoint returned status " + response.statusCode());
             }
             JsonNode tokenNode;
             try (InputStream body = response.body()) {
@@ -172,14 +172,14 @@ public final class IdpTestAuthenticationSupport {
                 tokenNode = json.get("access_token");
             }
             if (tokenNode == null || StringUtils.isBlank(tokenNode.asText())) {
-                throw new NuxeoException("IDP response does not contain an access_token");
+                throw new RepositoryException("IDP response does not contain an access_token");
             }
             return tokenNode.asText();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new NuxeoException("Interrupted while fetching IDP token", e);
+            throw new RepositoryException("Interrupted while fetching IDP token", e);
         } catch (IOException | JacksonException e) {
-            throw new NuxeoException("Unable to fetch IDP token", e);
+            throw new RepositoryException("Unable to fetch IDP token", e);
         }
     }
 
@@ -213,7 +213,7 @@ public final class IdpTestAuthenticationSupport {
             Instant expires = expiresAt == null ? issued.plusSeconds(3600) : expiresAt.toInstant();
             return new Jwt(tokenValue, issued, expires, headers, claims);
         } catch (Exception e) {
-            throw new NuxeoException("Unable to parse IDP token", e);
+            throw new RepositoryException("Unable to parse IDP token", e);
         }
     }
 

@@ -28,7 +28,7 @@ import com.hyland.openarch.runtime.pubsub.AbstractPubSubBroker;
 import com.hyland.openarch.runtime.pubsub.SerializableMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.ecm.core.api.repository.RepositoryManager;
 import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.cluster.ClusterService;
@@ -202,7 +202,7 @@ public class CacheServiceImpl extends DefaultComponent implements CacheService {
             try {
                 cache = desc.klass.getConstructor(CacheDescriptor.class).newInstance(desc);
             } catch (ReflectiveOperationException e) {
-                throw new NuxeoException("Failed to instantiate class: " + desc.klass + " for cache: " + desc.name, e);
+                throw new RepositoryException("Failed to instantiate class: " + desc.klass + " for cache: " + desc.name, e);
             }
         }
         // wrap with checker, metrics and invalidator

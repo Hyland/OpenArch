@@ -25,6 +25,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -32,7 +33,6 @@ import com.hyland.openarch.ecm.core.api.CoreInstance;
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.IdRef;
 import com.hyland.openarch.ecm.core.api.IterableQueryResult;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.ecm.core.api.repository.RepositoryManager;
 import com.hyland.openarch.ecm.core.query.sql.model.FromClause;
 import com.hyland.openarch.ecm.core.query.sql.model.Predicates;
@@ -69,10 +69,10 @@ public class ComputeDigestHelper {
         BlobService blobService = Framework.getService(BlobService.class);
         BlobProvider blobProvider = blobService.getBlobProvider(blobProviderId);
         if (blobProvider == null) {
-            throw new NuxeoException("Unknown blob provider");
+            throw new RepositoryException("Unknown blob provider");
         }
         if (!(blobProvider instanceof BlobStoreBlobProvider)) {
-            throw new NuxeoException("Invalid blob provider class: " + blobProvider.getClass().getName());
+            throw new RepositoryException("Invalid blob provider class: " + blobProvider.getClass().getName());
         }
         BlobStore blobStore = ((BlobStoreBlobProvider) blobProvider).getStore();
 
@@ -90,7 +90,7 @@ public class ComputeDigestHelper {
         try {
             newKey = blobStore.copyOrMoveBlob(digest, blobStore, key, false);
         } catch (IOException e) {
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
 
         // set blob key replacement so that concurrent transactions will use the new key
@@ -109,7 +109,7 @@ public class ComputeDigestHelper {
         blobStore = blobStore.unwrap(); // we want the low-level version, with no caching
         KeyStrategy keyStrategy = blobStore.getKeyStrategy();
         if (!(keyStrategy instanceof KeyStrategyDigest)) {
-            throw new NuxeoException("Invalid key strategy class: " + keyStrategy.getClass().getName());
+            throw new RepositoryException("Invalid key strategy class: " + keyStrategy.getClass().getName());
         }
         String digestAlgorithm = ((KeyStrategyDigest) keyStrategy).digestAlgorithm;
 
@@ -124,7 +124,7 @@ public class ComputeDigestHelper {
             }
             return new DigestUtils(digestAlgorithm).digestAsHex(tmp.toFile());
         } catch (IOException e) {
-            throw new NuxeoException("Failed to download blob", e);
+            throw new RepositoryException("Failed to download blob", e);
         } finally {
             if (tmp != null) {
                 try {

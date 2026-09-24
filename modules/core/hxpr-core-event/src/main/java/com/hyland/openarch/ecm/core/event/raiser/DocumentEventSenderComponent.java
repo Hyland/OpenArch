@@ -20,7 +20,7 @@ import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
 import com.hyland.openarch.ecm.core.api.DocumentNotFoundException;
 import com.hyland.openarch.ecm.core.api.IdRef;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.event.Event;
 import com.hyland.openarch.ecm.core.event.EventService;
 import com.hyland.openarch.ecm.core.event.impl.DocumentEventContext;
@@ -43,7 +43,7 @@ import static com.hyland.openarch.ecm.core.api.event.DocumentEventCategories.EVE
 public class DocumentEventSenderComponent extends DefaultComponent implements DocumentEventSenderService {
 
     @Override
-    public void sendDocumentEvents(String repositoryName, String eventName, Set<String> ids, NuxeoPrincipal principal,
+    public void sendDocumentEvents(String repositoryName, String eventName, Set<String> ids, RepositoryPrincipal principal,
             Map<String, Map<String, Serializable>> contextPropertiesById) {
         if (ids.isEmpty()) {
             return;

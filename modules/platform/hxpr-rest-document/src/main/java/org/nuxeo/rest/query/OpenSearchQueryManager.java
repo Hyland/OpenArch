@@ -44,6 +44,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Pattern;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.apache.commons.lang3.StringUtils;
 import com.hyland.openarch.common.utils.ExceptionUtils;
 import com.hyland.openarch.ecm.core.api.EmbeddingChunkTextFetcher;
@@ -51,7 +52,6 @@ import com.hyland.openarch.ecm.core.api.CoreInstance;
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModelList;
 import com.hyland.openarch.ecm.core.api.IdRef;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.ecm.core.api.repository.RepositoryManager;
 import com.hyland.openarch.ecm.core.query.nxql.SortInfo;
 import com.hyland.openarch.ecm.core.model.LocationModel;
@@ -133,7 +133,7 @@ public class OpenSearchQueryManager extends AbstractQueryManager {
                 SearchAfterToken token = SearchAfterToken.decode(spec.searchAfter());
                 nxQuery.searchAfter(token.sortValues());
                 log.debug("Using search_after pagination with sort values {} (fields: {})", token.sortValues(), token.sortFields());
-            } catch (NuxeoException e) {
+            } catch (RepositoryException e) {
                 log.warn("Invalid search_after token, falling back to offset pagination: {}", e.getMessage());
             }
         }
@@ -415,7 +415,7 @@ public class OpenSearchQueryManager extends AbstractQueryManager {
 
             SearchAfterToken token = SearchAfterToken.of(sortValues, sortFields);
             return token.encode();
-        } catch (NuxeoException e) {
+        } catch (RepositoryException e) {
             log.warn("Failed to extract search_after token: {}", e.getMessage(), e);
             return null;
         }

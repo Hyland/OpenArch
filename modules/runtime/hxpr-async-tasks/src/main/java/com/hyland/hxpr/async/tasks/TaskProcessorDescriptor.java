@@ -20,7 +20,7 @@ import com.hyland.openarch.common.xmap.annotation.XObject;
 import com.hyland.openarch.common.xmap.registry.XEnable;
 import com.hyland.openarch.common.xmap.registry.XRegistry;
 import com.hyland.openarch.common.xmap.registry.XRegistryId;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 
 @XObject("asyncTask")
 @XRegistry
@@ -80,7 +80,7 @@ public class TaskProcessorDescriptor {
         try {
             return extendsAsyncTaskExecutorClass.getDeclaredConstructor().newInstance();
         } catch (ReflectiveOperationException e) {
-            throw new NuxeoException(
+            throw new RepositoryException(
                     "Cannot create async task executor class of type " + extendsAsyncTaskExecutorClass.getName(), e);
         }
     }

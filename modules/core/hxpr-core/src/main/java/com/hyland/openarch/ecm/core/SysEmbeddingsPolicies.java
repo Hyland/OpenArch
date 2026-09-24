@@ -22,7 +22,7 @@ import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_EMBEDDINGS;
 import java.util.Collection;
 import java.util.List;
 
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.ecm.core.api.validation.DocumentValidationException;
 import com.hyland.openarch.ecm.core.api.validation.DocumentValidationReport;
 import com.hyland.openarch.ecm.core.model.InternalDocument;
@@ -62,7 +62,7 @@ public final class SysEmbeddingsPolicies {
             // If removing SysHasEmbeddings, ensure there are no SysEmbeddings children
             for (InternalDocument child : doc.getChildren()) {
                 if (isOfEmbeddingsType(child)) {
-                    throw new NuxeoException("Cannot remove SysHasEmbeddings: SysEmbeddings children exist",
+                    throw new RepositoryException("Cannot remove SysHasEmbeddings: SysEmbeddings children exist",
                             SC_CONFLICT);
                 }
             }
@@ -145,7 +145,7 @@ public final class SysEmbeddingsPolicies {
         if (hasValidEmbeddingsPrefix(embeddingDocName)) {
             return embeddingDocName.substring(EMBEDDINGS_NAME_PREFIX.length());
         } else {
-            throw new NuxeoException("Invalid embeddings document name: " + embeddingDocName);
+            throw new RepositoryException("Invalid embeddings document name: " + embeddingDocName);
         }
     }
 

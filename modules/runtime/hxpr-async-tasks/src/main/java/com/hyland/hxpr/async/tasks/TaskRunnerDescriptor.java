@@ -18,7 +18,7 @@ package com.hyland.hxpr.async.tasks;
 import com.hyland.openarch.common.xmap.annotation.XNode;
 import com.hyland.openarch.common.xmap.annotation.XObject;
 import com.hyland.openarch.common.xmap.registry.XRegistry;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 
 @XObject("runner")
 @XRegistry
@@ -31,7 +31,7 @@ public class TaskRunnerDescriptor {
         try {
             return runnerClass.getDeclaredConstructor().newInstance();
         } catch (ReflectiveOperationException e) {
-            throw new NuxeoException("Cannot create runner class of type " + runnerClass.getName(), e);
+            throw new RepositoryException("Cannot create runner class of type " + runnerClass.getName(), e);
         }
     }
 }

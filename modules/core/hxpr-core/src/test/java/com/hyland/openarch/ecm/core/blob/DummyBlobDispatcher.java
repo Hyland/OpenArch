@@ -22,7 +22,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import com.hyland.openarch.ecm.core.api.Blob;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.ecm.core.model.InternalDocument;
 
 /**
@@ -40,11 +40,11 @@ public class DummyBlobDispatcher implements BlobDispatcher {
     public void initialize(Map<String, String> properties) {
         String list = properties.get(PROVIDERS);
         if (StringUtils.isBlank(list)) {
-            throw new NuxeoException("empty providers");
+            throw new RepositoryException("empty providers");
         }
         String[] providers = list.split(" ");
         if (providers.length != 2) {
-            throw new NuxeoException("needs exactly 2 providers");
+            throw new RepositoryException("needs exactly 2 providers");
         }
         defaultProvider = providers[0];
         secondProvider = providers[1];
@@ -57,7 +57,7 @@ public class DummyBlobDispatcher implements BlobDispatcher {
 
     @Override
     public String getBlobProvider(String repositoryName) {
-        throw new NuxeoException("All blob keys should be prefixed in repository: " + repositoryName);
+        throw new RepositoryException("All blob keys should be prefixed in repository: " + repositoryName);
     }
 
     @Override

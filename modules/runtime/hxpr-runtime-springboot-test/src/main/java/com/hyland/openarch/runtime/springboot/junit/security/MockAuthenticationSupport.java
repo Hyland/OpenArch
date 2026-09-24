@@ -18,7 +18,7 @@ package com.hyland.openarch.runtime.springboot.junit.security;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.local.DummyLoginFeature;
 import com.hyland.openarch.ecm.core.api.local.WithUser;
 import org.nuxeo.ecm.platform.usermanager.UserManager;
@@ -84,7 +84,7 @@ public final class MockAuthenticationSupport {
                 && !DummyLoginFeature.TEST_ADMIN_USER_NAME.equals(withUser.value())) {
             UserManager userManager = Framework.getService(UserManager.class);
             if (userManager != null) {
-                List<NuxeoPrincipal> found = userManager.searchPrincipalsByName(withUser.value());
+                List<RepositoryPrincipal> found = userManager.searchPrincipalsByName(withUser.value());
                 if (!found.isEmpty()) {
                     return found.getFirst().getId();
                 }

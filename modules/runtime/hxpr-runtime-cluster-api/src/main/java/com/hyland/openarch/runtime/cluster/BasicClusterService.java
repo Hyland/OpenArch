@@ -18,10 +18,10 @@ package com.hyland.openarch.runtime.cluster;
 import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.hyland.openarch.common.xmap.registry.SingleRegistry;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.model.DefaultComponent;
 
@@ -60,7 +60,7 @@ public class BasicClusterService extends DefaultComponent implements ClusterServ
                 .getExtensionPointRegistry(COMPONENT_NAME, XP_CONFIG)
                 .orElseThrow(() -> new IllegalArgumentException("Unknown registry for extension point '%s--%s'".formatted(COMPONENT_NAME, XP_CONFIG)));
         Optional<ClusterNodeDescriptor> descriptor = registry.getContribution();
-        return descriptor.orElseThrow(() -> new NuxeoException("No Cluster Config has been defined"));
+        return descriptor.orElseThrow(() -> new RepositoryException("No Cluster Config has been defined"));
     }
 
     protected void setupFromContribution(ClusterNodeDescriptor descr) {

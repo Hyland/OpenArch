@@ -22,7 +22,7 @@ import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.query.QueryParameters;
 import com.hyland.openarch.ecm.core.model.InternalDocument;
 import com.hyland.openarch.ecm.core.query.sql.model.BooleanLiteral;
@@ -76,14 +76,14 @@ public class UserAttributeExpressionSecurityPolicy extends AbstractSecurityPolic
         return checkNoMixin(violations);
     }
 
-    private Object getUserAttributeSecurityExpression(NuxeoPrincipal principal) {
+    private Object getUserAttributeSecurityExpression(RepositoryPrincipal principal) {
         Map<String, Serializable> userAttributes = principal.getUserAttributes();
         return userAttributes != null ? userAttributes.get(SECURITY_EXPRESSION_ATTRIBUTE_NAME) : null;
     }
 
     @Override
-    public boolean hasPermission(InternalDocument doc, NuxeoPrincipal principal, Set<String> principals,
-            String permission, Set<String> permissions) {
+    public boolean hasPermission(InternalDocument doc, RepositoryPrincipal principal, Set<String> principals,
+                                 String permission, Set<String> permissions) {
         if (principal.isAdministrator()) {
             return true;
         }

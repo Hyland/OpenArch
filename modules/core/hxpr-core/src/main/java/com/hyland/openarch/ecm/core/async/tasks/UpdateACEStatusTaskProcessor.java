@@ -35,7 +35,7 @@ import com.hyland.openarch.ecm.core.api.DocumentModel;
 import com.hyland.openarch.ecm.core.api.DocumentRef;
 import com.hyland.openarch.ecm.core.api.IdRef;
 import com.hyland.openarch.ecm.core.api.IterableQueryResult;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.ecm.core.api.security.ACE;
 import com.hyland.openarch.ecm.core.api.security.ACL;
 import com.hyland.openarch.ecm.core.query.sql.model.FromClause;
@@ -126,7 +126,7 @@ public class UpdateACEStatusTaskProcessor implements TaskProcessor<RepositoryTas
             status.setState(COMPLETED);
             asyncTasksService.setStatus(status);
         } catch (Exception e) {
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         } finally {
             if (TransactionHelper.isTransactionActiveOrMarkedRollback()) {
                 if (!ok) {

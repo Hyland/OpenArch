@@ -26,6 +26,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BoundedInputStream;
 import org.apache.commons.io.output.StringBuilderWriter;
@@ -34,7 +35,6 @@ import com.hyland.openarch.ecm.core.api.Blob;
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
 import com.hyland.openarch.ecm.core.api.IdRef;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.ecm.core.api.repository.FulltextConfiguration;
 import com.hyland.openarch.ecm.core.model.Repository;
 import com.hyland.openarch.ecm.core.repository.RepositoryService;
@@ -58,7 +58,7 @@ public class FulltextExtractionSupport implements FulltextSupport {
             IOUtils.copyLarge(reader, writer, 0, sizeLimit);
             return writer.toString();
         } catch (IOException e) {
-            throw new NuxeoException("Could not read text from transform result " + url, e);
+            throw new RepositoryException("Could not read text from transform result " + url, e);
         }
     }
 

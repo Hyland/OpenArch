@@ -54,7 +54,7 @@ public abstract class UnrestrictedSessionRunner {
         } else {
             repositoryName = session.getRepositoryName();
         }
-        NuxeoPrincipal pal = session.getPrincipal();
+        RepositoryPrincipal pal = session.getPrincipal();
         if (pal != null) {
             originatingUserId = pal.getId();
         }
@@ -78,7 +78,7 @@ public abstract class UnrestrictedSessionRunner {
      * @param originatingUsername the user name behind the system user
      * @param originatingUserid the user id behind the system user
      */
-    protected UnrestrictedSessionRunner(String repositoryName, NuxeoPrincipal originatingPrincipal) {
+    protected UnrestrictedSessionRunner(String repositoryName, RepositoryPrincipal originatingPrincipal) {
         session = null;
         sessionIsAlreadyUnrestricted = false;
         this.repositoryName = repositoryName;
@@ -99,7 +99,7 @@ public abstract class UnrestrictedSessionRunner {
         isUnrestricted = true;
         try {
             if (sessionIsAlreadyUnrestricted) {
-                if (NuxeoPrincipal.isCurrentAdministrator()) {
+                if (RepositoryPrincipal.isCurrentAdministrator()) {
                     run();
                 } else {
                     // should be removed when login and session will be synchronized / NXP-27399

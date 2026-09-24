@@ -23,9 +23,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.ecm.core.storage.dbs.DBSHelper;
 import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.mongodb.MongoDBConnectionConfig;
@@ -116,7 +116,7 @@ public class StorageConfiguration {
             dbsHelper = (DBSHelper) Class.forName(className).getDeclaredConstructor().newInstance();
             dbsHelper.init();
         } catch (ReflectiveOperationException e) {
-            throw new NuxeoException("DBSHelperImpl not found: " + className, e);
+            throw new RepositoryException("DBSHelperImpl not found: " + className, e);
         }
     }
 
@@ -196,7 +196,7 @@ public class StorageConfiguration {
             bundleName = String.format("org.nuxeo.ecm.core.storage.%s.test", coreType);
             contribPath = "OSGI-INF/test-storage-repo-contrib.xml";
         } else {
-            throw new NuxeoException("Unkown DBS test configuration (not mem/mongodb)");
+            throw new RepositoryException("Unkown DBS test configuration (not mem/mongodb)");
         }
         RuntimeHarness harness = loader.getFeature(RuntimeFeature.class).getHarness();
         URL contribURL = harness.getOSGiAdapter().getBundleEntry(bundleName, contribPath);

@@ -35,7 +35,7 @@ import jakarta.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.impl.UserPrincipal;
 import com.hyland.openarch.ecm.core.api.security.UserVisiblePermission;
 import com.hyland.openarch.runtime.test.runner.Deploy;
@@ -100,7 +100,7 @@ public class TestSecurityService {
 
     @Test
     public void testGetPrincipalsToCheck() {
-        NuxeoPrincipal principal = new UserPrincipal("bob", List.of("vps", "males"), false);
+        RepositoryPrincipal principal = new UserPrincipal("bob", List.of("vps", "males"), false);
         Set<String> principals = service.expandPrincipal(principal);
         assertEquals(Set.of("u:bob", "g:vps", "g:males", EVERYONE), principals);
     }

@@ -17,7 +17,7 @@ package com.hyland.openarch.ecm.core.event.raiser;
 
 import org.junit.jupiter.api.Test;
 import com.hyland.openarch.ecm.core.api.CoreSession;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -31,7 +31,7 @@ class DocumentEventRaiserContextTest {
     @Test
     void constructorStoresAllFields() {
         CoreSession session = mock(CoreSession.class);
-        NuxeoPrincipal principal = mock(NuxeoPrincipal.class);
+        RepositoryPrincipal principal = mock(RepositoryPrincipal.class);
         Map<String, Map<String, Serializable>> props = Map.of("doc-1", Map.of("k", "v"));
         Map<String, Map<String, Serializable>> blobs = Map.of("doc-2", Map.of("b", "w"));
         Set<String> dirtyPropIds = Set.of("doc-1");

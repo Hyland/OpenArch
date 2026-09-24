@@ -46,6 +46,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import jakarta.inject.Inject;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -60,7 +61,6 @@ import com.hyland.openarch.ecm.core.api.DocumentModel;
 import com.hyland.openarch.ecm.core.api.DocumentModelList;
 import com.hyland.openarch.ecm.core.api.DocumentRef;
 import com.hyland.openarch.ecm.core.api.IdRef;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.ecm.core.api.PathRef;
 import com.hyland.openarch.ecm.core.api.model.DeltaLong;
 import com.hyland.openarch.ecm.core.api.model.PropertyNotFoundException;
@@ -287,7 +287,7 @@ public class TestSQLRepositoryProperties {
         executor.shutdown();
         executor.awaitTermination(5, TimeUnit.SECONDS);
         if (!exc.isEmpty()) {
-            NuxeoException e = new NuxeoException("Exceptions in threads");
+            RepositoryException e = new RepositoryException("Exceptions in threads");
             exc.forEach(e::addSuppressed);
             throw e;
         }
@@ -310,9 +310,9 @@ public class TestSQLRepositoryProperties {
                     barrier.await(5, TimeUnit.SECONDS);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
-                    throw new NuxeoException(e);
+                    throw new RepositoryException(e);
                 } catch (BrokenBarrierException | TimeoutException e) {
-                    throw new NuxeoException(e);
+                    throw new RepositoryException(e);
                 }
                 // add the value to the existing list
                 DocumentModel d = s.getDocument(ref);
@@ -345,7 +345,7 @@ public class TestSQLRepositoryProperties {
         executor.shutdown();
         executor.awaitTermination(5, TimeUnit.SECONDS);
         if (!exc.isEmpty()) {
-            NuxeoException e = new NuxeoException("Exceptions in threads");
+            RepositoryException e = new RepositoryException("Exceptions in threads");
             exc.forEach(e::addSuppressed);
             throw e;
         }
@@ -364,9 +364,9 @@ public class TestSQLRepositoryProperties {
                     barrier.await(5, TimeUnit.SECONDS);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
-                    throw new NuxeoException(e);
+                    throw new RepositoryException(e);
                 } catch (BrokenBarrierException | TimeoutException e) {
-                    throw new NuxeoException(e);
+                    throw new RepositoryException(e);
                 }
                 // remove the value from the existing list
                 DocumentModel d = s.getDocument(new PathRef("/doc"));
@@ -599,7 +599,7 @@ public class TestSQLRepositoryProperties {
         executor.shutdown();
         executor.awaitTermination(5, TimeUnit.SECONDS);
         if (!exc.isEmpty()) {
-            NuxeoException e = new NuxeoException("Exceptions in threads");
+            RepositoryException e = new RepositoryException("Exceptions in threads");
             exc.forEach(e::addSuppressed);
             throw e;
         }
@@ -626,9 +626,9 @@ public class TestSQLRepositoryProperties {
                     barrier.await(5, TimeUnit.SECONDS);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
-                    throw new NuxeoException(e);
+                    throw new RepositoryException(e);
                 } catch (BrokenBarrierException | TimeoutException e) {
-                    throw new NuxeoException(e);
+                    throw new RepositoryException(e);
                 }
                 // add the value to the existing list
                 DocumentModel d = s.getDocument(ref);

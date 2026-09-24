@@ -22,13 +22,13 @@ import static org.nuxeo.rest.utils.Versions.APP_HXCS_JSON_V1;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.apache.commons.lang3.StringUtils;
 import com.hyland.openarch.ecm.core.api.IdRef;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import org.nuxeo.rest.document.AbstractDocumentAPI;
 import org.nuxeo.rest.document.DocumentDTO;
 import org.nuxeo.rest.document.DocumentManager;
@@ -69,11 +69,11 @@ public class CopyAPI extends AbstractDocumentAPI {
         String targetParentId = copyRequestBody.targetParentId();
 
         if (StringUtils.isBlank(name)) {
-            throw new NuxeoException("Missing document name to copy document: name",
+            throw new RepositoryException("Missing document name to copy document: name",
                     BAD_REQUEST.value());
         }
         if (StringUtils.isBlank(targetParentId)) {
-            throw new NuxeoException("Missing destination folder id to copy document: targetParentId",
+            throw new RepositoryException("Missing destination folder id to copy document: targetParentId",
                     BAD_REQUEST.value());
         }
 

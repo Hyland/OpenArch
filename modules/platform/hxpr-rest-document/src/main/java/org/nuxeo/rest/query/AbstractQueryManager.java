@@ -22,12 +22,12 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 import java.util.List;
 import java.util.Objects;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.event.CoreEventConstants;
 import com.hyland.openarch.ecm.core.event.Event;
 import com.hyland.openarch.ecm.core.event.EventService;
@@ -93,7 +93,7 @@ public abstract class AbstractQueryManager implements QueryManager {
     protected void checkResultWindow(long limit, long offset) {
         long max = getQueryConfig().maxResultWindow();
         if (max > 0 && limit + offset > max) {
-            throw new NuxeoException(
+            throw new RepositoryException(
                     String.format("Error performing query: limit (%s) + offset (%s) should be <= %s (%s)", limit,
                             offset, max, limit + offset),
                     BAD_REQUEST.value());
@@ -120,7 +120,7 @@ public abstract class AbstractQueryManager implements QueryManager {
     protected NamedQueryDefinition getNamedQuery(String name) {
         NamedQueryDefinition def = namedQueryRegistry.getNamedQuery(name);
         if (def == null) {
-            throw new NuxeoException("No named query with name " + name, NOT_FOUND.value());
+            throw new RepositoryException("No named query with name " + name, NOT_FOUND.value());
         }
         return def;
     }
@@ -204,7 +204,7 @@ public abstract class AbstractQueryManager implements QueryManager {
 
     protected void fireDocumentQueriedEvent(CoreSession session, DocumentModel documentModel, String queryId) {
         Objects.requireNonNull(queryId);
-        NuxeoPrincipal principal = session.getPrincipal();
+        RepositoryPrincipal principal = session.getPrincipal();
         EventContextImpl ctx = new DocumentEventContext(session, principal, documentModel);
         ctx.setProperty(CoreEventConstants.REPOSITORY_NAME, session.getRepositoryName());
         ctx.setProperty(CoreEventConstants.RELATED_OBJECT, queryId);

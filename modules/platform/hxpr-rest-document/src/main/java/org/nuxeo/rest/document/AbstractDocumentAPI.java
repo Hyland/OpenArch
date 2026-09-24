@@ -21,6 +21,7 @@ import static org.nuxeo.rest.utils.QueryParameters.IF;
 import static org.nuxeo.rest.utils.QueryParameters.UPSERT;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.SchemaProperty;
@@ -32,7 +33,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.apache.commons.lang3.StringUtils;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.ecm.core.api.UpdateCondition;
 import org.nuxeo.rest.swagger.annotation.ApiResponse200;
 import org.nuxeo.rest.swagger.annotation.ApiResponse201;
@@ -75,7 +75,7 @@ public abstract class AbstractDocumentAPI {
         boolean hasHxql = StringUtils.isNotBlank(hxql);
         boolean hasExpr = StringUtils.isNotBlank(expr);
         if (hasHxql && hasExpr) {
-            throw new NuxeoException("Cannot use both " + CONDITION + " and " + IF + " parameters",
+            throw new RepositoryException("Cannot use both " + CONDITION + " and " + IF + " parameters",
                     BAD_REQUEST.value());
         }
         if (hasHxql) {
@@ -90,7 +90,7 @@ public abstract class AbstractDocumentAPI {
     /** A condition (optimistic concurrency) is not supported together with upsert; reject it rather than ignore it. */
     protected void rejectConditionWithUpsert(String hxql, String expr) {
         if (StringUtils.isNotBlank(hxql) || StringUtils.isNotBlank(expr)) {
-            throw new NuxeoException("Cannot use " + CONDITION + " or " + IF + " parameters with " + UPSERT,
+            throw new RepositoryException("Cannot use " + CONDITION + " or " + IF + " parameters with " + UPSERT,
                     HttpStatus.BAD_REQUEST.value());
         }
     }

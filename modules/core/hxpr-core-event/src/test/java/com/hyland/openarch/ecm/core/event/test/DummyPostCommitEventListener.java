@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.hyland.openarch.ecm.core.api.ConcurrentUpdateException;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.ecm.core.event.EventBundle;
 import com.hyland.openarch.ecm.core.event.PostCommitEventListener;
 
@@ -43,7 +43,7 @@ public class DummyPostCommitEventListener implements PostCommitEventListener {
         properties = events.peek().getContext().getProperties();
 
         if (properties.get("throw") != null) {
-            throw new NuxeoException("testing error case");
+            throw new RepositoryException("testing error case");
         }
         if (properties.get("sleep") != null) {
             try {

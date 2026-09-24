@@ -15,11 +15,10 @@
  */
 package org.nuxeo.rest.vocabulary.exception;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import jakarta.ws.rs.core.Response;
 
-import com.hyland.openarch.ecm.core.api.NuxeoException;
-
-public class VocabularyEntryValidationException extends NuxeoException {
+public class VocabularyEntryValidationException extends RepositoryException {
     public VocabularyEntryValidationException(String message) {
         super(message, Response.Status.BAD_REQUEST.getStatusCode());
     }

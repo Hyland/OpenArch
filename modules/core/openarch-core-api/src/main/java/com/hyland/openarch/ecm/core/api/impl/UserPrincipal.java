@@ -26,14 +26,14 @@ import java.util.Set;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 
 /**
- * NuxeoPrincipal stub implementation.
+ * RepositoryPrincipal stub implementation.
  *
  * @author <a href="mailto:bs@nuxeo.com">Bogdan Stefanescu</a>
  */
-public class UserPrincipal implements NuxeoPrincipal, Serializable {
+public class UserPrincipal implements RepositoryPrincipal, Serializable {
 
     private static final long serialVersionUID = 2013321088068583749L;
 

@@ -27,8 +27,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.hyland.openarch.ecm.core.api.NuxeoGroup;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryGroup;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.security.ACE;
 import com.hyland.openarch.ecm.core.api.security.SecurityConstants;
 import org.nuxeo.ecm.platform.usermanager.UserManager;
@@ -87,20 +87,20 @@ public class ACEMapper {
         }
 
         // Batch fetch users and groups
-        Map<String, NuxeoPrincipal> userMap = new HashMap<>();
-        Map<String, NuxeoGroup> groupMap = new HashMap<>();
+        Map<String, RepositoryPrincipal> userMap = new HashMap<>();
+        Map<String, RepositoryGroup> groupMap = new HashMap<>();
 
         if (!userIds.isEmpty()) {
-            List<NuxeoPrincipal> users = getUserManager().getPrincipals(new ArrayList<>(userIds));
+            List<RepositoryPrincipal> users = getUserManager().getPrincipals(new ArrayList<>(userIds));
             userMap = users.stream()
-                           .collect(Collectors.toMap(NuxeoPrincipal::getId, u -> u,
+                           .collect(Collectors.toMap(RepositoryPrincipal::getId, u -> u,
                                    (existing, replacement) -> existing));
         }
 
         if (!groupIds.isEmpty()) {
-            List<NuxeoGroup> groups = getUserManager().getGroups(new ArrayList<>(groupIds));
+            List<RepositoryGroup> groups = getUserManager().getGroups(new ArrayList<>(groupIds));
             groupMap = groups.stream()
-                             .collect(Collectors.toMap(NuxeoGroup::getId, g -> g,
+                             .collect(Collectors.toMap(RepositoryGroup::getId, g -> g,
                                      (existing, replacement) -> existing));
         }
 
@@ -124,13 +124,13 @@ public class ACEMapper {
         return result;
     }
 
-    private UserDTO getUserPrincipalFromMap(String principal, Map<String, NuxeoPrincipal> userMap) {
+    private UserDTO getUserPrincipalFromMap(String principal, Map<String, RepositoryPrincipal> userMap) {
         if (principal != null && principal.startsWith(USER_PREFIX) && isExternalPrincipal(principal)) {
             // External user principal - return directly without UserManager lookup
             return new UserDTO(getPrincipalWithoutPrefix(principal));
         }
         if (isPrincipalWithoutPrefix(principal)) {
-            NuxeoPrincipal userPrincipal = userMap.get(principal);
+            RepositoryPrincipal userPrincipal = userMap.get(principal);
             if (userPrincipal != null) {
                 return new UserDTO(userPrincipal);
             }
@@ -141,7 +141,7 @@ public class ACEMapper {
             if (userName == null) {
                 return null;
             }
-            NuxeoPrincipal userPrincipal = userMap.get(userName);
+            RepositoryPrincipal userPrincipal = userMap.get(userName);
             if (userPrincipal != null) {
                 return new UserDTO(userPrincipal);
             }
@@ -150,7 +150,7 @@ public class ACEMapper {
         return null;
     }
 
-    private GroupDTO getGroupPrincipalFromMap(String principal, Map<String, NuxeoGroup> groupMap) {
+    private GroupDTO getGroupPrincipalFromMap(String principal, Map<String, RepositoryGroup> groupMap) {
         if (principal != null && principal.startsWith(GROUP_PREFIX)) {
             String groupId = getPrincipalWithoutPrefix(principal);
             if (groupId == null) {
@@ -160,7 +160,7 @@ public class ACEMapper {
                 // External group principal - return directly without UserManager lookup
                 return new GroupDTO(groupId);
             }
-            NuxeoGroup group = groupMap.get(groupId);
+            RepositoryGroup group = groupMap.get(groupId);
             if (group != null) {
                 return new GroupDTO(group);
             }

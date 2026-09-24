@@ -32,7 +32,7 @@ import java.util.TreeSet;
 import com.hyland.openarch.ecm.core.SystemPropertyValues;
 import com.hyland.openarch.ecm.core.api.Blob;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.ecm.core.api.ValuesVisitor;
 import com.hyland.openarch.ecm.core.schema.types.Field;
 import com.hyland.openarch.ecm.core.schema.types.Type;
@@ -113,7 +113,7 @@ public class JsonOpenSearchDocumentWriter {
         try {
             doc.visitValues(new JsonGeneratorValuesVisitor(jg));
         } catch (ClassCastException e) {
-            throw new NuxeoException("writing JSON property failed on document: %s".formatted(doc), e);
+            throw new RepositoryException("writing JSON property failed on document: %s".formatted(doc), e);
         }
     }
 

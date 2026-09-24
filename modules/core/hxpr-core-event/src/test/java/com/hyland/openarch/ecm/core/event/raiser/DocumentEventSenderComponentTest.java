@@ -23,7 +23,7 @@ import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
 import com.hyland.openarch.ecm.core.api.DocumentNotFoundException;
 import com.hyland.openarch.ecm.core.api.IdRef;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.event.Event;
 import com.hyland.openarch.ecm.core.event.EventService;
 import com.hyland.openarch.ecm.core.event.impl.DocumentEventContext;
@@ -57,7 +57,7 @@ class DocumentEventSenderComponentTest {
         CoreSession session = mock(CoreSession.class);
         DocumentModel doc = mock(DocumentModel.class);
         when(session.getDocument(new IdRef("doc-1"))).thenReturn(doc);
-        NuxeoPrincipal principal = mock(NuxeoPrincipal.class);
+        RepositoryPrincipal principal = mock(RepositoryPrincipal.class);
 
         Map<String, Serializable> docProps = Map.of("key1", "value1");
         Map<String, Map<String, Serializable>> contextPropertiesById = Map.of("doc-1", docProps);

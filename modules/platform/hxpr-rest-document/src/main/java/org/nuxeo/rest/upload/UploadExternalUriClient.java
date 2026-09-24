@@ -31,10 +31,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import jakarta.ws.rs.core.Response;
 
 import org.apache.http.entity.ContentType;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.runtime.api.Framework;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +65,7 @@ public class UploadExternalUriClient {
     public HttpResponse<InputStream> downloadResourceFromURI(UriWithHeaders uriWithHeaders) {
         URI uri = uriWithHeaders.uri();
         if (!isValidURI(uri)) {
-            throw new NuxeoException("Invalid URI %s".formatted(uri), BAD_REQUEST.getStatusCode());
+            throw new RepositoryException("Invalid URI %s".formatted(uri), BAD_REQUEST.getStatusCode());
         }
         var headers = uriWithHeaders.headers();
         validateHeaders(headers);
@@ -75,17 +75,17 @@ public class UploadExternalUriClient {
             HttpRequest httpRequest = httpRequestBuilder.GET().build();
             HttpResponse<InputStream> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofInputStream());
             if (response == null || response.body() == null) {
-                throw new NuxeoException("Error during stream downloading of URI: %s".formatted(uri), BAD_REQUEST.getStatusCode());
+                throw new RepositoryException("Error during stream downloading of URI: %s".formatted(uri), BAD_REQUEST.getStatusCode());
             }
             if (response.statusCode() != Response.Status.OK.getStatusCode()) {
-                throw new NuxeoException("Stream download response code is: %s".formatted(response.statusCode()), BAD_REQUEST.getStatusCode());
+                throw new RepositoryException("Stream download response code is: %s".formatted(response.statusCode()), BAD_REQUEST.getStatusCode());
             }
             return response;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         } catch (IOException e) {
-            throw new NuxeoException("IOException occurred during stream download of URI: %s.  %s".formatted(uri, e.getMessage()));
+            throw new RepositoryException("IOException occurred during stream download of URI: %s.  %s".formatted(uri, e.getMessage()));
         }
     }
 
@@ -100,7 +100,7 @@ public class UploadExternalUriClient {
         List<String> headersAllowedList = getAllowedHeaders();
         for (String headerName : inputHeaders.keySet()) {
             if (!headersAllowedList.contains(headerName)) {
-                throw new NuxeoException("Request payload contains forbidden header: %s".formatted(headerName), BAD_REQUEST.getStatusCode());
+                throw new RepositoryException("Request payload contains forbidden header: %s".formatted(headerName), BAD_REQUEST.getStatusCode());
             }
         }
     }
@@ -124,7 +124,7 @@ public class UploadExternalUriClient {
     private ContentType getContentType(HttpHeaders headers) {
         Optional<String> headerContentType = headers.firstValue(CONTENT_TYPE);
         if (headerContentType.isEmpty()) {
-            throw new NuxeoException("Content-Type not found in response headers of stream download URI", BAD_REQUEST.getStatusCode());
+            throw new RepositoryException("Content-Type not found in response headers of stream download URI", BAD_REQUEST.getStatusCode());
         }
         return ContentType.parse(headerContentType.get());
     }

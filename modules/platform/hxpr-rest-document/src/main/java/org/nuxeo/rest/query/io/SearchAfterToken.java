@@ -18,7 +18,7 @@ package org.nuxeo.rest.query.io;
 import java.util.Base64;
 import java.util.List;
 
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -43,10 +43,10 @@ public record SearchAfterToken(
     @JsonCreator
     public SearchAfterToken {
         if (sortValues == null || sortFields == null) {
-            throw new NuxeoException("sortValues and sortFields must not be null");
+            throw new RepositoryException("sortValues and sortFields must not be null");
         }
         if (sortValues.size() != sortFields.size()) {
-            throw new NuxeoException(
+            throw new RepositoryException(
                     String.format("sortValues size (%d) must match sortFields size (%d)",
                             sortValues.size(), sortFields.size()));
         }
@@ -54,7 +54,7 @@ public record SearchAfterToken(
         for (Object value : sortValues) {
             if (value != null && !(value instanceof String) && !(value instanceof Number)
                     && !(value instanceof Boolean)) {
-                throw new NuxeoException(
+                throw new RepositoryException(
                         "sortValues must contain only scalar types (String, Number, Boolean, null), got: "
                                 + value.getClass().getSimpleName());
             }
@@ -71,7 +71,7 @@ public record SearchAfterToken(
             byte[] json = MAPPER.writeValueAsBytes(this);
             return Base64.getUrlEncoder().withoutPadding().encodeToString(json);
         } catch (JacksonException e) {
-            throw new NuxeoException("Failed to encode search_after token", e);
+            throw new RepositoryException("Failed to encode search_after token", e);
         }
     }
 
@@ -80,17 +80,17 @@ public record SearchAfterToken(
      *
      * @param encodedToken the encoded token string
      * @return the decoded SearchAfterToken
-     * @throws NuxeoException if the token is invalid or cannot be decoded
+     * @throws RepositoryException if the token is invalid or cannot be decoded
      */
     public static SearchAfterToken decode(String encodedToken) {
         if (encodedToken == null || encodedToken.isEmpty()) {
-            throw new NuxeoException("search_after token cannot be null or empty");
+            throw new RepositoryException("search_after token cannot be null or empty");
         }
         try {
             byte[] json = Base64.getUrlDecoder().decode(encodedToken);
             return MAPPER.readValue(json, SearchAfterToken.class);
         } catch (JacksonException | IllegalArgumentException e) {
-            throw new NuxeoException("Invalid search_after token: " + e.getMessage(), e);
+            throw new RepositoryException("Invalid search_after token: " + e.getMessage(), e);
         }
     }
 

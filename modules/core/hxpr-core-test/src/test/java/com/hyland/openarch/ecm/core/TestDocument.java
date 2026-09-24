@@ -52,7 +52,7 @@ import com.hyland.openarch.ecm.core.api.Blob;
 import com.hyland.openarch.ecm.core.api.Blobs;
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.Lock;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.PropertyException;
 import com.hyland.openarch.ecm.core.api.SystemPrincipal;
 import com.hyland.openarch.ecm.core.api.model.PropertyNotFoundException;
@@ -95,7 +95,7 @@ public class TestDocument {
 
     protected InternalSession session;
 
-    protected NuxeoPrincipal principal = new SystemPrincipal();
+    protected RepositoryPrincipal principal = new SystemPrincipal();
 
     @BeforeEach
     public void setUp() {

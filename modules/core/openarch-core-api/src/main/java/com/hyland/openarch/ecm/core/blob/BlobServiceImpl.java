@@ -23,12 +23,12 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.hyland.openarch.ecm.core.api.Blob;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.kv.KeyValueService;
 import com.hyland.openarch.runtime.kv.KeyValueStore;
@@ -164,7 +164,7 @@ public class BlobServiceImpl extends DefaultComponent implements BlobService {
         }
         // create and register a blob provider from the "default" configuration
         BlobProviderDescriptor defaultDescr = this.<BlobProviderDescriptor> getRegistryContribution(XP, defaultId)
-                                                  .orElseThrow(() -> new NuxeoException(
+                                                  .orElseThrow(() -> new RepositoryException(
                                                           "Missing configuration for blob provider: " + defaultId));
         // copy
         BlobProviderDescriptor descr = new BlobProviderDescriptor(defaultDescr);

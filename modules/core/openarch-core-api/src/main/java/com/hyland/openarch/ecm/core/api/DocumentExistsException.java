@@ -26,7 +26,7 @@ import static jakarta.servlet.http.HttpServletResponse.SC_CONFLICT;
  * @see CoreSession#removeDocuments
  * @see CoreSession#removeChildren
  */
-public class DocumentExistsException extends NuxeoException {
+public class DocumentExistsException extends RepositoryException {
 
     private static final long serialVersionUID = 1L;
 

@@ -74,7 +74,7 @@ public interface DocumentModel extends Serializable {
      * @return the principal
      * @since 11.1
      */
-    NuxeoPrincipal getPrincipal();
+    RepositoryPrincipal getPrincipal();
 
     /**
      * Gets the core session to which this document is tied.
@@ -531,7 +531,7 @@ public interface DocumentModel extends Serializable {
      * <ul>
      * <li>Indexes start at 0 instead of 1</li>
      * </ul>
-     * The latter is possible because in Nuxeo lists of complex elements are homogenous, so the name of the second-level
+     * The latter is possible because in OpenArch lists of complex elements are homogenous, so the name of the second-level
      * element is implied.
      */
     Object getPropertyValue(String xpath) throws PropertyException;

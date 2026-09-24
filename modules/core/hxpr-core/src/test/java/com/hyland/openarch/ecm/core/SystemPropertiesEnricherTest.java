@@ -34,7 +34,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import com.hyland.openarch.ecm.core.api.DocumentEnrichmentContext;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.model.InternalDocument;
 
 /**
@@ -50,7 +50,7 @@ public class SystemPropertiesEnricherTest {
     private DocumentEnrichmentContext context;
 
     @Mock
-    private NuxeoPrincipal principal;
+    private RepositoryPrincipal principal;
 
     @Mock
     private InternalDocument document;

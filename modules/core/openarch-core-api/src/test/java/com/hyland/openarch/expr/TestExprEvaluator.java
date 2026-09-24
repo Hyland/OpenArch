@@ -35,7 +35,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.impl.UserPrincipal;
 import com.hyland.openarch.ecm.core.model.InternalDocument;
 import com.hyland.openarch.ecm.core.query.sql.model.Operand;
@@ -59,13 +59,13 @@ public class TestExprEvaluator {
         return schemaManager;
     }
 
-    private static Operand evaluateOperand(String string, NuxeoPrincipal principal) {
+    private static Operand evaluateOperand(String string, RepositoryPrincipal principal) {
         Map<String, Object> context = ExprEvaluator.queryContext(principal);
         Expr expr = new ExpressionVisitor().parse(string);
         return new ExprEvaluator(context, SCHEMA_MANAGER).evaluateOperand(expr);
     }
 
-    private static Object evaluateValue(String string, NuxeoPrincipal principal, Map<String, Object> content) {
+    private static Object evaluateValue(String string, RepositoryPrincipal principal, Map<String, Object> content) {
         InternalDocument idoc = mock(InternalDocument.class);
         content.forEach((key, value) -> {
             // Mock sys properties via getPropertyValue, schema properties via getValue
@@ -85,13 +85,13 @@ public class TestExprEvaluator {
         check(user, expression, expectedOperand, expectedValue);
     }
 
-    private static void check(NuxeoPrincipal user, String expression, String expectedOperand, Object expectedValue) {
+    private static void check(RepositoryPrincipal user, String expression, String expectedOperand, Object expectedValue) {
         Map<String, Object> content = Map.of();
         check(user, content, expression, expectedOperand, expectedValue);
     }
 
-    private static void check(NuxeoPrincipal user, Map<String, Object> content, String expression,
-            String expectedOperand, Object expectedValue) {
+    private static void check(RepositoryPrincipal user, Map<String, Object> content, String expression,
+                              String expectedOperand, Object expectedValue) {
         // operand
         Operand operand = evaluateOperand(expression, user);
         assertEquals(expectedOperand, String.valueOf(operand));
@@ -123,7 +123,7 @@ public class TestExprEvaluator {
         assertEquals(expectedValue, evaluateValue(expression, user, Map.of()));
     }
 
-    private static void checkFailOperand(NuxeoPrincipal user, String expression, String expectedException) {
+    private static void checkFailOperand(RepositoryPrincipal user, String expression, String expectedException) {
         try {
             Operand operand = evaluateOperand(expression, user);
             fail("Should have failed to evaluate: " + expression + " but got: " + operand);
@@ -321,7 +321,7 @@ public class TestExprEvaluator {
 
     @Test
     public void testUser() {
-        NuxeoPrincipal user = new UserPrincipal("alice", List.of("auditors", "folks"), false);
+        RepositoryPrincipal user = new UserPrincipal("alice", List.of("auditors", "folks"), false);
         user.setProperties(Map.of("clearance", 10L, "int", 10, "float", 1.0F, "str", "10"));
 
         Map<String, Object> content = Map.of("my_groups", "auditors");
@@ -379,7 +379,7 @@ public class TestExprEvaluator {
 
     @Test
     public void testFailures() {
-        NuxeoPrincipal user = new UserPrincipal("alice", List.of(), false);
+        RepositoryPrincipal user = new UserPrincipal("alice", List.of(), false);
 
         checkFailOperand(user, "user.groups.contains()",
                 "Cannot use contains with no arguments: user.groups.contains()");

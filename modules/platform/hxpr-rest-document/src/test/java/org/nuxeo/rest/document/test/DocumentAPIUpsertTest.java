@@ -38,11 +38,11 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.junit.jupiter.api.Test;
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
 import com.hyland.openarch.ecm.core.api.IdRef;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.ecm.core.api.PathRef;
 import org.nuxeo.rest.document.DocumentAPI;
 import org.nuxeo.rest.document.DocumentDTO;
@@ -271,7 +271,7 @@ public class DocumentAPIUpsertTest extends AbstractAPITest {
         DocumentDTO dto = new DocumentDTO();
         dto.setPrimaryType("SysFile");
         var rootRef = new PathRef("/");
-        NuxeoException e = assertThrows(NuxeoException.class,
+        RepositoryException e = assertThrows(RepositoryException.class,
                 () -> documentManager.upsertDocument(REPO_ID, rootRef, dto, false));
         assertEquals(BAD_REQUEST.getStatusCode(), e.getStatusCode());
     }
@@ -282,7 +282,7 @@ public class DocumentAPIUpsertTest extends AbstractAPITest {
         DocumentDTO dto = new DocumentDTO();
         dto.setPrimaryType("SysFile");
         var rootRef = new IdRef(ROOT_ID);
-        NuxeoException e = assertThrows(NuxeoException.class,
+        RepositoryException e = assertThrows(RepositoryException.class,
                 () -> documentManager.upsertDocument(REPO_ID, rootRef, dto, true));
         assertEquals(BAD_REQUEST.getStatusCode(), e.getStatusCode());
     }

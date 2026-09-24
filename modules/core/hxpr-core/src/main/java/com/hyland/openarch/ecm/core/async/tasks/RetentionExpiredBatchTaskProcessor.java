@@ -22,7 +22,7 @@ import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
 import com.hyland.openarch.ecm.core.api.DocumentRef;
 import com.hyland.openarch.ecm.core.api.IdRef;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.ecm.core.api.PropertyException;
 import com.hyland.openarch.ecm.core.api.event.CoreEventConstants;
 import com.hyland.openarch.ecm.core.api.event.DocumentEventCategories;
@@ -77,7 +77,7 @@ public class RetentionExpiredBatchTaskProcessor extends AbstractBatchTaskProcess
                 session.setRetainUntil(ref, null);
                 // send event about retention expired
                 sendEvent(session, ref, retainUntil);
-            } catch (NuxeoException e) {
+            } catch (RepositoryException e) {
                 // TODO send to error stream
                 log.warn("Cannot reset retention on: {}", ref, e);
             }

@@ -37,7 +37,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.ecm.core.api.impl.blob.StringBlob;
 import org.nuxeo.opensearch.api.OpenSearchService;
 import org.nuxeo.opensearch.client.OpenSearchRestClient;
@@ -225,7 +225,7 @@ class OpenSearchComponentTest {
 
         // update the index with opensearch static settings
         String staticSettingsJson = "{\"settings\":{\"index\":{\"number_of_shards\":6}}}";
-        assertThatExceptionOfType(NuxeoException.class).isThrownBy(
+        assertThatExceptionOfType(RepositoryException.class).isThrownBy(
                                                                () -> client.updateIndexDynamicSettings(indexRepo, staticSettingsJson))
                                                        .withMessageContaining("Fail to update index settings");
     }

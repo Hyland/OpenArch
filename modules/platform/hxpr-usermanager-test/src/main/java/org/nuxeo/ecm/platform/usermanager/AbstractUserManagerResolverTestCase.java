@@ -33,8 +33,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
-import com.hyland.openarch.ecm.core.api.NuxeoGroup;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryGroup;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.validation.DocumentValidationService;
 import com.hyland.openarch.ecm.core.schema.types.resolver.ObjectResolver;
 import com.hyland.openarch.ecm.core.test.CoreFeature;
@@ -99,8 +99,8 @@ public abstract class AbstractUserManagerResolverTestCase extends RuntimeSpringB
     public void defaultSupportedClasses() {
         List<Class<?>> classes = new UserManagerResolver().getManagedClasses();
         assertEquals(2, classes.size());
-        assertTrue(classes.contains(NuxeoPrincipal.class));
-        assertTrue(classes.contains(NuxeoGroup.class));
+        assertTrue(classes.contains(RepositoryPrincipal.class));
+        assertTrue(classes.contains(RepositoryGroup.class));
     }
 
     @Test
@@ -110,8 +110,8 @@ public abstract class AbstractUserManagerResolverTestCase extends RuntimeSpringB
         umr.configure(parameters);
         List<Class<?>> classes = umr.getManagedClasses();
         assertEquals(2, classes.size());
-        assertTrue(classes.contains(NuxeoPrincipal.class));
-        assertTrue(classes.contains(NuxeoGroup.class));
+        assertTrue(classes.contains(RepositoryPrincipal.class));
+        assertTrue(classes.contains(RepositoryGroup.class));
     }
 
     @Test
@@ -122,7 +122,7 @@ public abstract class AbstractUserManagerResolverTestCase extends RuntimeSpringB
         umr.configure(parameters);
         List<Class<?>> classes = umr.getManagedClasses();
         assertEquals(1, classes.size());
-        assertTrue(classes.contains(NuxeoPrincipal.class));
+        assertTrue(classes.contains(RepositoryPrincipal.class));
     }
 
     @Test
@@ -133,7 +133,7 @@ public abstract class AbstractUserManagerResolverTestCase extends RuntimeSpringB
         umr.configure(parameters);
         List<Class<?>> classes = umr.getManagedClasses();
         assertEquals(1, classes.size());
-        assertTrue(classes.contains(NuxeoGroup.class));
+        assertTrue(classes.contains(RepositoryGroup.class));
     }
 
     @Test
@@ -144,7 +144,7 @@ public abstract class AbstractUserManagerResolverTestCase extends RuntimeSpringB
     @Test
     public void testLifecycleNoConfigurationFetchCast() {
         assertThrows(IllegalStateException.class,
-                () -> new UserManagerResolver().fetch(NuxeoPrincipal.class, "usr:Administrator"));
+                () -> new UserManagerResolver().fetch(RepositoryPrincipal.class, "usr:Administrator"));
     }
 
     @Test
@@ -277,8 +277,8 @@ public abstract class AbstractUserManagerResolverTestCase extends RuntimeSpringB
         UserManagerResolver umr = new UserManagerResolver();
         umr.configure(new HashMap<>());
         Object entity = umr.fetch(PREFIXED_ADMIN);
-        assertTrue(entity instanceof NuxeoPrincipal);
-        assertEquals(ADMIN_USER, ((NuxeoPrincipal) entity).getId());
+        assertTrue(entity instanceof RepositoryPrincipal);
+        assertEquals(ADMIN_USER, ((RepositoryPrincipal) entity).getId());
     }
 
     @Test
@@ -288,8 +288,8 @@ public abstract class AbstractUserManagerResolverTestCase extends RuntimeSpringB
         parameters.put(UserManagerResolver.INPUT_PARAM_FILTER, UserManagerResolver.FILTER_USER);
         umr.configure(parameters);
         Object entity = umr.fetch(PREFIXED_ADMIN);
-        assertTrue(entity instanceof NuxeoPrincipal);
-        assertEquals(ADMIN_USER, ((NuxeoPrincipal) entity).getId());
+        assertTrue(entity instanceof RepositoryPrincipal);
+        assertEquals(ADMIN_USER, ((RepositoryPrincipal) entity).getId());
     }
 
     @Test
@@ -320,8 +320,8 @@ public abstract class AbstractUserManagerResolverTestCase extends RuntimeSpringB
         UserManagerResolver umr = new UserManagerResolver();
         umr.configure(new HashMap<>());
         Object entity = umr.fetch(PREFIXED_MEMBERS_GROUP);
-        assertTrue(entity instanceof NuxeoGroup);
-        assertEquals(MEMBERS_GROUP, ((NuxeoGroup) entity).getId());
+        assertTrue(entity instanceof RepositoryGroup);
+        assertEquals(MEMBERS_GROUP, ((RepositoryGroup) entity).getId());
     }
 
     @Test
@@ -331,8 +331,8 @@ public abstract class AbstractUserManagerResolverTestCase extends RuntimeSpringB
         parameters.put(UserManagerResolver.INPUT_PARAM_FILTER, UserManagerResolver.FILTER_GROUP);
         umr.configure(parameters);
         Object entity = umr.fetch(PREFIXED_MEMBERS_GROUP);
-        assertTrue(entity instanceof NuxeoGroup);
-        assertEquals(MEMBERS_GROUP, ((NuxeoGroup) entity).getId());
+        assertTrue(entity instanceof RepositoryGroup);
+        assertEquals(MEMBERS_GROUP, ((RepositoryGroup) entity).getId());
     }
 
     @Test
@@ -362,24 +362,24 @@ public abstract class AbstractUserManagerResolverTestCase extends RuntimeSpringB
     public void testFetchCastNuxeoPrincipal() {
         UserManagerResolver umr = new UserManagerResolver();
         umr.configure(new HashMap<>());
-        NuxeoPrincipal principal = umr.fetch(NuxeoPrincipal.class, PREFIXED_ADMIN);
+        RepositoryPrincipal principal = umr.fetch(RepositoryPrincipal.class, PREFIXED_ADMIN);
         assertNotNull(principal);
         assertEquals(ADMIN_USER, principal.getId());
-        assertNotNull(umr.fetch(NuxeoPrincipal.class, ADMIN_USER));
-        assertNull(umr.fetch(NuxeoPrincipal.class, "user:toto"));
-        assertNull(umr.fetch(NuxeoPrincipal.class, PREFIXED_MEMBERS_GROUP));
+        assertNotNull(umr.fetch(RepositoryPrincipal.class, ADMIN_USER));
+        assertNull(umr.fetch(RepositoryPrincipal.class, "user:toto"));
+        assertNull(umr.fetch(RepositoryPrincipal.class, PREFIXED_MEMBERS_GROUP));
     }
 
     @Test
     public void testFetchCastNuxeoGroup() {
         UserManagerResolver umr = new UserManagerResolver();
         umr.configure(new HashMap<>());
-        NuxeoGroup group = umr.fetch(NuxeoGroup.class, PREFIXED_MEMBERS_GROUP);
+        RepositoryGroup group = umr.fetch(RepositoryGroup.class, PREFIXED_MEMBERS_GROUP);
         assertNotNull(group);
         assertEquals(MEMBERS_GROUP, group.getId());
-        assertNotNull(umr.fetch(NuxeoGroup.class, MEMBERS_GROUP));
-        assertNull(umr.fetch(NuxeoGroup.class, "group:toto"));
-        assertNull(umr.fetch(NuxeoGroup.class, PREFIXED_ADMIN));
+        assertNotNull(umr.fetch(RepositoryGroup.class, MEMBERS_GROUP));
+        assertNull(umr.fetch(RepositoryGroup.class, "group:toto"));
+        assertNull(umr.fetch(RepositoryGroup.class, PREFIXED_ADMIN));
     }
 
     @Test
@@ -400,7 +400,7 @@ public abstract class AbstractUserManagerResolverTestCase extends RuntimeSpringB
     public void testGetReferenceUser() {
         UserManagerResolver umr = new UserManagerResolver();
         umr.configure(new HashMap<>());
-        NuxeoPrincipal principal = userManager.getPrincipal(ADMIN_USER);
+        RepositoryPrincipal principal = userManager.getPrincipal(ADMIN_USER);
         assertEquals(PREFIXED_ADMIN, umr.getReference(principal));
     }
 
@@ -408,7 +408,7 @@ public abstract class AbstractUserManagerResolverTestCase extends RuntimeSpringB
     public void testGetReferenceGroup() {
         UserManagerResolver umr = new UserManagerResolver();
         umr.configure(new HashMap<>());
-        NuxeoGroup group = userManager.getGroup(MEMBERS_GROUP);
+        RepositoryGroup group = userManager.getGroup(MEMBERS_GROUP);
         assertEquals(PREFIXED_MEMBERS_GROUP, umr.getReference(group));
     }
 
@@ -416,7 +416,7 @@ public abstract class AbstractUserManagerResolverTestCase extends RuntimeSpringB
     public void testGetReferenceWithNonExistingUserWorks() {
         UserManagerResolver umr = new UserManagerResolver();
         umr.configure(new HashMap<>());
-        NuxeoPrincipal principal = new NuxeoPrincipalImpl("chaps");
+        RepositoryPrincipal principal = new RepositoryPrincipalImpl("chaps");
         assertEquals("user:chaps", umr.getReference(principal));
     }
 
@@ -424,7 +424,7 @@ public abstract class AbstractUserManagerResolverTestCase extends RuntimeSpringB
     public void testGetReferenceWithNonExistingGroupWorks() {
         UserManagerResolver umr = new UserManagerResolver();
         umr.configure(new HashMap<>());
-        NuxeoGroup group = new NuxeoGroupImpl("chapsId", "chaps");
+        RepositoryGroup group = new RepositoryGroupImpl("chapsId", "chaps");
         assertEquals("group:chapsId", umr.getReference(group));
     }
 
@@ -498,10 +498,10 @@ public abstract class AbstractUserManagerResolverTestCase extends RuntimeSpringB
     @Test
     public void testUserCorrectValues() {
         doc.setPropertyValue(USER_XPATH, PREFIXED_ADMIN);
-        NuxeoPrincipal principal = (NuxeoPrincipal) doc.getObjectResolver(USER_XPATH).fetch();
+        RepositoryPrincipal principal = (RepositoryPrincipal) doc.getObjectResolver(USER_XPATH).fetch();
         assertNotNull(principal);
         assertEquals(ADMIN_USER, principal.getId());
-        principal = doc.getObjectResolver(USER_XPATH).fetch(NuxeoPrincipal.class);
+        principal = doc.getObjectResolver(USER_XPATH).fetch(RepositoryPrincipal.class);
         assertNotNull(principal);
         assertEquals(ADMIN_USER, principal.getId());
     }
@@ -527,10 +527,10 @@ public abstract class AbstractUserManagerResolverTestCase extends RuntimeSpringB
     @Test
     public void testGroupCorrectValues() {
         doc.setPropertyValue(GROUP_XPATH, PREFIXED_MEMBERS_GROUP);
-        NuxeoGroup group = (NuxeoGroup) doc.getObjectResolver(GROUP_XPATH).fetch();
+        RepositoryGroup group = (RepositoryGroup) doc.getObjectResolver(GROUP_XPATH).fetch();
         assertNotNull(group);
         assertEquals(MEMBERS_GROUP, group.getId());
-        group = doc.getObjectResolver(GROUP_XPATH).fetch(NuxeoGroup.class);
+        group = doc.getObjectResolver(GROUP_XPATH).fetch(RepositoryGroup.class);
         assertNotNull(group);
         assertEquals(MEMBERS_GROUP, group.getId());
     }

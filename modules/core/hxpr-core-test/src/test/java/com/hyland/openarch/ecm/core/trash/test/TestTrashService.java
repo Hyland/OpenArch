@@ -37,7 +37,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
 import com.hyland.openarch.ecm.core.api.IdRef;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.security.ACE;
 import com.hyland.openarch.ecm.core.api.security.ACL;
 import com.hyland.openarch.ecm.core.api.trash.TrashService;
@@ -77,7 +77,7 @@ public class TestTrashService {
 
     protected DocumentModel doc3;
 
-    protected NuxeoPrincipal principal;
+    protected RepositoryPrincipal principal;
 
     @BeforeEach
     public void setUp() {

@@ -17,8 +17,8 @@ package org.nuxeo.ecm.platform.login.filestore;
 
 import java.util.List;
 
-import com.hyland.openarch.ecm.core.api.NuxeoGroup;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryGroup;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import org.nuxeo.ecm.platform.login.filestore.store.UserStore;
 import org.nuxeo.ecm.platform.usermanager.UserManager;
 import org.nuxeo.ecm.platform.usermanager.UserManagerDescriptor;
@@ -61,13 +61,13 @@ public class UserManagerFileStore implements UserManager {
     }
 
     @Override
-    public NuxeoPrincipal getPrincipal(String userid) {
+    public RepositoryPrincipal getPrincipal(String userid) {
         if (userid == null || userid.isBlank()) {
             return null;
         }
         UserStore store = getLoader().getStore();
         // Primary lookup by UUID
-        NuxeoPrincipal principal = store.findById(userid);
+        RepositoryPrincipal principal = store.findById(userid);
         if (principal != null) {
             return principal;
         }
@@ -77,7 +77,7 @@ public class UserManagerFileStore implements UserManager {
     }
 
     @Override
-    public List<NuxeoPrincipal> getPrincipals(List<String> userIds) {
+    public List<RepositoryPrincipal> getPrincipals(List<String> userIds) {
         UserStore store = getLoader().getStore();
         return userIds.stream()
                       .filter(id -> id != null && !id.isBlank())
@@ -87,17 +87,17 @@ public class UserManagerFileStore implements UserManager {
     }
 
     @Override
-    public List<NuxeoPrincipal> searchPrincipalsByName(String name) {
+    public List<RepositoryPrincipal> searchPrincipalsByName(String name) {
         return getLoader().getStore().searchPrincipalsByName(name);
     }
 
     @Override
-    public NuxeoGroup getGroup(String groupId) {
+    public RepositoryGroup getGroup(String groupId) {
         return getLoader().getStore().findGroupById(groupId);
     }
 
     @Override
-    public List<NuxeoGroup> getGroups(List<String> groupIds) {
+    public List<RepositoryGroup> getGroups(List<String> groupIds) {
         UserStore store = getLoader().getStore();
         return groupIds.stream()
                        .filter(id -> id != null && !id.isBlank())
@@ -107,7 +107,7 @@ public class UserManagerFileStore implements UserManager {
     }
 
     @Override
-    public List<NuxeoGroup> searchGroupsByName(String groupName) {
+    public List<RepositoryGroup> searchGroupsByName(String groupName) {
         return getLoader().getStore().searchGroupsByName(groupName);
     }
 

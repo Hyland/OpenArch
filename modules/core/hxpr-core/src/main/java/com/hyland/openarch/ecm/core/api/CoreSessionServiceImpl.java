@@ -28,7 +28,7 @@ import com.hyland.openarch.runtime.model.DefaultComponent;
 public class CoreSessionServiceImpl extends DefaultComponent implements CoreSessionService {
 
     @Override
-    public CoreSession createCoreSession(String repositoryName, NuxeoPrincipal principal) {
+    public CoreSession createCoreSession(String repositoryName, RepositoryPrincipal principal) {
         return new SessionImpl(repositoryName, principal);
     }
 

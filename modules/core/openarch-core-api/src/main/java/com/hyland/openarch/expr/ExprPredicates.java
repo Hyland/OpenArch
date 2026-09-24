@@ -17,7 +17,7 @@ package com.hyland.openarch.expr;
 
 import java.util.Map;
 
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.query.QueryParseException;
 import com.hyland.openarch.ecm.core.query.sql.model.BooleanLiteral;
 import com.hyland.openarch.ecm.core.query.sql.model.Operand;
@@ -53,7 +53,7 @@ public class ExprPredicates {
      * @return the operand
      * @throws QueryParseException if the expression is invalid
      */
-    public static Operand toOperand(String expr, NuxeoPrincipal principal, SchemaManager schemaManager) {
+    public static Operand toOperand(String expr, RepositoryPrincipal principal, SchemaManager schemaManager) {
         try {
             Expr parsed = new ExpressionVisitor().parse(expr);
             Map<String, Object> context = ExprEvaluator.queryContext(principal);
@@ -79,7 +79,7 @@ public class ExprPredicates {
      * @return the predicate, or {@code null} if the expression filters nothing out
      * @throws QueryParseException if the expression is invalid or is not a predicate
      */
-    public static Predicate toPredicate(String expr, NuxeoPrincipal principal, SchemaManager schemaManager) {
+    public static Predicate toPredicate(String expr, RepositoryPrincipal principal, SchemaManager schemaManager) {
         Operand operand = toOperand(expr, principal, schemaManager);
         return switch (operand) {
             case Predicate predicate -> predicate;

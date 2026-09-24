@@ -29,20 +29,20 @@ import com.hyland.openarch.ecm.core.model.InternalDocument;
  */
 public class DocumentEnrichmentContext {
 
-    private final NuxeoPrincipal principal;
+    private final RepositoryPrincipal principal;
 
     private final Instant timestamp;
 
     private final InternalDocument document;
 
-    public DocumentEnrichmentContext(NuxeoPrincipal principal, Instant timestamp, InternalDocument document) {
+    public DocumentEnrichmentContext(RepositoryPrincipal principal, Instant timestamp, InternalDocument document) {
         this.principal = principal;
         this.timestamp = timestamp;
         this.document = document;
     }
 
     /** @return the principal performing the create/update, may be {@code null} */
-    public NuxeoPrincipal getPrincipal() {
+    public RepositoryPrincipal getPrincipal() {
         return principal;
     }
 

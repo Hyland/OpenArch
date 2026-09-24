@@ -29,7 +29,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 
 /**
  * Abstract implementation for {@link BlobProvider} providing common logic.
@@ -100,7 +100,7 @@ public abstract class AbstractBlobProvider implements BlobProvider {
 
     @Override
     public boolean hasCreateFromKeyPermission() {
-        NuxeoPrincipal principal = NuxeoPrincipal.getCurrent();
+        RepositoryPrincipal principal = RepositoryPrincipal.getCurrent();
         if (principal == null) {
             return false;
         }

@@ -45,7 +45,7 @@ import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
 import com.hyland.openarch.ecm.core.api.DocumentRef;
 import com.hyland.openarch.ecm.core.api.DocumentSecurityException;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.PathRef;
 import com.hyland.openarch.ecm.core.api.impl.UserPrincipal;
 import com.hyland.openarch.ecm.core.api.security.ACE;
@@ -114,7 +114,7 @@ public class TestSecurityPoliciesProperty {
             acl.add(ACE.builder().user(userId).permission(permission).build());
         }
         session.getDocument(new PathRef("/")).setACL(acl, false);
-        NuxeoPrincipal principal = new UserPrincipal(userId);
+        RepositoryPrincipal principal = new UserPrincipal(userId);
         return CoreInstance.getCoreSession(REPOSITORY, principal);
     }
 

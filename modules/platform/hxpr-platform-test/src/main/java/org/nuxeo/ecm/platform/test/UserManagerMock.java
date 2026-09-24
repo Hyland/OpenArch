@@ -23,10 +23,10 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
-import com.hyland.openarch.ecm.core.api.NuxeoGroup;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
-import org.nuxeo.ecm.platform.usermanager.NuxeoGroupImpl;
-import org.nuxeo.ecm.platform.usermanager.NuxeoPrincipalImpl;
+import com.hyland.openarch.ecm.core.api.RepositoryGroup;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
+import org.nuxeo.ecm.platform.usermanager.RepositoryGroupImpl;
+import org.nuxeo.ecm.platform.usermanager.RepositoryPrincipalImpl;
 import org.nuxeo.ecm.platform.usermanager.UserManager;
 import org.nuxeo.ecm.platform.usermanager.UserManagerDescriptor;
 
@@ -62,8 +62,8 @@ public class UserManagerMock implements UserManager {
     public static final String ALT_USER_NAME = "jchan";
 
     // LinkedHashMap: insertion order is stable so any test that iterates values gets a predictable sequence
-    private final Map<String, NuxeoPrincipalImpl> users = new LinkedHashMap<>();
-    private final Map<String, NuxeoGroupImpl> groups = new LinkedHashMap<>();
+    private final Map<String, RepositoryPrincipalImpl> users = new LinkedHashMap<>();
+    private final Map<String, RepositoryGroupImpl> groups = new LinkedHashMap<>();
 
     public UserManagerMock() {
         addUser(TEST_USER_ID, "Test", "User", "test.user@hyland.com", null);
@@ -86,7 +86,7 @@ public class UserManagerMock implements UserManager {
     }
 
     private void addUser(String id, String firstName, String lastName, String email, String username) {
-        NuxeoPrincipalImpl p = new NuxeoPrincipalImpl(id);
+        RepositoryPrincipalImpl p = new RepositoryPrincipalImpl(id);
         p.setFirstName(firstName);
         p.setLastName(lastName);
         p.setEmail(email);
@@ -97,16 +97,16 @@ public class UserManagerMock implements UserManager {
     }
 
     private void addGroup(String id, String name) {
-        groups.put(id, new NuxeoGroupImpl(id, name));
+        groups.put(id, new RepositoryGroupImpl(id, name));
     }
 
     @Override
-    public NuxeoPrincipal getPrincipal(String userid) {
+    public RepositoryPrincipal getPrincipal(String userid) {
         return users.get(userid);
     }
 
     @Override
-    public List<NuxeoPrincipal> getPrincipals(List<String> userIds) {
+    public List<RepositoryPrincipal> getPrincipals(List<String> userIds) {
         return userIds.stream()
                       .filter(users::containsKey)
                       .map(users::get)
@@ -119,7 +119,7 @@ public class UserManagerMock implements UserManager {
      * match still appears only once.
      */
     @Override
-    public List<NuxeoPrincipal> searchPrincipalsByName(String name) {
+    public List<RepositoryPrincipal> searchPrincipalsByName(String name) {
         if (StringUtils.isBlank(name)) {
             return new ArrayList<>(users.values());
         }
@@ -132,12 +132,12 @@ public class UserManagerMock implements UserManager {
     }
 
     @Override
-    public NuxeoGroup getGroup(String groupId) {
+    public RepositoryGroup getGroup(String groupId) {
         return groups.get(groupId);
     }
 
     @Override
-    public List<NuxeoGroup> getGroups(List<String> groupIds) {
+    public List<RepositoryGroup> getGroups(List<String> groupIds) {
         return groupIds.stream()
                        .filter(groups::containsKey)
                        .map(groups::get)
@@ -145,7 +145,7 @@ public class UserManagerMock implements UserManager {
     }
 
     @Override
-    public List<NuxeoGroup> searchGroupsByName(String groupName) {
+    public List<RepositoryGroup> searchGroupsByName(String groupName) {
         if (StringUtils.isBlank(groupName)) {
             return new ArrayList<>(groups.values());
         }

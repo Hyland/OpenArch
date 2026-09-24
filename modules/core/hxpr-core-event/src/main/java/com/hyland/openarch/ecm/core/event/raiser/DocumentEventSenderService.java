@@ -15,7 +15,7 @@
  */
 package com.hyland.openarch.ecm.core.event.raiser;
 
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -39,6 +39,6 @@ public interface DocumentEventSenderService {
      * @param principal the principal to associate with the event
      * @param contextPropertiesById optional per-document context properties, keyed by document id
      */
-    void sendDocumentEvents(String repositoryName, String eventName, Set<String> ids, NuxeoPrincipal principal,
+    void sendDocumentEvents(String repositoryName, String eventName, Set<String> ids, RepositoryPrincipal principal,
             Map<String, Map<String, Serializable>> contextPropertiesById);
 }

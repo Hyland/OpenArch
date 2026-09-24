@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.security.Principal;
 
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -51,7 +51,7 @@ public class NuxeoLoginTestEndpoint {
 
     private void assertPrincipal(Principal user) {
         if (user != null) {
-            assertEquals(user.getName(), NuxeoPrincipal.getCurrent().getId());
+            assertEquals(user.getName(), RepositoryPrincipal.getCurrent().getId());
         }
     }
 }

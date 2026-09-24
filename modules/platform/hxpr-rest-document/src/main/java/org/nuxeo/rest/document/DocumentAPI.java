@@ -38,7 +38,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 import com.hyland.openarch.ecm.core.api.IdRef;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.ecm.core.api.PathRef;
 import com.hyland.openarch.ecm.core.api.PathRefUtils;
 import org.nuxeo.rest.swagger.annotation.ApiResponse200;
@@ -201,7 +201,7 @@ public class DocumentAPI extends AbstractDocumentAPI {
             String parentPath = StringUtils.substringBeforeLast(path, "/");
             String name = StringUtils.substringAfterLast(path, "/");
             if (StringUtils.isBlank(name)) {
-                throw new NuxeoException("A document name is required in the path for upsert.",
+                throw new RepositoryException("A document name is required in the path for upsert.",
                         HttpStatus.BAD_REQUEST.value());
             }
             doc.setName(name);

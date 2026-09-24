@@ -29,10 +29,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.runtime.api.Framework;
 
-public class NuxeoPrincipalImpl implements NuxeoPrincipal {
+public class RepositoryPrincipalImpl implements RepositoryPrincipal {
 
     private static final long serialVersionUID = 1L;
 
@@ -48,21 +48,21 @@ public class NuxeoPrincipalImpl implements NuxeoPrincipal {
     /**
      * Constructor that sets principal to not anonymous, not administrator, and updates all the principal groups.
      */
-    public NuxeoPrincipalImpl(String principalId) {
+    public RepositoryPrincipalImpl(String principalId) {
         this(principalId, false);
     }
 
     /**
      * Constructor that updates all the principal groups.
      */
-    public NuxeoPrincipalImpl(String principalId, boolean isAdministrator) {
+    public RepositoryPrincipalImpl(String principalId, boolean isAdministrator) {
         properties = new HashMap<>();
         userAttributes = new HashMap<>();
         properties.put(config.idKey, principalId);
         this.isAdministrator = isAdministrator;
     }
 
-    protected NuxeoPrincipalImpl(NuxeoPrincipalImpl other) {
+    protected RepositoryPrincipalImpl(RepositoryPrincipalImpl other) {
         config = other.config;
         properties = new HashMap<>(other.properties);
         userAttributes = new HashMap<>(other.userAttributes);
@@ -271,7 +271,7 @@ public class NuxeoPrincipalImpl implements NuxeoPrincipal {
         return name == null ? 0 : name.hashCode();
     }
 
-    public NuxeoPrincipal cloneTransferable() {
+    public RepositoryPrincipal cloneTransferable() {
         return new TransferableClone(this);
     }
 
@@ -279,9 +279,9 @@ public class NuxeoPrincipalImpl implements NuxeoPrincipal {
      * Provides another implementation which marshall the user id instead of transferring the whole content and resolve
      * it when unmarshalled.
      */
-    protected static class TransferableClone extends NuxeoPrincipalImpl {
+    protected static class TransferableClone extends RepositoryPrincipalImpl {
 
-        protected TransferableClone(NuxeoPrincipalImpl other) {
+        protected TransferableClone(RepositoryPrincipalImpl other) {
             super(other);
         }
 
@@ -293,7 +293,7 @@ public class NuxeoPrincipalImpl implements NuxeoPrincipal {
 
             final String originatingId;
 
-            DataTransferObject(NuxeoPrincipal principal) {
+            DataTransferObject(RepositoryPrincipal principal) {
                 userid = principal.getId();
                 originatingId = principal.getOriginatingId();
             }
@@ -301,7 +301,7 @@ public class NuxeoPrincipalImpl implements NuxeoPrincipal {
             private Object readResolve() throws ObjectStreamException {
                 UserManager userManager = Framework.getService(UserManager.class);
                 // look up principal as system user to avoid permission checks in directories
-                NuxeoPrincipal principal = Framework.doPrivileged(() -> userManager.getPrincipal(userid));
+                RepositoryPrincipal principal = Framework.doPrivileged(() -> userManager.getPrincipal(userid));
                 if (principal == null) {
                     throw new NullPointerException("No principal: " + userid);
                 }

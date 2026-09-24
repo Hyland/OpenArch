@@ -24,6 +24,7 @@ import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
 
 import java.util.concurrent.TimeUnit;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import jakarta.inject.Inject;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -32,7 +33,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
 import com.hyland.openarch.ecm.core.api.DocumentModelList;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import org.nuxeo.opensearch.api.OpenSearchService;
 import org.nuxeo.opensearch.query.OpenSearchQueryBuilder;
 import com.hyland.openarch.runtime.test.runner.Deploy;
@@ -136,7 +136,7 @@ public class TestMapping {
         try {
             oss.query(new OpenSearchQueryBuilder(session).hxql("SELECT * FROM SysContent WHERE sys_description LIKE 'Upper%'"));
             fail("phrase prefix on keyword should raise error on Open 7.x");
-        } catch (NuxeoException e) {
+        } catch (RepositoryException e) {
             assertEquals(
                     "Error performing OpenSearch query: failed to create query: Can only use phrase prefix queries on text fields - not on [sys_description] which is of type [keyword]",
                     e.getMessage());

@@ -103,6 +103,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.mutable.MutableObject;
@@ -118,8 +119,7 @@ import com.hyland.openarch.ecm.core.api.DocumentNotFoundException;
 import com.hyland.openarch.ecm.core.api.IdRef;
 import com.hyland.openarch.ecm.core.api.Lock;
 import com.hyland.openarch.ecm.core.api.LockException;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.PropertyException;
 import com.hyland.openarch.ecm.core.api.SystemPrincipal;
 import com.hyland.openarch.ecm.core.api.UpdateCondition;
@@ -269,7 +269,7 @@ public class DBSDocument implements InternalDocument {
      */
     public void create() {
         if (isCreated()) {
-            throw new NuxeoException("Document already created");
+            throw new RepositoryException("Document already created");
         }
         session.create(docState);
     }
@@ -288,7 +288,7 @@ public class DBSDocument implements InternalDocument {
         return session;
     }
 
-    private CoreSession getSession(NuxeoPrincipal principal) {
+    private CoreSession getSession(RepositoryPrincipal principal) {
         return new SessionImpl(getRepositoryName(), principal);
     }
 
@@ -305,7 +305,7 @@ public class DBSDocument implements InternalDocument {
     @Override
     public void setId(String id) {
         if (isCreated()) {
-            throw new NuxeoException("Document already created");
+            throw new RepositoryException("Document already created");
         }
         if (!ID_PATTERN.matcher(id).matches() || id.length() > ID_MAX_LEN) {
             throw new PropertyException("Invalid id: " + id);
@@ -433,7 +433,7 @@ public class DBSDocument implements InternalDocument {
     }
 
     @Override
-    public WriteResult setACL(ACL acl, boolean overwrite, NuxeoPrincipal principal) {
+    public WriteResult setACL(ACL acl, boolean overwrite, RepositoryPrincipal principal) {
         checkPropertyWritePermission(SYS_ACL, principal);
         if (!overwrite && acl == null) {
             return WriteResult.EMPTY;
@@ -457,7 +457,7 @@ public class DBSDocument implements InternalDocument {
         }
     }
 
-    private WriteResult setACLValue(Object value, NuxeoPrincipal principal) {
+    private WriteResult setACLValue(Object value, RepositoryPrincipal principal) {
         if (value != null && !(value instanceof ACL)) {
             throw new PropertyException("Property " + SYS_ACL + " must be an ACL");
         }
@@ -567,7 +567,7 @@ public class DBSDocument implements InternalDocument {
     }
 
     @Override
-    public boolean hasPermission(NuxeoPrincipal principal, String permission) {
+    public boolean hasPermission(RepositoryPrincipal principal, String permission) {
         if (!isCreated() && Set.of(WRITE, MANAGE_SECURITY).contains(permission)) {
             return true;
         }
@@ -575,14 +575,14 @@ public class DBSDocument implements InternalDocument {
     }
 
     @Override
-    public Set<String> getEffectivePermissions(NuxeoPrincipal principal) {
+    public Set<String> getEffectivePermissions(RepositoryPrincipal principal) {
         return securityPolicyService.getEffectivePermissions(this, principal);
     }
 
     @Override
     public InternalDocument getChild(String name) {
         if (!isCreated()) {
-            throw new NuxeoException("Document not yet created");
+            throw new RepositoryException("Document not yet created");
         }
         return session.getChild(getId(), name);
     }
@@ -590,7 +590,7 @@ public class DBSDocument implements InternalDocument {
     @Override
     public List<InternalDocument> getChildren() {
         if (!isCreated()) {
-            throw new NuxeoException("Document not yet created");
+            throw new RepositoryException("Document not yet created");
         }
         return session.getChildren(getId());
     }
@@ -598,7 +598,7 @@ public class DBSDocument implements InternalDocument {
     @Override
     public List<String> getChildrenIds() {
         if (!isCreated()) {
-            throw new NuxeoException("Document not yet created");
+            throw new RepositoryException("Document not yet created");
         }
         return session.getChildrenIds(getId());
     }
@@ -606,7 +606,7 @@ public class DBSDocument implements InternalDocument {
     @Override
     public boolean hasChild(String name) {
         if (!isCreated()) {
-            throw new NuxeoException("Document not yet created");
+            throw new RepositoryException("Document not yet created");
         }
         return session.hasChild(getId(), name);
     }
@@ -614,7 +614,7 @@ public class DBSDocument implements InternalDocument {
     @Override
     public boolean hasChildren() {
         if (!isCreated()) {
-            throw new NuxeoException("Document not yet created");
+            throw new RepositoryException("Document not yet created");
         }
         return session.hasChildren(getId());
     }
@@ -622,7 +622,7 @@ public class DBSDocument implements InternalDocument {
     @Override
     public void orderBefore(String src, String dest) {
         if (!isCreated()) {
-            throw new NuxeoException("Document not yet created");
+            throw new RepositoryException("Document not yet created");
         }
         InternalDocument srcDoc = getChild(src);
         if (srcDoc == null) {
@@ -681,13 +681,13 @@ public class DBSDocument implements InternalDocument {
     }
 
     @Override
-    public Object getValue(String xpath, NuxeoPrincipal principal) throws PropertyException {
+    public Object getValue(String xpath, RepositoryPrincipal principal) throws PropertyException {
         Field managedField = checkManagedField(xpath);
         prepareUserRead(managedField, principal);
         return getValueObject(docState.getState(), xpath, principal);
     }
 
-    private void prepareUserRead(Field managedField, NuxeoPrincipal principal) {
+    private void prepareUserRead(Field managedField, RepositoryPrincipal principal) {
         if (managedField != null) {
             String permission = managedField.getCharacteristics().readPermission();
             if (permission != null) {
@@ -734,7 +734,7 @@ public class DBSDocument implements InternalDocument {
             // A top-level ID is assigned before creation, when the other checks do not apply.
             return true;
         }
-        NuxeoPrincipal principal = context.principal();
+        RepositoryPrincipal principal = context.principal();
         checkPropertyWritePermission(managedField, principal);
         securityPolicyService.checkAllowedPropertyUpdate(this, principal, xpath);
         if (!validateUserVisibleChangeToken(context.changeToken())) {
@@ -760,7 +760,7 @@ public class DBSDocument implements InternalDocument {
      * ordinary content writes are rejected; managed fields marked {@code STANDARD} proceed; other same-value writes
      * are ignored; and changed values require their configured version-write permission or are ignored.
      */
-    private boolean ignoresUserWrite(String xpath, Field managedField, Object value, NuxeoPrincipal principal) {
+    private boolean ignoresUserWrite(String xpath, Field managedField, Object value, RepositoryPrincipal principal) {
         if (managedField != null && managedField.getCharacteristics().systemOwned()) {
             return !(principal instanceof SystemPrincipal);
         }
@@ -811,11 +811,11 @@ public class DBSDocument implements InternalDocument {
         }
     }
 
-    private void checkPropertyWritePermission(String xpath, NuxeoPrincipal principal) {
+    private void checkPropertyWritePermission(String xpath, RepositoryPrincipal principal) {
         checkPropertyWritePermission(checkManagedField(xpath), principal);
     }
 
-    private void checkPropertyWritePermission(Field managedField, NuxeoPrincipal principal) {
+    private void checkPropertyWritePermission(Field managedField, RepositoryPrincipal principal) {
         String permission = managedField == null ? null : managedField.getCharacteristics().writePermission();
         if (WRITE_MANAGED.equals(permission)) {
             return;
@@ -823,7 +823,7 @@ public class DBSDocument implements InternalDocument {
         checkPermission(principal, permission == null ? WRITE : permission);
     }
 
-    private void checkPermission(NuxeoPrincipal principal, String permission) {
+    private void checkPermission(RepositoryPrincipal principal, String permission) {
         if (principal != null && !hasPermission(principal, permission)) {
             throw new DocumentSecurityException(
                     String.format(GENERIC_DOCUMENT_SECURITY_ERROR, permission, principal.getId(), getId()));
@@ -933,14 +933,14 @@ public class DBSDocument implements InternalDocument {
     }
 
     @Override
-    public InternalDocument checkIn(NuxeoPrincipal principal) {
+    public InternalDocument checkIn(RepositoryPrincipal principal) {
         return checkIn(principal, false);
     }
 
     @Override
-    public InternalDocument checkIn(NuxeoPrincipal principal, boolean minor) {
+    public InternalDocument checkIn(RepositoryPrincipal principal, boolean minor) {
         if (!isCreated()) {
-            throw new NuxeoException("Document not yet created");
+            throw new RepositoryException("Document not yet created");
         }
         Long v = getVersion();
         Long w = getMinorVersion();
@@ -956,7 +956,7 @@ public class DBSDocument implements InternalDocument {
         return checkInInternal(principal);
     }
 
-    private InternalDocument checkInInternal(NuxeoPrincipal principal) {
+    private InternalDocument checkInInternal(RepositoryPrincipal principal) {
         if (isRecord()) {
             throw new PropertyException("Record cannot be checked in: " + getId());
         } else if (isVersion()) {
@@ -1040,12 +1040,12 @@ public class DBSDocument implements InternalDocument {
     }
 
     @Override
-    public void remove(NuxeoPrincipal principal) {
+    public void remove(RepositoryPrincipal principal) {
         session.remove(getId(), principal);
     }
 
     @Override
-    public void removeSingleton(NuxeoPrincipal principal) {
+    public void removeSingleton(RepositoryPrincipal principal) {
         session.removeDocument(getId(), principal);
     }
 
@@ -1098,7 +1098,7 @@ public class DBSDocument implements InternalDocument {
     }
 
     @Override
-    public void setUpdateCondition(UpdateCondition condition, NuxeoPrincipal principal) throws QueryParseException {
+    public void setUpdateCondition(UpdateCondition condition, RepositoryPrincipal principal) throws QueryParseException {
         session.setUpdateCondition(getId(), condition, principal);
     }
 
@@ -1193,7 +1193,7 @@ public class DBSDocument implements InternalDocument {
         return oldType != newType || !(ListUtils.isEqualList(oldMixins, newMixins));
     }
 
-    public boolean setPrimaryTypeAndMixinTypes(String typeName, Collection<String> mixins, NuxeoPrincipal principal) {
+    public boolean setPrimaryTypeAndMixinTypes(String typeName, Collection<String> mixins, RepositoryPrincipal principal) {
         checkPermission(principal, WRITE);
         if (mixins != null) {
             Set<String> current = getEffectiveMixins();
@@ -1290,7 +1290,7 @@ public class DBSDocument implements InternalDocument {
         }
     }
 
-    private WriteResult setLockOwnerValue(Object value, NuxeoPrincipal principal) {
+    private WriteResult setLockOwnerValue(Object value, RepositoryPrincipal principal) {
         if (value == null) {
             String owner = hasPermission(principal, MANAGE_LOCK) ? null : principal.getId();
             Lock lock = removeLock(owner);
@@ -1389,7 +1389,7 @@ public class DBSDocument implements InternalDocument {
     /**
      * Gets a value (may be complex/list) from the document at the given xpath.
      */
-    protected Object getValueObject(State state, String xpath, NuxeoPrincipal principal) throws PropertyException {
+    protected Object getValueObject(State state, String xpath, RepositoryPrincipal principal) throws PropertyException {
         String[] segments = xpath.split("/");
 
         /*
@@ -1452,7 +1452,7 @@ public class DBSDocument implements InternalDocument {
         throw new AssertionError("not reached");
     }
 
-    protected Object getValueField(State state, Field field, String xpath, NuxeoPrincipal principal)
+    protected Object getValueField(State state, Field field, String xpath, RepositoryPrincipal principal)
             throws PropertyException {
         Type type = field.getType();
         String name = field.getName();
@@ -1516,7 +1516,7 @@ public class DBSDocument implements InternalDocument {
         }
     }
 
-    private Object getManagedSystemValue(State state, Field field, NuxeoPrincipal principal) {
+    private Object getManagedSystemValue(State state, Field field, RepositoryPrincipal principal) {
         String name = field.getName();
         FieldCharacteristics characteristics = field.getCharacteristics();
         Object value = characteristics.source() == ValueSource.QUERY_VIRTUAL ? null : switch (name) {
@@ -1570,7 +1570,7 @@ public class DBSDocument implements InternalDocument {
         return value;
     }
 
-    protected Object getValueComplex(State state, ComplexType complexType, String xpath, NuxeoPrincipal principal)
+    protected Object getValueComplex(State state, ComplexType complexType, String xpath, RepositoryPrincipal principal)
             throws PropertyException {
         if (state == null) {
             // corrupted or invalid list element in storage
@@ -1760,7 +1760,7 @@ public class DBSDocument implements InternalDocument {
      * @return the result when the write was handled, or {@code null} to continue with normal field storage
      */
     @SuppressWarnings("unchecked")
-    private WriteResult setManagedSystemValue(Field field, String xpath, Object value, NuxeoPrincipal principal) {
+    private WriteResult setManagedSystemValue(Field field, String xpath, Object value, RepositoryPrincipal principal) {
         // all the setters below manage their own markDirty
         String name = field.getName();
         value = normalizeManagedValue(value, field.getType(), xpath);

@@ -28,6 +28,7 @@ import java.net.http.HttpResponse;
 import java.util.Map;
 import java.util.concurrent.CyclicBarrier;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.apache.commons.codec.CodecPolicy;
 import org.apache.commons.codec.binary.Base64InputStream;
 import org.apache.commons.codec.binary.BaseNCodec;
@@ -37,7 +38,6 @@ import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicHeaderValueParser;
 import com.hyland.openarch.ecm.core.api.Blob;
 import com.hyland.openarch.ecm.core.api.Blobs;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import org.nuxeo.rest.upload.handler.UploadHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,7 +74,7 @@ public class UploadServiceImpl implements UploadService {
     }
 
     @Override
-    public Upload processUpload(UploadHandler handler, String mediaType, UploadDTO uploadDTO, InputStream input) throws IOException, NuxeoException {
+    public Upload processUpload(UploadHandler handler, String mediaType, UploadDTO uploadDTO, InputStream input) throws IOException, RepositoryException {
         Upload upload = getUploadFromId(handler, uploadDTO.id());
         boolean isLastChunkBeingUploaded = lastChunkIsBeingUploaded(upload, uploadDTO);
         if (isLastChunkBeingUploaded) {
@@ -86,7 +86,7 @@ public class UploadServiceImpl implements UploadService {
                     // wait for test thread to have observed status
                     _testProcessingStatusBarrier.await(10, SECONDS);
                 } catch (Exception e) {
-                    throw new NuxeoException(e);
+                    throw new RepositoryException(e);
                 }
             }
         }
@@ -100,7 +100,7 @@ public class UploadServiceImpl implements UploadService {
             try {
                 uriWithHeaders = UriWithHeaders.of(input);
             } catch (URISyntaxException e) { // NOSONAR
-                throw new NuxeoException(e.getInput(), e, BAD_REQUEST.getStatusCode());
+                throw new RepositoryException(e.getInput(), e, BAD_REQUEST.getStatusCode());
             }
             HttpResponse<InputStream> response = externalUriManager.downloadResourceFromURI(uriWithHeaders);
             input = response.body();
@@ -126,7 +126,7 @@ public class UploadServiceImpl implements UploadService {
             input = new Base64InputStream(input, false, BaseNCodec.MIME_CHUNK_SIZE, BaseNCodec.getChunkSeparator(),
                     CodecPolicy.STRICT);
         } else if (StringUtils.isNotBlank(bodyEncoding)) {
-            throw new NuxeoException("Invalid bodyEncoding", BAD_REQUEST.getStatusCode());
+            throw new RepositoryException("Invalid bodyEncoding", BAD_REQUEST.getStatusCode());
         }
 
         Blob blob = Blobs.createBlob(input); // also closes input stream
@@ -161,7 +161,7 @@ public class UploadServiceImpl implements UploadService {
             var filenameSanitized = fileName == null ? fileName : fileName.replaceAll("[\n\r]", "_");
             if (chunked) {
                 if (chunkIndex == null || chunkCount == null) {
-                    throw new NuxeoException(
+                    throw new RepositoryException(
                             "Both chunkIndex and chunkCount must be provided to perform an upload in chunks.",
                             BAD_REQUEST.getStatusCode());
                 }
@@ -203,7 +203,7 @@ public class UploadServiceImpl implements UploadService {
         } else {
             upload = handler.getUpload(uploadId);
             if (upload == null) {
-                throw new NuxeoException(NOT_FOUND.getStatusCode());
+                throw new RepositoryException(NOT_FOUND.getStatusCode());
             }
         }
         return upload;

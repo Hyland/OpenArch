@@ -22,7 +22,7 @@ import java.util.Objects;
 
 import com.hyland.openarch.ecm.core.api.DocumentNotFoundException;
 import com.hyland.openarch.ecm.core.api.IterableQueryResult;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.PartialList;
 import com.hyland.openarch.ecm.core.api.ScrollResult;
 import com.hyland.openarch.ecm.core.api.UpdateCondition;
@@ -94,7 +94,7 @@ public interface InternalSession {
     /**
      * Saves this session.
      */
-    void save(NuxeoPrincipal principal);
+    void save(RepositoryPrincipal principal);
 
     /**
      * Destroys this session.
@@ -136,7 +136,7 @@ public interface InternalSession {
      * <p>
      * If the destination document is not a folder, an exception is thrown.
      */
-    InternalDocument copy(InternalDocument src, InternalDocument dst, String name, NuxeoPrincipal principal);
+    InternalDocument copy(InternalDocument src, InternalDocument dst, String name, RepositoryPrincipal principal);
 
     /**
      * Moves the source document to the given folder.
@@ -149,12 +149,12 @@ public interface InternalSession {
      * @param name the new name of the document or null if the original name should be preserved
      */
     InternalDocument move(InternalDocument src, InternalDocument dst, String name, UpdateCondition condition,
-            NuxeoPrincipal principal);
+            RepositoryPrincipal principal);
 
     /**
      * Restores the given version to be the new working copy.
      */
-    void restoreVersion(InternalDocument version, NuxeoPrincipal principal);
+    void restoreVersion(InternalDocument version, RepositoryPrincipal principal);
 
     /**
      * Updates the denormalized properties for some documents.
@@ -169,7 +169,7 @@ public interface InternalSession {
      * @param id the document id
      * @since 11.1
      */
-    void removeDocument(String id, NuxeoPrincipal principal);
+    void removeDocument(String id, RepositoryPrincipal principal);
 
     /**
      * INTERNAL framework property allowing deletion of undeletable documents. Should only be used in tests.
@@ -188,8 +188,6 @@ public interface InternalSession {
      * Governance (or standard) mode is less strict and allows users member of the
      * {@link SecurityConstants#RECORDS_CLEANER_GROUP} group to delete records.
      * <p>
-     * See <a href="https://doc.nuxeo.com/nxdoc/nuxeo-retention-installation/#nuxeo-server.">Nuxeo Retention
-     * Documentation</a> for further details.
      *
      * @since 11.5
      */
@@ -241,11 +239,11 @@ public interface InternalSession {
      * {@link SecurityConstants#RECORDS_CLEANER_GROUP}</li>
      * </ul>
      *
-     * @param principal the Nuxeo principal
+     * @param principal the OpenArch principal
      * @return {@code true} if undeletable documents can be deleted, {@code false} otherwise
      * @since 11.5
      */
-    public static boolean canDeleteUndeletable(NuxeoPrincipal principal) {
+    public static boolean canDeleteUndeletable(RepositoryPrincipal principal) {
         if (Framework.isBooleanPropertyTrue(PROP_ALLOW_DELETE_UNDELETABLE_DOCUMENTS)) {
             return true;
         }

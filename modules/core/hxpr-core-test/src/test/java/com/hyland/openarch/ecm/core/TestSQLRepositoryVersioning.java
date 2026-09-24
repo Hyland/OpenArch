@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -54,8 +55,7 @@ import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
 import com.hyland.openarch.ecm.core.api.DocumentModelList;
 import com.hyland.openarch.ecm.core.api.DocumentRef;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.PathRef;
 import com.hyland.openarch.ecm.core.api.PropertyException;
 import com.hyland.openarch.ecm.core.api.impl.blob.StringBlob;
@@ -87,7 +87,7 @@ public class TestSQLRepositoryVersioning {
     @Inject
     protected CoreSession session;
 
-    protected CoreSession openSessionAs(NuxeoPrincipal pal) {
+    protected CoreSession openSessionAs(RepositoryPrincipal pal) {
         return CoreInstance.getCoreSession(session.getRepositoryName(), pal);
     }
 
@@ -368,7 +368,7 @@ public class TestSQLRepositoryVersioning {
 
     @Test
     public void testRestoreInvalidations() throws Exception {
-        final NuxeoPrincipal pal = session.getPrincipal();
+        final RepositoryPrincipal pal = session.getPrincipal();
         DocumentModel doc = session.createDocumentModel("/", "myfile", MY_FILE);
         doc.setPropertyValue(SYS_TITLE, "t1");
         doc.create();
@@ -731,7 +731,7 @@ public class TestSQLRepositoryVersioning {
         try {
             doc.checkIn();
             fail("Should not be able to check in non-versionable document");
-        } catch (NuxeoException e) {
+        } catch (RepositoryException e) {
             assertEquals(SC_PRECONDITION_FAILED, e.getStatusCode());
             assertEquals("Not versionable: " + doc.getId(), e.getMessage());
         }
@@ -739,7 +739,7 @@ public class TestSQLRepositoryVersioning {
         try {
             doc.checkOut();
             fail("Should not be able to check out non-versionable document");
-        } catch (NuxeoException e) {
+        } catch (RepositoryException e) {
             assertEquals(SC_PRECONDITION_FAILED, e.getStatusCode());
             assertEquals("Not versionable: " + doc.getId(), e.getMessage());
         }

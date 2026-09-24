@@ -27,6 +27,7 @@ import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSFILE_BLOB;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_MODIFIED;
 import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import jakarta.ws.rs.core.Response.Status;
 
 import java.io.ByteArrayOutputStream;
@@ -48,8 +49,7 @@ import com.hyland.openarch.ecm.core.api.Blob;
 import com.hyland.openarch.ecm.core.api.Blobs;
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.impl.UserPrincipal;
 import com.hyland.openarch.ecm.core.event.test.CapturingEventListener;
 import com.hyland.openarch.ecm.core.test.CoreFeature;
@@ -257,7 +257,7 @@ public class DownloadManagerTest {
     @Test
     public void testGeneratePresignedUrlForWrongDocId() {
         long expiration = 5000; // global expiry set to 3600s
-        int statusCode = assertThrows(NuxeoException.class, () ->
+        int statusCode = assertThrows(RepositoryException.class, () ->
             downloadUrl("docid", expiration)).getStatusCode();
         assertEquals(HttpStatus.NOT_FOUND.value(), statusCode);
     }
@@ -291,17 +291,17 @@ public class DownloadManagerTest {
         DocumentModel doc = createDocument();
         String docId = doc.getId();
         // principal
-        NuxeoPrincipal principal = new UserPrincipal("bob");
+        RepositoryPrincipal principal = new UserPrincipal("bob");
 
         // do tests while logged in
         try (var __ = loginService.loginPrincipal(principal)) {
             // send download request for non existing doc, should be not found
-            NuxeoException responseException = assertThrows(NuxeoException.class, () ->
+            RepositoryException responseException = assertThrows(RepositoryException.class, () ->
                 downloadManager.download(repoId, "foo", SYSFILE_BLOB, FILENAME, false));
             assertEquals(HttpStatus.NOT_FOUND.value(), responseException.getStatusCode());
             assertEquals("No document found", responseException.getMessage());
             // send download request for non existing prop, should be not found
-            responseException = assertThrows(NuxeoException.class, () ->
+            responseException = assertThrows(RepositoryException.class, () ->
                 downloadManager.download(repoId, docId, "foo:bar", FILENAME, false));
             assertEquals(HttpStatus.NOT_FOUND.value(), responseException.getStatusCode());
             assertEquals("No document found", responseException.getMessage());

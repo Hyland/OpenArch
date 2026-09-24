@@ -28,11 +28,11 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TimeZone;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.hyland.openarch.common.utils.DurationUtils;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.cluster.ClusterService;
 import com.hyland.openarch.runtime.model.ComponentManager;
@@ -97,7 +97,7 @@ public class SchedulerServiceImpl extends DefaultComponent implements SchedulerS
                 try {
                     props.load(stream);
                 } catch (IOException e) {
-                    throw new NuxeoException("Failed to load properties from: " + filename, e);
+                    throw new RepositoryException("Failed to load properties from: " + filename, e);
                 }
                 patchProps(props);
             }
@@ -186,7 +186,7 @@ public class SchedulerServiceImpl extends DefaultComponent implements SchedulerS
             try {
                 setupScheduler();
             } catch (IOException | SchedulerException e) {
-                throw new NuxeoException(e);
+                throw new RepositoryException(e);
             }
         });
     }

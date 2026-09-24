@@ -30,7 +30,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.query.QueryParameters;
 import com.hyland.openarch.ecm.core.model.InternalDocument;
 import com.hyland.openarch.ecm.core.query.sql.model.BooleanLiteral;
@@ -114,8 +114,8 @@ public class ExternalUserRelationsSecurityPolicy extends AbstractSecurityPolicy
     }
 
     @Override
-    public boolean hasPermission(InternalDocument doc, NuxeoPrincipal principal, Set<String> principals,
-            String permission, Set<String> permissions) {
+    public boolean hasPermission(InternalDocument doc, RepositoryPrincipal principal, Set<String> principals,
+                                 String permission, Set<String> permissions) {
         // find external user id from principal
         String userId = getExternalUserId(principal);
         if (userId == null) {
@@ -153,7 +153,7 @@ public class ExternalUserRelationsSecurityPolicy extends AbstractSecurityPolicy
 
     @Override
     public Operand getQueryClause(QueryParameters queryParams, Set<String> principals) {
-        NuxeoPrincipal principal = queryParams.principal();
+        RepositoryPrincipal principal = queryParams.principal();
         String externalUserId = getExternalUserId(principal);
 
         String property = getDocEmployeeIdProperty();
@@ -185,7 +185,7 @@ public class ExternalUserRelationsSecurityPolicy extends AbstractSecurityPolicy
         return Predicates.or(docNoEmployee, matchingEmployee);
     }
 
-    private String getExternalUserId(NuxeoPrincipal principal) {
+    private String getExternalUserId(RepositoryPrincipal principal) {
         Map<String, Object> properties = principal.getProperties();
         if (properties == null) {
             return null;

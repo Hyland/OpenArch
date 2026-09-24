@@ -28,7 +28,7 @@ import com.hyland.openarch.ecm.core.SessionImpl;
 import com.hyland.openarch.ecm.core.api.Blob;
 import com.hyland.openarch.ecm.core.api.Blobs;
 import com.hyland.openarch.ecm.core.api.CoreSession;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.impl.UserPrincipal;
 import com.hyland.openarch.ecm.core.model.InternalDocument;
 import com.hyland.openarch.ecm.core.model.InternalSession;
@@ -67,7 +67,7 @@ public class TestExprEvaluatorOnInternalDocument {
         // mydublincore inside test's SysFile
         idoc.setValue("mydc_source", "internal");
 
-        NuxeoPrincipal principal = new UserPrincipal("", null, false);
+        RepositoryPrincipal principal = new UserPrincipal("", null, false);
         Map<String, Object> context = ExprEvaluator.documentContext(idoc, principal);
         Expr expr = new ExpressionVisitor().parse(string);
         return new ExprEvaluator(context, internalSession.getSchemaManager()).evaluateValue(expr);

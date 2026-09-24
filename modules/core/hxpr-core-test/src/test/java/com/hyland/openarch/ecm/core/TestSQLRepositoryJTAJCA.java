@@ -24,6 +24,7 @@ import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_TITLE;
 import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
 import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FOLDER;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import jakarta.inject.Inject;
 import jakarta.transaction.RollbackException;
 
@@ -36,7 +37,6 @@ import com.hyland.openarch.ecm.core.api.CoreInstance;
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
 import com.hyland.openarch.ecm.core.api.DocumentRef;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.ecm.core.api.PathRef;
 import com.hyland.openarch.ecm.core.api.local.DummyLoginFeature;
 import com.hyland.openarch.ecm.core.repository.RepositoryService;
@@ -119,7 +119,7 @@ public class TestSQLRepositoryJTAJCA {
             if (!(e.getCause() instanceof RollbackException e2)) {
                 throw e;
             }
-            if (!(e2.getCause() instanceof NuxeoException e3)) {
+            if (!(e2.getCause() instanceof RepositoryException e3)) {
                 throw e;
             }
             String msg = e3.getMessage();
@@ -153,7 +153,7 @@ public class TestSQLRepositoryJTAJCA {
             if (!(e.getCause() instanceof RollbackException e2)) {
                 throw e;
             }
-            if (!(e2.getCause() instanceof NuxeoException e3)) {
+            if (!(e2.getCause() instanceof RepositoryException e3)) {
                 throw e;
             }
             String msg = e3.getMessage();
@@ -173,7 +173,7 @@ public class TestSQLRepositoryJTAJCA {
         try {
             session.getRootDocument();
             fail("should throw");
-        } catch (NuxeoException e) {
+        } catch (RepositoryException e) {
             String msg = e.getMessage();
             assertTrue(msg.contains("Cannot use a session outside a transaction"), msg);
         }
@@ -284,7 +284,7 @@ public class TestSQLRepositoryJTAJCA {
         try {
             closedSession.getRootDocument();
             fail("should throw");
-        } catch (NuxeoException e) {
+        } catch (RepositoryException e) {
             String msg = e.getMessage();
             assertTrue(msg.contains("Cannot use a session outside a transaction"), msg);
         } finally {
@@ -344,7 +344,7 @@ public class TestSQLRepositoryJTAJCA {
         t.join();
         Exception e = threadException[0];
         assertNotNull(e);
-        assertTrue(e instanceof NuxeoException, e.getMessage());
+        assertTrue(e instanceof RepositoryException, e.getMessage());
     }
 
     @Test

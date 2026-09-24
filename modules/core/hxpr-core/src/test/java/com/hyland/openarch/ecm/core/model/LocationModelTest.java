@@ -24,11 +24,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 
 class LocationModelTest {
 
@@ -374,7 +374,7 @@ class LocationModelTest {
 
             @Test
             void shouldRejectNonMapInput() {
-                assertThrows(NuxeoException.class, () -> LocationModel.from("not a map"));
+                assertThrows(RepositoryException.class, () -> LocationModel.from("not a map"));
                 assertNull(LocationModel.from(123));
                 assertNull(LocationModel.from(new Object()));
             }
@@ -506,9 +506,9 @@ class LocationModelTest {
 
         @Test
         void shouldRejectInvalidJson() {
-            assertThrows(NuxeoException.class, () -> LocationModel.from("{invalid json}"));
-            assertThrows(NuxeoException.class, () -> LocationModel.from("not json at all"));
-            assertThrows(NuxeoException.class, () -> LocationModel.from("{\"unclosed\": "));
+            assertThrows(RepositoryException.class, () -> LocationModel.from("{invalid json}"));
+            assertThrows(RepositoryException.class, () -> LocationModel.from("not json at all"));
+            assertThrows(RepositoryException.class, () -> LocationModel.from("{\"unclosed\": "));
         }
 
     }

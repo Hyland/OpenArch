@@ -20,10 +20,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.hyland.openarch.ecm.core.api.Lock;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.ecm.core.api.repository.FulltextConfiguration;
 import com.hyland.openarch.ecm.core.model.InternalSession;
 import com.hyland.openarch.ecm.core.schema.SchemaManager;
@@ -182,13 +182,13 @@ public class DBSCachingRepository implements DBSRepository {
     protected DBSClusterInvalidator createClusterInvalidator(DBSRepositoryDescriptor descriptor) {
         Class<? extends DBSClusterInvalidator> klass = descriptor.clusterInvalidatorClass;
         if (klass == null) {
-            throw new NuxeoException(
+            throw new RepositoryException(
                     "Unable to get cluster invalidator class from descriptor whereas clustering is enabled");
         }
         try {
             return klass.getDeclaredConstructor().newInstance();
         } catch (ReflectiveOperationException e) {
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
     }
 

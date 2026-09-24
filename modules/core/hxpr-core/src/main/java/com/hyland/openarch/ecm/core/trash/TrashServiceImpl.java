@@ -47,7 +47,7 @@ import com.hyland.openarch.ecm.core.api.DocumentSecurityException;
 import com.hyland.openarch.ecm.core.api.IdRef;
 import com.hyland.openarch.ecm.core.api.IterableQueryResult;
 import com.hyland.openarch.ecm.core.api.Lock;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.PathRef;
 import com.hyland.openarch.ecm.core.api.event.CoreEventConstants;
 import com.hyland.openarch.ecm.core.api.event.DocumentEventCategories;
@@ -110,7 +110,7 @@ public class TrashServiceImpl extends DefaultComponent implements TrashService {
         CoreSession session = doc.getCoreSession();
         DocumentRef docRef = doc.getRef();
         if (!session.canRemoveDocument(docRef)) {
-            NuxeoPrincipal pal = session.getPrincipal();
+            RepositoryPrincipal pal = session.getPrincipal();
             throw new DocumentSecurityException(
                     "User %s does not have the permission to remove the document %s (%s)".formatted( //
                             pal.getId(), doc.getId(), doc.getPath()));
@@ -237,7 +237,7 @@ public class TrashServiceImpl extends DefaultComponent implements TrashService {
     }
 
     @Override
-    public boolean canPurgeOrUntrash(List<DocumentModel> docs, NuxeoPrincipal principal) {
+    public boolean canPurgeOrUntrash(List<DocumentModel> docs, RepositoryPrincipal principal) {
         if (docs.isEmpty()) {
             return false;
         }
@@ -246,7 +246,7 @@ public class TrashServiceImpl extends DefaultComponent implements TrashService {
         return info.docs.size() == docs.size();
     }
 
-    private TrashInfo getInfo(List<DocumentModel> docs, NuxeoPrincipal principal, boolean checkDeleted) {
+    private TrashInfo getInfo(List<DocumentModel> docs, RepositoryPrincipal principal, boolean checkDeleted) {
         TrashInfo info = new TrashInfo();
         info.docs = new ArrayList<>(docs.size());
         if (docs.isEmpty()) {
@@ -304,7 +304,7 @@ public class TrashServiceImpl extends DefaultComponent implements TrashService {
 
     }
 
-    private TrashInfo getTrashInfo(List<DocumentModel> docs, NuxeoPrincipal principal, boolean checkDeleted) {
+    private TrashInfo getTrashInfo(List<DocumentModel> docs, RepositoryPrincipal principal, boolean checkDeleted) {
         TrashInfo info = getInfo(docs, principal, checkDeleted);
         // Keep only common tree roots (see NXP-1411)
         // This is not strictly necessary with Nuxeo Core >= 1.3.2
@@ -328,7 +328,7 @@ public class TrashServiceImpl extends DefaultComponent implements TrashService {
     }
 
     @Override
-    public DocumentModel getAboveDocument(DocumentModel doc, NuxeoPrincipal principal) {
+    public DocumentModel getAboveDocument(DocumentModel doc, RepositoryPrincipal principal) {
         TrashInfo info = getTrashInfo(List.of(doc), principal, false);
         return getAboveDocument(doc, info.rootPaths);
     }
@@ -373,7 +373,7 @@ public class TrashServiceImpl extends DefaultComponent implements TrashService {
             return;
         }
         try (IterableQueryResult result = session.queryAndFetch(trashedQuery(parent.getId()))) {
-            NuxeoPrincipal principal = session.getPrincipal();
+            RepositoryPrincipal principal = session.getPrincipal();
             StreamSupport.stream(result.spliterator(), false)
                          .map(map -> map.get(SYS_ID).toString())
                          .map(IdRef::new)

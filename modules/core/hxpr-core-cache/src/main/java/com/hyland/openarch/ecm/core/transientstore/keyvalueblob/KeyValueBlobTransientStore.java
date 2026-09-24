@@ -32,10 +32,10 @@ import java.util.function.Function;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.hyland.openarch.ecm.core.api.Blob;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.ecm.core.blob.BlobInfo;
 import com.hyland.openarch.ecm.core.blob.BlobService;
 import com.hyland.openarch.ecm.core.blob.BlobServiceImpl;
@@ -199,10 +199,10 @@ public class KeyValueBlobTransientStore implements TransientStoreProvider {
         BlobProvider blobProvider = Framework.getService(BlobService.class)
                                              .getBlobProviderWithNamespace(blobProviderId, defaultBlobProviderId);
         if (blobProvider == null) {
-            throw new NuxeoException("No blob provider with id '%s'".formatted(blobProviderId));
+            throw new RepositoryException("No blob provider with id '%s'".formatted(blobProviderId));
         }
         if (!blobProvider.isTransient()) {
-            throw new NuxeoException("Blob provider: " + blobProviderId + " used for Key/Value store: "
+            throw new RepositoryException("Blob provider: " + blobProviderId + " used for Key/Value store: "
                     + keyValueStoreName + " must be configured as transient");
         }
         return blobProvider;
@@ -459,7 +459,7 @@ public class KeyValueBlobTransientStore implements TransientStoreProvider {
         try {
             return mapper.writeValueAsString(object);
         } catch (JacksonException e) {
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
     }
 
@@ -566,7 +566,7 @@ public class KeyValueBlobTransientStore implements TransientStoreProvider {
             try {
                 blobKey = getBlobProvider().writeBlob(blob);
             } catch (IOException e) {
-                throw new NuxeoException(e);
+                throw new RepositoryException(e);
             }
             // write flat .blob document; length is stored as a native JSON number
             Map<String, Object> flatMap = new HashMap<>();

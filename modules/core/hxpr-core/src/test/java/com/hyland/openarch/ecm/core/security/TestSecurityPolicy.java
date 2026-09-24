@@ -18,7 +18,7 @@ package com.hyland.openarch.ecm.core.security;
 import java.util.List;
 import java.util.Set;
 
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.query.QueryParameters;
 import com.hyland.openarch.ecm.core.model.InternalDocument;
 import com.hyland.openarch.ecm.core.query.sql.model.Predicate;
@@ -40,8 +40,8 @@ public class TestSecurityPolicy extends AbstractSecurityPolicy {
     }
 
     @Override
-    public boolean hasPermission(InternalDocument doc, NuxeoPrincipal principal, Set<String> principals,
-            String permission, Set<String> permissions) {
+    public boolean hasPermission(InternalDocument doc, RepositoryPrincipal principal, Set<String> principals,
+                                 String permission, Set<String> permissions) {
         return false;
     }
 

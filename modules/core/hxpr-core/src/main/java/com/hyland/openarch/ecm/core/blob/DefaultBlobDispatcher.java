@@ -45,7 +45,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.hyland.openarch.ecm.core.api.Blob;
 import com.hyland.openarch.ecm.core.api.DocumentSecurityException;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.model.PropertyNotFoundException;
 import com.hyland.openarch.ecm.core.api.repository.RepositoryManager;
 import com.hyland.openarch.ecm.core.model.InternalDocument;
@@ -495,7 +495,7 @@ public class DefaultBlobDispatcher implements BlobDispatcher {
 
     protected void checkBlobCanBeDeleted(InternalDocument doc, String xpath) {
         if (SYSFILE_BLOB.equals(xpath) && doc.isUnderRetentionOrLegalHold()) {
-            if (!InternalSession.canDeleteUndeletable(NuxeoPrincipal.getCurrent())) {
+            if (!InternalSession.canDeleteUndeletable(RepositoryPrincipal.getCurrent())) {
                 throw new DocumentSecurityException(
                         "Cannot remove main blob FROM SysContent " + doc.getId() + ", it is under retention / hold");
             }

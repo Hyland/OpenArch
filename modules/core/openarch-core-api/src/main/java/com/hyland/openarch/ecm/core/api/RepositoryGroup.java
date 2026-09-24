@@ -24,7 +24,7 @@ import java.util.List;
  *
  * @author <a href="mailto:glefter@nuxeo.com">George Lefter</a>
  */
-public interface NuxeoGroup extends Serializable {
+public interface RepositoryGroup extends Serializable {
 
     String PREFIX = "group:";
 

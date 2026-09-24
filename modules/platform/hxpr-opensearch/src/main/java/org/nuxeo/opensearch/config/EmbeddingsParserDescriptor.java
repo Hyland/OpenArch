@@ -19,7 +19,7 @@ import com.hyland.openarch.common.xmap.annotation.XNode;
 import com.hyland.openarch.common.xmap.annotation.XObject;
 import com.hyland.openarch.common.xmap.registry.XRegistry;
 import com.hyland.openarch.common.xmap.registry.XRegistryId;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.nuxeo.opensearch.io.EmbeddingsParser;
 
 import java.lang.reflect.InvocationTargetException;
@@ -58,7 +58,7 @@ public class EmbeddingsParserDescriptor {
             return parserClass.getDeclaredConstructor().newInstance();
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | IllegalArgumentException |
                  InvocationTargetException e) {
-            throw new NuxeoException("Failed to instantiate EmbeddingsParser: " + parserClass.getName(), e);
+            throw new RepositoryException("Failed to instantiate EmbeddingsParser: " + parserClass.getName(), e);
         }
     }
 

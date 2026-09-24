@@ -19,10 +19,10 @@ package com.hyland.openarch.ecm.core.api.event;
 import java.time.Instant;
 import java.util.Map;
 
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 
 /**
- * Nuxeo core event.
+ * OpenArch core event.
  *
  * @author <a href="mailto:ja@nuxeo.com">Julien Anguenot</a>
  * @author <a href="mailto:bs@nuxeo.com">Bogdan Stefanescu</a>
@@ -62,7 +62,7 @@ public interface CoreEvent {
      *
      * @return the principal responsible for this event.
      */
-    NuxeoPrincipal getPrincipal();
+    RepositoryPrincipal getPrincipal();
 
     /**
      * Returns the event category.

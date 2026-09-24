@@ -21,8 +21,8 @@ import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import com.hyland.openarch.ecm.core.api.NuxeoGroup;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryGroup;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 
 /**
  * Unit tests for {@link UserStore}.
@@ -80,7 +80,7 @@ class UserStoreTest {
 
     @Test
     void findById_returnsCorrectPrincipal() {
-        NuxeoPrincipal p = store.findById("bbbbbbbb-0000-0000-0000-000000000001");
+        RepositoryPrincipal p = store.findById("bbbbbbbb-0000-0000-0000-000000000001");
         assertThat(p).isNotNull();
         assertThat(p.getFirstName()).isEqualTo("Alice");
         assertThat(p.getLastName()).isEqualTo("Admin");
@@ -94,7 +94,7 @@ class UserStoreTest {
 
     @Test
     void findByUsername_returnsCorrectPrincipal() {
-        NuxeoPrincipal p = store.findByUsername("bob");
+        RepositoryPrincipal p = store.findByUsername("bob");
         assertThat(p).isNotNull();
         assertThat(p.getId()).isEqualTo("bbbbbbbb-0000-0000-0000-000000000002");
     }
@@ -118,7 +118,7 @@ class UserStoreTest {
 
     @Test
     void principalGroups_containGroupIds() {
-        NuxeoPrincipal alice = store.findById("bbbbbbbb-0000-0000-0000-000000000001");
+        RepositoryPrincipal alice = store.findById("bbbbbbbb-0000-0000-0000-000000000001");
         assertThat(alice.getGroups()).containsExactlyInAnyOrder("aaaaaaaa-0000-0000-0000-000000000001",
                 "aaaaaaaa-0000-0000-0000-000000000002");
     }
@@ -127,7 +127,7 @@ class UserStoreTest {
 
     @Test
     void findGroupById_returnsCorrectGroup() {
-        NuxeoGroup g = store.findGroupById("aaaaaaaa-0000-0000-0000-000000000003");
+        RepositoryGroup g = store.findGroupById("aaaaaaaa-0000-0000-0000-000000000003");
         assertThat(g).isNotNull();
         assertThat(g.getName()).isEqualTo("developers");
     }
@@ -141,7 +141,7 @@ class UserStoreTest {
 
     @Test
     void userAttributes_arePropagatedToPrincipal() {
-        NuxeoPrincipal alice = store.findById("bbbbbbbb-0000-0000-0000-000000000001");
+        RepositoryPrincipal alice = store.findById("bbbbbbbb-0000-0000-0000-000000000001");
         assertThat(alice.getUserAttributes()).containsEntry("department", "Engineering").containsEntry("badge", "42");
     }
 
@@ -154,22 +154,22 @@ class UserStoreTest {
 
     @Test
     void searchByFirstName_matchesPartialCaseInsensitive() {
-        List<NuxeoPrincipal> results = store.searchPrincipalsByName("ali");
+        List<RepositoryPrincipal> results = store.searchPrincipalsByName("ali");
         assertThat(results).hasSize(1);
         assertThat(results.get(0).getFirstName()).isEqualTo("Alice");
     }
 
     @Test
     void searchByLastName_matchesPartialCaseInsensitive() {
-        List<NuxeoPrincipal> results = store.searchPrincipalsByName("BUILD");
+        List<RepositoryPrincipal> results = store.searchPrincipalsByName("BUILD");
         assertThat(results).hasSize(1);
         assertThat(results.get(0).getFirstName()).isEqualTo("Bob");
     }
 
     @Test
     void searchByUsername_matchesPartialCaseInsensitive() {
-        List<NuxeoPrincipal> results = store.searchPrincipalsByName("lic");
-        assertThat(results).extracting(NuxeoPrincipal::getFirstName).contains("Alice");
+        List<RepositoryPrincipal> results = store.searchPrincipalsByName("lic");
+        assertThat(results).extracting(RepositoryPrincipal::getFirstName).contains("Alice");
     }
 
     // ── searchGroupsByName ───────────────────────────────────────────────────
@@ -183,19 +183,19 @@ class UserStoreTest {
         model.setUsers(List.of(user("id-1", "tiry", "Tiry", "Tiry", "tiry@example.com", List.of())));
         UserStore s = UserStore.from(model);
 
-        List<NuxeoPrincipal> results = s.searchPrincipalsByName("tiry");
+        List<RepositoryPrincipal> results = s.searchPrincipalsByName("tiry");
         assertThat(results).hasSize(1);
     }
 
     @Test
     void searchWithBlankName_returnsAllUsers() {
-        List<NuxeoPrincipal> results = store.searchPrincipalsByName("");
+        List<RepositoryPrincipal> results = store.searchPrincipalsByName("");
         assertThat(results).hasSize(3);
     }
 
     @Test
     void searchGroupsByName_matchesPartial() {
-        List<NuxeoGroup> results = store.searchGroupsByName("dev");
+        List<RepositoryGroup> results = store.searchGroupsByName("dev");
         assertThat(results).hasSize(1);
         assertThat(results.get(0).getName()).isEqualTo("developers");
     }

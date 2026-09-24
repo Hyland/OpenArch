@@ -17,7 +17,7 @@ package org.nuxeo.opensearch.client;
 
 import org.apache.hc.core5.http.HttpStatus;
 import com.hyland.openarch.common.RetryAfterHint;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 
 /**
  * Thrown when the circuit breaker guarding OpenSearch is open, so the call was refused without being attempted.
@@ -30,7 +30,7 @@ import com.hyland.openarch.ecm.core.api.NuxeoException;
  * The counterpart of {@code CircuitBreakerOpenException} on the graph side, which states its 503 and its hint
  * the same way.
  */
-public class CircuitBreakerOpenException extends NuxeoException implements RetryAfterHint {
+public class CircuitBreakerOpenException extends RepositoryException implements RetryAfterHint {
 
     private final int retryAfterSeconds;
 

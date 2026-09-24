@@ -19,7 +19,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.model.InternalDocument;
 import com.hyland.openarch.ecm.core.schema.validation.violations.ValidationViolation;
 import com.hyland.openarch.ecm.core.security.config.RetentionSecurityPolicyConfig;
@@ -87,7 +87,7 @@ public class RetentionSecurityPolicyTest {
     @Test
     public void testAllowRead() {
         InternalDocument doc = mock(InternalDocument.class);
-        NuxeoPrincipal principal = mock(NuxeoPrincipal.class);
+        RepositoryPrincipal principal = mock(RepositoryPrincipal.class);
         when(principal.isMemberOf(RECORDS_CLEANER_GROUP)).thenReturn(false);
         boolean hasPermission = retentionSecurityPolicy.hasPermission(doc, principal, Set.of(),
                 READ, Set.of(READ, EVERYTHING, READ_WRITE));
@@ -98,7 +98,7 @@ public class RetentionSecurityPolicyTest {
     public void testDisallowDelete() {
         InternalDocument doc = mock(InternalDocument.class);
         when(doc.isUnderRetentionOrLegalHold()).thenReturn(true);
-        NuxeoPrincipal principal = mock(NuxeoPrincipal.class);
+        RepositoryPrincipal principal = mock(RepositoryPrincipal.class);
         when(principal.isMemberOf(RECORDS_CLEANER_GROUP)).thenReturn(false);
         boolean hasPermission = retentionSecurityPolicy.hasPermission(doc, principal, Set.of(),
                 DELETE, Set.of(DELETE, EVERYTHING, READ_WRITE));
@@ -109,7 +109,7 @@ public class RetentionSecurityPolicyTest {
     public void testDisallowWrite() {
         InternalDocument doc = mock(InternalDocument.class);
         when(doc.isUnderRetentionOrLegalHold()).thenReturn(true);
-        NuxeoPrincipal principal = mock(NuxeoPrincipal.class);
+        RepositoryPrincipal principal = mock(RepositoryPrincipal.class);
         when(principal.isMemberOf(RECORDS_CLEANER_GROUP)).thenReturn(false);
         boolean hasPermission = retentionSecurityPolicy.hasPermission(doc, principal, Set.of(),
                 WRITE, Set.of(WRITE, EVERYTHING, READ_WRITE));

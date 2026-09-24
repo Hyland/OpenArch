@@ -22,8 +22,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import com.hyland.openarch.ecm.core.api.NuxeoGroup;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryGroup;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.SystemPrincipal;
 import com.hyland.openarch.ecm.core.api.security.SecurityConstants;
 import com.hyland.openarch.ecm.core.schema.types.resolver.AbstractObjectResolver;
@@ -96,10 +96,10 @@ public class UserManagerResolver extends AbstractObjectResolver implements Objec
         if (managedClasses == null) {
             managedClasses = new ArrayList<>();
             if (includingUsers) {
-                managedClasses.add(NuxeoPrincipal.class);
+                managedClasses.add(RepositoryPrincipal.class);
             }
             if (includingGroups) {
-                managedClasses.add(NuxeoGroup.class);
+                managedClasses.add(RepositoryGroup.class);
             }
         }
         return managedClasses;
@@ -122,11 +122,11 @@ public class UserManagerResolver extends AbstractObjectResolver implements Objec
     public Object fetch(Object value) throws IllegalStateException {
         checkConfig();
         if (value instanceof String name) {
-            boolean userPrefix = name.startsWith(NuxeoPrincipal.PREFIX);
-            boolean groupPrefix = name.startsWith(NuxeoGroup.PREFIX);
+            boolean userPrefix = name.startsWith(RepositoryPrincipal.PREFIX);
+            boolean groupPrefix = name.startsWith(RepositoryGroup.PREFIX);
             if (includingUsers && !includingGroups) {
                 if (userPrefix) {
-                    name = name.substring(NuxeoPrincipal.PREFIX.length());
+                    name = name.substring(RepositoryPrincipal.PREFIX.length());
                 }
                 if (SecurityConstants.SYSTEM_USERNAME.equals(name)) {
                     return new SystemPrincipal();
@@ -134,24 +134,24 @@ public class UserManagerResolver extends AbstractObjectResolver implements Objec
                 return getUserManager().getPrincipal(name);
             } else if (!includingUsers && includingGroups) {
                 if (groupPrefix) {
-                    name = name.substring(NuxeoGroup.PREFIX.length());
+                    name = name.substring(RepositoryGroup.PREFIX.length());
                 }
                 return getUserManager().getGroup(name);
             } else {
                 if (userPrefix) {
-                    name = name.substring(NuxeoPrincipal.PREFIX.length());
+                    name = name.substring(RepositoryPrincipal.PREFIX.length());
                     if (SecurityConstants.SYSTEM_USERNAME.equals(name)) {
                         return new SystemPrincipal();
                     }
                     return getUserManager().getPrincipal(name);
                 } else if (groupPrefix) {
-                    name = name.substring(NuxeoGroup.PREFIX.length());
+                    name = name.substring(RepositoryGroup.PREFIX.length());
                     return getUserManager().getGroup(name);
                 } else {
                     if (SecurityConstants.SYSTEM_USERNAME.equals(name)) {
                         return new SystemPrincipal();
                     }
-                    NuxeoPrincipal principal = getUserManager().getPrincipal(name);
+                    RepositoryPrincipal principal = getUserManager().getPrincipal(name);
                     if (principal != null) {
                         return principal;
                     } else {
@@ -178,10 +178,10 @@ public class UserManagerResolver extends AbstractObjectResolver implements Objec
     public Serializable getReference(Object entity) throws IllegalStateException {
         checkConfig();
         if (entity != null) {
-            if (entity instanceof NuxeoPrincipal nuxeoPrincipal && includingUsers) {
-                return NuxeoPrincipal.PREFIX + nuxeoPrincipal.getId();
-            } else if (entity instanceof NuxeoGroup nuxeoGroup && includingGroups) {
-                return NuxeoGroup.PREFIX + nuxeoGroup.getId();
+            if (entity instanceof RepositoryPrincipal repositoryPrincipal && includingUsers) {
+                return RepositoryPrincipal.PREFIX + repositoryPrincipal.getId();
+            } else if (entity instanceof RepositoryGroup repositoryGroup && includingGroups) {
+                return RepositoryGroup.PREFIX + repositoryGroup.getId();
             }
         }
         return null;

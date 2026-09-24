@@ -45,7 +45,7 @@ public class TestEventListenerContrib {
         assertEquals(3, errors.size());
 
         assertEquals("Failed to register event listener in component 'test-invalid-listeners#listener': "
-                + "error initializing event listener 'invalidListenerUnknown' (com.hyland.openarch.ecm.core.api.NuxeoException: "
+                + "error initializing event listener 'invalidListenerUnknown' (com.hyland.openarch.ecm.core.api.RepositoryException: "
                 + "java.lang.ClassNotFoundException: org.nuxeo.invalid.listener.UnknownClass)", errors.get(0));
         assertEquals("Failed to register event listener in component 'test-invalid-listeners#listener': "
                 + "error initializing event listener 'invalidListenerNotEventListener' "

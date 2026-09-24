@@ -15,9 +15,9 @@
  */
 package org.nuxeo.rest.upload;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BoundedInputStream;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,7 +72,7 @@ public record UriWithHeaders(URI uri, Map<String, String> headers) {
                 .get()) {
             List<String> inputLines = IOUtils.readLines(bounded, UTF_8);
             if (bounded.getCount() > MAX_BODY_SIZE_BYTES) {
-                throw new NuxeoException("Indirect streaming request body is too large. Maximum allowed size is "
+                throw new RepositoryException("Indirect streaming request body is too large. Maximum allowed size is "
                         + MAX_BODY_SIZE_BYTES + " bytes", BAD_REQUEST.getStatusCode());
             }
             Map<String, String> headers = new HashMap<>();

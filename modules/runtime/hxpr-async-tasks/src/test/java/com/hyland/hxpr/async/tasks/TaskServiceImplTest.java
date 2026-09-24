@@ -27,7 +27,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import com.hyland.openarch.common.utils.TooLargeException;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.test.runner.Deploy;
 import com.hyland.openarch.runtime.test.runner.Features;
@@ -41,7 +41,7 @@ import com.hyland.hxpr.async.tasks.message.AbstractTask;
  * <p>
  * {@link BatchUtils#tryWithSplit} relies on catching {@link TooLargeException} <em>by
  * type</em> to split an oversized batch and retry. A defensive {@code catch (Exception e)} block that rewraps
- * every failure into a {@link NuxeoException} (added for HXCS-8351) silently defeated that mechanism, letting
+ * every failure into a {@link RepositoryException} (added for HXCS-8351) silently defeated that mechanism, letting
  * SNS "message too large" failures escape all the way up instead of being retried with a smaller batch
  * (HXCS-8685).
  * <p>
@@ -100,15 +100,15 @@ class TaskServiceImplTest {
     }
 
     @Test
-    void shouldStillWrapUnrelatedExceptionsInNuxeoException() {
+    void shouldStillWrapUnrelatedExceptionsInRepositoryException() {
         // given a runner that fails for a reason unrelated to message size
         ThrowingTaskRunner.exceptionToThrow = new IllegalStateException("broker unavailable");
         TaskService taskService = Framework.getService(TaskService.class);
         var task = new TestTask();
 
-        // when / then the pre-existing NuxeoException wrapping behavior is preserved for every other exception type
+        // when / then the pre-existing RepositoryException wrapping behavior is preserved for every other exception type
         assertThatThrownBy(() -> taskService.submitTask(task, true)) //
-                .isInstanceOf(NuxeoException.class)
+                .isInstanceOf(RepositoryException.class)
                 .hasCauseInstanceOf(IllegalStateException.class);
 
         var status = taskService.getStatus(task.getTaskId());

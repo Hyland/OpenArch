@@ -31,6 +31,7 @@ import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
 
 import java.io.IOException;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
@@ -38,7 +39,6 @@ import com.hyland.openarch.ecm.core.api.Blob;
 import com.hyland.openarch.ecm.core.api.Blobs;
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.ecm.core.api.validation.DocumentValidationException;
 import com.hyland.openarch.ecm.core.schema.MixinNames;
 import com.hyland.openarch.runtime.test.runner.Features;
@@ -136,7 +136,7 @@ class SysEmbeddingsDoctypeTest {
         Executable run = () -> removeSysHasEmbeddings(doc);
 
         // then it fails with Conflict
-        var exc = assertThrows(NuxeoException.class, run);
+        var exc = assertThrows(RepositoryException.class, run);
         assertEquals(SC_CONFLICT, exc.getStatusCode());
     }
 

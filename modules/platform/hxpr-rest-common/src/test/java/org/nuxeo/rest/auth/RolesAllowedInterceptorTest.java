@@ -28,7 +28,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import org.nuxeo.rest.auth.config.RolesAllowedInterceptorTestConfig;
 import org.nuxeo.rest.auth.config.RolesAllowedInterceptorTestConfig.TestBean;
 import org.nuxeo.rest.auth.config.RolesAllowedInterceptorTestConfig.TestBeanWithAdministratorAccess;
@@ -58,7 +58,7 @@ public class RolesAllowedInterceptorTest {
     RolesAllowedInterceptor rolesAllowedInterceptor;
 
     @Mock
-    NuxeoPrincipal currentUser;
+    RepositoryPrincipal currentUser;
 
     @BeforeEach
     public void setup() {

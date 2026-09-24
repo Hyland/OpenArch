@@ -32,11 +32,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.apache.commons.lang3.StringUtils;
 import com.hyland.openarch.common.utils.TooLargeException;
 import com.hyland.openarch.common.xmap.registry.MapRegistry;
 import com.hyland.openarch.common.xmap.registry.SingleRegistry;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.ecm.core.api.repository.RepositoryManager;
 import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.cluster.ClusterService;
@@ -114,7 +114,7 @@ public class TaskServiceImpl extends DefaultComponent implements TaskService, Co
                 .getExtensionPointRegistry(NAME, XP_TASKS_RUNNER)
                 .orElseThrow(() -> new IllegalArgumentException("Unknown registry for extension point '%s--%s'".formatted(NAME, XP_TASKS_RUNNER)));
         Optional<TaskRunnerDescriptor> descriptor = registry.getContribution();
-        return descriptor.orElseThrow(() -> new NuxeoException("No Async Tasks runner has been defined"));
+        return descriptor.orElseThrow(() -> new RepositoryException("No Async Tasks runner has been defined"));
     }
 
     /**
@@ -268,7 +268,7 @@ public class TaskServiceImpl extends DefaultComponent implements TaskService, Co
                 Thread.currentThread().interrupt();
             }
             abortTask(status, taskId, taskName, e);
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
         return taskId;
     }

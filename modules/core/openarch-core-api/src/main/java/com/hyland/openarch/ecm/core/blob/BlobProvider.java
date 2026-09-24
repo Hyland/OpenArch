@@ -23,10 +23,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import jakarta.servlet.http.HttpServletRequest;
 
 import com.hyland.openarch.ecm.core.api.Blob;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.ecm.core.blob.BlobService.UsageHint;
 import com.hyland.openarch.ecm.core.blob.apps.AppLink;
 import com.hyland.openarch.ecm.core.blob.binary.BinaryGarbageCollector;
@@ -189,7 +189,7 @@ public interface BlobProvider {
     /**
      * Checks if sync is supported.
      * <p>
-     * Sync refers to the fact that a blob from this provider may be synced with a remote system (like Nuxeo Drive) or
+     * Sync refers to the fact that a blob from this provider may be synced with a remote system or
      * with a process that updates things in the blob (like Binary Metadata, or WOPI).
      *
      * @return {@code true} if sync is supported
@@ -291,7 +291,7 @@ public interface BlobProvider {
             Map<String, URI> availableConversions = getAvailableConversions(blob, UsageHint.STREAM);
             return availableConversions.containsKey(mimeType);
         } catch (IOException e) {
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
     }
 

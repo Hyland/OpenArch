@@ -25,11 +25,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.hyland.openarch.ecm.core.api.Blob;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.ecm.core.blob.KeyStrategy.WriteObserver;
 import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.services.event.Event;
@@ -174,7 +175,7 @@ public abstract class AbstractBlobStore implements BlobStore {
         String key = blobWriteContext.getKey();
         if (key == null) {
             if (!keyStrategy.useDeDuplication()) {
-                throw new NuxeoException("Non-deduplication should have a key");
+                throw new RepositoryException("Non-deduplication should have a key");
             }
             // key not known or not yet computed
             // check if the original blob key can give us a digest
@@ -229,7 +230,7 @@ public abstract class AbstractBlobStore implements BlobStore {
         BlobWriteContext blobWriteContext = keyStrategy.getBlobWriteContext(blobContext);
         String key = blobWriteContext.getKey();
         if (key == null) {
-            throw new NuxeoException("Cannot delete blob with " + getClass().getName());
+            throw new RepositoryException("Cannot delete blob with " + getClass().getName());
         }
         deleteBlob(key);
     }
@@ -326,9 +327,9 @@ public abstract class AbstractBlobStore implements BlobStore {
     }
 
     protected void notifyAsyncDigest(String key) {
-        // due to dependency issues between nuxeo-core-api and nuxeo-core,
+        // due to dependency issues between openarch-core-api and openarch-core,
         // we have to use a "runtime" event instead of a core event for dependency inversion
-        // to trigger code living in nuxeo-core (because it needs to access the repository)
+        // to trigger code living in openarch-core (because it needs to access the repository)
         EventService eventService = Framework.getService(EventService.class);
         Map<String, String> data = new HashMap<>();
         data.put("blobProviderId", blobProviderId);

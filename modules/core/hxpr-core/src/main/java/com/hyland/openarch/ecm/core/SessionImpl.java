@@ -68,8 +68,8 @@ import com.hyland.openarch.ecm.core.api.DocumentRef;
 import com.hyland.openarch.ecm.core.api.DocumentSecurityException;
 import com.hyland.openarch.ecm.core.api.IdRef;
 import com.hyland.openarch.ecm.core.api.IterableQueryResult;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.PartialList;
 import com.hyland.openarch.ecm.core.api.PathRef;
 import com.hyland.openarch.ecm.core.api.PropertyException;
@@ -114,12 +114,12 @@ public class SessionImpl implements CoreSession {
 
     private final String repositoryName;
 
-    private final NuxeoPrincipal principal;
+    private final RepositoryPrincipal principal;
 
     // lazily initialized counters
     private Counter deleteDocumentCount;
 
-    public SessionImpl(String repositoryName, NuxeoPrincipal principal) {
+    public SessionImpl(String repositoryName, RepositoryPrincipal principal) {
         this.repositoryName = repositoryName;
         this.principal = principal;
     }
@@ -140,7 +140,7 @@ public class SessionImpl implements CoreSession {
     }
 
     @Override
-    public NuxeoPrincipal getPrincipal() {
+    public RepositoryPrincipal getPrincipal() {
         return principal;
     }
 
@@ -495,7 +495,7 @@ public class SessionImpl implements CoreSession {
         InternalDocument doc = resolveReference(docRef, READ);
 
         if (doc.isVersion()) {
-            throw new NuxeoException("Cannot move a version: " + doc.getId(), SC_UNPROCESSABLE_ENTITY);
+            throw new RepositoryException("Cannot move a version: " + doc.getId(), SC_UNPROCESSABLE_ENTITY);
         }
 
         InternalDocument folder;
@@ -560,12 +560,12 @@ public class SessionImpl implements CoreSession {
     public DocumentModel restoreVersion(DocumentRef versionRef) {
         InternalDocument version = resolveReference(versionRef, READ);
         if (!version.isVersion()) {
-            throw new NuxeoException("Not a version: " + version.getId(), SC_UNPROCESSABLE_ENTITY);
+            throw new RepositoryException("Not a version: " + version.getId(), SC_UNPROCESSABLE_ENTITY);
         }
         InternalDocument doc = version.getWorkingCopy();
         checkPermission(doc, WRITE);
         if (!doc.isVersionable()) {
-            throw new NuxeoException("Not versionable: " + doc.getId(), SC_PRECONDITION_FAILED);
+            throw new RepositoryException("Not versionable: " + doc.getId(), SC_PRECONDITION_FAILED);
         }
 
         if (doc.isRecord()) {
@@ -600,7 +600,7 @@ public class SessionImpl implements CoreSession {
         // TODO: add a new permission names CHECKOUT and use it instead of WRITE
         InternalDocument doc = resolveReference(docRef, WRITE);
         if (!doc.isVersionable()) {
-            throw new NuxeoException("Not versionable: " + docRef, SC_PRECONDITION_FAILED);
+            throw new RepositoryException("Not versionable: " + docRef, SC_PRECONDITION_FAILED);
         }
         DocumentModel docModel = readModel(doc);
         doc.checkOut();
@@ -616,7 +616,7 @@ public class SessionImpl implements CoreSession {
     public DocumentRef checkIn(DocumentRef docRef, boolean minor) {
         InternalDocument doc = resolveReference(docRef, CREATE_VERSION);
         if (!doc.isVersionable()) {
-            throw new NuxeoException("Not versionable: " + docRef, SC_PRECONDITION_FAILED);
+            throw new RepositoryException("Not versionable: " + docRef, SC_PRECONDITION_FAILED);
         }
         DocumentModel docModel = readModel(doc);
         notifyEvent(DocumentEventTypes.ABOUT_TO_CHECKIN, docModel, null, null, null, true);

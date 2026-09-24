@@ -24,8 +24,8 @@ import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import com.hyland.openarch.ecm.core.api.NuxeoGroup;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryGroup;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import org.nuxeo.ecm.platform.login.filestore.store.GroupEntry;
 import org.nuxeo.ecm.platform.login.filestore.store.UserEntry;
 import org.nuxeo.ecm.platform.login.filestore.store.UserStore;
@@ -101,14 +101,14 @@ class UserManagerFileStoreTest {
 
     @Test
     void getPrincipal_byUuid_returnsPrincipal() {
-        NuxeoPrincipal p = userManager.getPrincipal("alice-uuid");
+        RepositoryPrincipal p = userManager.getPrincipal("alice-uuid");
         assertThat(p).isNotNull();
         assertThat(p.getFirstName()).isEqualTo("Alice");
     }
 
     @Test
     void getPrincipal_byUsername_fallback_returnsPrincipal() {
-        NuxeoPrincipal p = userManager.getPrincipal("bob");
+        RepositoryPrincipal p = userManager.getPrincipal("bob");
         assertThat(p).isNotNull();
         assertThat(p.getId()).isEqualTo("bob-uuid");
     }
@@ -136,21 +136,21 @@ class UserManagerFileStoreTest {
 
     @Test
     void getPrincipals_returnsOnlyKnownIds() {
-        List<NuxeoPrincipal> results = userManager.getPrincipals(List.of("alice-uuid", "unknown", "bob-uuid"));
+        List<RepositoryPrincipal> results = userManager.getPrincipals(List.of("alice-uuid", "unknown", "bob-uuid"));
         assertThat(results).hasSize(2);
-        assertThat(results).extracting(NuxeoPrincipal::getId).containsExactlyInAnyOrder("alice-uuid", "bob-uuid");
+        assertThat(results).extracting(RepositoryPrincipal::getId).containsExactlyInAnyOrder("alice-uuid", "bob-uuid");
     }
 
     @Test
     void searchPrincipalsByName_delegatesToStore() {
-        List<NuxeoPrincipal> results = userManager.searchPrincipalsByName("ali");
+        List<RepositoryPrincipal> results = userManager.searchPrincipalsByName("ali");
         assertThat(results).hasSize(1);
         assertThat(results.getFirst().getFirstName()).isEqualTo("Alice");
     }
 
     @Test
     void getGroup_byId_returnsGroup() {
-        NuxeoGroup g = userManager.getGroup("group-admin-id");
+        RepositoryGroup g = userManager.getGroup("group-admin-id");
         assertThat(g).isNotNull();
         assertThat(g.getName()).isEqualTo("administrators");
     }
@@ -173,7 +173,7 @@ class UserManagerFileStoreTest {
 
     @Test
     void getGroups_returnsOnlyKnownIds() {
-        List<NuxeoGroup> results = userManager.getGroups(List.of("group-admin-id", "group-members-id", "unknown"));
+        List<RepositoryGroup> results = userManager.getGroups(List.of("group-admin-id", "group-members-id", "unknown"));
         assertThat(results).hasSize(2);
     }
 
@@ -181,7 +181,7 @@ class UserManagerFileStoreTest {
 
     @Test
     void searchGroupsByName_delegatesToStore() {
-        List<NuxeoGroup> results = userManager.searchGroupsByName("admin");
+        List<RepositoryGroup> results = userManager.searchGroupsByName("admin");
         assertThat(results).hasSize(1);
         assertThat(results.getFirst().getName()).isEqualTo("administrators");
     }

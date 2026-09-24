@@ -20,7 +20,7 @@ import java.io.Serializable;
 import java.util.Map;
 
 import com.hyland.openarch.ecm.core.api.CoreSession;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.event.Event;
 
 /**
@@ -34,11 +34,11 @@ public class UnboundEventContext extends EventContextImpl {
 
     protected boolean boundToCoreSession = false;
 
-    public UnboundEventContext(NuxeoPrincipal principal, Map<String, Serializable> properties) {
+    public UnboundEventContext(RepositoryPrincipal principal, Map<String, Serializable> properties) {
         this(null, principal, properties);
     }
 
-    public UnboundEventContext(CoreSession session, NuxeoPrincipal principal, Map<String, Serializable> properties) {
+    public UnboundEventContext(CoreSession session, RepositoryPrincipal principal, Map<String, Serializable> properties) {
         super(session, principal);
         setProperties(properties);
         boundToCoreSession = session != null;

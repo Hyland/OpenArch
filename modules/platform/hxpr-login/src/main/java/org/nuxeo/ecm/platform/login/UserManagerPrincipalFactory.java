@@ -19,8 +19,8 @@ import java.security.Principal;
 
 import javax.security.auth.login.LoginException;
 
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
-import org.nuxeo.ecm.platform.usermanager.NuxeoPrincipalImpl;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
+import org.nuxeo.ecm.platform.usermanager.RepositoryPrincipalImpl;
 import org.nuxeo.ecm.platform.usermanager.UserManager;
 import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.api.login.PrincipalFactory;
@@ -31,9 +31,9 @@ public class UserManagerPrincipalFactory implements PrincipalFactory {
     public Principal createPrincipal(String username) throws LoginException {
         UserManager manager = Framework.getService(UserManager.class);
         if (manager == null) {
-            return new NuxeoPrincipalImpl(username);
+            return new RepositoryPrincipalImpl(username);
         }
-        NuxeoPrincipal principal = Framework.doPrivileged(() -> manager.getPrincipal(username));
+        RepositoryPrincipal principal = Framework.doPrivileged(() -> manager.getPrincipal(username));
         if (principal != null) {
             return principal;
         }

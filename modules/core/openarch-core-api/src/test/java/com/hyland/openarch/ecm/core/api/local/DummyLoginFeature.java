@@ -19,7 +19,7 @@ import java.lang.reflect.Method;
 
 import javax.security.auth.login.LoginException;
 
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.impl.UserPrincipal;
 import com.hyland.openarch.runtime.RuntimeServiceException;
 import com.hyland.openarch.runtime.api.Framework;
@@ -43,7 +43,7 @@ import com.google.inject.Binder;
  * <p>
  * You can then get the logged in principal with help of {@link #getPrincipal()} or by using injection.
  * <p>
- * By default the feature will log in as Administrator, like the {@code org.nuxeo.ecm.core.test.CoreFeature} does.
+ * By default the feature will log in as Administrator, like the {@code com.hyland.openarch.ecm.core.test.CoreFeature} does.
  *
  * @since 11.1
  */
@@ -59,8 +59,8 @@ public class DummyLoginFeature implements RunnerFeature {
 
     protected LoginContext loginContext;
 
-    public NuxeoPrincipal getPrincipal() {
-        return (NuxeoPrincipal) loginContext.getPrincipal();
+    public RepositoryPrincipal getPrincipal() {
+        return (RepositoryPrincipal) loginContext.getPrincipal();
     }
 
     public static UserPrincipal getTestPrincipal(String userid, boolean administrator) {
@@ -87,7 +87,7 @@ public class DummyLoginFeature implements RunnerFeature {
 
     @Override
     public void configure(Binder binder) {
-        binder.bind(NuxeoPrincipal.class).toProvider(NuxeoPrincipal::getCurrent);
+        binder.bind(RepositoryPrincipal.class).toProvider(RepositoryPrincipal::getCurrent);
     }
 
     @Override

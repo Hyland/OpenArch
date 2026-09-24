@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.hyland.openarch.ecm.core.api.DocumentSecurityException;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.query.QueryParameters;
 import com.hyland.openarch.ecm.core.model.InternalDocument;
 import com.hyland.openarch.ecm.core.query.sql.model.Operand;
@@ -81,7 +81,7 @@ public interface SecurityPolicy {
      * @param permissions the permission
      * @return {@code true} if the policy applies
      */
-    boolean appliesToDocument(InternalDocument doc, NuxeoPrincipal principal, Set<String> permissions);
+    boolean appliesToDocument(InternalDocument doc, RepositoryPrincipal principal, Set<String> permissions);
 
     /**
      * Checks if the principal has the given permission on the document.
@@ -93,8 +93,8 @@ public interface SecurityPolicy {
      * @param permissions the expanded permissions
      * @return {@code true} if the principal has the permission on the document
      */
-    boolean hasPermission(InternalDocument doc, NuxeoPrincipal principal, Set<String> principals, String permission,
-            Set<String> permissions);
+    boolean hasPermission(InternalDocument doc, RepositoryPrincipal principal, Set<String> principals, String permission,
+                          Set<String> permissions);
 
     /**
      * Checks if the principal can add/remove a mixin.
@@ -122,7 +122,7 @@ public interface SecurityPolicy {
      * @param securityService the security service, for permission expansion
      */
     void restrictEffectivePermissions(List<String> effectivePermissions, InternalDocument doc,
-            NuxeoPrincipal principal, Set<String> principals, SecurityService securityService);
+                                      RepositoryPrincipal principal, Set<String> principals, SecurityService securityService);
 
     /**
      * Gets the query clause to add for this security policy.

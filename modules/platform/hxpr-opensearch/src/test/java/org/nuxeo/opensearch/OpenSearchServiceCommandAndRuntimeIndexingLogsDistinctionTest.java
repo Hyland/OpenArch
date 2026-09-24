@@ -15,6 +15,7 @@
  */
 package org.nuxeo.opensearch;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import jakarta.inject.Inject;
 import jakarta.json.spi.JsonProvider;
 import jakarta.json.stream.JsonGenerator;
@@ -27,7 +28,6 @@ import com.hyland.openarch.ecm.core.api.BulkIndexingException;
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
 import com.hyland.openarch.ecm.core.api.DocumentNotFoundException;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import org.nuxeo.opensearch.api.OpenSearchClient;
 import org.nuxeo.opensearch.api.OpenSearchService;
 import org.nuxeo.opensearch.commands.IndexingCommand;
@@ -94,9 +94,9 @@ class OpenSearchServiceCommandAndRuntimeIndexingLogsDistinctionTest {
         doc.create();
         coreSession.save();
         ((OpenSearchServiceImpl)oss).setOpenSearchClient(client);
-        when(client.index(any())).thenThrow(new NuxeoException("test"));
+        when(client.index(any())).thenThrow(new RepositoryException("test"));
         IndexingCommand indexingCommand = new IndexingCommand(doc, IndexingCommand.Type.INSERT, false, false);
-        assertThrows(NuxeoException.class, () -> oss.indexNonRecursive(indexingCommand, true));
+        assertThrows(RepositoryException.class, () -> oss.indexNonRecursive(indexingCommand, true));
         List<String> events = logCaptureResult.getCaughtEventMessages();
         assertThat(events.stream().filter(s -> s.startsWith("OpenSearchService indexing task failed. Re-Indexing Command")).count()).isEqualTo(1);
     }
@@ -136,9 +136,9 @@ class OpenSearchServiceCommandAndRuntimeIndexingLogsDistinctionTest {
         doc.create();
         coreSession.save();
         ((OpenSearchServiceImpl)oss).setOpenSearchClient(client);
-        when(client.index(any())).thenThrow(new NuxeoException("test"));
+        when(client.index(any())).thenThrow(new RepositoryException("test"));
         IndexingCommand indexingCommand = new IndexingCommand(doc, IndexingCommand.Type.INSERT, false, false);
-        assertThrows(NuxeoException.class, () -> oss.indexNonRecursive(indexingCommand, false));
+        assertThrows(RepositoryException.class, () -> oss.indexNonRecursive(indexingCommand, false));
         List<String> events = logCaptureResult.getCaughtEventMessages();
         assertThat(events.stream().filter(s -> s.startsWith("OpenSearchService indexing task failed. Runtime Indexing")).count()).isEqualTo(1);
     }

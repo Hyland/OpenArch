@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.local.WithUser;
 import com.hyland.openarch.ecm.core.api.security.ACE;
 import com.hyland.openarch.ecm.core.api.security.ACL;
@@ -158,7 +158,7 @@ public class DocumentPermissionsAPITest extends AbstractAPITest {
         JSONArray documentApiEffectivePermissions = getJsonPath(permissionsResult.andReturn().getResponse().getContentAsString(),
             "sys_effectivePermissions");
         ResultActions result = checkResponse(Status.OK,
-            getDocumentPermissionsPath(doc.getId(), List.of(NuxeoPrincipal.getCurrent().getId())));
+            getDocumentPermissionsPath(doc.getId(), List.of(RepositoryPrincipal.getCurrent().getId())));
         JSONArray permissionsApiEffectivePermissions = getJsonPath(result.andReturn().getResponse().getContentAsString(),
             "fullEffectivePermissions[0].userPermissions");
         Assertions.assertTrue(permissionsApiEffectivePermissions.containsAll(documentApiEffectivePermissions));
@@ -232,7 +232,7 @@ public class DocumentPermissionsAPITest extends AbstractAPITest {
 
     @Test
     void getFullEffectivePermissionsExampleJson() throws Exception {
-        String userId = NuxeoPrincipal.getCurrent().getId();
+        String userId = RepositoryPrincipal.getCurrent().getId();
         // Grant the user ReadWrite on the document so the security service returns a real set of effective permissions.
         DocumentModel document = session.getDocument(doc.getRef());
         ACL acl = document.getLocalACL();

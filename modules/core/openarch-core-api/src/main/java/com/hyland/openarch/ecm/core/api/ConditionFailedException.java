@@ -20,7 +20,7 @@ import static jakarta.servlet.http.HttpServletResponse.SC_PRECONDITION_FAILED;
 /**
  * An exception thrown if a condition failed.
  */
-public class ConditionFailedException extends NuxeoException {
+public class ConditionFailedException extends RepositoryException {
 
     private static final long serialVersionUID = 1L;
 

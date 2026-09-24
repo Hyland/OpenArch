@@ -31,7 +31,7 @@ import com.hyland.openarch.ecm.core.api.UpdateCondition;
 import com.hyland.openarch.ecm.core.api.ValuesVisitor;
 import com.hyland.openarch.ecm.core.api.IdRef;
 import com.hyland.openarch.ecm.core.api.Lock;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.PathRef;
 import com.hyland.openarch.ecm.core.api.PropertyException;
 import com.hyland.openarch.ecm.core.api.model.resolver.DocumentPropertyObjectResolverImpl;
@@ -235,7 +235,7 @@ public class ShallowDocumentModel implements DocumentModel {
     }
 
     @Override
-    public NuxeoPrincipal getPrincipal() {
+    public RepositoryPrincipal getPrincipal() {
         throw new UnsupportedOperationException();
     }
 

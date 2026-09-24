@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <component name="org.nuxeo.opensearch.OpenSearchService">
-  <require>org.nuxeo.ecm.core.repository.RepositoryServiceComponent</require>
+  <require>com.hyland.openarch.ecm.core.repository.RepositoryServiceComponent</require>
   <implementation class="org.nuxeo.opensearch.OpenSearchServiceImpl" />
 
   <service>

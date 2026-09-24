@@ -49,7 +49,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Map;
 
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.ecm.core.api.repository.RepositoryManager;
 import com.hyland.openarch.ecm.core.security.config.SecurityPolicyConfig;
 import org.nuxeo.rest.security.SecurityPolicyManager.ConfigWithVersion;
@@ -300,7 +300,7 @@ public class SecurityPolicyAPI {
 
     private void checkRepoExists(String repoId) {
         if (getRepositoryManager().getRepository(repoId) == null) {
-            throw new NuxeoException(NOT_FOUND.value());
+            throw new RepositoryException(NOT_FOUND.value());
         }
     }
 

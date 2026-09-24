@@ -25,13 +25,13 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-import com.hyland.openarch.ecm.core.api.NuxeoGroup;
+import com.hyland.openarch.ecm.core.api.RepositoryGroup;
 
-public class TestNuxeoGroupImpl {
+public class TestRepositoryGroupImpl {
 
     @Test
     public void testConstructor() {
-        NuxeoGroup group = new NuxeoGroupImpl("myid", "mygroup");
+        RepositoryGroup group = new RepositoryGroupImpl("myid", "mygroup");
 
         assertEquals("mygroup", group.getName());
         assertEquals("mygroup", group.toString());
@@ -55,9 +55,9 @@ public class TestNuxeoGroupImpl {
 
     @Test
     public void testEquals() {
-        NuxeoGroup group1 = new NuxeoGroupImpl("myid", "mygroup");
-        NuxeoGroup group2 = new NuxeoGroupImpl("myid", "mygroup");
-        NuxeoGroup group3 = new NuxeoGroupImpl("yourgroupId", "yourgroup");
+        RepositoryGroup group1 = new RepositoryGroupImpl("myid", "mygroup");
+        RepositoryGroup group2 = new RepositoryGroupImpl("myid", "mygroup");
+        RepositoryGroup group3 = new RepositoryGroupImpl("yourgroupId", "yourgroup");
 
         assertEquals(group1, group1);
         assertEquals(group1, group2);

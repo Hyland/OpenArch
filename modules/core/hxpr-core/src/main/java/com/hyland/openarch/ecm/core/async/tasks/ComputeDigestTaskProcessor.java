@@ -17,7 +17,7 @@ package com.hyland.openarch.ecm.core.async.tasks;
 
 import static com.hyland.hxpr.async.tasks.TaskStatus.State.COMPLETED;
 
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.ecm.core.blob.ComputeDigestHelper;
 import com.hyland.openarch.runtime.api.Framework;
 import org.slf4j.Logger;
@@ -47,7 +47,7 @@ public class ComputeDigestTaskProcessor implements TaskProcessor<ComputeDigestTa
         log.debug("Start compute digest task");
         try {
             new ComputeDigestHelper(task.getBlobProviderId(), task.getKey()).computeAndReplaceDigest();
-        } catch (NuxeoException e) {
+        } catch (RepositoryException e) {
             e.addInfo("For blob provider: " + task.getBlobProviderId() + " and key: " + task.getKey());
             throw e;
         }

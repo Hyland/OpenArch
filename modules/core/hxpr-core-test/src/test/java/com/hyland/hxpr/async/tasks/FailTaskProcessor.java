@@ -16,7 +16,7 @@
 package com.hyland.hxpr.async.tasks;
 
 import com.hyland.hxpr.async.tasks.message.DocumentTask;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 
 public class FailTaskProcessor implements TaskProcessor<DocumentTask> {
 
@@ -39,7 +39,7 @@ public class FailTaskProcessor implements TaskProcessor<DocumentTask> {
     @Override
     public void process(DocumentTask task) {
         if (count++ < MAX_FAILURE) {
-            throw new NuxeoException("Simulated exception for test purpose");
+            throw new RepositoryException("Simulated exception for test purpose");
         }
         count = 0;
     }

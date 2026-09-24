@@ -66,6 +66,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import jakarta.inject.Inject;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -80,7 +81,6 @@ import com.hyland.openarch.ecm.core.api.DocumentModel;
 import com.hyland.openarch.ecm.core.api.DocumentModelList;
 import com.hyland.openarch.ecm.core.api.DocumentRef;
 import com.hyland.openarch.ecm.core.api.IterableQueryResult;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.ecm.core.api.PartialList;
 import com.hyland.openarch.ecm.core.api.PathRef;
 import com.hyland.openarch.ecm.core.api.ScrollResult;
@@ -3118,7 +3118,7 @@ public class TestSQLRepositoryQuery {
 
         // the scroll id is now closed
         ScrollResult<String> res = ret; // effectively final
-        NuxeoException e = assertThrows(NuxeoException.class, () -> session.scroll(res.getScrollId()));
+        RepositoryException e = assertThrows(RepositoryException.class, () -> session.scroll(res.getScrollId()));
         assertEquals("Unknown or timed out scrollId", e.getMessage());
     }
 
@@ -3173,13 +3173,13 @@ public class TestSQLRepositoryQuery {
         // wait for scroll timeout
         Thread.sleep(1100);
 
-        NuxeoException e = assertThrows(NuxeoException.class, () -> session.scroll(ret.getScrollId()));
+        RepositoryException e = assertThrows(RepositoryException.class, () -> session.scroll(ret.getScrollId()));
         assertEquals("Timed out scrollId", e.getMessage());
     }
 
     @Test
     public void testScrollBadUsageInvalidScrollId() {
-        NuxeoException e = assertThrows(NuxeoException.class, () -> session.scroll("foo"));
+        RepositoryException e = assertThrows(RepositoryException.class, () -> session.scroll("foo"));
         assertEquals("Unknown or timed out scrollId", e.getMessage());
     }
 
@@ -3203,7 +3203,7 @@ public class TestSQLRepositoryQuery {
         // normal timeout on ret1
         try {
             session.scroll(ret1.getScrollId());
-        } catch (NuxeoException e) {
+        } catch (RepositoryException e) {
             assertEquals("Timed out scrollId", e.getMessage());
         }
         // This new call will clean leaked scroll
@@ -3211,7 +3211,7 @@ public class TestSQLRepositoryQuery {
         assertTrue(ret4.hasResults());
 
         // ret2 is now unknown because it has been cleaned
-        NuxeoException e = assertThrows(NuxeoException.class, () -> session.scroll(ret2.getScrollId()));
+        RepositoryException e = assertThrows(RepositoryException.class, () -> session.scroll(ret2.getScrollId()));
         assertEquals("Unknown or timed out scrollId", e.getMessage());
     }
 
@@ -3250,7 +3250,7 @@ public class TestSQLRepositoryQuery {
                         latch.await();
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
-                        throw new NuxeoException(e);
+                        throw new RepositoryException(e);
                     }
                     int nb = session.scroll(scrollId).getResults().size();
                     // System.out.println(Thread.currentThread().getName() + ": return: " + nb);
@@ -3299,7 +3299,7 @@ public class TestSQLRepositoryQuery {
                         latch.await();
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
-                        throw new NuxeoException(e);
+                        throw new RepositoryException(e);
                     }
                     session.scroll("SELECT * FROM SysContent", 1, 1).getResults().size();
                     return 1;

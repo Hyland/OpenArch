@@ -16,12 +16,12 @@
 
 package org.nuxeo.ecm.platform.usermanager.exceptions;
 
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 
 /**
  * @author <a href="mailto:glefter@nuxeo.com">George Lefter</a>
  */
-public class GroupAlreadyExistsException extends NuxeoException {
+public class GroupAlreadyExistsException extends RepositoryException {
 
     private static final long serialVersionUID = 1L;
 

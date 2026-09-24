@@ -20,7 +20,7 @@ import static org.apache.http.HttpStatus.SC_BAD_REQUEST;
 /**
  * Base exception thrown when there is a problem accessing a property.
  */
-public class PropertyException extends NuxeoException {
+public class PropertyException extends RepositoryException {
 
     private static final long serialVersionUID = 1L;
 

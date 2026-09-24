@@ -19,7 +19,7 @@ import java.io.Serializable;
 import java.util.Map;
 
 import com.hyland.openarch.ecm.core.api.CoreSession;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 
 /**
  * An event context is describing the context in which a core event was raised.
@@ -107,7 +107,7 @@ public interface EventContext extends Serializable {
      *
      * @return the principal. Cannot be null.
      */
-    NuxeoPrincipal getPrincipal();
+    RepositoryPrincipal getPrincipal();
 
     /**
      * Sets the core session.
@@ -117,7 +117,7 @@ public interface EventContext extends Serializable {
     /**
      * Sets the principal.
      */
-    void setPrincipal(NuxeoPrincipal principal);
+    void setPrincipal(RepositoryPrincipal principal);
 
     /**
      * Creates a new event in that context given the event name. The default flags for the event will be used.

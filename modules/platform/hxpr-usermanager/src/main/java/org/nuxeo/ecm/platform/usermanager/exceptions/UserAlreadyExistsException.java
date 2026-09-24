@@ -18,12 +18,12 @@ package org.nuxeo.ecm.platform.usermanager.exceptions;
 
 import static jakarta.servlet.http.HttpServletResponse.SC_CONFLICT;
 
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 
 /**
  * @author <a href="mailto:glefter@nuxeo.com">George Lefter</a>
  */
-public class UserAlreadyExistsException extends NuxeoException {
+public class UserAlreadyExistsException extends RepositoryException {
 
     private static final long serialVersionUID = 1L;
 

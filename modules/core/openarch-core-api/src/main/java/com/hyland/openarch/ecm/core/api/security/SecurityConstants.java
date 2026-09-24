@@ -38,7 +38,7 @@ public interface SecurityConstants {
      *
      * @since 11.5
      */
-    String RECORDS_CLEANER_GROUP = "NuxeoRecordCleaners";
+    String RECORDS_CLEANER_GROUP = "RepositoryRecordCleaners";
 
     /**
      * Name of the user group allowed to edit directories in addition to administrators.

@@ -15,7 +15,7 @@
  */
 package com.hyland.openarch.ecm.core.storage.dbs;
 
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.ecm.core.api.repository.Repository;
 import com.hyland.openarch.ecm.core.api.repository.RepositoryManager;
 import com.hyland.openarch.ecm.core.repository.RepositoryFactory;
@@ -59,7 +59,7 @@ public class DBSRepositoryService extends DefaultComponent {
         try {
             repositoryFactory = factoryClass.getConstructor(String.class).newInstance(repositoryName);
         } catch (ReflectiveOperationException e) {
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
         if (descriptor.isCacheEnabled()) {
             repositoryFactory = new DBSCachingRepositoryFactory(repositoryName, repositoryFactory);

@@ -42,6 +42,7 @@ import java.net.http.HttpResponse;
 import java.util.Map;
 import java.util.Optional;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import jakarta.ws.rs.core.Response.Status;
 
 import org.junit.jupiter.api.Test;
@@ -49,7 +50,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import org.nuxeo.rest.upload.UriWithHeaders;
 import org.nuxeo.rest.upload.UploadExternalUriClient;
 import com.hyland.openarch.runtime.mockito.MockitoFeature;
@@ -108,7 +108,7 @@ public class UploadExternalUriClientTest {
     void shouldThrowExceptionWhenNoContentTypeHeader() {
         HttpHeaders httpHeaders = HttpHeaders.of(Map.of(), (s1, s2) -> true);
         UploadExternalUriClient client = getUploadExternalUriManager();
-        var e = assertThrows(NuxeoException.class, () ->  client.getMimeTypeAndEncoding(httpHeaders));
+        var e = assertThrows(RepositoryException.class, () ->  client.getMimeTypeAndEncoding(httpHeaders));
         assertEquals(BAD_REQUEST.getStatusCode(), e.getStatusCode());
     }
 
@@ -182,7 +182,7 @@ public class UploadExternalUriClientTest {
             """;
         UriWithHeaders uriWithHeaders = UriWithHeaders.of(getInputStream(body));
 
-        NuxeoException exception = assertThrows(NuxeoException.class,
+        RepositoryException exception = assertThrows(RepositoryException.class,
                 () -> client.downloadResourceFromURI(uriWithHeaders));
         assertEquals(BAD_REQUEST.getStatusCode(), exception.getStatusCode());
     }
@@ -199,7 +199,7 @@ public class UploadExternalUriClientTest {
             """;
         UriWithHeaders uriWithHeaders = UriWithHeaders.of(getInputStream(body));
 
-        NuxeoException exception = assertThrows(NuxeoException.class,
+        RepositoryException exception = assertThrows(RepositoryException.class,
                 () -> client.downloadResourceFromURI(uriWithHeaders));
         assertEquals(BAD_REQUEST.getStatusCode(), exception.getStatusCode());
     }
@@ -222,7 +222,7 @@ public class UploadExternalUriClientTest {
             """;
         UriWithHeaders uriWithHeaders = UriWithHeaders.of(getInputStream(body));
 
-        NuxeoException exception = assertThrows(NuxeoException.class,
+        RepositoryException exception = assertThrows(RepositoryException.class,
                 () -> client.downloadResourceFromURI(uriWithHeaders));
         assertEquals(BAD_REQUEST.getStatusCode(), exception.getStatusCode());
     }
@@ -230,7 +230,7 @@ public class UploadExternalUriClientTest {
     @Test
     @WithFrameworkProperty(name = UPLOAD_URI_ALLOWED_HOST_LIST_PROPERTY, value = "www.example.com")
     @WithFrameworkProperty(name = UploadExternalUriClient.UPLOAD_URI_ALLOWED_HEADER_LIST_PROPERTY, value = "Authorization")
-    void shouldThrowNuxeoExceptionWhenSendThrowsInterruptedException() throws Exception {
+    void shouldThrowRepositoryExceptionWhenSendThrowsInterruptedException() throws Exception {
         HttpClient httpClient = Mockito.mock(HttpClient.class);
         when(httpClient.send(
                 any(HttpRequest.class),
@@ -245,7 +245,7 @@ public class UploadExternalUriClientTest {
             """;
         UriWithHeaders uriWithHeaders = UriWithHeaders.of(getInputStream(body));
 
-        NuxeoException exception = assertThrows(NuxeoException.class,
+        RepositoryException exception = assertThrows(RepositoryException.class,
                 () -> client.downloadResourceFromURI(uriWithHeaders));
         assertEquals(INTERNAL_SERVER_ERROR.getStatusCode(), exception.getStatusCode());
     }
@@ -253,7 +253,7 @@ public class UploadExternalUriClientTest {
     @Test
     @WithFrameworkProperty(name = UPLOAD_URI_ALLOWED_HOST_LIST_PROPERTY, value = "www.example.com")
     @WithFrameworkProperty(name = UploadExternalUriClient.UPLOAD_URI_ALLOWED_HEADER_LIST_PROPERTY, value = "Authorization")
-    void shouldThrowNuxeoExceptionWhenSendThrowsIOException() throws Exception {
+    void shouldThrowRepositoryExceptionWhenSendThrowsIOException() throws Exception {
         HttpClient httpClient = Mockito.mock(HttpClient.class);
         when(httpClient.send(
                 any(HttpRequest.class),
@@ -268,7 +268,7 @@ public class UploadExternalUriClientTest {
             """;
         UriWithHeaders uriWithHeaders = UriWithHeaders.of(getInputStream(body));
 
-        NuxeoException exception = assertThrows(NuxeoException.class,
+        RepositoryException exception = assertThrows(RepositoryException.class,
                 () -> client.downloadResourceFromURI(uriWithHeaders));
         assertEquals(INTERNAL_SERVER_ERROR.getStatusCode(), exception.getStatusCode());
     }
@@ -295,7 +295,7 @@ public class UploadExternalUriClientTest {
             """;
         UriWithHeaders uriWithHeaders = UriWithHeaders.of(getInputStream(body));
 
-        NuxeoException exception = assertThrows(NuxeoException.class,
+        RepositoryException exception = assertThrows(RepositoryException.class,
                 () -> client.downloadResourceFromURI(uriWithHeaders));
         assertEquals(BAD_REQUEST.getStatusCode(), exception.getStatusCode());
     }
@@ -325,7 +325,7 @@ public class UploadExternalUriClientTest {
             https://www.example.com/images/earth/earth-night.jpeg
             """;
 
-        var e = assertThrows(NuxeoException.class, () -> client.downloadResourceFromURI(UriWithHeaders.of(getInputStream(body))));
+        var e = assertThrows(RepositoryException.class, () -> client.downloadResourceFromURI(UriWithHeaders.of(getInputStream(body))));
         assertEquals(BAD_REQUEST.getStatusCode(), e.getStatusCode());
     }
 
@@ -350,7 +350,7 @@ public class UploadExternalUriClientTest {
             # Authorization: Bearer token
             https://www.example.com/images/earth/earth-night.jpeg
             """;
-        var e = assertThrows(NuxeoException.class, () -> client.downloadResourceFromURI(UriWithHeaders.of(getInputStream(body))));
+        var e = assertThrows(RepositoryException.class, () -> client.downloadResourceFromURI(UriWithHeaders.of(getInputStream(body))));
         assertEquals(400, e.getStatusCode());
     }
 

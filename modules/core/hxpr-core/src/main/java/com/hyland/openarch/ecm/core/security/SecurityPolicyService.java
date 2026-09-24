@@ -23,7 +23,7 @@ import java.util.Set;
 
 import com.hyland.openarch.ecm.core.api.DocumentModel;
 import com.hyland.openarch.ecm.core.api.DocumentSecurityException;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.query.QueryParameters;
 import com.hyland.openarch.ecm.core.model.InternalDocument;
 import com.hyland.openarch.ecm.core.query.sql.model.Statement;
@@ -67,7 +67,7 @@ public interface SecurityPolicyService {
     /**
      * Checks if the principal has the given permission on the document.
      */
-    boolean hasPermission(InternalDocument doc, NuxeoPrincipal principal, String permission);
+    boolean hasPermission(InternalDocument doc, RepositoryPrincipal principal, String permission);
 
     /**
      * Checks if the principal can add/remove a mixin on a given document.
@@ -77,7 +77,7 @@ public interface SecurityPolicyService {
      * @param mixin the mixin being added/removed
      * @throws DocumentSecurityException if permission is denied
      */
-    void checkAllowedMixinUpdate(InternalDocument doc, NuxeoPrincipal principal, String mixin)
+    void checkAllowedMixinUpdate(InternalDocument doc, RepositoryPrincipal principal, String mixin)
             throws DocumentSecurityException;
 
     /**
@@ -88,7 +88,7 @@ public interface SecurityPolicyService {
      * @param xpath the xpath of the property being modified
      * @throws DocumentSecurityException if permission is denied
      */
-    void checkAllowedPropertyUpdate(InternalDocument doc, NuxeoPrincipal principal, String xpath)
+    void checkAllowedPropertyUpdate(InternalDocument doc, RepositoryPrincipal principal, String xpath)
             throws DocumentSecurityException;
 
     /**
@@ -101,7 +101,7 @@ public interface SecurityPolicyService {
      * @param principal the principal
      * @return the permissions on the document for the principal
      */
-    Set<String> getEffectivePermissions(InternalDocument doc, NuxeoPrincipal principal);
+    Set<String> getEffectivePermissions(InternalDocument doc, RepositoryPrincipal principal);
 
     /**
      * Sets the initial configured security policies on a document.

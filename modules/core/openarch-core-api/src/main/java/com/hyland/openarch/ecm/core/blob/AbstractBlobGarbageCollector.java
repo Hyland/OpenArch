@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.ecm.core.blob.binary.BinaryGarbageCollector;
 import com.hyland.openarch.ecm.core.blob.binary.BinaryManagerStatus;
 
@@ -77,7 +77,7 @@ public abstract class AbstractBlobGarbageCollector implements BinaryGarbageColle
     @Override
     public void stop(boolean delete) {
         if (startTime == 0) {
-            throw new NuxeoException("Not started");
+            throw new RepositoryException("Not started");
         }
         log.info("Stopping blob GC for {} ...", getId());
         try {

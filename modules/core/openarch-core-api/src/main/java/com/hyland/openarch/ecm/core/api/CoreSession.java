@@ -26,7 +26,7 @@ import com.hyland.openarch.ecm.core.query.sql.model.Statement;
 import com.hyland.openarch.ecm.core.schema.SchemaManager;
 
 /**
- * A session to the Nuxeo Core.
+ * A session to the OpenArch Core.
  *
  * @see DocumentModel
  * @see DocumentRef
@@ -90,7 +90,7 @@ public interface CoreSession {
      *
      * @return the principal
      */
-    NuxeoPrincipal getPrincipal();
+    RepositoryPrincipal getPrincipal();
 
     /**
      * Checks if the principal that created the client session has the given privilege on the referred document.
@@ -509,7 +509,7 @@ public interface CoreSession {
      * Get the next batch of results containing id of documents, the {@code scrollId} is part of the previous
      * {@link ScrollResult} response.
      *
-     * @throws NuxeoException when the {@code scrollId} is unknown or when the scroll operation has timed out
+     * @throws RepositoryException when the {@code scrollId} is unknown or when the scroll operation has timed out
      * @since 8.4
      */
     ScrollResult<String> scroll(String scrollId);

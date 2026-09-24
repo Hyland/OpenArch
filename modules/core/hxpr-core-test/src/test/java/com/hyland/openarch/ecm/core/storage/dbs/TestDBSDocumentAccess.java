@@ -34,7 +34,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import com.hyland.openarch.ecm.core.SessionImpl;
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.ecm.core.model.InternalDocument;
 import com.hyland.openarch.ecm.core.model.InternalSession;
 import com.hyland.openarch.ecm.core.test.CoreFeature;
@@ -66,7 +66,7 @@ public class TestDBSDocumentAccess {
         InternalDocument root = session().getRootDocument();
         DBSDocument uncreated = DBSDocument.newUnCreatedDocument(root, "uncreated", SYS_FILE, session());
 
-        assertThrows(NuxeoException.class, uncreated::getChildrenIds);
+        assertThrows(RepositoryException.class, uncreated::getChildrenIds);
     }
 
     @Test

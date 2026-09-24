@@ -17,11 +17,11 @@ package com.hyland.openarch.ecm.core.api.validation;
 
 import static jakarta.servlet.http.HttpServletResponse.SC_CONFLICT;
 
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.ecm.core.schema.validation.ValidationException;
 import com.hyland.openarch.ecm.core.schema.validation.ValidationReport;
 
-public abstract class AbstractValidationException extends NuxeoException implements ValidationException {
+public abstract class AbstractValidationException extends RepositoryException implements ValidationException {
 
     private final ValidationReport report;
 

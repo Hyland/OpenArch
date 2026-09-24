@@ -21,12 +21,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import com.hyland.openarch.ecm.core.api.NuxeoGroup;
+import com.hyland.openarch.ecm.core.api.RepositoryGroup;
 
 /**
  * @author <a href="mailto:glefter@nuxeo.com">George Lefter</a>
  */
-public class NuxeoGroupImpl implements NuxeoGroup {
+public class RepositoryGroupImpl implements RepositoryGroup {
 
     private static final long serialVersionUID = 1L;
 
@@ -34,7 +34,7 @@ public class NuxeoGroupImpl implements NuxeoGroup {
 
     protected GroupConfig config = GroupConfig.DEFAULT;
 
-    public NuxeoGroupImpl(String id, String name) {
+    public RepositoryGroupImpl(String id, String name) {
         if (name == null) {
             throw new IllegalArgumentException("group name cannot be null");
         }
@@ -45,7 +45,7 @@ public class NuxeoGroupImpl implements NuxeoGroup {
         properties.put(config.nameField, name);
     }
 
-    public NuxeoGroupImpl(Map<String, Object> entry, GroupConfig config) {
+    public RepositoryGroupImpl(Map<String, Object> entry, GroupConfig config) {
         this.properties = entry;
         this.config = config;
     }
@@ -117,7 +117,7 @@ public class NuxeoGroupImpl implements NuxeoGroup {
         if (other == this) {
             return true;
         }
-        if (other instanceof NuxeoGroupImpl ngi) {
+        if (other instanceof RepositoryGroupImpl ngi) {
             String name = getName();
             String otherName = ngi.getName();
             return Objects.equals(name, otherName);

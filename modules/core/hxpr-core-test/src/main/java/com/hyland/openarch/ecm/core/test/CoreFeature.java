@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.hyland.openarch.ecm.core.api.CoreInstance;
@@ -35,8 +36,7 @@ import com.hyland.openarch.ecm.core.api.DocumentModel;
 import com.hyland.openarch.ecm.core.api.DocumentRef;
 import com.hyland.openarch.ecm.core.api.IdRef;
 import com.hyland.openarch.ecm.core.api.IterableQueryResult;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.PathRef;
 import com.hyland.openarch.ecm.core.api.local.DummyLoginFeature;
 import com.hyland.openarch.ecm.core.api.security.ACL;
@@ -135,7 +135,7 @@ public class CoreFeature implements RunnerFeature {
         try {
             repositoryInit = repositoryConfig.init().getDeclaredConstructor().newInstance();
         } catch (ReflectiveOperationException e) {
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
         Granularity cleanup = repositoryConfig.cleanup();
         granularity = cleanup == Granularity.UNDEFINED ? Granularity.CLASS : cleanup;
@@ -154,7 +154,7 @@ public class CoreFeature implements RunnerFeature {
                 try {
                     harness.deployBundle(bundle);
                 } catch (Exception e) {
-                    throw new NuxeoException(e);
+                    throw new RepositoryException(e);
                 }
             }
             URL blobContribUrl = storageConfiguration.getBlobManagerContrib(loader);
@@ -162,7 +162,7 @@ public class CoreFeature implements RunnerFeature {
             URL repoContribUrl = storageConfiguration.getRepositoryContrib(loader);
             harness.getContext().deploy(repoContribUrl);
         } catch (IOException e) {
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
     }
 
@@ -259,7 +259,7 @@ public class CoreFeature implements RunnerFeature {
                 if (!adminSession.query("SELECT * FROM SysContent, SysRelation").isEmpty()) {
                     log.error("Fail to cleanupSession, repository will not be empty for the next test.");
                 }
-            } catch (NuxeoException e) {
+            } catch (RepositoryException e) {
                 log.error("Unable to reset repository", e);
             } finally {
                 CoreScope.INSTANCE.exit();
@@ -332,11 +332,11 @@ public class CoreFeature implements RunnerFeature {
         return getCoreSession(getRepositoryName(), DummyLoginFeature.getTestPrincipal(username, false));
     }
 
-    public CoreSession getCoreSession(NuxeoPrincipal principal) {
+    public CoreSession getCoreSession(RepositoryPrincipal principal) {
         return getCoreSession(getRepositoryName(), principal);
     }
 
-    public CoreSession getCoreSession(String repositoryName, NuxeoPrincipal principal) {
+    public CoreSession getCoreSession(String repositoryName, RepositoryPrincipal principal) {
         return CoreInstance.getCoreSession(repositoryName, principal);
     }
 
@@ -349,7 +349,7 @@ public class CoreFeature implements RunnerFeature {
     }
 
     public CoreSession createCoreSession() {
-        NuxeoPrincipal principal = loginFeature.getPrincipal();
+        RepositoryPrincipal principal = loginFeature.getPrincipal();
         session = CoreInstance.getCoreSession(getRepositoryName(), principal);
         return session;
     }
@@ -374,7 +374,7 @@ public class CoreFeature implements RunnerFeature {
         return session;
     }
 
-    protected NuxeoPrincipal createAdministrator() {
+    protected RepositoryPrincipal createAdministrator() {
         return DummyLoginFeature.getTestAdminPrincipal();
     }
 

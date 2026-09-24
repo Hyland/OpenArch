@@ -24,7 +24,7 @@ import com.hyland.openarch.ecm.core.api.CoreSession;
 /**
  * A high-level repository descriptor, from which you get a {@link CoreSession} when calling {@code open}.
  * <p>
- * This is obsolete as an extension point, use org.nuxeo.ecm.core.storage.sql.RepositoryService instead. Descriptor kept
+ * This is obsolete as an extension point, use com.hyland.openarch.ecm.core.repository.RepositoryService instead. Descriptor kept
  * for backward-compatibility.
  * <p>
  * Note that this is still use as an object returned by the core api RepositoryManager.

@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.ecm.core.api.repository.Repository;
 import jakarta.transaction.Synchronization;
 
@@ -39,7 +40,6 @@ import org.apache.commons.pool2.impl.GenericKeyedObjectPool;
 import org.apache.commons.pool2.impl.GenericKeyedObjectPoolConfig;
 import com.hyland.openarch.common.utils.DurationUtils;
 import com.hyland.openarch.ecm.core.api.DocumentNotFoundException;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.ecm.core.api.UnrestrictedSessionRunner;
 import com.hyland.openarch.ecm.core.api.repository.PoolConfiguration;
 import com.hyland.openarch.ecm.core.api.repository.RepositoryManager;
@@ -273,14 +273,14 @@ public class RepositoryService extends DefaultComponent implements ComponentMana
      */
     public InternalSession getSession(String repositoryName) {
         if (!TransactionHelper.isTransactionActiveOrMarkedRollback()) {
-            throw new NuxeoException("Cannot use a session outside a transaction");
+            throw new RepositoryException("Cannot use a session outside a transaction");
         }
         TransactionHelper.checkTransactionTimeout();
         ThreadLocal<InternalSession> threadSessions = SESSIONS.computeIfAbsent(repositoryName, r -> new ThreadLocal<>());
         InternalSession session = threadSessions.get();
         if (session == null) {
             if (!TransactionHelper.isTransactionActive()) {
-                throw new NuxeoException("Cannot use a session when transaction is marked rollback-only");
+                throw new RepositoryException("Cannot use a session when transaction is marked rollback-only");
             }
             session = getSessionFromPool(repositoryName, threadSessions::remove);
             threadSessions.set(session);
@@ -299,14 +299,14 @@ public class RepositoryService extends DefaultComponent implements ComponentMana
                             + " or nuxeo.dbs.max-pool-size (currently %s)",
                     poolConfig.getBlockingTimeoutMillis(), poolConfig.getMaxPoolSize());
             log.warn(err);
-            throw new NuxeoException("Too many connections", e, SC_SERVICE_UNAVAILABLE);
+            throw new RepositoryException("Too many connections", e, SC_SERVICE_UNAVAILABLE);
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
             if (e instanceof InterruptedException) { // NOSONAR
                 Thread.currentThread().interrupt();
             }
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
         // register synchronization for transaction commit/rollback
         // and to return to pool and remove from thread-local at end of transaction

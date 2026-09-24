@@ -46,7 +46,7 @@ import org.apache.hc.core5.ssl.SSLContexts;
 import org.apache.hc.core5.util.Timeout;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.nuxeo.opensearch.api.OpenSearchClient;
 import com.hyland.openarch.runtime.api.Framework;
 import org.opensearch.client.json.JsonpMapper;
@@ -174,7 +174,7 @@ public class OpenSearchRestClientFactory {
             try {
                 httpHosts[i++] = HttpHost.create(host);
             } catch (URISyntaxException e) {
-                throw new NuxeoException("Invalid OpenSearch host URI: " + host, e);
+                throw new RepositoryException("Invalid OpenSearch host URI: " + host, e);
             }
         }
         Timeout connectTimeoutMs = Timeout.ofMilliseconds(
@@ -312,7 +312,7 @@ public class OpenSearchRestClientFactory {
             }
             return sslContextBuilder.build();
         } catch (GeneralSecurityException | IOException e) {
-            throw new NuxeoException("Cannot setup SSL for RestClient", e);
+            throw new RepositoryException("Cannot setup SSL for RestClient", e);
         }
     }
 

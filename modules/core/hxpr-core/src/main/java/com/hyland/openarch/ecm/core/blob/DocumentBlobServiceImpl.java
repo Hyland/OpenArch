@@ -29,13 +29,13 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.hyland.openarch.ecm.core.api.Blob;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
 import com.hyland.openarch.ecm.core.api.DocumentSecurityException;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.model.PropertyNotFoundException;
 import com.hyland.openarch.ecm.core.blob.BlobDispatcher.BlobDispatch;
 import com.hyland.openarch.ecm.core.blob.binary.BinaryGarbageCollector;
@@ -114,7 +114,7 @@ public class DocumentBlobServiceImpl extends DefaultComponent implements Documen
         }
         BlobProvider blobProvider = getBlobProvider(key, repositoryName);
         if (blobProvider == null) {
-            throw new NuxeoException("No registered blob provider for key: " + key);
+            throw new RepositoryException("No registered blob provider for key: " + key);
         }
         return blobProvider.readBlob(new BlobInfoContext(blobInfo, doc, xpath));
     }
@@ -142,7 +142,7 @@ public class DocumentBlobServiceImpl extends DefaultComponent implements Documen
     public String writeBlob(Blob blob, InternalDocument doc, String xpath) throws IOException {
         if (blob == null) {
             if (SYSFILE_BLOB.equals(xpath) && doc.isUnderRetentionOrLegalHold()) {
-                if (!InternalSession.canDeleteUndeletable(NuxeoPrincipal.getCurrent())) {
+                if (!InternalSession.canDeleteUndeletable(RepositoryPrincipal.getCurrent())) {
                     throw new DocumentSecurityException(
                             "Cannot delete blob FROM SysContent " + doc.getId() + ", it is under retention / hold");
                 }
@@ -172,7 +172,7 @@ public class DocumentBlobServiceImpl extends DefaultComponent implements Documen
         }
         BlobProvider blobProvider = getBlobProvider(dispatch.providerId);
         if (blobProvider == null) {
-            throw new NuxeoException("No registered blob provider with id: " + dispatch.providerId);
+            throw new RepositoryException("No registered blob provider with id: " + dispatch.providerId);
         }
         if (SYSFILE_BLOB.equals(xpath) && blobProvider.isRecordMode() && doc.isUnderRetentionOrLegalHold()) {
             throw new DocumentSecurityException(
@@ -223,7 +223,7 @@ public class DocumentBlobServiceImpl extends DefaultComponent implements Documen
                 accessor.setBlob(newBlob);
             }
         } catch (IOException e) {
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
     }
 
@@ -283,7 +283,7 @@ public class DocumentBlobServiceImpl extends DefaultComponent implements Documen
             contextFiller.accept(blobUpdateContext);
             blobProvider.updateBlob(blobUpdateContext);
         } catch (IOException e) {
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
     }
 
@@ -390,7 +390,7 @@ public class DocumentBlobServiceImpl extends DefaultComponent implements Documen
      */
     protected <R> R runInTransaction(Supplier<R> supplier, int timeout) {
         if (TransactionHelper.isTransactionMarkedRollback()) {
-            throw new NuxeoException("Cannot run supplier when current transaction is marked rollback.");
+            throw new RepositoryException("Cannot run supplier when current transaction is marked rollback.");
         }
         boolean txActive = TransactionHelper.isTransactionActive();
         boolean txStarted = false;

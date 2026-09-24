@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.File;
@@ -35,7 +36,6 @@ import java.util.List;
 import java.util.Map;
 import com.hyland.openarch.ecm.core.api.Blob;
 import com.hyland.openarch.ecm.core.api.Blobs;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.ecm.core.transientstore.api.TransientStore;
 import org.nuxeo.rest.upload.handler.UploadHandler;
 import org.slf4j.Logger;
@@ -214,14 +214,14 @@ public class Upload {
         // sanity check
         Object chunkBoolean = transientStore.getParameter(id, ChunkInfo.CHUNKED_PARAM_NAME);
         if (Boolean.FALSE.equals(chunkBoolean)) {
-            throw new NuxeoException("Cannot add a chunk to a non chunked file entry.", BAD_REQUEST.value());
+            throw new RepositoryException("Cannot add a chunk to a non chunked file entry.", BAD_REQUEST.value());
         }
         if (chunkIndex < 0) {
-            throw new NuxeoException(String.format("Cannot add chunk with negative index %d.", chunkIndex),
+            throw new RepositoryException(String.format("Cannot add chunk with negative index %d.", chunkIndex),
                     BAD_REQUEST.value());
         }
         if (chunkIndex >= chunkCount) {
-            throw new NuxeoException(
+            throw new RepositoryException(
                     String.format("Cannot add chunk with index %d to file entry %s as chunk count is %d.", chunkIndex,
                             id, chunkCount), BAD_REQUEST.value());
         }
@@ -317,7 +317,7 @@ public class Upload {
             return getBlobFromStore(id);
         } catch (IOException ioe) {
             setStatus(UploadStatus.ERROR);
-            throw new NuxeoException(ioe);
+            throw new RepositoryException(ioe);
         } finally {
             // delete the tmp file
             if (tmpChunkedFile != null && tmpChunkedFile.exists()) {

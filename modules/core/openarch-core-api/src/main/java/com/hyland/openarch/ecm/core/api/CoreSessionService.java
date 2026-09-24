@@ -29,7 +29,7 @@ public interface CoreSessionService {
      * @param principal the principal
      * @return a {@link CoreSession}
      */
-    CoreSession createCoreSession(String repositoryName, NuxeoPrincipal principal);
+    CoreSession createCoreSession(String repositoryName, RepositoryPrincipal principal);
 
     /**
      * Gets the number of open sessions.

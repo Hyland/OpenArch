@@ -31,6 +31,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import org.junit.jupiter.api.AfterEach;
 import tools.jackson.core.JsonParser;
@@ -43,7 +44,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.apache.hc.core5.http.HttpStatus;
 import com.hyland.openarch.common.resilience.Resilience4jRegistries;
 import com.hyland.openarch.common.RetryAfterHint;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import org.nuxeo.opensearch.io.DocumentDTO;
 import org.opensearch.client.json.jackson3.JacksonJsonpMapper;
 import org.opensearch.client.opensearch.OpenSearchClient;
@@ -103,7 +103,7 @@ class OpenSearchRestClientTest {
 
     /**
      * An unreachable OpenSearch is not a defect in this server, and a caller can usefully retry it -- but the
-     * IOException arm threw NuxeoException(Throwable), whose shortest constructor picks 500, so five query
+     * IOException arm threw RepositoryException(Throwable), whose shortest constructor picks 500, so five query
      * operations answered 500 during an outage (HXCS-8835). 503 is what the platform already answers for the
      * equivalent graph failure, and NuxeoExceptionController adds Retry-After to it.
      */
@@ -113,7 +113,7 @@ class OpenSearchRestClientTest {
                 new IOException("Connect to http://opensearch-host:9200 failed: Connection refused"));
 
         SearchRequest request = searchRequest();
-        NuxeoException exception = assertThrows(NuxeoException.class, () -> restClient.search(request));
+        RepositoryException exception = assertThrows(RepositoryException.class, () -> restClient.search(request));
         assertEquals(HttpStatus.SC_SERVICE_UNAVAILABLE, exception.getStatusCode());
         // NuxeoExceptionController replaces the message only for 500, so whatever this carries reaches the
         // caller. An IOException from the client names the configured host and port, which is ours to know and
@@ -134,7 +134,7 @@ class OpenSearchRestClientTest {
                 new StreamReadException((JsonParser) null, "truncated reply"));
 
         SearchRequest request = searchRequest();
-        NuxeoException exception = assertThrows(NuxeoException.class, () -> restClient.search(request));
+        RepositoryException exception = assertThrows(RepositoryException.class, () -> restClient.search(request));
         assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, exception.getStatusCode());
     }
 
@@ -149,7 +149,7 @@ class OpenSearchRestClientTest {
                 new OpenSearchException(rejection));
 
         SearchRequest request = searchRequest();
-        NuxeoException exception = assertThrows(NuxeoException.class, () -> restClient.search(request));
+        RepositoryException exception = assertThrows(RepositoryException.class, () -> restClient.search(request));
         assertEquals(HttpStatus.SC_BAD_REQUEST, exception.getStatusCode());
     }
 
@@ -198,7 +198,7 @@ class OpenSearchRestClientTest {
         when(mockClient.index(any(IndexRequest.class))).thenThrow(osException);
 
         // When/Then
-        NuxeoException exception = assertThrows(NuxeoException.class, () -> restClient.index(request));
+        RepositoryException exception = assertThrows(RepositoryException.class, () -> restClient.index(request));
         assertNotNull(exception.getMessage());
         assertFalse(exception.getMessage().contains("phone=123-456-7890"));
         assertFalse(exception.getMessage().contains("email=test@example.com"));
@@ -217,7 +217,7 @@ class OpenSearchRestClientTest {
         when(mockClient.index(any(IndexRequest.class))).thenThrow(osException);
 
         // When/Then
-        NuxeoException exception = assertThrows(NuxeoException.class, () -> restClient.index(request));
+        RepositoryException exception = assertThrows(RepositoryException.class, () -> restClient.index(request));
         assertEquals(normalMessage, exception.getMessage());
     }
 
@@ -230,10 +230,10 @@ class OpenSearchRestClientTest {
         IOException ioException = new IOException("Network error");
         when(mockClient.index(any(IndexRequest.class))).thenThrow(ioException);
 
-        assertThrows(NuxeoException.class, () -> restClient.index(request));
+        assertThrows(RepositoryException.class, () -> restClient.index(request));
 
         // IOException is retryable: with the test's 2-attempt retry config, the mock is invoked twice
-        // (initial attempt + 1 retry) before the retries are exhausted and NuxeoException is thrown.
+        // (initial attempt + 1 retry) before the retries are exhausted and RepositoryException is thrown.
         verify(mockClient, times(2)).index(any(IndexRequest.class));
     }
 
@@ -264,7 +264,7 @@ class OpenSearchRestClientTest {
         when(mockClient.index(any(IndexRequest.class))).thenThrow(osException);
 
         // When/Then
-        assertThrows(NuxeoException.class, () -> restClient.index(request));
+        assertThrows(RepositoryException.class, () -> restClient.index(request));
 
         // 404 is not part of the transient status set, so the call is not retried.
         verify(mockClient, times(1)).index(any(IndexRequest.class));
@@ -280,7 +280,7 @@ class OpenSearchRestClientTest {
 
         when(mockClient.index(any(IndexRequest.class))).thenThrow(osException);
 
-        assertThrows(NuxeoException.class, () -> restClient.index(request));
+        assertThrows(RepositoryException.class, () -> restClient.index(request));
     }
 
     @Test
@@ -294,7 +294,7 @@ class OpenSearchRestClientTest {
 
         when(mockClient.index(any(IndexRequest.class))).thenThrow(osException);
 
-        NuxeoException exception = assertThrows(NuxeoException.class, () -> restClient.index(request));
+        RepositoryException exception = assertThrows(RepositoryException.class, () -> restClient.index(request));
         assertFalse(exception.getMessage().contains("sensitive1"));
         assertFalse(exception.getMessage().contains("sensitive2"));
     }
@@ -316,11 +316,11 @@ class OpenSearchRestClientTest {
 
         // When: the first call exhausts its 2 retry attempts, both recorded as failures by the circuit breaker
         // (window size 2, minimum calls 2), tripping it open.
-        assertThrows(NuxeoException.class, () -> restClient.index(request));
+        assertThrows(RepositoryException.class, () -> restClient.index(request));
         verify(mockClient, times(2)).index(any(IndexRequest.class));
 
         // Then: the circuit breaker is now open, so a second call fails fast without reaching the transport again.
-        NuxeoException exception = assertThrows(NuxeoException.class, () -> restClient.index(request));
+        RepositoryException exception = assertThrows(RepositoryException.class, () -> restClient.index(request));
         assertTrue(exception.getCause() instanceof CallNotPermittedException);
         // An open breaker is the dependency being away, which is 503 like the unreachable arm of search():
         // the same outage must not change status once the breaker trips (HXCS-8835).
@@ -344,7 +344,7 @@ class OpenSearchRestClientTest {
         // When/Then: a 404 is not a transient failure (see OpenSearchRetryFactory#isRetryable), so repeated
         // occurrences must never trip the circuit breaker.
         for (int i = 0; i < 5; i++) {
-            assertThrows(NuxeoException.class, () -> restClient.index(request));
+            assertThrows(RepositoryException.class, () -> restClient.index(request));
         }
         verify(mockClient, times(5)).index(any(IndexRequest.class));
     }

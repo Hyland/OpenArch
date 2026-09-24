@@ -57,6 +57,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bson.Document;
@@ -65,7 +66,6 @@ import com.hyland.openarch.ecm.core.api.ConcurrentUpdateException;
 import com.hyland.openarch.ecm.core.api.ConditionFailedException;
 import com.hyland.openarch.ecm.core.api.DocumentNotFoundException;
 import com.hyland.openarch.ecm.core.api.Lock;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.ecm.core.api.PartialList;
 import com.hyland.openarch.ecm.core.api.ScrollResult;
 import com.hyland.openarch.ecm.core.api.lock.LockManager;
@@ -400,8 +400,8 @@ public class MongoDBConnection extends DBSConnectionBase {
         return findOne(filter);
     }
 
-    protected NuxeoException newQueryException(String message, MongoException cause, Bson filter) {
-        NuxeoException exc = new NuxeoException(message, cause);
+    protected RepositoryException newQueryException(String message, MongoException cause, Bson filter) {
+        RepositoryException exc = new RepositoryException(message, cause);
         if (filter != null) {
             String msg;
             if (filter instanceof Document document) {
@@ -414,16 +414,16 @@ public class MongoDBConnection extends DBSConnectionBase {
         return exc;
     }
 
-    protected NuxeoException newQueryTimeout(MongoException cause, Bson filter) {
+    protected RepositoryException newQueryTimeout(MongoException cause, Bson filter) {
         return newQueryException("Query timed out as a result of the maximum operation time being exceeded", cause,
                 filter);
     }
 
-    protected NuxeoException newQueryTimeoutClient(MongoException cause, Bson filter) {
+    protected RepositoryException newQueryTimeoutClient(MongoException cause, Bson filter) {
         return newQueryException("Query timed out on client side after socketTimeout exceeded", cause, filter);
     }
 
-    protected NuxeoException newQueryFailure(MongoException cause, Bson filter) {
+    protected RepositoryException newQueryFailure(MongoException cause, Bson filter) {
         return newQueryException("Query operation failed on the server", cause, filter);
     }
 

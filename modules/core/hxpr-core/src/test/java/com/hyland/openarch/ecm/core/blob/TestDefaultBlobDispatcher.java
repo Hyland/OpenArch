@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import com.hyland.openarch.ecm.core.api.Blob;
 import com.hyland.openarch.ecm.core.api.DocumentSecurityException;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.model.InternalDocument;
 import com.hyland.openarch.ecm.core.model.InternalSession;
 
@@ -528,9 +528,9 @@ public class TestDefaultBlobDispatcher {
         when(doc.isUnderRetentionOrLegalHold()).thenReturn(true);
         when(doc.getId()).thenReturn("id1");
 
-        try (MockedStatic<NuxeoPrincipal> principals = mockStatic(NuxeoPrincipal.class);
-                MockedStatic<InternalSession> sessions = mockStatic(InternalSession.class)) {
-            principals.when(NuxeoPrincipal::getCurrent).thenReturn(null);
+        try (MockedStatic<RepositoryPrincipal> principals = mockStatic(RepositoryPrincipal.class);
+             MockedStatic<InternalSession> sessions = mockStatic(InternalSession.class)) {
+            principals.when(RepositoryPrincipal::getCurrent).thenReturn(null);
             sessions.when(() -> InternalSession.canDeleteUndeletable(any())).thenReturn(false);
 
             assertThrows(DocumentSecurityException.class,

@@ -21,11 +21,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.event.CoreEvent;
 
 /**
- * Nuxeo core event implementation.
+ * OpenArch core event implementation.
  *
  * @author <a href="mailto:ja@nuxeo.com">Julien Anguenot</a>
  * @author <a href="mailto:tmartins@nuxeo.com">Thierry Martins</a>
@@ -40,7 +40,7 @@ public class CoreEventImpl implements CoreEvent {
 
     protected final Instant date;
 
-    protected final NuxeoPrincipal principal;
+    protected final RepositoryPrincipal principal;
 
     protected final String category;
 
@@ -52,8 +52,8 @@ public class CoreEventImpl implements CoreEvent {
     public static final String CATEGORY_ATTRIBUTE = "category";
 
     @SuppressWarnings("unchecked")
-    public CoreEventImpl(String eventId, Object source, Map<String, ?> info, NuxeoPrincipal principal, String category,
-            String comment) {
+    public CoreEventImpl(String eventId, Object source, Map<String, ?> info, RepositoryPrincipal principal, String category,
+                         String comment) {
         date = Instant.now();
         if (eventId != null) {
             this.eventId = eventId.intern();
@@ -138,7 +138,7 @@ public class CoreEventImpl implements CoreEvent {
     }
 
     @Override
-    public NuxeoPrincipal getPrincipal() {
+    public RepositoryPrincipal getPrincipal() {
         return principal;
     }
 

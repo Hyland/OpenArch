@@ -29,7 +29,7 @@ import org.apache.commons.collections4.ListUtils;
 import com.hyland.openarch.ecm.core.api.CoreInstance;
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.ecm.core.query.sql.HXQL;
 import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.transaction.TransactionHelper;
@@ -68,7 +68,7 @@ public abstract class AbstractBatchTaskProcessor implements TaskProcessor<BatchT
                     CoreSession session = repository == null ? null : CoreInstance.getCoreSession(repository);
                     process(task, batch, session);
                 } catch (LoginException e) {
-                    throw new NuxeoException(e);
+                    throw new RepositoryException(e);
                 }
             });
         }

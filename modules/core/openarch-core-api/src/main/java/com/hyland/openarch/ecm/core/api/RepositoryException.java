@@ -22,20 +22,20 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * The most generic exception thrown by the Nuxeo.
+ * The most generic exception thrown by OpenArch.
  * <p>
  * It can be used to provide enriched information on the exception catch path, without re-wrapping:
  *
  * <pre>
  * try {
  *     doSomething(id);
- * } catch (NuxeoException e) {
+ * } catch (RepositoryException e) {
  *     e.addInfo("Failed to do something with document id: " + id);
  *     throw e;
  * }
  * </pre>
  */
-public class NuxeoException extends RuntimeException {
+public class RepositoryException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
@@ -43,18 +43,18 @@ public class NuxeoException extends RuntimeException {
 
     protected final int statusCode;
 
-    public NuxeoException() {
+    public RepositoryException() {
         this.statusCode = SC_INTERNAL_SERVER_ERROR;
     }
 
     /**
      * @since 9.3
      */
-    public NuxeoException(int statusCode) {
+    public RepositoryException(int statusCode) {
         this.statusCode = statusCode;
     }
 
-    public NuxeoException(String message) {
+    public RepositoryException(String message) {
         super(message);
         this.statusCode = SC_INTERNAL_SERVER_ERROR;
     }
@@ -62,12 +62,12 @@ public class NuxeoException extends RuntimeException {
     /**
      * @since 9.3
      */
-    public NuxeoException(String message, int statusCode) {
+    public RepositoryException(String message, int statusCode) {
         super(message);
         this.statusCode = statusCode;
     }
 
-    public NuxeoException(String message, Throwable cause) {
+    public RepositoryException(String message, Throwable cause) {
         super(message, cause);
         this.statusCode = SC_INTERNAL_SERVER_ERROR;
     }
@@ -75,12 +75,12 @@ public class NuxeoException extends RuntimeException {
     /**
      * @since 9.3
      */
-    public NuxeoException(String message, Throwable cause, int statusCode) {
+    public RepositoryException(String message, Throwable cause, int statusCode) {
         super(message, cause);
         this.statusCode = statusCode;
     }
 
-    public NuxeoException(Throwable cause) {
+    public RepositoryException(Throwable cause) {
         super(cause);
         this.statusCode = SC_INTERNAL_SERVER_ERROR;
     }
@@ -88,7 +88,7 @@ public class NuxeoException extends RuntimeException {
     /**
      * @since 9.3
      */
-    public NuxeoException(Throwable cause, int statusCode) {
+    public RepositoryException(Throwable cause, int statusCode) {
         super(cause);
         this.statusCode = statusCode;
     }
@@ -99,7 +99,7 @@ public class NuxeoException extends RuntimeException {
      * @param info the information
      * @since 7.4
      */
-    public NuxeoException addInfo(String info) {
+    public RepositoryException addInfo(String info) {
         if (infos == null) {
             infos = new LinkedList<>();
         }

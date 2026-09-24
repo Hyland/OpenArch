@@ -41,13 +41,13 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import com.hyland.openarch.common.resilience.Resilience4jRegistries;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import org.nuxeo.opensearch.api.OpenSearchClient;
 import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.test.runner.Features;
@@ -136,8 +136,8 @@ public class TestOpenSearchRestClientFactory {
     @WithFrameworkProperty(name = ADDRESS_LIST_PROP, value = "http://bad host:9200")
     public void testCreateWrapsInvalidHostUri() {
         // A hostname containing a space cannot be parsed by HttpHost.create and must be wrapped
-        // in a NuxeoException.
-        NuxeoException e = assertThrows(NuxeoException.class, factory::create);
+        // in a RepositoryException.
+        RepositoryException e = assertThrows(RepositoryException.class, factory::create);
         assertInstanceOf(URISyntaxException.class, e.getCause());
     }
 
@@ -170,8 +170,8 @@ public class TestOpenSearchRestClientFactory {
     @Test
     @WithFrameworkProperty(name = TRUST_STORE_PATH_PROP, value = "/does/not/exist.jks")
     public void testCreateFailsOnMissingTruststore() {
-        // Covers the error branch of getSslContext() wrapping IOException into NuxeoException.
-        NuxeoException e = assertThrows(NuxeoException.class, factory::create);
+        // Covers the error branch of getSslContext() wrapping IOException into RepositoryException.
+        RepositoryException e = assertThrows(RepositoryException.class, factory::create);
         assertNotNull(e.getCause());
     }
 }

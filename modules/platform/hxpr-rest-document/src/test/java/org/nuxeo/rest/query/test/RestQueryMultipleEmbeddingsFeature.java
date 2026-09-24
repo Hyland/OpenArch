@@ -42,7 +42,7 @@ import com.hyland.openarch.ecm.core.api.Blob;
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
 import com.hyland.openarch.ecm.core.api.IdRef;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.ecm.core.api.impl.blob.StringBlob;
 import com.hyland.openarch.ecm.core.api.security.ACE;
 import com.hyland.openarch.ecm.core.api.security.ACL;
@@ -146,14 +146,14 @@ public class RestQueryMultipleEmbeddingsFeature implements RunnerFeature {
             try {
                 addParquetEmbeddings(session, doc, docIndex);
             } catch (IOException e) {
-                throw new NuxeoException("Failed to create Parquet embeddings for doc " + docIndex, e);
+                throw new RepositoryException("Failed to create Parquet embeddings for doc " + docIndex, e);
             }
 
             try {
                 Thread.sleep(10); // NOSONAR sleep a bit to have different sys_modified
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                throw new NuxeoException("Interrupted", e);
+                throw new RepositoryException("Interrupted", e);
             }
             docs.add(doc);
         }
@@ -245,9 +245,9 @@ public class RestQueryMultipleEmbeddingsFeature implements RunnerFeature {
             oss.prepareWaitForIndexing().get(20, TimeUnit.SECONDS);
             oss.refresh();
         } catch (InterruptedException e) {
-            throw new NuxeoException("Interrupted while waiting for completion", e);
+            throw new RepositoryException("Interrupted while waiting for completion", e);
         } catch (ExecutionException | TimeoutException e) {
-            throw new NuxeoException("Error waiting for completion", e);
+            throw new RepositoryException("Error waiting for completion", e);
         }
     }
 }

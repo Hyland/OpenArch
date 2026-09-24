@@ -28,8 +28,8 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 
@@ -96,11 +96,11 @@ public class RolesAllowedInterceptor {
      * roles. Then it retrieves the method from the join point target and collects the roles from its annotations. It
      * also retrieves the annotations from the join point target class and collects the roles from them. Finally, it
      * returns a list of distinct roles. If the method from the join point target cannot be found, it throws a
-     * NuxeoException with an INTERNAL_SERVER_ERROR status.
+     * RepositoryException with an INTERNAL_SERVER_ERROR status.
      *
      * @param joinPoint The join point from which the roles will be collected.
      * @return A list of distinct roles allowed for the given join point.
-     * @throws NuxeoException If the method from the join point target cannot be found.
+     * @throws RepositoryException If the method from the join point target cannot be found.
      */
     protected List<String> getRolesAllowed(JoinPoint joinPoint) {
         List<String> rolesAllowed = new ArrayList<>();
@@ -164,7 +164,7 @@ public class RolesAllowedInterceptor {
 
     /**
      * This method checks if the current user has the roles specified in the RolesAllowed annotation. If the user does
-     * not have any of the specified roles, a NuxeoException is thrown with a FORBIDDEN status.
+     * not have any of the specified roles, a RepositoryException is thrown with a FORBIDDEN status.
      *
      * @param rolesAllowed The RolesAllowed annotation which contains the roles that are allowed.
      * @throws AccessDeniedException If the current user does not have any of the roles specified in the RolesAllowed
@@ -182,8 +182,8 @@ public class RolesAllowedInterceptor {
      *
      * @return the current user
      */
-    protected NuxeoPrincipal getCurrentUser() {
-        return NuxeoPrincipal.getCurrent();
+    protected RepositoryPrincipal getCurrentUser() {
+        return RepositoryPrincipal.getCurrent();
     }
 
     /**
@@ -193,7 +193,7 @@ public class RolesAllowedInterceptor {
      * @param rolesAllowed the roles allowed
      * @return true if the user has any of the roles allowed, false otherwise
      */
-    protected boolean hasRolesAllowed(NuxeoPrincipal currentUser, List<String> rolesAllowed) {
+    protected boolean hasRolesAllowed(RepositoryPrincipal currentUser, List<String> rolesAllowed) {
         return rolesAllowed.stream()
                            .anyMatch(role -> ADMINISTRATORS_GROUP.equals(role) ? currentUser.isAdministrator()
                                    : currentUser.isMemberOf(role));

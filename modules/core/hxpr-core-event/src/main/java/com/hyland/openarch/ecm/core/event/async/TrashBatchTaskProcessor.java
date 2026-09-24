@@ -35,7 +35,7 @@ import com.hyland.openarch.ecm.core.api.DocumentModelList;
 import com.hyland.openarch.ecm.core.api.DocumentRef;
 import com.hyland.openarch.ecm.core.api.IdRef;
 import com.hyland.openarch.ecm.core.api.IterableQueryResult;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.ecm.core.api.PropertyException;
 import com.hyland.openarch.ecm.core.api.trash.TrashService;
 import com.hyland.openarch.ecm.core.event.Event;
@@ -86,7 +86,7 @@ public class TrashBatchTaskProcessor extends AbstractBatchTaskProcessor {
                         session.move(ref, parentRef, trashService.unmangleName(session, parentRef, docName));
                     }
                     updatedRefs.add(ref);
-                } catch (NuxeoException e) {
+                } catch (RepositoryException e) {
                     // TODO send to error stream
                     log.warn("Cannot set system property: isTrashed on: {}", ref, e);
                 }

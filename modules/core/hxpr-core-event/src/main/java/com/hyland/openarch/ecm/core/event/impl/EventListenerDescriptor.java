@@ -18,6 +18,7 @@ package com.hyland.openarch.ecm.core.event.impl;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.hyland.openarch.common.xmap.Context;
@@ -26,7 +27,6 @@ import com.hyland.openarch.common.xmap.annotation.XNodeList;
 import com.hyland.openarch.common.xmap.annotation.XObject;
 import com.hyland.openarch.common.xmap.registry.XEnable;
 import com.hyland.openarch.common.xmap.registry.XRegistry;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.ecm.core.event.Event;
 import com.hyland.openarch.ecm.core.event.EventBundle;
 import com.hyland.openarch.ecm.core.event.EventListener;
@@ -113,7 +113,7 @@ public class EventListenerDescriptor {
                 throw new IllegalArgumentException("Listener extension must define either a class or a script");
             }
         } catch (ReflectiveOperationException | NoClassDefFoundError e) {
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
     }
 

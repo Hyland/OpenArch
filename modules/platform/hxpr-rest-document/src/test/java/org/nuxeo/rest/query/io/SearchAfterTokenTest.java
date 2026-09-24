@@ -26,8 +26,8 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.junit.jupiter.api.Test;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 
 /**
  * Tests for {@link SearchAfterToken} encoding and decoding.
@@ -96,7 +96,7 @@ public class SearchAfterTokenTest {
         String invalidBase64 = "This is not base64!!!";
 
         // When/Then
-        NuxeoException exception = assertThrows(NuxeoException.class, () -> SearchAfterToken.decode(invalidBase64));
+        RepositoryException exception = assertThrows(RepositoryException.class, () -> SearchAfterToken.decode(invalidBase64));
         assertTrue(exception.getMessage().contains("Invalid search_after token"));
     }
 
@@ -106,7 +106,7 @@ public class SearchAfterTokenTest {
         String invalidJson = Base64.getEncoder().encodeToString("not a json".getBytes());
 
         // When/Then
-        NuxeoException exception = assertThrows(NuxeoException.class, () -> SearchAfterToken.decode(invalidJson));
+        RepositoryException exception = assertThrows(RepositoryException.class, () -> SearchAfterToken.decode(invalidJson));
         assertTrue(exception.getMessage().contains("Invalid search_after token"));
     }
 
@@ -119,7 +119,7 @@ public class SearchAfterTokenTest {
         String encoded = Base64.getEncoder().encodeToString(jsonWithoutSortValues.getBytes());
 
         // When/Then
-        NuxeoException exception = assertThrows(NuxeoException.class, () -> SearchAfterToken.decode(encoded));
+        RepositoryException exception = assertThrows(RepositoryException.class, () -> SearchAfterToken.decode(encoded));
         assertTrue(exception.getMessage().contains("sortValues"));
     }
 
@@ -132,7 +132,7 @@ public class SearchAfterTokenTest {
         String encoded = Base64.getEncoder().encodeToString(jsonWithoutSortFields.getBytes());
 
         // When/Then
-        NuxeoException exception = assertThrows(NuxeoException.class, () -> SearchAfterToken.decode(encoded));
+        RepositoryException exception = assertThrows(RepositoryException.class, () -> SearchAfterToken.decode(encoded));
         assertTrue(exception.getMessage().contains("sortFields"));
     }
 
@@ -145,7 +145,7 @@ public class SearchAfterTokenTest {
         String encoded = Base64.getEncoder().encodeToString(jsonWithEmptySortValues.getBytes());
 
         // When/Then
-        NuxeoException exception = assertThrows(NuxeoException.class, () -> SearchAfterToken.decode(encoded));
+        RepositoryException exception = assertThrows(RepositoryException.class, () -> SearchAfterToken.decode(encoded));
         assertTrue(exception.getMessage().contains("sortValues") && exception.getMessage().contains("sortFields"));
     }
 
@@ -158,7 +158,7 @@ public class SearchAfterTokenTest {
         String encoded = Base64.getEncoder().encodeToString(jsonWithEmptySortFields.getBytes());
 
         // When/Then
-        NuxeoException exception = assertThrows(NuxeoException.class, () -> SearchAfterToken.decode(encoded));
+        RepositoryException exception = assertThrows(RepositoryException.class, () -> SearchAfterToken.decode(encoded));
         assertTrue(exception.getMessage().contains("sortValues") && exception.getMessage().contains("sortFields"));
     }
 
@@ -171,7 +171,7 @@ public class SearchAfterTokenTest {
         String encoded = Base64.getEncoder().encodeToString(jsonWithMismatch.getBytes());
 
         // When/Then
-        NuxeoException exception = assertThrows(NuxeoException.class, () -> SearchAfterToken.decode(encoded));
+        RepositoryException exception = assertThrows(RepositoryException.class, () -> SearchAfterToken.decode(encoded));
         assertTrue(exception.getMessage().contains("sortValues") && exception.getMessage().contains("sortFields"));
     }
 
@@ -198,7 +198,7 @@ public class SearchAfterTokenTest {
         String encoded = Base64.getEncoder().encodeToString(jsonWithObjectValue.getBytes());
 
         // When/Then
-        NuxeoException exception = assertThrows(NuxeoException.class, () -> SearchAfterToken.decode(encoded));
+        RepositoryException exception = assertThrows(RepositoryException.class, () -> SearchAfterToken.decode(encoded));
         assertTrue(exception.getMessage().contains("scalar types"));
     }
 
@@ -211,7 +211,7 @@ public class SearchAfterTokenTest {
         String encoded = Base64.getEncoder().encodeToString(jsonWithArrayValue.getBytes());
 
         // When/Then
-        NuxeoException exception = assertThrows(NuxeoException.class, () -> SearchAfterToken.decode(encoded));
+        RepositoryException exception = assertThrows(RepositoryException.class, () -> SearchAfterToken.decode(encoded));
         assertTrue(exception.getMessage().contains("scalar types"));
     }
 
@@ -222,7 +222,7 @@ public class SearchAfterTokenTest {
         List<String> sortFields = List.of("dc:title");
 
         // When/Then
-        NuxeoException exception = assertThrows(NuxeoException.class, () -> new SearchAfterToken(sortValues, sortFields));
+        RepositoryException exception = assertThrows(RepositoryException.class, () -> new SearchAfterToken(sortValues, sortFields));
         assertTrue(exception.getMessage().contains("scalar types"));
     }
 

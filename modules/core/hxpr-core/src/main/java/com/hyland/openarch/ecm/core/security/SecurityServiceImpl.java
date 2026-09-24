@@ -33,8 +33,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.hyland.openarch.common.xmap.registry.MapRegistry;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.security.ACE;
 import com.hyland.openarch.ecm.core.schema.validation.ValidationReport;
 import com.hyland.openarch.ecm.core.schema.validation.violations.ValidationViolation;
@@ -110,7 +110,7 @@ public class SecurityServiceImpl extends DefaultComponent implements SecuritySer
                                                .filter(k -> !permissions.containsKey(k))
                                                .toList();
             if (!unknownPermissions.isEmpty()) {
-                throw new NuxeoException(String.format("Permission(s) %s included by '%s' are unknown",
+                throw new RepositoryException(String.format("Permission(s) %s included by '%s' are unknown",
                         unknownPermissions, p.getName()));
             }
         }
@@ -180,7 +180,7 @@ public class SecurityServiceImpl extends DefaultComponent implements SecuritySer
     }
 
     @Override
-    public Set<String> expandPrincipal(NuxeoPrincipal principal) {
+    public Set<String> expandPrincipal(RepositoryPrincipal principal) {
         Set<String> principals = new HashSet<>();
         principals.add(ACE.USER_PREFIX + principal.getId());
         principals.add(EVERYONE);

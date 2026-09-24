@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <component name="com.hyland.openarch.ecm.core.storage.dbs.DBSRepositoryService">
 
-  <require>org.nuxeo.ecm.core.repository.RepositoryServiceComponent</require>
+  <require>com.hyland.openarch.ecm.core.repository.RepositoryServiceComponent</require>
 
   <documentation>
     Manages DBS repositories.

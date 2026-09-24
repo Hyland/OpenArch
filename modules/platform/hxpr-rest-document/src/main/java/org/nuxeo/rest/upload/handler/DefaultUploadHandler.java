@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import com.hyland.openarch.ecm.core.api.DocumentSecurityException;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.transientstore.api.TransientStore;
 import com.hyland.openarch.ecm.core.transientstore.api.TransientStoreService;
 import org.nuxeo.rest.upload.ChunkInfo;
@@ -45,7 +45,7 @@ public class DefaultUploadHandler implements UploadHandler {
     }
 
     protected String getCurrentUser() {
-        NuxeoPrincipal pal = NuxeoPrincipal.getCurrent();
+        RepositoryPrincipal pal = RepositoryPrincipal.getCurrent();
         if (pal == null) {
             return null;
         }

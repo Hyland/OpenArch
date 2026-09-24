@@ -31,13 +31,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CyclicBarrier;
 import java.util.stream.Stream;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import com.hyland.openarch.ecm.core.api.Blob;
 import com.hyland.openarch.ecm.core.api.ConcurrentUpdateException;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.runtime.test.runner.Features;
 import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
 import com.hyland.openarch.runtime.test.runner.TransactionalConfig;
@@ -234,7 +234,7 @@ public abstract class TestLocalBlobStoreTxAbstract extends TestAbstractBlobStore
             try {
                 assertBlob(key1, FOO); // old one
             } catch (IOException e) {
-                throw new NuxeoException(e);
+                throw new RepositoryException(e);
             }
         };
         Thread thread = new Thread(checkBlob);
@@ -281,7 +281,7 @@ public abstract class TestLocalBlobStoreTxAbstract extends TestAbstractBlobStore
             try {
                 assertBlob(key, FOO);
             } catch (IOException e) {
-                throw new NuxeoException(e);
+                throw new RepositoryException(e);
             }
         };
         Thread thread = new Thread(checkBlob);
@@ -361,14 +361,14 @@ public abstract class TestLocalBlobStoreTxAbstract extends TestAbstractBlobStore
         // one thread had an error
         if (exc.size() == 2) {
             exc.get(0).addSuppressed(exc.get(1));
-            throw new NuxeoException(exc.get(0));
+            throw new RepositoryException(exc.get(0));
         }
         assertEquals(1, exc.size(), "One thread should throw ConcurrentUpdateException");
         Throwable t = exc.get(0);
         if (t instanceof ConcurrentUpdateException) {
             assertEquals(ID1, t.getMessage());
         } else {
-            throw new NuxeoException(t);
+            throw new RepositoryException(t);
         }
 
         assertEquals(1, countStorageFiles());
@@ -408,14 +408,14 @@ public abstract class TestLocalBlobStoreTxAbstract extends TestAbstractBlobStore
         // one thread had an error
         if (exc.size() == 2) {
             exc.get(0).addSuppressed(exc.get(1));
-            throw new NuxeoException(exc.get(0));
+            throw new RepositoryException(exc.get(0));
         }
         assertEquals(1, exc.size(), "One thread should throw ConcurrentUpdateException");
         Throwable t = exc.get(0);
         if (t instanceof ConcurrentUpdateException) {
             assertEquals(ID1, t.getMessage());
         } else {
-            throw new NuxeoException(t);
+            throw new RepositoryException(t);
         }
 
         assertEquals(1, countStorageFiles());
@@ -455,14 +455,14 @@ public abstract class TestLocalBlobStoreTxAbstract extends TestAbstractBlobStore
         // one thread had an error
         if (exc.size() == 2) {
             exc.get(0).addSuppressed(exc.get(1));
-            throw new NuxeoException(exc.get(0));
+            throw new RepositoryException(exc.get(0));
         }
         assertEquals(1, exc.size(), "One thread should throw ConcurrentUpdateException");
         Throwable t = exc.get(0);
         if (t instanceof ConcurrentUpdateException) {
             assertEquals(ID1, t.getMessage());
         } else {
-            throw new NuxeoException(t);
+            throw new RepositoryException(t);
         }
 
         assertEquals(0, countStorageFiles());
@@ -534,14 +534,14 @@ public abstract class TestLocalBlobStoreTxAbstract extends TestAbstractBlobStore
         // one thread had an error
         if (exc.size() == 2) {
             exc.get(0).addSuppressed(exc.get(1));
-            throw new NuxeoException(exc.get(0));
+            throw new RepositoryException(exc.get(0));
         }
         assertEquals(1, exc.size(), "One thread should throw ConcurrentUpdateException");
         Throwable t = exc.get(0);
         if (t instanceof ConcurrentUpdateException) {
             assertEquals(ID1, t.getMessage());
         } else {
-            throw new NuxeoException(t);
+            throw new RepositoryException(t);
         }
 
         // update won
@@ -613,14 +613,14 @@ public abstract class TestLocalBlobStoreTxAbstract extends TestAbstractBlobStore
         // one thread had an error
         if (exc.size() == 2) {
             exc.get(0).addSuppressed(exc.get(1));
-            throw new NuxeoException(exc.get(0));
+            throw new RepositoryException(exc.get(0));
         }
         assertEquals(1, exc.size(), "One thread should throw ConcurrentUpdateException");
         Throwable t = exc.get(0);
         if (t instanceof ConcurrentUpdateException) {
             assertEquals(ID1, t.getMessage());
         } else {
-            throw new NuxeoException(t);
+            throw new RepositoryException(t);
         }
 
         // delete won

@@ -25,6 +25,7 @@ import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.MediaType.ALL_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,7 +34,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.ecm.core.api.repository.RepositoryManager;
 import com.hyland.openarch.ecm.core.security.ExternalUserRelationsSecurityPolicy;
 import com.hyland.openarch.ecm.core.security.SecurityPolicy;
@@ -114,7 +114,7 @@ public class ExternalUserRelationsSecurityPolicyAPI {
 
     private void checkRepoExists(String repoId) {
         if (Framework.getService(RepositoryManager.class).getRepository(repoId) == null) {
-            throw new NuxeoException(NOT_FOUND.getStatusCode());
+            throw new RepositoryException(NOT_FOUND.getStatusCode());
         }
     }
 
@@ -129,7 +129,7 @@ public class ExternalUserRelationsSecurityPolicyAPI {
         if (policy instanceof ExternalUserRelationsSecurityPolicy relationsPolicy) {
             return relationsPolicy;
         }
-        throw new NuxeoException(NOT_FOUND.getStatusCode());
+        throw new RepositoryException(NOT_FOUND.getStatusCode());
     }
 
     /**

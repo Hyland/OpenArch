@@ -39,7 +39,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import com.hyland.openarch.ecm.core.api.Blobs;
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.ecm.core.api.impl.blob.StringBlob;
 import com.hyland.openarch.ecm.core.event.Event;
 import com.hyland.openarch.ecm.core.event.test.CapturingEventListener;
@@ -140,7 +140,7 @@ public class TestComputeDigestHelper {
     @Test
     public void computeAndReplaceDigestThrowsForUnknownProvider() {
         ComputeDigestHelper helper = new ComputeDigestHelper("nosuchprovider", "key");
-        assertThrows(NuxeoException.class, helper::computeAndReplaceDigest);
+        assertThrows(RepositoryException.class, helper::computeAndReplaceDigest);
     }
 
     @Test

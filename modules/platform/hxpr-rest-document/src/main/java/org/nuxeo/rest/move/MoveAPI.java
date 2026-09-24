@@ -24,13 +24,13 @@ import static org.nuxeo.rest.utils.Versions.APP_HXCS_JSON_V1;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.apache.commons.lang3.StringUtils;
 import com.hyland.openarch.ecm.core.api.IdRef;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import org.nuxeo.rest.document.AbstractDocumentAPI;
 import org.nuxeo.rest.document.DocumentDTO;
 import org.nuxeo.rest.document.DocumentManager;
@@ -80,7 +80,7 @@ public class MoveAPI extends AbstractDocumentAPI {
             @RequestBody MoveDTO moveRequestBody) {
         String targetParentId = moveRequestBody.targetParentId();
         if (StringUtils.isBlank(targetParentId)) {
-            throw new NuxeoException("Missing destination folder id to move document: targetParentId",
+            throw new RepositoryException("Missing destination folder id to move document: targetParentId",
                     BAD_REQUEST.value());
         }
         return documentManager.moveDocument(repoId, new IdRef(docId), new IdRef(targetParentId),

@@ -34,7 +34,7 @@ import java.util.Set;
 
 import com.hyland.openarch.ecm.core.DocumentImpl;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.query.QueryParameters;
 import com.hyland.openarch.ecm.core.model.InternalDocument;
 import com.hyland.openarch.ecm.core.query.sql.model.BooleanLiteral;
@@ -215,7 +215,7 @@ public class SecurityPolicyServiceImpl implements SecurityPolicyService {
     }
 
     @Override
-    public boolean hasPermission(InternalDocument doc, NuxeoPrincipal principal, String permission) {
+    public boolean hasPermission(InternalDocument doc, RepositoryPrincipal principal, String permission) {
         Set<String> principals = securityService.expandPrincipal(principal);
         Set<String> permissions = securityService.getAllPermissionsContaining(permission);
         for (SecurityPolicy sp : securityPolicies) {
@@ -239,7 +239,7 @@ public class SecurityPolicyServiceImpl implements SecurityPolicyService {
     }
 
     @Override
-    public void checkAllowedMixinUpdate(InternalDocument doc, NuxeoPrincipal principal, String mixin) {
+    public void checkAllowedMixinUpdate(InternalDocument doc, RepositoryPrincipal principal, String mixin) {
         if (doc.hasPermission(principal, MANAGE_SECURITY)) {
             return;
         }
@@ -249,7 +249,7 @@ public class SecurityPolicyServiceImpl implements SecurityPolicyService {
     }
 
     @Override
-    public void checkAllowedPropertyUpdate(InternalDocument doc, NuxeoPrincipal principal, String xpath) {
+    public void checkAllowedPropertyUpdate(InternalDocument doc, RepositoryPrincipal principal, String xpath) {
         if (doc.hasPermission(principal, MANAGE_SECURITY)) {
             return;
         }
@@ -259,7 +259,7 @@ public class SecurityPolicyServiceImpl implements SecurityPolicyService {
     }
 
     @Override
-    public Set<String> getEffectivePermissions(InternalDocument doc, NuxeoPrincipal principal) {
+    public Set<String> getEffectivePermissions(InternalDocument doc, RepositoryPrincipal principal) {
         Set<String> principals = securityService.expandPrincipal(principal);
         List<String> effectivePermissions = new ArrayList<>(securityService.getAllPermissions());
         for (SecurityPolicy sp : securityPolicies) {
@@ -346,7 +346,7 @@ public class SecurityPolicyServiceImpl implements SecurityPolicyService {
 
     @Override
     public Statement addSecurityPolicies(Statement query, QueryParameters queryParams) {
-        NuxeoPrincipal principal = queryParams.principal();
+        RepositoryPrincipal principal = queryParams.principal();
         if (principal.isAdministrator()) {
             // no security check needed, including security policies
             return query;

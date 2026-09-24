@@ -29,7 +29,7 @@ import com.hyland.openarch.ecm.core.api.security.SecurityConstants;
 /**
  * @author <a href="mailto:bs@nuxeo.com">Bogdan Stefanescu</a>
  */
-public class SystemPrincipal implements NuxeoPrincipal {
+public class SystemPrincipal implements RepositoryPrincipal {
 
     private static final long serialVersionUID = -3381784063138281706L;
 

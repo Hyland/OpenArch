@@ -57,6 +57,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import java.io.IOException;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -82,7 +83,6 @@ import com.hyland.openarch.ecm.core.api.DocumentNotFoundException;
 import com.hyland.openarch.ecm.core.api.DocumentRef;
 import com.hyland.openarch.ecm.core.api.IdRef;
 import com.hyland.openarch.ecm.core.api.IterableQueryResult;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.ecm.core.api.impl.DocumentModelListImpl;
 import com.hyland.openarch.ecm.core.api.model.BlobNotFoundException;
 import com.hyland.openarch.ecm.core.api.repository.RepositoryManager;
@@ -369,7 +369,7 @@ public class OpenSearchServiceImpl extends DefaultComponent implements OpenSearc
             log.info("OpenSearch pipeline initialization completed successfully");
         } catch (Exception e) {
             log.error("Failed to initialize OpenSearch hybrid search pipeline", e);
-            throw new NuxeoException("Failed to initialize OpenSearch hybrid search pipeline: " + HYBRID_PIPELINE, e);
+            throw new RepositoryException("Failed to initialize OpenSearch hybrid search pipeline: " + HYBRID_PIPELINE, e);
         }
     }
 
@@ -380,11 +380,11 @@ public class OpenSearchServiceImpl extends DefaultComponent implements OpenSearc
         try (InputStream in = getClass().getClassLoader()
                                         .getResourceAsStream(RRF_PIPELINE_CONFIG_RESOURCE)) {
             if (in == null) {
-                throw new NuxeoException("Missing OpenSearch pipeline config resource: " + RRF_PIPELINE_CONFIG_RESOURCE);
+                throw new RepositoryException("Missing OpenSearch pipeline config resource: " + RRF_PIPELINE_CONFIG_RESOURCE);
             }
             return MAPPER.readTree(in);
         } catch (IOException | JacksonException e) {
-            throw new NuxeoException("Failed to load OpenSearch pipeline config: " + RRF_PIPELINE_CONFIG_RESOURCE, e);
+            throw new RepositoryException("Failed to load OpenSearch pipeline config: " + RRF_PIPELINE_CONFIG_RESOURCE, e);
         }
     }
 
@@ -711,7 +711,7 @@ public class OpenSearchServiceImpl extends DefaultComponent implements OpenSearc
             log.debug("Using settings: {}", conf::getSettings);
             try {
                 getClient().createIndex(indexName, conf.getSettings());
-            } catch (NuxeoException e) {
+            } catch (RepositoryException e) {
                 String message = e.getMessage();
                 if (message != null && message.contains("resource_already_exists_exception")) {
                     log.warn("Index: {} has been concurrently created", indexName);
@@ -832,7 +832,7 @@ public class OpenSearchServiceImpl extends DefaultComponent implements OpenSearc
             BulkRequest bulkRequest = BulkRequest.of(b -> b.operations(bulkOperations));
             try {
                 sendBulkCommand(bulkRequest, isCommandReindexing);
-            } catch (NuxeoException e) {
+            } catch (RepositoryException e) {
                 log.error("{} Bulk request failed.", isCommandReindexing ? OPENSEARCH_REINDEXING_COMMAND_FAILURE_MONITOR_TAG : OPENSEARCH_RUNTIME_INDEXING_FAILURE_MONITOR_TAG);
                 throw e;
             }
@@ -1009,7 +1009,7 @@ public class OpenSearchServiceImpl extends DefaultComponent implements OpenSearc
         } catch (ConcurrentUpdateException e) {
             log.info("Ignore indexing of doc {} a more recent version has already been indexed: {}", cmd.getTargetDocumentId(),
                     e.getMessage());
-        } catch (NuxeoException e) {
+        } catch (RepositoryException e) {
             if (e.getMessage() != null && e.getMessage().contains("Request failed: [illegal_argument_exception] Limit of total fields")) {
                 // do something to rescue indexing process
                 // increase the limit by 200 fields, max up to double of the default limit to avoid uncontrolled index growth

@@ -41,7 +41,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -406,7 +406,7 @@ public class TestDBSCachingRepository {
     public void testCreateClusterInvalidatorThrowsWhenClassMissing() {
         DBSRepositoryDescriptor descriptor = new DBSRepositoryDescriptor();
 
-        assertThrows(NuxeoException.class,
+        assertThrows(RepositoryException.class,
                 () -> repository.createClusterInvalidator(descriptor));
     }
 

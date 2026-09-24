@@ -27,10 +27,10 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
-import com.hyland.openarch.ecm.core.api.NuxeoGroup;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
-import org.nuxeo.ecm.platform.usermanager.NuxeoGroupImpl;
-import org.nuxeo.ecm.platform.usermanager.NuxeoPrincipalImpl;
+import com.hyland.openarch.ecm.core.api.RepositoryGroup;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
+import org.nuxeo.ecm.platform.usermanager.RepositoryGroupImpl;
+import org.nuxeo.ecm.platform.usermanager.RepositoryPrincipalImpl;
 
 /**
  * Immutable in-memory snapshot of all users and groups loaded from the YAML user-store file.
@@ -50,16 +50,16 @@ import org.nuxeo.ecm.platform.usermanager.NuxeoPrincipalImpl;
  */
 public class UserStore {
 
-    private final Map<String, NuxeoPrincipal> byId;
+    private final Map<String, RepositoryPrincipal> byId;
 
-    private final Map<String, NuxeoPrincipal> byUsername;
+    private final Map<String, RepositoryPrincipal> byUsername;
 
-    private final Map<String, NuxeoGroup> groupsById;
+    private final Map<String, RepositoryGroup> groupsById;
 
     private final List<String> administratorsGroups;
 
-    private UserStore(Map<String, NuxeoPrincipal> byId, Map<String, NuxeoPrincipal> byUsername,
-            Map<String, NuxeoGroup> groupsById, List<String> administratorsGroups) {
+    private UserStore(Map<String, RepositoryPrincipal> byId, Map<String, RepositoryPrincipal> byUsername,
+                      Map<String, RepositoryGroup> groupsById, List<String> administratorsGroups) {
         this.byId = Collections.unmodifiableMap(byId);
         this.byUsername = Collections.unmodifiableMap(byUsername);
         this.groupsById = Collections.unmodifiableMap(groupsById);
@@ -74,7 +74,7 @@ public class UserStore {
      */
     public static UserStore from(UsersFileModel model) {
         Map<String, String> groupNameToId = new HashMap<>();
-        Map<String, NuxeoGroup> groupsById = new HashMap<>();
+        Map<String, RepositoryGroup> groupsById = new HashMap<>();
         for (GroupEntry ge : model.getGroups()) {
             if (groupsById.containsKey(ge.getId())) {
                 throw new IllegalArgumentException("Duplicate group ID in user-store: '" + ge.getId() + "'");
@@ -82,14 +82,14 @@ public class UserStore {
             if (groupNameToId.containsKey(ge.getName())) {
                 throw new IllegalArgumentException("Duplicate group name in user-store: '" + ge.getName() + "'");
             }
-            groupsById.put(ge.getId(), new NuxeoGroupImpl(ge.getId(), ge.getName()));
+            groupsById.put(ge.getId(), new RepositoryGroupImpl(ge.getId(), ge.getName()));
             groupNameToId.put(ge.getName(), ge.getId());
         }
 
         Set<String> adminGroupNames = new HashSet<>(model.getAdministratorsGroups());
 
-        Map<String, NuxeoPrincipal> byId = new HashMap<>();
-        Map<String, NuxeoPrincipal> byUsername = new HashMap<>();
+        Map<String, RepositoryPrincipal> byId = new HashMap<>();
+        Map<String, RepositoryPrincipal> byUsername = new HashMap<>();
 
         for (UserEntry ue : model.getUsers()) {
             if (byId.containsKey(ue.getId())) {
@@ -100,7 +100,7 @@ public class UserStore {
                 throw new IllegalArgumentException("Duplicate username in user-store: '" + ue.getUsername() + "'");
             }
             boolean isAdmin = ue.getGroups().stream().anyMatch(adminGroupNames::contains);
-            NuxeoPrincipal principal = new NuxeoPrincipalImpl(ue.getId(), isAdmin);
+            RepositoryPrincipal principal = new RepositoryPrincipalImpl(ue.getId(), isAdmin);
             principal.setFirstName(ue.getFirstName());
             principal.setLastName(ue.getLastName());
             principal.setEmail(ue.getEmail());
@@ -130,7 +130,7 @@ public class UserStore {
     /**
      * Returns the principal matching the given UUID, or {@code null} if not found.
      */
-    public NuxeoPrincipal findById(String id) {
+    public RepositoryPrincipal findById(String id) {
         return byId.get(id);
     }
 
@@ -138,14 +138,14 @@ public class UserStore {
      * Returns the principal matching the given username, or {@code null} if not found. Used as a fallback during Basic
      * Auth where the principal name is the login username.
      */
-    public NuxeoPrincipal findByUsername(String username) {
+    public RepositoryPrincipal findByUsername(String username) {
         return byUsername.get(username);
     }
 
     /**
      * Returns the group matching the given UUID, or {@code null} if not found.
      */
-    public NuxeoGroup findGroupById(String groupId) {
+    public RepositoryGroup findGroupById(String groupId) {
         return groupsById.get(groupId);
     }
 
@@ -153,7 +153,7 @@ public class UserStore {
      * Returns all principals whose username, {@code firstName}, or {@code lastName} contains the given name fragment
      * (case-insensitive).
      */
-    public List<NuxeoPrincipal> searchPrincipalsByName(String name) {
+    public List<RepositoryPrincipal> searchPrincipalsByName(String name) {
         if (StringUtils.isBlank(name)) {
             return new ArrayList<>(byUsername.values());
         }
@@ -171,7 +171,7 @@ public class UserStore {
      * Returns all groups whose name contains the given name fragment (case-insensitive). Returns all groups if the
      * fragment is {@code null} or empty.
      */
-    public List<NuxeoGroup> searchGroupsByName(String groupName) {
+    public List<RepositoryGroup> searchGroupsByName(String groupName) {
         if (groupName == null || groupName.isEmpty()) {
             return new ArrayList<>(groupsById.values());
         }
@@ -184,14 +184,14 @@ public class UserStore {
     /**
      * Returns all principals.
      */
-    public Collection<NuxeoPrincipal> getAllUsers() {
+    public Collection<RepositoryPrincipal> getAllUsers() {
         return byId.values();
     }
 
     /**
      * Returns all groups.
      */
-    public Collection<NuxeoGroup> getAllGroups() {
+    public Collection<RepositoryGroup> getAllGroups() {
         return groupsById.values();
     }
 

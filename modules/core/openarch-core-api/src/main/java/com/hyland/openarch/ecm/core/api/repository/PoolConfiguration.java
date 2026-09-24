@@ -19,7 +19,7 @@ import com.hyland.openarch.common.xmap.annotation.XNode;
 import com.hyland.openarch.common.xmap.annotation.XObject;
 
 /**
- * Descriptor of the pool of low-level Nuxeo Sessions.
+ * Descriptor of the pool of low-level OpenArch Sessions.
  *
  * @since 5.6
  */

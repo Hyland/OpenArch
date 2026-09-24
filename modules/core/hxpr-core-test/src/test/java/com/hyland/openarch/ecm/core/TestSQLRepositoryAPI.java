@@ -85,6 +85,7 @@ import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
 import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FOLDER;
 import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_ORDERED_FOLDER;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import jakarta.inject.Inject;
 
 import java.io.IOException;
@@ -130,8 +131,7 @@ import com.hyland.openarch.ecm.core.api.DocumentSecurityException;
 import com.hyland.openarch.ecm.core.api.IdRef;
 import com.hyland.openarch.ecm.core.api.Lock;
 import com.hyland.openarch.ecm.core.api.LockException;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.PathRef;
 import com.hyland.openarch.ecm.core.api.PropertyException;
 import com.hyland.openarch.ecm.core.api.UpdateCondition;
@@ -218,7 +218,7 @@ public class TestSQLRepositoryAPI {
                 DummyLoginFeature.getTestPrincipal(username, false));
     }
 
-    protected CoreSession openSessionAs(NuxeoPrincipal principal) {
+    protected CoreSession openSessionAs(RepositoryPrincipal principal) {
         return CoreInstance.getCoreSession(session.getRepositoryName(), principal);
     }
 
@@ -2074,7 +2074,7 @@ public class TestSQLRepositoryAPI {
         try {
             session.move(verRef, root.getRef(), null);
             fail("Should not be allowed to move a version");
-        } catch (NuxeoException e) {
+        } catch (RepositoryException e) {
             assertTrue(e.getMessage().startsWith("Cannot move a version: "));
         }
     }
@@ -2918,7 +2918,7 @@ public class TestSQLRepositoryAPI {
         try {
             session.getDocument(new PathRef("/"));
             fail("should not allow use of session when marked rollback-only");
-        } catch (NuxeoException e) {
+        } catch (RepositoryException e) {
             assertEquals("Cannot use a session when transaction is marked rollback-only", e.getMessage());
         }
     }
@@ -3054,7 +3054,7 @@ public class TestSQLRepositoryAPI {
 
         DocumentModel doc = session.createDocumentModel("/", "doc", SYS_FILE);
         doc.create();
-        assertThrows(NuxeoException.class, () -> doc.setPropertyValue(SYS_ID, "replacement-id"));
+        assertThrows(RepositoryException.class, () -> doc.setPropertyValue(SYS_ID, "replacement-id"));
         assertThrows(PropertyException.class, () -> doc.getPropertyValue(SYSGOV_IS_RECORD));
         assertThrows(PropertyException.class, () -> doc.setPropertyValue(SYSGOV_IS_RECORD, true));
 
@@ -3569,7 +3569,7 @@ public class TestSQLRepositoryAPI {
                 try {
                     super.process(null, ids, session);
                     return true;
-                } catch (NuxeoException e) {
+                } catch (RepositoryException e) {
                     return false;
                 }
             }
@@ -4028,7 +4028,7 @@ public class TestSQLRepositoryAPI {
                 session.save();
                 TransactionHelper.commitOrRollbackTransaction();
             });
-        } catch (NuxeoException e) {
+        } catch (RepositoryException e) {
             if (isDBS()) {
                 assertEquals("Exceptions in threads", e.getMessage());
                 Throwable[] s = e.getSuppressed();
@@ -4065,7 +4065,7 @@ public class TestSQLRepositoryAPI {
                 r.run();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                throw new NuxeoException("Interrupted", e);
+                throw new RepositoryException("Interrupted", e);
             } catch (Exception e) {
                 exceptions.add(e);
             }
@@ -4077,12 +4077,12 @@ public class TestSQLRepositoryAPI {
             assertTrue(executor.awaitTermination(50, TimeUnit.SECONDS));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new NuxeoException("Interrupted", e);
+            throw new RepositoryException("Interrupted", e);
         }
 
         // rethrow any exception that occurred during thread execution
         if (!exceptions.isEmpty()) {
-            var e = new NuxeoException("Exceptions in threads");
+            var e = new RepositoryException("Exceptions in threads");
             exceptions.forEach(e::addSuppressed);
             throw e;
         }
@@ -4251,7 +4251,7 @@ public class TestSQLRepositoryAPI {
         DocumentModel doc = session.createDocumentModel("/", "doc", SYS_FILE);
         doc.create();
 
-        var e = assertThrows(NuxeoException.class, () -> doc.setId("custom-id-123"));
+        var e = assertThrows(RepositoryException.class, () -> doc.setId("custom-id-123"));
         assertEquals("Document already created", e.getMessage());
     }
 

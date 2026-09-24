@@ -32,7 +32,7 @@ import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
 import com.hyland.openarch.ecm.core.api.DocumentNotFoundException;
 import com.hyland.openarch.ecm.core.api.DocumentRef;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.event.DeletedDocumentModel;
 import com.hyland.openarch.ecm.core.event.Event;
 import com.hyland.openarch.ecm.core.event.EventBundle;
@@ -99,7 +99,7 @@ public class ReconnectedEventBundleImpl implements ReconnectedEventBundle {
                 if (repositoryName == null) {
                     session = null;
                 } else {
-                    NuxeoPrincipal orig = ctx.getPrincipal();
+                    RepositoryPrincipal orig = ctx.getPrincipal();
                     session = getReconnectedCoreSession(repositoryName, orig.getActingId());
                 }
 

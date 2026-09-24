@@ -18,12 +18,12 @@ package com.hyland.openarch.ecm.core.query;
 
 import static jakarta.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 
 /**
  * @author <a href="mailto:bs@nuxeo.com">Bogdan Stefanescu</a>
  */
-public class QueryParseException extends NuxeoException {
+public class QueryParseException extends RepositoryException {
 
     private static final long serialVersionUID = 1L;
 

@@ -15,7 +15,7 @@
  */
 package com.hyland.openarch.ecm.core.query.sql.model;
 
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.query.QueryParseException;
 import com.hyland.openarch.ecm.core.schema.SchemaManager;
 
@@ -32,7 +32,7 @@ public record StatementValidator(SchemaManager schemaManager) {
      * @param schemaManager the schema manager
      * @throws QueryParseException if the statement uses a security property
      */
-    public static void rejectSecurityProperties(Statement statement, NuxeoPrincipal principal,
+    public static void rejectSecurityProperties(Statement statement, RepositoryPrincipal principal,
             SchemaManager schemaManager) {
         if (principal != null && principal.isAdministrator()) {
             return;

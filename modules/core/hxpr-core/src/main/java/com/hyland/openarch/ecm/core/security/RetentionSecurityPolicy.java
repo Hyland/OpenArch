@@ -22,7 +22,7 @@ import static com.hyland.openarch.ecm.core.api.security.SecurityConstants.WRITE;
 import java.util.List;
 import java.util.Set;
 
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.query.QueryParameters;
 import com.hyland.openarch.ecm.core.model.InternalDocument;
 import com.hyland.openarch.ecm.core.model.InternalSession;
@@ -77,14 +77,14 @@ public class RetentionSecurityPolicy extends AbstractSecurityPolicy {
     }
 
     @Override
-    public boolean appliesToDocument(InternalDocument doc, NuxeoPrincipal principal, Set<String> permissions) {
+    public boolean appliesToDocument(InternalDocument doc, RepositoryPrincipal principal, Set<String> permissions) {
         // even administrators are subject to retention: don't check principalBypass()
         return permissions.contains(DELETE) || permissions.contains(WRITE);
     }
 
     @Override
-    public boolean hasPermission(InternalDocument doc, NuxeoPrincipal principal, Set<String> principals,
-            String permission, Set<String> permissions) {
+    public boolean hasPermission(InternalDocument doc, RepositoryPrincipal principal, Set<String> principals,
+                                 String permission, Set<String> permissions) {
         // a document cannot be deleted if under retention or legal hold
         return !doc.isUnderRetentionOrLegalHold() || InternalSession.canDeleteUndeletable(principal);
     }

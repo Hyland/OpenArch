@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.hyland.openarch.ecm.core.api.Lock;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.query.QueryParameters;
 import com.hyland.openarch.ecm.core.model.InternalDocument;
 import com.hyland.openarch.ecm.core.query.sql.model.Predicate;
@@ -96,7 +96,7 @@ public class LockSecurityPolicy extends AbstractSecurityPolicy {
     }
 
     @Override
-    public boolean appliesToDocument(InternalDocument doc, NuxeoPrincipal principal, Set<String> permissions) {
+    public boolean appliesToDocument(InternalDocument doc, RepositoryPrincipal principal, Set<String> permissions) {
         if (principalBypass(doc, principal)) {
             return false;
         }
@@ -104,8 +104,8 @@ public class LockSecurityPolicy extends AbstractSecurityPolicy {
     }
 
     @Override
-    public boolean hasPermission(InternalDocument doc, NuxeoPrincipal principal, Set<String> principals,
-            String permission, Set<String> permissions) {
+    public boolean hasPermission(InternalDocument doc, RepositoryPrincipal principal, Set<String> principals,
+                                 String permission, Set<String> permissions) {
         Lock lock = doc.getLock();
         if (lock == null || principal.getId().equals(lock.getOwner())) {
             // a locked document can only be written by the lock owner
@@ -117,7 +117,7 @@ public class LockSecurityPolicy extends AbstractSecurityPolicy {
 
     @Override
     public void restrictEffectivePermissions(List<String> effectivePermissions, InternalDocument doc,
-            NuxeoPrincipal principal, Set<String> principals, SecurityService securityService) {
+                                             RepositoryPrincipal principal, Set<String> principals, SecurityService securityService) {
         if (principal.isAdministrator()) {
             return;
         }

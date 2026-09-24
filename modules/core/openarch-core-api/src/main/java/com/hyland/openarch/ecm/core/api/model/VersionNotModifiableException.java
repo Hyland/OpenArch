@@ -17,14 +17,14 @@ package com.hyland.openarch.ecm.core.api.model;
 
 import static org.apache.http.HttpStatus.SC_UNPROCESSABLE_ENTITY;
 
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 
 /**
  * Exception indicating that a version cannot be modified.
  *
  * @since 10.3
  */
-public class VersionNotModifiableException extends NuxeoException {
+public class VersionNotModifiableException extends RepositoryException {
 
     private static final long serialVersionUID = 1L;
 

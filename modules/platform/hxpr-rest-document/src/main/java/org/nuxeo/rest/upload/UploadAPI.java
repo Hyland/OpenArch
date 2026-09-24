@@ -25,6 +25,7 @@ import static org.springframework.http.HttpStatus.UNSUPPORTED_MEDIA_TYPE;
 import static org.springframework.http.MediaType.ALL_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -45,7 +46,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Map;
 
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import org.nuxeo.rest.swagger.annotation.ApiResponse200;
 import org.nuxeo.rest.swagger.annotation.ApiResponse201;
 import org.nuxeo.rest.swagger.annotation.ApiResponse202;
@@ -236,7 +236,7 @@ public class UploadAPI {
     private Upload getUpload(String id) {
         Upload upload = handler.getUpload(id);
         if (upload == null) {
-            throw new NuxeoException(UPLOAD_NOT_FOUND_FORMAT, NOT_FOUND.value());
+            throw new RepositoryException(UPLOAD_NOT_FOUND_FORMAT, NOT_FOUND.value());
         }
         return upload;
     }

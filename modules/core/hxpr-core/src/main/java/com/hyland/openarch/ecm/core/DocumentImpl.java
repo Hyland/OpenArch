@@ -42,6 +42,7 @@ import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -57,8 +58,7 @@ import com.hyland.openarch.ecm.core.api.DocumentSecurityException;
 import com.hyland.openarch.ecm.core.api.IdRef;
 import com.hyland.openarch.ecm.core.api.Lock;
 import com.hyland.openarch.ecm.core.api.LockException;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.PathRef;
 import com.hyland.openarch.ecm.core.api.PropertyException;
 import com.hyland.openarch.ecm.core.api.UpdateCondition;
@@ -98,11 +98,11 @@ public class DocumentImpl implements DocumentModel {
 
     private DBSDocument doc;
 
-    private final NuxeoPrincipal principal;
+    private final RepositoryPrincipal principal;
 
     private Map<String, Serializable> contextData;
 
-    public DocumentImpl(InternalDocument doc, NuxeoPrincipal principal) {
+    public DocumentImpl(InternalDocument doc, RepositoryPrincipal principal) {
         this.doc = (DBSDocument) doc;
         this.principal = principal;
     }
@@ -237,7 +237,7 @@ public class DocumentImpl implements DocumentModel {
     }
 
     @Override
-    public NuxeoPrincipal getPrincipal() {
+    public RepositoryPrincipal getPrincipal() {
         return principal;
     }
 
@@ -260,18 +260,18 @@ public class DocumentImpl implements DocumentModel {
             // document not yet created
             InternalDocument parent = doc.getParent();
             if (parent == null) {
-                throw new NuxeoException("Missing parent");
+                throw new RepositoryException("Missing parent");
             }
             String parentPath = parent.getPath();
             if (parentPath == null) {
-                throw new NuxeoException("Version without working copy");
+                throw new RepositoryException("Version without working copy");
             }
             if (!parentPath.startsWith("/")) {
-                throw new NuxeoException("Placeless document");
+                throw new RepositoryException("Placeless document");
             }
             String name = getName();
             if (name == null) {
-                throw new NuxeoException("Missing name");
+                throw new RepositoryException("Missing name");
             }
             return new PathRef(parentPath, name);
         }

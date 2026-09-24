@@ -28,13 +28,13 @@ import org.junit.jupiter.api.Test;
 /**
  * @author Florent Guillaume
  */
-public class TestNuxeoPrincipalImpl {
+public class TestRepositoryPrincipalImpl {
 
     @Test
     public void testEquals() {
-        NuxeoPrincipalImpl a = new NuxeoPrincipalImpl("foo");
-        NuxeoPrincipalImpl b = new NuxeoPrincipalImpl("foo");
-        NuxeoPrincipalImpl c = new NuxeoPrincipalImpl("bar");
+        RepositoryPrincipalImpl a = new RepositoryPrincipalImpl("foo");
+        RepositoryPrincipalImpl b = new RepositoryPrincipalImpl("foo");
+        RepositoryPrincipalImpl c = new RepositoryPrincipalImpl("bar");
         assertEquals(a, b);
         assertEquals(b, a);
         assertNotEquals(a, c);
@@ -45,8 +45,8 @@ public class TestNuxeoPrincipalImpl {
 
     @Test
     public void testHasCode() {
-        NuxeoPrincipalImpl a = new NuxeoPrincipalImpl("foo");
-        NuxeoPrincipalImpl b = new NuxeoPrincipalImpl("foo");
+        RepositoryPrincipalImpl a = new RepositoryPrincipalImpl("foo");
+        RepositoryPrincipalImpl b = new RepositoryPrincipalImpl("foo");
         assertEquals(a.hashCode(), b.hashCode());
         // we don't assert that hash codes are different for principals with
         // different names, as that doesn't have to be true
@@ -54,7 +54,7 @@ public class TestNuxeoPrincipalImpl {
 
     @Test
     public void testUserProperties() {
-        NuxeoPrincipalImpl principal = new NuxeoPrincipalImpl("foo");
+        RepositoryPrincipalImpl principal = new RepositoryPrincipalImpl("foo");
         principal.setUserAttributes(Collections.singletonMap("PROPERTY1", "VALUE1"));
         principal.setEmail("foo@hyland.com");
         assertEquals("VALUE1", principal.getProperties().get("PROPERTY1"));
@@ -68,14 +68,14 @@ public class TestNuxeoPrincipalImpl {
 
     @Test
     public void testDoNotReturnThePassword() {
-        NuxeoPrincipalImpl principal = new NuxeoPrincipalImpl("foo");
+        RepositoryPrincipalImpl principal = new RepositoryPrincipalImpl("foo");
         principal.setPassword("secret");
         assertThat(principal.getProperties()).hasSize(1).containsEntry(principal.getConfig().idKey, "foo").doesNotContainValue("secret");
     }
 
     @Test
     public void testGetUsername() {
-        NuxeoPrincipalImpl principal = new NuxeoPrincipalImpl("foo");
+        RepositoryPrincipalImpl principal = new RepositoryPrincipalImpl("foo");
         assertThat(principal.getUsername()).isNull();
         principal.setUsername("john.doe");
         assertThat(principal.getUsername()).isEqualTo("john.doe");
@@ -83,7 +83,7 @@ public class TestNuxeoPrincipalImpl {
 
     @Test
     public void userAttributesCannotOverwriteInternalFields() {
-        NuxeoPrincipalImpl principal = new NuxeoPrincipalImpl("foo");
+        RepositoryPrincipalImpl principal = new RepositoryPrincipalImpl("foo");
         principal.setEmail("foo@hyland.com");
         principal.setUserAttributes(Map.of(
             principal.getConfig().idKey, "maliciousUser",

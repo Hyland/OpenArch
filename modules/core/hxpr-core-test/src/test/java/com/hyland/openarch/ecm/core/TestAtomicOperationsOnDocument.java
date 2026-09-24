@@ -24,7 +24,7 @@ import com.hyland.openarch.ecm.core.api.CoreInstance;
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
 import com.hyland.openarch.ecm.core.api.DocumentRef;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.ecm.core.api.PathRef;
 import com.hyland.openarch.ecm.core.api.LockHelper;
 import com.hyland.openarch.ecm.core.test.CoreFeature;
@@ -99,7 +99,7 @@ public class TestAtomicOperationsOnDocument {
                                     latch.await();
                                 } catch (InterruptedException e) {
                                     Thread.currentThread().interrupt(); // restore interrupt
-                                    throw new NuxeoException(e);
+                                    throw new RepositoryException(e);
                                 }
                             }
                             doc = s.createDocumentModel("/", docName, SYS_FILE);

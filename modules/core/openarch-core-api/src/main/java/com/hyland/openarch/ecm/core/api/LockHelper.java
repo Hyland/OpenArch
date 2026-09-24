@@ -85,7 +85,7 @@ public class LockHelper {
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
     }
 

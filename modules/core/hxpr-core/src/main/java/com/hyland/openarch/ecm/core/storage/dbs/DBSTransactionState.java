@@ -40,6 +40,7 @@ import static com.hyland.openarch.ecm.core.schema.TypeConstants.KEY_BLOB_KEY;
 import static com.hyland.openarch.ecm.core.storage.dbs.DBSDocument.INITIAL_CHANGE_TOKEN;
 import static com.hyland.openarch.ecm.core.storage.dbs.DBSDocument.INITIAL_SYS_CHANGE_TOKEN;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import jakarta.transaction.Status;
 import jakarta.transaction.Synchronization;
 
@@ -67,8 +68,7 @@ import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentEnrichmentContext;
 import com.hyland.openarch.ecm.core.api.DocumentEnrichmentService;
 import com.hyland.openarch.ecm.core.api.Lock;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.PartialList;
 import com.hyland.openarch.ecm.core.api.ScrollResult;
 import com.hyland.openarch.ecm.core.api.ValuesVisitor;
@@ -401,13 +401,13 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
         // sys_primaryType
         String primaryType = docState.getPrimaryType();
         if (primaryType == null) {
-            throw new NuxeoException("Missing " + SYS_PRIMARY_TYPE);
+            throw new RepositoryException("Missing " + SYS_PRIMARY_TYPE);
         }
 
         // sys_name
         String name = docState.getName();
         if (name == null) {
-            throw new NuxeoException("Missing " + SYS_NAME);
+            throw new RepositoryException("Missing " + SYS_NAME);
         }
         name = session.normalize(name);
         docState.put(SYS_NAME, name);
@@ -506,7 +506,7 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
     /**
      * Updates the denormalized properties on a document recursively.
      */
-    public void updateDenormalizedPropertiesWithDescendants(String id, NuxeoPrincipal principal) {
+    public void updateDenormalizedPropertiesWithDescendants(String id, RepositoryPrincipal principal) {
         // versions too XXX TODO
         save(principal); // flush everything to the database as getting descendants needs queries
         securityPolicyService.updateDenormalizedPropertiesWithDescendants(id, this, session);
@@ -661,7 +661,7 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
      * <p>
      * An undo log is kept in order to rollback the transaction later if needed.
      */
-    public void save(NuxeoPrincipal principal) {
+    public void save(RepositoryPrincipal principal) {
         enrichUpdatedDocuments(principal);
         updateDenormalizedState();
         validation();
@@ -923,7 +923,7 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
      * Runs the document enrichers (including the system-field stamping) on every genuinely modified,
      * non-version document. Created documents are enriched on the create path instead.
      */
-    private void enrichUpdatedDocuments(NuxeoPrincipal principal) {
+    private void enrichUpdatedDocuments(RepositoryPrincipal principal) {
         if (principal == null) {
             return;
         }
@@ -949,7 +949,7 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
         }
     }
 
-    private void enrichOnUpdate(DBSDocumentState docState, NuxeoPrincipal principal, Instant now) {
+    private void enrichOnUpdate(DBSDocumentState docState, RepositoryPrincipal principal, Instant now) {
         DocumentEnrichmentService service = Framework.getService(DocumentEnrichmentService.class);
         if (service != null) {
             var context = new DocumentEnrichmentContext(principal, now, session.getDocument(docState, false, true));
@@ -1082,7 +1082,7 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
     public void begin() {
         if (!repository.supportsTransactions()) {
             if (undoLog != null) {
-                throw new NuxeoException("Transaction already started");
+                throw new RepositoryException("Transaction already started");
             }
             undoLog = new HashMap<>();
         }
@@ -1096,7 +1096,7 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
         if (TransactionHelper.isTransactionActive()) {
             String err = checkIfDirty();
             if (err != null) {
-                throw new NuxeoException("Cannot commit transaction with unsaved session data: " + err);
+                throw new RepositoryException("Cannot commit transaction with unsaved session data: " + err);
             }
         }
     }
@@ -1400,7 +1400,7 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
      */
     private void raiseUpdatedDocumentEvents(Set<String> dirtyPropDocIds,
                                             Map<String, Map<String, Serializable>> contextForDocsWithDirtyProps,
-                                            Map<String, Map<String, Serializable>> contextForDocsWithDirtyBlobs, NuxeoPrincipal principal,
+                                            Map<String, Map<String, Serializable>> contextForDocsWithDirtyBlobs, RepositoryPrincipal principal,
                                             Map<String, Object> diff, Map<String, Object> originalDocument, Map<String, Object> currentDocument) {
         DocumentEventRaiserService raiserService = Framework.getService(DocumentEventRaiserService.class);
         CoreSession coreSession = CoreInstance.getCoreSessionSystem(repository.getName());
@@ -1418,7 +1418,7 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
         }
     }
 
-    private void sendDocumentEvents(String eventName, Set<String> ids, NuxeoPrincipal principal,
+    private void sendDocumentEvents(String eventName, Set<String> ids, RepositoryPrincipal principal,
                                     Map<String, Map<String, Serializable>> contextPropertiesById) {
         DocumentEventSenderService documentEventSender = Framework.getService(DocumentEventSenderService.class);
         documentEventSender.sendDocumentEvents(repository.getName(), eventName, ids, principal, contextPropertiesById);

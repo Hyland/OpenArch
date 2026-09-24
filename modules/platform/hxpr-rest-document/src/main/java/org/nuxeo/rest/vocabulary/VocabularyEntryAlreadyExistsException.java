@@ -17,9 +17,9 @@ package org.nuxeo.rest.vocabulary;
 
 import static jakarta.servlet.http.HttpServletResponse.SC_CONFLICT;
 
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 
-public class VocabularyEntryAlreadyExistsException extends NuxeoException {
+public class VocabularyEntryAlreadyExistsException extends RepositoryException {
 
     private static final long serialVersionUID = 1L;
     private static final String defaultMessage = "Vocabulary Entry with given key already exists";

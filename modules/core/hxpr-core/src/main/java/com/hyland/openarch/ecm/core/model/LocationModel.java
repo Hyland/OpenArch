@@ -22,9 +22,9 @@ import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_FIEL
 
 import java.util.Map;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
@@ -83,7 +83,7 @@ public record LocationModel(TextLocation text, ImageLocation position, VideoLoca
         try {
             map = MAPPER.readValue(json, Map.class);
         } catch (JacksonException e) {
-            throw new NuxeoException("Invalid location json string %s".formatted(json), e);
+            throw new RepositoryException("Invalid location json string %s".formatted(json), e);
         }
         return from(map);
     }

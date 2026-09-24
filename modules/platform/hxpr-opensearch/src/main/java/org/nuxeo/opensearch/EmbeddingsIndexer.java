@@ -41,7 +41,7 @@ import com.hyland.openarch.ecm.core.SysEmbeddingsPolicies;
 import com.hyland.openarch.ecm.core.api.Blob;
 import com.hyland.openarch.ecm.core.api.DocumentConstants;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.ecm.core.api.OnPremChunkTextWriter;
 import com.hyland.openarch.ecm.core.model.EmbeddingModel;
 import org.nuxeo.opensearch.commands.IndexingCommand;
@@ -274,7 +274,7 @@ public class EmbeddingsIndexer {
             }
             return ids;
         } catch (RuntimeException e) {
-            throw new NuxeoException("Failed to fetch existing embedding IDs", e);
+            throw new RepositoryException("Failed to fetch existing embedding IDs", e);
         } finally {
             if (scrollId != null) {
                 try {
@@ -392,7 +392,7 @@ public class EmbeddingsIndexer {
             log.debug("Parser returned {} embeddings for command {}", parsed.size(), cmd.getId());
             return parsed;
         } catch (RuntimeException e) {
-            throw new NuxeoException("Failed to parse embeddings for command " + cmd, e);
+            throw new RepositoryException("Failed to parse embeddings for command " + cmd, e);
         }
     }
 
@@ -409,7 +409,7 @@ public class EmbeddingsIndexer {
             log.debug("Registered EmbeddingsParser: {}", desc.getParserClass().getName());
             return parser;
         } catch (RuntimeException e) {
-            throw new NuxeoException("Failed to instantiate EmbeddingsParser: " + desc.getParserClass().getName(), e);
+            throw new RepositoryException("Failed to instantiate EmbeddingsParser: " + desc.getParserClass().getName(), e);
         }
     }
 
@@ -419,7 +419,7 @@ public class EmbeddingsIndexer {
         if (descriptors.size() > 1) {
             // should never occur: tests should ensure only one contribution is active
             String classes = descriptors.values().stream().map(d -> d.getParserClass().getName()).collect(Collectors.joining(", "));
-            throw new NuxeoException("Multiple EmbeddingsParser contributions found (" + classes + "). Exactly one parser is supported at this stage.");
+            throw new RepositoryException("Multiple EmbeddingsParser contributions found (" + classes + "). Exactly one parser is supported at this stage.");
         }
 
         if (descriptors.size() == 1) {

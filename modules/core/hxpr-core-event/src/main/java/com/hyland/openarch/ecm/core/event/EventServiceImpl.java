@@ -15,6 +15,7 @@
  */
 package com.hyland.openarch.ecm.core.event;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.Tracer;
@@ -32,7 +33,6 @@ import org.apache.logging.log4j.Logger;
 import com.hyland.openarch.common.utils.Path;
 import com.hyland.openarch.common.xmap.registry.Registry;
 import com.hyland.openarch.ecm.core.api.ConcurrentUpdateException;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.ecm.core.api.RecoverableClientException;
 import com.hyland.openarch.ecm.core.event.impl.DocumentEventContext;
 import com.hyland.openarch.ecm.core.event.impl.EventBundleImpl;
@@ -205,10 +205,10 @@ public class EventServiceImpl extends DefaultComponent implements EventService, 
                         ee = e;
                     }
 
-                    if (ee instanceof NuxeoException nuxeoException) {
-                        throw nuxeoException;
+                    if (ee instanceof RepositoryException repositoryException) {
+                        throw repositoryException;
                     } else {
-                        throw new NuxeoException(message, ee);
+                        throw new RepositoryException(message, ee);
                     }
                 } else {
                     // swallow exception
@@ -342,7 +342,7 @@ public class EventServiceImpl extends DefaultComponent implements EventService, 
         for (EventBundle bundle : b.byRepository.values()) {
             try {
                 fireEventBundle(bundle);
-            } catch (NuxeoException e) {
+            } catch (RepositoryException e) {
                 log.error("Error while processing {}" , bundle, e);
             }
         }

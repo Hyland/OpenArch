@@ -29,7 +29,7 @@ import javax.security.auth.login.LoginException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.springboot.auth.test.config.NuxeoLoginTestEndpointConfig;
 import com.hyland.openarch.runtime.springboot.config.HxprRuntimeSpringbootAutoConfiguration;
@@ -82,11 +82,11 @@ public class NuxeoLoginFilterTest {
 
     @Test
     @WithMockUser(username = USER)
-    void testUserWithNuxeoException() throws Exception {
+    void testUserWithRepositoryException() throws Exception {
         MockedStatic<Framework> frameworkMock = mockStatic(Framework.class);
         frameworkMock.when(Framework::isInitialized).thenReturn(true);
         frameworkMock.when(() -> Framework.loginUser(any()))
-                     .thenThrow(new NuxeoException("Subscription Token Exchange fail!", 429));
+                     .thenThrow(new RepositoryException("Subscription Token Exchange fail!", 429));
         mvc.perform(get("/test/exception")).andExpect(status().isTooManyRequests());
         frameworkMock.close();
     }

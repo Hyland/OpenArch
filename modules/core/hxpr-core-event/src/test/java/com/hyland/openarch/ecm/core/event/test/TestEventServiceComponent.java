@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import jakarta.inject.Inject;
 
 import com.hyland.hxpr.async.tasks.AsyncTasksFeature;
@@ -27,7 +28,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import com.hyland.openarch.ecm.core.api.ConcurrentUpdateException;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.ecm.core.event.Event;
 import com.hyland.openarch.ecm.core.event.EventService;
 import com.hyland.openarch.ecm.core.event.impl.EventContextImpl;
@@ -193,13 +193,13 @@ public class TestEventServiceComponent {
 
     @Test
     @Deploy("org.nuxeo.ecm.core.event:test-rollback-listener.xml")
-    public void testMarkRollbackWithNuxeoException() {
+    public void testMarkRollbackWithRepositoryException() {
         Event event = new EventImpl("markRollback", new EventContextImpl());
         try {
             eventService.fireEvent(event);
-            fail("should throw NuxeoException");
-        } catch (NuxeoException e) {
-            assertEquals("NuxeoException", e.getMessage());
+            fail("should throw RepositoryException");
+        } catch (RepositoryException e) {
+            assertEquals("RepositoryException", e.getMessage());
             assertEquals(400, e.getStatusCode());
             assertTrue(TransactionHelper.isTransactionMarkedRollback());
         }
@@ -212,8 +212,8 @@ public class TestEventServiceComponent {
         event.getContext().setProperty("RuntimeException", true);
         try {
             eventService.fireEvent(event);
-            fail("should throw NuxeoException");
-        } catch (NuxeoException e) {
+            fail("should throw RepositoryException");
+        } catch (RepositoryException e) {
             assertEquals(
                     "Exception during testRollbackListener sync listener execution, transaction will be rolled back",
                     e.getMessage());

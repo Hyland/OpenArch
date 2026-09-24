@@ -28,7 +28,7 @@ import com.hyland.openarch.ecm.core.security.SecurityServiceImpl;
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
 import com.hyland.openarch.ecm.core.api.DocumentRef;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.security.ACE;
 import org.springframework.stereotype.Component;
 
@@ -42,7 +42,7 @@ public class PermissionsManager {
      *
      * Similar to the method {@link SecurityServiceImpl#expandPrincipal} but using the info from IDP
      */
-    public List<String> expandUserPrincipal(NuxeoPrincipal principal) {
+    public List<String> expandUserPrincipal(RepositoryPrincipal principal) {
         Set<String> groups = new HashSet<>(principal.getGroups());
         List<String> principals = new ArrayList<>();
         principals.add(ACE.USER_PREFIX + principal.getId());

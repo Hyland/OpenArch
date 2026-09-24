@@ -15,7 +15,7 @@
  */
 package com.hyland.openarch.ecm.core.api.query;
 
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 
 /**
  * Parameters that can be passed when executing a query.
@@ -23,6 +23,6 @@ import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
  * The values for a query's {@code :name} parameters are not here: they are bound when the query is parsed, which
  * happens before a session is asked to execute it.
  */
-public record QueryParameters(NuxeoPrincipal principal, long limit, long offset) {
+public record QueryParameters(RepositoryPrincipal principal, long limit, long offset) {
 
 }

@@ -17,9 +17,9 @@ package org.nuxeo.ecm.platform.vocabulary.exception;
 
 import static jakarta.servlet.http.HttpServletResponse.SC_CONFLICT;
 
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 
-public class VocabularyAlreadyExistsException extends NuxeoException {
+public class VocabularyAlreadyExistsException extends RepositoryException {
 
     public VocabularyAlreadyExistsException(String vocabularyId) {
         super("Vocabulary %s already exists".formatted(vocabularyId), SC_CONFLICT);

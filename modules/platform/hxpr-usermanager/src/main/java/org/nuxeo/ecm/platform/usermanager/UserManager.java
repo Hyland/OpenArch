@@ -18,8 +18,8 @@ package org.nuxeo.ecm.platform.usermanager;
 import java.io.Serializable;
 import java.util.List;
 
-import com.hyland.openarch.ecm.core.api.NuxeoGroup;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryGroup;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.security.AdministratorGroupsProvider;
 
 /**
@@ -42,7 +42,7 @@ public interface UserManager extends AdministratorGroupsProvider, Serializable {
      * @param userid the user ID of the entry in the IAM system
      * @return the principal or null if not found
      */
-    NuxeoPrincipal getPrincipal(String userid);
+    RepositoryPrincipal getPrincipal(String userid);
 
 
     /**
@@ -51,7 +51,7 @@ public interface UserManager extends AdministratorGroupsProvider, Serializable {
      * @param userIds the list of user IDs
      * @return list of matching principals or empty list when no match
      */
-    List<NuxeoPrincipal> getPrincipals(List<String> userIds);
+    List<RepositoryPrincipal> getPrincipals(List<String> userIds);
 
     /**
      * Retrieves principals whose givenName or familyName contains the given name part.
@@ -59,7 +59,7 @@ public interface UserManager extends AdministratorGroupsProvider, Serializable {
      * @param name the name part to search for
      * @return list of matching principals
      */
-    List<NuxeoPrincipal> searchPrincipalsByName(String name);
+    List<RepositoryPrincipal> searchPrincipalsByName(String name);
 
     // ==================== GROUP OPERATIONS ====================
 
@@ -69,14 +69,14 @@ public interface UserManager extends AdministratorGroupsProvider, Serializable {
      * @param groupId the group ID
      * @return the group or null if not found
      */
-    NuxeoGroup getGroup(String groupId);
+    RepositoryGroup getGroup(String groupId);
 
     /**
      * Returns the groups list with the given group IDs.
      * @param groupIds the list of group IDs
      * @return list of matching groups or empty list when no match
      */
-    List<NuxeoGroup> getGroups(List<String> groupIds);
+    List<RepositoryGroup> getGroups(List<String> groupIds);
 
     /**
      * Returns the groups whose name contains the given string.
@@ -84,7 +84,7 @@ public interface UserManager extends AdministratorGroupsProvider, Serializable {
      * @param groupName the displayName to search for
      * @return list of matching groups or empty list when no match
      */
-    List<NuxeoGroup> searchGroupsByName(String groupName);
+    List<RepositoryGroup> searchGroupsByName(String groupName);
 
     // ==================== CONFIGURATION/METADATA ====================
 

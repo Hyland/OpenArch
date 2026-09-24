@@ -21,7 +21,7 @@ import java.util.List;
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
 import com.hyland.openarch.ecm.core.api.DocumentRef;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 
 /**
  * Service containing the logic about deleting/purging/undeleting a document.
@@ -65,7 +65,7 @@ public interface TrashService {
      * @param principal the current user (to check locks)
      * @return {@code true} if the documents are purgeable/undeletable
      */
-    boolean canPurgeOrUntrash(List<DocumentModel> docs, NuxeoPrincipal principal);
+    boolean canPurgeOrUntrash(List<DocumentModel> docs, RepositoryPrincipal principal);
 
     /**
      * Is document purgeable/untrashable?
@@ -76,7 +76,7 @@ public interface TrashService {
      * @param principal the current user (to check locks)
      * @return {@code true} if the documents are purgeable/untrashable
      */
-    default boolean canPurgeOrUntrash(DocumentModel doc, NuxeoPrincipal principal) {
+    default boolean canPurgeOrUntrash(DocumentModel doc, RepositoryPrincipal principal) {
         return canPurgeOrUntrash(Collections.singletonList(doc), principal);
     }
 
@@ -89,7 +89,7 @@ public interface TrashService {
      * @param principal the current user
      * @return the first non trashed ancestor
      */
-    DocumentModel getAboveDocument(DocumentModel doc, NuxeoPrincipal principal);
+    DocumentModel getAboveDocument(DocumentModel doc, RepositoryPrincipal principal);
 
     /**
      * Moves documents to the trash.

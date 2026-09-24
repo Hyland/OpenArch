@@ -24,10 +24,10 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.mutable.MutableObject;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 
 /**
  * Represents computation of blob keys based on a message digest.
@@ -91,7 +91,7 @@ public class KeyStrategyDigest implements KeyStrategy {
             try {
                 messageDigest = MessageDigest.getInstance(digestAlgorithm);
             } catch (NoSuchAlgorithmException e) {
-                throw new NuxeoException(e);
+                throw new RepositoryException(e);
             }
             this.keyConsumer = keyConsumer;
         }

@@ -16,7 +16,7 @@
 package com.hyland.openarch.ecm.core.event.impl;
 
 import com.hyland.openarch.ecm.core.api.CoreSession;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 
 /**
  * Default implementation
@@ -29,7 +29,7 @@ public class EventContextImpl extends AbstractEventContext {
 
     protected transient CoreSession session;
 
-    protected NuxeoPrincipal principal;
+    protected RepositoryPrincipal principal;
 
     /**
      * Constructor to be used by derived classes
@@ -41,14 +41,14 @@ public class EventContextImpl extends AbstractEventContext {
         this(null, null, args);
     }
 
-    public EventContextImpl(CoreSession session, NuxeoPrincipal principal, Object... args) {
+    public EventContextImpl(CoreSession session, RepositoryPrincipal principal, Object... args) {
         super(args);
         this.session = session;
         this.principal = principal;
         updateRepositoryName();
     }
 
-    public EventContextImpl(CoreSession session, NuxeoPrincipal principal) {
+    public EventContextImpl(CoreSession session, RepositoryPrincipal principal) {
         this.session = session;
         this.principal = principal;
         args = EMPTY;
@@ -65,7 +65,7 @@ public class EventContextImpl extends AbstractEventContext {
     }
 
     @Override
-    public NuxeoPrincipal getPrincipal() {
+    public RepositoryPrincipal getPrincipal() {
         return principal;
     }
 
@@ -82,7 +82,7 @@ public class EventContextImpl extends AbstractEventContext {
     }
 
     @Override
-    public void setPrincipal(NuxeoPrincipal principal) {
+    public void setPrincipal(RepositoryPrincipal principal) {
         this.principal = principal;
     }
 

@@ -41,7 +41,7 @@ import org.junit.jupiter.api.Test;
 import com.hyland.openarch.ecm.core.api.Blob;
 import com.hyland.openarch.ecm.core.api.Blobs;
 import com.hyland.openarch.ecm.core.api.DocumentSecurityException;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.impl.blob.FileBlob;
 import com.hyland.openarch.ecm.core.api.local.DummyLoginFeature;
 import com.hyland.openarch.ecm.core.transientstore.TransientStorageComponent;
@@ -66,7 +66,7 @@ public abstract class AbstractUploadHandlerTest extends RuntimeSpringBootTest {
 
     protected static final String ALT_USER = "myOtherUser";
 
-    protected static final NuxeoPrincipal ALT_PRINCIPAL = DummyLoginFeature.getTestPrincipal(ALT_USER, false);
+    protected static final RepositoryPrincipal ALT_PRINCIPAL = DummyLoginFeature.getTestPrincipal(ALT_USER, false);
 
     @Autowired
     protected UploadHandler handler;
@@ -76,7 +76,7 @@ public abstract class AbstractUploadHandlerTest extends RuntimeSpringBootTest {
 
     @BeforeEach
     public void checkCurrentUser() {
-        NuxeoPrincipal pal = NuxeoPrincipal.getCurrent();
+        RepositoryPrincipal pal = RepositoryPrincipal.getCurrent();
         assertNotNull(pal);
         assertEquals(USER, pal.getId());
     }
@@ -399,7 +399,7 @@ public abstract class AbstractUploadHandlerTest extends RuntimeSpringBootTest {
         ThreadPoolExecutor tpe = new ThreadPoolExecutor(5, 5, 500L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(nbUploads + 1));
 
-        NuxeoPrincipal testUser = NuxeoPrincipal.getCurrent();
+        RepositoryPrincipal testUser = RepositoryPrincipal.getCurrent();
         for (int i = 0; i < nbUploads; i++) {
             final int uploadIndex = i;
             tpe.submit(() -> {

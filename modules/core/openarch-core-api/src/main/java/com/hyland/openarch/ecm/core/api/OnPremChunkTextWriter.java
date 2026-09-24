@@ -40,7 +40,7 @@ public interface OnPremChunkTextWriter {
      * {@code current}, and each map key is the embedding id used as the EV Store content value id.
      * Entries with {@code null} text or a key that is not a valid UUID are skipped.
      *
-     * @param repository          the Nuxeo repository name owning the documents
+     * @param repository          the OpenArch repository name owning the documents
      * @param systemIntegrationId the system integration id used to scope EV Store calls (currently a fixed
      *                            placeholder value until real client-provided integration id wiring is introduced)
      * @param contentId           the {@code SysEmbeddings} child {@code sys_id} (EV Store content id)

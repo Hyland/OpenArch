@@ -22,8 +22,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.query.QueryParseException;
 import com.hyland.openarch.ecm.core.query.QuerySyntax;
 import com.hyland.openarch.ecm.core.query.nxql.SortInfo;
@@ -173,7 +173,7 @@ public class QueryAssembler {
     protected static Predicate exprPredicate(String expr, String repositoryId) {
         // the content model is per repository, and is not cached as it may change
         SchemaManager schemaManager = Framework.getService(TypeService.class).getSchemaManager(repositoryId);
-        return ExprPredicates.toPredicate(expr, NuxeoPrincipal.getCurrent(), schemaManager);
+        return ExprPredicates.toPredicate(expr, RepositoryPrincipal.getCurrent(), schemaManager);
     }
 
     protected static Predicate conjunction(List<Predicate> conjuncts) {
@@ -183,7 +183,7 @@ public class QueryAssembler {
     protected static Statement parse(String query) {
         try {
             return HXQLParser.parse(query);
-        } catch (NuxeoException e) {
+        } catch (RepositoryException e) {
             e.addInfo("Query: " + query);
             throw e;
         }
@@ -202,7 +202,7 @@ public class QueryAssembler {
     protected static Predicate parsePredicate(String clause) {
         try {
             return HXQLParser.parsePredicate(clause);
-        } catch (NuxeoException e) {
+        } catch (RepositoryException e) {
             e.addInfo("Clause: " + clause);
             throw e;
         }

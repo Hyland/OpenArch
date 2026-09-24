@@ -18,7 +18,7 @@ package org.nuxeo.rest.upload;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.nuxeo.rest.upload.handler.UploadHandler;
 import org.springframework.http.ResponseEntity;
 
@@ -38,7 +38,7 @@ public interface UploadService {
 
     /**
      * Uploads the InputStream and returns the Upload object if upload is successful. If upload fails,
-     * this method throws NuxeoException with error status code.
+     * this method throws RepositoryException with error status code.
      * @param handler UploadHandler Object
      * @param mediaType MediaType of the inputStream to be uploaded
      * @param uploadDTO UploadDTO
@@ -46,5 +46,5 @@ public interface UploadService {
      * @return Upload Object
      * @throws IOException
      */
-    Upload processUpload(UploadHandler handler, String mediaType, UploadDTO uploadDTO, InputStream input) throws IOException, NuxeoException;
+    Upload processUpload(UploadHandler handler, String mediaType, UploadDTO uploadDTO, InputStream input) throws IOException, RepositoryException;
 }

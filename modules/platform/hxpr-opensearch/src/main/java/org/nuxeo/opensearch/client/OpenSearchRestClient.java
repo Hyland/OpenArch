@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.retry.Retry;
@@ -37,7 +38,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.hyland.openarch.common.function.ThrowableSupplier;
 import com.hyland.openarch.ecm.core.api.ConcurrentUpdateException;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import org.nuxeo.opensearch.api.OpenSearchIndexStoreStats;
 import org.nuxeo.opensearch.io.DocumentDTO;
 import org.opensearch.client.json.JsonpMapper;
@@ -146,9 +146,9 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
             throw e;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         } catch (Throwable t) { // NOSONAR - CheckedSupplier#get declares Throwable
-            throw new NuxeoException(t);
+            throw new RepositoryException(t);
         }
     }
 
@@ -185,7 +185,7 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
                     throw new IllegalArgumentException(error);
             }
         } catch (IOException | OpenSearchException e) {
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
     }
 
@@ -205,7 +205,7 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
             String status = jsonNode.get("status").asText();
             return HealthStatus._DESERIALIZER.parse(status);
         } catch (IOException | OpenSearchException e) {
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
     }
 
@@ -217,7 +217,7 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
                                   .build();
         try (Response response = performRequestWithTracing(request)) {
         } catch (IOException | OpenSearchException e) {
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
     }
 
@@ -229,7 +229,7 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
                                   .build();
         try (Response response = performRequestWithTracing(request)) {
         } catch (IOException | OpenSearchException e) {
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
     }
 
@@ -241,7 +241,7 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
                                   .build();
         try (Response response = performRequestWithTracing(request)) {
         } catch (IOException | OpenSearchException e) {
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
     }
 
@@ -262,7 +262,7 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
                             String.format("Checking index %s returns: %s", indexName, response.getReason()));
             }
         } catch (IOException | OpenSearchException e) {
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
     }
 
@@ -284,7 +284,7 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
                             String.format("Checking mapping %s returns: %s", indexName, response.getReason()));
             }
         } catch (IOException | OpenSearchException e) {
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
     }
 
@@ -304,7 +304,7 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
                 // when trying to delete an alias, throws the same exception than the transport client
                 throw new IllegalArgumentException(e);
             }
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
     }
 
@@ -318,10 +318,10 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
                                   .build();
         try (Response response = performRequestWithTracing(request)) {
             if (response.getStatus() != HttpStatus.SC_OK) {
-                throw new NuxeoException("Fail to create index: " + indexName + " :" + response.getBody().get().bodyAsString());
+                throw new RepositoryException("Fail to create index: " + indexName + " :" + response.getBody().get().bodyAsString());
             }
         } catch (IOException | OpenSearchException e) {
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
     }
 
@@ -334,10 +334,10 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
                                   .build();
         try (Response response = performRequestWithTracing(request)) {
             if (response.getStatus() != HttpStatus.SC_OK) {
-                throw new NuxeoException("Fail to update index settings: " + indexName + " :" + response.getBody().get().bodyAsString()); // NOSONAR
+                throw new RepositoryException("Fail to update index settings: " + indexName + " :" + response.getBody().get().bodyAsString()); // NOSONAR
             }
         } catch (IOException | OpenSearchException e) {
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
     }
 
@@ -350,10 +350,10 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
                                   .build();
         try (Response response = performRequestWithTracing(request)) {
             if (response.getStatus() != HttpStatus.SC_OK) {
-                throw new NuxeoException(String.format("Fail to create mapping on %s: %s", indexName, response.getBody().get().bodyAsString()));
+                throw new RepositoryException(String.format("Fail to create mapping on %s: %s", indexName, response.getBody().get().bodyAsString()));
             }
         } catch (IOException | OpenSearchException e) {
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
     }
 
@@ -361,7 +361,7 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
         try {
             return withRetry(() -> client.generic().execute(request));
         } catch (IOException | OpenSearchException e) {
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
     }
 
@@ -391,7 +391,7 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
                             String.format("Checking alias %s returns: %s", aliasName, response.getReason()));
             }
         } catch (IOException | OpenSearchException e) {
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
     }
 
@@ -408,12 +408,12 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
             // unfortunately JacksonJsonProvider.createReader is unimplemented, so use Jackson directly
             JsonNode jsonNode = getObjectMapper().readTree(response.getBody().get().body());
             if (jsonNode.size() != 1) {
-                throw new NuxeoException(String.format(
+                throw new RepositoryException(String.format(
                         "Expecting alias that point to a single index, alias: %s, got: %s", aliasName, jsonNode.toPrettyString()));
             }
             return jsonNode.propertyNames().iterator().next();
         } catch (IOException | OpenSearchException e) {
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
     }
 
@@ -424,7 +424,7 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
             deleteAlias(aliasName);
         }
         if (indexExists(aliasName)) {
-            throw new NuxeoException("Can create an alias because an index with the same name exists: " + aliasName);
+            throw new RepositoryException("Can create an alias because an index with the same name exists: " + aliasName);
         }
         createAlias(aliasName, indexName);
     }
@@ -440,7 +440,7 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
                         String.format("Deleting %s alias: %s", aliasName, response.getReason()));
             }
         } catch (IOException | OpenSearchException e) {
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
     }
 
@@ -451,10 +451,10 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
                                   .build();
         try (Response response = performRequestWithTracing(request)) {
             if (response.getStatus() != HttpStatus.SC_OK) {
-                throw new NuxeoException("Fail to create alias: " + indexName + " :" + response.getBody().get().bodyAsString());
+                throw new RepositoryException("Fail to create alias: " + indexName + " :" + response.getBody().get().bodyAsString());
             }
         } catch (IOException | OpenSearchException e) {
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
     }
 
@@ -468,7 +468,7 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
             BulkRequest finalRequest = request;
             return withRetry(() -> client.bulk(finalRequest));
         } catch (IOException | OpenSearchException e) {
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
     }
 
@@ -479,7 +479,7 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
                                                  .id(docId)
                                                  .timeout(tb -> tb.time(LONG_TIMEOUT))));
         } catch (IOException | OpenSearchException e) {
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
     }
 
@@ -492,7 +492,7 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
             }
             return client.deleteByQuery(request);
         } catch (IOException | OpenSearchException e) {
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
     }
 
@@ -508,21 +508,21 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
             } catch (NullPointerException | IndexOutOfBoundsException ignored) {
                 message = null;
             }
-            throw new NuxeoException("Error performing OpenSearch query: " + message, e, HttpStatus.SC_BAD_REQUEST);
+            throw new RepositoryException("Error performing OpenSearch query: " + message, e, HttpStatus.SC_BAD_REQUEST);
         } catch (IOException e) {
             // OpenSearch is unreachable, or the connection died mid-request. That is not a defect in this
             // server and the caller can usefully retry it, so it is 503 rather than 500 -- the status the
             // platform already answers for the equivalent graph failure, and the one
-            // NuxeoExceptionController adds Retry-After to.
+            // RepositoryExceptionController adds Retry-After to.
             //
             // The message is fixed rather than the cause's: the controller replaces the message only for 500,
             // so a cause would reach the caller verbatim -- and this one names the configured search host and
             // port. GraphServiceManager states its own 503 the same way. The cause still travels for the log.
-            throw new NuxeoException(SEARCH_UNAVAILABLE_MESSAGE, e, HttpStatus.SC_SERVICE_UNAVAILABLE);
+            throw new RepositoryException(SEARCH_UNAVAILABLE_MESSAGE, e, HttpStatus.SC_SERVICE_UNAVAILABLE);
         } catch (JacksonException e) {
             // Reachable, but its reply could not be parsed. That one is ours: 500 by omission is correct here,
             // and keeping it apart from the arm above is what separates paging the on-call from retrying.
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
     }
 
@@ -532,7 +532,7 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
             log.debug("OpenSearch search scroll request (raw): {}", request::toJsonString);
             return withRetry(() -> client.scroll(request, DocumentDTO.class));
         } catch (IOException | OpenSearchException e) {
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
     }
 
@@ -541,7 +541,7 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
         try (Scope ignored = getScopedSpan("open/_get", request.toString())) {
             return withRetry(() -> client.get(request, DocumentDTO.class));
         } catch (IOException | OpenSearchException e) {
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
     }
 
@@ -558,15 +558,15 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
             if (e.status() == HttpStatus.SC_CONFLICT) {
                 throw new ConcurrentUpdateException(e);
             }
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         } catch (IOException | OpenSearchException e) {
             String message = e.getMessage();
             if (message != null && message.contains("Preview of field")) {
                 // Remove PII from the preview section while keeping the rest of the error
                 String sanitizedMessage = message.replaceAll("Preview of field's value:.*", "OpenSearch indexing operation failed. Preview of field's value: [REDACTED]");
-                throw new NuxeoException(sanitizedMessage, e);
+                throw new RepositoryException(sanitizedMessage, e);
             }
-            throw new NuxeoException(message, e);
+            throw new RepositoryException(message, e);
         }
     }
 
@@ -600,9 +600,9 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
                     log.debug("Scroll id not found, it has certainly been already closed: {}", scrollId);
                 }
             }
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         } catch (IOException | JacksonException e) {
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
     }
 
@@ -624,7 +624,7 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
                                                            en -> getTotalStoreSize(en.getValue())));
             return new OpenSearchIndexStoreStats(totalSize, indexSizes);
         } catch (IOException | OpenSearchException e) {
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
     }
 
@@ -658,7 +658,7 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
             if (status != HttpStatus.SC_NOT_FOUND) {
                 // Any other status (401/403/500/...) is unexpected: do not assume the pipeline exists,
                 // otherwise a real error would be silently swallowed and the pipeline left missing.
-                throw new NuxeoException("Failed to check pipeline " + pipelineId + ". Received status code " + status
+                throw new RepositoryException("Failed to check pipeline " + pipelineId + ". Received status code " + status
                         + " with message: " + bodyOf(getPipelineResponse));
             }
 
@@ -675,13 +675,13 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
                         putPipelineResponse.getStatus());
 
                 if (putPipelineResponse.getStatus() != HttpStatus.SC_OK) {
-                    throw new NuxeoException("Failed to create pipeline " + pipelineId + ". Received status code "
+                    throw new RepositoryException("Failed to create pipeline " + pipelineId + ". Received status code "
                             + putPipelineResponse.getStatus() + " with message: " + bodyOf(putPipelineResponse));
                 }
                 log.info("Successfully created OpenSearch pipeline: {}", pipelineId);
             }
         } catch (IOException | JacksonException e) {
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
     }
 

@@ -30,7 +30,7 @@ import jakarta.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.StringUtils;
 import com.hyland.openarch.ecm.core.api.DocumentSecurityException;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.model.InternalDocument;
 import com.hyland.openarch.ecm.core.schema.SchemaManager;
 import com.hyland.openarch.ecm.core.schema.TypeService;
@@ -278,12 +278,12 @@ public abstract class AbstractSecurityPolicy implements SecurityPolicy {
      * @param principal the principal
      * @return {@code true} if the security policy should be bypassed
      */
-    protected boolean principalBypass(InternalDocument doc, NuxeoPrincipal principal) {
+    protected boolean principalBypass(InternalDocument doc, RepositoryPrincipal principal) {
         return principal.isAdministrator();
     }
 
     @Override
-    public boolean appliesToDocument(InternalDocument doc, NuxeoPrincipal principal, Set<String> permissions) {
+    public boolean appliesToDocument(InternalDocument doc, RepositoryPrincipal principal, Set<String> permissions) {
         if (principalBypass(doc, principal)) {
             return false;
         }
@@ -324,7 +324,7 @@ public abstract class AbstractSecurityPolicy implements SecurityPolicy {
     // this default implementation just iterates on each permission and delegates to hasPermission
     @Override
     public void restrictEffectivePermissions(List<String> effectivePermissions, InternalDocument doc,
-            NuxeoPrincipal principal, Set<String> principals, SecurityService securityService) {
+                                             RepositoryPrincipal principal, Set<String> principals, SecurityService securityService) {
         for (ListIterator<String> it = effectivePermissions.listIterator(); it.hasNext();) {
             String permission = it.next();
             // if the permission is a group, all sub-permissions must be granted

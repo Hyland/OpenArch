@@ -47,7 +47,7 @@ import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
 import com.hyland.openarch.ecm.core.api.DocumentRef;
 import com.hyland.openarch.ecm.core.api.DocumentSecurityException;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.security.ACE;
 import com.hyland.openarch.ecm.core.api.security.ACL;
 import com.hyland.openarch.ecm.core.test.CoreFeature;
@@ -147,7 +147,7 @@ public class TestRetentionRemove {
             checkRemoveDocument(folder, notAdminSession, true, DELETE_CHILD);
 
             // Add current user to records cleaner group.
-            NuxeoPrincipal.getCurrent().setGroups(Collections.singletonList(RECORDS_CLEANER_GROUP));
+            RepositoryPrincipal.getCurrent().setGroups(Collections.singletonList(RECORDS_CLEANER_GROUP));
 
             folder = notAdminSession.getDocument(folder.getRef());
             checkRemoveDocument(folder, notAdminSession, true, DELETE_CHILD);
@@ -167,7 +167,7 @@ public class TestRetentionRemove {
             checkRemoveDocument(documentModelUnderRetention, notAdminSession, true, DELETE);
 
             // Add current use to record cleaner group.
-            NuxeoPrincipal.getCurrent().setGroups(Collections.singletonList(RECORDS_CLEANER_GROUP));
+            RepositoryPrincipal.getCurrent().setGroups(Collections.singletonList(RECORDS_CLEANER_GROUP));
 
             documentModelUnderLegalHold = notAdminSession.getDocument(documentModelUnderLegalHold.getRef());
             documentModelUnderRetention = notAdminSession.getDocument(documentModelUnderRetention.getRef());
@@ -186,7 +186,7 @@ public class TestRetentionRemove {
             checkRemoveDocument(folder, notAdminSession, true, DELETE_CHILD);
 
             // Add current user to records cleaner group.
-            NuxeoPrincipal.getCurrent().setGroups(Collections.singletonList(RECORDS_CLEANER_GROUP));
+            RepositoryPrincipal.getCurrent().setGroups(Collections.singletonList(RECORDS_CLEANER_GROUP));
 
             folder = notAdminSession.getDocument(folder.getRef());
             checkRemoveDocument(folder, notAdminSession, false, DELETE_CHILD);
@@ -205,7 +205,7 @@ public class TestRetentionRemove {
             checkRemoveDocument(documentModelUnderRetention, notAdminSession, true, DELETE);
 
             // Add current user to records cleaner group.
-            NuxeoPrincipal.getCurrent().setGroups(Collections.singletonList(RECORDS_CLEANER_GROUP));
+            RepositoryPrincipal.getCurrent().setGroups(Collections.singletonList(RECORDS_CLEANER_GROUP));
 
             documentModelUnderLegalHold = notAdminSession.getDocument(documentModelUnderLegalHold.getRef());
             documentModelUnderRetention = notAdminSession.getDocument(documentModelUnderRetention.getRef());
@@ -225,7 +225,7 @@ public class TestRetentionRemove {
             CoreSession notAdminSession = CoreInstance.getCoreSession(session.getRepositoryName());
             assertFalse(notAdminSession.hasPermission(documentModelUnderLegalHold.getRef(), DELETE));
             assertFalse(notAdminSession.hasPermission(documentModelUnderRetention.getRef(), DELETE));
-            NuxeoPrincipal.getCurrent().setGroups(Collections.singletonList(RECORDS_CLEANER_GROUP));
+            RepositoryPrincipal.getCurrent().setGroups(Collections.singletonList(RECORDS_CLEANER_GROUP));
             assertFalse(notAdminSession.hasPermission(documentModelUnderLegalHold.getRef(), DELETE));
             assertFalse(notAdminSession.hasPermission(documentModelUnderRetention.getRef(), DELETE));
         }
@@ -239,7 +239,7 @@ public class TestRetentionRemove {
             CoreSession notAdminSession = CoreInstance.getCoreSession(session.getRepositoryName());
             assertFalse(notAdminSession.hasPermission(documentModelUnderLegalHold.getRef(), DELETE));
             assertFalse(notAdminSession.hasPermission(documentModelUnderRetention.getRef(), DELETE));
-            NuxeoPrincipal.getCurrent().setGroups(Collections.singletonList(RECORDS_CLEANER_GROUP));
+            RepositoryPrincipal.getCurrent().setGroups(Collections.singletonList(RECORDS_CLEANER_GROUP));
             assertTrue(notAdminSession.hasPermission(documentModelUnderLegalHold.getRef(), DELETE));
             assertTrue(notAdminSession.hasPermission(documentModelUnderRetention.getRef(), DELETE));
         }

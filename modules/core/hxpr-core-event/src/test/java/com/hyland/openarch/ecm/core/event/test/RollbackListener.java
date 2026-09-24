@@ -15,7 +15,7 @@
  */
 package com.hyland.openarch.ecm.core.event.test;
 
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.ecm.core.event.Event;
 import com.hyland.openarch.ecm.core.event.EventListener;
 
@@ -35,7 +35,7 @@ public class RollbackListener implements EventListener {
         if (properties.get("RuntimeException") != null) {
             throw new RuntimeException("RuntimeException");
         }
-        throw new NuxeoException("NuxeoException", 400);
+        throw new RepositoryException("RepositoryException", 400);
     }
 
 }

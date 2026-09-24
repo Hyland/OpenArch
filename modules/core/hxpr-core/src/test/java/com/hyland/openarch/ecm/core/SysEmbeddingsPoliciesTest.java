@@ -23,8 +23,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.junit.jupiter.api.Test;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.ecm.core.api.validation.DocumentValidationException;
 import com.hyland.openarch.ecm.core.model.InternalDocument;
 import com.hyland.openarch.ecm.core.schema.DocumentType;
@@ -60,7 +60,7 @@ class SysEmbeddingsPoliciesTest {
 
     @Test
     void shouldRejectTypeExtractionFromUnprefixedName() {
-        assertThrows(NuxeoException.class, () -> SysEmbeddingsPolicies.getEmbeddingsTypeFromName("Section"));
+        assertThrows(RepositoryException.class, () -> SysEmbeddingsPolicies.getEmbeddingsTypeFromName("Section"));
     }
 
     @Test
@@ -185,7 +185,7 @@ class SysEmbeddingsPoliciesTest {
         when(doc.hasMixin(SYS_HAS_EMBEDDINGS)).thenReturn(true);
         when(doc.getChildren()).thenReturn(List.of(child));
 
-        assertThrows(NuxeoException.class,
+        assertThrows(RepositoryException.class,
                 () -> SysEmbeddingsPolicies.enforceHasEmbeddingsMixinUpdateOrThrow(doc, List.of()));
     }
 }

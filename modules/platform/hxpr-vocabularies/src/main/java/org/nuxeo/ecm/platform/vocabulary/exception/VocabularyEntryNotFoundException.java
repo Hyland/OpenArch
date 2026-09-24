@@ -17,9 +17,9 @@ package org.nuxeo.ecm.platform.vocabulary.exception;
 
 import static jakarta.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 
-public class VocabularyEntryNotFoundException extends NuxeoException {
+public class VocabularyEntryNotFoundException extends RepositoryException {
 
     public VocabularyEntryNotFoundException(String vocabularyId, String vocabularyEntry) {
         super("Vocabulary entry %s not found in vocabulary %s".formatted(vocabularyEntry, vocabularyId), SC_NOT_FOUND);

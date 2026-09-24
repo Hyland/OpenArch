@@ -25,8 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.junit.jupiter.api.Test;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.ecm.core.query.sql.HXQLSerializer;
 import com.hyland.openarch.ecm.core.query.sql.model.Predicate;
 import org.nuxeo.rest.query.io.WhereClauseDTO.RestPredicate;
@@ -182,13 +182,13 @@ public class PredicateBuilderTest {
         RestPredicate predicate = new RestPredicate(SYS_TITLE, ":op", List.of(RestPredicateParameter.of("p")));
         assertEquals("sys_title LIKE 'a'", build(predicate, Map.of("op", "LIKE", "p", "a")));
         assertEquals("sys_title = 'a'", build(predicate, Map.of("op", "=", "p", "a")));
-        var e = assertThrows(NuxeoException.class, () -> build(predicate, Map.of("p", "a")));
+        var e = assertThrows(RepositoryException.class, () -> build(predicate, Map.of("p", "a")));
         assertTrue(e.getMessage().contains("No operator supplied"), e.getMessage());
     }
 
     @Test
     public void testUnknownOperator() {
-        var e = assertThrows(NuxeoException.class, () -> build("SOUNDSLIKE", "a"));
+        var e = assertThrows(RepositoryException.class, () -> build("SOUNDSLIKE", "a"));
         assertEquals("Unsupported predicate operator: SOUNDSLIKE", e.getMessage());
         assertEquals(400, e.getStatusCode());
     }
@@ -207,7 +207,7 @@ public class PredicateBuilderTest {
     @Test
     public void testFieldNamesCannotInjectSyntax() {
         RestPredicate predicate = RestPredicate.of("sys_title = 'public' OR sys_title", "=", "p");
-        var e = assertThrows(NuxeoException.class, () -> build(predicate, Map.of("p", "a")));
+        var e = assertThrows(RepositoryException.class, () -> build(predicate, Map.of("p", "a")));
         assertEquals("Not a valid field name: sys_title = 'public' OR sys_title", e.getMessage());
         assertEquals(400, e.getStatusCode());
     }

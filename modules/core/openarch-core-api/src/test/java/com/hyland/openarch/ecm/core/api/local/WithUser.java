@@ -25,7 +25,7 @@ import static com.hyland.openarch.ecm.core.api.local.DummyLoginFeature.TEST_ADMI
 import static com.hyland.openarch.ecm.core.api.local.DummyLoginFeature.TEST_ADMIN_USER_NAME;
 
 /**
- * Interface allowing to login as a specific user into Nuxeo Platform.
+ * Interface allowing to login as a specific user into OpenArch Platform.
  * <p>
  * It leverages {@link DummyLoginAs} class and so log in as {@code Administrator} or {@code anonymous} will give
  * specific roles.

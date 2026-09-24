@@ -15,7 +15,7 @@
  */
 package com.hyland.openarch.ecm.core.event;
 
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.ecm.core.event.impl.EventContextImpl;
 import com.hyland.openarch.runtime.api.Framework;
 
@@ -54,7 +54,7 @@ public abstract class GenericEvent {
         try {
             return MAPPER.writeValueAsString(this);
         } catch (JacksonException e) {
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
     }
 

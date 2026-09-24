@@ -24,7 +24,7 @@ import static jakarta.servlet.http.HttpServletResponse.SC_CONFLICT;
  *
  * @since 5.8
  */
-public class ConcurrentUpdateException extends NuxeoException {
+public class ConcurrentUpdateException extends RepositoryException {
 
     private static final long serialVersionUID = 1L;
 

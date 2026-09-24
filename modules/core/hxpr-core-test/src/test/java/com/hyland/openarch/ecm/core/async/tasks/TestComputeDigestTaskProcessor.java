@@ -27,9 +27,9 @@ import com.hyland.hxpr.async.tasks.AsyncTasksFeature;
 import com.hyland.hxpr.async.tasks.TaskService;
 import com.hyland.hxpr.async.tasks.TaskStatus;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.ecm.core.test.CoreFeature;
 import com.hyland.openarch.ecm.core.test.annotations.Granularity;
 import com.hyland.openarch.ecm.core.test.annotations.RepositoryConfig;
@@ -66,6 +66,6 @@ public class TestComputeDigestTaskProcessor {
     public void processRethrowsForUnknownBlobProvider() {
         ComputeDigestTask task = new ComputeDigestTask("nosuchprovider", "key");
 
-        assertThrows(NuxeoException.class, () -> sut.process(task));
+        assertThrows(RepositoryException.class, () -> sut.process(task));
     }
 }

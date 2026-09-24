@@ -38,13 +38,13 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.Binary;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.kv.AbstractKeyValueStoreProvider;
 import com.hyland.openarch.runtime.kv.KeyValueStoreDescriptor;
@@ -467,7 +467,7 @@ public class MongoDBKeyValueStore extends AbstractKeyValueStoreProvider {
             // - MongoDB: "Cannot apply $inc"
             // - DocumentDB: "Cannot update value"
             if (!e.getMessage().contains("Cannot apply $inc") && !e.getMessage().contains("Cannot update value")) {
-                throw new NuxeoException(e);
+                throw new RepositoryException(e);
             }
             // for compatibility with other backends that don't have datatypes,
             // try to interpret the value as the string representation of an integer
@@ -475,7 +475,7 @@ public class MongoDBKeyValueStore extends AbstractKeyValueStoreProvider {
             return addAndGetGeneric(key, delta);
         }
         if (result == null) {
-            throw new NuxeoException("Unexpected null result, upsert failed for key: " + key);
+            throw new RepositoryException("Unexpected null result, upsert failed for key: " + key);
         }
         return ((Long) result.get(VALUE_KEY)).longValue();
     }

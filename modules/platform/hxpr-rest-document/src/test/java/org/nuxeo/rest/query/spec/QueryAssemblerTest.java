@@ -26,9 +26,9 @@ import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_TITLE;
 import java.util.List;
 import java.util.Map;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.junit.jupiter.api.Test;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.query.QueryParseException;
 import com.hyland.openarch.ecm.core.query.QuerySyntax;
 import com.hyland.openarch.ecm.core.query.nxql.SortInfo;
@@ -91,7 +91,7 @@ public class QueryAssemblerTest {
     /** A sort column goes into the query as an identifier, which cannot be escaped, so it has to be validated. */
     @Test
     public void testInvalidSortColumn() {
-        var e = assertThrows(NuxeoException.class,
+        var e = assertThrows(RepositoryException.class,
                 () -> assemble(null, List.of("sys_title IS NULL OR x"), null, null, null));
         assertTrue(e.getMessage().startsWith("Not a valid field name:"), e.getMessage());
         assertEquals(400, e.getStatusCode());
@@ -213,12 +213,12 @@ public class QueryAssemblerTest {
 
     // --- expr syntax ---
 
-    protected static final NuxeoPrincipal PRINCIPAL = principal();
+    protected static final RepositoryPrincipal PRINCIPAL = principal();
 
     protected static final SchemaManager SCHEMA_MANAGER = schemaManager();
 
-    protected static NuxeoPrincipal principal() {
-        NuxeoPrincipal principal = mock(NuxeoPrincipal.class);
+    protected static RepositoryPrincipal principal() {
+        RepositoryPrincipal principal = mock(RepositoryPrincipal.class);
         when(principal.getId()).thenReturn("bob");
         when(principal.getGroups()).thenReturn(List.of("members", "readers"));
         return principal;

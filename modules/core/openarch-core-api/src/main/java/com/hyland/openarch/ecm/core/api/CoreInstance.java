@@ -72,7 +72,7 @@ public class CoreInstance {
      * @return the session
      * @since 11.1
      */
-    public static CoreSession getCoreSession(String repositoryName, NuxeoPrincipal principal) {
+    public static CoreSession getCoreSession(String repositoryName, RepositoryPrincipal principal) {
         if (repositoryName == null) {
             RepositoryManager repositoryManager = Framework.getService(RepositoryManager.class);
             repositoryName = repositoryManager.getDefaultRepositoryName();
@@ -80,15 +80,15 @@ public class CoreInstance {
         return Framework.getService(CoreSessionService.class).createCoreSession(repositoryName, principal);
     }
 
-    protected static NuxeoPrincipal getPrincipal() {
-        NuxeoPrincipal nuxeoPrincipal = NuxeoPrincipal.getCurrent();
-        if (nuxeoPrincipal != null) {
-            return nuxeoPrincipal;
+    protected static RepositoryPrincipal getPrincipal() {
+        RepositoryPrincipal repositoryPrincipal = RepositoryPrincipal.getCurrent();
+        if (repositoryPrincipal != null) {
+            return repositoryPrincipal;
         } else {
             if (Framework.isTestModeSet()) {
                 return new SystemPrincipal();
             } else {
-                throw new NuxeoException(
+                throw new RepositoryException(
                         "Cannot create a CoreSession outside a security context, " + " login() missing.");
             }
         }
@@ -105,7 +105,7 @@ public class CoreInstance {
      */
     public static <R> R doPrivileged(String repositoryName, Function<CoreSession, R> function) {
         MutableObject<R> result = new MutableObject<>();
-        new UnrestrictedSessionRunner(repositoryName, NuxeoPrincipal.getCurrent()) {
+        new UnrestrictedSessionRunner(repositoryName, RepositoryPrincipal.getCurrent()) {
             @Override
             public void run() {
                 result.setValue(function.apply(session));
@@ -142,7 +142,7 @@ public class CoreInstance {
      * @since 8.4
      */
     public static void doPrivileged(String repositoryName, Consumer<CoreSession> consumer) {
-        new UnrestrictedSessionRunner(repositoryName, NuxeoPrincipal.getCurrent()) {
+        new UnrestrictedSessionRunner(repositoryName, RepositoryPrincipal.getCurrent()) {
             @Override
             public void run() {
                 consumer.accept(session);

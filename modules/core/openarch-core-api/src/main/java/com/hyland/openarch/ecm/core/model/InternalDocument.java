@@ -30,7 +30,7 @@ import com.hyland.openarch.ecm.core.api.DocumentNotFoundException;
 import com.hyland.openarch.ecm.core.api.ValuesVisitor;
 import com.hyland.openarch.ecm.core.api.security.ACL;
 import com.hyland.openarch.ecm.core.api.Lock;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.PropertyException;
 import com.hyland.openarch.ecm.core.api.UpdateCondition;
 import com.hyland.openarch.ecm.core.schema.DocumentType;
@@ -151,12 +151,12 @@ public interface InternalDocument {
      * @param overwrite whether to overwrite any previous ACL or just add to it
      * @param principal the caller, for event purposes
      */
-    WriteResult setACL(ACL acl, boolean overwrite, NuxeoPrincipal principal);
+    WriteResult setACL(ACL acl, boolean overwrite, RepositoryPrincipal principal);
 
     /**
      * Checks if the principal has the given permission on this document.
      */
-    boolean hasPermission(NuxeoPrincipal principal, String permission);
+    boolean hasPermission(RepositoryPrincipal principal, String permission);
 
     /**
      * Gets the effective permissions on this document for the given principal.
@@ -167,7 +167,7 @@ public interface InternalDocument {
      * @param principal the principal
      * @return the effective permissions for the principal
      */
-    Set<String> getEffectivePermissions(NuxeoPrincipal principal);
+    Set<String> getEffectivePermissions(RepositoryPrincipal principal);
 
     /**
      * Sets a simple property value.
@@ -196,9 +196,9 @@ public interface InternalDocument {
      * Caller context for a property write.
      */
     record WriteContext( //
-            NuxeoPrincipal principal, //
-            String changeToken, //
-            boolean userChange) {
+                         RepositoryPrincipal principal, //
+                         String changeToken, //
+                         boolean userChange) {
     }
 
     /**
@@ -233,7 +233,7 @@ public interface InternalDocument {
     /**
      * Gets a value with the caller context needed for permission-aware repository-managed fields.
      */
-    Object getValue(String xpath, NuxeoPrincipal principal) throws PropertyException;
+    Object getValue(String xpath, RepositoryPrincipal principal) throws PropertyException;
 
     /**
      * Visits this document's values, passing information to the {@link ValuesVisitor}.
@@ -306,14 +306,14 @@ public interface InternalDocument {
      * @param principal the caller
      * @since 11.1
      */
-    void remove(NuxeoPrincipal principal);
+    void remove(RepositoryPrincipal principal);
 
     /**
      * Removes this document only, without its children.
      *
      * @since 11.1
      */
-    void removeSingleton(NuxeoPrincipal principal);
+    void removeSingleton(RepositoryPrincipal principal);
 
     /**
      * Turns the document into a record.
@@ -447,7 +447,7 @@ public interface InternalDocument {
      *
      * @param condition the condition
      */
-    void setUpdateCondition(UpdateCondition condition, NuxeoPrincipal principal);
+    void setUpdateCondition(UpdateCondition condition, RepositoryPrincipal principal);
 
     /**
      * Gets the mixins available on this document (from the type and the instance mixins).
@@ -566,7 +566,7 @@ public interface InternalDocument {
      *
      * @return the created version
      */
-    InternalDocument checkIn(NuxeoPrincipal principal);
+    InternalDocument checkIn(RepositoryPrincipal principal);
 
     /**
      * Creates a new (maybe minor) version.
@@ -574,7 +574,7 @@ public interface InternalDocument {
      * @param minor whether this should be a minor version
      * @return the created version
      */
-    InternalDocument checkIn(NuxeoPrincipal principal, boolean minor);
+    InternalDocument checkIn(RepositoryPrincipal principal, boolean minor);
 
     /**
      * Checks out a working copy.

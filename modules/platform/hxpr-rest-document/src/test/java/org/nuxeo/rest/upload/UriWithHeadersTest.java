@@ -15,11 +15,11 @@
  */
 package org.nuxeo.rest.upload;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -94,7 +94,7 @@ class UriWithHeadersTest {
     void shouldThrowExceptionWhenBodyExceedsMaxSize() {
         String tooLargeBody = "#Authorization: Bearer token\n" + "x".repeat((128 * 1024));
         InputStream inputStream = prepareInputStream(tooLargeBody);
-        NuxeoException e = assertThrows(NuxeoException.class, () -> UriWithHeaders.of(inputStream));
+        RepositoryException e = assertThrows(RepositoryException.class, () -> UriWithHeaders.of(inputStream));
         assertEquals(400, e.getStatusCode());
     }
 

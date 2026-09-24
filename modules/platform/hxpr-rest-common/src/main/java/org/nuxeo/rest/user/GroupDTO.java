@@ -18,7 +18,7 @@ package org.nuxeo.rest.user;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-import com.hyland.openarch.ecm.core.api.NuxeoGroup;
+import com.hyland.openarch.ecm.core.api.RepositoryGroup;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -35,7 +35,7 @@ public record GroupDTO(
         String name
 ) {
 
-    public GroupDTO(NuxeoGroup group) {
+    public GroupDTO(RepositoryGroup group) {
         this(group.getId(), group.getName());
     }
 

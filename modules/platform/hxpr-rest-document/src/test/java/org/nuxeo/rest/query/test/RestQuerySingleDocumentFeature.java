@@ -23,7 +23,7 @@ import java.util.concurrent.TimeoutException;
 
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.nuxeo.opensearch.api.OpenSearchService;
 import org.nuxeo.opensearch.test.RepositoryOpenSearchFeature;
 import org.nuxeo.rest.document.test.RestSingleDocumentFeature;
@@ -43,9 +43,9 @@ public class RestQuerySingleDocumentFeature extends RestSingleDocumentFeature {
             oss.prepareWaitForIndexing().get(20, TimeUnit.SECONDS);
             oss.refresh();
         } catch (InterruptedException e) {
-            throw new NuxeoException("Interrupted while waiting for completion", e);
+            throw new RepositoryException("Interrupted while waiting for completion", e);
         } catch (ExecutionException | TimeoutException e) {
-            throw new NuxeoException("Error waiting for completion", e);
+            throw new RepositoryException("Error waiting for completion", e);
         }
     }
 

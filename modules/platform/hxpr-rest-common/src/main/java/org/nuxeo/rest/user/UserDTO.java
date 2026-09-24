@@ -19,7 +19,7 @@ import static java.util.Objects.requireNonNull;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -54,7 +54,7 @@ public record UserDTO( //
         properties = properties == null ? Map.of() : properties;
     }
 
-    public UserDTO(NuxeoPrincipal user) {
+    public UserDTO(RepositoryPrincipal user) {
         this(user.getId(), user.getFirstName(), user.getLastName(),
              user.getUsername(), user.getEmail(), user.getUserAttributes());
     }

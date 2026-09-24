@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections4.CollectionUtils;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.PropertyException;
 import com.hyland.openarch.ecm.core.blob.ManagedBlob;
 import com.hyland.openarch.ecm.core.model.InternalDocument;
@@ -123,7 +123,7 @@ public class ExprEvaluator {
      *
      * @param principal the user, or {@code null} if there is none
      */
-    public static Map<String, Object> queryContext(NuxeoPrincipal principal) {
+    public static Map<String, Object> queryContext(RepositoryPrincipal principal) {
         return context(CONTENT, principal);
     }
 
@@ -142,11 +142,11 @@ public class ExprEvaluator {
      * @param document the document, or {@code null} if there is none
      * @param principal the user, or {@code null} if there is none
      */
-    public static Map<String, Object> documentContext(InternalDocument document, NuxeoPrincipal principal) {
+    public static Map<String, Object> documentContext(InternalDocument document, RepositoryPrincipal principal) {
         return context(document, principal);
     }
 
-    private static Map<String, Object> context(Object content, NuxeoPrincipal principal) {
+    private static Map<String, Object> context(Object content, RepositoryPrincipal principal) {
         // a HashMap and not a Map.of, as the content or the user may be missing
         Map<String, Object> context = new HashMap<>();
         context.put(CONTEXT_CONTENT, content);
@@ -235,7 +235,7 @@ public class ExprEvaluator {
                     value = new Reference(ref.name() + "/" + name);
                 } else if (left instanceof InternalDocument idoc) {
                     value = getInternalDocumentValue(idoc, name, expr);
-                } else if (left instanceof NuxeoPrincipal principal) {
+                } else if (left instanceof RepositoryPrincipal principal) {
                     value = getPrincipalValue(principal, name);
                 } else if (left instanceof Map<?, ?> map) {
                     value = map.get(name);
@@ -280,7 +280,7 @@ public class ExprEvaluator {
         }
     }
 
-    private Object getPrincipalValue(NuxeoPrincipal principal, String name) {
+    private Object getPrincipalValue(RepositoryPrincipal principal, String name) {
         return switch (name) {
             case USER_ID -> principal.getId();
             case USER_GROUPS -> principal.getGroups();

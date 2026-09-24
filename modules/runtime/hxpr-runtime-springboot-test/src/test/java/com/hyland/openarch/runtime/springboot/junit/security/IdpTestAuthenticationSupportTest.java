@@ -27,6 +27,8 @@ import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,7 +39,7 @@ import org.mockito.MockedStatic;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+
 import com.hyland.openarch.ecm.core.api.local.WithUser;
 import com.hyland.openarch.runtime.api.Framework;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -167,7 +169,7 @@ class IdpTestAuthenticationSupportTest {
 
         // When / Then
         assertThatThrownBy(() -> IdpTestAuthenticationSupport.authenticate(withUser))
-                .isInstanceOf(NuxeoException.class)
+                .isInstanceOf(RepositoryException.class)
                 .hasMessageContaining(expectedErrorMessage);
     }
 
@@ -184,7 +186,7 @@ class IdpTestAuthenticationSupportTest {
 
         // When / Then
         assertThatThrownBy(() -> IdpTestAuthenticationSupport.authenticate(withUser)).isInstanceOf(
-                NuxeoException.class).hasMessageContaining("Interrupted while fetching IDP token");
+                RepositoryException.class).hasMessageContaining("Interrupted while fetching IDP token");
 
         assertThat(Thread.currentThread().isInterrupted()).isTrue();
         Thread.interrupted(); // Clear flag
@@ -203,7 +205,7 @@ class IdpTestAuthenticationSupportTest {
 
         // When / Then
         assertThatThrownBy(() -> IdpTestAuthenticationSupport.authenticate(withUser)).isInstanceOf(
-                NuxeoException.class).hasMessageContaining("Unable to fetch IDP token");
+                RepositoryException.class).hasMessageContaining("Unable to fetch IDP token");
     }
 
     @Test
@@ -216,7 +218,7 @@ class IdpTestAuthenticationSupportTest {
 
         // When / Then
         assertThatThrownBy(() -> IdpTestAuthenticationSupport.authenticate(withUser)).isInstanceOf(
-                NuxeoException.class).hasMessageContaining("Unable to parse IDP token");
+                RepositoryException.class).hasMessageContaining("Unable to parse IDP token");
     }
 
     @Test
@@ -232,7 +234,7 @@ class IdpTestAuthenticationSupportTest {
     void testBearerTokenWhenNotSet() {
         // When / Then
         assertThatThrownBy(IdpTestAuthenticationSupport::bearerToken).isInstanceOf(
-                NuxeoException.class)
+                RepositoryException.class)
                 .hasMessageContaining("No IDP token available for the current test context");
     }
 

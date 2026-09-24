@@ -21,7 +21,7 @@ import java.io.IOException;
 
 import javax.security.auth.login.LoginException;
 
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.api.login.LoginContext;
 import com.hyland.openarch.runtime.springboot.security.SpringSecurityHelper;
@@ -80,7 +80,7 @@ public class NuxeoLoginFilter extends OncePerRequestFilter {
             log.info(e.getMessage(), e);
             response.sendError(SC_UNAUTHORIZED);
             return;
-        } catch (NuxeoException e) {
+        } catch (RepositoryException e) {
             log.debug(e.getMessage(), e);
             response.sendError(e.getStatusCode());
             return;

@@ -32,7 +32,7 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.impl.UserPrincipal;
 import com.hyland.openarch.ecm.core.api.query.QueryParameters;
 import com.hyland.openarch.ecm.core.model.InternalDocument;
@@ -73,7 +73,7 @@ public class TestExpressionSecurityPolicy {
         Set<String> permissions = null;
 
         // alice can read due to the policy expression
-        NuxeoPrincipal alice = new UserPrincipal("alice", null, false);
+        RepositoryPrincipal alice = new UserPrincipal("alice", null, false);
         Set<String> alices = Set.of(alice.getId());
         boolean check = policy.hasPermission(idoc, alice, alices, permission, permissions);
         assertTrue(check);
@@ -84,7 +84,7 @@ public class TestExpressionSecurityPolicy {
         assertEquals("TRUE", clause.toString());
 
         // bob cannot read due to document high clearance level
-        NuxeoPrincipal bob = new UserPrincipal("bob", null, false);
+        RepositoryPrincipal bob = new UserPrincipal("bob", null, false);
         Set<String> bobs = Set.of(bob.getId());
         check = policy.hasPermission(idoc, bob, bobs, permission, permissions);
         assertFalse(check);

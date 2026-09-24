@@ -43,6 +43,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.ecm.core.api.impl.blob.FileBlob;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
@@ -52,7 +53,6 @@ import org.apache.parquet.hadoop.ParquetFileWriter;
 import org.apache.parquet.io.LocalOutputFile;
 import com.hyland.openarch.ecm.core.api.Blob;
 import com.hyland.openarch.ecm.core.api.Blobs;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.ecm.core.model.EmbeddingModel;
 import com.hyland.openarch.ecm.core.model.LocationModel;
 
@@ -107,7 +107,7 @@ public class ParquetBlobGenerator {
             }
             EMBEDDING_SCHEMA = new Schema.Parser().parse(is);
         } catch (IOException e) {
-            throw new NuxeoException("Failed to load embedding schema", e);
+            throw new RepositoryException("Failed to load embedding schema", e);
         }
     }
 

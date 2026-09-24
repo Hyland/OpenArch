@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.ecm.core.query.QueryParseException;
 import com.hyland.openarch.ecm.core.query.nxql.FulltextSanitizer;
 import com.hyland.openarch.ecm.core.query.sql.HXQLParser;
@@ -72,7 +72,7 @@ public class PredicateBuilder {
         PredicateOperator operator = resolveOperator(predicate, parameters);
         String field = predicate.searchParameter();
         if (field == null) {
-            throw new NuxeoException("Predicate has no searchParameter", BAD_REQUEST.value());
+            throw new RepositoryException("Predicate has no searchParameter", BAD_REQUEST.value());
         }
         List<RestPredicateParameter> fields = predicate.parameters();
         return switch (operator) {
@@ -98,7 +98,7 @@ public class PredicateBuilder {
             if (supplied instanceof String string && !string.isBlank()) {
                 operator = string;
             } else {
-                throw new NuxeoException("No operator supplied for parameter " + operator, BAD_REQUEST.value());
+                throw new RepositoryException("No operator supplied for parameter " + operator, BAD_REQUEST.value());
             }
         }
         return PredicateOperator.forName(operator);
@@ -176,7 +176,7 @@ public class PredicateBuilder {
         try {
             return HXQLParser.parseReference(field);
         } catch (QueryParseException e) {
-            throw new NuxeoException("Not a valid field name: " + field, e, BAD_REQUEST.value());
+            throw new RepositoryException("Not a valid field name: " + field, e, BAD_REQUEST.value());
         }
     }
 
@@ -217,7 +217,7 @@ public class PredicateBuilder {
             return trimmed.isEmpty() ? Optional.empty() : Optional.of(new StringLiteral(trimmed));
         }
         if (value instanceof Collection || value.getClass().isArray()) {
-            throw new NuxeoException("Expected a single value, got a list: " + value, BAD_REQUEST.value());
+            throw new RepositoryException("Expected a single value, got a list: " + value, BAD_REQUEST.value());
         }
         return Optional.of(toLiteral(value));
     }
@@ -250,7 +250,7 @@ public class PredicateBuilder {
         try {
             return Literals.toLiteral(value);
         } catch (RuntimeException e) {
-            throw new NuxeoException("Cannot use a value of type " + value.getClass().getName() + " in a predicate",
+            throw new RepositoryException("Cannot use a value of type " + value.getClass().getName() + " in a predicate",
                     e, BAD_REQUEST.value());
         }
     }

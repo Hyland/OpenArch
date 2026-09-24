@@ -29,7 +29,7 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.impl.UserPrincipal;
 import com.hyland.openarch.ecm.core.api.query.QueryParameters;
 import com.hyland.openarch.ecm.core.model.InternalDocument;
@@ -62,7 +62,7 @@ public class TestUserAttributeExpressionSecurityPolicy {
         Set<String> permissions = null;
 
         // alice can read due to the policy expression
-        NuxeoPrincipal alice = new UserPrincipal("alice", null, false);
+        RepositoryPrincipal alice = new UserPrincipal("alice", null, false);
         alice.setUserAttributes(Map.of(SECURITY_EXPRESSION_ATTRIBUTE_NAME,
                 "content.testSecKeyword == user.testSecKeyword", "testSecKeyword", "123"));
         Set<String> alices = Set.of(alice.getId());
@@ -75,7 +75,7 @@ public class TestUserAttributeExpressionSecurityPolicy {
         assertEquals("testSecKeyword = '123'", clause.toString());
 
         // bob cannot read due to the policy expression
-        NuxeoPrincipal bob = new UserPrincipal("bob", null, false);
+        RepositoryPrincipal bob = new UserPrincipal("bob", null, false);
         bob.setUserAttributes(Map.of(SECURITY_EXPRESSION_ATTRIBUTE_NAME,
                 "user.testSecKeyword == content.testSecKeyword", "testSecKeyword", "456"));
         Set<String> bobs = Set.of(bob.getId());
@@ -112,7 +112,7 @@ public class TestUserAttributeExpressionSecurityPolicy {
         Set<String> permissions = null;
 
         // alice can read due to the policy expression
-        NuxeoPrincipal alice = new UserPrincipal("alice", null, false);
+        RepositoryPrincipal alice = new UserPrincipal("alice", null, false);
         alice.setUserAttributes(Map.of(SECURITY_EXPRESSION_ATTRIBUTE_NAME,
                 "(content.testSystemId != \"mySysID\" || content.testSecKeyword == \"123\" && content.testSecKeyword2 == \"456\")"));
         Set<String> alices = Set.of(alice.getId());
@@ -126,7 +126,7 @@ public class TestUserAttributeExpressionSecurityPolicy {
                 clause.toString());
 
         // bob cannot read due to the policy expression
-        NuxeoPrincipal bob = new UserPrincipal("bob", null, false);
+        RepositoryPrincipal bob = new UserPrincipal("bob", null, false);
         bob.setUserAttributes(Map.of(SECURITY_EXPRESSION_ATTRIBUTE_NAME,
                 "(content.testSystemId != \"mySysID\" || content.testSecKeyword == \"123\" && content.testSecKeyword2 == \"789\")"));
         Set<String> bobs = Set.of(bob.getId());

@@ -26,14 +26,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import org.springframework.security.access.AccessDeniedException;
 
 @ExtendWith(MockitoExtension.class)
 public class RolesAllowedInterceptorUnitTest {
 
     @Mock
-    private NuxeoPrincipal currentUser;
+    private RepositoryPrincipal currentUser;
 
     @Spy
     private RolesAllowedInterceptor rolesAllowedInterceptor;

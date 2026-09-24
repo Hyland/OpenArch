@@ -23,7 +23,7 @@ import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.query.QueryParameters;
 import com.hyland.openarch.ecm.core.model.InternalDocument;
 import com.hyland.openarch.ecm.core.query.sql.model.BooleanLiteral;
@@ -75,15 +75,15 @@ public class SecurityLevelSecurityPolicy extends AbstractSecurityPolicy {
     }
 
     @Override
-    protected boolean principalBypass(InternalDocument doc, NuxeoPrincipal principal) {
+    protected boolean principalBypass(InternalDocument doc, RepositoryPrincipal principal) {
         return super.principalBypass(doc, principal)
                 // creator also bypasses
                 || principal.getId().equals(doc.getPropertyValue(SYS_CREATOR));
     }
 
     @Override
-    public boolean hasPermission(InternalDocument doc, NuxeoPrincipal principal, Set<String> principals,
-            String permission, Set<String> permissions) {
+    public boolean hasPermission(InternalDocument doc, RepositoryPrincipal principal, Set<String> principals,
+                                 String permission, Set<String> permissions) {
         Long principalLevel = getPrincipalLevel(principal);
         if (principalLevel == null) {
             // deny if user does not have access level
@@ -105,7 +105,7 @@ public class SecurityLevelSecurityPolicy extends AbstractSecurityPolicy {
 
     @Override
     public Operand getQueryClause(QueryParameters queryParams, Set<String> principals) {
-        NuxeoPrincipal principal = queryParams.principal();
+        RepositoryPrincipal principal = queryParams.principal();
         String principalId = principal.getId();
         Long principalLevel = getPrincipalLevel(principal);
         String property = getSecurityProperty();
@@ -131,7 +131,7 @@ public class SecurityLevelSecurityPolicy extends AbstractSecurityPolicy {
         return clause;
     }
 
-    private Long getPrincipalLevel(NuxeoPrincipal principal) {
+    private Long getPrincipalLevel(RepositoryPrincipal principal) {
         Map<String, Object> properties = principal.getProperties();
         String userAttribute = getUserAttribute();
         if (properties == null || !properties.containsKey(userAttribute)) {

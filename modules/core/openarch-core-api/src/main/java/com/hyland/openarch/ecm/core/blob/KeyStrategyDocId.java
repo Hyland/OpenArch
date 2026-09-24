@@ -17,7 +17,7 @@ package com.hyland.openarch.ecm.core.blob;
 
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSFILE_BLOB;
 
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 
 /**
  * Represents computation of blob keys based on the document id. Only the main blob can be written using this strategy.
@@ -46,7 +46,7 @@ public class KeyStrategyDocId implements KeyStrategy {
     public BlobWriteContext getBlobWriteContext(BlobContext blobContext) {
         String xpath = blobContext.xpath;
         if (!SYSFILE_BLOB.equals(xpath)) {
-            throw new NuxeoException("Cannot store blob with xpath '" + xpath + "' in record blob provider");
+            throw new RepositoryException("Cannot store blob with xpath '" + xpath + "' in record blob provider");
         }
         String key = getKey(blobContext);
         return new BlobWriteContext(blobContext, null, () -> key, this);
@@ -55,7 +55,7 @@ public class KeyStrategyDocId implements KeyStrategy {
     protected String getKey(BlobContext blobContext) {
         String docId = blobContext.docId;
         if (docId == null) {
-            throw new NuxeoException("Missing docId for key strategy");
+            throw new RepositoryException("Missing docId for key strategy");
         }
         return docId;
     }

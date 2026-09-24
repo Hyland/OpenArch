@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.ecm.core.query.sql.model.Operator;
 
 /**
@@ -88,12 +88,12 @@ public enum PredicateOperator {
     }
 
     /**
-     * @throws NuxeoException with a 400 status if the name is not a known operator
+     * @throws RepositoryException with a 400 status if the name is not a known operator
      */
     public static PredicateOperator forName(String name) {
         PredicateOperator operator = name == null ? null : BY_NAME.get(name.trim().toUpperCase(Locale.ROOT));
         if (operator == null) {
-            throw new NuxeoException("Unsupported predicate operator: " + name, BAD_REQUEST.value());
+            throw new RepositoryException("Unsupported predicate operator: " + name, BAD_REQUEST.value());
         }
         return operator;
     }

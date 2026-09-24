@@ -31,10 +31,10 @@ import static org.springframework.http.HttpStatus.CREATED;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import com.hyland.openarch.ecm.core.api.Blob;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.ecm.core.test.CoreFeature;
 import org.nuxeo.rest.upload.Upload;
 import org.nuxeo.rest.upload.UploadDTO;
@@ -108,11 +108,11 @@ public class UploadServiceTest {
         UploadServiceImpl uploadService = new UploadServiceImpl();
         ByteArrayInputStream data = new ByteArrayInputStream(uri.getBytes(UTF_8));
 
-        NuxeoException nuxeoException = assertThrows(NuxeoException.class, () -> {
+        RepositoryException repositoryException = assertThrows(RepositoryException.class, () -> {
             uploadService.handleUpload(handler, CONTENT_TYPE_URI_LIST, uploadDTO, data);
         });
 
-        assertEquals(BAD_REQUEST.getStatusCode(), nuxeoException.getStatusCode());
+        assertEquals(BAD_REQUEST.getStatusCode(), repositoryException.getStatusCode());
     }
 
     @Test
@@ -123,11 +123,11 @@ public class UploadServiceTest {
         UploadServiceImpl uploadService = new UploadServiceImpl();
         ByteArrayInputStream data = new ByteArrayInputStream("test".getBytes());
 
-        NuxeoException nuxeoException = assertThrows(NuxeoException.class, () -> {
+        RepositoryException repositoryException = assertThrows(RepositoryException.class, () -> {
             uploadService.handleUpload(handler, mimeType, uploadDTO, data);
         });
 
-        assertEquals(NOT_FOUND.getStatusCode(), nuxeoException.getStatusCode());
+        assertEquals(NOT_FOUND.getStatusCode(), repositoryException.getStatusCode());
     }
 
     @Test
@@ -138,11 +138,11 @@ public class UploadServiceTest {
         UploadServiceImpl uploadService = new UploadServiceImpl();
         ByteArrayInputStream data = new ByteArrayInputStream(externalUri.getBytes());
 
-        NuxeoException nuxeoException = assertThrows(NuxeoException.class, () -> {
+        RepositoryException repositoryException = assertThrows(RepositoryException.class, () -> {
             uploadService.handleUpload(handler, CONTENT_TYPE_URI_LIST, uploadDTO, data);
         });
 
-        assertEquals(BAD_REQUEST.getStatusCode(), nuxeoException.getStatusCode());
+        assertEquals(BAD_REQUEST.getStatusCode(), repositoryException.getStatusCode());
     }
 
     private void assertSuccessfulUploadCreated(ResponseEntity<Upload> response, String fileName, String mimeType) {

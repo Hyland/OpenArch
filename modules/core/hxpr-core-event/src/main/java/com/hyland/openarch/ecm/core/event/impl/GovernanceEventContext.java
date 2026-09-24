@@ -17,12 +17,12 @@ package com.hyland.openarch.ecm.core.event.impl;
 
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DeletedChildDocumentRecord;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 
 import java.util.List;
 
 public class GovernanceEventContext extends EventContextImpl {
-    public GovernanceEventContext(CoreSession session, NuxeoPrincipal principal) {
+    public GovernanceEventContext(CoreSession session, RepositoryPrincipal principal) {
         super(session, principal);
     }
 

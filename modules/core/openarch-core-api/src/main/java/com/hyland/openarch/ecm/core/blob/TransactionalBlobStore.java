@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import jakarta.transaction.Status;
 import jakarta.transaction.Synchronization;
 import jakarta.transaction.SystemException;
@@ -31,7 +32,6 @@ import jakarta.transaction.Transaction;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.hyland.openarch.ecm.core.api.ConcurrentUpdateException;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.ecm.core.blob.binary.BinaryGarbageCollector;
 import com.hyland.openarch.ecm.core.utils.BlobUtils;
 import com.hyland.openarch.runtime.jtajca.RepositoryContainer;
@@ -86,7 +86,7 @@ public class TransactionalBlobStore extends AbstractBlobStore implements Synchro
         this.store = store;
         this.transientStore = transientStore;
         if (store.hasVersioning() && transientStore != store) {
-            throw new NuxeoException("If the store has versioning then it must be also the transient store");
+            throw new RepositoryException("If the store has versioning then it must be also the transient store");
         }
     }
 
@@ -127,7 +127,7 @@ public class TransactionalBlobStore extends AbstractBlobStore implements Synchro
                 transientStore.deleteBlob(transientKey);
                 throw e;
             }
-            logTrace("rnote over Nuxeo: " + key);
+            logTrace("rnote over OpenArch: " + key);
             logTrace("end");
             return key;
         } else {
@@ -142,7 +142,7 @@ public class TransactionalBlobStore extends AbstractBlobStore implements Synchro
             return store.copyOrMoveBlob(key, sourceStore, sourceKey, atomicMove);
         }
         if (atomicMove) {
-            throw new NuxeoException("Transactional move not supported");
+            throw new RepositoryException("Transactional move not supported");
         }
         logTrace("group tx copy");
         String transientKey;
@@ -168,7 +168,7 @@ public class TransactionalBlobStore extends AbstractBlobStore implements Synchro
             transientStore.deleteBlob(transientKey);
             throw e;
         }
-        logTrace("rnote over Nuxeo: " + returnedKey);
+        logTrace("rnote over OpenArch: " + returnedKey);
         logTrace("end");
         return returnedKey;
     }
@@ -216,7 +216,7 @@ public class TransactionalBlobStore extends AbstractBlobStore implements Synchro
     public boolean readBlob(String key, Path file) throws IOException {
         if (TransactionHelper.isTransactionActive()) {
             logTrace("group tx read");
-            logTrace("rnote over Nuxeo: " + key);
+            logTrace("rnote over OpenArch: " + key);
             String transientKey = getTransientKey(key);
             boolean found;
             if (isDeleteMarker(transientKey)) {
@@ -269,7 +269,7 @@ public class TransactionalBlobStore extends AbstractBlobStore implements Synchro
         try {
             return RepositoryContainer.getTransactionManager().getTransaction();
         } catch (NullPointerException | SystemException e) {
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
     }
 

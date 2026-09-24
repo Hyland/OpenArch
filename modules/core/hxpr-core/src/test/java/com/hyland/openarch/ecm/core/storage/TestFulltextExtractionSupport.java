@@ -36,7 +36,7 @@ import com.hyland.openarch.ecm.core.api.Blob;
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
 import com.hyland.openarch.ecm.core.api.IdRef;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.ecm.core.api.impl.blob.StringBlob;
 
 public class TestFulltextExtractionSupport {
@@ -189,12 +189,12 @@ public class TestFulltextExtractionSupport {
     }
 
     @Test
-    public void textFromUrl_ioExceptionWrappedAsNuxeoException() throws Exception {
+    public void textFromUrl_ioExceptionWrappedAsRepositoryException() throws Exception {
         URL targetUrl = new URI("http://rubbish").toURL();
         String message;
         try (InputStream targetInputStream = mock(InputStream.class)) {
             when(targetInputStream.read()).thenThrow(IOException.class);
-            message = assertThrows(NuxeoException.class,
+            message = assertThrows(RepositoryException.class,
                     () -> support.textFromUrl(targetInputStream, targetUrl, 1234)).getMessage();
         }
         assertEquals("Could not read text from transform result " + targetUrl, message);

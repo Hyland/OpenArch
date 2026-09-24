@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Nuxeo ECM Search Testing
+Bundle-Name: OpenArch ECM Search Testing
 Bundle-SymbolicName: com.hyland.openarch.ecm.core.api.tests;singleton:=true
-Bundle-Vendor: Nuxeo
+Bundle-Vendor: Hyland

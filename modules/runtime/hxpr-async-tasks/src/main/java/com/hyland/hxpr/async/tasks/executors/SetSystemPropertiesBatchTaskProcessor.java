@@ -15,13 +15,13 @@
  */
 package com.hyland.hxpr.async.tasks.executors;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.hyland.openarch.ecm.core.api.CoreInstance;
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentRef;
 import com.hyland.openarch.ecm.core.api.IdRef;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.ecm.core.api.PropertyException;
 
 import com.hyland.hxpr.async.tasks.message.BatchTask;
@@ -51,7 +51,7 @@ public class SetSystemPropertiesBatchTaskProcessor extends AbstractBatchTaskProc
                     CoreInstance.doPrivileged(session.getRepositoryName(), systemSession -> {
                         systemSession.getDocument(ref).setPropertyValue(entry.getKey(), entry.getValue());
                     });
-                } catch (NuxeoException e) {
+                } catch (RepositoryException e) {
                     log.error("Cannot set system property: {} on: {}", entry.getKey(), ref, e);
                 }
             }

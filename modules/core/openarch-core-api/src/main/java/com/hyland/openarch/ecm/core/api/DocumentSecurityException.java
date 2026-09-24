@@ -22,7 +22,7 @@ import static jakarta.servlet.http.HttpServletResponse.SC_FORBIDDEN;
  *
  * @since 5.6
  */
-public class DocumentSecurityException extends NuxeoException {
+public class DocumentSecurityException extends RepositoryException {
 
     private static final long serialVersionUID = 1L;
 

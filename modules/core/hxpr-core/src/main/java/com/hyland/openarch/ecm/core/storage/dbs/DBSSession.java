@@ -53,6 +53,7 @@ import static com.hyland.openarch.ecm.core.storage.dbs.DBSSession.ChildrenSelect
 import static com.hyland.openarch.ecm.core.storage.dbs.DBSSession.ChildrenSelector.FOR_RESTORE_CLEAR;
 import static com.hyland.openarch.ecm.core.storage.dbs.DBSSession.ChildrenSelector.FOR_RESTORE_COPY;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import io.dropwizard.metrics5.MetricName;
 import io.dropwizard.metrics5.MetricRegistry;
 import io.dropwizard.metrics5.SharedMetricRegistries;
@@ -97,8 +98,7 @@ import com.hyland.openarch.ecm.core.api.DocumentNotFoundException;
 import com.hyland.openarch.ecm.core.api.DocumentSecurityException;
 import com.hyland.openarch.ecm.core.api.IdRef;
 import com.hyland.openarch.ecm.core.api.IterableQueryResult;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.PartialList;
 import com.hyland.openarch.ecm.core.api.ScrollResult;
 import com.hyland.openarch.ecm.core.api.UpdateCondition;
@@ -228,7 +228,7 @@ public class DBSSession implements InternalSession {
 
     @SuppressWarnings("resource") // timerContext closed by stop() in finally
     @Override
-    public void save(NuxeoPrincipal principal) {
+    public void save(RepositoryPrincipal principal) {
         final Timer.Context timerContext = saveTimer.time();
         try {
             transaction.save(principal);
@@ -602,27 +602,27 @@ public class DBSSession implements InternalSession {
 
     protected void checkOut(DBSDocument doc) {
         if (doc.isCheckedOut()) {
-            throw new NuxeoException("Already checked out");
+            throw new RepositoryException("Already checked out");
         }
         doc.docState.put(SYSVER_IS_CHECKED_IN, null);
     }
 
-    protected InternalDocument checkIn(DBSDocument doc, NuxeoPrincipal principal) {
+    protected InternalDocument checkIn(DBSDocument doc, RepositoryPrincipal principal) {
         if (!doc.isCheckedOut()) {
-            throw new NuxeoException("Already checked in", SC_CONFLICT);
+            throw new RepositoryException("Already checked in", SC_CONFLICT);
         }
         String name = VERSION_NAME_PREFIX + IdUtils.generateStringId();
         return copy(doc, doc, name, principal, true);
     }
 
-    protected void updateDenormalizedPropertiesWithDescendants(String id, NuxeoPrincipal principal) {
+    protected void updateDenormalizedPropertiesWithDescendants(String id, RepositoryPrincipal principal) {
         transaction.updateDenormalizedPropertiesWithDescendants(id, principal);
     }
 
     @Override
-    public void restoreVersion(InternalDocument version, NuxeoPrincipal principal) {
+    public void restoreVersion(InternalDocument version, RepositoryPrincipal principal) {
         if (!version.isVersion()) {
-            throw new NuxeoException("Not a version: " + version.getId());
+            throw new RepositoryException("Not a version: " + version.getId());
         }
         InternalDocument doc = version.getWorkingCopy();
         if (!doc.isCheckedOut()) {
@@ -721,12 +721,12 @@ public class DBSSession implements InternalSession {
 
     @Override
     public InternalDocument copy(InternalDocument source, InternalDocument parent, String name,
-            NuxeoPrincipal principal) {
+            RepositoryPrincipal principal) {
         return copy(source, parent, name, principal, false);
     }
 
     private InternalDocument copy(InternalDocument source, InternalDocument parent, String name,
-            NuxeoPrincipal principal, boolean isCheckIn) {
+                                  RepositoryPrincipal principal, boolean isCheckIn) {
         transaction.save(principal);
         if (name == null) {
             name = source.getName();
@@ -821,7 +821,7 @@ public class DBSSession implements InternalSession {
 
     @Override
     public InternalDocument move(InternalDocument source, InternalDocument parent, String name,
-            UpdateCondition condition, NuxeoPrincipal principal) {
+            UpdateCondition condition, RepositoryPrincipal principal) {
         String oldName = source.getName();
         if (name == null) {
             name = oldName;
@@ -889,7 +889,7 @@ public class DBSSession implements InternalSession {
      * </ul>
      * Threshold for number of documents to delete in a batch before switching to async deletion is defined by {@link #DELETE_ASYNC_THRESHOLD}.
      */
-    protected void remove(String rootId, NuxeoPrincipal principal) {
+    protected void remove(String rootId, RepositoryPrincipal principal) {
         transaction.save(principal);
 
         // if rootId is from the root directory, removal fails
@@ -994,7 +994,7 @@ public class DBSSession implements InternalSession {
     }
 
     @Override
-    public void removeDocument(String id, NuxeoPrincipal principal) {
+    public void removeDocument(String id, RepositoryPrincipal principal) {
         transaction.save(principal);
 
         if (getRootId().equals(id)) {
@@ -1435,7 +1435,7 @@ public class DBSSession implements InternalSession {
         transaction.markUserChange(id);
     }
 
-    public void setUpdateCondition(String id, UpdateCondition condition, NuxeoPrincipal principal) {
+    public void setUpdateCondition(String id, UpdateCondition condition, RepositoryPrincipal principal) {
         Operand operand = switch (condition.syntax()) {
             case HXQL -> parseHxqlCondition(condition.condition());
             case EXPR -> parseExprCondition(condition.condition(), principal);
@@ -1460,7 +1460,7 @@ public class DBSSession implements InternalSession {
         return HXQLParser.parsePredicate(hxql);
     }
 
-    protected Operand parseExprCondition(String expr, NuxeoPrincipal principal) {
+    protected Operand parseExprCondition(String expr, RepositoryPrincipal principal) {
         return ExprPredicates.toOperand(expr, principal, getSchemaManager());
     }
 
@@ -1493,7 +1493,7 @@ public class DBSSession implements InternalSession {
         return transaction.getDirtyBinariesPaths(id);
     }
 
-    private void sendDocumentEvents(Set<String> docIds, NuxeoPrincipal principal) {
+    private void sendDocumentEvents(Set<String> docIds, RepositoryPrincipal principal) {
         if (docIds.isEmpty()) {
             return;
         }

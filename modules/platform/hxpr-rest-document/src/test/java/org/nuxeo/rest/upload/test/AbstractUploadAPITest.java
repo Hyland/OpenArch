@@ -56,7 +56,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import com.hyland.openarch.ecm.core.api.Blob;
 import com.hyland.openarch.ecm.core.api.Blobs;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.local.WithUser;
 import org.nuxeo.rest.document.test.AbstractAPITest;
 import org.nuxeo.rest.document.test.ContentTestHelper;
@@ -102,7 +102,7 @@ public abstract class AbstractUploadAPITest extends AbstractAPITest {
 
     @BeforeEach
     public void checkCurrentUser() {
-        NuxeoPrincipal pal = NuxeoPrincipal.getCurrent();
+        RepositoryPrincipal pal = RepositoryPrincipal.getCurrent();
         assertNotNull(pal);
         assertEquals(USER, pal.getId());
     }

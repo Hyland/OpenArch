@@ -56,7 +56,7 @@ import com.hyland.openarch.ecm.core.api.CoreInstance;
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentConstants;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.ecm.core.api.PathRef;
 import com.hyland.openarch.ecm.core.api.impl.blob.StringBlob;
 import com.hyland.openarch.ecm.core.schema.MixinNames;
@@ -1028,7 +1028,7 @@ class TestEmbeddingsIndexing {
             }
             emb.setPropertyValue(SYSEMB_EMBEDDINGS, blob);
         } catch (IOException e) {
-            throw new NuxeoException("Failed generating variant update parquet blob", e);
+            throw new RepositoryException("Failed generating variant update parquet blob", e);
         }
         session.save();
     }

@@ -52,7 +52,7 @@ import java.lang.annotation.Target;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.NonNull;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.ecm.core.api.repository.RepositoryManager;
 import com.hyland.openarch.ecm.core.schema.SchemaManager;
 import com.hyland.openarch.ecm.core.schema.TypeService;
@@ -412,7 +412,7 @@ public class ModelAPI {
     private void checkRepoExists(String repoId) {
         RepositoryManager repositoryManager = Framework.getService(RepositoryManager.class);
         if (repositoryManager.getRepository(repoId) == null) {
-            throw new NuxeoException(NOT_FOUND.value());
+            throw new RepositoryException(NOT_FOUND.value());
         }
     }
 
@@ -434,7 +434,7 @@ public class ModelAPI {
             return modelManager.createSchemaManager(base, dto, validateOnly);
         } catch (NullPointerException | ClassCastException | RuntimeServiceException e) {
             log.debug("Invalid model", e);
-            throw new NuxeoException(BAD_REQUEST.value());
+            throw new RepositoryException(BAD_REQUEST.value());
         }
     }
 

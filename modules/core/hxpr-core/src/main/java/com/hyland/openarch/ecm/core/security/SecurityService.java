@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.hyland.openarch.ecm.core.api.ConcurrentUpdateException;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.schema.validation.violations.ValidationViolation;
 import com.hyland.openarch.ecm.core.security.config.SecurityPolicyConfig;
 
@@ -50,7 +50,7 @@ public interface SecurityService {
     /**
      * Gets the principal and all the groups that include it (recursively), including {@code Everyone}.
      */
-    Set<String> expandPrincipal(NuxeoPrincipal principal);
+    Set<String> expandPrincipal(RepositoryPrincipal principal);
 
     /**
      * Gets the security policy service for the given repository.

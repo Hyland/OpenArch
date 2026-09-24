@@ -20,7 +20,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import java.io.Serializable;
 
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 
 /**
  * Encapsulates some information about a user and how it must be authenticated.
@@ -44,7 +44,7 @@ public class UserIdentificationInfo implements Serializable {
 
     public UserIdentificationInfo(String userName) {
         if (isBlank(userName)) {
-            throw new NuxeoException("username must not be blank");
+            throw new RepositoryException("username must not be blank");
         }
         this.userName = userName;
         this.credentialsChecked = true;
@@ -52,7 +52,7 @@ public class UserIdentificationInfo implements Serializable {
 
     public UserIdentificationInfo(String userName, String password) {
         if (isBlank(userName)) {
-            throw new NuxeoException("username must not be blank");
+            throw new RepositoryException("username must not be blank");
         }
         this.userName = userName;
         this.password = password;
@@ -90,7 +90,7 @@ public class UserIdentificationInfo implements Serializable {
 
     public void setUserName(String userName) {
         if (isBlank(userName)) {
-            throw new NuxeoException("username must not be blank");
+            throw new RepositoryException("username must not be blank");
         }
         this.userName = userName;
     }

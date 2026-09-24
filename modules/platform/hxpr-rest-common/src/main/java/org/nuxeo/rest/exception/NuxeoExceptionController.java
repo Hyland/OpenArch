@@ -24,13 +24,13 @@ import java.util.List;
 import java.util.Map;
 
 import com.flipkart.zjsonpatch.JsonPatchApplicationException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.ws.rs.WebApplicationException;
 import org.apache.commons.lang3.StringUtils;
 import com.hyland.openarch.common.RetryAfterHint;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.RenditionException;
 import com.hyland.openarch.ecm.core.schema.validation.ValidationException;
 import com.hyland.openarch.ecm.core.schema.validation.violations.ValidationViolation;
@@ -101,7 +101,7 @@ public class NuxeoExceptionController {
         }
         String userId = SpringSecurityHelper.getPrincipalId();
         UserManager userManager = getUserManager();
-        NuxeoPrincipal principal = (StringUtils.isNotEmpty(userId) && userManager != null) ? userManager.getPrincipal(userId) : null;
+        RepositoryPrincipal principal = (StringUtils.isNotEmpty(userId) && userManager != null) ? userManager.getPrincipal(userId) : null;
         LoggingEventBuilder statusLog = log.atInfo();
         if (principal != null){
             String userGroups = principal.getAllGroups() != null ? StringUtils.join(principal.getAllGroups(), ";") : StringUtils.EMPTY;
@@ -139,7 +139,7 @@ public class NuxeoExceptionController {
         return createResponseEntity(status, createErrorResponse(status, cause), cause);
     }
 
-    protected ResponseEntity<HxprErrorResponse> handleNuxeoException(NuxeoException exception) {
+    protected ResponseEntity<HxprErrorResponse> handleRepositoryException(RepositoryException exception) {
         return createHxprErrorResponseResponseEntity(exception.getStatusCode(), exception);
     }
 
@@ -281,9 +281,9 @@ public class NuxeoExceptionController {
             // ExceptionHandler cannot handle interfaces, so we need to handle it here
             return handleValidationException(ve);
         }
-        if (cause instanceof NuxeoException ne) {
-            // Because ValidationExceptions are not always NuxeoExceptions, we need to handle both as Throwable
-            return handleNuxeoException(ne);
+        if (cause instanceof RepositoryException ne) {
+            // Because ValidationExceptions are not always RepositoryExceptions, we need to handle both as Throwable
+            return handleRepositoryException(ne);
         }
         int statusCode = getStatusCode(cause);
         return createHxprErrorResponseResponseEntity(statusCode, cause);

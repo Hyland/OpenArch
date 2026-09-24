@@ -17,6 +17,7 @@ package org.nuxeo.rest.download;
 
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_MODIFIED;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.io.IOException;
@@ -47,8 +48,7 @@ import com.hyland.openarch.ecm.core.api.DocumentNotFoundException;
 import com.hyland.openarch.ecm.core.api.DocumentRef;
 import com.hyland.openarch.ecm.core.api.DocumentSecurityException;
 import com.hyland.openarch.ecm.core.api.IdRef;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.event.CoreEventConstants;
 import com.hyland.openarch.ecm.core.api.impl.blob.FileBlob;
 import com.hyland.openarch.ecm.core.api.model.BlobNotFoundException;
@@ -137,7 +137,7 @@ public class DownloadManager {
             return response;
         } catch (DocumentNotFoundException | BlobNotFoundException e) {
             throw e;
-        } catch (NuxeoException e) {
+        } catch (RepositoryException e) {
             throw new IOException(e);
         }
     }
@@ -183,7 +183,7 @@ public class DownloadManager {
             String digestAlgorithm = blob.getDigestAlgorithm();
             if (digest == null) {
                 log.error("Null digest on blob for document with id '{}', property='{}'", doc.getId(), xpath);
-                throw new NuxeoException("Null digest");
+                throw new RepositoryException("Null digest");
             }
 
             // Want-Digest / Digest
@@ -325,7 +325,7 @@ public class DownloadManager {
         URI uri = Framework.getService(BlobService.class)
                            .getURI(blob, BlobService.UsageHint.DOWNLOAD, expirationSeconds, inline, null);
         if (uri == null) {
-            throw new NuxeoException("Pre-signed URL not available for this blob provider",
+            throw new RepositoryException("Pre-signed URL not available for this blob provider",
                     HttpStatus.NOT_IMPLEMENTED.value());
         }
         // log the download on successful pre-signed url generation
@@ -372,7 +372,7 @@ public class DownloadManager {
         try {
             return Base64.encodeBase64String(Hex.decodeHex(hexString.toCharArray()));
         } catch (DecoderException e) {
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
     }
 
@@ -427,12 +427,12 @@ public class DownloadManager {
         EventContext ctx;
         if (doc != null) {
             CoreSession session = doc.getCoreSession();
-            NuxeoPrincipal principal = session == null ? NuxeoPrincipal.getCurrent() : session.getPrincipal();
+            RepositoryPrincipal principal = session == null ? RepositoryPrincipal.getCurrent() : session.getPrincipal();
             ctx = new DocumentEventContext(session, principal, doc);
             ctx.setProperty(CoreEventConstants.REPOSITORY_NAME, doc.getRepositoryName());
             ctx.setProperty(CoreEventConstants.IS_PRESIGNED_URL, isPresignedUrl);
         } else {
-            ctx = new EventContextImpl(null, NuxeoPrincipal.getCurrent());
+            ctx = new EventContextImpl(null, RepositoryPrincipal.getCurrent());
         }
         Map<String, Serializable> map = new HashMap<>();
         map.put(CTX_BLOB_XPATH, xpath);

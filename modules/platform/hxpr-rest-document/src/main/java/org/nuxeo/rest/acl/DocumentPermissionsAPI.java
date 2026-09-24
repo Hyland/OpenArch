@@ -38,8 +38,8 @@ import com.hyland.openarch.ecm.core.api.CoreInstance;
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentRef;
 import com.hyland.openarch.ecm.core.api.IdRef;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.repository.RepositoryManager;
 import com.hyland.openarch.ecm.core.api.security.ACE;
 import com.hyland.openarch.ecm.core.api.security.SecurityConstants;
@@ -119,7 +119,7 @@ public class DocumentPermissionsAPI extends AbstractDocumentAPI {
         authorizeUser(session, docRef);
         checkDocumentExists(session, docRef);
 
-        List<NuxeoPrincipal> users = getUsersPrincipals(userIds);
+        List<RepositoryPrincipal> users = getUsersPrincipals(userIds);
         var mapACL = new HashMap<String, List<ACE>>();
         users.forEach(userInfo -> {
             var expanded = permissionsManager.expandUserPrincipal(userInfo);
@@ -165,7 +165,7 @@ public class DocumentPermissionsAPI extends AbstractDocumentAPI {
         return permissionsMapper.mapPermissionsToDTO(docId, mapPermissions);
     }
 
-    private List<NuxeoPrincipal> getUsersPrincipals(List<String> usernames) {
+    private List<RepositoryPrincipal> getUsersPrincipals(List<String> usernames) {
         // Sanitized the list of usernames
         var sanitizedUsernames = new ArrayList<String>();
         usernames.forEach(username -> {
@@ -184,22 +184,22 @@ public class DocumentPermissionsAPI extends AbstractDocumentAPI {
     }
 
     private void authorizeUser(CoreSession session, DocumentRef docRef) {
-        if (!NuxeoPrincipal.getCurrent().isAdministrator()
+        if (!RepositoryPrincipal.getCurrent().isAdministrator()
                 && !session.hasPermission(docRef, SecurityConstants.EVERYTHING)) {
-            throw new NuxeoException(UNAUTHORIZED.value());
+            throw new RepositoryException(UNAUTHORIZED.value());
         }
     }
 
     private void checkRepoExists(String repoId) {
         RepositoryManager repositoryManager = Framework.getService(RepositoryManager.class);
         if (repositoryManager.getRepository(repoId) == null) {
-            throw new NuxeoException(NOT_FOUND.value());
+            throw new RepositoryException(NOT_FOUND.value());
         }
     }
 
     private void checkDocumentExists(CoreSession session, DocumentRef docRef) {
         if (!session.exists(docRef)) {
-            throw new NuxeoException(NOT_FOUND.value());
+            throw new RepositoryException(NOT_FOUND.value());
         }
     }
 }

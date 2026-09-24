@@ -20,7 +20,7 @@ import static jakarta.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 /**
  * Exception thrown when a document is not found.
  */
-public class DocumentNotFoundException extends NuxeoException {
+public class DocumentNotFoundException extends RepositoryException {
 
     private static final long serialVersionUID = 1L;
 

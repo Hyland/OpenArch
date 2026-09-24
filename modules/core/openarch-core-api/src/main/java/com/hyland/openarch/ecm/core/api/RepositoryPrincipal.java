@@ -25,9 +25,9 @@ import com.hyland.openarch.runtime.api.login.LoginContext;
 import com.hyland.openarch.runtime.api.login.LoginServiceImpl.SystemID;
 
 /**
- * Class to represent a principal in Nuxeo. This class holds the list of roles and groups for this principal.
+ * Class to represent a principal in OpenArch. This class holds the list of roles and groups for this principal.
  */
-public interface NuxeoPrincipal extends Principal, Serializable {
+public interface RepositoryPrincipal extends Principal, Serializable {
 
     String PREFIX = "user:";
 
@@ -197,15 +197,15 @@ public interface NuxeoPrincipal extends Principal, Serializable {
     String getActingId();
 
     /**
-     * Returns the current logged in {@link NuxeoPrincipal}.
+     * Returns the current logged in {@link RepositoryPrincipal}.
      *
-     * @return the current logged in {@link NuxeoPrincipal}, or {@code null} if there is none
+     * @return the current logged in {@link RepositoryPrincipal}, or {@code null} if there is none
      * @since 11.1
      */
-    static NuxeoPrincipal getCurrent() {
+    static RepositoryPrincipal getCurrent() {
         Principal principal = LoginContext.getCurrentPrincipal();
-        if (principal instanceof NuxeoPrincipal nuxeoPrincipal) {
-            return nuxeoPrincipal;
+        if (principal instanceof RepositoryPrincipal repositoryPrincipal) {
+            return repositoryPrincipal;
         } else if (principal instanceof SystemID system) {
             return new SystemPrincipal(system.getName());
         } else {
@@ -214,13 +214,13 @@ public interface NuxeoPrincipal extends Principal, Serializable {
     }
 
     /**
-     * Checks if the current logged in {@link NuxeoPrincipal} is an Administrator.
+     * Checks if the current logged in {@link RepositoryPrincipal} is an Administrator.
      *
-     * @return {@code true} if the current logged in {@link NuxeoPrincipal} is an Administrator
+     * @return {@code true} if the current logged in {@link RepositoryPrincipal} is an Administrator
      * @since 11.1
      */
     static boolean isCurrentAdministrator() {
-        NuxeoPrincipal principal = getCurrent();
+        RepositoryPrincipal principal = getCurrent();
         return principal != null && principal.isAdministrator();
     }
 

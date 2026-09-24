@@ -21,14 +21,14 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
 
-import com.hyland.openarch.ecm.core.api.NuxeoException;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import org.nuxeo.ecm.platform.usermanager.UserManager;
 import org.nuxeo.rest.swagger.annotation.ApiResponse200;
 import org.nuxeo.rest.swagger.annotation.ApiResponse400;
@@ -56,7 +56,7 @@ public class UserAPI {
         return Framework.getService(UserManager.class);
     }
 
-    protected NuxeoPrincipal getUser(String id) {
+    protected RepositoryPrincipal getUser(String id) {
         return getUserManager().getPrincipal(id);
     }
 
@@ -65,9 +65,9 @@ public class UserAPI {
     @ApiResponse200(description = "Returns the user with given id.")
     @ApiResponse404(description = "User not found.")
     public UserDTO getUserById(@PathVariable("userId") @Parameter(description = "The user id.") String userId) {
-        NuxeoPrincipal principal = getUser(userId);
+        RepositoryPrincipal principal = getUser(userId);
         if (principal == null) {
-            throw new NuxeoException(NOT_FOUND.value());
+            throw new RepositoryException(NOT_FOUND.value());
         }
         return new UserDTO(principal);
     }
@@ -78,7 +78,7 @@ public class UserAPI {
     @ApiResponse400(description = "Given name part for searching is null or empty.")
     public List<UserDTO> searchUsersByName(@RequestParam("name") @Parameter(description = "Part of the user name or email", required = true) String searchName) {
         if (null == searchName || searchName.isBlank()) {
-            throw new NuxeoException("Given name part for searching is null or empty", BAD_REQUEST.value());
+            throw new RepositoryException("Given name part for searching is null or empty", BAD_REQUEST.value());
         }
         return getUserManager().searchPrincipalsByName(searchName).stream().map(UserDTO::new).toList();
     }

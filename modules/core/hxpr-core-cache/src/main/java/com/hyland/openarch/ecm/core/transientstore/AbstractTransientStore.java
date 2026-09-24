@@ -38,7 +38,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.hyland.openarch.common.Environment;
 import com.hyland.openarch.ecm.core.api.Blob;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.ecm.core.api.impl.blob.FileBlob;
 import com.hyland.openarch.ecm.core.transientstore.api.MaximumTransientSpaceExceeded;
 import com.hyland.openarch.ecm.core.transientstore.api.TransientStore;
@@ -123,7 +123,7 @@ public abstract class AbstractTransientStore implements TransientStoreProvider {
                 blob.transferTo(cachedFile);
             }
         } catch (IOException e) {
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
         Path cachedFileRelativePath = Paths.get(cachingDir.getName(), uuid);
         blobInfo.put("file", cachedFileRelativePath.toString());
@@ -149,14 +149,14 @@ public abstract class AbstractTransientStore implements TransientStoreProvider {
         try {
             File cachingDir = new File(cacheDir.getCanonicalFile(), cachingDirName);
             if (!cachingDir.getCanonicalFile().toPath().startsWith(cacheDir.getCanonicalFile().toPath())) {
-                throw new NuxeoException("Trying to traverse illegal path: " + cachingDir + " for key: " + key);
+                throw new RepositoryException("Trying to traverse illegal path: " + cachingDir + " for key: " + key);
             }
             if (!cachingDir.exists()) {
                 cachingDir.mkdir();
             }
             return cachingDir;
         } catch (IOException e) {
-            throw new NuxeoException("Error when trying to access cache directory: " + cacheDir + "/" + cachingDirName
+            throw new RepositoryException("Error when trying to access cache directory: " + cacheDir + "/" + cachingDirName
                     + " for key: " + key, e);
         }
     }

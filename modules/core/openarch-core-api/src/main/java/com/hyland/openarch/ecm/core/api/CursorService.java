@@ -124,9 +124,9 @@ public class CursorService<C, O, R> {
     public ScrollResult<R> scroll(String scrollId) {
         CursorResult<C, O> cursorResult = cursorResults.get(scrollId);
         if (cursorResult == null) {
-            throw new NuxeoException("Unknown or timed out scrollId");
+            throw new RepositoryException("Unknown or timed out scrollId");
         } else if (isScrollTimedOut(scrollId, cursorResult)) {
-            throw new NuxeoException("Timed out scrollId");
+            throw new RepositoryException("Timed out scrollId");
         }
         cursorResult.touch();
         List<R> results = new ArrayList<>(cursorResult.getBatchSize());

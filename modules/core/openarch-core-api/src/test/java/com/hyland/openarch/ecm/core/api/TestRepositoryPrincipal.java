@@ -24,11 +24,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 import com.hyland.openarch.ecm.core.api.impl.UserPrincipal;
 
-public class TestNuxeoPrincipal {
+public class TestRepositoryPrincipal {
 
     @Test
     public void test() {
-        NuxeoPrincipal principal = new UserPrincipal("john", null, false);
+        RepositoryPrincipal principal = new UserPrincipal("john", null, false);
 
         assertEquals("john", principal.getId());
 
@@ -41,13 +41,13 @@ public class TestNuxeoPrincipal {
 
     @Test
     public void testEquals() {
-        NuxeoPrincipal john1 = new UserPrincipal("john", null, false);
-        NuxeoPrincipal john2 = new UserPrincipal("john", null, true);
+        RepositoryPrincipal john1 = new UserPrincipal("john", null, false);
+        RepositoryPrincipal john2 = new UserPrincipal("john", null, true);
 
         assertEquals(john1, john2);
         assertEquals(john1.hashCode(), john2.hashCode());
 
-        NuxeoPrincipal jim = new UserPrincipal("jim", null, false);
+        RepositoryPrincipal jim = new UserPrincipal("jim", null, false);
         assertNotEquals(john1, jim);
         assertNotEquals(jim, john1);
 
@@ -64,7 +64,7 @@ public class TestNuxeoPrincipal {
 
     @Test
     public void testUsername() {
-        NuxeoPrincipal principal = new UserPrincipal("john", null, false);
+        RepositoryPrincipal principal = new UserPrincipal("john", null, false);
         assertNull(principal.getUsername());
 
         principal.setUsername("john.doe");
@@ -73,7 +73,7 @@ public class TestNuxeoPrincipal {
 
     @Test
     public void testSystemPrincipalUsername() {
-        NuxeoPrincipal system = new SystemPrincipal("system");
+        RepositoryPrincipal system = new SystemPrincipal("system");
         assertNull(system.getUsername());
 
         assertThrows(UnsupportedOperationException.class, () -> system.setUsername("anything"));

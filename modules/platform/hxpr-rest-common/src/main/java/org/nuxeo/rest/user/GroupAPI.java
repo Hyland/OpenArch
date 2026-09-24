@@ -20,14 +20,14 @@ import static org.nuxeo.rest.utils.Versions.APP_HXCS_JSON;
 import static org.nuxeo.rest.utils.Versions.APP_HXCS_JSON_V1;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
 
-import com.hyland.openarch.ecm.core.api.NuxeoException;
-import com.hyland.openarch.ecm.core.api.NuxeoGroup;
+import com.hyland.openarch.ecm.core.api.RepositoryGroup;
 import org.nuxeo.ecm.platform.usermanager.UserManager;
 import org.nuxeo.rest.swagger.annotation.ApiResponse200;
 import org.nuxeo.rest.swagger.annotation.ApiResponse404;
@@ -56,9 +56,9 @@ public class GroupAPI {
     @ApiResponse200(description = "Returns the group with given id.")
     @ApiResponse404(description = "Group not found.")
     public GroupDTO getGroupById(@PathVariable("groupId") @Parameter(description = "The group id.") String groupId) {
-        NuxeoGroup foundGroup = getUserManager().getGroup(groupId);
+        RepositoryGroup foundGroup = getUserManager().getGroup(groupId);
         if (foundGroup == null) {
-            throw new NuxeoException(NOT_FOUND.getStatusCode());
+            throw new RepositoryException(NOT_FOUND.getStatusCode());
         }
         return new GroupDTO(foundGroup);
     }

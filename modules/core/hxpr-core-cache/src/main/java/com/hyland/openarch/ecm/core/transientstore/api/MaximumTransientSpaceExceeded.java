@@ -15,13 +15,13 @@
  */
 package com.hyland.openarch.ecm.core.transientstore.api;
 
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 
 /**
  * @author <a href="mailto:tdelprat@nuxeo.com">Tiry</a>
  * @since 7.2
  */
-public class MaximumTransientSpaceExceeded extends NuxeoException {
+public class MaximumTransientSpaceExceeded extends RepositoryException {
 
     private static final long serialVersionUID = 1L;
 

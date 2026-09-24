@@ -16,7 +16,7 @@
 package com.hyland.openarch.ecm.core.event.raiser;
 
 import com.hyland.openarch.ecm.core.api.CoreSession;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -34,7 +34,7 @@ public class DocumentEventRaiserContext {
 
     private final CoreSession coreSession;
 
-    private final NuxeoPrincipal principal;
+    private final RepositoryPrincipal principal;
 
     private final Map<String, Map<String, Serializable>> docWithDirtyProps;
 
@@ -48,7 +48,7 @@ public class DocumentEventRaiserContext {
 
     private final Map<String, Object> currentDocument;
 
-    public DocumentEventRaiserContext(CoreSession session, NuxeoPrincipal principal,
+    public DocumentEventRaiserContext(CoreSession session, RepositoryPrincipal principal,
               Map<String, Map<String, Serializable>> contextForDocsWithDirtyProps, Map<String, Map<String, Serializable>> contextForDocsWithDirtyBlobs,
               Set<String> dirtyPropDocIds, Map<String, Object> diff, Map<String, Object> originalDocument, Map<String, Object> currentDocument) {
         this.coreSession = session;
@@ -67,7 +67,7 @@ public class DocumentEventRaiserContext {
     }
 
     /** @return the principal on behalf of whom the event is raised, may be {@code null} */
-    public NuxeoPrincipal getPrincipal() {
+    public RepositoryPrincipal getPrincipal() {
         return principal;
     }
 

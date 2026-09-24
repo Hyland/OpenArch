@@ -19,7 +19,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import java.util.List;
 
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.nuxeo.rest.query.OpenSearchQueryManager;
 import org.nuxeo.rest.query.io.EmbeddingQueryResultDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +35,7 @@ public class EmbeddingManager {
         EmbeddingQueryResultDTO results = osqm.getResults(repoId, docId, embeddingId);
         List<EmbeddingRestDTO> embeddings = results.embeddings();
         if (embeddings.isEmpty()) {
-            throw new NuxeoException("Could not find embedding with id " + embeddingId + " for document " + docId,
+            throw new RepositoryException("Could not find embedding with id " + embeddingId + " for document " + docId,
                     NOT_FOUND.value());
         }
         return embeddings.getFirst();

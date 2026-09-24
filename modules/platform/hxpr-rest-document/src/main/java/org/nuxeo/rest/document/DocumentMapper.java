@@ -75,8 +75,8 @@ import com.hyland.openarch.ecm.core.api.Blob;
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
 import com.hyland.openarch.ecm.core.api.DocumentRef;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.ValuesVisitor;
 import com.hyland.openarch.ecm.core.api.model.PropertyConversionException;
 import com.hyland.openarch.ecm.core.api.model.PropertyNotFoundException;
@@ -88,7 +88,7 @@ import com.hyland.openarch.ecm.core.SystemPropertyValues;
 import com.hyland.openarch.ecm.core.event.impl.document.UploadEvent;
 import com.hyland.openarch.ecm.core.schema.types.Field;
 import com.hyland.openarch.ecm.core.schema.validation.violations.ValidationViolation;
-import org.nuxeo.ecm.platform.usermanager.NuxeoPrincipalImpl;
+import org.nuxeo.ecm.platform.usermanager.RepositoryPrincipalImpl;
 import org.nuxeo.ecm.platform.usermanager.UserManager;
 import org.nuxeo.rest.acl.ACEDTO;
 import org.nuxeo.rest.acl.ACLMapper;
@@ -223,15 +223,15 @@ public class DocumentMapper implements ApplicationContextAware {
             return null;
         }
         String principalId = (String) principalIdObject;
-        NuxeoPrincipal principal;
+        RepositoryPrincipal principal;
         if (SYSTEM_USERNAME.equals(principalId)) {
-            principal = new NuxeoPrincipalImpl(SYSTEM_USERNAME);
+            principal = new RepositoryPrincipalImpl(SYSTEM_USERNAME);
         } else {
             principal = Framework.getService(UserManager.class).getPrincipal(principalId);
             if (principal == null) {
                 log.debug("No such principal: {}", principalId);
                 // create a dummy principal for deleted users
-                principal = new NuxeoPrincipalImpl(principalId);
+                principal = new RepositoryPrincipalImpl(principalId);
             }
         }
         if (principal.getId() == null) {
@@ -382,7 +382,7 @@ public class DocumentMapper implements ApplicationContextAware {
                     // wait for test thread to have observed status
                     _testAttachStatusBarrier.await(10, SECONDS);
                 } catch (Exception e) {
-                    throw new NuxeoException(e);
+                    throw new RepositoryException(e);
                 }
             }
         } else if (value.containsKey(KEY_BLOB_KEY)) {

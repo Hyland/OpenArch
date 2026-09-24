@@ -30,12 +30,12 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
-import com.hyland.openarch.ecm.core.api.NuxeoGroup;
+import com.hyland.openarch.ecm.core.api.RepositoryGroup;
 import com.hyland.openarch.ecm.core.api.security.ACE;
 import com.hyland.openarch.ecm.core.api.security.ACL;
 import com.hyland.openarch.ecm.core.test.CoreFeature;
-import org.nuxeo.ecm.platform.usermanager.NuxeoGroupImpl;
-import org.nuxeo.ecm.platform.usermanager.NuxeoPrincipalImpl;
+import org.nuxeo.ecm.platform.usermanager.RepositoryGroupImpl;
+import org.nuxeo.ecm.platform.usermanager.RepositoryPrincipalImpl;
 import org.nuxeo.rest.acl.PermissionsManager;
 import com.hyland.openarch.runtime.mockito.RuntimeInject;
 import com.hyland.openarch.runtime.springboot.junit.RuntimeSpringBootTest;
@@ -53,13 +53,13 @@ public class PermissionsManagerTest extends RuntimeSpringBootTest {
     @RuntimeInject
     CoreSession session;
 
-    private static final NuxeoGroup ADMIN_GROUP = new NuxeoGroupImpl("administrators", "administrators");
-    private static final NuxeoGroup SALES_GROUP = new NuxeoGroupImpl("sales", "sales");
-    private static final NuxeoGroup MEMBERS_GROUP = new NuxeoGroupImpl("members", "members");
+    private static final RepositoryGroup ADMIN_GROUP = new RepositoryGroupImpl("administrators", "administrators");
+    private static final RepositoryGroup SALES_GROUP = new RepositoryGroupImpl("sales", "sales");
+    private static final RepositoryGroup MEMBERS_GROUP = new RepositoryGroupImpl("members", "members");
 
     @Test
     public void expandUserPrincipalShouldAddAllGroupsOfCurrentUser() {
-        var userPrincipal = new NuxeoPrincipalImpl("user1");
+        var userPrincipal = new RepositoryPrincipalImpl("user1");
         userPrincipal.setGroups(List.of(ADMIN_GROUP.getId(), SALES_GROUP.getId(), MEMBERS_GROUP.getId()));
         assertThat(permissionsManager.expandUserPrincipal(userPrincipal)).containsExactlyInAnyOrder("u:user1",
                 "g:administrators", "g:sales", "g:members", EVERYONE);
@@ -70,7 +70,7 @@ public class PermissionsManagerTest extends RuntimeSpringBootTest {
 
     @Test
     public void expandUserPrincipalShouldAddAllExternalGroupsOfCurrentUser() {
-        var userPrincipal = new NuxeoPrincipalImpl("user1");
+        var userPrincipal = new RepositoryPrincipalImpl("user1");
         userPrincipal.setExternalGroupMappings(Set.of("ext1_#_extSys1", "ext2_#_extSys2"));
         assertThat(permissionsManager.expandUserPrincipal(userPrincipal)).containsExactlyInAnyOrder("u:user1",
                 "g:ext1_#_extSys1", "g:ext2_#_extSys2", EVERYONE);
@@ -81,7 +81,7 @@ public class PermissionsManagerTest extends RuntimeSpringBootTest {
 
     @Test
     public void expandUserPrincipalShouldAddAllExternalUserMappingsOfCurrentUser() {
-        var userPrincipal = new NuxeoPrincipalImpl("user1");
+        var userPrincipal = new RepositoryPrincipalImpl("user1");
         userPrincipal.setExternalUserMappings(Set.of("ext1_#_extSys1", "ext2_#_extSys2"));
         assertThat(permissionsManager.expandUserPrincipal(userPrincipal)).containsExactlyInAnyOrder("u:user1",
                 "u:ext1_#_extSys1", "u:ext2_#_extSys2", EVERYONE);

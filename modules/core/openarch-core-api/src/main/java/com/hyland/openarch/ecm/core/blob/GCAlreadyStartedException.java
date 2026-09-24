@@ -15,7 +15,7 @@
  */
 package com.hyland.openarch.ecm.core.blob;
 
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 
 /**
  * Exception thrown when attempting to start garbage collection that is already
@@ -24,7 +24,7 @@ import com.hyland.openarch.ecm.core.api.NuxeoException;
  *
  * @since 12.0
  */
-public class GCAlreadyStartedException extends NuxeoException {
+public class GCAlreadyStartedException extends RepositoryException {
 
     private static final long serialVersionUID = 1L;
 

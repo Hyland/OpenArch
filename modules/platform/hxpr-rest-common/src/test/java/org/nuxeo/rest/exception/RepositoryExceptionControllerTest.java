@@ -41,9 +41,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.junit.jupiter.api.Test;
 import com.hyland.openarch.common.RetryAfterHint;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.ecm.core.api.RenditionException;
 import com.hyland.openarch.ecm.core.api.local.DummyLoginFeature;
 import com.hyland.openarch.ecm.core.api.validation.ConstraintViolation.PathNode;
@@ -93,8 +93,8 @@ import tools.jackson.databind.DatabindException;
  */
 @Features({ UserManagerMockFeature.class, DummyLoginFeature.class })
 @Import(UserManagerMockTestConfiguration.class)
-@SpringBootTest(classes = { NuxeoExceptionController.class, NuxeoExceptionControllerTest.ExceptionTestResource.class })
-class NuxeoExceptionControllerTest extends RuntimeSpringBootTest {
+@SpringBootTest(classes = { NuxeoExceptionController.class, RepositoryExceptionControllerTest.ExceptionTestResource.class })
+class RepositoryExceptionControllerTest extends RuntimeSpringBootTest {
 
     @RestController
     @EnableWebMvc
@@ -103,12 +103,12 @@ class NuxeoExceptionControllerTest extends RuntimeSpringBootTest {
 
         @GetMapping("/nuxeo")
         public void nuxeo() {
-            throw new NuxeoException("oops", 456);
+            throw new RepositoryException("oops", 456);
         }
 
         @GetMapping("/serviceunavail")
         public void serviceunvail() {
-            throw new NuxeoException("service unavail", SC_SERVICE_UNAVAILABLE);
+            throw new RepositoryException("service unavail", SC_SERVICE_UNAVAILABLE);
         }
 
         @GetMapping("/serviceunavailRetryAfterHint")
@@ -221,7 +221,7 @@ class NuxeoExceptionControllerTest extends RuntimeSpringBootTest {
         }
     }
 
-    static class RetryAfterHintException extends NuxeoException implements RetryAfterHint {
+    static class RetryAfterHintException extends RepositoryException implements RetryAfterHint {
 
         private final int retryAfterSeconds;
 
@@ -237,7 +237,7 @@ class NuxeoExceptionControllerTest extends RuntimeSpringBootTest {
     }
 
     @Test
-    public void testNuxeoException() throws Exception {
+    public void testRepositoryException() throws Exception {
         doTestException("/exception/nuxeo", 456, "oops");
     }
 

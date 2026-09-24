@@ -21,7 +21,7 @@ import java.util.Map;
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
 import com.hyland.openarch.ecm.core.api.DocumentRef;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 
 /**
  * Specialized implementation to be used with an abstract session
@@ -41,12 +41,12 @@ public class DocumentEventContext extends EventContextImpl {
 
     public static final String RENDITION_ID_PROPERTY_KEY = "renditionId";
 
-    public DocumentEventContext(CoreSession session, NuxeoPrincipal principal, DocumentModel source) {
+    public DocumentEventContext(CoreSession session, RepositoryPrincipal principal, DocumentModel source) {
         super(session, principal, source, null);
     }
 
-    public DocumentEventContext(CoreSession session, NuxeoPrincipal principal, DocumentModel source,
-            DocumentRef destDoc) {
+    public DocumentEventContext(CoreSession session, RepositoryPrincipal principal, DocumentModel source,
+                                DocumentRef destDoc) {
         super(session, principal, source, destDoc);
     }
 

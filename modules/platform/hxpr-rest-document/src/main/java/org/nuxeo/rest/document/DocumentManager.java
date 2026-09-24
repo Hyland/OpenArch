@@ -33,6 +33,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.apache.commons.lang3.StringUtils;
 import com.hyland.openarch.ecm.core.api.ConcurrentUpdateException;
 import com.hyland.openarch.ecm.core.api.CoreInstance;
@@ -41,8 +42,7 @@ import com.hyland.openarch.ecm.core.api.DocumentModel;
 import com.hyland.openarch.ecm.core.api.DocumentNotFoundException;
 import com.hyland.openarch.ecm.core.api.DocumentRef;
 import com.hyland.openarch.ecm.core.api.IdRef;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.PathRef;
 import com.hyland.openarch.ecm.core.api.UpdateCondition;
 import com.hyland.openarch.ecm.core.api.event.CoreEventConstants;
@@ -148,7 +148,7 @@ public class DocumentManager {
 
     public DocumentDTO createDocument(String repoId, DocumentRef parentRef, DocumentDTO doc, boolean enforceSysName) {
         if (StringUtils.isBlank(doc.getPrimaryType())) {
-            throw new NuxeoException("Missing document type for document creation: primaryType",
+            throw new RepositoryException("Missing document type for document creation: primaryType",
                     Response.Status.BAD_REQUEST.getStatusCode());
         }
         CoreSession session = getSession(repoId);
@@ -222,24 +222,24 @@ public class DocumentManager {
     private UpsertDocumentResult upsertDocumentOnce(String repoId, DocumentRef parentRef, DocumentDTO doc,
             boolean matchById) {
         if (doc == null || StringUtils.isBlank(doc.getPrimaryType())) {
-            throw new NuxeoException("Missing sys_primaryType for upsert", Response.Status.BAD_REQUEST.getStatusCode());
+            throw new RepositoryException("Missing sys_primaryType for upsert", Response.Status.BAD_REQUEST.getStatusCode());
         }
         DocumentRef targetRef;
         if (matchById) {
             if (StringUtils.isBlank(doc.getId())) {
-                throw new NuxeoException("Missing sys_id for upsert by id",
+                throw new RepositoryException("Missing sys_id for upsert by id",
                         Response.Status.BAD_REQUEST.getStatusCode());
             }
             if (!documentMapper.allowSetIdOnCreation) {
                 // otherwise a create would assign a server-generated id, so the next upsert with the same client id
                 // would not find the document and would create a duplicate; refuse rather than silently misbehave
-                throw new NuxeoException("Upsert by id is not enabled (requires "
+                throw new RepositoryException("Upsert by id is not enabled (requires "
                         + DocumentMapper.ALLOW_SET_ID_ON_CREATION + ")", Response.Status.BAD_REQUEST.getStatusCode());
             }
             targetRef = new IdRef(doc.getId());
         } else {
             if (StringUtils.isBlank(doc.getName())) {
-                throw new NuxeoException("Missing document name for upsert by path",
+                throw new RepositoryException("Missing document name for upsert by path",
                         Response.Status.BAD_REQUEST.getStatusCode());
             }
             targetRef = childRef(parentRef, doc.getName());
@@ -251,7 +251,7 @@ public class DocumentManager {
             if (matchById && StringUtils.isNotBlank(doc.getParentId())) {
                 String existingParentId = existing.getParentRef() == null ? null : existing.getParentRef().toString();
                 if (!doc.getParentId().equals(existingParentId)) {
-                    throw new NuxeoException("Cannot re-parent via upsert: " + existing.getId(),
+                    throw new RepositoryException("Cannot re-parent via upsert: " + existing.getId(),
                             Response.Status.CONFLICT.getStatusCode());
                 }
             }
@@ -260,11 +260,11 @@ public class DocumentManager {
             if (matchById) {
                 // unlike the update, the create needs to know where to put the document and how to name it
                 if (StringUtils.isBlank(doc.getParentId())) {
-                    throw new NuxeoException("Missing sys_parentId for upsert by id creating a document",
+                    throw new RepositoryException("Missing sys_parentId for upsert by id creating a document",
                             Response.Status.BAD_REQUEST.getStatusCode());
                 }
                 if (StringUtils.isBlank(doc.getName())) {
-                    throw new NuxeoException("Missing sys_name for upsert by id creating a document",
+                    throw new RepositoryException("Missing sys_name for upsert by id creating a document",
                             Response.Status.BAD_REQUEST.getStatusCode());
                 }
             }
@@ -410,7 +410,7 @@ public class DocumentManager {
      * @param doc The document to which the parts are to be uploaded.
      * @param multiParts The parts of the request.
      * @return The updated document with the new upload IDs.
-     * @throws NuxeoException If there is an error reading a part.
+     * @throws RepositoryException If there is an error reading a part.
      */
     private DocumentDTO uploadMultiParts(DocumentDTO doc, Collection<Part> multiParts) {
         // Filter out parts that are not files.
@@ -424,7 +424,7 @@ public class DocumentManager {
                 // update the document with the new upload ID, replacing those that match the original multipart name.
                 findAndReplaceUploadId(doc.getProperties(), part.getName(), uploadId);
             } catch (IOException e) {
-                throw new NuxeoException("Error reading part", BAD_REQUEST.getStatusCode());
+                throw new RepositoryException("Error reading part", BAD_REQUEST.getStatusCode());
             }
         }
         return doc;
@@ -468,7 +468,7 @@ public class DocumentManager {
         try {
             return type.convert(value);
         } catch (TypeException e) {
-            throw new NuxeoException("Invalid %s value for property: %s".formatted(type.getName(), key),
+            throw new RepositoryException("Invalid %s value for property: %s".formatted(type.getName(), key),
                     BAD_REQUEST.getStatusCode());
         }
     }
@@ -509,7 +509,7 @@ public class DocumentManager {
     }
 
     private void fireViewAuditEvent(CoreSession session, DocumentModel source) {
-        NuxeoPrincipal principal = session.getPrincipal();
+        RepositoryPrincipal principal = session.getPrincipal();
         DocumentEventContext ctx = new DocumentEventContext(session, principal, source);
         ctx.setProperty(CoreEventConstants.REPOSITORY_NAME, session.getRepositoryName());
         Event event = ctx.newEvent(DOCUMENT_VIEWED);

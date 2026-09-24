@@ -20,7 +20,7 @@ package com.hyland.openarch.ecm.core.api;
  *
  * @since 5.6
  */
-public class RecoverableClientException extends NuxeoException {
+public class RecoverableClientException extends RepositoryException {
 
     private static final long serialVersionUID = 1L;
 

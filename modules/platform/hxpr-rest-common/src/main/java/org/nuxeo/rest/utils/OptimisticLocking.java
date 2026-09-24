@@ -18,7 +18,7 @@ package org.nuxeo.rest.utils;
 import static jakarta.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 
 import com.hyland.openarch.ecm.core.api.ConcurrentUpdateException;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 
 /**
  * Shared pieces of the optimistic locking used by the v2 configuration APIs.
@@ -50,7 +50,7 @@ public final class OptimisticLocking {
      */
     public static long requireVersion(Long version) {
         if (version == null) {
-            throw new NuxeoException("Missing required '" + VERSION + "' field for optimistic locking", SC_BAD_REQUEST);
+            throw new RepositoryException("Missing required '" + VERSION + "' field for optimistic locking", SC_BAD_REQUEST);
         }
         return version;
     }

@@ -18,12 +18,12 @@ package org.nuxeo.rest.query;
 import java.util.List;
 import java.util.UUID;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
 import com.hyland.openarch.ecm.core.api.CoreInstance;
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModelList;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.ecm.core.api.repository.RepositoryManager;
 import org.nuxeo.rest.document.DocumentDTO;
 import org.nuxeo.rest.document.DocumentMapper;
@@ -100,7 +100,7 @@ public class RepositoryQueryManager extends AbstractQueryManager {
         DocumentQueryDTO query = new DocumentQueryDTO(repoId, NXQLQuery, 1L, 0, null);
         List<DocumentDTO> versions = getResults(query).documents();
         if (versions.isEmpty()) {
-            throw new NuxeoException("Could not find version for document", HttpStatus.NOT_FOUND.value());
+            throw new RepositoryException("Could not find version for document", HttpStatus.NOT_FOUND.value());
         }
         return versions.get(0);
     }

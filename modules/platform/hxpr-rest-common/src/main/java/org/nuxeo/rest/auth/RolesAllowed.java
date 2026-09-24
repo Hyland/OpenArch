@@ -22,7 +22,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 
 /**
  * The RolesAllowed annotation is used to specify the roles permitted to access a resource or method. If applied at the
@@ -31,7 +31,7 @@ import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
  * method level, the method value overrides the class value.
  * <p>
  * The value is an array of role names. The role names must be the String representation of the security roles. The
- * current {@link NuxeoPrincipal} is used to determine if the caller is in the given role.
+ * current {@link RepositoryPrincipal} is used to determine if the caller is in the given role.
  *
  * @see RolesAllowedInterceptor
  */

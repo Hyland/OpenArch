@@ -26,9 +26,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.regex.Pattern;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 
 /**
  * Decides at what path a given key is stored.
@@ -118,7 +118,7 @@ public abstract class PathStrategy {
         try {
             return Files.createTempFile(dir, "bin_", ".tmp");
         } catch (IOException e) {
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
     }
 

@@ -29,7 +29,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
 import com.hyland.openarch.ecm.core.api.DocumentModelList;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.local.DummyLoginFeature;
 import com.hyland.openarch.ecm.core.api.security.ACE;
 import com.hyland.openarch.ecm.core.api.security.ACL;
@@ -84,7 +84,7 @@ public class TestUserAttributeExpressionSecurityPolicy {
         CoreSession testSession = coreFeature.getCoreSession(DummyLoginFeature.getTestPrincipal("userExprTrue", false));
 
         // Set external security expression on the principal to allow everything
-        NuxeoPrincipal principal = testSession.getPrincipal();
+        RepositoryPrincipal principal = testSession.getPrincipal();
         Map<String, Serializable> attrs = new HashMap<>();
         attrs.put(UserAttributeExpressionSecurityPolicy.SECURITY_EXPRESSION_ATTRIBUTE_NAME, "TRUE");
         principal.setUserAttributes(attrs);
@@ -103,7 +103,7 @@ public class TestUserAttributeExpressionSecurityPolicy {
                 DummyLoginFeature.getTestPrincipal("userExprFalse", false));
 
         // Set external security expression on the principal to deny everything
-        NuxeoPrincipal principal = testSession.getPrincipal();
+        RepositoryPrincipal principal = testSession.getPrincipal();
         Map<String, Serializable> attrs = new HashMap<>();
         attrs.put(UserAttributeExpressionSecurityPolicy.SECURITY_EXPRESSION_ATTRIBUTE_NAME, "FALSE");
         principal.setUserAttributes(attrs);
@@ -134,7 +134,7 @@ public class TestUserAttributeExpressionSecurityPolicy {
         CoreSession testSession = coreFeature.getCoreSession(DummyLoginFeature.getTestPrincipal("userDocProp", false));
 
         // Expression checks a specific document property value
-        NuxeoPrincipal principal = testSession.getPrincipal();
+        RepositoryPrincipal principal = testSession.getPrincipal();
         Map<String, Serializable> attrs = new HashMap<>();
         attrs.put(UserAttributeExpressionSecurityPolicy.SECURITY_EXPRESSION_ATTRIBUTE_NAME,
                 "content.sys_title == \"exprDoc\"");
@@ -153,7 +153,7 @@ public class TestUserAttributeExpressionSecurityPolicy {
         CoreSession testSession = coreFeature.getCoreSession(DummyLoginFeature.getTestPrincipal("userAttr", false));
 
         // Expression checks a specific user attribute value
-        NuxeoPrincipal principal = testSession.getPrincipal();
+        RepositoryPrincipal principal = testSession.getPrincipal();
         Map<String, Serializable> attrs = new HashMap<>();
         attrs.put(UserAttributeExpressionSecurityPolicy.SECURITY_EXPRESSION_ATTRIBUTE_NAME,
                 "user.custom_attribute == \"foo\"");
@@ -173,7 +173,7 @@ public class TestUserAttributeExpressionSecurityPolicy {
         CoreSession testSession = coreFeature.getCoreSession(DummyLoginFeature.getTestPrincipal("userProp", false));
 
         // Expression checks a specific user property value
-        NuxeoPrincipal principal = testSession.getPrincipal();
+        RepositoryPrincipal principal = testSession.getPrincipal();
         Map<String, Serializable> attrs = new HashMap<>();
         attrs.put(UserAttributeExpressionSecurityPolicy.SECURITY_EXPRESSION_ATTRIBUTE_NAME,
                 "user.custom_property == \"bar\"");
@@ -195,7 +195,7 @@ public class TestUserAttributeExpressionSecurityPolicy {
         CoreSession testSession = coreFeature.getCoreSession(DummyLoginFeature.getTestPrincipal("userNoACL", false));
 
         // Set external security expression on the principal to allow everything and check it does not bypass ACL
-        NuxeoPrincipal principal = testSession.getPrincipal();
+        RepositoryPrincipal principal = testSession.getPrincipal();
         Map<String, Serializable> attrs = new HashMap<>();
         attrs.put(UserAttributeExpressionSecurityPolicy.SECURITY_EXPRESSION_ATTRIBUTE_NAME, "TRUE");
         principal.setUserAttributes(attrs);

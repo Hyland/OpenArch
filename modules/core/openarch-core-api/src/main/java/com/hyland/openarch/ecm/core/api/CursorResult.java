@@ -90,7 +90,7 @@ public class CursorResult<C, O> implements Iterator<O>, Closeable {
             try {
                 closeable.close();
             } catch (IOException e) {
-                throw new NuxeoException("Unable to close cursor", e);
+                throw new RepositoryException("Unable to close cursor", e);
             }
         }
         cursor = null;

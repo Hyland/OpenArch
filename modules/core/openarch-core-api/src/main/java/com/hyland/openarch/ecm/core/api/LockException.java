@@ -21,7 +21,7 @@ package com.hyland.openarch.ecm.core.api;
  * @see CoreSession#setLock
  * @see CoreSession#removeLock
  */
-public class LockException extends NuxeoException {
+public class LockException extends RepositoryException {
 
     private static final long serialVersionUID = 1L;
 

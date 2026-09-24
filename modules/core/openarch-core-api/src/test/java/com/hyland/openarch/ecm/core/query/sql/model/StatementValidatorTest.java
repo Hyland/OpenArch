@@ -23,7 +23,7 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-import com.hyland.openarch.ecm.core.api.NuxeoPrincipal;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.query.QueryParseException;
 import com.hyland.openarch.ecm.core.schema.SchemaManager;
 
@@ -48,7 +48,7 @@ public class StatementValidatorTest {
 
     @Test
     public void testForbiddenProperties() {
-        NuxeoPrincipal principal = mock(NuxeoPrincipal.class);
+        RepositoryPrincipal principal = mock(RepositoryPrincipal.class);
         for (Statement statement : QUERIES) {
             assertThrows(QueryParseException.class,
                     () -> StatementValidator.rejectSecurityProperties(statement, principal, SCHEMA_MANAGER));
@@ -57,7 +57,7 @@ public class StatementValidatorTest {
 
     @Test
     public void testAdministratorBypass() {
-        NuxeoPrincipal principal = mock(NuxeoPrincipal.class);
+        RepositoryPrincipal principal = mock(RepositoryPrincipal.class);
         when(principal.isAdministrator()).thenReturn(true);
         for (Statement statement : QUERIES) {
             assertDoesNotThrow(

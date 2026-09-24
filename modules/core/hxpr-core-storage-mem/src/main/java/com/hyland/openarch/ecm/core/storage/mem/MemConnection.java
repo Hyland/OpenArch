@@ -40,7 +40,7 @@ import com.hyland.openarch.ecm.core.api.ConcurrentUpdateException;
 import com.hyland.openarch.ecm.core.api.ConditionFailedException;
 import com.hyland.openarch.ecm.core.api.DocumentNotFoundException;
 import com.hyland.openarch.ecm.core.api.Lock;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.ecm.core.api.PartialList;
 import com.hyland.openarch.ecm.core.api.ScrollResult;
 import com.hyland.openarch.ecm.core.api.ScrollResultImpl;
@@ -162,7 +162,7 @@ public class MemConnection extends DBSConnectionBase {
             log.trace("Mem: CREATE {}: {}", id, state);
         }
         if (states.containsKey(id)) {
-            throw new NuxeoException("Already exists: " + id);
+            throw new RepositoryException("Already exists: " + id);
         }
         state = StateHelper.deepCopy(state, true); // thread-safe
         StateHelper.resetDeltas(state);
@@ -408,7 +408,7 @@ public class MemConnection extends DBSConnectionBase {
             // Id are already in memory, they are returned as a single batch
             return ScrollResultImpl.emptyResult();
         }
-        throw new NuxeoException("Unknown or timed out scrollId");
+        throw new RepositoryException("Unknown or timed out scrollId");
     }
 
     /**

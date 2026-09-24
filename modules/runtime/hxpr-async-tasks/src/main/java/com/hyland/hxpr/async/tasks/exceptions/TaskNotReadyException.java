@@ -15,7 +15,7 @@
  */
 package com.hyland.hxpr.async.tasks.exceptions;
 
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 
 /**
  * Exception thrown when a task is not ready to be executed compared with the linked cache invalidation message.
@@ -23,7 +23,7 @@ import com.hyland.openarch.ecm.core.api.NuxeoException;
  * processed yet. It is caught when the async task runner checks if the received task is ready to be executed.
  * When it is thrown, the task message is not processed and remains in the queue for later processing.
  */
-public class TaskNotReadyException extends NuxeoException {
+public class TaskNotReadyException extends RepositoryException {
 
     public TaskNotReadyException(String taskId, Long timestamp, Long latestTimestamp) {
         super("Task %s %s is not ready for this node. The latest cache invalidation timestamp received is %s"

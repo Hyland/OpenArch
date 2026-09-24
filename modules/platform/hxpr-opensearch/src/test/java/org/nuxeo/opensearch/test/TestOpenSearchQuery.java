@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.IntStream;
 
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,7 +45,6 @@ import com.hyland.openarch.ecm.core.api.CoreInstance;
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
 import com.hyland.openarch.ecm.core.api.DocumentModelList;
-import com.hyland.openarch.ecm.core.api.NuxeoException;
 import com.hyland.openarch.ecm.core.api.local.DummyLoginFeature;
 import com.hyland.openarch.ecm.core.model.EmbeddingModel;
 import com.hyland.openarch.ecm.core.model.LocationModel;
@@ -208,7 +208,7 @@ public class TestOpenSearchQuery {
 
     @Test
     public void testExceptionReturnedByOpenSearch() {
-        var exception = assertThrows(NuxeoException.class, () -> {
+        var exception = assertThrows(RepositoryException.class, () -> {
             oss.query(new OpenSearchQueryBuilder(session).hxql("SELECT * FROM SysContent WHERE sys_name LIKE 'File%'"));
         });
         assertEquals(
@@ -317,7 +317,7 @@ public class TestOpenSearchQuery {
         // Search with aggregations on boolean field
         OpenSearchQueryBuilder queryBuilder = new OpenSearchQueryBuilder(session).hxql("SELECT * FROM SysContent");
 
-        assertThrows(NuxeoException.class, () ->  oss.queryWithTermsAggregation(queryBuilder, SEARCH_IS_CHECKED_IN_VERSION_FIELD_PATH, "true", 5));
+        assertThrows(RepositoryException.class, () ->  oss.queryWithTermsAggregation(queryBuilder, SEARCH_IS_CHECKED_IN_VERSION_FIELD_PATH, "true", 5));
     }
     @Test
     public void testSearchWithAggregationsOnDateField() throws Exception {

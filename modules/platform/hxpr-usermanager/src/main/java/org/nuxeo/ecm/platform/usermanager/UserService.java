@@ -16,7 +16,7 @@
 
 package org.nuxeo.ecm.platform.usermanager;
 
-import com.hyland.openarch.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.ecm.core.api.security.AdministratorGroupsProvider;
 import com.hyland.openarch.runtime.model.DefaultComponent;
 
@@ -29,16 +29,16 @@ public class UserService extends DefaultComponent {
     @Override
     public void start() {
         UserManagerDescriptor merged = this.<UserManagerDescriptor> getRegistryContribution(
-                XP).orElseThrow(() -> new NuxeoException("No contributions registered for the userManager"));
+                XP).orElseThrow(() -> new RepositoryException("No contributions registered for the userManager"));
 
         Class<?> klass = merged.userManagerClass;
         if (klass == null) {
-            throw new NuxeoException("No class specified for the userManager");
+            throw new RepositoryException("No class specified for the userManager");
         }
         try {
             userManager = (UserManager) klass.getDeclaredConstructor().newInstance();
         } catch (ReflectiveOperationException e) {
-            throw new NuxeoException(e);
+            throw new RepositoryException(e);
         }
         userManager.setConfiguration(merged);
     }
