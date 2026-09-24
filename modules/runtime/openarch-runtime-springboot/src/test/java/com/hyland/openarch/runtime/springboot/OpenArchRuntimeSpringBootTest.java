@@ -21,14 +21,14 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.Test;
 import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.model.ComponentManager;
-import com.hyland.openarch.runtime.springboot.config.NuxeoApplicationConfiguration;
+import com.hyland.openarch.runtime.springboot.config.OpenArchApplicationConfiguration;
 import com.hyland.openarch.runtime.springboot.mock.IMockComponent;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 
-@SpringBootTest(classes = { NuxeoApplicationConfiguration.class })
+@SpringBootTest(classes = { OpenArchApplicationConfiguration.class })
 @TestPropertySource(locations = { "classpath:application.properties" })
-public class NuxeoRuntimeSpringBootTest {
+public class OpenArchRuntimeSpringBootTest {
 
     @Test
     public void testMockComponent() {

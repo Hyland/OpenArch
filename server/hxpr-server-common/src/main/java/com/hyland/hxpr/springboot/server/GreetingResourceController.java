@@ -19,7 +19,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.nuxeo.rest.swagger.annotation.ApiResponse200;
 import org.nuxeo.rest.swagger.annotation.Authenticated;
-import com.hyland.openarch.runtime.springboot.NuxeoApplication;
+import com.hyland.openarch.runtime.springboot.OpenArchApplication;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,9 +36,9 @@ public class GreetingResourceController {
 
     public static final String HELLO_MESSAGE_PATTERN = "Hello %s! Application status is: %s";
 
-    private NuxeoApplication application;
+    private OpenArchApplication application;
 
-    public GreetingResourceController(NuxeoApplication application) {
+    public GreetingResourceController(OpenArchApplication application) {
         this.application = application;
     }
 

@@ -15,9 +15,9 @@
  */
 package com.hyland.openarch.runtime.springboot.config;
 
-import com.hyland.openarch.runtime.springboot.actuator.HxprInfoContributor;
-import com.hyland.openarch.runtime.springboot.actuator.NuxeoApplicationHealthIndicator;
-import com.hyland.openarch.runtime.springboot.auth.NuxeoLoginFilter;
+import com.hyland.openarch.runtime.springboot.actuator.OpenArchInfoContributor;
+import com.hyland.openarch.runtime.springboot.actuator.OpenArchApplicationHealthIndicator;
+import com.hyland.openarch.runtime.springboot.auth.RepositoryLoginFilter;
 import com.hyland.openarch.runtime.springboot.transaction.TransactionFilter;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
@@ -36,13 +36,13 @@ import org.springframework.retry.annotation.EnableRetry;
 @EnableAspectJAutoProxy
 @EnableRetry
 @Import({
-        NuxeoApplicationConfiguration.class,
+        OpenArchApplicationConfiguration.class,
         Resilience4jDropwizardMetricsConfiguration.class,
         TransactionFilter.class,
-        NuxeoLoginFilter.class,
-        HxprInfoContributor.class,
-        NuxeoApplicationHealthIndicator.class,
+        RepositoryLoginFilter.class,
+        OpenArchInfoContributor.class,
+        OpenArchApplicationHealthIndicator.class,
 })
-public class HxprRuntimeSpringbootAutoConfiguration {
+public class OpenArchRuntimeSpringbootAutoConfiguration {
 
 }

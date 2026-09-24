@@ -31,8 +31,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.runtime.api.Framework;
-import com.hyland.openarch.runtime.springboot.auth.test.config.NuxeoLoginTestEndpointConfig;
-import com.hyland.openarch.runtime.springboot.config.HxprRuntimeSpringbootAutoConfiguration;
+import com.hyland.openarch.runtime.springboot.auth.test.config.OpenArchLoginTestEndpointConfig;
+import com.hyland.openarch.runtime.springboot.config.OpenArchRuntimeSpringbootAutoConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -42,18 +42,18 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-@SpringBootTest(classes = { HxprRuntimeSpringbootAutoConfiguration.class, NuxeoLoginTestEndpointConfig.class })
-public class NuxeoLoginFilterTest {
+@SpringBootTest(classes = { OpenArchRuntimeSpringbootAutoConfiguration.class, OpenArchLoginTestEndpointConfig.class })
+public class RepositoryLoginFilterTest {
 
     protected static final String USER = "user";
 
     @MockitoSpyBean
-    NuxeoLoginFilter nuxeoLoginFilter;
+    RepositoryLoginFilter repositoryLoginFilter;
 
     MockMvc mvc;
 
     @BeforeEach
-    public void setup(@Autowired WebApplicationContext context, @Autowired NuxeoLoginFilter interceptor) {
+    public void setup(@Autowired WebApplicationContext context, @Autowired RepositoryLoginFilter interceptor) {
         mvc = MockMvcBuilders.webAppContextSetup(context)
                              .apply(SecurityMockMvcConfigurers.springSecurity())
                              .addFilters(interceptor)
@@ -64,20 +64,20 @@ public class NuxeoLoginFilterTest {
     @WithMockUser(username = USER)
     void testAuthenticated() throws Exception {
         mvc.perform(get("/test/hello")).andExpect(status().isOk()).andExpect(content().string("Hello user"));
-        verify(nuxeoLoginFilter).doFilterWithLogin(any(), any(), any());
+        verify(repositoryLoginFilter).doFilterWithLogin(any(), any(), any());
     }
 
     @Test
     void testAnonymous() throws Exception {
         mvc.perform(get("/test/hello")).andExpect(status().isOk()).andExpect(content().string("Hello Anonymous"));
-        verify(nuxeoLoginFilter).doFilterInternal(any(), any(), any()); // Filter is called even for anonymous
-        verify(nuxeoLoginFilter, times(0)).doFilterWithLogin(any(), any(), any()); // but login is not called
+        verify(repositoryLoginFilter).doFilterInternal(any(), any(), any()); // Filter is called even for anonymous
+        verify(repositoryLoginFilter, times(0)).doFilterWithLogin(any(), any(), any()); // but login is not called
     }
 
     @Test
     void testNotAuthenticated() throws Exception {
         mvc.perform(get("/test/secured")).andExpect(status().isUnauthorized());
-        verifyNoInteractions(nuxeoLoginFilter); // Spring Security should block the request before the filter is called
+        verifyNoInteractions(repositoryLoginFilter); // Spring Security should block the request before the filter is called
     }
 
     @Test

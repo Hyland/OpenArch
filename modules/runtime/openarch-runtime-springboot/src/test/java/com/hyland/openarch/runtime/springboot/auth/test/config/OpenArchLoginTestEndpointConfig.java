@@ -17,7 +17,7 @@ package com.hyland.openarch.runtime.springboot.auth.test.config;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
-import com.hyland.openarch.runtime.springboot.auth.test.NuxeoLoginTestEndpoint;
+import com.hyland.openarch.runtime.springboot.auth.test.RepositoryLoginTestEndpoint;
 import org.mockito.Mockito;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -32,7 +32,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @TestConfiguration
 @EnableWebMvc
 @EnableWebSecurity
-public class NuxeoLoginTestEndpointConfig {
+public class OpenArchLoginTestEndpointConfig {
 
     // @MockitoBean does not work on @Configuration classes:
     // https://github.com/spring-projects/spring-framework/issues/33934
@@ -42,8 +42,8 @@ public class NuxeoLoginTestEndpointConfig {
     }
 
     @Bean
-    public NuxeoLoginTestEndpoint nuxeoLoginTestEndpoint() {
-        return new NuxeoLoginTestEndpoint();
+    public RepositoryLoginTestEndpoint repositoryLoginTestEndpoint() {
+        return new RepositoryLoginTestEndpoint();
     }
 
     @Bean

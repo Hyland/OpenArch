@@ -44,9 +44,9 @@ import jakarta.servlet.http.HttpServletResponse;
 // Explicit order so the request-scoped TransactionFilter can sit just inside this filter, i.e. the transaction
 // commits while the user is still logged in.
 @Order(Ordered.LOWEST_PRECEDENCE - 20)
-public class NuxeoLoginFilter extends OncePerRequestFilter {
+public class RepositoryLoginFilter extends OncePerRequestFilter {
 
-    private static final Logger log = LoggerFactory.getLogger(NuxeoLoginFilter.class);
+    private static final Logger log = LoggerFactory.getLogger(RepositoryLoginFilter.class);
 
     public static final String AUTHENTICATED_ATTRIBUTE = "HxP.AUTHENTICATED";
     public static final String PUBSUB_AUTHENTICATED = "hxpJwtAPIFactory.AUTHENTICATED";

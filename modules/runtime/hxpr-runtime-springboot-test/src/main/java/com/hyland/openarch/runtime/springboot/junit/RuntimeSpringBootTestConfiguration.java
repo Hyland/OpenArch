@@ -17,7 +17,7 @@ package com.hyland.openarch.runtime.springboot.junit;
 
 import java.util.List;
 
-import com.hyland.openarch.runtime.springboot.auth.NuxeoLoginFilter;
+import com.hyland.openarch.runtime.springboot.auth.RepositoryLoginFilter;
 import com.hyland.openarch.runtime.springboot.transaction.TransactionFilter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.http.converter.autoconfigure.HttpMessageConvertersAutoConfiguration;
@@ -38,7 +38,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import tools.jackson.databind.json.JsonMapper;
 
 @TestConfiguration()
-@Import({ RuntimeTestState.class, HttpMessageConvertersAutoConfiguration.class, NuxeoLoginFilter.class,
+@Import({ RuntimeTestState.class, HttpMessageConvertersAutoConfiguration.class, RepositoryLoginFilter.class,
         TransactionFilter.class, JacksonAutoConfiguration.class, MethodValidationPostProcessor.class })
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @EnableWebMvc

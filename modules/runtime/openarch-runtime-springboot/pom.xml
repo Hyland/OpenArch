@@ -7,7 +7,7 @@
     <version>12.0-SNAPSHOT</version>
   </parent>
   <artifactId>openarch-runtime-springboot</artifactId>
-  <name>HxPR Runtime SpringBoot</name>
+  <name>OpenArch Runtime SpringBoot</name>
 
   <properties>
     <manifest.file>src/main/resources/META-INF/MANIFEST.MF</manifest.file>
@@ -123,7 +123,7 @@
       <artifactId>spring-boot-starter-security</artifactId>
       <scope>test</scope>
     </dependency>
-    <!-- hxpr-runtime-test -->
+    <!-- openarch-runtime-test -->
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
       <artifactId>openarch-runtime-test</artifactId>

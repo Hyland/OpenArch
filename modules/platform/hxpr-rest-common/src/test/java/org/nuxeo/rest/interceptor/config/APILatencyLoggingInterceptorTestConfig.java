@@ -25,7 +25,7 @@ import java.io.IOException;
 import org.nuxeo.rest.config.RestInterceptorConfiguration;
 import org.nuxeo.rest.interceptor.APILatencyLoggingInterceptor;
 import org.nuxeo.rest.swagger.annotation.Authenticated;
-import com.hyland.openarch.runtime.springboot.auth.NuxeoLoginFilter;
+import com.hyland.openarch.runtime.springboot.auth.RepositoryLoginFilter;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
@@ -48,7 +48,7 @@ public class APILatencyLoggingInterceptorTestConfig {
         @GetMapping("{id}")
         public void testMethod(HttpServletRequest request) {
             // do nothing
-            assert request.getAttribute(NuxeoLoginFilter.AUTHENTICATED_ATTRIBUTE) != null;
+            assert request.getAttribute(RepositoryLoginFilter.AUTHENTICATED_ATTRIBUTE) != null;
             assert request.getAttribute(APILatencyLoggingInterceptor.REQUEST_START_TIME_ATTRIBUTE) != null;
         }
     }
@@ -59,7 +59,7 @@ public class APILatencyLoggingInterceptorTestConfig {
         @Override
         protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
                     throws ServletException, IOException {
-            request.setAttribute(NuxeoLoginFilter.AUTHENTICATED_ATTRIBUTE, authenticated);
+            request.setAttribute(RepositoryLoginFilter.AUTHENTICATED_ATTRIBUTE, authenticated);
             filterChain.doFilter(request, response);
         }
 

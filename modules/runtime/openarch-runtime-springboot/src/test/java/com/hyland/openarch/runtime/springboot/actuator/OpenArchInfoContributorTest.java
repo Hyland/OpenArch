@@ -22,14 +22,14 @@ import org.springframework.boot.actuate.info.Info;
 import org.springframework.boot.actuate.info.Info.Builder;
 
 
-public class HxprInfoContributorTest {
+public class OpenArchInfoContributorTest {
     @Test
     void testContribute() {
         ApplicationInfo applicationInfo = new ApplicationInfo("MyApp","1.0", "2.0", "3.0");
-        HxprInfoContributor hxprInfoContributor = new HxprInfoContributor(applicationInfo);
+        OpenArchInfoContributor openArchInfoContributor = new OpenArchInfoContributor(applicationInfo);
         Info.Builder builder = new Builder();
 
-        hxprInfoContributor.contribute(builder);
+        openArchInfoContributor.contribute(builder);
 
         assertEquals("MyApp", builder.build().get("name"));
         assertEquals("1.0", builder.build().get("version"));

@@ -31,8 +31,8 @@ import org.junit.jupiter.api.TestInfo;
 import com.hyland.openarch.runtime.RuntimeServiceException;
 import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.mockito.RuntimeInjector;
-import com.hyland.openarch.runtime.springboot.NuxeoApplication;
-import com.hyland.openarch.runtime.springboot.auth.NuxeoLoginFilter;
+import com.hyland.openarch.runtime.springboot.OpenArchApplication;
+import com.hyland.openarch.runtime.springboot.auth.RepositoryLoginFilter;
 import com.hyland.openarch.runtime.springboot.junit.security.IdpTestAuthenticationSupport;
 import com.hyland.openarch.runtime.springboot.transaction.TransactionFilter;
 import com.hyland.openarch.runtime.test.runner.Deploy;
@@ -139,7 +139,7 @@ public abstract class RuntimeSpringBootTest {
         injector = injector.createChildInjector(loader.onModule());
         state.setInjector(injector);
         if (Framework.isInitialized()) {
-            NuxeoApplication.setApplicationContexts(applicationContext);
+            OpenArchApplication.setApplicationContexts(applicationContext);
         }
 
     }
@@ -167,7 +167,7 @@ public abstract class RuntimeSpringBootTest {
     }
 
     @BeforeEach
-    public void setup(@Autowired WebApplicationContext context, @Autowired NuxeoLoginFilter loginFilter,
+    public void setup(@Autowired WebApplicationContext context, @Autowired RepositoryLoginFilter loginFilter,
             @Autowired TransactionFilter transactionFilter) {
 
         // Order matters: login is outermost so the request transaction commits while the user is still logged in.

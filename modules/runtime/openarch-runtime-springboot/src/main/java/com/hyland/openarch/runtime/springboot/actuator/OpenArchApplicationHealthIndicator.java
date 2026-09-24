@@ -15,23 +15,23 @@
  */
 package com.hyland.openarch.runtime.springboot.actuator;
 
-import com.hyland.openarch.runtime.springboot.NuxeoApplication;
+import com.hyland.openarch.runtime.springboot.OpenArchApplication;
 import org.springframework.boot.health.contributor.Health;
 import org.springframework.boot.health.contributor.HealthIndicator;
 import org.springframework.stereotype.Component;
 
 @Component()
-public class NuxeoApplicationHealthIndicator implements HealthIndicator {
+public class OpenArchApplicationHealthIndicator implements HealthIndicator {
 
-    private final NuxeoApplication application;
+    private final OpenArchApplication application;
 
-    public NuxeoApplicationHealthIndicator(NuxeoApplication application) {
+    public OpenArchApplicationHealthIndicator(OpenArchApplication application) {
         this.application = application;
     }
 
     @Override
     public Health health() {
-        if (NuxeoApplication.STATUS_STARTED.equals(application.getStatus())) {
+        if (OpenArchApplication.STATUS_STARTED.equals(application.getStatus())) {
             return Health.up().build();
         } else {
             return Health.down().build();

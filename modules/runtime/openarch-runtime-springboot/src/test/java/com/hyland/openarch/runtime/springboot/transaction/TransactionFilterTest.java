@@ -33,7 +33,7 @@ import java.io.IOException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import com.hyland.openarch.runtime.springboot.config.HxprRuntimeSpringbootAutoConfiguration;
+import com.hyland.openarch.runtime.springboot.config.OpenArchRuntimeSpringbootAutoConfiguration;
 import com.hyland.openarch.runtime.transaction.TransactionHelper;
 import com.hyland.openarch.runtime.transaction.TransactionRuntimeException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +52,7 @@ import jakarta.transaction.Synchronization;
  * The filter is driven directly rather than through {@code MockMvc}, so that the response can be inspected at the
  * exact moments that matter: while the handler is still running, and once the transaction is over.
  */
-@SpringBootTest(classes = HxprRuntimeSpringbootAutoConfiguration.class)
+@SpringBootTest(classes = OpenArchRuntimeSpringbootAutoConfiguration.class)
 class TransactionFilterTest {
 
     protected static final String BODY = "{\"id\":\"1234\"}";

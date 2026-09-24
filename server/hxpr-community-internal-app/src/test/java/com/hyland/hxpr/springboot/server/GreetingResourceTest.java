@@ -25,7 +25,7 @@ import jakarta.ws.rs.core.Response.Status;
 import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
 import com.hyland.openarch.ecm.core.api.security.SecurityConstants;
-import com.hyland.openarch.runtime.springboot.NuxeoApplication;
+import com.hyland.openarch.runtime.springboot.OpenArchApplication;
 
 public class GreetingResourceTest extends AbstractSpringTest {
 
@@ -37,7 +37,7 @@ public class GreetingResourceTest extends AbstractSpringTest {
     public static final String ANONYMOUS_USER = "anonymous";
 
     protected String getMessage(String username) {
-        return String.format(GreetingResourceController.HELLO_MESSAGE_PATTERN, username, NuxeoApplication.STATUS_STARTED);
+        return String.format(GreetingResourceController.HELLO_MESSAGE_PATTERN, username, OpenArchApplication.STATUS_STARTED);
     }
 
     protected static @NonNull String getExpectedUser() {

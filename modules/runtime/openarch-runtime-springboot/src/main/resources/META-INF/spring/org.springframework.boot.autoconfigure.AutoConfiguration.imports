@@ -1,1 +1,1 @@
-com.hyland.openarch.runtime.springboot.config.HxprRuntimeSpringbootAutoConfiguration
+com.hyland.openarch.runtime.springboot.config.OpenArchRuntimeSpringbootAutoConfiguration

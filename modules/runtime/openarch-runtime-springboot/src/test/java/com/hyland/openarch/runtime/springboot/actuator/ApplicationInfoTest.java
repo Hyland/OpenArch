@@ -18,7 +18,7 @@ package com.hyland.openarch.runtime.springboot.actuator;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
-import com.hyland.openarch.runtime.springboot.config.HxprRuntimeSpringbootAutoConfiguration;
+import com.hyland.openarch.runtime.springboot.config.OpenArchRuntimeSpringbootAutoConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,7 +28,7 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 
 @SpringJUnitConfig
-@SpringBootTest(classes = HxprRuntimeSpringbootAutoConfiguration.class)
+@SpringBootTest(classes = OpenArchRuntimeSpringbootAutoConfiguration.class)
 @TestPropertySource(properties = {
         "springboot.app.version=1.0",
         "springboot.app.name=MyAutoWiredApp",

@@ -22,11 +22,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 @EnableConfigurationProperties(ApplicationInfo.class)
-public class HxprInfoContributor implements InfoContributor {
+public class OpenArchInfoContributor implements InfoContributor {
 
     private final ApplicationInfo applicationInfo;
 
-    public HxprInfoContributor(ApplicationInfo applicationInfo) {
+    public OpenArchInfoContributor(ApplicationInfo applicationInfo) {
         this.applicationInfo = applicationInfo;
     }
 

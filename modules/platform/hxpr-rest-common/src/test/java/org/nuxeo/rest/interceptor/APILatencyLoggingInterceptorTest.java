@@ -25,7 +25,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.nuxeo.rest.interceptor.config.APILatencyLoggingInterceptorTestConfig;
 import org.nuxeo.rest.interceptor.config.APILatencyLoggingInterceptorTestConfig.TestAuthFilter;
 import org.nuxeo.rest.interceptor.config.APILatencyLoggingInterceptorTestConfig.TestEndpointBean;
-import com.hyland.openarch.runtime.springboot.auth.NuxeoLoginFilter;
+import com.hyland.openarch.runtime.springboot.auth.RepositoryLoginFilter;
 import com.hyland.openarch.runtime.springboot.junit.RuntimeSpringBootTest;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.KeyValuePair;
@@ -76,7 +76,7 @@ public class APILatencyLoggingInterceptorTest extends RuntimeSpringBootTest {
     public void whenAuthenticatedIsNullThenIsAuthenticatedShouldReturnFalse(
             @Autowired APILatencyLoggingInterceptor apiLatencyLoggingInterceptor) {
         HttpServletRequest request = mock(HttpServletRequest.class);
-        when(request.getAttribute(NuxeoLoginFilter.AUTHENTICATED_ATTRIBUTE)).thenReturn(null);
+        when(request.getAttribute(RepositoryLoginFilter.AUTHENTICATED_ATTRIBUTE)).thenReturn(null);
         assertFalse(apiLatencyLoggingInterceptor.isAuthenticated(request));
     }
 
@@ -84,7 +84,7 @@ public class APILatencyLoggingInterceptorTest extends RuntimeSpringBootTest {
     public void whenAuthenticatedIsTrueThenIsAuthenticatedShouldReturnTrue(
             @Autowired APILatencyLoggingInterceptor apiLatencyLoggingInterceptor) {
         HttpServletRequest request = mock(HttpServletRequest.class);
-        when(request.getAttribute(NuxeoLoginFilter.AUTHENTICATED_ATTRIBUTE)).thenReturn(true);
+        when(request.getAttribute(RepositoryLoginFilter.AUTHENTICATED_ATTRIBUTE)).thenReturn(true);
         assertTrue(apiLatencyLoggingInterceptor.isAuthenticated(request));
     }
 
@@ -92,7 +92,7 @@ public class APILatencyLoggingInterceptorTest extends RuntimeSpringBootTest {
     public void whenAuthenticatedIsFalseThenIsAuthenticatedShouldReturnFalse(
             @Autowired APILatencyLoggingInterceptor apiLatencyLoggingInterceptor) {
         HttpServletRequest request = mock(HttpServletRequest.class);
-        when(request.getAttribute(NuxeoLoginFilter.AUTHENTICATED_ATTRIBUTE)).thenReturn(false);
+        when(request.getAttribute(RepositoryLoginFilter.AUTHENTICATED_ATTRIBUTE)).thenReturn(false);
         assertFalse(apiLatencyLoggingInterceptor.isAuthenticated(request));
     }
 

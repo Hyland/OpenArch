@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 
-import com.hyland.openarch.runtime.springboot.auth.NuxeoLoginFilter;
+import com.hyland.openarch.runtime.springboot.auth.RepositoryLoginFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
@@ -89,7 +89,7 @@ public class APILatencyLoggingInterceptor extends OncePerRequestFilter implement
      * run successfully
      */
     protected boolean isAuthenticated(HttpServletRequest request) {
-        Boolean isAuthenticated = (Boolean) request.getAttribute(NuxeoLoginFilter.AUTHENTICATED_ATTRIBUTE);
+        Boolean isAuthenticated = (Boolean) request.getAttribute(RepositoryLoginFilter.AUTHENTICATED_ATTRIBUTE);
         return isAuthenticated != null && isAuthenticated;
     }
 

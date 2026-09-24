@@ -42,9 +42,9 @@ import io.dropwizard.metrics5.MetricRegistry;
 import com.hyland.openarch.common.resilience.Resilience4jRegistries;
 
 /**
- * Binds resilience4j registries into HxPR's shared Dropwizard 5 registry.
+ * Binds resilience4j registries into OpenArch's shared Dropwizard 5 registry.
  * <p>
- * The resilience4j Dropwizard module still targets the legacy Codahale package names, so HxPR exposes the same
+ * The resilience4j Dropwizard module still targets the legacy Codahale package names, so OpenArch exposes the same
  * Standard 7 counters and gauges directly through Dropwizard 5.
  * <p>
  * Implements explicit lifecycle management: binding occurs at {@link #afterPropertiesSet()} (after all

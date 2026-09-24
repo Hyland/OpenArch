@@ -15,15 +15,15 @@
  */
 package com.hyland.openarch.runtime.springboot.config;
 
-import com.hyland.openarch.runtime.springboot.NuxeoApplication;
+import com.hyland.openarch.runtime.springboot.OpenArchApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class NuxeoApplicationConfiguration {
+public class OpenArchApplicationConfiguration {
 
-    @Bean(name = "nuxeoApplication")
-    public NuxeoApplication nuxeoApplication() {
-        return new NuxeoApplication();
+    @Bean(name = "openArchApplication")
+    public OpenArchApplication openArchApplication() {
+        return new OpenArchApplication();
     }
 }

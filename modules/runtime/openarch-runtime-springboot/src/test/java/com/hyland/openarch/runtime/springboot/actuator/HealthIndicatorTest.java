@@ -23,7 +23,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import com.hyland.openarch.runtime.springboot.NuxeoApplication;
+import com.hyland.openarch.runtime.springboot.OpenArchApplication;
 import org.springframework.boot.health.contributor.Health;
 import org.springframework.boot.health.contributor.Status;
 
@@ -31,17 +31,17 @@ import org.springframework.boot.health.contributor.Status;
 public class HealthIndicatorTest {
 
     @Mock
-    NuxeoApplication nuxeoApplication;
+    OpenArchApplication openArchApplication;
 
     @InjectMocks
-    NuxeoApplicationHealthIndicator nuxeoApplicationHealthIndicator;
+    OpenArchApplicationHealthIndicator openArchApplicationHealthIndicator;
 
     @Test
     public void testHealthCheckIndicatorUp() {
 
-        when(nuxeoApplication.getStatus()).thenReturn(NuxeoApplication.STATUS_STARTED);
+        when(openArchApplication.getStatus()).thenReturn(OpenArchApplication.STATUS_STARTED);
 
-        Health health = nuxeoApplicationHealthIndicator.health();
+        Health health = openArchApplicationHealthIndicator.health();
 
         assertEquals(Status.UP, health.getStatus());
     }
@@ -49,9 +49,9 @@ public class HealthIndicatorTest {
     @Test
     public void testHealthCheckIndicatorDown() {
 
-        when(nuxeoApplication.getStatus()).thenReturn(NuxeoApplication.STATUS_STOPPED);
+        when(openArchApplication.getStatus()).thenReturn(OpenArchApplication.STATUS_STOPPED);
 
-        Health health = nuxeoApplicationHealthIndicator.health();
+        Health health = openArchApplicationHealthIndicator.health();
 
         assertEquals(Status.DOWN, health.getStatus());
     }

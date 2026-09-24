@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/test")
-public class NuxeoLoginTestEndpoint {
+public class RepositoryLoginTestEndpoint {
 
     protected String sayHi(Principal user) {
         String username = user == null ? "Anonymous" : user.getName();

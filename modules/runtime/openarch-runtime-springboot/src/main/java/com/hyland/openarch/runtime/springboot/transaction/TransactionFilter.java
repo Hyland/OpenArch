@@ -19,7 +19,7 @@ import static jakarta.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 
 import java.io.IOException;
 
-import com.hyland.openarch.runtime.springboot.auth.NuxeoLoginFilter;
+import com.hyland.openarch.runtime.springboot.auth.RepositoryLoginFilter;
 import com.hyland.openarch.runtime.transaction.TransactionHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +56,7 @@ import jakarta.servlet.http.HttpServletResponse;
  * committing it and starting a new one with a custom timeout); this filter simply commits whatever transaction is
  * active when the request returns.
  * <p>
- * Ordered to run just inside {@link NuxeoLoginFilter} so the transaction commits
+ * Ordered to run just inside {@link RepositoryLoginFilter} so the transaction commits
  * while the user is still logged in.
  */
 @Component

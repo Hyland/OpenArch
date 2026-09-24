@@ -1,10 +1,10 @@
-# nuxeo-runtime-springboot Project
+# openarch-runtime-springboot Project
 
 This project uses SpringBoot
 
-The Nuxeo Runtime bootstrap is done thanks to a Spring listener and starts up the Nuxeo Runtime, looking up META-INF/MANIFEST.MF files in the classpath.
+The OpenArch Runtime bootstrap is done thanks to a Spring listener and starts up the OpenArch Runtime, looking up META-INF/MANIFEST.MF files in the classpath.
 
-A Nuxeo Runtime health check is provided by this module, available at http://localhost:8080/actuator/health.
+An OpenArch Runtime health check is provided by this module, available at http://localhost:8080/actuator/health.
 
 ## Packaging
 

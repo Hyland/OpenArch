@@ -67,9 +67,9 @@ import org.springframework.core.env.MutablePropertySources;
 /**
  * Basic runtime startup triggered by {@link ContextRefreshedEvent}
  */
-public class NuxeoApplication {
+public class OpenArchApplication {
 
-    private static final Logger log = LoggerFactory.getLogger(NuxeoApplication.class);
+    private static final Logger log = LoggerFactory.getLogger(OpenArchApplication.class);
 
     public static final String STATUS_NONE = "none";
 
@@ -91,23 +91,23 @@ public class NuxeoApplication {
 
     protected String status = STATUS_NONE;
 
-    public NuxeoApplication() {
+    public OpenArchApplication() {
         // empty
     }
 
     void start(ApplicationContext applicationContext) {
         AbstractEnvironment env = (AbstractEnvironment) applicationContext.getEnvironment();
-        log.info("Starting Nuxeo Runtime");
+        log.info("Starting OpenArch Runtime");
         try {
             long startTime = System.currentTimeMillis();
 
             Map<String, File> bundles = getBundles();
-            Map<String, Object> nxHostEnv = buildNuxeoHostEnv(env);
+            Map<String, Object> nxHostEnv = buildRepositoryHostEnv(env);
             // init nuxeo.tmp.dir to system tmp dir if unset
             if (!nxHostEnv.containsKey(NUXEO_TMP_DIR)) {
                 nxHostEnv.put(NUXEO_TMP_DIR, System.getProperty("java.io.tmpdir"));
             }
-            Map<String, String> nxConfEnv = buildNuxeoConfEnv(env);
+            Map<String, String> nxConfEnv = buildRepositoryConfEnv(env);
 
             String homePath = (String) nxHostEnv.get(NUXEO_RUNTIME_HOME);
             System.setProperty(Environment.NUXEO_HOME, (String) nxHostEnv.get(NUXEO_RUNTIME_HOME));
@@ -127,12 +127,12 @@ public class NuxeoApplication {
 
             long finishedTime = System.currentTimeMillis();
             Double duration = (finishedTime - startTime) / 1000.0;
-            var messageStartUp = String.format("Nuxeo Runtime started in %.1f sec.", duration);
+            var messageStartUp = String.format("OpenArch Runtime started in %.1f sec.", duration);
             log.info(messageStartUp);
 
             status = STATUS_STARTED;
         } catch (BundleException e) {
-            log.error("Exception during Nuxeo startup", e);
+            log.error("Exception during OpenArch startup", e);
         }
     }
 
@@ -154,7 +154,7 @@ public class NuxeoApplication {
         ApplicationContextHelper.setApplicationContext(applicationContext);
     }
 
-    protected Map<String, Object> buildNuxeoHostEnv(AbstractEnvironment env) {
+    protected Map<String, Object> buildRepositoryHostEnv(AbstractEnvironment env) {
         Map<String, Object> nxEnv = new HashMap<>();
         for (String param : DEFAULT_RUNTIME_PROPERTIES) {
             nxEnv.put(param, env.getProperty(param, DEFAULT_HOME));
@@ -169,7 +169,7 @@ public class NuxeoApplication {
         return nxEnv;
     }
 
-    protected Map<String, String> buildNuxeoConfEnv(AbstractEnvironment env) {
+    protected Map<String, String> buildRepositoryConfEnv(AbstractEnvironment env) {
         Map<String, String> confEnv = getAllPropertyNames(env).stream()
                                                               .filter(propName -> !DEFAULT_PROPERTIES.contains(
                                                                       propName))
@@ -207,7 +207,7 @@ public class NuxeoApplication {
 
     protected Map<String, File> getBundles() {
         Map<String, File> bundles = new HashMap<>();
-        ClassLoader classLoader = NuxeoApplication.class.getClassLoader();
+        ClassLoader classLoader = OpenArchApplication.class.getClassLoader();
         if (classLoader == null) {
             return bundles;
         }
@@ -216,7 +216,7 @@ public class NuxeoApplication {
             res = classLoader.getResources(JarFile.MANIFEST_NAME);
             while (res.hasMoreElements()) {
                 URL url = res.nextElement();
-                // check manifest for nuxeo deployment
+                // check manifest for OpenArch deployment
                 try (InputStream is = url.openStream()) {
 
                     Manifest manifest = new Manifest(is);
@@ -268,7 +268,7 @@ public class NuxeoApplication {
     }
 
     public void stop() {
-        log.info("Stopping Nuxeo Runtime");
+        log.info("Stopping OpenArch Runtime");
         try {
             SpringBootFrameworkLoader.stop();
         } catch (BundleException e) {
@@ -284,7 +284,7 @@ public class NuxeoApplication {
     @EventListener(ContextRefreshedEvent.class)
     void onStart(ContextRefreshedEvent event) {
         if (!STATUS_STARTED.equals(getStatus())) {
-            log.info("Starting Nuxeo Runtime after startup event");
+            log.info("Starting OpenArch Runtime after startup event");
             start(event.getApplicationContext());
         }
         setApplicationContexts(event.getApplicationContext());
@@ -292,7 +292,7 @@ public class NuxeoApplication {
 
     @PreDestroy
     void onStop() {
-        log.info("Stopping Nuxeo Runtime after shutdown event");
+        log.info("Stopping OpenArch Runtime after shutdown event");
         stop();
     }
 
