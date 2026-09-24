@@ -183,6 +183,18 @@ public class NamedQueryDefinitionAPITest extends AbstractQueryAPITest {
                         jsonPath("status").value(404));
     }
 
+    /**
+     * The handler passed its optional body to the query manager, which read queryName off it -- so the JSON
+     * literal null answered 500 rather than 400 (HXCS-8835). A named query cannot run without a name.
+     */
+    @Test
+    public void testNamedQueryWithoutBodyIsABadRequest() throws Exception {
+        checkResponseWithPayload(Status.BAD_REQUEST, POST, REPO_ID, "null", API_PATH).andExpectAll(
+                jsonPath("entity-type").value("exception"),
+                jsonPath("status").value(Status.BAD_REQUEST.getStatusCode()),
+                jsonPath("message").value("Required request body is missing"));
+    }
+
     @Test
     @WithUser(TEST_ANONYMOUS_USER)
     public void testQueryUnauthorized() throws Exception {

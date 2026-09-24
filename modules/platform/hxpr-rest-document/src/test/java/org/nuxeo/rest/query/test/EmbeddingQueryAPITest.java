@@ -125,6 +125,40 @@ public class EmbeddingQueryAPITest extends AbstractQueryAPITest {
         return checkResponse(expectedStatus, PATH, method, queryParameters);
     }
 
+    /**
+     * The handler passed its optional body straight to the query manager -- so the JSON literal null answered
+     * 500 rather than 400 (HXCS-8835). A vector search cannot run without a body.
+     */
+    @Test
+    public void testEmbeddingQueryWithoutBodyIsABadRequest() throws Exception {
+        checkResponseWithPayload(Status.BAD_REQUEST, POST, REPO_ID, "null", PATH).andExpectAll(
+                jsonPath("entity-type").value("exception"),
+                jsonPath("status").value(400),
+                jsonPath("message").value("Required request body is missing"));
+    }
+
+    /**
+     * An empty body parses into a DTO with every field defaulted or null, and the search then ran with no
+     * vector at all -- answering 500 (HXCS-8835). There is nothing to search for without one.
+     */
+    @Test
+    public void testEmbeddingQueryWithEmptyBodyIsABadRequest() throws Exception {
+        checkResponseWithPayload(Status.BAD_REQUEST, POST, REPO_ID, "{}", PATH).andExpectAll(
+                jsonPath("entity-type").value("exception"),
+                jsonPath("status").value(Status.BAD_REQUEST.getStatusCode()));
+    }
+
+    /**
+     * The field being present and null is a different request from the field being absent, and
+     * {@code @JsonProperty(required = true)} only refuses the second. Before HXCS-8835 this one answered 500.
+     */
+    @Test
+    public void testEmbeddingQueryWithAnExplicitlyNullVectorIsABadRequest() throws Exception {
+        checkResponseWithPayload(Status.BAD_REQUEST, POST, REPO_ID, "{\"vector\":null}", PATH).andExpectAll(
+                jsonPath("entity-type").value("exception"),
+                jsonPath("status").value(Status.BAD_REQUEST.getStatusCode()));
+    }
+
     @Test
     public void testEmbeddingQuery() throws Exception {
         Map<String, Object> postBodyData = Map.of("query", SELECT_ALL_QUERY, "vector", VECTOR, "limit", 1);

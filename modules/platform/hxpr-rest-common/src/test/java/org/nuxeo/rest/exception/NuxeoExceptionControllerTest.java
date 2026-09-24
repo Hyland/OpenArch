@@ -15,16 +15,29 @@
  */
 package org.nuxeo.rest.exception;
 
+import static jakarta.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
+import static jakarta.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+import static jakarta.servlet.http.HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE;
 import static jakarta.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
+import static jakarta.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static jakarta.ws.rs.core.HttpHeaders.RETRY_AFTER;
 import static org.nuxeo.ecm.core.schema.types.resolver.ObjectResolver.NAME_KEY;
 import static org.skyscreamer.jsonassert.JSONCompareMode.NON_EXTENSIBLE;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
+
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -54,11 +67,17 @@ import com.hyland.openarch.runtime.springboot.junit.RuntimeSpringBootTest;
 import com.hyland.openarch.runtime.test.runner.Features;
 import com.hyland.openarch.runtime.transaction.TransactionRuntimeException;
 import org.skyscreamer.jsonassert.JSONAssert;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConversionException;
+import org.springframework.http.converter.HttpMessageNotWritableException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.test.web.servlet.ResultActions;
@@ -162,9 +181,43 @@ class NuxeoExceptionControllerTest extends RuntimeSpringBootTest {
             throw new HttpMessageConversionException("oops", DatabindException.from((JsonParser) null, "cause"));
         }
 
+        /**
+         * A conversion failure with no cause that is not about reading the request: the converters could not
+         * write the response. Same shape as a missing body -- no cause to classify -- opposite verdict.
+         */
+        @GetMapping("/responseNotWritable")
+        public void responseNotWritable() {
+            throw new HttpMessageNotWritableException("no converter for the return value");
+        }
+
         @GetMapping("/rendition")
         public void rendition() {
             throw new RenditionException("Rendition Forbidden", 403);
+        }
+
+        /**
+         * What the dispatcher throws for any multipart failure that is not a size limit, whatever its cause:
+         * the base class, wrapping whatever {@code request.getParts()} threw.
+         */
+        @PostMapping("/multipart")
+        public void multipart() {
+            throw new MultipartException("Failed to parse multipart servlet request",
+                    new IOException("the request was rejected because no multipart boundary was found"));
+        }
+
+        /** The one multipart failure that carries its own status, as a subclass implementing ErrorResponse. */
+        @PostMapping("/multipartTooLarge")
+        public void multipartTooLarge() {
+            throw new MaxUploadSizeExceededException(4L);
+        }
+
+        /**
+         * A body Spring insists on. The handler is never reached when the request omits it: the argument
+         * resolver rejects the request first, which is the path this test exercises.
+         */
+        @PostMapping(path = "/requiredBody", consumes = MediaType.APPLICATION_JSON_VALUE)
+        public void requiredBody(@RequestBody Map<String, Object> body) {
+            throw new IllegalStateException("unreachable: " + body);
         }
     }
 
@@ -205,6 +258,28 @@ class NuxeoExceptionControllerTest extends RuntimeSpringBootTest {
                 Map.of(RETRY_AFTER, "2")); // NuxeoExceptionController.RETRY_AFTER_DEFAULT_DELAY
     }
 
+    /**
+     * 500 is the only status this controller logs at ERROR, so moving a search outage from 500 to 503
+     * (HXCS-8835) would otherwise have dropped it to debug -- invisible at default level exactly when someone
+     * is looking for the outage. It logs at WARN instead, with the cause.
+     */
+    @Test
+    public void testServiceUnavailableIsLoggedAsAWarningWithItsCause() throws Exception {
+        Logger logger = (Logger) LoggerFactory.getLogger(NuxeoExceptionController.class);
+        ListAppender<ILoggingEvent> events = new ListAppender<>();
+        events.start();
+        logger.addAppender(events);
+        try {
+            mvc.perform(get("/exception/serviceunavail")).andExpect(status().is(SC_SERVICE_UNAVAILABLE));
+
+            var warnings = events.list.stream().filter(e -> e.getLevel() == Level.WARN).toList();
+            assertEquals(1, warnings.size(), "the outage is logged once, at WARN");
+            assertNotNull(warnings.get(0).getThrowableProxy(), "the cause travels with it");
+        } finally {
+            logger.detachAppender(events);
+        }
+    }
+
     @Test
     public void testServiceUnavailableWithRetryAfterHint() throws Exception {
         doTestExceptionAndHeaders("/exception/serviceunavailRetryAfterHint", SC_SERVICE_UNAVAILABLE, "breaker open",
@@ -239,6 +314,80 @@ class NuxeoExceptionControllerTest extends RuntimeSpringBootTest {
     @Test
     public void testRenditionException() throws Exception {
         doTestException("/exception/rendition", 403, "Rendition Forbidden");
+    }
+
+    /**
+     * A {@code Content-Type} that declares no boundary makes the body unparseable by definition, so the
+     * failure is the caller's: 400, where before HXCS-8835 every multipart failure was 500. An empty boundary
+     * value is the same thing said differently.
+     */
+    @Test
+    public void testMultipartWithNoUsableBoundaryIsABadRequest() throws Exception {
+        doTestMultipart("multipart/form-data", SC_BAD_REQUEST, "Failed to parse multipart servlet request");
+        doTestMultipart("multipart/form-data; boundary=", SC_BAD_REQUEST, "Failed to parse multipart servlet request");
+        // a header too malformed to read a boundary from is not this server's doing either
+        doTestMultipart("multipart/form-data; boundary", SC_BAD_REQUEST, "Failed to parse multipart servlet request");
+    }
+
+    /**
+     * The other half of the absent-cause branch. A missing request body is the caller's and answers 400; a
+     * response the converters cannot write is this server's and answers 500, message replaced and cause logged
+     * at ERROR. Before HXCS-8835 both reached an unconditional read of that absent cause and the advice itself
+     * threw.
+     */
+    @Test
+    public void testAResponseTheConvertersCannotWriteIsAServerError() throws Exception {
+        doTestException("/exception/responseNotWritable", SC_INTERNAL_SERVER_ERROR, "Internal Server Error");
+    }
+
+    /**
+     * The counterpart, and the reason the classification asks the request rather than the exception: Spring
+     * wraps a container I/O error, a full temp store and an internal parser fault in the very same
+     * {@link MultipartException}. With a usable boundary in the header there is nothing to blame the caller
+     * for, so it stays 500 -- opaque message, cause logged at ERROR -- and a client is not told to stop
+     * retrying an outage.
+     */
+    @Test
+    public void testMultipartFailureWithAUsableBoundaryStaysAServerError() throws Exception {
+        doTestMultipart("multipart/form-data; boundary=----abc123", SC_INTERNAL_SERVER_ERROR, "Internal Server Error");
+    }
+
+    protected void doTestMultipart(String contentType, int expectedStatus, String expectedMessage)
+            throws Exception {
+        String body = "{\"entity-type\":\"exception\",\"status\":%s,\"message\":\"%s\"}".formatted(expectedStatus,
+                expectedMessage);
+        mvc.perform(post("/exception/multipart").header(CONTENT_TYPE, contentType).with(csrf()))
+           .andExpect(status().is(expectedStatus))
+           .andExpect(content().string(body));
+    }
+
+    /**
+     * The subclass that does carry a status has to keep it: an upload over the limit is 413 whatever the
+     * header says, because Spring classifies that one itself.
+     */
+    @Test
+    public void testMultipartTooLargeKeepsItsOwnStatus() throws Exception {
+        mvc.perform(post("/exception/multipartTooLarge").header(CONTENT_TYPE,
+                "multipart/form-data; boundary=----abc123").with(csrf()))
+           .andExpect(status().is(SC_REQUEST_ENTITY_TOO_LARGE))
+           .andExpect(content().string(
+                   "{\"entity-type\":\"exception\",\"status\":413,\"message\":\"Maximum upload size of 4 bytes exceeded\"}"));
+    }
+
+    /**
+     * A request that omits a body Spring requires -- or sends the JSON literal {@code null} -- is rejected by
+     * the argument resolver, which throws {@code HttpMessageNotReadableException} with no cause: nothing was
+     * parsed, so there is nothing to wrap. Before HXCS-8835 the handler dereferenced that absent cause, so the
+     * advice itself threw and the caller got the container's error page instead of this API's error entity.
+     */
+    @Test
+    public void testMissingRequiredBodyIsAnErrorEntity() throws Exception {
+        mvc.perform(post("/exception/requiredBody").contentType(MediaType.APPLICATION_JSON)
+                                                   .content("null")
+                                                   .with(csrf()))
+           .andExpect(status().is(SC_BAD_REQUEST))
+           .andExpect(content().string(
+                   "{\"entity-type\":\"exception\",\"status\":400,\"message\":\"Required request body is missing\"}"));
     }
 
     protected ResultActions doTestException(String path, int expectedStatus, String expectedMessage) throws Exception {

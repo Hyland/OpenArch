@@ -17,10 +17,12 @@ package org.nuxeo.opensearch.client;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -29,13 +31,18 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import org.junit.jupiter.api.AfterEach;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.exc.StreamReadException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.apache.hc.core5.http.HttpStatus;
 import com.hyland.openarch.common.resilience.Resilience4jRegistries;
+import com.hyland.openarch.common.RetryAfterHint;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.opensearch.io.DocumentDTO;
 import org.opensearch.client.json.jackson3.JacksonJsonpMapper;
@@ -44,8 +51,7 @@ import org.opensearch.client.opensearch._types.ErrorResponse;
 import org.opensearch.client.opensearch._types.OpenSearchException;
 import org.opensearch.client.opensearch.core.IndexRequest;
 import org.opensearch.client.opensearch.core.IndexResponse;
-
-import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
+import org.opensearch.client.opensearch.core.SearchRequest;
 
 @ExtendWith(MockitoExtension.class)
 class OpenSearchRestClientTest {
@@ -89,6 +95,62 @@ class OpenSearchRestClientTest {
         OpenSearchException exception = spy(new OpenSearchException(response));
         doReturn(message).when(exception).getMessage();
         return exception;
+    }
+
+    private SearchRequest searchRequest() {
+        return SearchRequest.of(b -> b.index(TEST_INDEX));
+    }
+
+    /**
+     * An unreachable OpenSearch is not a defect in this server, and a caller can usefully retry it -- but the
+     * IOException arm threw NuxeoException(Throwable), whose shortest constructor picks 500, so five query
+     * operations answered 500 during an outage (HXCS-8835). 503 is what the platform already answers for the
+     * equivalent graph failure, and NuxeoExceptionController adds Retry-After to it.
+     */
+    @Test
+    void testSearchWhenOpenSearchIsUnreachableIsServiceUnavailable() throws Exception {
+        when(mockClient.search(any(SearchRequest.class), eq(DocumentDTO.class))).thenThrow(
+                new IOException("Connect to http://opensearch-host:9200 failed: Connection refused"));
+
+        SearchRequest request = searchRequest();
+        NuxeoException exception = assertThrows(NuxeoException.class, () -> restClient.search(request));
+        assertEquals(HttpStatus.SC_SERVICE_UNAVAILABLE, exception.getStatusCode());
+        // NuxeoExceptionController replaces the message only for 500, so whatever this carries reaches the
+        // caller. An IOException from the client names the configured host and port, which is ours to know and
+        // not the caller's, so the message is fixed here and the cause is kept for the log.
+        assertEquals("The search index is unavailable", exception.getMessage());
+        assertFalse(exception.getMessage().contains("9200"));
+        assertEquals(IOException.class, exception.getCause().getClass());
+    }
+
+    /**
+     * A reachable server whose reply cannot be parsed is a genuine defect, so it keeps 500. Splitting it from
+     * the arm above is worth more than the status change on its own: it separates "page the on-call" from
+     * "retry later".
+     */
+    @Test
+    void testSearchWithAnUnparseableReplyStaysAServerError() throws Exception {
+        when(mockClient.search(any(SearchRequest.class), eq(DocumentDTO.class))).thenThrow(
+                new StreamReadException((JsonParser) null, "truncated reply"));
+
+        SearchRequest request = searchRequest();
+        NuxeoException exception = assertThrows(NuxeoException.class, () -> restClient.search(request));
+        assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, exception.getStatusCode());
+    }
+
+    /** The arm that was always classified, pinned here so the split cannot change it. */
+    @Test
+    void testSearchWithAQueryOpenSearchRejectsIsABadRequest() throws Exception {
+        // A genuine exception rather than a mock or a spy: this arm classifies by reading error().rootCause(),
+        // so nothing needs stubbing -- and a stub that is never read fails Mockito's strict check.
+        ErrorResponse rejection = ErrorResponse.of(
+                b -> b.error(e -> e.type("parsing_exception").reason("rejected by OpenSearch")).status(HttpStatus.SC_BAD_REQUEST));
+        when(mockClient.search(any(SearchRequest.class), eq(DocumentDTO.class))).thenThrow(
+                new OpenSearchException(rejection));
+
+        SearchRequest request = searchRequest();
+        NuxeoException exception = assertThrows(NuxeoException.class, () -> restClient.search(request));
+        assertEquals(HttpStatus.SC_BAD_REQUEST, exception.getStatusCode());
     }
 
     @Test
@@ -260,6 +322,13 @@ class OpenSearchRestClientTest {
         // Then: the circuit breaker is now open, so a second call fails fast without reaching the transport again.
         NuxeoException exception = assertThrows(NuxeoException.class, () -> restClient.index(request));
         assertTrue(exception.getCause() instanceof CallNotPermittedException);
+        // An open breaker is the dependency being away, which is 503 like the unreachable arm of search():
+        // the same outage must not change status once the breaker trips (HXCS-8835).
+        assertEquals(HttpStatus.SC_SERVICE_UNAVAILABLE, exception.getStatusCode());
+        // And it advertises how long the breaker stays open -- 60s as configured above -- rather than the
+        // controller's fixed default, which would invite a retry storm against a breaker that is still open.
+        assertInstanceOf(RetryAfterHint.class, exception);
+        assertEquals(60, ((RetryAfterHint) exception).getRetryAfterSeconds());
         verify(mockClient, times(2)).index(any(IndexRequest.class));
     }
 

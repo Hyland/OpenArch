@@ -148,7 +148,7 @@ public class VocabularyAPI {
     public VocabularyEntryResponseDTO updateVocabularyEntry(
             @PathVariable(VOCABULARY_ID) @PathVariableId String vocabularyId,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId,
-            @RequestBody(required = false) VocabularyEntryRequestDTO entry) {
+            @RequestBody VocabularyEntryRequestDTO entry) {
         vocabularyEntryValidator.validate(entry);
         return manager.updateVocabularyEntry(repoId, vocabularyId, entry);
     }
@@ -168,7 +168,7 @@ public class VocabularyAPI {
     @ApiResponse409(description = "Vocabulary already exists.")
     public ResponseEntity<VocabularyDTO> createVocabulary(
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId,
-            @RequestBody(required = false) VocabularyDTO vocabulary) {
+            @RequestBody VocabularyDTO vocabulary) {
         vocabularyValidator.validate(vocabulary);
         return ResponseEntity.status(CREATED).body(manager.createVocabulary(repoId, vocabulary));
     }
@@ -182,7 +182,7 @@ public class VocabularyAPI {
     public ResponseEntity<VocabularyEntryResponseDTO> createVocabularyEntry(
             @PathVariable(VOCABULARY_ID) @PathVariableId String vocabularyId,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId,
-            @RequestBody(required = false) VocabularyEntryRequestDTO vocabularyEntry) {
+            @RequestBody VocabularyEntryRequestDTO vocabularyEntry) {
         vocabularyEntryValidator.validate(vocabularyEntry);
         return ResponseEntity.status(CREATED)
                              .body(manager.createVocabularyEntry(repoId, vocabularyId, vocabularyEntry));

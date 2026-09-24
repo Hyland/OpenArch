@@ -155,6 +155,16 @@ public class MoveAPITest extends AbstractAPITest {
                 jsonPath(SYS_PARENT_ID).value(folder.getId()));
     }
 
+    /**
+     * Same defect as the copy handler: an optional body, dereferenced for targetParentId on the next line, so
+     * the JSON literal null answered 500 (HXCS-8835). The body is required now.
+     */
+    @Test
+    public void testMoveWithoutBodyIsABadRequest() throws Exception {
+        var result = checkMoveApiResponse(BAD_REQUEST, "null");
+        checkErrorResponse(BAD_REQUEST, "Required request body is missing", result);
+    }
+
     @Test
     public void testMoveDocumentWithoutTargetParentIdException() throws Exception {
         var result = checkMoveApiResponse(BAD_REQUEST, "{}");

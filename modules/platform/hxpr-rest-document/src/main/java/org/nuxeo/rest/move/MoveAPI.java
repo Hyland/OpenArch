@@ -77,7 +77,7 @@ public class MoveAPI extends AbstractDocumentAPI {
             @RequestParam(name = CONDITION, defaultValue = "") @ParameterCondition String hxql,
             @RequestParam(name = IF, defaultValue = "") @ParameterIf String expr,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId,
-            @RequestBody(required = false) MoveDTO moveRequestBody) {
+            @RequestBody MoveDTO moveRequestBody) {
         String targetParentId = moveRequestBody.targetParentId();
         if (StringUtils.isBlank(targetParentId)) {
             throw new NuxeoException("Missing destination folder id to move document: targetParentId",

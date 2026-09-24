@@ -78,6 +78,8 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
     // @since 11.5
     public static final String LONG_TIMEOUT = "120s";
 
+    private static final String SEARCH_UNAVAILABLE_MESSAGE = "The search index is unavailable";
+
     protected final JsonProvider jsonProvider;
 
     protected final JsonpMapper jsonpMapper;
@@ -135,7 +137,11 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
         try {
             return retry.executeCheckedSupplier(() -> circuitBreaker.executeCheckedSupplier(call::get));
         } catch (CallNotPermittedException e) {
-            throw new NuxeoException("OpenSearch is unavailable (circuit breaker open)", e);
+            // The breaker being open is the same outage as the IOException arm in search(), only known in
+            // advance -- so it answers the same 503, and with Retry-After the caller learns when to come back.
+            // Without this, one outage produces two statuses: 503 until the breaker trips, 500 afterwards.
+            throw new CircuitBreakerOpenException("OpenSearch is unavailable (circuit breaker open)", e,
+                    openStateDurationMs());
         } catch (IOException | RuntimeException e) {
             throw e;
         } catch (InterruptedException e) {
@@ -144,6 +150,14 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
         } catch (Throwable t) { // NOSONAR - CheckedSupplier#get declares Throwable
             throw new NuxeoException(t);
         }
+    }
+
+    /**
+     * @return how long the breaker stays open, in milliseconds, read from its own configuration so the
+     *         Retry-After a caller receives follows whatever the deployment configured
+     */
+    private long openStateDurationMs() {
+        return circuitBreaker.getCircuitBreakerConfig().getWaitIntervalFunctionInOpenState().apply(1);
     }
 
     @Override
@@ -495,7 +509,19 @@ public class OpenSearchRestClient implements org.nuxeo.opensearch.api.OpenSearch
                 message = null;
             }
             throw new NuxeoException("Error performing OpenSearch query: " + message, e, HttpStatus.SC_BAD_REQUEST);
-        } catch (IOException | JacksonException e) {
+        } catch (IOException e) {
+            // OpenSearch is unreachable, or the connection died mid-request. That is not a defect in this
+            // server and the caller can usefully retry it, so it is 503 rather than 500 -- the status the
+            // platform already answers for the equivalent graph failure, and the one
+            // NuxeoExceptionController adds Retry-After to.
+            //
+            // The message is fixed rather than the cause's: the controller replaces the message only for 500,
+            // so a cause would reach the caller verbatim -- and this one names the configured search host and
+            // port. GraphServiceManager states its own 503 the same way. The cause still travels for the log.
+            throw new NuxeoException(SEARCH_UNAVAILABLE_MESSAGE, e, HttpStatus.SC_SERVICE_UNAVAILABLE);
+        } catch (JacksonException e) {
+            // Reachable, but its reply could not be parsed. That one is ours: 500 by omission is correct here,
+            // and keeping it apart from the arm above is what separates paging the on-call from retrying.
             throw new NuxeoException(e);
         }
     }

@@ -64,7 +64,7 @@ public class CopyAPI extends AbstractDocumentAPI {
     public DocumentDTO copy(
             @PathVariable("docId") @Parameter(description = "The source document id to be copied.") String docId,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId,
-            @RequestBody(required = false) CopyDTO copyRequestBody) {
+            @RequestBody CopyDTO copyRequestBody) {
         String name = copyRequestBody.name();
         String targetParentId = copyRequestBody.targetParentId();
 

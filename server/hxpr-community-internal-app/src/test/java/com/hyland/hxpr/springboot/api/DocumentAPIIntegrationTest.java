@@ -254,4 +254,39 @@ public class DocumentAPIIntegrationTest extends AbstractSpringTest {
         checkErrorResponse(BAD_REQUEST, "dc_foo", r);
     }
 
+    private Response postWithContentType(String contentType) {
+        return authenticated().header("Accept", ContentType.JSON.getAcceptHeader())
+                              .header("Content-Type", contentType)
+                              // bytes, not a String: Rest Assured refuses to encode a String body under a
+                              // multipart content type, and the point here is to send a body it cannot split
+                              .body("x".getBytes(UTF_8))
+                              .post(PATH + "/{parentId}", ROOT_ID);
+    }
+
+    /**
+     * A {@code multipart/form-data} request with no usable {@code boundary} parameter cannot be split into
+     * parts, and the exception the dispatcher throws for that -- {@code MultipartException} -- carried no
+     * status of its own, so before HXCS-8835 a 15-byte request answered 500 here and on four sibling
+     * operations, each costing an ERROR-level log line and telling the caller nothing.
+     * <p>
+     * This lives at the integration layer because only a real servlet container parses a multipart body:
+     * MockMvc hands the dispatcher parts that are already resolved, so the parse failure cannot be provoked
+     * there at all.
+     * <p>
+     * The control row matters as much as the two failing ones. A body that does not match a <em>declared</em>
+     * boundary was always classified correctly, which is what places the trigger in the header rather than in
+     * the body -- and what keeps this test honest about which failure was actually fixed.
+     */
+    @Test
+    public void testMultipartBodyWithNoUsableBoundaryIsABadRequest() {
+        String parseFailure = "Failed to parse multipart servlet request";
+        // no boundary parameter at all
+        checkErrorResponse(BAD_REQUEST, parseFailure, postWithContentType("multipart/form-data"));
+        // a boundary parameter with an empty value, which the parser cannot use either
+        checkErrorResponse(BAD_REQUEST, parseFailure, postWithContentType("multipart/form-data; boundary="));
+        // control: with a boundary the parser can use, the body is split and the missing part is reported
+        checkErrorResponse(BAD_REQUEST, "Required part 'main' is not present.",
+                postWithContentType("multipart/form-data; boundary=zzz"));
+    }
+
 }

@@ -197,6 +197,59 @@ public class QueryAPITest extends AbstractQueryAPITest {
         checkQueryResponseBody("rest/query_res_default.json", result);
     }
 
+    /**
+     * The counterpart to the seven handlers whose body this branch made required: these two tolerate a null
+     * body on purpose -- they substitute a default DTO and search everything -- so a caller that sends none
+     * keeps getting results rather than the 400 the other endpoints now answer. Asserted because the claim
+     * that they are deliberate is what justified leaving them alone.
+     */
+    @Test
+    public void testQueryWithANullBodyStillSearches() throws Exception {
+        checkResponseWithPayload(OK, POST, REPO_ID, "null", PATH).andExpect(jsonPath("documents").isArray());
+    }
+
+    /**
+     * POST /api/query/termsAggregation needs two inputs it cannot work without, and only one of them said so:
+     * a body missing termsAggregationProperty was a clean 400 while a body missing query answered 500
+     * (HXCS-8835), because the aggregation read repositoryId off the absent object. The published schema
+     * advertised the field that crashed as optional.
+     * <p>
+     * These live here rather than beside the other termsAggregation tests because that class is @Disabled, and
+     * a skipped test proves nothing. Neither request reaches OpenSearch: both are rejected while the body is
+     * being read.
+     */
+    @Test
+    public void testTermsAggregationWithoutQueryIsABadRequest() throws Exception {
+        var result = checkResponseWithPayload(BAD_REQUEST, POST, REPO_ID,
+                "{\"termsAggregationProperty\":\"sys_primaryType\"}", PATH + "/termsAggregation");
+        ContentTestHelper.checkErrorResponse(BAD_REQUEST, "Invalid input", result);
+    }
+
+    /** The mirror case, which answered 400 all along: the property missing, the query present. */
+    @Test
+    public void testTermsAggregationWithoutPropertyIsABadRequest() throws Exception {
+        var result = checkResponseWithPayload(BAD_REQUEST, POST, REPO_ID,
+                "{\"query\":{\"query\":\"SELECT * FROM SysContent\"}}", PATH + "/termsAggregation");
+        ContentTestHelper.checkErrorResponse(BAD_REQUEST, "Invalid input", result);
+    }
+
+    /**
+     * Present-and-null is not the same request as absent, and {@code @JsonProperty(required = true)} refuses
+     * only the latter, so both of these answered 500 before HXCS-8835 while the absent field answered 400. An
+     * empty query object is deliberately still accepted: it filters nothing, which is a legitimate aggregation.
+     */
+    @Test
+    public void testTermsAggregationWithExplicitlyNullFieldsIsABadRequest() throws Exception {
+        var noQuery = checkResponseWithPayload(BAD_REQUEST, POST, REPO_ID,
+                "{\"query\":null,\"termsAggregationProperty\":\"sys_primaryType\"}", PATH + "/termsAggregation");
+        ContentTestHelper.checkErrorResponse(BAD_REQUEST, "Invalid input", noQuery);
+
+        var noProperty = checkResponseWithPayload(BAD_REQUEST, POST, REPO_ID,
+                "{\"query\":{\"query\":\"SELECT * FROM SysContent\"},\"termsAggregationProperty\":null}",
+                PATH + "/termsAggregation");
+        ContentTestHelper.checkErrorResponse(BAD_REQUEST, "Invalid input", noProperty);
+    }
+
     @Test
     public void testInvalidQueryPOST() throws Exception {
         // ES actually fine with "from Foo"...

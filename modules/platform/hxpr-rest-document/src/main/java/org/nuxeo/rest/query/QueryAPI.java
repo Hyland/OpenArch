@@ -15,6 +15,7 @@
  */
 package org.nuxeo.rest.query;
 
+import static jakarta.ws.rs.core.HttpHeaders.RETRY_AFTER;
 import static java.lang.Boolean.FALSE;
 import static org.nuxeo.rest.document.DocumentManager.DEFAULT_REPOSITORY_ID;
 import static org.nuxeo.rest.utils.Headers.HXCS_REPOSITORY;
@@ -25,6 +26,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -49,6 +51,7 @@ import org.nuxeo.rest.query.spec.NamedQueryDefinition;
 import org.nuxeo.rest.query.spec.NamedQueryRegistry;
 import org.nuxeo.rest.swagger.annotation.ApiResponse200;
 import org.nuxeo.rest.swagger.annotation.ApiResponse400;
+import org.nuxeo.rest.swagger.annotation.ApiResponse503;
 import org.nuxeo.rest.swagger.annotation.ApiResponse404;
 import org.nuxeo.rest.swagger.annotation.Authenticated;
 import org.nuxeo.rest.swagger.annotation.ParameterRepoId;
@@ -93,6 +96,8 @@ public class QueryAPI {
     @PostMapping
     @Operation(summary = "Returns the search results.", operationId = "getDocumentsByQuery")
     @ApiResponse200(description = "Returns the search results for given query.")
+    @ApiResponse503(description = "The search index is unreachable. The request was not served and can be retried; Retry-After gives a delay in seconds.", //
+            headers = @Header(name = RETRY_AFTER, description = "Seconds to wait before retrying.", schema = @Schema(type = "integer")))
     public DocumentQueryResultDTO getDocumentsByPost(
             @RequestBody(required = false) DocumentQueryDTO query,
             @RequestParam(name = "sync", required = false, defaultValue = "false") boolean sync) {
@@ -105,6 +110,8 @@ public class QueryAPI {
     @PostMapping("/advanced")
     @Operation(summary = "Returns the advanced search results.", operationId = "getDocumentsByAdvancedQuery")
     @ApiResponse200(description = "Returns the search results for given advanced query.")
+    @ApiResponse503(description = "The search index is unreachable. The request was not served and can be retried; Retry-After gives a delay in seconds.", //
+            headers = @Header(name = RETRY_AFTER, description = "Seconds to wait before retrying.", schema = @Schema(type = "integer")))
     public DocumentQueryResultDTO getDocumentsByAdvancedPost(
             @RequestBody(required = false) DocumentAdvancedQueryDTO query,
             @RequestParam(name = "sync", required = false, defaultValue = "false") boolean sync) {
@@ -138,9 +145,11 @@ public class QueryAPI {
     @PostMapping("/named")
     @Operation(summary = "Returns the search results for given named query.", operationId = "getDocumentsByNamedQuery")
     @ApiResponse200(description = "Returns the search results for given named query.")
+    @ApiResponse503(description = "The search index is unreachable. The request was not served and can be retried; Retry-After gives a delay in seconds.", //
+            headers = @Header(name = RETRY_AFTER, description = "Seconds to wait before retrying.", schema = @Schema(type = "integer")))
     @ApiResponse404(description = "Named query not found.")
     public DocumentQueryResultDTO getDocumentsByNamedPost(
-            @RequestBody(required = false) DocumentNamedQueryDTO query,
+            @RequestBody DocumentNamedQueryDTO query,
             @RequestParam(name = "sync", required = false, defaultValue = "false") boolean sync) {
         var result = getQueryManager(sync).getResults(query);
         if (result == null) {
@@ -165,7 +174,9 @@ public class QueryAPI {
     @PostMapping("/embeddings")
     @Operation(summary = "Vector search.", operationId = "getEmbeddingsByQuery")
     @ApiResponse200(description = "Returns the nearest embeddings for given query.")
-    public EmbeddingQueryResultDTO getEmbeddingsByPost(@RequestBody(required = false) EmbeddingQueryDTO query) {
+    @ApiResponse503(description = "The search index is unreachable. The request was not served and can be retried; Retry-After gives a delay in seconds.", //
+            headers = @Header(name = RETRY_AFTER, description = "Seconds to wait before retrying.", schema = @Schema(type = "integer")))
+    public EmbeddingQueryResultDTO getEmbeddingsByPost(@RequestBody EmbeddingQueryDTO query) {
         return osqm.getResults(query);
     }
 
@@ -174,6 +185,8 @@ public class QueryAPI {
     @ApiResponse200(description = "Returns the top N terms aggregations matching a given search expression for the given property.", content = {
         @Content(schema = @Schema(implementation = TermsAggregationQueryResultDTO.class),
         examples = @ExampleObject(value = QueryRequestConstants.TERMS_AGGREGATION_RESPONSE_EXAMPLE)) })
+    @ApiResponse503(description = "The search index is unreachable. The request was not served and can be retried; Retry-After gives a delay in seconds.", //
+            headers = @Header(name = RETRY_AFTER, description = "Seconds to wait before retrying.", schema = @Schema(type = "integer")))
     @ApiResponse400(description = "Invalid request body. Please be aware that termsAggregationProperty is required", content = {
             @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = HxprErrorResponse.class), examples = {
                     @ExampleObject(value = QueryRequestConstants.TERMS_AGGREGATION_INVALID_INPUT_EXAMPLE) }) })

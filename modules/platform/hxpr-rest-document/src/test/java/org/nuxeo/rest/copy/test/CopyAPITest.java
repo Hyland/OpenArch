@@ -112,6 +112,17 @@ public class CopyAPITest extends AbstractAPITest {
         assertEquals(payload.get("targetParentId"), actualParentId);
     }
 
+    /**
+     * The handler cannot copy anything without a body, and read the one it declared optional straight away, so
+     * the JSON literal null produced a NullPointerException and a 500 (HXCS-8835). The body is required now, and
+     * Spring rejects the request before the handler runs.
+     */
+    @Test
+    public void testCopyWithoutBodyIsABadRequest() throws Exception {
+        var result = checkCopyApiResponseAsJsonPath(BAD_REQUEST, POST, "null", getCopyPath());
+        checkErrorResponse(BAD_REQUEST, "Required request body is missing", result);
+    }
+
     @Test
     public void testCopyDocumentWithoutTargetParentIdException() throws Exception {
         JSONObject payload = getCopyBody(true, false);

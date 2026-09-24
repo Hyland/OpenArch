@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.flipkart.zjsonpatch.JsonPatchApplicationException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.ws.rs.WebApplicationException;
 import org.apache.commons.lang3.StringUtils;
@@ -43,13 +44,17 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.spi.LoggingEventBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.InvalidMediaTypeException;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.ResponseEntity.BodyBuilder;
 import org.springframework.http.converter.HttpMessageConversionException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.multipart.MultipartException;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.exc.UnrecognizedPropertyException;
@@ -85,6 +90,10 @@ public class NuxeoExceptionController {
         String causeMessage = cause.toString();
         if (status == HttpStatus.INTERNAL_SERVER_ERROR.value()) {
             log.error(causeMessage, cause);
+        } else if (status == HttpStatus.SERVICE_UNAVAILABLE.value()) {
+            // A dependency being away is not this server's defect, so it is not an ERROR -- but it is an
+            // operational event, and at debug it would be invisible exactly when someone is looking for it.
+            log.warn(causeMessage, cause);
         } else if (Framework.isInitialized() && Framework.isDevModeSet()) {
             log.warn(causeMessage, cause);
         } else {
@@ -168,19 +177,72 @@ public class NuxeoExceptionController {
     @ExceptionHandler(value = HttpMessageConversionException.class)
     public ResponseEntity<HxprErrorResponse> handleHttpMessageConversionException(
             HttpMessageConversionException cause) {
-        int status = getStatusCode(cause.getCause());
-        if (cause.getCause() instanceof InvalidFormatException ife) {
+        Throwable parseFailure = cause.getCause();
+        if (parseFailure == null) {
+            // Nothing was parsed, so there is no cause to classify. Spring rejects a request that omits a body
+            // it requires -- or sends the JSON literal null -- in the argument resolver, before any converter
+            // runs. Reading this absent cause is what made the advice itself throw (HXCS-8835); the message is
+            // fixed here because Spring's own names the handler method, which tells a caller nothing.
+            if (cause instanceof HttpMessageNotReadableException) {
+                return createHxprErrorResponseResponseEntity(HttpStatus.BAD_REQUEST.value(),
+                        "Required request body is missing", cause);
+            }
+            // Not about reading the request -- a response the converters cannot write -- so it is ours.
+            return createHxprErrorResponseResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR.value(), cause);
+        }
+        int status = getStatusCode(parseFailure);
+        if (parseFailure instanceof InvalidFormatException ife) {
             return handleInvalidFormatException(ife);
         }
         // Covers both databind failures and stream-level parse errors (e.g. malformed JSON / illegal control
         // characters), which are JacksonExceptions but not DatabindExceptions.
-        if (cause.getCause() instanceof JacksonException jme) {
-            if (cause.getCause() instanceof UnrecognizedPropertyException upe) {
+        if (parseFailure instanceof JacksonException jme) {
+            if (parseFailure instanceof UnrecognizedPropertyException upe) {
                 return createHxprErrorResponseResponseEntity(HttpStatus.UNPROCESSABLE_ENTITY.value(), upe.getMessage(), upe);
             }
             return createHxprErrorResponseResponseEntity(status, "Invalid input", jme);
         }
         return createHxprErrorResponseResponseEntity(status, cause);
+    }
+
+    /**
+     * Spring collapses every multipart failure that is not a size limit into one {@link MultipartException}:
+     * a {@code Content-Type} with no usable {@code boundary}, but equally a container I/O error, a full temp
+     * store, or an internal fault in the parser. The exception cannot tell them apart -- it wraps whatever
+     * {@code request.getParts()} threw -- so the request does.
+     * <p>
+     * A multipart body is unparseable by definition when the header declares no boundary to split it on, and
+     * that is the caller's mistake: 400. Anything else is this server's until shown otherwise, so it keeps 500,
+     * where the message is replaced and the cause is logged at ERROR.
+     */
+    @ExceptionHandler(value = MultipartException.class)
+    public ResponseEntity<HxprErrorResponse> handleMultipartException(MultipartException cause,
+            HttpServletRequest request) {
+        if (cause instanceof ErrorResponse) {
+            // The subclasses Spring classifies itself keep their own status, MaxUploadSizeExceededException's
+            // 413 above all. getStatusCode already reads it, so the rule is not restated here.
+            return createHxprErrorResponseResponseEntity(getStatusCode(cause), cause);
+        }
+        int status = isUnparseableByItsOwnHeader(request) ? HttpStatus.BAD_REQUEST.value()
+                : HttpStatus.INTERNAL_SERVER_ERROR.value();
+        return createHxprErrorResponseResponseEntity(status, cause);
+    }
+
+    /**
+     * @return {@code true} if the request's own {@code Content-Type} is what makes its body unparseable: no
+     *         {@code boundary} parameter, an empty one, or a header too malformed to read. Absent a content
+     *         type there is nothing to attribute the failure to, so the caller is not blamed for it.
+     */
+    private static boolean isUnparseableByItsOwnHeader(HttpServletRequest request) {
+        String contentType = request.getContentType();
+        if (contentType == null) {
+            return false;
+        }
+        try {
+            return StringUtils.isBlank(MediaType.parseMediaType(contentType).getParameter("boundary"));
+        } catch (InvalidMediaTypeException _) {
+            return true;
+        }
     }
 
     @ExceptionHandler(value = TransactionRuntimeException.class)

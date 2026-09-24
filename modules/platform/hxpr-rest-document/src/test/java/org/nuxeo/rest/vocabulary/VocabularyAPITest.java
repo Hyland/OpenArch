@@ -122,6 +122,31 @@ public class VocabularyAPITest extends AbstractAPITest {
                 VOCABULARY_PATH);
     }
 
+    /**
+     * All three write handlers declared the body optional and then handed it straight to a validator, which
+     * dereferenced it -- so the JSON literal null answered 500 rather than 400 (HXCS-8835). None of them can do
+     * anything without a body, so the body is required now and Spring rejects the request before the handler.
+     */
+    @Test
+    void shouldReturn400WhenCreatingVocabularyWithoutBody() throws Exception {
+        checkResponseWithPayload(BAD_REQUEST, POST, MediaType.APPLICATION_JSON, REPO_ID, "null", VOCABULARY_PATH)
+                .andExpect(jsonPath(MESSAGE).value("Required request body is missing"));
+    }
+
+    @Test
+    void shouldReturn400WhenCreatingVocabularyEntryWithoutBody() throws Exception {
+        checkResponseWithPayload(BAD_REQUEST, POST, MediaType.APPLICATION_JSON, REPO_ID, "null",
+                VOCABULARY_PATH + "/" + MY_VOCABULARY_ID)
+                .andExpect(jsonPath(MESSAGE).value("Required request body is missing"));
+    }
+
+    @Test
+    void shouldReturn400WhenUpdatingVocabularyEntryWithoutBody() throws Exception {
+        checkResponseWithPayload(BAD_REQUEST, PUT, MediaType.APPLICATION_JSON, REPO_ID, "null",
+                VOCABULARY_PATH + "/" + MY_VOCABULARY_ID)
+                .andExpect(jsonPath(MESSAGE).value("Required request body is missing"));
+    }
+
     @Test
     void shouldReturn400WhenCreatingVocabularyWithNullVocabularyId() throws Exception {
         final String NULL_VOCABULARY_PAYLOAD = """

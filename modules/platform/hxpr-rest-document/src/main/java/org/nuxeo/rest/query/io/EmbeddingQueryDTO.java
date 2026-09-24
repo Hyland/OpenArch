@@ -18,6 +18,7 @@ package org.nuxeo.rest.query.io;
 import static org.nuxeo.rest.query.io.DocumentQueryDTO.DEFAULT_LIMIT_VALUE;
 import static org.nuxeo.rest.query.spec.QueryAssembler.DEFAULT_SELECT_STATEMENT;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;
@@ -34,6 +35,7 @@ public record EmbeddingQueryDTO( //
                                  String repositoryId,
                                  @Schema(name = "embeddingType", description = "A wildcard query for the embedding type.", defaultValue = "*") //
                                  String embeddingType,
+                                 @JsonProperty(required = true)
                                  @Schema(name = "vector", description = "The vector to search for.") //
                                  List<Double> vector,
                                  @Schema(name = "chunkFTS", description = "An optional space-separated list of terms to search for in the chunk.") //
@@ -52,6 +54,14 @@ public record EmbeddingQueryDTO( //
                                  @Schema(name = "trackTotalCountUpTo", description = "Max number of embeddings to count. This can be set to -1 to remove the limit but it will be expensive on large indexes.", example = "100") //
                                  Integer trackTotalCountUpTo) {
     public EmbeddingQueryDTO {
+        // @JsonProperty(required = true) rejects the field being absent; it accepts an explicit null. Without
+        // this, {"vector": null} deserialised happily and the search ran with no vector at all -- which is not
+        // an embedding query any more: the builder leaves osOnly false and the embedding path then resolves a
+        // null document id. Thrown from the creator, Jackson reports it as a databind failure, so the caller
+        // gets the same 400 as the absent field rather than a 500 (HXCS-8835).
+        if (vector == null) {
+            throw new IllegalArgumentException("Missing required field: vector");
+        }
         syntax = QuerySyntax.defaulted(syntax);
         if (StringUtils.isBlank(query)) {
             // HXQL needs a statement to select from, whereas an expression filters nothing out when there is none

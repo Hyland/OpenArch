@@ -162,6 +162,17 @@ public class AdvancedQueryAPITest extends AbstractQueryAPITest {
         checkResultDocument(r, 0, "File3");
     }
 
+    /**
+     * The counterpart to the seven handlers whose body this branch made required: these two tolerate a null
+     * body on purpose -- they substitute a default DTO and search everything -- so a caller that sends none
+     * keeps getting results rather than the 400 the other endpoints now answer. Asserted because the claim
+     * that they are deliberate is what justified leaving them alone.
+     */
+    @Test
+    public void testAdvancedQueryWithANullBodyStillSearches() throws Exception {
+        checkResponseWithPayload(OK, POST, REPO_ID, "null", API_PATH);
+    }
+
     @Test
     public void testOpenSearchQueryManager() {
         assertNotNull(osqm);
