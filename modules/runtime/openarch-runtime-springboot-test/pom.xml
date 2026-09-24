@@ -7,7 +7,7 @@
     <version>12.0-SNAPSHOT</version>
   </parent>
   <artifactId>openarch-runtime-springboot-test</artifactId>
-  <name>HxPR Runtime SpringBoot Test module</name>
+  <name>OpenArch Runtime SpringBoot Test module</name>
 
   <properties>
     <manifest.file>src/main/resources/META-INF/MANIFEST.MF</manifest.file>
