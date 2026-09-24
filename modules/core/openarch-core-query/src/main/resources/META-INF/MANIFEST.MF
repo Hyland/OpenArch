@@ -1,11 +1,11 @@
-Export-Package: org.nuxeo.ecm.core.query,
- org.nuxeo.ecm.core.query.sql,
- org.nuxeo.ecm.core.query.sql.model,
- org.nuxeo.ecm.core.query.sql.parser
+Export-Package: com.hyland.openarch.ecm.core.query,
+ com.hyland.openarch.ecm.core.query.sql,
+ com.hyland.openarch.ecm.core.query.sql.model,
+ com.hyland.openarch.ecm.core.query.sql.parser
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
 Manifest-Version: 1.0
-Bundle-Name: org.nuxeo.ecm.core.query
+Bundle-Name: com.hyland.openarch.ecm.core.query
 Created-By: 1.6.0_20 (Sun Microsystems Inc.)
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Version: 5.4.2.qualifier
@@ -19,4 +19,4 @@ Import-Package: java_cup.runtime,
  com.hyland.openarch.ecm.core;api=split,
  com.hyland.openarch.ecm.core.api;api=split,
  com.hyland.openarch.ecm.core.api.impl
-Bundle-SymbolicName: org.nuxeo.ecm.core.query;singleton:=true
+Bundle-SymbolicName: com.hyland.openarch.ecm.core.query;singleton:=true
