@@ -345,12 +345,12 @@
       </dependency>
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
-        <artifactId>hxpr-core-event</artifactId>
+        <artifactId>openarch-core-event</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
-        <artifactId>hxpr-core-event</artifactId>
+        <artifactId>openarch-core-event</artifactId>
         <type>test-jar</type>
         <scope>test</scope>
         <version>${project.version}</version>

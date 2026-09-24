@@ -119,7 +119,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-core-event</artifactId>
+      <artifactId>openarch-core-event</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

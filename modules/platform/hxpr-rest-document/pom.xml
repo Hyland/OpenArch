@@ -138,7 +138,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-core-event</artifactId>
+      <artifactId>openarch-core-event</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
