@@ -44,7 +44,7 @@ import com.hyland.openarch.runtime.transaction.TransactionHelper;
 @ExtendWith(FeaturesExtension.class)
 @Features({ TransactionalFeature.class, AsyncTasksFeature.class, BasicClusterFeature.class })
 @Deploy("com.hyland.openarch.runtime.jtajca")
-@Deploy("org.nuxeo.ecm.core.event")
+@Deploy("com.hyland.openarch.ecm.core.event")
 public class TestEventServiceComponent {
 
     @Inject
@@ -65,7 +65,7 @@ public class TestEventServiceComponent {
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.event:test-async-listeners.xml")
+    @Deploy("com.hyland.openarch.ecm.core.event:test-async-listeners.xml")
     public void testAsync() throws InterruptedException {
         // send two events, only one of which is recognized by the listener
         // (the other is filtered out of the bundle passed to this listener)
@@ -86,14 +86,14 @@ public class TestEventServiceComponent {
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.event:test-sync-postcommit-listeners.xml")
+    @Deploy("com.hyland.openarch.ecm.core.event:test-sync-postcommit-listeners.xml")
     public void testSyncPostCommitError() throws Exception {
         // second handler done even though there's an error
         doTestSyncPostCommit(false, true, 0, 2, 4);
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.event:test-sync-postcommit-listeners.xml")
+    @Deploy("com.hyland.openarch.ecm.core.event:test-sync-postcommit-listeners.xml")
     public void testSyncPostCommitTimeout() throws Exception {
         // returned after timeout (100ms), so only one listener done at this time
         doTestSyncPostCommit(false, false, 150, 1, 2);
@@ -104,20 +104,20 @@ public class TestEventServiceComponent {
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.event:test-sync-postcommit-listeners.xml")
+    @Deploy("com.hyland.openarch.ecm.core.event:test-sync-postcommit-listeners.xml")
     public void testSyncPostCommitBulk() throws Exception {
         doTestSyncPostCommit(true, false, 0, 2, 4);
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.event:test-sync-postcommit-listeners.xml")
+    @Deploy("com.hyland.openarch.ecm.core.event:test-sync-postcommit-listeners.xml")
     public void testSyncPostCommitErrorBulk() throws Exception {
         // second handler not done because error in first one (bulk)
         doTestSyncPostCommit(true, true, 0, 1, 2);
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.event:test-sync-postcommit-listeners.xml")
+    @Deploy("com.hyland.openarch.ecm.core.event:test-sync-postcommit-listeners.xml")
     public void testSyncPostCommitTimeoutBulk() throws Exception {
         // returned after timeout (100ms), so only one listener done
         doTestSyncPostCommit(true, false, 1100, 1, 2); // 1s timeout on bulk
@@ -179,7 +179,7 @@ public class TestEventServiceComponent {
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.event:test-async-listeners.xml") // contains a sync listener too
+    @Deploy("com.hyland.openarch.ecm.core.event:test-async-listeners.xml") // contains a sync listener too
     public void testConcurrentUpdateExceptionNotSwallowed() {
         Event event = new EventImpl("testasync", new EventContextImpl());
         event.getContext().setProperty("throw-concurrent", "yes");
@@ -192,7 +192,7 @@ public class TestEventServiceComponent {
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.event:test-rollback-listener.xml")
+    @Deploy("com.hyland.openarch.ecm.core.event:test-rollback-listener.xml")
     public void testMarkRollbackWithRepositoryException() {
         Event event = new EventImpl("markRollback", new EventContextImpl());
         try {
@@ -206,7 +206,7 @@ public class TestEventServiceComponent {
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.event:test-rollback-listener.xml")
+    @Deploy("com.hyland.openarch.ecm.core.event:test-rollback-listener.xml")
     public void testMarkRollbackWithRuntimeException() {
         Event event = new EventImpl("markRollback", new EventContextImpl());
         event.getContext().setProperty("RuntimeException", true);

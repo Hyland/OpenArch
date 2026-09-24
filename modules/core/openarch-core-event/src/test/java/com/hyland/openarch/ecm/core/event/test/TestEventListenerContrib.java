@@ -34,11 +34,11 @@ import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
 
 @ExtendWith(FeaturesExtension.class)
 @Features({ BasicClusterFeature.class, AsyncTasksFeature.class })
-@Deploy("org.nuxeo.ecm.core.event")
+@Deploy("com.hyland.openarch.ecm.core.event")
 public class TestEventListenerContrib {
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.event.test:test-InvalidListeners.xml")
+    @Deploy("com.hyland.openarch.ecm.core.event.test:test-InvalidListeners.xml")
     public void testInvalidListeners() throws Exception {
         List<String> errors = Framework.getRuntime().getMessageHandler().getMessages(Level.ERROR);
         assertNotNull(errors);

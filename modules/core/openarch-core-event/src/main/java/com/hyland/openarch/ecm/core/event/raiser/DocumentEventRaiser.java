@@ -21,7 +21,7 @@ package com.hyland.openarch.ecm.core.event.raiser;
  * {@code DOCUMENT_UPDATED} or {@code DOCUMENT_BLOB_MODIFIED}).
  * <p>
  * Implementations are contributed to the {@code raisers} extension point of the
- * {@code org.nuxeo.ecm.core.event.raise.DocumentEventRaiserService} component, each one bound to an
+ * {@code com.hyland.openarch.ecm.core.event.raise.DocumentEventRaiserService} component, each one bound to an
  * event name. The {@link DocumentEventRaiserService} looks up the raiser bound to the requested
  * event name and delegates to {@link #raise}.
  *

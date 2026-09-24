@@ -1,14 +1,14 @@
-Export-Package: org.nuxeo.ecm.core.event,
- org.nuxeo.ecm.core.event.impl,
- org.nuxeo.ecm.core.event.jms;api=split,
- org.nuxeo.ecm.core.event.script,
- org.nuxeo.ecm.core.event.tx,
- org.nuxeo.ecm.core.work,
- org.nuxeo.ecm.core.work.api
+Export-Package: com.hyland.openarch.ecm.core.event,
+ com.hyland.openarch.ecm.core.event.impl,
+ com.hyland.openarch.ecm.core.event.jms;api=split,
+ com.hyland.openarch.ecm.core.event.script,
+ com.hyland.openarch.ecm.core.event.tx,
+ com.hyland.openarch.ecm.core.work,
+ com.hyland.openarch.ecm.core.work.api
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
 Manifest-Version: 1.0
-Bundle-Name: org.nuxeo.ecm.core.event
+Bundle-Name: com.hyland.openarch.ecm.core.event
 Created-By: 1.6.0_20 (Sun Microsystems Inc.)
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Version: 5.4.2.qualifier
@@ -35,7 +35,7 @@ Import-Package: javax.naming,
  com.hyland.openarch.common,
  com.hyland.openarch.runtime,
  com.codahale.metrics
-Bundle-SymbolicName: org.nuxeo.ecm.core.event;singleton:=true
+Bundle-SymbolicName: com.hyland.openarch.ecm.core.event;singleton:=true
 Nuxeo-Component: OSGI-INF/EventService.xml,
  OSGI-INF/scheduler-service.xml,
  OSGI-INF/event-async-tasks-contrib.xml,

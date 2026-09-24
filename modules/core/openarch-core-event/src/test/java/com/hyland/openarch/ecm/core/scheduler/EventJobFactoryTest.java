@@ -33,8 +33,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(FeaturesExtension.class)
 @Features(BasicClusterFeature.class)
-@Deploy("org.nuxeo.ecm.core.event")
-@Deploy("org.nuxeo.ecm.core.event.test:test-jobfactory.xml") // jobs
+@Deploy("com.hyland.openarch.ecm.core.event")
+@Deploy("com.hyland.openarch.ecm.core.event.test:test-jobfactory.xml") // jobs
 public class EventJobFactoryTest {
     @Inject
     private SchedulerService schedulerService;

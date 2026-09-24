@@ -48,7 +48,7 @@ import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
  */
 @ExtendWith(FeaturesExtension.class)
 @Features({ BasicClusterFeature.class, AsyncTasksFeature.class })
-@Deploy("org.nuxeo.ecm.core.event")
+@Deploy("com.hyland.openarch.ecm.core.event")
 public class EventListenerTest {
 
     @Test

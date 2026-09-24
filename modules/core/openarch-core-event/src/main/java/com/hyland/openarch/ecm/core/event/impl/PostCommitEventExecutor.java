@@ -60,7 +60,7 @@ public class PostCommitEventExecutor {
 
     private static final Logger log = LogManager.getLogger(PostCommitEventExecutor.class);
 
-    public static final String TIMEOUT_MS_PROP = "org.nuxeo.ecm.core.event.tx.PostCommitExecutor.timeoutMs";
+    public static final String TIMEOUT_MS_PROP = "com.hyland.openarch.ecm.core.event.tx.PostCommitExecutor.timeoutMs";
 
     public static final int DEFAULT_TIMEOUT_MS = 300; // 0.3s
 
@@ -70,7 +70,7 @@ public class PostCommitEventExecutor {
 
     public static final String DEFAULT_BULK_TIMEOUT_S = "600"; // 10min
 
-    public static final String BULK_TIMEOUT_PROP = "org.nuxeo.ecm.core.event.tx.BulkExecutor.timeout";
+    public static final String BULK_TIMEOUT_PROP = "com.hyland.openarch.ecm.core.event.tx.BulkExecutor.timeout";
 
     private static final long KEEP_ALIVE_TIME_SECOND = 10;
 

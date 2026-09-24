@@ -82,8 +82,8 @@ import com.hyland.openarch.async.tasks.TaskService;
 @Deploy("org.nuxeo.ecm.core.test")
 @Deploy("org.nuxeo.ecm.core.storage.mem")
 @Deploy("com.hyland.openarch.runtime.kv") // for async tasks feature
-@Deploy("org.nuxeo.ecm.core.event")
-@Deploy("org.nuxeo.ecm.core.event.test")
+@Deploy("com.hyland.openarch.ecm.core.event")
+@Deploy("com.hyland.openarch.ecm.core.event.test")
 @Deploy("org.nuxeo.ecm.core.storage.mongodb:OSGI-INF/mongodb-repository-service.xml")
 // don't deploy mongodb-repository-config.xml containing default repo
 @RepositoryConfig(cleanup = Granularity.METHOD)

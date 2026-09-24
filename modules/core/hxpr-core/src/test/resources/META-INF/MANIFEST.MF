@@ -4,7 +4,7 @@ Export-Package: org.nuxeo.ecm.core;uses:="org.nuxeo.ecm.core.lifecycle
  .core.security,org.nuxeo.ecm.core.versioning,com.hyland.openarch.runtime.test",
  com.hyland.openarch.ecm.core.api;uses:="org.nuxeo.ecm.core.model,org.nuxeo.ecm.
  core.security",com.hyland.openarch.ecm.core.api.local;uses:="org.nuxeo.ecm.core
- .api,org.nuxeo.ecm.core.model",org.nuxeo.ecm.core.event;uses:="org.jm
+ .api,org.nuxeo.ecm.core.model",com.hyland.openarch.ecm.core.event;uses:="org.jm
  ock,com.hyland.openarch.runtime.test",org.nuxeo.ecm.core.lifecycle;uses:="org.n
  uxeo.ecm.core.model,com.hyland.openarch.runtime.test",org.nuxeo.ecm.core.lifecy
  cle.event,org.nuxeo.ecm.core.lifecycle.extensions;uses:="org.nuxeo.ec

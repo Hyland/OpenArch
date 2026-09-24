@@ -101,7 +101,7 @@ public class EventServiceImpl extends DefaultComponent implements EventService, 
 
     @Override
     public void deactivate() {
-        String s = Framework.getProperty("org.nuxeo.ecm.core.event.shutdown.timeoutMillis");
+        String s = Framework.getProperty("com.hyland.openarch.ecm.core.event.shutdown.timeoutMillis");
         long timeout = s == null ? DEFAULT_SHUTDOWN_TIMEOUT : Long.parseLong(s);
         try {
             shutdown(timeout);

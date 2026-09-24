@@ -18,7 +18,7 @@ Bundle-Name: org.nuxeo.ecm.core
 Created-By: 1.6.0_20 (Sun Microsystems Inc.)
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: com.hyland.openarch.ecm.core.api;visibility:=reexport,
- org.nuxeo.ecm.core.event
+ com.hyland.openarch.ecm.core.event
 Bundle-Version: 5.4.2.qualifier
 Nuxeo-Component: OSGI-INF/RepositoryService.xml,
   OSGI-INF/dbs-repository-service.xml,
@@ -47,8 +47,8 @@ Import-Package: javax.naming,
  com.hyland.openarch.common.collections,
  com.hyland.openarch.common.utils,
  com.hyland.openarch.common.xmap.annotation,
- org.nuxeo.ecm.core.event,
- org.nuxeo.ecm.core.event.impl,
+ com.hyland.openarch.ecm.core.event,
+ com.hyland.openarch.ecm.core.event.impl,
  com.hyland.openarch.ecm.core.query,
  com.hyland.openarch.ecm.core.query.sql.model,
  com.hyland.openarch.ecm.core.schema,

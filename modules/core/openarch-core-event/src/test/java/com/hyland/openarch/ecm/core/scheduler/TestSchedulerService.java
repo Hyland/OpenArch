@@ -34,7 +34,7 @@ import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
 
 @ExtendWith(FeaturesExtension.class)
 @Features({ BasicClusterFeature.class, AsyncTasksFeature.class })
-@Deploy("org.nuxeo.ecm.core.event")
+@Deploy("com.hyland.openarch.ecm.core.event")
 public class TestSchedulerService {
 
     public static final DateTimeFormatter CRON_EXPRESSION_FORMATTER = DateTimeFormatter.ofPattern("s m H d M ? yyyy");
@@ -62,7 +62,7 @@ public class TestSchedulerService {
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.event.test:OSGI-INF/test-scheduler-config.xml")
+    @Deploy("com.hyland.openarch.ecm.core.event.test:OSGI-INF/test-scheduler-config.xml")
     public void testScheduleRegistration() throws Exception {
 
         waitUntilDummyEventListenerIsCalled(10); // so that job is called at least once
@@ -71,7 +71,7 @@ public class TestSchedulerService {
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.event.test:OSGI-INF/test-scheduler-config.xml")
+    @Deploy("com.hyland.openarch.ecm.core.event.test:OSGI-INF/test-scheduler-config.xml")
     public void testConfig() throws Exception {
 
         waitUntilDummyEventListenerIsCalled(10); // so that job is called at least once
@@ -80,8 +80,8 @@ public class TestSchedulerService {
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.event.test:OSGI-INF/test-scheduler-config.xml")
-    @Deploy("org.nuxeo.ecm.core.event.test:OSGI-INF/test-scheduler-disabled-config.xml")
+    @Deploy("com.hyland.openarch.ecm.core.event.test:OSGI-INF/test-scheduler-config.xml")
+    @Deploy("com.hyland.openarch.ecm.core.event.test:OSGI-INF/test-scheduler-disabled-config.xml")
     public void testDisableSchedule() throws Exception {
 
         long count = DummyScheduledJob.getCount();
