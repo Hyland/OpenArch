@@ -15,7 +15,7 @@
       Extension point defining event listeners.
 
       An event listener describes some Java code that can be executed
-      synchronously or asynchronously when an event is fired by Nuxeo code.
+      synchronously or asynchronously when an event is fired by OpenArch code.
 
       Example listener:
       <code>

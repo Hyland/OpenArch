@@ -57,9 +57,9 @@ import org.quartz.impl.matchers.GroupMatcher;
  * Schedule service implementation.
  * <p>
  * Since the cleanup of the quartz job is done when service is activated in cluster mode (see
- * https://jira.nuxeo.com/browse/NXP-7303), the schedules contributions MUST be the same on all nodes.
+ * NXP-7303), the schedules contributions MUST be the same on all nodes.
  * <p>
- * Due the fact that all jobs are removed when service starts on a node it may be a short period with no schedules in
+ * Due to the fact that all jobs are removed when service starts on a node it may be a short period with no schedules in
  * quartz table even other node is running.
  */
 public class SchedulerServiceImpl extends DefaultComponent implements SchedulerService, ComponentManager.Listener {
@@ -121,8 +121,8 @@ public class SchedulerServiceImpl extends DefaultComponent implements SchedulerS
         // server.createMBean("org.quartz.ee.jmx.jboss.QuartzService",
         // quartzObjectName);
 
-        // clean up all nuxeo jobs and triggers
-        // https://jira.nuxeo.com/browse/NXP-7303
+        // clean up all OpenArch jobs and triggers
+        // NXP-7303
         GroupMatcher<JobKey> matcher = GroupMatcher.jobGroupEquals("nuxeo");
         Set<JobKey> jobs = scheduler.getJobKeys(matcher);
         GroupMatcher<TriggerKey> triggerMatcher = GroupMatcher.triggerGroupEquals("nuxeo");

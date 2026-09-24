@@ -43,7 +43,7 @@ public class DocumentEventRaiserComponent extends DefaultComponent implements Do
     // ------------------------------------------------------------------
 
     /**
-     * Called by the Nuxeo runtime when the component is started. Resolves the contributed
+     * Called by the OpenArch runtime when the component is started. Resolves the contributed
      * {@link DocumentEventRaiserDescriptor}s into the raiser lookup list.
      */
     @Override

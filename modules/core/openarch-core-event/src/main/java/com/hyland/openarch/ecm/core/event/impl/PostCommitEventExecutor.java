@@ -82,7 +82,7 @@ public class PostCommitEventExecutor {
         // use as much thread as needed up to MAX_POOL_SIZE
         // keep them alive a moment for reuse
         // have all threads torn down when there is no work to do
-        ThreadFactory threadFactory = newThreadFactory("Nuxeo-Event-PostCommit");
+        ThreadFactory threadFactory = newThreadFactory("Repository-Event-PostCommit");
         executor = new ThreadPoolExecutor(0, MAX_POOL_SIZE, KEEP_ALIVE_TIME_SECOND, TimeUnit.SECONDS,
                 new SynchronousQueue<>(), threadFactory);
         ((ThreadPoolExecutor) executor).allowCoreThreadTimeOut(true);

@@ -35,7 +35,7 @@ import java.util.Set;
 import static com.hyland.openarch.ecm.core.api.event.DocumentEventCategories.EVENT_DOCUMENT_CATEGORY;
 
 /**
- * Nuxeo component implementing {@link DocumentEventSenderService}.
+ * OpenArch component implementing {@link DocumentEventSenderService}.
  * <p>
  * The event sending logic was extracted from {@code DBSTransactionState} so that it can be reused
  * and unit-tested independently of the transaction state.
