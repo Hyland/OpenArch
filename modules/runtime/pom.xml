@@ -16,7 +16,7 @@
     <module>openarch-common</module>
     <module>openarch-config</module>
     <module>openarch-runtime</module>
-    <module>hxpr-runtime-cluster-api</module>
+    <module>openarch-runtime-cluster-api</module>
     <module>openarch-runtime-jtajca</module>
     <module>openarch-runtime-kv</module>
     <module>openarch-runtime-management</module>

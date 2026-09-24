@@ -33,7 +33,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-runtime-cluster-api</artifactId>
+      <artifactId>openarch-runtime-cluster-api</artifactId>
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
@@ -97,7 +97,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-runtime-cluster-api</artifactId>
+      <artifactId>openarch-runtime-cluster-api</artifactId>
       <type>test-jar</type>
     </dependency>
     <dependency>
