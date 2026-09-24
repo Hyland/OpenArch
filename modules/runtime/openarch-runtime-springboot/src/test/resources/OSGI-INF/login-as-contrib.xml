@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<component name="org.nuxeo.runtime.springboot.test.login">
+<component name="com.hyland.openarch.runtime.springboot.test.login">
   <extension target="com.hyland.openarch.runtime.LoginService" point="principalFactory">
     <implementation class="com.hyland.openarch.runtime.springboot.auth.DummyLoginAs" />
   </extension>

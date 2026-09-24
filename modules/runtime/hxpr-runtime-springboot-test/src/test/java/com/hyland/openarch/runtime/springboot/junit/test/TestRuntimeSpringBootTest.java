@@ -46,7 +46,7 @@ import com.google.inject.Binder;
  *
  */
 @Features({ RuntimeFeature.class, InjectingFeature.class })
-@Deploy("org.nuxeo.runtime.springboot.tests:OSGI-INF/test-component.xml")
+@Deploy("com.hyland.openarch.runtime.springboot.tests:OSGI-INF/test-component.xml")
 @WithApplicationProperties("test-application.properties")
 @SpringBootTest(classes = RuntimeTestState.class)
 public class TestRuntimeSpringBootTest extends RuntimeSpringBootTest {

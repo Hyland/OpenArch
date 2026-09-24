@@ -34,7 +34,7 @@ public class NuxeoRuntimeSpringBootTest {
     public void testMockComponent() {
         ComponentManager cm = Framework.getRuntime().getComponentManager();
         assertNotNull(cm);
-        assertNotNull(cm.getComponent("org.nuxeo.runtime.springboot.MockComponent"));
+        assertNotNull(cm.getComponent("com.hyland.openarch.runtime.springboot.MockComponent"));
         IMockComponent comp = Framework.getService(IMockComponent.class);
         assertNotNull(comp);
         assertEquals("Set by application.properties", comp.getPropertyValue());

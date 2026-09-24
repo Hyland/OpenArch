@@ -29,7 +29,7 @@ import org.springframework.retry.annotation.EnableRetry;
  * <p>
  * Beans are registered explicitly via {@link Import} instead of {@code @ComponentScan}: auto-configuration classes must
  * never enable component scanning (see the Spring Boot reference, "Locating Auto-configuration Candidates"). Every new
- * {@code @Component} / {@code @Configuration} added under {@code org.nuxeo.runtime.springboot} must be listed here to be
+ * {@code @Component} / {@code @Configuration} added under {@code com.hyland.openarch.runtime.springboot} must be listed here to be
  * picked up by the application.
  */
 @AutoConfiguration
