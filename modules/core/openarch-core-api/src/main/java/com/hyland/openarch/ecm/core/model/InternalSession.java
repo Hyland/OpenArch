@@ -178,7 +178,7 @@ public interface InternalSession {
      *
      * @since 11.1
      */
-    String PROP_ALLOW_DELETE_UNDELETABLE_DOCUMENTS = "org.nuxeo.core.allowDeleteUndeletableDocuments";
+    String PROP_ALLOW_DELETE_UNDELETABLE_DOCUMENTS = "com.hyland.openarch.core.allowDeleteUndeletableDocuments";
 
     /**
      * Property to enable retention compliance mode. By default, retention runs in governance mode.

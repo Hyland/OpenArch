@@ -49,7 +49,7 @@ import com.hyland.openarch.runtime.test.runner.LogFeature;
 
 @ExtendWith(FeaturesExtension.class)
 @Features({ BlobManagerFeature.class, LogFeature.class, LogCaptureFeature.class })
-@Deploy("org.nuxeo.ecm.core.api.tests:OSGI-INF/test-fs-blobprovider.xml")
+@Deploy("com.hyland.openarch.ecm.core.api.tests:OSGI-INF/test-fs-blobprovider.xml")
 public class TestFilesystemBlobProvider {
 
     private static final String CONTENT = "hello";
@@ -90,7 +90,7 @@ public class TestFilesystemBlobProvider {
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.api.tests:OSGI-INF/test-fs-blobprovider-override.xml")
+    @Deploy("com.hyland.openarch.ecm.core.api.tests:OSGI-INF/test-fs-blobprovider-override.xml")
     public void testSupportsUserUpdateOverride() throws Exception {
         BlobProvider blobProvider = blobService.getBlobProvider(PROVIDER_ID);
         assertTrue(blobProvider.supportsUserUpdate());

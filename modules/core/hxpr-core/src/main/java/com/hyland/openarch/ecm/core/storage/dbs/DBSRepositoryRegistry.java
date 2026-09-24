@@ -28,7 +28,7 @@ import com.hyland.openarch.runtime.api.Framework;
  */
 public class DBSRepositoryRegistry extends MapRegistry {
 
-    protected static final String COMPONENT_NAME = "dbs.storage.com.hyland.openarch.ecm.core.DBSRepositoryService";
+    protected static final String COMPONENT_NAME = "com.hyland.openarch.ecm.core.storage.dbs.DBSRepositoryService";
 
     protected static final String POINT_NAME = "repositoryContributor";
 

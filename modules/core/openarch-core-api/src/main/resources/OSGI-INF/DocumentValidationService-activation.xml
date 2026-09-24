@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
-<component name="org.nuxeo.ecm.core.api.DocumentValidationService.activations">
+<component name="com.hyland.openarch.ecm.core.api.DocumentValidationService.activations">
 
-  <require>org.nuxeo.ecm.core.api.DocumentValidationService</require>
+  <require>com.hyland.openarch.ecm.core.api.DocumentValidationService</require>
 
-  <extension target="org.nuxeo.ecm.core.api.DocumentValidationService" point="activations">
+  <extension target="com.hyland.openarch.ecm.core.api.DocumentValidationService" point="activations">
     <validation context="createDocument" activated="true" />
     <validation context="saveDocument" activated="true" />
   </extension>

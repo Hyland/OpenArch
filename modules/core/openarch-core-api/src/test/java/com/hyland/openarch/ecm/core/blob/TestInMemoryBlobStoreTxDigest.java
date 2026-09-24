@@ -22,7 +22,7 @@ import com.hyland.openarch.runtime.test.runner.TransactionalFeature;
 
 @Features(TransactionalFeature.class)
 @TransactionalConfig(autoStart = false)
-@Deploy("org.nuxeo.ecm.core.api.tests:OSGI-INF/test-blob-provider-inmemory-tx.xml")
+@Deploy("com.hyland.openarch.ecm.core.api.tests:OSGI-INF/test-blob-provider-inmemory-tx.xml")
 public class TestInMemoryBlobStoreTxDigest extends TestInMemoryBlobStoreTxAbstract {
 
 }

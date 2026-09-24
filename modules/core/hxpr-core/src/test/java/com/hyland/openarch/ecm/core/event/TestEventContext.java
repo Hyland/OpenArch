@@ -27,7 +27,7 @@ import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
 import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
 
 /**
- * This test probably should be in test.event.com.hyland.openarch.ecm.core.EventListenerTest but this would create dependency
+ * This test probably should be in com.hyland.openarch.ecm.core.event.test.EventListenerTest but this would create dependency
  * loops.
  *
  * @author Bogdan Stefanescu

@@ -22,7 +22,7 @@
         <option name="concurrencyLevel">10</option>
       </cache>
       The class attribute may specify a class that implements the CacheManagement interface.
-      The default implementation 'cache.com.hyland.openarch.ecm.core.InMemoryCacheImpl'
+      The default implementation 'com.hyland.openarch.ecm.core.cache.InMemoryCacheImpl'
       is based on Google Guava.
       <p />
       The max size set the max number of elements contained in the cache

@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 import com.hyland.openarch.runtime.test.runner.Deploy;
 
-@Deploy("org.nuxeo.ecm.core.api.tests:OSGI-INF/test-blob-provider-local-digest.xml")
+@Deploy("com.hyland.openarch.ecm.core.api.tests:OSGI-INF/test-blob-provider-local-digest.xml")
 public class TestLocalBlobStoreDigest extends TestAbstractBlobStore {
 
     @Test

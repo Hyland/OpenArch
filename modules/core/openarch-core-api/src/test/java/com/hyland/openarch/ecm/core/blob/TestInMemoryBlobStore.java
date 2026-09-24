@@ -17,7 +17,7 @@ package com.hyland.openarch.ecm.core.blob;
 
 import com.hyland.openarch.runtime.test.runner.Deploy;
 
-@Deploy("org.nuxeo.ecm.core.api.tests:OSGI-INF/test-blob-provider-inmemory.xml")
+@Deploy("com.hyland.openarch.ecm.core.api.tests:OSGI-INF/test-blob-provider-inmemory.xml")
 public class TestInMemoryBlobStore extends TestAbstractBlobStore {
 
 }

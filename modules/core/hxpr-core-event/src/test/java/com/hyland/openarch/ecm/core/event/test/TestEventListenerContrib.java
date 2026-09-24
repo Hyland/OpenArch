@@ -45,12 +45,12 @@ public class TestEventListenerContrib {
         assertEquals(3, errors.size());
 
         assertEquals("Failed to register event listener in component 'test-invalid-listeners#listener': "
-                + "error initializing event listener 'invalidListenerUnknown' (api.com.hyland.openarch.ecm.core.NuxeoException: "
+                + "error initializing event listener 'invalidListenerUnknown' (com.hyland.openarch.ecm.core.api.NuxeoException: "
                 + "java.lang.ClassNotFoundException: org.nuxeo.invalid.listener.UnknownClass)", errors.get(0));
         assertEquals("Failed to register event listener in component 'test-invalid-listeners#listener': "
                 + "error initializing event listener 'invalidListenerNotEventListener' "
                 + "(java.lang.IllegalArgumentException: Listener extension must define a class extending "
-                + "EventListener or PostCommitEventListener: 'test.event.com.hyland.openarch.ecm.core.InvalidEventListener'.)",
+                + "EventListener or PostCommitEventListener: 'com.hyland.openarch.ecm.core.event.test.InvalidEventListener'.)",
                 errors.get(1));
         assertEquals("Failed to register event listener in component 'test-invalid-listeners#listener': "
                 + "error initializing event listener 'invalidListenerNoRef' (java.lang.IllegalArgumentException: "

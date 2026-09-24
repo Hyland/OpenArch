@@ -28,7 +28,7 @@ import com.hyland.openarch.runtime.model.DefaultComponent;
  */
 public class MemRepositoryService extends DefaultComponent {
 
-    protected static final String COMPONENT_NAME = "mem.storage.com.hyland.openarch.ecm.core.MemRepositoryService";
+    protected static final String COMPONENT_NAME = "com.hyland.openarch.ecm.core.storage.mem.MemRepositoryService";
 
     protected static final String XP = "repository";
 

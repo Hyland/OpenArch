@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<component name="org.nuxeo.ecm.core.blob.provider.test-fs">
+<component name="com.hyland.openarch.ecm.core.blob.provider.test-fs">
   <extension target="com.hyland.openarch.ecm.core.blob.BlobService" point="configuration">
     <blobprovider name="testfs">
       <class>com.hyland.openarch.ecm.core.blob.FilesystemBlobProvider</class>

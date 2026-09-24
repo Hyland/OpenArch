@@ -37,7 +37,7 @@ import com.hyland.openarch.ecm.core.api.NuxeoException;
  * <pre>
  * <code>
  * &lt;blobprovider name="myfsblobprovider"&gt;
- *   &lt;class&gt;blob.com.hyland.openarch.ecm.core.FilesystemBlobProvider&lt;/class&gt;
+ *   &lt;class&gt;com.hyland.openarch.ecm.core.blob.FilesystemBlobProvider&lt;/class&gt;
  *   &lt;property name="root"&gt;/base/directory/for/files&lt;/property&gt;
  * &lt;/blobprovider&gt;
  * </code>

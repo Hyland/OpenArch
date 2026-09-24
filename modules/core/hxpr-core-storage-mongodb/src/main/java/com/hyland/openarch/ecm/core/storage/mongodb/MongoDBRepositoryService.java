@@ -28,7 +28,7 @@ import com.hyland.openarch.runtime.model.DefaultComponent;
  */
 public class MongoDBRepositoryService extends DefaultComponent {
 
-    protected static final String COMPONENT_NAME = "mongodb.storage.com.hyland.openarch.ecm.core.MongoDBRepositoryService";
+    protected static final String COMPONENT_NAME = "com.hyland.openarch.ecm.core.storage.mongodb.MongoDBRepositoryService";
 
     protected static final String XP = "repository";
 

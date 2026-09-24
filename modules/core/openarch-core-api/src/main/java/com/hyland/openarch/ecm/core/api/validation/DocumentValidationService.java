@@ -43,14 +43,14 @@ public interface DocumentValidationService {
 
     /**
      * To activate validation in some context, for example "CoreSession.saveDocument", you have to contribute to
-     * component "org.nuxeo.ecm.core.api.DocumentValidationService" with extension point "activations".
+     * component "com.hyland.openarch.ecm.core.api.DocumentValidationService" with extension point "activations".
      * <p>
      * Example :
      * </p>
      *
      * <pre>
      * {@code
-     * <extension target="org.nuxeo.ecm.core.api.DocumentValidationService" point="activations">
+     * <extension target="com.hyland.openarch.ecm.core.api.DocumentValidationService" point="activations">
      *   <validation context="CoreSession.saveDocument" activated="false" />
      * </extension>
      * }

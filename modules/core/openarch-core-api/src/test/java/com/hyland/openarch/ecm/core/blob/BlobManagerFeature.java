@@ -21,8 +21,8 @@ import com.hyland.openarch.runtime.test.runner.RunnerFeature;
 import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
 
 @Features(RuntimeFeature.class)
-@Deploy("org.nuxeo.ecm.core.api:OSGI-INF/blob-service.xml")
-@Deploy("org.nuxeo.ecm.core.api:OSGI-INF/blobprovider-config.xml")
+@Deploy("com.hyland.openarch.ecm.core.api:OSGI-INF/blob-service.xml")
+@Deploy("com.hyland.openarch.ecm.core.api:OSGI-INF/blobprovider-config.xml")
 public class BlobManagerFeature implements RunnerFeature {
 
 }

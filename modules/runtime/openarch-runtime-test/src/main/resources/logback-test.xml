@@ -27,7 +27,7 @@
   <logger level="warn" name="com.hyland.hxpr.runtime.insight.event.InsightEventServiceImpl" />
   <logger level="warn" name="com.hyland.hxpr.transform.TransformComponent" />
   <logger level="warn" name="org.nuxeo.ecm.blob.s3.S3BlobStore" />
-  <logger level="warn" name="cache.com.hyland.openarch.ecm.core.CacheServiceImpl" />
+  <logger level="warn" name="com.hyland.openarch.ecm.core.cache.CacheServiceImpl" />
   <logger level="warn" name="com.hyland.openarch.ecm.core.schema.XSDLoader" />
   <logger level="warn" name="org.nuxeo.opensearch.client.OpenSearchRestClient" />
   <logger level="warn" name="org.nuxeo.opensearch.OpenSearchServiceImpl" />

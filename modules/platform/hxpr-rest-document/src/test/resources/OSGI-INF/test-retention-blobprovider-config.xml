@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <component name="org.nuxeo.ecm.core.blobprovider.retention.config">
-    <require>org.nuxeo.ecm.core.blobprovider.default.config</require>
+    <require>com.hyland.openarch.ecm.core.blobprovider.default.config</require>
     <extension target="com.hyland.openarch.ecm.core.blob.BlobService" point="configuration">
         <blobprovider name="records">
             <class>${nuxeo.core.binarymanager:=com.hyland.openarch.ecm.core.blob.LocalBlobProvider}</class>

@@ -59,7 +59,7 @@ public class EventServiceImpl extends DefaultComponent implements EventService, 
 
     public static final int APPLICATION_STARTED_ORDER = -500;
 
-    public static final String NAME = "event.com.hyland.openarch.ecm.core.EventService";
+    public static final String NAME = "com.hyland.openarch.ecm.core.event.EventService";
 
     public static final String EVENT_LISTENER_XP = "listener";
 

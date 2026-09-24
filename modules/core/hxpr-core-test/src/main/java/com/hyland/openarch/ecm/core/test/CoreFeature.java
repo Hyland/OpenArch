@@ -74,7 +74,7 @@ import com.hyland.hxpr.async.tasks.TaskService;
 @Deploy("org.nuxeo.runtime.mongodb")
 @Deploy("com.hyland.openarch.ecm.core.schema")
 @Deploy("org.nuxeo.ecm.core.query")
-@Deploy("org.nuxeo.ecm.core.api")
+@Deploy("com.hyland.openarch.ecm.core.api")
 @Deploy("com.hyland.hxpr.async.tasks")
 @Deploy("org.nuxeo.ecm.core")
 @Deploy("org.nuxeo.ecm.core.io")

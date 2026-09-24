@@ -1,2 +1,2 @@
 -nouses: true
-Import-Package: !sun.security.acl,javax.annotation;version=1.0,javax.transaction.*;version=1.1,org.nuxeo.ecm.core;api=split,org.nuxeo.ecm.core.api;api=split,org.nuxeo.ecm.directory;api=split,org.nuxeo.ecm.core.api.security,*
+Import-Package: !sun.security.acl,javax.annotation;version=1.0,javax.transaction.*;version=1.1,com.hyland.openarch.ecm.core;api=split,com.hyland.openarch.ecm.core.api;api=split,org.nuxeo.ecm.directory;api=split,com.hyland.openarch.ecm.core.api.security,*

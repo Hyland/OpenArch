@@ -15,7 +15,7 @@
     </doctype>
   </extension>
 
-  <extension target="org.nuxeo.ecm.core.api.DocumentValidationService" point="activations">
+  <extension target="com.hyland.openarch.ecm.core.api.DocumentValidationService" point="activations">
     <validation context="createDocument" activated="false" />
     <validation context="saveDocument" activated="false" />
   </extension>

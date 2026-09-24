@@ -48,7 +48,7 @@ import com.google.inject.Binder;
  * @since 11.1
  */
 @Features(RuntimeFeature.class)
-@Deploy("org.nuxeo.ecm.core.api.tests:OSGI-INF/dummy-login-config.xml")
+@Deploy("com.hyland.openarch.ecm.core.api.tests:OSGI-INF/dummy-login-config.xml")
 public class DummyLoginFeature implements RunnerFeature {
 
     public static final String TEST_ADMIN_USER_NAME = "testuser";

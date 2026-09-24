@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <component name="com.hyland.openarch.ecm.core.blob.DummyBlobProvider">
-  <require>org.nuxeo.ecm.core.blobprovider.default.config</require>
+  <require>com.hyland.openarch.ecm.core.blobprovider.default.config</require>
   <extension target="com.hyland.openarch.ecm.core.blob.BlobService" point="configuration">
     <blobprovider name="default">
       <class>com.hyland.openarch.ecm.core.blob.DummyBlobProvider</class>

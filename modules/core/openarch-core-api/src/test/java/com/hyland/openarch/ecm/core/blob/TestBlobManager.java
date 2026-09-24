@@ -41,7 +41,7 @@ import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
 @TestMethodOrder(OrderAnnotation.class)
 @ExtendWith(FeaturesExtension.class)
 @Features(BlobManagerFeature.class)
-@Deploy("org.nuxeo.ecm.core.api.tests:OSGI-INF/dummy-blob-provider.xml")
+@Deploy("com.hyland.openarch.ecm.core.api.tests:OSGI-INF/dummy-blob-provider.xml")
 public class TestBlobManager {
 
     private static final String DUMMY = "dummy";
