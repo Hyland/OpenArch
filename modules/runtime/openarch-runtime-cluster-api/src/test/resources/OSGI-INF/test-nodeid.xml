@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<component name="org.nuxeo.runtime.cluster.api.test-enabled">
+<component name="com.hyland.openarch.runtime.cluster.api.test-enabled">
 
   <extension target="com.hyland.openarch.runtime.cluster.ClusterService" point="configuration">
     <clusterNode id="123" enabled="true" />

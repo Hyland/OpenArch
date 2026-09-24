@@ -26,7 +26,7 @@ import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
  * @since 2026.0
  */
 @Features(RuntimeFeature.class)
-@Deploy("org.nuxeo.runtime.cluster.api")
+@Deploy("com.hyland.openarch.runtime.cluster.api")
 public class BasicClusterFeature implements RunnerFeature {
 
 }

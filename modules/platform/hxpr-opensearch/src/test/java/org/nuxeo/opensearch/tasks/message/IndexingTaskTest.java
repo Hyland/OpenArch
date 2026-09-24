@@ -34,7 +34,7 @@ import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
 
 @ExtendWith(FeaturesExtension.class)
 @Features({AsyncTasksFeature.class, BasicClusterFeature.class})
-@Deploy("org.nuxeo.runtime.cluster.api.tests:OSGI-INF/test-nodeid.xml")
+@Deploy("com.hyland.openarch.runtime.cluster.api.tests:OSGI-INF/test-nodeid.xml")
 public class IndexingTaskTest {
 
     @Test

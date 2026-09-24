@@ -51,7 +51,7 @@ public class TestBasicClusterService {
     }
 
     @Test
-    @Deploy("org.nuxeo.runtime.cluster.api.tests:OSGI-INF/test-nodeid.xml")
+    @Deploy("com.hyland.openarch.runtime.cluster.api.tests:OSGI-INF/test-nodeid.xml")
     public void testClusterNodeId() {
         // Even with enabled="true" in the config, BasicClusterService always returns false
         assertTrue(clusterService.isEnabled());
@@ -60,20 +60,20 @@ public class TestBasicClusterService {
     }
 
     @Test
-    @Deploy("org.nuxeo.runtime.cluster.api.tests:OSGI-INF/test-disable.xml")
+    @Deploy("com.hyland.openarch.runtime.cluster.api.tests:OSGI-INF/test-disable.xml")
     public void testDisable() {
         assertFalse(clusterService.isEnabled());
         assertNotNull(clusterService.getNodeId());
     }
 
     @Test
-    @Deploy("org.nuxeo.runtime.cluster.api.tests:OSGI-INF/test-blank.xml")
+    @Deploy("com.hyland.openarch.runtime.cluster.api.tests:OSGI-INF/test-blank.xml")
     public void testClusterNodeBlank() {
         assertFalse(clusterService.isEnabled());
     }
 
     @Test
-    @Deploy("org.nuxeo.runtime.cluster.api.tests:OSGI-INF/test-nodeid.xml")
+    @Deploy("com.hyland.openarch.runtime.cluster.api.tests:OSGI-INF/test-nodeid.xml")
     public void testUpdateCachesStatusPerNodeIsIgnored() {
         // BasicClusterService does not store cache status updates
         clusterService.updateCachesStatusPerNode("node1", 123L);
@@ -87,7 +87,7 @@ public class TestBasicClusterService {
     }
 
     @Test
-    @Deploy("org.nuxeo.runtime.cluster.api.tests:OSGI-INF/test-nodeid.xml")
+    @Deploy("com.hyland.openarch.runtime.cluster.api.tests:OSGI-INF/test-nodeid.xml")
     public void testRunAtomicallyExecutesRunnable() {
         AtomicBoolean executed = new AtomicBoolean(false);
         clusterService.runAtomically("some-key", Duration.ofSeconds(5), Duration.ofMillis(100),

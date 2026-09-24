@@ -1,4 +1,4 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-SymbolicName: org.nuxeo.runtime.cluster.api
+Bundle-SymbolicName: com.hyland.openarch.runtime.cluster.api
 Nuxeo-Component: OSGI-INF/cluster-service.xml
