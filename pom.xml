@@ -274,12 +274,12 @@
       </dependency>
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
-        <artifactId>hxpr-runtime-springboot</artifactId>
+        <artifactId>openarch-runtime-springboot</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
-        <artifactId>hxpr-runtime-springboot</artifactId>
+        <artifactId>openarch-runtime-springboot</artifactId>
         <type>test-jar</type>
         <scope>test</scope>
         <version>${project.version}</version>

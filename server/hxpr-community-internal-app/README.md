@@ -2,7 +2,7 @@
 
 This project uses SpringBoot.
 
-The Nuxeo Runtime bootstrap is done thanks to module `hxpr-runtime-springboot` (see its README).
+The Nuxeo Runtime bootstrap is done thanks to module `openarch-runtime-springboot` (see its README).
 This registers a SpringBoot listener and starts up the Nuxeo Runtime, looking up `META-INF/MANIFEST.MF` files in the classpath.
 
 A mock REST endpoint is added by this module, available at http://localhost:8080/hello.

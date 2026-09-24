@@ -46,7 +46,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-runtime-springboot</artifactId>
+      <artifactId>openarch-runtime-springboot</artifactId>
     </dependency>
   </dependencies>
 
