@@ -32,7 +32,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-runtime-springboot-test</artifactId>
+      <artifactId>openarch-runtime-springboot-test</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

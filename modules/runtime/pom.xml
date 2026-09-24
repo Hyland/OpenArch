@@ -25,7 +25,7 @@
     <module>hxpr-runtime-mongodb</module>
     <module>openarch-runtime-pubsub</module>
     <module>openarch-runtime-springboot</module>
-    <module>hxpr-runtime-springboot-test</module>
+    <module>openarch-runtime-springboot-test</module>
     <module>openarch-runtime-test</module>
   </modules>
 
