@@ -24,20 +24,19 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -49,10 +48,10 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import com.hyland.openarch.runtime.RuntimeServiceException;
 import com.hyland.openarch.runtime.kv.KeyValueService;
 import com.hyland.openarch.runtime.kv.KeyValueStore;
 import com.hyland.openarch.runtime.kv.MemKeyValueStore;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Unit tests for {@link KeyValueStoreIdempotencyHandler}.
@@ -80,10 +79,10 @@ class KeyValueStoreIdempotencyHandlerTest {
         String key = "key-1";
         AtomicInteger calls = new AtomicInteger();
 
-        String result = handler.execute(key, () -> {
+        Object result = handler.execute(key, () -> {
             calls.incrementAndGet();
             return "value";
-        });
+        }).value();
 
         assertEquals("value", result);
         assertEquals(1, calls.get());
@@ -99,11 +98,11 @@ class KeyValueStoreIdempotencyHandlerTest {
         String first = handler.execute(key, () -> {
             calls.incrementAndGet();
             return "value-" + calls.get();
-        });
+        }).value();
         String second = handler.execute(key, () -> {
             calls.incrementAndGet();
             return "value-" + calls.get();
-        });
+        }).value();
 
         assertEquals(first, second);
         assertEquals(1, calls.get());
@@ -112,17 +111,17 @@ class KeyValueStoreIdempotencyHandlerTest {
     @Test
     @DisplayName("different keys are cached independently under the configured namespace")
     void execute_differentKeys_doNotCollide() {
-        String first = handler.execute("key-a", () -> "a");
-        String second = handler.execute("key-b", () -> "b");
+        String first = handler.execute("key-a", () -> "value-a").value();
+        String second = handler.execute("key-b", () -> "value-b").value();
 
-        assertEquals("a", first);
-        assertEquals("b", second);
+        assertEquals("value-a", first);
+        assertEquals("value-b", second);
         assertTrue(store.get(NAMESPACE + "key-a").length > 0);
         assertTrue(store.get(NAMESPACE + "key-b").length > 0);
     }
 
     @Test
-    @DisplayName("a RuntimeException from the operation is cached and rethrown as-is on replay")
+    @DisplayName("a RuntimeException from the operation is cached and replayed as an IdempotencyException")
     void execute_runtimeExceptionFromOperation_isCachedAndReplayed() {
         String key = "key-3";
         IllegalStateException original = new IllegalStateException("boom");
@@ -130,12 +129,12 @@ class KeyValueStoreIdempotencyHandlerTest {
         RuntimeException firstThrown = assertThrows(RuntimeException.class, () -> handler.execute(key, () -> {
             throw original;
         }));
-        RuntimeException replayedThrown = assertThrows(RuntimeException.class,
-                () -> handler.execute(key, () -> "should not run"));
+        Object replayed = handler.execute(key, () -> "should not run").value();
 
         assertSame(original, firstThrown);
-        assertEquals(original.getClass(), replayedThrown.getClass());
-        assertEquals(original.getMessage(), replayedThrown.getMessage());
+        IdempotencyException replayedException = assertInstanceOf(IdempotencyException.class, replayed);
+        assertEquals(original.getClass().getName(), replayedException.key());
+        assertEquals(original.getMessage(), replayedException.message());
     }
 
     @Test
@@ -193,7 +192,7 @@ class KeyValueStoreIdempotencyHandlerTest {
         String first = shortTtlHandler.execute(key, () -> {
             calls.incrementAndGet();
             return "value-" + calls.get();
-        });
+        }).value();
         assertTrue(shortTtlHandler.isCached(key));
 
         // sleep a bit more than the TTL in case expiration is late, mirroring AbstractKeyValueStoreTest#testTTL
@@ -203,7 +202,7 @@ class KeyValueStoreIdempotencyHandlerTest {
         String second = shortTtlHandler.execute(key, () -> {
             calls.incrementAndGet();
             return "value-" + calls.get();
-        });
+        }).value();
 
         assertEquals("value-1", first);
         assertEquals("value-2", second);
@@ -216,7 +215,7 @@ class KeyValueStoreIdempotencyHandlerTest {
         String cacheKey = NAMESPACE + "key-6";
         store.put(cacheKey, "not-a-serialized-object".getBytes());
 
-        String result = handler.execute("key-6", () -> "fresh-value");
+        String result = handler.execute("key-6", () -> "fresh-value").value();
 
         assertEquals("fresh-value", result);
     }
@@ -226,7 +225,7 @@ class KeyValueStoreIdempotencyHandlerTest {
     void execute_unserializableResult_isReturnedButNotCached() {
         String key = "key-7";
 
-        UnserializableValue result = handler.execute(key, UnserializableValue::new);
+        UnserializableValue result = handler.execute(key, UnserializableValue::new).value();
 
         assertNotNull(result);
         assertFalse(handler.isCached(key));
@@ -255,7 +254,7 @@ class KeyValueStoreIdempotencyHandlerTest {
                             throw new RuntimeException(e);
                         }
                         return "value-" + calls.get();
-                    });
+                    }).value();
                 }));
             }
             ready.await();
@@ -284,9 +283,9 @@ class KeyValueStoreIdempotencyHandlerTest {
         String key = "key-lease-expiry";
         String cacheKey = NAMESPACE + key;
         // Simulate another caller having claimed the key with a short-lived lease.
-        store.put(cacheKey, "HXPR-IDEMPOTENCY-CLAIM-V1:".getBytes(StandardCharsets.UTF_8), shortTtlSeconds);
+        store.put(cacheKey, claimMarker(), shortTtlSeconds);
 
-        String result = shortLeaseHandler.execute(key, () -> "value-after-lease-expiry");
+        String result = shortLeaseHandler.execute(key, () -> "value-after-lease-expiry").value();
 
         assertEquals("value-after-lease-expiry", result);
     }
@@ -302,7 +301,7 @@ class KeyValueStoreIdempotencyHandlerTest {
         String cacheKey = NAMESPACE + key;
         // Simulate another caller holding a claim with a lease far longer than this handler's own lease
         // (which is capped at shortTtlSeconds), so the waiting caller's deadline is reached first.
-        store.put(cacheKey, "HXPR-IDEMPOTENCY-CLAIM-V1:".getBytes(StandardCharsets.UTF_8), 3600L);
+        store.put(cacheKey, claimMarker(), 3600L);
 
         assertThrows(IdempotencyClaimTimeoutException.class,
                 () -> shortLeaseHandler.execute(key, () -> "should not run"));
@@ -312,7 +311,7 @@ class KeyValueStoreIdempotencyHandlerTest {
     @DisplayName("isCached returns false while a claim is in progress for the key")
     void isCached_claimInProgress_returnsFalse() {
         String cacheKey = NAMESPACE + "key-in-progress-is-cached";
-        store.put(cacheKey, "HXPR-IDEMPOTENCY-CLAIM-V1:".getBytes(StandardCharsets.UTF_8), TTL_SECONDS);
+        store.put(cacheKey, claimMarker(), TTL_SECONDS);
 
         assertFalse(handler.isCached("key-in-progress-is-cached"));
     }
@@ -321,7 +320,7 @@ class KeyValueStoreIdempotencyHandlerTest {
     @DisplayName("evict returns false and leaves the claim marker untouched while a claim is in progress")
     void evict_claimInProgress_returnsFalseAndDoesNotClearClaim() {
         String cacheKey = NAMESPACE + "key-in-progress-evict";
-        byte[] marker = "HXPR-IDEMPOTENCY-CLAIM-V1:".getBytes(StandardCharsets.UTF_8);
+        byte[] marker = claimMarker();
         store.put(cacheKey, marker, TTL_SECONDS);
 
         boolean evicted = handler.evict("key-in-progress-evict");
@@ -336,15 +335,15 @@ class KeyValueStoreIdempotencyHandlerTest {
         String key = "key-finalize-throws";
         String cacheKey = NAMESPACE + key;
         KeyValueStore mockStore = mock(KeyValueStore.class);
-        when(mockStore.get(cacheKey)).thenReturn(null);
-        when(mockStore.compareAndSet(eq(cacheKey), isNull(), any(byte[].class), anyLong())).thenReturn(true);
-        when(mockStore.compareAndSet(eq(cacheKey), notNull(), any(byte[].class), anyLong()))
+        when(mockStore.getString(cacheKey)).thenReturn(null);
+        when(mockStore.compareAndSet(eq(cacheKey), isNull(), anyString(), anyLong())).thenReturn(true);
+        when(mockStore.compareAndSet(eq(cacheKey), notNull(), anyString(), anyLong()))
                 .thenThrow(new RuntimeException("store unavailable"));
         KeyValueService keyValueService = name -> mockStore;
         IdempotencyHandler mockHandler = new KeyValueStoreIdempotencyHandler(keyValueService, "default", NAMESPACE,
                 TTL_SECONDS);
 
-        String result = mockHandler.execute(key, () -> "value");
+        String result = mockHandler.execute(key, () -> "value").value();
 
         assertEquals("value", result);
     }
@@ -355,14 +354,14 @@ class KeyValueStoreIdempotencyHandlerTest {
         String key = "key-finalize-reclaimed";
         String cacheKey = NAMESPACE + key;
         KeyValueStore mockStore = mock(KeyValueStore.class);
-        when(mockStore.get(cacheKey)).thenReturn(null);
-        when(mockStore.compareAndSet(eq(cacheKey), isNull(), any(byte[].class), anyLong())).thenReturn(true);
-        when(mockStore.compareAndSet(eq(cacheKey), notNull(), any(byte[].class), anyLong())).thenReturn(false);
+        when(mockStore.getString(cacheKey)).thenReturn(null);
+        when(mockStore.compareAndSet(eq(cacheKey), isNull(), anyString(), anyLong())).thenReturn(true);
+        when(mockStore.compareAndSet(eq(cacheKey), notNull(), anyString(), anyLong())).thenReturn(false);
         KeyValueService keyValueService = name -> mockStore;
         IdempotencyHandler mockHandler = new KeyValueStoreIdempotencyHandler(keyValueService, "default", NAMESPACE,
                 TTL_SECONDS);
 
-        String result = mockHandler.execute(key, () -> "fresh-value");
+        String result = mockHandler.execute(key, () -> "fresh-value").value();
 
         assertEquals("fresh-value", result);
     }
@@ -373,7 +372,7 @@ class KeyValueStoreIdempotencyHandlerTest {
     void execute_interruptedWhileWaitingForClaim_throwsClaimTimeoutException() throws InterruptedException {
         String key = "key-interrupted";
         String cacheKey = NAMESPACE + key;
-        store.put(cacheKey, "HXPR-IDEMPOTENCY-CLAIM-V1:".getBytes(StandardCharsets.UTF_8), TTL_SECONDS);
+        store.put(cacheKey, claimMarker(), TTL_SECONDS);
         AtomicReference<Throwable> caught = new AtomicReference<>();
 
         Thread waiter = new Thread(() -> {
@@ -393,41 +392,79 @@ class KeyValueStoreIdempotencyHandlerTest {
     }
 
     @Test
-    @DisplayName("ClaimOutcome equals/hashCode/toString use array-content semantics for the owner marker")
-    void claimOutcome_equalsHashCodeToString_useArrayContentSemantics() {
-        byte[] marker = "marker-1".getBytes(StandardCharsets.UTF_8);
-        byte[] markerCopy = "marker-1".getBytes(StandardCharsets.UTF_8);
-        byte[] otherMarker = "marker-2".getBytes(StandardCharsets.UTF_8);
-        IdempotencyResult<String> cachedResult = IdempotencyResult.success("value");
+    @DisplayName("successive claims on the same key use distinct owner markers")
+    void claimMarkers_successiveClaims_areDistinct() {
+        String key = "key-distinct-markers";
+        String cacheKey = NAMESPACE + key;
+        List<String> markers = new ArrayList<>();
+        KeyValueStore recordingStore = mock(KeyValueStore.class);
+        when(recordingStore.getString(cacheKey)).thenReturn(null);
+        when(recordingStore.compareAndSet(eq(cacheKey), isNull(), anyString(), anyLong())).thenAnswer(invocation -> {
+            markers.add(invocation.getArgument(2));
+            return true;
+        });
+        when(recordingStore.compareAndSet(eq(cacheKey), notNull(), anyString(), anyLong())).thenReturn(true);
+        KeyValueService keyValueService = name -> recordingStore;
+        IdempotencyHandler recordingHandler = new KeyValueStoreIdempotencyHandler(keyValueService, "default",
+                NAMESPACE, TTL_SECONDS);
 
-        var won = KeyValueStoreIdempotencyHandler.ClaimOutcome.won(marker);
-        var wonCopy = KeyValueStoreIdempotencyHandler.ClaimOutcome.won(markerCopy);
-        var wonOther = KeyValueStoreIdempotencyHandler.ClaimOutcome.won(otherMarker);
-        var hit = KeyValueStoreIdempotencyHandler.ClaimOutcome.hit(cachedResult);
-        var hitSameResult = KeyValueStoreIdempotencyHandler.ClaimOutcome.hit(cachedResult);
+        recordingHandler.execute(key, () -> "first");
+        recordingHandler.execute(key, () -> "second");
 
-        assertEquals(won, won);
-        assertEquals(won, wonCopy);
-        assertEquals(won.hashCode(), wonCopy.hashCode());
-        assertNotEquals(won, wonOther);
-        assertNotEquals(won, hit);
-        assertNotEquals(won, null);
-        assertNotEquals(won, "not-a-claim-outcome");
-        assertEquals(hit, hitSameResult);
-        assertEquals(hit.hashCode(), hitSameResult.hashCode());
-        assertTrue(won.toString().startsWith("ClaimOutcome["));
+        assertEquals(2, markers.size());
+        assertNotEquals(markers.get(0), markers.get(1));
+    }
+
+    @Test
+    @DisplayName("a stale claimant does not overwrite the entry published by a newer claim")
+    void finalizeResult_staleClaimant_doesNotOverwriteNewerClaim() {
+        String key = "key-stale-finalize";
+        String cacheKey = NAMESPACE + key;
+        byte[] newerClaim = claimMarker();
+        // Delegates to the real store, but simulates another caller timing this claim out and
+        // reclaiming the slot with its own marker while the guarded operation is running.
+        KeyValueStore hijackingStore = mock(KeyValueStore.class);
+        when(hijackingStore.getString(cacheKey)).thenAnswer(invocation -> store.getString(cacheKey));
+        when(hijackingStore.compareAndSet(eq(cacheKey), isNull(), anyString(), anyLong())).thenAnswer(invocation -> {
+            boolean claimed = store.compareAndSet(cacheKey, (String) null, invocation.getArgument(2),
+                    invocation.getArgument(3));
+            store.put(cacheKey, newerClaim, TTL_SECONDS);
+            return claimed;
+        });
+        when(hijackingStore.compareAndSet(eq(cacheKey), notNull(), anyString(), anyLong()))
+                .thenAnswer(invocation -> store.compareAndSet(cacheKey, invocation.<String>getArgument(1),
+                        invocation.<String>getArgument(2), invocation.<Long>getArgument(3)));
+        IdempotencyHandler staleHandler = handlerFor(hijackingStore);
+
+        String staleResult = staleHandler.execute(key, () -> "stale-value").value();
+
+        assertEquals("stale-value", staleResult);
+        assertArrayEquals(newerClaim, store.get(cacheKey));
+    }
+
+    private KeyValueStoreIdempotencyHandler handlerFor(KeyValueStore kvStore) {
+        KeyValueService keyValueService = name -> kvStore;
+        return new KeyValueStoreIdempotencyHandler(keyValueService, "default", NAMESPACE, TTL_SECONDS);
+    }
+
+    /** Builds a valid, unique in-progress claim marker as written by the handler. */
+    private static byte[] claimMarker() {
+        return JsonMapper.builder()
+                         .build()
+                         .writeValueAsString(IdempotencyOutput.pending(UUID.randomUUID().toString()))
+                         .getBytes(StandardCharsets.UTF_8);
     }
 
     /**
-     * Serializable by contract, but fails during {@code writeObject}, to exercise the
+     * Serializable by contract, but fails during JSON serialization, to exercise the
      * {@code storeResult} failure path.
      */
     private static final class UnserializableValue implements Serializable {
 
         private static final long serialVersionUID = 1L;
 
-        private void writeObject(ObjectOutputStream out) throws IOException {
-            throw new IOException("cannot serialize");
+        public String getValue() {
+            throw new IllegalStateException("cannot serialize to JSON");
         }
 
     }

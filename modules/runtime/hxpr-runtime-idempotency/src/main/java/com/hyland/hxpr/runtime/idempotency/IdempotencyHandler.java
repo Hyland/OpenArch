@@ -38,27 +38,10 @@ public interface IdempotencyHandler {
      * @param <T>           the type of the operation result
      * @param key           the idempotency key value identifying this operation
      * @param operation     the operation to execute (must be idempotent and deterministic)
-     * @return the operation result
-     * @throws RuntimeException if the operation fails or if cached failure is replayed
-     */
-    <T extends Serializable> T execute(String key, IdempotentOperation<T> operation);
-
-    /**
-     * Executes an operation idempotently, same as {@link #execute}, but atomically reports whether
-     * the returned value was replayed from a previously cached result or freshly executed.
-     * <p>
-     * Callers that need to know the replay status (e.g. to set a response header) must use this
-     * method instead of separately probing for a cached result before calling {@link #execute}:
-     * that two-call sequence is not atomic and can report an incorrect replay status if the cache
-     * state changes between the two calls.
-     *
-     * @param <T>       the type of the operation result
-     * @param key       the idempotency key value identifying this operation
-     * @param operation the operation to execute (must be idempotent and deterministic)
      * @return the outcome, carrying both the result and whether it was replayed
      * @throws RuntimeException if the operation fails or if cached failure is replayed
      */
-    <T extends Serializable> Outcome<T> executeWithOutcome(String key, IdempotentOperation<T> operation);
+    <T extends Serializable> Outcome<T> execute(String key, IdempotentOperation<T> operation);
 
     /**
      * Removes a cached result for the given idempotency key.

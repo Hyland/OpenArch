@@ -17,7 +17,7 @@ Ensures that state-mutating operations are executed at most once, even when call
 
 ### Key Components
 
-1. **IdempotencyResult<T>** - Wraps operation results (success or failure)
+1. **IdempotencyOutput** - Wraps a cached outcome: pending (claimed), success or failure
 2. **IdempotencyHandler** - Interface for idempotent operation execution
 3. **KeyValueStoreIdempotencyHandler** - KV store-based implementation
 4. **IdempotencyHandlerFactory** - Factory for creating handlers
@@ -41,7 +41,7 @@ IdempotencyHandler handler = IdempotencyHandlerFactory.create(
     TimeUnit.HOURS
 );
 
-String key = requestId;
+String key = clientKey; // Unique key sent by the client to identify the operation
 
 // Execute operation idempotently
 String result = handler.execute(key, () -> {

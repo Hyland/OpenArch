@@ -43,7 +43,7 @@ class IdempotencyHandlerFactoryTest {
         IdempotencyHandler handler = IdempotencyHandlerFactory.create(keyValueService, DEFAULT_STORE_NAME, "idempotency:test:", DEFAULT_TTL_SECONDS);
 
         assertNotNull(handler);
-        assertEquals("value", handler.execute("key-1", () -> "value"));
+        assertEquals("value", handler.execute("key-1", () -> "value").value());
     }
 
     @Test
@@ -51,7 +51,7 @@ class IdempotencyHandlerFactoryTest {
     void create_withTtlSeconds_usesDefaultStore() {
         IdempotencyHandler handler = IdempotencyHandlerFactory.create(keyValueService, DEFAULT_STORE_NAME, "idempotency:test:", 60L);
 
-        assertEquals("value", handler.execute("key-2", () -> "value"));
+        assertEquals("value", handler.execute("key-2", () -> "value").value());
     }
 
     @Test
@@ -59,7 +59,7 @@ class IdempotencyHandlerFactoryTest {
     void create_withTtlAndTimeUnit_convertsToSeconds() {
         IdempotencyHandler handler = IdempotencyHandlerFactory.create(keyValueService, DEFAULT_STORE_NAME, "idempotency:test:", 3600);
 
-        assertEquals("value", handler.execute("key-3", () -> "value"));
+        assertEquals("value", handler.execute("key-3", () -> "value").value());
     }
 
     @Test
@@ -68,7 +68,7 @@ class IdempotencyHandlerFactoryTest {
         IdempotencyHandler handler = IdempotencyHandlerFactory.create(keyValueService, "custom-store",
                 "idempotency:test:", 120L);
 
-        assertEquals("value", handler.execute("key-5", () -> "value"));
+        assertEquals("value", handler.execute("key-5", () -> "value").value());
     }
 
     @Test
