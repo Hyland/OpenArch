@@ -13,7 +13,7 @@
 
   <groupId>com.hyland.hxpr</groupId>
   <artifactId>openarch-async-tasks</artifactId>
-  <name>HxPR Asynchronous Tasks</name>
+  <name>OpenArch Asynchronous Tasks</name>
 
   <dependencies>
     <dependency>

@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
 import com.hyland.openarch.async.tasks.message.Task;
 
 /**
- * Plain unit test (no Nuxeo runtime bootstrap) for the runner-shutdown fan-out in
+ * Plain unit test (no OpenArch runtime bootstrap) for the runner-shutdown fan-out in
  * {@link TaskServiceImpl#beforeRuntimeStop}.
  */
 class TaskServiceImplBeforeRuntimeStopTest {

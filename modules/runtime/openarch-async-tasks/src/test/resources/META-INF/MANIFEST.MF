@@ -1,4 +1,4 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: HxPR Async Tasks Testing
+Bundle-Name: OpenArch Async Tasks Testing
 Bundle-SymbolicName: com.hyland.openarch.async.tasks.tests;singleton:=true
