@@ -41,7 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.UnaryOperator;
 
-import com.hyland.hxpr.async.tasks.TaskService;
+import com.hyland.openarch.async.tasks.TaskService;
 import org.junit.jupiter.api.Test;
 import com.hyland.openarch.ecm.core.api.Blobs;
 import com.hyland.openarch.ecm.core.api.CoreSession;

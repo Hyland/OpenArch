@@ -141,8 +141,8 @@ import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.metrics.MetricsService;
 import com.hyland.openarch.runtime.transaction.TransactionHelper;
 
-import com.hyland.hxpr.async.tasks.TaskService;
-import com.hyland.hxpr.async.tasks.message.ScrollerTask;
+import com.hyland.openarch.async.tasks.TaskService;
+import com.hyland.openarch.async.tasks.message.ScrollerTask;
 
 /**
  * Implementation of a {@link InternalSession} for Document-Based Storage.

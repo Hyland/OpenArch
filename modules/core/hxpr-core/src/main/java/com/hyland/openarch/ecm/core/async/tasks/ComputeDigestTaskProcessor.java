@@ -15,7 +15,7 @@
  */
 package com.hyland.openarch.ecm.core.async.tasks;
 
-import static com.hyland.hxpr.async.tasks.TaskStatus.State.COMPLETED;
+import static com.hyland.openarch.async.tasks.TaskStatus.State.COMPLETED;
 
 import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.ecm.core.blob.ComputeDigestHelper;
@@ -23,8 +23,8 @@ import com.hyland.openarch.runtime.api.Framework;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hyland.hxpr.async.tasks.TaskProcessor;
-import com.hyland.hxpr.async.tasks.TaskService;
+import com.hyland.openarch.async.tasks.TaskProcessor;
+import com.hyland.openarch.async.tasks.TaskService;
 
 public class ComputeDigestTaskProcessor implements TaskProcessor<ComputeDigestTask> {
 

@@ -24,8 +24,8 @@ import com.hyland.openarch.ecm.core.repository.RepositoryService;
 import com.hyland.openarch.ecm.core.scheduler.ScheduledJob;
 import com.hyland.openarch.runtime.api.Framework;
 
-import com.hyland.hxpr.async.tasks.TaskService;
-import com.hyland.hxpr.async.tasks.message.ScrollerTask;
+import com.hyland.openarch.async.tasks.TaskService;
+import com.hyland.openarch.async.tasks.message.ScrollerTask;
 
 /**
  * Listener triggering the check of expired retentions.

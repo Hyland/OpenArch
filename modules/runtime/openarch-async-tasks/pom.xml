@@ -1,0 +1,88 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.hyland.hxpr</groupId>
+    <artifactId>hxpr-community-runtime-parent</artifactId>
+    <version>12.0-SNAPSHOT</version>
+  </parent>
+
+  <properties>
+    <manifest.file>src/main/resources/META-INF/MANIFEST.MF</manifest.file>
+  </properties>
+
+  <groupId>com.hyland.hxpr</groupId>
+  <artifactId>openarch-async-tasks</artifactId>
+  <name>HxPR Asynchronous Tasks</name>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>openarch-common</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>openarch-runtime</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>openarch-core-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>openarch-core-query</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>openarch-runtime-cluster-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-collections4</artifactId>
+    </dependency>
+
+    <!-- tests -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>openarch-runtime-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.hyland.hxpr</groupId>
+      <artifactId>openarch-runtime-springboot-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.inject</groupId>
+      <artifactId>jakarta.inject-api</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <executions>
+          <execution>
+            <configuration>
+              <archive>
+                <manifestFile>src/test/resources/META-INF/MANIFEST.MF</manifestFile>
+              </archive>
+            </configuration>
+            <goals>
+              <goal>test-jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

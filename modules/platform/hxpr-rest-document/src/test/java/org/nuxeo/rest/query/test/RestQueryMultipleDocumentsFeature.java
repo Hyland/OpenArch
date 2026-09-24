@@ -47,7 +47,7 @@ import com.hyland.openarch.runtime.test.runner.FeaturesLoader;
 import com.hyland.openarch.runtime.test.runner.RunnerFeature;
 import com.hyland.openarch.runtime.transaction.TransactionHelper;
 
-import com.hyland.hxpr.async.tasks.TaskService;
+import com.hyland.openarch.async.tasks.TaskService;
 
 @Features(RepositoryOpenSearchFeature.class)
 @RepositoryConfig(cleanup = Granularity.CLASS)

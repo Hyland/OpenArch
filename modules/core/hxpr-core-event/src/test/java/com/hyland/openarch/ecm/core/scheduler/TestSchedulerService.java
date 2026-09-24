@@ -22,7 +22,7 @@ import java.time.format.DateTimeFormatter;
 
 import jakarta.inject.Inject;
 
-import com.hyland.hxpr.async.tasks.AsyncTasksFeature;
+import com.hyland.openarch.async.tasks.AsyncTasksFeature;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

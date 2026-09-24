@@ -15,13 +15,13 @@
  */
 package com.hyland.openarch.ecm.core.async.tasks;
 
-import static com.hyland.hxpr.async.tasks.TaskStatus.State.COMPLETED;
+import static com.hyland.openarch.async.tasks.TaskStatus.State.COMPLETED;
 import static java.util.Objects.requireNonNullElse;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ID;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PARENT_ID;
 
-import com.hyland.hxpr.async.tasks.TaskProcessor;
-import com.hyland.hxpr.async.tasks.TaskService;
+import com.hyland.openarch.async.tasks.TaskProcessor;
+import com.hyland.openarch.async.tasks.TaskService;
 import com.hyland.openarch.ecm.core.SessionImpl;
 import com.hyland.openarch.ecm.core.api.CoreInstance;
 import com.hyland.openarch.ecm.core.api.CoreSession;

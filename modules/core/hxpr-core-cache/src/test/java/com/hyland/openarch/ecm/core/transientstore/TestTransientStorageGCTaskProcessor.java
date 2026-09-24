@@ -23,6 +23,7 @@ import static org.mockito.Mockito.verify;
 import java.lang.reflect.Field;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.hyland.openarch.async.tasks.message.RepositoryTask;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -119,6 +120,6 @@ public class TestTransientStorageGCTaskProcessor {
         TransientStorageGCTaskProcessor processor = new TransientStorageGCTaskProcessor();
 
         assertEquals("transientStorageGC", processor.getName());
-        assertEquals(com.hyland.hxpr.async.tasks.message.RepositoryTask.class, processor.getTaskClass());
+        assertEquals(RepositoryTask.class, processor.getTaskClass());
     }
 }

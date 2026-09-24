@@ -20,8 +20,8 @@ import static com.hyland.openarch.ecm.core.blob.BlobGarbageCollectorTaskProcesso
 import com.hyland.openarch.ecm.core.scheduler.ScheduledJob;
 import com.hyland.openarch.runtime.api.Framework;
 
-import com.hyland.hxpr.async.tasks.TaskService;
-import com.hyland.hxpr.async.tasks.message.RepositoryTask;
+import com.hyland.openarch.async.tasks.TaskService;
+import com.hyland.openarch.async.tasks.message.RepositoryTask;
 
 /**
  * Scheduled job periodically triggering the blob garbage collector.

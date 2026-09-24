@@ -58,7 +58,7 @@ import com.hyland.openarch.runtime.test.runner.TransactionalFeature;
 import com.hyland.openarch.runtime.transaction.TransactionHelper;
 
 import com.google.inject.Binder;
-import com.hyland.hxpr.async.tasks.TaskService;
+import com.hyland.openarch.async.tasks.TaskService;
 
 /**
  * The core feature provides a default {@link CoreSession} that can be injected.

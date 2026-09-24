@@ -79,7 +79,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-async-tasks</artifactId>
+      <artifactId>openarch-async-tasks</artifactId>
     </dependency>
     <!-- only for tests -->
     <dependency>
@@ -89,7 +89,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-async-tasks</artifactId>
+      <artifactId>openarch-async-tasks</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>

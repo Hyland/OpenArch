@@ -1,8 +1,0 @@
-<?xml version="1.0"?>
-<component name="com.hyland.hxpr.async.tasks.test.InMemoryTaskRunnerTest">
-
-  <extension target="com.hyland.hxpr.async.tasks.AsyncTasksService" point="asyncTasks">
-    <asyncTask name="dummyTask" class="com.hyland.hxpr.async.tasks.DummyBatchTaskProcessor"/>
-  </extension>
-
-</component>

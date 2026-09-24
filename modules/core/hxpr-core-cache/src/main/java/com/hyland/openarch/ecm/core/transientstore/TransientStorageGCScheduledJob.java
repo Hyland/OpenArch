@@ -17,8 +17,8 @@ package com.hyland.openarch.ecm.core.transientstore;
 
 import static com.hyland.openarch.ecm.core.transientstore.TransientStorageGCTaskProcessor.TRANSIENT_STORAGE_GC_TASK_NAME;
 
-import com.hyland.hxpr.async.tasks.TaskService;
-import com.hyland.hxpr.async.tasks.message.RepositoryTask;
+import com.hyland.openarch.async.tasks.TaskService;
+import com.hyland.openarch.async.tasks.message.RepositoryTask;
 import com.hyland.openarch.ecm.core.scheduler.ScheduledJob;
 import com.hyland.openarch.ecm.core.transientstore.api.TransientStore;
 import com.hyland.openarch.runtime.api.Framework;

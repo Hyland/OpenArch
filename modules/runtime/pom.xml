@@ -12,7 +12,7 @@
   <name>HxPR Community Runtime Parent</name>
 
   <modules>
-    <module>hxpr-async-tasks</module>
+    <module>openarch-async-tasks</module>
     <module>openarch-common</module>
     <module>openarch-config</module>
     <module>openarch-runtime</module>

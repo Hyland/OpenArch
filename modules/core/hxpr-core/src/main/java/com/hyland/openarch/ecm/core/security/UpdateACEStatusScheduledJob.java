@@ -19,8 +19,8 @@ package com.hyland.openarch.ecm.core.security;
 import static com.hyland.openarch.ecm.core.async.tasks.UpdateACEStatusTaskProcessor.UPDATE_ACE_STATUS_TASK_NAME;
 import static com.hyland.openarch.runtime.api.login.LoginService.SYSTEM_USERNAME;
 
-import com.hyland.hxpr.async.tasks.TaskService;
-import com.hyland.hxpr.async.tasks.message.RepositoryTask;
+import com.hyland.openarch.async.tasks.TaskService;
+import com.hyland.openarch.async.tasks.message.RepositoryTask;
 import com.hyland.openarch.ecm.core.api.repository.RepositoryManager;
 import com.hyland.openarch.ecm.core.scheduler.ScheduledJob;
 import com.hyland.openarch.runtime.api.Framework;

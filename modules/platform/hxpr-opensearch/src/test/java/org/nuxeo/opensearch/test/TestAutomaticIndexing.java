@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 
 import jakarta.inject.Inject;
 
-import com.hyland.hxpr.async.tasks.TaskService;
+import com.hyland.openarch.async.tasks.TaskService;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

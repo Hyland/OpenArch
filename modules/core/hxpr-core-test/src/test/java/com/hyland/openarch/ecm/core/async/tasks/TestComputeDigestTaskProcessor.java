@@ -15,17 +15,17 @@
  */
 package com.hyland.openarch.ecm.core.async.tasks;
 
-import static com.hyland.hxpr.async.tasks.TaskStatus.State.COMPLETED;
-import static com.hyland.hxpr.async.tasks.TaskStatus.State.SCHEDULED;
+import static com.hyland.openarch.async.tasks.TaskStatus.State.COMPLETED;
+import static com.hyland.openarch.async.tasks.TaskStatus.State.SCHEDULED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.Instant;
 
 import com.google.inject.Inject;
-import com.hyland.hxpr.async.tasks.AsyncTasksFeature;
-import com.hyland.hxpr.async.tasks.TaskService;
-import com.hyland.hxpr.async.tasks.TaskStatus;
+import com.hyland.openarch.async.tasks.AsyncTasksFeature;
+import com.hyland.openarch.async.tasks.TaskService;
+import com.hyland.openarch.async.tasks.TaskStatus;
 
 import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.junit.jupiter.api.Test;

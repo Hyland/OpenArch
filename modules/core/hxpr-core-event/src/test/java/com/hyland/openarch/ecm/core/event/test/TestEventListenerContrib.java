@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.List;
 
-import com.hyland.hxpr.async.tasks.AsyncTasksFeature;
+import com.hyland.openarch.async.tasks.AsyncTasksFeature;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

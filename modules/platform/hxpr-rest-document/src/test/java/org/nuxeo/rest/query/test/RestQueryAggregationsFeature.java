@@ -51,7 +51,7 @@ import com.hyland.openarch.runtime.test.runner.RunnerFeature;
 import com.hyland.openarch.runtime.transaction.TransactionHelper;
 import org.springframework.context.annotation.Import;
 
-import com.hyland.hxpr.async.tasks.TaskService;
+import com.hyland.openarch.async.tasks.TaskService;
 
 @Features({ UserManagerMockFeature.class, RepositoryOpenSearchFeature.class })
 @RepositoryConfig(cleanup = Granularity.CLASS)

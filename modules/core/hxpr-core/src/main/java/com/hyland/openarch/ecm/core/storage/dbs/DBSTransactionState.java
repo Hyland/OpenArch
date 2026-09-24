@@ -100,8 +100,8 @@ import com.hyland.openarch.ecm.core.storage.dbs.DBSSession.ChildrenSelectorTestC
 import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.transaction.TransactionHelper;
 
-import com.hyland.hxpr.async.tasks.TaskService;
-import com.hyland.hxpr.async.tasks.message.DocumentTask;
+import com.hyland.openarch.async.tasks.TaskService;
+import com.hyland.openarch.async.tasks.message.DocumentTask;
 
 /**
  * Transactional state for a session.

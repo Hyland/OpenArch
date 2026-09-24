@@ -26,7 +26,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.rmi.dgc.VMID;
 
-import com.hyland.hxpr.async.tasks.AsyncTasksFeature;
+import com.hyland.openarch.async.tasks.AsyncTasksFeature;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -29,7 +29,7 @@ import com.hyland.openarch.ecm.core.async.tasks.ComputeDigestTask;
 import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.services.event.Event;
 
-import com.hyland.hxpr.async.tasks.TaskService;
+import com.hyland.openarch.async.tasks.TaskService;
 
 class AsyncDigestListenerTest {
 

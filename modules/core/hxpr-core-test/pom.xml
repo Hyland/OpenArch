@@ -86,7 +86,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-async-tasks</artifactId>
+      <artifactId>openarch-async-tasks</artifactId>
       <type>test-jar</type>
       <scope>compile</scope>
     </dependency>

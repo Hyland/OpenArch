@@ -34,8 +34,8 @@ import com.hyland.openarch.runtime.api.Framework;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hyland.hxpr.async.tasks.executors.AbstractBatchTaskProcessor;
-import com.hyland.hxpr.async.tasks.message.BatchTask;
+import com.hyland.openarch.async.tasks.executors.AbstractBatchTaskProcessor;
+import com.hyland.openarch.async.tasks.message.BatchTask;
 
 public class RetentionExpiredBatchTaskProcessor extends AbstractBatchTaskProcessor {
 

@@ -51,7 +51,7 @@ import com.hyland.openarch.ecm.core.test.CoreFeature;
 import com.hyland.openarch.runtime.mockito.MockitoFeature;
 import com.hyland.openarch.runtime.test.runner.Features;
 
-import com.hyland.hxpr.async.tasks.message.DocumentTask;
+import com.hyland.openarch.async.tasks.message.DocumentTask;
 import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
 
 @ExtendWith(FeaturesExtension.class)

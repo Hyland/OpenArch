@@ -2,7 +2,7 @@
 <component name="com.hyland.hxpr.async.tasks.tests.config">
 
   <extension target="com.hyland.hxpr.async.tasks.AsyncTasksService" point="asyncTasks">
-    <asyncTask name="fail" class="com.hyland.hxpr.async.tasks.FailTaskProcessor"/>
+    <asyncTask name="fail" class="com.hyland.openarch.async.tasks.FailTaskProcessor"/>
   </extension>
 
 </component>

@@ -19,7 +19,7 @@ import static java.util.Objects.requireNonNullElse;
 import static com.hyland.openarch.ecm.core.async.tasks.CleanupOrphansTaskProcessor.CLEANUP_ORPHANS_TASK_NAME;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.hyland.hxpr.async.tasks.message.AbstractTask;
+import com.hyland.openarch.async.tasks.message.AbstractTask;
 
 import java.time.Duration;
 

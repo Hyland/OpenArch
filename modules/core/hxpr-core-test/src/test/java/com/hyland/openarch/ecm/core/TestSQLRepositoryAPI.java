@@ -167,7 +167,7 @@ import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
 import com.hyland.openarch.runtime.test.runner.TransactionalFeature;
 import com.hyland.openarch.runtime.transaction.TransactionHelper;
 
-import com.hyland.hxpr.async.tasks.TaskService;
+import com.hyland.openarch.async.tasks.TaskService;
 
 @ExtendWith(FeaturesExtension.class)
 @Features(CoreFeature.class)

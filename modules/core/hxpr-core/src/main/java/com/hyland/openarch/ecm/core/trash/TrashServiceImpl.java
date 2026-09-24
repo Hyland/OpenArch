@@ -66,8 +66,8 @@ import com.hyland.openarch.ecm.core.query.sql.model.WhereClause;
 import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.model.DefaultComponent;
 
-import com.hyland.hxpr.async.tasks.TaskService;
-import com.hyland.hxpr.async.tasks.message.ScrollerTask;
+import com.hyland.openarch.async.tasks.TaskService;
+import com.hyland.openarch.async.tasks.message.ScrollerTask;
 
 public class TrashServiceImpl extends DefaultComponent implements TrashService {
 

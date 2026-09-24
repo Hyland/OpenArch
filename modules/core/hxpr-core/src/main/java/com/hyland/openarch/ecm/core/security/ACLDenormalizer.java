@@ -15,7 +15,7 @@
  */
 package com.hyland.openarch.ecm.core.security;
 
-import static com.hyland.hxpr.async.tasks.executors.UpdateReadAclsBatchTaskProcessor.BATCH_UPDATE_READ_ACLS_TASK_NAME;
+import static com.hyland.openarch.async.tasks.executors.UpdateReadAclsBatchTaskProcessor.BATCH_UPDATE_READ_ACLS_TASK_NAME;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static java.util.stream.Collectors.toSet;
@@ -54,8 +54,8 @@ import com.hyland.openarch.ecm.core.storage.dbs.DBSSession;
 import com.hyland.openarch.ecm.core.storage.dbs.StateAccessor;
 import com.hyland.openarch.runtime.api.Framework;
 
-import com.hyland.hxpr.async.tasks.TaskService;
-import com.hyland.hxpr.async.tasks.message.ScrollerTask;
+import com.hyland.openarch.async.tasks.TaskService;
+import com.hyland.openarch.async.tasks.message.ScrollerTask;
 
 /**
  * Denormalizer of sys_acl into sys_racl.

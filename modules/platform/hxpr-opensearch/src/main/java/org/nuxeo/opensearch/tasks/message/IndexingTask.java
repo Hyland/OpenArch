@@ -24,7 +24,7 @@ import java.util.List;
 import org.nuxeo.opensearch.commands.IndexingCommand;
 import org.nuxeo.opensearch.commands.IndexingCommand.Type;
 
-import com.hyland.hxpr.async.tasks.message.AbstractTask;
+import com.hyland.openarch.async.tasks.message.AbstractTask;
 
 public class IndexingTask extends AbstractTask {
 

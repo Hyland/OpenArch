@@ -15,16 +15,16 @@
  */
 package com.hyland.openarch.ecm.core.async.tasks;
 
-import static com.hyland.hxpr.async.tasks.TaskStatus.State.SCHEDULED;
+import static com.hyland.openarch.async.tasks.TaskStatus.State.SCHEDULED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_TITLE;
 import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
 import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FOLDER;
 
 import com.google.inject.Inject;
-import com.hyland.hxpr.async.tasks.AsyncTasksFeature;
-import com.hyland.hxpr.async.tasks.TaskService;
-import com.hyland.hxpr.async.tasks.TaskStatus;
+import com.hyland.openarch.async.tasks.AsyncTasksFeature;
+import com.hyland.openarch.async.tasks.TaskService;
+import com.hyland.openarch.async.tasks.TaskStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

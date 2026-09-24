@@ -15,7 +15,7 @@
  */
 package org.nuxeo.opensearch.tasks;
 
-import static com.hyland.hxpr.async.tasks.TaskStatus.State.COMPLETED;
+import static com.hyland.openarch.async.tasks.TaskStatus.State.COMPLETED;
 import static org.nuxeo.opensearch.OpenSearchConstants.REINDEX_BUCKET_READ_PROPERTY;
 import static org.nuxeo.opensearch.OpenSearchServiceImpl.DEFAULT_BUCKET_SIZE;
 import static org.nuxeo.opensearch.OpenSearchServiceImpl.PROPERTY_REINDEXING_COMMAND;
@@ -32,10 +32,10 @@ import com.hyland.openarch.runtime.transaction.TransactionHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hyland.hxpr.async.tasks.TaskProcessor;
-import com.hyland.hxpr.async.tasks.TaskService;
-import com.hyland.hxpr.async.tasks.message.ScrollerTask;
-import com.hyland.hxpr.async.tasks.message.Task;
+import com.hyland.openarch.async.tasks.TaskProcessor;
+import com.hyland.openarch.async.tasks.TaskService;
+import com.hyland.openarch.async.tasks.message.ScrollerTask;
+import com.hyland.openarch.async.tasks.message.Task;
 
 public class IndexingTaskProcessor implements TaskProcessor<IndexingTask> {
 

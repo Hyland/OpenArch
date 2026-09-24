@@ -15,7 +15,7 @@
  */
 package com.hyland.openarch.ecm.core.async.tasks;
 
-import static com.hyland.hxpr.async.tasks.TaskStatus.State.COMPLETED;
+import static com.hyland.openarch.async.tasks.TaskStatus.State.COMPLETED;
 import static java.util.Objects.requireNonNullElse;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ID;
 import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_CONTENT;
@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import com.hyland.hxpr.async.tasks.message.RepositoryTask;
+import com.hyland.openarch.async.tasks.message.RepositoryTask;
 import com.hyland.openarch.ecm.core.api.CoreInstance;
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
@@ -51,8 +51,8 @@ import com.hyland.openarch.runtime.transaction.TransactionRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hyland.hxpr.async.tasks.TaskProcessor;
-import com.hyland.hxpr.async.tasks.TaskService;
+import com.hyland.openarch.async.tasks.TaskProcessor;
+import com.hyland.openarch.async.tasks.TaskService;
 
 public class UpdateACEStatusTaskProcessor implements TaskProcessor<RepositoryTask> {
 

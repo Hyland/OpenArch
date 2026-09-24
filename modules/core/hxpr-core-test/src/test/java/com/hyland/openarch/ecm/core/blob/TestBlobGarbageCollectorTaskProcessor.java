@@ -32,10 +32,10 @@ import org.mockito.MockedStatic;
 import com.hyland.openarch.ecm.core.blob.binary.BinaryManagerStatus;
 import com.hyland.openarch.runtime.api.Framework;
 
-import com.hyland.hxpr.async.tasks.TaskService;
-import com.hyland.hxpr.async.tasks.TaskStatus;
-import com.hyland.hxpr.async.tasks.TaskStatus.State;
-import com.hyland.hxpr.async.tasks.message.RepositoryTask;
+import com.hyland.openarch.async.tasks.TaskService;
+import com.hyland.openarch.async.tasks.TaskStatus;
+import com.hyland.openarch.async.tasks.TaskStatus.State;
+import com.hyland.openarch.async.tasks.message.RepositoryTask;
 
 /**
  * Unit tests for {@link BlobGarbageCollectorTaskProcessor}.

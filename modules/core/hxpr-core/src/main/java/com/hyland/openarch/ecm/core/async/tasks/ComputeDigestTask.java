@@ -17,7 +17,7 @@ package com.hyland.openarch.ecm.core.async.tasks;
 
 import static com.hyland.openarch.ecm.core.async.tasks.ComputeDigestTaskProcessor.COMPUTE_DIGEST_TASK_NAME;
 
-import com.hyland.hxpr.async.tasks.message.AbstractTask;
+import com.hyland.openarch.async.tasks.message.AbstractTask;
 
 import java.util.Objects;
 

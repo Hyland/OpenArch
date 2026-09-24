@@ -61,7 +61,7 @@ import com.hyland.openarch.runtime.test.runner.TransactionalFeature;
 import org.opensearch.client.opensearch._types.aggregations.Aggregate;
 import org.opensearch.client.opensearch.core.search.HitsMetadata;
 
-import com.hyland.hxpr.async.tasks.TaskService;
+import com.hyland.openarch.async.tasks.TaskService;
 
 import jakarta.inject.Inject;
 

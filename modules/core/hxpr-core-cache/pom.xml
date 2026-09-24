@@ -61,12 +61,12 @@
 
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-async-tasks</artifactId>
+      <artifactId>openarch-async-tasks</artifactId>
     </dependency>
 
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-async-tasks</artifactId>
+      <artifactId>openarch-async-tasks</artifactId>
       <scope>test</scope>
       <type>test-jar</type>
     </dependency>

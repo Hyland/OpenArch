@@ -34,7 +34,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-async-tasks</artifactId>
+      <artifactId>openarch-async-tasks</artifactId>
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>

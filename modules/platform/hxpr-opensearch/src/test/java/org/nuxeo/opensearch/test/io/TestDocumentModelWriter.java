@@ -75,7 +75,7 @@ import org.skyscreamer.jsonassert.ValueMatcher;
 import org.skyscreamer.jsonassert.comparator.CustomComparator;
 import org.skyscreamer.jsonassert.comparator.JSONComparator;
 
-import com.hyland.hxpr.async.tasks.TaskService;
+import com.hyland.openarch.async.tasks.TaskService;
 
 import jakarta.inject.Inject;
 import jakarta.json.stream.JsonGenerator;

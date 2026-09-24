@@ -36,8 +36,8 @@ import com.hyland.openarch.runtime.mockito.RuntimeInject;
 import com.hyland.openarch.runtime.springboot.junit.RuntimeTestState;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.hyland.hxpr.async.tasks.AbstractTestAsyncTask;
-import com.hyland.hxpr.async.tasks.TaskService;
+import com.hyland.openarch.async.tasks.AbstractTestAsyncTask;
+import com.hyland.openarch.async.tasks.TaskService;
 
 /**
  * @since 7.4

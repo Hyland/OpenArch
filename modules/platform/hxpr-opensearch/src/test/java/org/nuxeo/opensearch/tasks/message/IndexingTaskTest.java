@@ -21,8 +21,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 
-import com.hyland.hxpr.async.tasks.AsyncTasksFeature;
-import com.hyland.hxpr.async.tasks.TaskServiceImpl;
+import com.hyland.openarch.async.tasks.AsyncTasksFeature;
+import com.hyland.openarch.async.tasks.TaskServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import com.hyland.openarch.ecm.core.api.DocumentModel;

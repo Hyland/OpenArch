@@ -23,9 +23,9 @@ import com.hyland.openarch.runtime.api.Framework;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hyland.hxpr.async.tasks.TaskService;
-import com.hyland.hxpr.async.tasks.message.ScrollerTask;
-import com.hyland.hxpr.async.tasks.scroller.BatchingScrollerTaskProcessor;
+import com.hyland.openarch.async.tasks.TaskService;
+import com.hyland.openarch.async.tasks.message.ScrollerTask;
+import com.hyland.openarch.async.tasks.scroller.BatchingScrollerTaskProcessor;
 
 /**
  * Processes ScrollerTask tasks for document indexing

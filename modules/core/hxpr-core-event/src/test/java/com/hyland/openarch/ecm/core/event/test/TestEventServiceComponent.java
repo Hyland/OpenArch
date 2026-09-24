@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import com.hyland.openarch.ecm.core.api.RepositoryException;
 import jakarta.inject.Inject;
 
-import com.hyland.hxpr.async.tasks.AsyncTasksFeature;
+import com.hyland.openarch.async.tasks.AsyncTasksFeature;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

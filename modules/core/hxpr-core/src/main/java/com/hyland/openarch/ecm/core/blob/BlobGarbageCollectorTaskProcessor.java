@@ -15,16 +15,16 @@
  */
 package com.hyland.openarch.ecm.core.blob;
 
-import static com.hyland.hxpr.async.tasks.TaskStatus.State.COMPLETED;
+import static com.hyland.openarch.async.tasks.TaskStatus.State.COMPLETED;
 
 import com.hyland.openarch.ecm.core.blob.binary.BinaryManagerStatus;
 import com.hyland.openarch.runtime.api.Framework;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hyland.hxpr.async.tasks.TaskProcessor;
-import com.hyland.hxpr.async.tasks.TaskService;
-import com.hyland.hxpr.async.tasks.message.RepositoryTask;
+import com.hyland.openarch.async.tasks.TaskProcessor;
+import com.hyland.openarch.async.tasks.TaskService;
+import com.hyland.openarch.async.tasks.message.RepositoryTask;
 
 /**
  * Task processor running the blob garbage collector.
