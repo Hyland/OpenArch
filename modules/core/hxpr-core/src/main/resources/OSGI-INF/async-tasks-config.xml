@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <component name="com.hyland.hxpr.async.tasks">
 
-  <extension target="com.hyland.hxpr.async.tasks.AsyncTasksService" point="asyncTasks">
+  <extension target="com.hyland.openarch.async.tasks.AsyncTasksService" point="asyncTasks">
     <asyncTask name="deletion" class="com.hyland.openarch.ecm.core.async.tasks.DeleteBatchTaskProcessor"/>
     <asyncTask name="computeDigest" class="com.hyland.openarch.ecm.core.async.tasks.ComputeDigestTaskProcessor"/>
     <asyncTask name="updateAceStatus" class="com.hyland.openarch.ecm.core.async.tasks.UpdateACEStatusTaskProcessor"/>

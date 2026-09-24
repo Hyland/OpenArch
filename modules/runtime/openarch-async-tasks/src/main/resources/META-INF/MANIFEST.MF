@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-SymbolicName: com.hyland.hxpr.async.tasks;singleton:=true
+Bundle-SymbolicName: com.hyland.openarch.async.tasks;singleton:=true
 Nuxeo-Component: OSGI-INF/async-tasks-service.xml,
     OSGI-INF/async-tasks-contrib.xml

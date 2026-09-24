@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <component name="org.nuxeo.ecm.core.event.async.tasks">
 
-  <extension target="com.hyland.hxpr.async.tasks.AsyncTasksService" point="asyncTasks">
+  <extension target="com.hyland.openarch.async.tasks.AsyncTasksService" point="asyncTasks">
     <asyncTask name="trash" class="com.hyland.openarch.ecm.core.event.async.TrashBatchTaskProcessor"/>
   </extension>
 </component>

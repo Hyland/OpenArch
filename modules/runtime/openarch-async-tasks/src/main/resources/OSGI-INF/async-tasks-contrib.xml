@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
-<component name="com.hyland.hxpr.async.tasks.bulkasyncactions">
+<component name="com.hyland.openarch.async.tasks.bulkasyncactions">
 
-  <extension target="com.hyland.hxpr.async.tasks.AsyncTasksService" point="runner">
+  <extension target="com.hyland.openarch.async.tasks.AsyncTasksService" point="runner">
     <runner class="com.hyland.openarch.async.tasks.mem.MemTaskRunner"/>
   </extension>
 
-  <extension target="com.hyland.hxpr.async.tasks.AsyncTasksService" point="asyncTasks">
+  <extension target="com.hyland.openarch.async.tasks.AsyncTasksService" point="asyncTasks">
     <asyncTask name="setProperties" class="com.hyland.openarch.async.tasks.executors.SetPropertiesBatchTaskProcessor"/>
     <asyncTask name="setSystemProperties" class="com.hyland.openarch.async.tasks.executors.SetSystemPropertiesBatchTaskProcessor"/>
     <asyncTask name="updateReadAcls" class="com.hyland.openarch.async.tasks.executors.UpdateReadAclsBatchTaskProcessor"/>

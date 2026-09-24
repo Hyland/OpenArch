@@ -37,7 +37,7 @@ import com.hyland.openarch.async.tasks.message.DocumentTask;
 
 @SpringBootTest(classes = RuntimeTestState.class)
 @Features(AsyncTasksFeature.class)
-@Deploy("com.hyland.hxpr.async.tasks.tests:OSGI-INF/test-async-tasks-contrib.xml")
+@Deploy("com.hyland.openarch.async.tasks.tests:OSGI-INF/test-async-tasks-contrib.xml")
 public class TestAsyncTasksServiceAdmin extends RuntimeSpringBootTest {
 
     @RuntimeInject

@@ -18,7 +18,7 @@
 
   </extension>
 
-  <extension target="com.hyland.hxpr.async.tasks.AsyncTasksService" point="asyncTasks">
+  <extension target="com.hyland.openarch.async.tasks.AsyncTasksService" point="asyncTasks">
     <asyncTask name="transientStorageGC" class="com.hyland.openarch.ecm.core.transientstore.TransientStorageGCTaskProcessor"/>
   </extension>
 

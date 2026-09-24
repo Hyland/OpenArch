@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <component name="org.nuxeo.opensearch.core.async.tasks.contrib">
 
-  <extension target="com.hyland.hxpr.async.tasks.AsyncTasksService" point="asyncTasks">
+  <extension target="com.hyland.openarch.async.tasks.AsyncTasksService" point="asyncTasks">
     <asyncTask name="bucketIndexing" class="org.nuxeo.opensearch.tasks.IndexingBatchTaskProcessor"/>
     <asyncTask name="indexing" class="org.nuxeo.opensearch.tasks.IndexingTaskProcessor"/>
     <asyncTask name="scrollerIndexing" class="org.nuxeo.opensearch.tasks.IndexingScrollerTaskProcessor"/>

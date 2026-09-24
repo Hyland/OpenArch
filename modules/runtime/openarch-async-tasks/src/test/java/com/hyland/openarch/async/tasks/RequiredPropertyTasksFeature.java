@@ -24,7 +24,7 @@ import com.hyland.openarch.runtime.test.runner.FeaturesLoader;
  * task gated on it is activated. The matching absent property is deliberately never set.
  */
 @Features(AsyncTasksFeature.class)
-@Deploy("com.hyland.hxpr.async.tasks.tests:OSGI-INF/required-property-tasks-contrib.xml")
+@Deploy("com.hyland.openarch.async.tasks.tests:OSGI-INF/required-property-tasks-contrib.xml")
 public class RequiredPropertyTasksFeature extends AsyncTasksFeature {
 
     public static final String PRESENT_PROPERTY = "test.async.tasks.required.present";

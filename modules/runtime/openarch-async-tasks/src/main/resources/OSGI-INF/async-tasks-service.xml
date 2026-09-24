@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<component name="com.hyland.hxpr.async.tasks.AsyncTasksService">
+<component name="com.hyland.openarch.async.tasks.AsyncTasksService">
 
   <documentation>
     The Bulk Action Service allows to execute a Bulk Action Command. This consists of two steps:
@@ -30,7 +30,7 @@
     <object class="com.hyland.openarch.async.tasks.TaskRunnerDescriptor" />
   </extension-point>
 
-  <extension target="com.hyland.hxpr.async.tasks.AsyncTasksService" point="asyncTasks">
+  <extension target="com.hyland.openarch.async.tasks.AsyncTasksService" point="asyncTasks">
     <asyncTask name="scroller" class="com.hyland.openarch.async.tasks.scroller.BatchingScrollerTaskProcessor"/>
   </extension>
 

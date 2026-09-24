@@ -61,7 +61,7 @@ public class TaskServiceImpl extends DefaultComponent implements TaskService, Co
 
     private static final Logger log = LoggerFactory.getLogger(TaskServiceImpl.class);
 
-    private static final String NAME = "com.hyland.hxpr.async.tasks.AsyncTasksService";
+    private static final String NAME = "com.hyland.openarch.async.tasks.AsyncTasksService";
 
     private static final String XP_TASKS = "asyncTasks";
 

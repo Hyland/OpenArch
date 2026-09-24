@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
-<component name="com.hyland.hxpr.async.tasks.test.RequiredPropertyTasks">
+<component name="com.hyland.openarch.async.tasks.test.RequiredPropertyTasks">
 
-  <extension target="com.hyland.hxpr.async.tasks.AsyncTasksService" point="asyncTasks">
+  <extension target="com.hyland.openarch.async.tasks.AsyncTasksService" point="asyncTasks">
     <!-- Enabled only when its conditional property resolves to a non-blank value. -->
     <asyncTask name="gatedPresentTask" class="com.hyland.openarch.async.tasks.DummyBatchTaskProcessor"
                conditionalOnProperty="test.async.tasks.required.present"/>

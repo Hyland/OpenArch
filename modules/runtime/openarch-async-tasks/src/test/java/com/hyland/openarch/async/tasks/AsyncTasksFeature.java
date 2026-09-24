@@ -24,8 +24,8 @@ import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
 import com.hyland.openarch.runtime.test.runner.TransactionalFeature;
 
 @Deploy("com.hyland.openarch.runtime.kv")
-@Deploy("com.hyland.hxpr.async.tasks")
-@Deploy("com.hyland.hxpr.async.tasks.tests")
+@Deploy("com.hyland.openarch.async.tasks")
+@Deploy("com.hyland.openarch.async.tasks.tests")
 @Features({ RuntimeFeature.class, TransactionalFeature.class })
 public class AsyncTasksFeature implements RunnerFeature {
 
