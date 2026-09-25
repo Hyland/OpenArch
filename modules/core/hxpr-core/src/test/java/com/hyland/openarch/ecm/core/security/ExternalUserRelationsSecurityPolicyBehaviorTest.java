@@ -39,11 +39,6 @@ import com.hyland.openarch.ecm.core.api.query.QueryParameters;
 import com.hyland.openarch.ecm.core.model.InternalDocument;
 import com.hyland.openarch.ecm.core.query.sql.model.BooleanLiteral;
 import com.hyland.openarch.ecm.core.query.sql.model.Operand;
-import com.hyland.openarch.ecm.core.schema.SchemaManager;
-import com.hyland.openarch.ecm.core.schema.TypeService;
-import com.hyland.openarch.ecm.core.schema.types.CompositeType;
-import com.hyland.openarch.ecm.core.schema.types.Field;
-import com.hyland.openarch.ecm.core.schema.types.Schema;
 import com.hyland.openarch.ecm.core.schema.validation.violations.ValidationViolation;
 import com.hyland.openarch.ecm.core.security.config.ExternalUserRelationsSecurityPolicyConfig;
 import com.hyland.openarch.runtime.api.Framework;
@@ -86,21 +81,7 @@ class ExternalUserRelationsSecurityPolicyBehaviorTest {
     }
 
     private static void stubMixinFields(MockedStatic<Framework> framework, String... fieldNames) {
-        TypeService typeService = mock(TypeService.class);
-        SchemaManager schemaManager = mock(SchemaManager.class);
-        CompositeType mixin = mock(CompositeType.class);
-        Schema schema = mock(Schema.class);
-        List<Field> fields = new ArrayList<>();
-        for (String fieldName : fieldNames) {
-            Field field = mock(Field.class);
-            when(field.getName()).thenReturn(fieldName);
-            fields.add(field);
-        }
-        framework.when(() -> Framework.getService(TypeService.class)).thenReturn(typeService);
-        when(typeService.getSchemaManager(REPO)).thenReturn(schemaManager);
-        when(schemaManager.getMixin(MIXIN)).thenReturn(mixin);
-        when(mixin.getSchemas()).thenReturn(List.of(schema));
-        when(schema.getFields()).thenReturn(fields);
+        SecurityPolicyBehaviorTestSupport.stubMixinFields(framework, REPO, MIXIN, fieldNames);
     }
 
     private static RepositoryPrincipal principal(String id, Map<String, Object> properties) {
