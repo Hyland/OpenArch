@@ -21,7 +21,7 @@ import com.hyland.openarch.runtime.test.runner.RunnerFeature;
 import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
 
 @Features(RuntimeFeature.class)
-@Deploy("org.nuxeo.ecm.core:OSGI-INF/documentblob-service.xml")
+@Deploy("com.hyland.openarch.ecm.core:OSGI-INF/documentblob-service.xml")
 public class DocumentBlobServiceFeature implements RunnerFeature {
 
 }

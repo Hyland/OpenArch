@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<component name="org.nuxeo.ecm.core.CoreExtensions">
+<component name="com.hyland.openarch.ecm.core.CoreExtensions">
 
   <documentation>
     This component is contributing the core types and schemas and other core extensions.

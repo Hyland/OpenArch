@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <component name="org.nuxeo.ecm.core.storage.sql.tests.repo.any">
 
-  <require>org.nuxeo.ecm.core.CoreExtensions</require>
+  <require>com.hyland.openarch.ecm.core.CoreExtensions</require>
 
   <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="schema">
     <schema name="any" prefix="any" src="schemas/any.xsd"/>

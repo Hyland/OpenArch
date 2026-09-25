@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <component name="org.nuxeo.opensearch.test.contrib">
 
-  <require>org.nuxeo.ecm.core.CoreExtensions</require>
+  <require>com.hyland.openarch.ecm.core.CoreExtensions</require>
 
   <extension point="openSearchIndex" target="org.nuxeo.opensearch.OpenSearchService">
     <openSearchIndex name="nuxeo" remove="true" />

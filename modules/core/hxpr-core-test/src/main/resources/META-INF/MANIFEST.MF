@@ -29,4 +29,4 @@ Import-Package: com.google.inject,
  org.osgi.framework,
  org.nuxeo.ecm.core.work,
  com.hyland.openarch.runtime
-Require-Bundle: org.nuxeo.ecm.core
+Require-Bundle: com.hyland.openarch.ecm.core

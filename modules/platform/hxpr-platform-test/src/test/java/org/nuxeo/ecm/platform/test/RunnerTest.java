@@ -38,7 +38,7 @@ import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
  */
 @ExtendWith(FeaturesExtension.class)
 @Features(CoreFeature.class)
-@Deploy("org.nuxeo.ecm.core:local-resource-test.xml")
+@Deploy("com.hyland.openarch.ecm.core:local-resource-test.xml")
 public class RunnerTest {
 
     @Inject

@@ -3,7 +3,7 @@
 
   <required>com.hyland.openarch.async.tasks.bulkasyncactions</required>
   <required>com.hyland.openarch.async.tasks</required>
-  <required>org.nuxeo.ecm.core.retention.contrib</required>
+  <required>com.hyland.openarch.ecm.core.retention.contrib</required>
   <required>org.nuxeo.ecm.core.transient.store.config</required>
 
   <extension target="com.hyland.openarch.async.tasks.AsyncTasksService" point="asyncTasks">

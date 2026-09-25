@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <component name="org.nuxeo.opensearch.provider.testSchemas">
 
-  <require>org.nuxeo.ecm.core.CoreExtensions</require>
+  <require>com.hyland.openarch.ecm.core.CoreExtensions</require>
 
   <extension point="schema" target="com.hyland.openarch.ecm.core.schema.TypeService">
     <schema name="advanced_search" prefix="search" src="schemas/test_advanced_search.xsd" />

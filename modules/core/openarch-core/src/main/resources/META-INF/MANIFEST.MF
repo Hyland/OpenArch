@@ -1,20 +1,20 @@
-Export-Package: org.nuxeo.ecm.core,
+Export-Package: com.hyland.openarch.ecm.core,
  com.hyland.openarch.ecm.core.api,
  com.hyland.openarch.ecm.core.api.local,
- org.nuxeo.ecm.core.lifecycle,
- org.nuxeo.ecm.core.lifecycle.event,
- org.nuxeo.ecm.core.lifecycle.extensions,
- org.nuxeo.ecm.core.lifecycle.impl,
- org.nuxeo.ecm.core.model,
- org.nuxeo.ecm.core.repository,
- org.nuxeo.ecm.core.security,
- org.nuxeo.ecm.core.trash,
- org.nuxeo.ecm.core.versioning
+ com.hyland.openarch.ecm.core.lifecycle,
+ com.hyland.openarch.ecm.core.lifecycle.event,
+ com.hyland.openarch.ecm.core.lifecycle.extensions,
+ com.hyland.openarch.ecm.core.lifecycle.impl,
+ com.hyland.openarch.ecm.core.model,
+ com.hyland.openarch.ecm.core.repository,
+ com.hyland.openarch.ecm.core.security,
+ com.hyland.openarch.ecm.core.trash,
+ com.hyland.openarch.ecm.core.versioning
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
 Manifest-Version: 1.0
 Bundle-Category: core
-Bundle-Name: org.nuxeo.ecm.core
+Bundle-Name: com.hyland.openarch.ecm.core
 Created-By: 1.6.0_20 (Sun Microsystems Inc.)
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: com.hyland.openarch.ecm.core.api;visibility:=reexport,
@@ -62,5 +62,5 @@ Import-Package: javax.naming,
  com.hyland.openarch.runtime.transaction,
  org.osgi.framework;version="1.4",
  org.w3c.dom
-Bundle-SymbolicName: org.nuxeo.ecm.core;singleton:=true
+Bundle-SymbolicName: com.hyland.openarch.ecm.core;singleton:=true
 Eclipse-ExtensibleAPI: true

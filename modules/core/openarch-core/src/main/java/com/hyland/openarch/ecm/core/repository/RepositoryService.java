@@ -57,7 +57,7 @@ import com.hyland.openarch.runtime.transaction.TransactionHelper;
 public class RepositoryService extends DefaultComponent implements ComponentManager.Listener {
 
     /** @since 11.1 */
-    public static final String CLUSTER_START_DURATION_PROP = "org.nuxeo.repository.cluster.start.duration";
+    public static final String CLUSTER_START_DURATION_PROP = "com.hyland.openarch.repository.cluster.start.duration";
 
     /** @since 11.1 */
     public static final Duration CLUSTER_START_DURATION_DEFAULT = Duration.ofMinutes(1);

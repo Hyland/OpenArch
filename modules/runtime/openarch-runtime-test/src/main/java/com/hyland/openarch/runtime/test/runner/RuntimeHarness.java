@@ -52,7 +52,7 @@ public interface RuntimeHarness {
      * Deploys a contribution from a given bundle.
      * <p>
      * The path will be relative to the bundle root. Example: <code>
-     * deployContrib("org.nuxeo.ecm.core", "OSGI-INF/CoreExtensions.xml")
+     * deployContrib("com.hyland.openarch.ecm.core", "OSGI-INF/CoreExtensions.xml")
      * </code>
      * <p>
      * For compatibility reasons the name of the bundle may be a jar name, but this use is discouraged and deprecated.

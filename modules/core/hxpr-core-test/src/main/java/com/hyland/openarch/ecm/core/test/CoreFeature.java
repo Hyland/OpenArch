@@ -76,7 +76,7 @@ import com.hyland.openarch.async.tasks.TaskService;
 @Deploy("com.hyland.openarch.ecm.core.query")
 @Deploy("com.hyland.openarch.ecm.core.api")
 @Deploy("com.hyland.openarch.async.tasks")
-@Deploy("org.nuxeo.ecm.core")
+@Deploy("com.hyland.openarch.ecm.core")
 @Deploy("org.nuxeo.ecm.core.io")
 @Deploy("org.nuxeo.ecm.core.cache")
 @Deploy("org.nuxeo.ecm.core.test")

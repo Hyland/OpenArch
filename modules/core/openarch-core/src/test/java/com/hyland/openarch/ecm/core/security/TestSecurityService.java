@@ -49,8 +49,8 @@ import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
  */
 @ExtendWith(FeaturesExtension.class)
 @Features(RuntimeFeature.class)
-@Deploy("org.nuxeo.ecm.core:OSGI-INF/SecurityService.xml")
-@Deploy("org.nuxeo.ecm.core:OSGI-INF/permissions-contrib.xml")
+@Deploy("com.hyland.openarch.ecm.core:OSGI-INF/SecurityService.xml")
+@Deploy("com.hyland.openarch.ecm.core:OSGI-INF/permissions-contrib.xml")
 public class TestSecurityService {
 
     private static final String CUSTOM_COMPOUND_PERM = "CustomCompoundPerm";
@@ -72,7 +72,7 @@ public class TestSecurityService {
 
     @Test
     // deploy a new atomic permission and a new compound permission
-    @Deploy("org.nuxeo.ecm.core.tests:permissions-override1-contrib.xml")
+    @Deploy("com.hyland.openarch.ecm.core.tests:permissions-override1-contrib.xml")
     public void testOverridedPermissions1() {
         // test how previous permissions where affected by the override
         Set<String> permissions = service.getAllPermissionsContaining(READ);
@@ -88,7 +88,7 @@ public class TestSecurityService {
 
     @Test
     // deploy a new atomic permission and a new compound permission
-    @Deploy("org.nuxeo.ecm.core.tests:permissions-override2-contrib.xml")
+    @Deploy("com.hyland.openarch.ecm.core.tests:permissions-override2-contrib.xml")
     public void testOverriddenPermissions2() {
         // check default permissions where not affected by the override
         testDefaultPermissions();

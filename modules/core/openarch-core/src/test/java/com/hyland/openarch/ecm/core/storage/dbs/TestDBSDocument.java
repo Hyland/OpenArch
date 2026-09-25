@@ -72,8 +72,8 @@ import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
 @ExtendWith(FeaturesExtension.class)
 @Features({ RuntimeFeature.class, MockitoFeature.class })
 @Deploy("com.hyland.openarch.ecm.core.schema")
-@Deploy("org.nuxeo.ecm.core")
-@Deploy("org.nuxeo.ecm.core.tests:OSGI-INF/test-dbsdocument.xml")
+@Deploy("com.hyland.openarch.ecm.core")
+@Deploy("com.hyland.openarch.ecm.core.tests:OSGI-INF/test-dbsdocument.xml")
 public class TestDBSDocument {
     @Inject
     private TypeService typeService;

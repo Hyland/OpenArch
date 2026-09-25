@@ -109,7 +109,7 @@ public class TestDocumentBlobService {
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.tests:OSGI-INF/test-blob-dispatch.xml")
+    @Deploy("com.hyland.openarch.ecm.core.tests:OSGI-INF/test-blob-dispatch.xml")
     public void testDispatch() throws Exception {
         DummyBlobProvider.resetAllCounters();
         // blob that's not a video gets stored on the first dummy repo
@@ -138,7 +138,7 @@ public class TestDocumentBlobService {
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.tests:OSGI-INF/test-blob-dispatch-xpath.xml")
+    @Deploy("com.hyland.openarch.ecm.core.tests:OSGI-INF/test-blob-dispatch-xpath.xml")
     public void testDispatchXPath() throws Exception {
         DummyBlobProvider.resetAllCounters();
         Blob blob = Blobs.createBlob("foo", "text/plain");

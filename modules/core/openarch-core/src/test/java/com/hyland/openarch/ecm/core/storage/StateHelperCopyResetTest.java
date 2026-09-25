@@ -37,7 +37,7 @@ import com.hyland.openarch.runtime.api.Framework;
  */
 class StateHelperCopyResetTest {
 
-    private static final String DISABLED_DELTA_PROP = "org.nuxeo.core.delta.disabled";
+    private static final String DISABLED_DELTA_PROP = "com.hyland.openarch.core.delta.disabled";
 
     @Test
     void deepCopyReturnsScalarsAndNullUnchanged() {

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <component name="org.nuxeo.test.write.types">
 
-  <require>org.nuxeo.ecm.core.CoreExtensions</require>
+  <require>com.hyland.openarch.ecm.core.CoreExtensions</require>
 
   <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="schema">
     <schema name="any" prefix="any" src="schema/any.xsd"/>

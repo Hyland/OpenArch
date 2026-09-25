@@ -40,7 +40,7 @@ import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
 @ExtendWith(FeaturesExtension.class)
 @Features(RuntimeFeature.class)
 @Deploy("com.hyland.openarch.ecm.core.schema")
-@Deploy("org.nuxeo.ecm.core")
+@Deploy("com.hyland.openarch.ecm.core")
 public class SystemPropertyCatalogTest {
 
     @Inject

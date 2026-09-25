@@ -43,7 +43,7 @@ import com.hyland.openarch.runtime.api.Framework;
  */
 public class StateHelper {
 
-    private static final String DISABLED_DELTA_PROP = "org.nuxeo.core.delta.disabled";
+    private static final String DISABLED_DELTA_PROP = "com.hyland.openarch.core.delta.disabled";
 
     /** Utility class. */
     private StateHelper() {

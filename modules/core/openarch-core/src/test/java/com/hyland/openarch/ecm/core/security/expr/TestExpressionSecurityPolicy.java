@@ -46,10 +46,10 @@ import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
 @ExtendWith(FeaturesExtension.class)
 @Features(RuntimeFeature.class)
 @Deploy("com.hyland.openarch.ecm.core.schema")
-@Deploy("org.nuxeo.ecm.core:OSGI-INF/SecurityService.xml")
-@Deploy("org.nuxeo.ecm.core:OSGI-INF/permissions-contrib.xml")
-@Deploy("org.nuxeo.ecm.core:OSGI-INF/CoreExtensions.xml")
-@Deploy("org.nuxeo.ecm.core.tests:OSGI-INF/test-expression-security-policy.xml")
+@Deploy("com.hyland.openarch.ecm.core:OSGI-INF/SecurityService.xml")
+@Deploy("com.hyland.openarch.ecm.core:OSGI-INF/permissions-contrib.xml")
+@Deploy("com.hyland.openarch.ecm.core:OSGI-INF/CoreExtensions.xml")
+@Deploy("com.hyland.openarch.ecm.core.tests:OSGI-INF/test-expression-security-policy.xml")
 public class TestExpressionSecurityPolicy {
 
     private static final String MIXIN = "Clearance";

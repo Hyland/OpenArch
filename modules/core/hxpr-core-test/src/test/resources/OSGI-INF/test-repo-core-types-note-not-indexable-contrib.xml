@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <component name="org.nuxeo.ecm.core.storage.sql.tests.repo.core-types-note-not-indexable">
 
-  <require>org.nuxeo.ecm.core.CoreExtensions</require>
+  <require>com.hyland.openarch.ecm.core.CoreExtensions</require>
 
   <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="doctype">
     <doctype name="Note" extends="SysContent">

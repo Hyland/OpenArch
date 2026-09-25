@@ -50,7 +50,7 @@ import static com.hyland.openarch.ecm.core.api.security.SecurityConstants.WRITE;
 @ExtendWith(FeaturesExtension.class)
 @Features({ RuntimeFeature.class, MockitoFeature.class })
 @Deploy("com.hyland.openarch.ecm.core.schema")
-@Deploy("org.nuxeo.ecm.core")
+@Deploy("com.hyland.openarch.ecm.core")
 public class RetentionSecurityPolicyTest {
 
     private static final String REPO_ID = "test";

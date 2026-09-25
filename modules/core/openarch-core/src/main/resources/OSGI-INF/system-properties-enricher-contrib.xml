@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <component name="com.hyland.openarch.ecm.core.SystemPropertiesEnricher">
 
-  <extension target="org.nuxeo.ecm.core.DocumentEnrichmentService" point="enrichers">
+  <extension target="com.hyland.openarch.ecm.core.DocumentEnrichmentService" point="enrichers">
     <enricher id="systemProperties" class="com.hyland.openarch.ecm.core.SystemPropertiesEnricher" />
   </extension>
 

@@ -172,7 +172,7 @@ public class DBSSession implements InternalSession {
 
     private final Timer queryTimer;
 
-    private static final String LOG_MIN_DURATION_KEY = "org.nuxeo.dbs.query.log_min_duration_ms";
+    private static final String LOG_MIN_DURATION_KEY = "com.hyland.openarch.dbs.query.log_min_duration_ms";
 
     public static final String CANNOT_REMOVE_ROOT_DIRECTORY = "Cannot remove %s, it is the root directory";
 
