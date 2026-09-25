@@ -41,7 +41,7 @@ import com.hyland.openarch.runtime.springboot.framework.ApplicationContextHelper
  * </ol>
  * </p>
  * <p>
- * This class is Nuxeo Runtime-managed (registered via {@code OSGI-INF/usermanager-filestore-config.xml})
+ * This class is OpenArch Runtime-managed (registered via {@code OSGI-INF/usermanager-filestore-config.xml})
  * and therefore not a Spring bean. The {@link UserStoreLoader} Spring bean is accessed lazily via
  * {@link ApplicationContextHelper} following the same pattern used by the enterprise
  * {@code UserManagerNucleus}.
