@@ -24,7 +24,7 @@ import com.hyland.openarch.runtime.test.runner.RunnerFeature;
  * @since 7.2
  */
 @Features(TransientStoreFeature.class)
-@Deploy("org.nuxeo.ecm.core.cache.test:test-in-memory-transientstore-contrib.xml")
+@Deploy("com.hyland.openarch.ecm.core.cache.test:test-in-memory-transientstore-contrib.xml")
 public class InMemoryTransientStoreFeature implements RunnerFeature {
 
 }

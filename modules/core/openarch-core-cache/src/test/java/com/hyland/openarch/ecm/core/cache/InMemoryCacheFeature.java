@@ -25,7 +25,7 @@ import com.google.inject.Binder;
 import com.google.inject.name.Names;
 
 @Features(CacheFeature.class)
-@Deploy("org.nuxeo.ecm.core.cache:inmemory-cache-config.xml")
+@Deploy("com.hyland.openarch.ecm.core.cache:inmemory-cache-config.xml")
 public class InMemoryCacheFeature implements RunnerFeature {
 
     public static final String MAXSIZE_TEST_CACHE_NAME = "maxsize-test-cache";

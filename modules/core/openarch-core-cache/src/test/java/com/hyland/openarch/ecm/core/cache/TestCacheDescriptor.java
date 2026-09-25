@@ -36,7 +36,7 @@ import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
 
 @ExtendWith(FeaturesExtension.class)
 @Features({ RuntimeFeature.class, BasicClusterFeature.class })
-@Deploy("org.nuxeo.ecm.core.cache:OSGI-INF/CacheService.xml")
+@Deploy("com.hyland.openarch.ecm.core.cache:OSGI-INF/CacheService.xml")
 public class TestCacheDescriptor {
 
     protected static final String NAME = "myid";
@@ -49,7 +49,7 @@ public class TestCacheDescriptor {
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.cache.test:test-cache-config.xml")
+    @Deploy("com.hyland.openarch.ecm.core.cache.test:test-cache-config.xml")
     public void testConfig() throws Exception {
         CacheDescriptor desc = getService().getCacheDescriptor(NAME);
         assertNotNull(desc);
@@ -60,8 +60,8 @@ public class TestCacheDescriptor {
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.cache.test:test-cache-config.xml")
-    @Deploy("org.nuxeo.ecm.core.cache.test:test-cache-config-merge.xml")
+    @Deploy("com.hyland.openarch.ecm.core.cache.test:test-cache-config.xml")
+    @Deploy("com.hyland.openarch.ecm.core.cache.test:test-cache-config-merge.xml")
     public void testMerge() throws Exception {
         CacheDescriptor desc = getService().getCacheDescriptor(NAME);
         assertNotNull(desc);
@@ -71,17 +71,17 @@ public class TestCacheDescriptor {
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.cache.test:test-cache-config.xml")
-    @Deploy("org.nuxeo.ecm.core.cache.test:test-cache-config-remove.xml")
+    @Deploy("com.hyland.openarch.ecm.core.cache.test:test-cache-config.xml")
+    @Deploy("com.hyland.openarch.ecm.core.cache.test:test-cache-config-remove.xml")
     public void testRemove() throws Exception {
         assertNull(getService().getCacheDescriptor(NAME));
         assertNull(getService().getCache(NAME));
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.cache.test:test-cache-config.xml")
-    @Deploy("org.nuxeo.ecm.core.cache.test:test-cache-config-remove.xml")
-    @Deploy("org.nuxeo.ecm.core.cache.test:test-cache-config-merge.xml")
+    @Deploy("com.hyland.openarch.ecm.core.cache.test:test-cache-config.xml")
+    @Deploy("com.hyland.openarch.ecm.core.cache.test:test-cache-config-remove.xml")
+    @Deploy("com.hyland.openarch.ecm.core.cache.test:test-cache-config-merge.xml")
     public void testRemoveAndRemerge() throws Exception {
         CacheDescriptor desc = getService().getCacheDescriptor(NAME);
         assertNotNull(desc);

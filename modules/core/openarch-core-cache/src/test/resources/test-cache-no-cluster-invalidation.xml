@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<component name="org.nuxeo.ecm.core.cache.testConfig.noClusterInvalidation">
+<component name="com.hyland.openarch.ecm.core.cache.testConfig.noClusterInvalidation">
 
   <extension target="com.hyland.openarch.ecm.core.cache.CacheService" point="caches">
 

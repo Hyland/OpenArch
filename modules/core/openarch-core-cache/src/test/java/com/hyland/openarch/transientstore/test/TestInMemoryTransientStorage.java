@@ -48,7 +48,7 @@ import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
 @ExtendWith(FeaturesExtension.class)
 @Features({TransientStoreFeature.class, AsyncTasksFeature.class, InMemoryTransientStoreFeature.class })
 @Deploy("com.hyland.openarch.ecm.core.event")
-@Deploy("org.nuxeo.ecm.core.cache.test:test-in-memory-transientstore-contrib.xml")
+@Deploy("com.hyland.openarch.ecm.core.cache.test:test-in-memory-transientstore-contrib.xml")
 public class TestInMemoryTransientStorage {
 
     @Test
@@ -329,7 +329,7 @@ public class TestInMemoryTransientStorage {
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.cache.test:testpath-store.xml")
+    @Deploy("com.hyland.openarch.ecm.core.cache.test:testpath-store.xml")
     public void verifyStorePathCanBeSpecified() throws Exception {
         Framework.getProperties().setProperty("nuxeo.data.dir", Environment.getDefault().getData().getAbsolutePath());
 

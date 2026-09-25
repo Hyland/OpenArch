@@ -26,9 +26,9 @@ import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
  */
 @Features({ RuntimeFeature.class, BasicClusterFeature.class })
 @Deploy("com.hyland.openarch.runtime.kv")
-@Deploy("org.nuxeo.ecm.core.cache")
+@Deploy("com.hyland.openarch.ecm.core.cache")
 @Deploy("com.hyland.openarch.ecm.core.api")
-@Deploy("org.nuxeo.ecm.core.cache.test:OSGI-INF/test-kvbts-config.xml")
+@Deploy("com.hyland.openarch.ecm.core.cache.test:OSGI-INF/test-kvbts-config.xml")
 public class KeyValueBlobTransientStoreFeature implements RunnerFeature {
 
 }

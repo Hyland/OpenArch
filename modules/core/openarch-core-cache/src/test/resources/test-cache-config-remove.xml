@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<component name="org.nuxeo.ecm.core.cache.test3">
+<component name="com.hyland.openarch.ecm.core.cache.test3">
 
   <extension target="com.hyland.openarch.ecm.core.cache.CacheService" point="caches">
 

@@ -47,9 +47,9 @@ import jakarta.inject.Named;
 @ExtendWith(FeaturesExtension.class)
 @Features(CacheFeature.class)
 @Deploy("com.hyland.openarch.runtime.pubsub")
-@Deploy("org.nuxeo.ecm.core.cache:inmemory-cache-config.xml")
-@Deploy("org.nuxeo.ecm.core.cache:test-cluster.xml")
-@Deploy("org.nuxeo.ecm.core.cache:test-cache-no-cluster-invalidation.xml")
+@Deploy("com.hyland.openarch.ecm.core.cache:inmemory-cache-config.xml")
+@Deploy("com.hyland.openarch.ecm.core.cache:test-cluster.xml")
+@Deploy("com.hyland.openarch.ecm.core.cache:test-cache-no-cluster-invalidation.xml")
 public class TestCacheInvalidation {
 
     // from XML file

@@ -68,7 +68,7 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 
 @ExtendWith(FeaturesExtension.class)
 @Features(CoreFeature.class)
-@Deploy("org.nuxeo.ecm.core.cache")
+@Deploy("com.hyland.openarch.ecm.core.cache")
 public class DownloadManagerTest {
 
     private static final String CONTENT = "Hello World";

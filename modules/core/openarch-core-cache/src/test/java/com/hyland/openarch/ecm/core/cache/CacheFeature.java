@@ -29,7 +29,7 @@ import com.hyland.openarch.runtime.test.runner.RunnerFeature;
 import com.google.inject.Binder;
 import com.google.inject.name.Names;
 
-@Deploy("org.nuxeo.ecm.core.cache")
+@Deploy("com.hyland.openarch.ecm.core.cache")
 @Features(BasicClusterFeature.class)
 public class CacheFeature implements RunnerFeature {
 

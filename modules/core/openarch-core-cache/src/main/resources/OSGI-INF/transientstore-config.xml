@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<component name="org.nuxeo.ecm.core.transient.store.config">
+<component name="com.hyland.openarch.ecm.core.transient.store.config">
 
   <extension target="com.hyland.openarch.ecm.core.transientstore.TransientStorageComponent"
              point="store">

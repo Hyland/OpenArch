@@ -27,7 +27,7 @@ import com.hyland.openarch.runtime.test.runner.RunnerFeature;
 import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
 
 @Features({ RuntimeFeature.class, BasicClusterFeature.class })
-@Deploy("org.nuxeo.ecm.core.cache")
+@Deploy("com.hyland.openarch.ecm.core.cache")
 public class TransientStoreFeature implements RunnerFeature {
 
     @Override
