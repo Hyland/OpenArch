@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 1
-Bundle-Name: Nuxeo Core IO - Test Jar
+Bundle-Name: OpenArch Core IO - Test Jar
 Bundle-SymbolicName: com.hyland.openarch.ecm.core.io.test;singleton:=true
 Bundle-Version: 1.0.0

@@ -8,7 +8,7 @@
   </parent>
 
   <artifactId>openarch-core-io</artifactId>
-  <name>HxPR Core IO</name>
+  <name>OpenArch Core IO</name>
 
   <properties>
     <manifest.file>src/main/resources/META-INF/MANIFEST.MF</manifest.file>

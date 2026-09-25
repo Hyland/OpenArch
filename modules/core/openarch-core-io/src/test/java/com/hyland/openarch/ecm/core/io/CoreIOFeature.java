@@ -21,7 +21,7 @@ import com.hyland.openarch.runtime.test.runner.RunnerFeature;
 import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
 
 /**
- * Intermediate feature for nuxeo-core-io module.
+ * Intermediate feature for openarch-core-io module.
  *
  * @since 10.2
  */
