@@ -27,7 +27,7 @@ import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
  */
 @Deploy("com.hyland.openarch.ecm.core.event")
 @Deploy("com.hyland.openarch.ecm.core.cache")
-@Deploy("org.nuxeo.ecm.core.io")
+@Deploy("com.hyland.openarch.ecm.core.io")
 @Features(RuntimeFeature.class)
 public class CoreIOFeature implements RunnerFeature {
 

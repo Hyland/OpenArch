@@ -1,11 +1,11 @@
-Export-Package: org.nuxeo.ecm.core.io,
- org.nuxeo.ecm.core.io.exceptions,
- org.nuxeo.ecm.core.io.impl,
- org.nuxeo.ecm.core.io.impl.plugins
+Export-Package: com.hyland.openarch.ecm.core.io,
+ com.hyland.openarch.ecm.core.io.exceptions,
+ com.hyland.openarch.ecm.core.io.impl,
+ com.hyland.openarch.ecm.core.io.impl.plugins
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
 Manifest-Version: 1.0
-Bundle-Name: org.nuxeo.ecm.core.io
+Bundle-Name: com.hyland.openarch.ecm.core.io
 Created-By: 1.6.0_20 (Sun Microsystems Inc.)
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Version: 5.4.2.qualifier
@@ -27,4 +27,4 @@ Import-Package: javax.security.auth.login,
  com.hyland.openarch.ecm.core.schema.types,
  com.hyland.openarch.runtime.api,
  com.hyland.openarch.runtime.services.streaming
-Bundle-SymbolicName: org.nuxeo.ecm.core.io;singleton:=true
+Bundle-SymbolicName: com.hyland.openarch.ecm.core.io;singleton:=true
