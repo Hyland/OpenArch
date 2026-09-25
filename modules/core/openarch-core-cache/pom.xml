@@ -7,7 +7,7 @@
     <version>12.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>hxpr-core-cache</artifactId>
+  <artifactId>openarch-core-cache</artifactId>
   <name>HxPR Core Cache</name>
 
   <properties>

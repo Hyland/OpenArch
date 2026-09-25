@@ -15,7 +15,7 @@
     <module>openarch-core</module>
     <module>openarch-core-api</module>
     <module>hxpr-core-binarymanager-common</module>
-    <module>hxpr-core-cache</module>
+    <module>openarch-core-cache</module>
     <module>openarch-core-event</module>
     <module>hxpr-core-io</module>
     <module>hxpr-core-management-jtajca</module>

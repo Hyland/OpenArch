@@ -54,11 +54,11 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-core-cache</artifactId>
+      <artifactId>openarch-core-cache</artifactId>
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-core-cache</artifactId>
+      <artifactId>openarch-core-cache</artifactId>
       <type>test-jar</type>
       <scope>compile</scope>
     </dependency>

@@ -333,12 +333,12 @@
       </dependency>
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
-        <artifactId>hxpr-core-cache</artifactId>
+        <artifactId>openarch-core-cache</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
-        <artifactId>hxpr-core-cache</artifactId>
+        <artifactId>openarch-core-cache</artifactId>
         <type>test-jar</type>
         <scope>test</scope>
         <version>${project.version}</version>
