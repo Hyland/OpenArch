@@ -8,7 +8,7 @@
   </parent>
 
   <artifactId>openarch-core-storage-mem</artifactId>
-  <name>HxPR Core Storage In-Memory</name>
+  <name>OpenArch Core Storage In-Memory</name>
 
   <properties>
     <manifest.file>src/main/resources/META-INF/MANIFEST.MF</manifest.file>
