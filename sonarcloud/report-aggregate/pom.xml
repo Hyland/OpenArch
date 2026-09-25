@@ -124,7 +124,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-core-io</artifactId>
+      <artifactId>openarch-core-io</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

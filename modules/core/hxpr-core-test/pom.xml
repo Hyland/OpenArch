@@ -72,11 +72,11 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-core-io</artifactId>
+      <artifactId>openarch-core-io</artifactId>
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-core-io</artifactId>
+      <artifactId>openarch-core-io</artifactId>
       <type>test-jar</type>
       <scope>compile</scope>
     </dependency>

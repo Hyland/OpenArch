@@ -7,7 +7,7 @@
     <version>12.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>hxpr-core-io</artifactId>
+  <artifactId>openarch-core-io</artifactId>
   <name>HxPR Core IO</name>
 
   <properties>
