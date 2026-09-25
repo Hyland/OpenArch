@@ -381,12 +381,12 @@
       </dependency>
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
-        <artifactId>hxpr-core-mongodb</artifactId>
+        <artifactId>openarch-core-mongodb</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
-        <artifactId>hxpr-core-mongodb</artifactId>
+        <artifactId>openarch-core-mongodb</artifactId>
         <type>test-jar</type>
         <scope>test</scope>
         <version>${project.version}</version>

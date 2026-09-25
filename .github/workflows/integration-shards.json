@@ -17,10 +17,10 @@
     },
     {
       "shard": "shard-3",
-      "modules": "hxpr-core-mongodb,openarch-core-storage-mongodb,openarch-core-management-jtajca",
+      "modules": "openarch-core-mongodb,openarch-core-storage-mongodb,openarch-core-management-jtajca",
       "expected_time": "~120s",
       "test_count": 47,
-      "description": "Core: hxpr-core-mongodb, openarch-core-storage-mongodb, openarch-core-management-jtajca"
+      "description": "Core: openarch-core-mongodb, openarch-core-storage-mongodb, openarch-core-management-jtajca"
     },
     {
       "shard": "shard-4",

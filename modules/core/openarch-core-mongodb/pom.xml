@@ -7,7 +7,7 @@
     <version>12.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>hxpr-core-mongodb</artifactId>
+  <artifactId>openarch-core-mongodb</artifactId>
   <name>HxPR Core MongoDB Connection Service</name>
 
   <properties>

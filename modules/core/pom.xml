@@ -19,7 +19,7 @@
     <module>openarch-core-event</module>
     <module>openarch-core-io</module>
     <module>openarch-core-management-jtajca</module>
-    <module>hxpr-core-mongodb</module>
+    <module>openarch-core-mongodb</module>
     <module>openarch-core-query</module>
     <module>openarch-core-schema</module>
     <module>openarch-core-storage-mem</module>

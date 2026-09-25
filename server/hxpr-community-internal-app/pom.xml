@@ -119,7 +119,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-core-mongodb</artifactId>
+      <artifactId>openarch-core-mongodb</artifactId>
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
