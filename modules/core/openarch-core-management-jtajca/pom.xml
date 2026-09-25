@@ -8,7 +8,7 @@
   </parent>
 
   <artifactId>openarch-core-management-jtajca</artifactId>
-  <name>HxPR Core Management JTA/JCA</name>
+  <name>OpenArch Core Management JTA/JCA</name>
 
   <properties>
     <manifest.file>src/main/resources/META-INF/MANIFEST.MF</manifest.file>
