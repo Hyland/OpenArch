@@ -33,7 +33,7 @@ import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 
 /**
- * Plain unit tests for {@link OpenSearchCircuitBreakerFactory}: no Spring context and no Nuxeo runtime are needed,
+ * Plain unit tests for {@link OpenSearchCircuitBreakerFactory}: no Spring context and no OpenArch runtime are needed,
  * since it is built on the {@code resilience4j-circuitbreaker} core library used programmatically.
  */
 class OpenSearchCircuitBreakerFactoryTest {

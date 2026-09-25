@@ -1,4 +1,4 @@
-# Misc Scripts to manage Nuxeo Elasticsearch index
+# Misc Scripts to manage OpenArch Elasticsearch index
 
 ## Dump the Elasticsearch settings and mapping in a single JSON file
 

@@ -57,7 +57,7 @@ import com.hyland.openarch.runtime.test.runner.WithFrameworkProperty;
 
 /**
  * Tests for {@link OpenSearchRestClientFactory#create()} that exercise the different configuration branches driven by
- * {@link Framework#getProperty(String)}. Runs on top of a minimal Nuxeo runtime so that
+ * {@link Framework#getProperty(String)}. Runs on top of a minimal OpenArch runtime so that
  * {@link WithFrameworkProperty} can be used to set properties declaratively.
  */
 @ExtendWith(FeaturesExtension.class)

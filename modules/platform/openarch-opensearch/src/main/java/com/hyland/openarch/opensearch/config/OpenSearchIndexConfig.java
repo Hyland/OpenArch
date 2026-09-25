@@ -272,7 +272,7 @@ public class OpenSearchIndexConfig {
     }
 
     /**
-     * Return true if the index/mapping is associated with a Nuxeo document repository
+     * Return true if the index/mapping is associated with a OpenArch document repository
      *
      * @since 7.4
      */
@@ -294,11 +294,11 @@ public class OpenSearchIndexConfig {
 
     // @since 9.3
     public String writeIndexOrAlias() {
-        // Custom alias managed outside of Nuxeo
+        // Custom alias managed outside of OpenArch
         if (hasExplicitWriteIndex()) {
             return writeAlias;
         }
-        // Nuxeo manages the write alias
+        // OpenArch manages the write alias
         if (manageAlias) {
             return name + WRITE_SUFFIX;
         }

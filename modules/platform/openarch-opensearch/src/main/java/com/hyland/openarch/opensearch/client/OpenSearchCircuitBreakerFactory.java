@@ -25,7 +25,7 @@ import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
  * API from {@link OpenSearchRestClient}.
  * <p>
  * {@link OpenSearchRestClient} is built directly with {@code new} by {@link OpenSearchRestClientFactory} (itself
- * created by the Nuxeo OSGi runtime) and by unit tests, so no Spring AOP proxy is ever involved; see
+ * created by the OpenArch OSGi runtime) and by unit tests, so no Spring AOP proxy is ever involved; see
  * {@link AbstractCircuitBreakerFactory} for why this rules out the {@code @CircuitBreaker} annotation.
  *
  * @since 12.0

@@ -22,12 +22,12 @@ public final class OpenSearchConstants {
     public static final String FULLTEXT_FIELD = "all_field";
 
     /**
-     * OpenSearch type name used to index Nuxeo documents
+     * OpenSearch type name used to index OpenArch documents
      */
     public static final String DOC_TYPE = "doc";
 
     /**
-     * OpenSearch type name used to index Nuxeo audit entries
+     * OpenSearch type name used to index OpenArch audit entries
      */
     public static final String ENTRY_TYPE = "entry";
 

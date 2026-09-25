@@ -245,7 +245,7 @@ public class OpenSearchServiceImpl extends DefaultComponent implements OpenSearc
         this.client = client;
     }
 
-    // Nuxeo Component impl ====================================================
+    // OpenArch Component impl ====================================================
     @Override
     public void start() {
         indexConfig = this.<MapRegistry> getExtensionPointRegistry(EP_INDEX).getContributions();

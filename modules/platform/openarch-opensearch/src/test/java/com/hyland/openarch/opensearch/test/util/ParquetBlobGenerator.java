@@ -86,7 +86,7 @@ public class ParquetBlobGenerator {
             {
               "type": "record",
               "name": "Chunk",
-              "namespace": "com.hyland.hxpr.embeddings.avro",
+              "namespace": "com.hyland.openarch.embeddings.avro",
               "fields": [
                 { "name": "id", "type": "string" },
                 { "name": "text", "type": ["null", "string"], "default": null }
@@ -125,7 +125,7 @@ public class ParquetBlobGenerator {
 
     /**
      * Creates the backing blob for a generated parquet. Uses {@link Blobs#createBlobWithExtension} by default so
-     * tests running under the Nuxeo runtime get file tracking; subclasses may override to create a plain
+     * tests running under the OpenArch runtime get file tracking; subclasses may override to create a plain
      * {@link FileBlob} when the runtime isn't available.
      */
     protected Blob newParquetBlob() throws IOException {

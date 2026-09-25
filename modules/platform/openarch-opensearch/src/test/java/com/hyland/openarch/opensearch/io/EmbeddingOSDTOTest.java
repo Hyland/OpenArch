@@ -56,7 +56,7 @@ public class EmbeddingOSDTOTest {
 
     /**
      * Creates a real DocumentModel for testing embedding serialization.
-     * Uses real Nuxeo infrastructure just like in production.
+     * Uses real OpenArch infrastructure just like in production.
      */
     private DocumentModel createTestParentDoc() {
         DocumentModel doc = session.createDocumentModel("/", "test-doc-" + UUID.randomUUID(), "SysFile");

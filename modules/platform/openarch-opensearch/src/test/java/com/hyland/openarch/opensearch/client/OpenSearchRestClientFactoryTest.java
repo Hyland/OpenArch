@@ -37,9 +37,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 /**
- * Pure unit tests for {@link OpenSearchRestClientFactory} methods that do not depend on the Nuxeo Framework. Tests
+ * Pure unit tests for {@link OpenSearchRestClientFactory} methods that do not depend on the OpenArch Framework. Tests
  * that exercise {@code create()} (and therefore {@link Framework#getProperty(String)}) live in
- * {@code TestOpenSearchRestClientFactory} and run inside a minimal Nuxeo runtime context.
+ * {@code TestOpenSearchRestClientFactory} and run inside a minimal OpenArch runtime context.
  */
 @ExtendWith(MockitoExtension.class)
 class OpenSearchRestClientFactoryTest {

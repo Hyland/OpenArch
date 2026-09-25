@@ -138,7 +138,7 @@ public class OpenSearchQueryBuilder {
     }
 
     /**
-     * No more than that many documents will be returned. Default to {DEFAULT_LIMIT}. Since Nuxeo 8.4 and ES 2.x, we can
+     * No more than that many documents will be returned. Default to {DEFAULT_LIMIT}. We can
      * not give -1 to this method as the default configuration on ES allows to have a search window of 10000 documents
      * at maximum. This settings could be changed on ES by changing {index.max_result_window}, but it is preferable to
      * use the scan &amp; scroll API.

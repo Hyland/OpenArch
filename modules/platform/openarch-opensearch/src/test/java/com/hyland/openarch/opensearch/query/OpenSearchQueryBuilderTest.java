@@ -140,7 +140,7 @@ public class OpenSearchQueryBuilderTest {
 
     @Test
     public void testMakeSelectStarQuery() {
-        String nxql = "SELECT * FROM nuxeo";
+        String nxql = "SELECT * FROM SysContent";
         builder.hxql(nxql);
         Query osQuery = prepareBuilderToReturnOSQuery(nxql);
 
@@ -151,7 +151,7 @@ public class OpenSearchQueryBuilderTest {
 
     @Test
     public void testMakeSelectFieldQuery() {
-        String nxql = "SELECT sys_name FROM nuxeo";
+        String nxql = "SELECT sys_name FROM SysContent";
         builder.hxql(nxql);
         Query osQuery = prepareBuilderToReturnOSQuery(nxql);
         when(hxqlQueryConverter.getSelectClauseFields(HXQLQueryConverter.parse(nxql))).thenReturn(Map.of("sys_name", StringType.INSTANCE));
@@ -218,7 +218,7 @@ public class OpenSearchQueryBuilderTest {
 
     @Test
     public void testMakeSelectWithEmbeddingVector() {
-        String nxql = "SELECT * FROM nuxeo";
+        String nxql = "SELECT * FROM SysContent";
         List<Double> embeddingVector = List.of(0.1, 0.2, 0.3);
         builder.embeddingQuery(EMBEDDING_TYPE, embeddingVector, null, nxql);
         Query nxqlQuery = prepareBuilderToReturnOSQuery(nxql);
@@ -246,7 +246,7 @@ public class OpenSearchQueryBuilderTest {
 
     @Test
     public void testIsHybridQueryTrue() {
-        String nxql = "SELECT * FROM nuxeo";
+        String nxql = "SELECT * FROM SysContent";
         List<Double> embeddingVector = List.of(0.1, 0.2, 0.3);
         String chunkFtsQuery = "hello world";
 
@@ -257,7 +257,7 @@ public class OpenSearchQueryBuilderTest {
 
     @Test
     public void testEmbeddingVectorQueryUsesOpenSearchResponseOnly() {
-        String nxql = "SELECT * FROM nuxeo";
+        String nxql = "SELECT * FROM SysContent";
         List<Double> embeddingVector = List.of(0.1, 0.2, 0.3);
 
         builder.embeddingQuery(EMBEDDING_TYPE, embeddingVector, null, nxql);
@@ -268,7 +268,7 @@ public class OpenSearchQueryBuilderTest {
 
     @Test
     public void testEmbeddingVectorQueryNullKeepsDocumentMaterializationEnabled() {
-        String nxql = "SELECT * FROM nuxeo";
+        String nxql = "SELECT * FROM SysContent";
 
         builder.embeddingQuery(EMBEDDING_TYPE, null, null, nxql);
 
@@ -279,7 +279,7 @@ public class OpenSearchQueryBuilderTest {
 
     @Test
     public void testIsHybridQueryFalseWhenChunkQueryMissing() {
-        String nxql = "SELECT * FROM nuxeo";
+        String nxql = "SELECT * FROM SysContent";
         List<Double> embeddingVector = List.of(0.1, 0.2, 0.3);
 
         builder.embeddingQuery(EMBEDDING_TYPE, embeddingVector, null, nxql);
@@ -289,7 +289,7 @@ public class OpenSearchQueryBuilderTest {
 
     @Test
     public void testMakeSelectWithHybridEmbeddingQuery() {
-        String nxql = "SELECT * FROM nuxeo";
+        String nxql = "SELECT * FROM SysContent";
         List<Double> embeddingVector = List.of(0.1, 0.2, 0.3);
         String chunkFtsQuery = "hello world";
 

@@ -1,7 +1,7 @@
 {
   "type": "record",
   "name": "Embedding",
-  "namespace": "com.hyland.hxpr.embeddings.avro",
+  "namespace": "com.hyland.openarch.embeddings.avro",
   "fields": [
     { "name": "id", "type": "string" },
     { "name": "type", "type": "string" },

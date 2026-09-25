@@ -34,7 +34,7 @@ import org.opensearch.client.transport.httpclient5.ResponseException;
 import io.github.resilience4j.retry.Retry;
 
 /**
- * Plain unit tests for {@link OpenSearchRetryFactory}: no Spring context and no Nuxeo runtime are needed, since
+ * Plain unit tests for {@link OpenSearchRetryFactory}: no Spring context and no OpenArch runtime are needed, since
  * it is built on the {@code resilience4j-retry} core library used programmatically.
  */
 class OpenSearchRetryFactoryTest {

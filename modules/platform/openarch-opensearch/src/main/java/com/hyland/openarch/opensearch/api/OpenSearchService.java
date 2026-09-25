@@ -243,7 +243,7 @@ public interface OpenSearchService {
     void optimizeIndex(String indexName);
 
     /**
-     * Returns the total number of command processed by OpenSearch for this Nuxeo instance. Useful for test assertion.
+     * Returns the total number of command processed by OpenSearch for this OpenArch instance. Useful for test assertion.
      */
     int getTotalCommandProcessed();
 

@@ -37,7 +37,7 @@ import com.hyland.openarch.opensearch.test.util.ParquetBlobGenerator;
 
 /**
  * Unit-level coverage for the two-blob {@link ParquetEmbeddingsParser#parse(Blob, Blob, String, String, String)}
- * overload and {@link ParquetEmbeddingsParser#parseChunkTexts(Blob, String)}. Runs without the Nuxeo runtime by
+ * overload and {@link ParquetEmbeddingsParser#parseChunkTexts(Blob, String)}. Runs without the OpenArch runtime by
  * subclassing {@link ParquetBlobGenerator} with a runtime-free blob factory. Integration coverage lives in
  * {@code TestEmbeddingsIndexing}; this class targets the branches Sonar flagged (null/empty/unreadable chunks
  * blob, partial chunk coverage, default interface methods).
@@ -158,7 +158,7 @@ class ParquetEmbeddingsParserChunksTest {
 
     /**
      * Runtime-free variant of {@link ParquetBlobGenerator}: creates temp files directly instead of routing
-     * through {@code Blobs.createBlobWithExtension}, which needs the Nuxeo runtime for file tracking. Every
+     * through {@code Blobs.createBlobWithExtension}, which needs the OpenArch runtime for file tracking. Every
      * other behaviour (schema, record shape, id conventions) is reused from the parent so this test stays in
      * sync with the integration test.
      */

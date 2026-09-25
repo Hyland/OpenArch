@@ -610,7 +610,7 @@ public final class HXQLQueryConverter {
     }
 
     /**
-     * Translates from Nuxeo syntax to OpenSearch simple_query_string syntax.
+     * Translates from OpenArch syntax to OpenSearch simple_query_string syntax.
      */
     protected static String translateFulltextQuery(String query) {
         // The AND operator does not exist in HXQL it is the default operator

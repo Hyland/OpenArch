@@ -105,7 +105,7 @@ class OpenSearchRestClientTest {
      * An unreachable OpenSearch is not a defect in this server, and a caller can usefully retry it -- but the
      * IOException arm threw RepositoryException(Throwable), whose shortest constructor picks 500, so five query
      * operations answered 500 during an outage (HXCS-8835). 503 is what the platform already answers for the
-     * equivalent graph failure, and NuxeoExceptionController adds Retry-After to it.
+     * equivalent graph failure, and RepositoryExceptionController adds Retry-After to it.
      */
     @Test
     void testSearchWhenOpenSearchIsUnreachableIsServiceUnavailable() throws Exception {
@@ -115,7 +115,7 @@ class OpenSearchRestClientTest {
         SearchRequest request = searchRequest();
         RepositoryException exception = assertThrows(RepositoryException.class, () -> restClient.search(request));
         assertEquals(HttpStatus.SC_SERVICE_UNAVAILABLE, exception.getStatusCode());
-        // NuxeoExceptionController replaces the message only for 500, so whatever this carries reaches the
+        // RepositoryExceptionController replaces the message only for 500, so whatever this carries reaches the
         // caller. An IOException from the client names the configured host and port, which is ours to know and
         // not the caller's, so the message is fixed here and the cause is kept for the log.
         assertEquals("The search index is unavailable", exception.getMessage());

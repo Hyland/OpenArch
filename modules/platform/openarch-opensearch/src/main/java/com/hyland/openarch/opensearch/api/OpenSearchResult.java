@@ -77,7 +77,7 @@ public class OpenSearchResult {
     }
 
     /**
-     * Get the list of Nuxeo documents, this is populated when using a SELECT * clause, or when submitting esQuery.
+     * Get the list of OpenArch documents, this is populated when using a SELECT * clause, or when submitting esQuery.
      *
      * @return null if the query returns fields or if the onlyOpenSearchResponse option is set.
      */

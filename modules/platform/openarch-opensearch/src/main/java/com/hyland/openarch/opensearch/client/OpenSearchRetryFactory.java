@@ -36,7 +36,7 @@ import io.github.resilience4j.retry.RetryConfig;
  * (as opposed to the {@code @Retry} annotation, e.g. as used by
  * {@code com.hyland.openarch.runtime.pubsub.idp.APITokenExchangeClient}): {@code @Retry} only takes effect on
  * beans invoked through a Spring AOP proxy, while {@link OpenSearchRestClient} is built directly with
- * {@code new} by {@link OpenSearchRestClientFactory} (itself created by the Nuxeo OSGi runtime) and by unit
+ * {@code new} by {@link OpenSearchRestClientFactory} (itself created by the OpenArch OSGi runtime) and by unit
  * tests, so no Spring proxy is ever involved.
  *
  * @since 12.0

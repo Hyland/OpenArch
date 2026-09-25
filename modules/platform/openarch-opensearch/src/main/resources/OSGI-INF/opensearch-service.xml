@@ -11,7 +11,7 @@
     <documentation>
       Extension point used to setup an OpenSearch index.
 
-      The one used to index Nuxeo documents must be of type "doc".
+      The one used to index OpenArch documents must be of type "doc".
 
       <code>
         <openSearchIndex name="nuxeo" create="true" type="doc">
@@ -28,9 +28,9 @@
       name is the OpenSearch index name.
 
       type is the OpenSearch type that hold a mapping, "doc" is the mapping
-      for Nuxeo documents
+      for OpenArch documents
 
-      create can be set to false if you don't want Nuxeo to initialize the index
+      create can be set to false if you don't want OpenArch to initialize the index
       and mapping.
 
       settings the OpenSearch settings
