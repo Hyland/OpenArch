@@ -131,7 +131,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-core-storage-mem</artifactId>
+      <artifactId>openarch-core-storage-mem</artifactId>
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>

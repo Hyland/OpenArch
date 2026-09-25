@@ -22,7 +22,7 @@
     <module>hxpr-core-mongodb</module>
     <module>openarch-core-query</module>
     <module>openarch-core-schema</module>
-    <module>hxpr-core-storage-mem</module>
+    <module>openarch-core-storage-mem</module>
     <module>hxpr-core-storage-mongodb</module>
     <module>hxpr-core-test</module>
   </modules>
