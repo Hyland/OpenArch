@@ -112,7 +112,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-core-storage-mongodb</artifactId>
+      <artifactId>openarch-core-storage-mongodb</artifactId>
     </dependency>
 
     <dependency>
