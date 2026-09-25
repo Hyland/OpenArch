@@ -231,7 +231,7 @@ class OpenSearchComponentTest {
     }
 
     @Test
-    @Deploy("org.nuxeo.opensearch.core:opensearch-test-shards-contrib.xml")
+    @Deploy("com.hyland.openarch.opensearch.core:opensearch-test-shards-contrib.xml")
     public void shouldApplyADifferentNumberOfShardsPerIndex() throws Exception {
         OpenSearchRestClient client = (OpenSearchRestClient) openSearchService.getClient();
 

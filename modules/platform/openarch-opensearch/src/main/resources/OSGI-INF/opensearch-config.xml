@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
-<component name="org.nuxeo.opensearch.defaultConfig">
+<component name="com.hyland.openarch.opensearch.defaultConfig">
 
-  <extension target="org.nuxeo.opensearch.OpenSearchService" point="openSearchIndex">
+  <extension target="com.hyland.openarch.opensearch.OpenSearchService" point="openSearchIndex">
     <openSearchIndex name="${opensearch.indexName:=nuxeo}" type="doc" repository="default" numberOfShards="${opensearch.indexNumberOfShards:=1}" manageAlias="${opensearch.manageAlias.enabled:=false}">
       <fetchFromSource>
         <include>sys_*</include>

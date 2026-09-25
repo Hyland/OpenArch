@@ -63,7 +63,7 @@ import com.hyland.openarch.async.tasks.TaskService;
     For now, date detection should be disabled by default in hxpr app.
  */
 @Features({RepositoryOpenSearchFeature.class, UserManagerMockFeature.class})
-@Deploy("org.nuxeo.opensearch.core:opensearch-test-nested-mapping-contrib.xml")
+@Deploy("com.hyland.openarch.opensearch.core:opensearch-test-nested-mapping-contrib.xml")
 @Deploy("org.nuxeo.springboot.rest.document.test:OSGI-INF/open-search-blank-date-error-contrib.xml")
 @Tag("useOpenSearch")
 @Import(UserManagerMockTestConfiguration.class)

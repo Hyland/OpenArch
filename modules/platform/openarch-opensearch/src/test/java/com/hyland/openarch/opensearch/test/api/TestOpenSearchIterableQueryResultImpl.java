@@ -54,7 +54,7 @@ import com.hyland.openarch.runtime.transaction.TransactionHelper;
 
 @ExtendWith(FeaturesExtension.class)
 @Features(RepositoryOpenSearchFeature.class)
-@Deploy("org.nuxeo.opensearch.core:schemas-test-contrib.xml")
+@Deploy("com.hyland.openarch.opensearch.core:schemas-test-contrib.xml")
 public class TestOpenSearchIterableQueryResultImpl {
 
     @Inject

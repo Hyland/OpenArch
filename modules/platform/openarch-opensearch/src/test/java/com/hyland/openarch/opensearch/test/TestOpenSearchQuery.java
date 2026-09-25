@@ -67,8 +67,8 @@ import jakarta.inject.Inject;
 
 @ExtendWith(FeaturesExtension.class)
 @Features(RepositoryOpenSearchFeature.class)
-@Deploy("org.nuxeo.opensearch.core:opensearch-test-nested-mapping-contrib.xml")
-@Deploy("org.nuxeo.opensearch.core:schemas-test-contrib.xml")
+@Deploy("com.hyland.openarch.opensearch.core:opensearch-test-nested-mapping-contrib.xml")
+@Deploy("com.hyland.openarch.opensearch.core:schemas-test-contrib.xml")
 public class TestOpenSearchQuery {
 
     public static final String ADVANCED_SEARCH_DOC_TYPE = "AdvancedSearch";

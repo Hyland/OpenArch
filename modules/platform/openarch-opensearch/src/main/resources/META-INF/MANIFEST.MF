@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 1
 Bundle-Name: ElasticSearch core service integration
-Bundle-SymbolicName: org.nuxeo.opensearch.core;singleton:=true
+Bundle-SymbolicName: com.hyland.openarch.opensearch.core;singleton:=true
 Bundle-Version: 1.0.0
 Nuxeo-Component: OSGI-INF/opensearch-service.xml,
  OSGI-INF/opensearch-config.xml,

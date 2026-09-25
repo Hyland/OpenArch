@@ -86,9 +86,9 @@ import tools.jackson.databind.json.JsonMapper;
  */
 @ExtendWith(FeaturesExtension.class)
 @Features(CoreFeature.class)
-@Deploy("org.nuxeo.opensearch.core")
-@Deploy("org.nuxeo.opensearch.core:opensearch-test-contrib.xml")
-@Deploy("org.nuxeo.opensearch.core:test-security-policy-types.xml")
+@Deploy("com.hyland.openarch.opensearch.core")
+@Deploy("com.hyland.openarch.opensearch.core:opensearch-test-contrib.xml")
+@Deploy("com.hyland.openarch.opensearch.core:test-security-policy-types.xml")
 public class TestDocumentModelWriter {
 
     private static final String REPOSITORY = "test";

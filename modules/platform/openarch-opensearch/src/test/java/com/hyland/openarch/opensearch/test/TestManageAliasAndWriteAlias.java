@@ -100,7 +100,7 @@ public class TestManageAliasAndWriteAlias {
     }
 
     @Test
-    @Deploy("org.nuxeo.opensearch.core:opensearch-test-alias-contrib.xml")
+    @Deploy("com.hyland.openarch.opensearch.core:opensearch-test-alias-contrib.xml")
     public void testIndexWithManageAlias() {
         String repo = getRepositoryName();
 
@@ -132,7 +132,7 @@ public class TestManageAliasAndWriteAlias {
     }
 
     @Test
-    @Deploy("org.nuxeo.opensearch.core:opensearch-test-alias-contrib.xml")
+    @Deploy("com.hyland.openarch.opensearch.core:opensearch-test-alias-contrib.xml")
     public void testIndexWithManageAliasReindex() throws Exception {
         String repo = getRepositoryName();
 
@@ -159,7 +159,7 @@ public class TestManageAliasAndWriteAlias {
     }
 
     @Test
-    @Deploy("org.nuxeo.opensearch.core:opensearch-test-write-alias-contrib.xml")
+    @Deploy("com.hyland.openarch.opensearch.core:opensearch-test-write-alias-contrib.xml")
     public void testIndexWithWriteAlias() {
         String repo = getRepositoryName();
 

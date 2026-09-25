@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
-<component name="org.nuxeo.opensearch.test.shards.contrib">
+<component name="com.hyland.openarch.opensearch.test.shards.contrib">
 
   <!-- Three indexes sharing the same settings file but using different shard counts, which is the
        case the numberOfShards attribute exists for. -->
-  <extension point="openSearchIndex" target="org.nuxeo.opensearch.OpenSearchService">
+  <extension point="openSearchIndex" target="com.hyland.openarch.opensearch.OpenSearchService">
     <openSearchIndex name="nxushardsdoc" repository="test" type="doc" numberOfShards="6">
       <settings file="opensearch-doc-settings.json" />
       <mapping file="opensearch-doc-mapping.json" />

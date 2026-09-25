@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<component name="org.nuxeo.opensearch.test.alias.contrib">
-  <extension point="openSearchIndex" target="org.nuxeo.opensearch.OpenSearchService">
+<component name="com.hyland.openarch.opensearch.test.alias.contrib">
+  <extension point="openSearchIndex" target="com.hyland.openarch.opensearch.OpenSearchService">
     <openSearchIndex name="nxutestalias" repository="test" manageAlias="true" type="doc" />
   </extension>
 </component>

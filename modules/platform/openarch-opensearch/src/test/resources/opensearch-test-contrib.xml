@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
-<component name="org.nuxeo.opensearch.test.contrib">
+<component name="com.hyland.openarch.opensearch.test.contrib">
 
   <require>com.hyland.openarch.ecm.core.CoreExtensions</require>
 
-  <extension point="openSearchIndex" target="org.nuxeo.opensearch.OpenSearchService">
+  <extension point="openSearchIndex" target="com.hyland.openarch.opensearch.OpenSearchService">
     <openSearchIndex name="nuxeo" remove="true" />
     <openSearchIndex name="nuxeo_vocabularies" remove="true" />
     <openSearchIndex name="nuxeo_configuration" remove="true" />

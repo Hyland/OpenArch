@@ -62,7 +62,7 @@ import jakarta.inject.Inject;
  */
 @ExtendWith(FeaturesExtension.class)
 @Features(RepositoryOpenSearchFeature.class)
-@Deploy("org.nuxeo.opensearch.core:disable-listener-contrib.xml")
+@Deploy("com.hyland.openarch.opensearch.core:disable-listener-contrib.xml")
 public class TestCommandReindexing {
 
     private static final String IDX_NAME = "nxutest";

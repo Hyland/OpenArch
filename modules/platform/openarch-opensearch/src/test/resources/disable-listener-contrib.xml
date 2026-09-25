@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<component name="org.nuxeo.opensearch.core.listener.disable">
+<component name="com.hyland.openarch.opensearch.core.listener.disable">
 
   <extension point="listener" target="com.hyland.openarch.ecm.core.event.EventService">
 

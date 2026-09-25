@@ -36,8 +36,8 @@ import com.hyland.openarch.runtime.transaction.TransactionHelper;
  * @since 11.1
  */
 @Features(CoreFeature.class)
-@Deploy("org.nuxeo.opensearch.core")
-@Deploy("org.nuxeo.opensearch.core:opensearch-test-contrib.xml")
+@Deploy("com.hyland.openarch.opensearch.core")
+@Deploy("com.hyland.openarch.opensearch.core:opensearch-test-contrib.xml")
 public class RepositoryOpenSearchFeature implements RunnerFeature {
 
     @Override

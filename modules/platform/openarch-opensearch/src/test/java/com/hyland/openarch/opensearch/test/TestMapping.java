@@ -42,8 +42,8 @@ import com.hyland.openarch.runtime.transaction.TransactionHelper;
 
 @ExtendWith(FeaturesExtension.class)
 @Features(RepositoryOpenSearchFeature.class)
-//@Deploy("org.nuxeo.opensearch.core:opensearch-test-contrib.xml")
-@Deploy("org.nuxeo.opensearch.core:opensearch-test-mapping-contrib.xml")
+//@Deploy("com.hyland.openarch.opensearch.core:opensearch-test-contrib.xml")
+@Deploy("com.hyland.openarch.opensearch.core:opensearch-test-mapping-contrib.xml")
 public class TestMapping {
 
     @Inject
