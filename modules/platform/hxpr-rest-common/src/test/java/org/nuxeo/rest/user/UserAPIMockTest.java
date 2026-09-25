@@ -16,15 +16,16 @@
 package org.nuxeo.rest.user;
 
 import com.hyland.openarch.ecm.core.api.local.DummyLoginFeature;
-import org.nuxeo.ecm.platform.test.UserManagerMockFeature;
-import org.nuxeo.ecm.platform.test.UserManagerMockTestConfiguration;
+import com.hyland.openarch.ecm.platform.test.UserManagerMock;
+import com.hyland.openarch.ecm.platform.test.UserManagerMockFeature;
+import com.hyland.openarch.ecm.platform.test.UserManagerMockTestConfiguration;
 import org.nuxeo.rest.exception.NuxeoExceptionController;
 import com.hyland.openarch.runtime.test.runner.Features;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 
 /**
- * Community variant of {@link AbstractUserAPITest} — backed by the in-memory {@link org.nuxeo.ecm.platform.test.UserManagerMock}.
+ * Community variant of {@link AbstractUserAPITest} — backed by the in-memory {@link UserManagerMock}.
  */
 @Features({ UserManagerMockFeature.class, DummyLoginFeature.class })
 @Import(UserManagerMockTestConfiguration.class)

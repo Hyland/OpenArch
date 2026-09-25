@@ -24,10 +24,10 @@
     },
     {
       "shard": "shard-4",
-      "modules": "hxpr-opensearch,hxpr-platform-test,hxpr-usermanager-test,hxpr-vocabularies",
+      "modules": "hxpr-opensearch,openarch-platform-test,hxpr-usermanager-test,hxpr-vocabularies",
       "expected_time": "~60s",
       "test_count": 209,
-      "description": "Platform: hxpr-opensearch, hxpr-platform-test, hxpr-usermanager-test, hxpr-vocabularies"
+      "description": "Platform: hxpr-opensearch, openarch-platform-test, hxpr-usermanager-test, hxpr-vocabularies"
     }
   ]
 }

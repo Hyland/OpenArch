@@ -20,7 +20,7 @@ import static com.hyland.openarch.ecm.core.api.security.SecurityConstants.READ;
 import static com.hyland.openarch.ecm.core.api.security.SecurityConstants.READ_WRITE;
 import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
 import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FOLDER;
-import static org.nuxeo.ecm.platform.test.UserManagerMock.TEST_USER_2_ID;
+import static com.hyland.openarch.ecm.platform.test.UserManagerMock.TEST_USER_2_ID;
 import static org.nuxeo.rest.document.AbstractDocumentAPI.PATH;
 import static org.nuxeo.rest.document.test.ContentTestHelper.getJsonPath;
 import static org.nuxeo.rest.utils.Headers.HXCS_REPOSITORY;

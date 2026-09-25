@@ -495,7 +495,7 @@
       </dependency>
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
-        <artifactId>hxpr-platform-test</artifactId>
+        <artifactId>openarch-platform-test</artifactId>
         <version>${project.version}</version>
         <scope>test</scope>
       </dependency>

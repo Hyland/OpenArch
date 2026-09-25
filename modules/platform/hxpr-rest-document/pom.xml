@@ -134,7 +134,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-platform-test</artifactId>
+      <artifactId>openarch-platform-test</artifactId>
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
