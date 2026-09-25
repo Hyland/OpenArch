@@ -27,8 +27,8 @@ import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_PROP
 import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_TYPE;
 import static com.hyland.openarch.ecm.core.api.EmbeddingConstants.EMBEDDING_PROPERTY_VECTOR;
 import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_CONTENT;
-import static org.nuxeo.opensearch.OpenSearchServiceImpl.SAMPLE_AGGREGATION_NAME;
-import static org.nuxeo.opensearch.OpenSearchServiceImpl.TERMS_AGGREGATION_NAME;
+import static com.hyland.openarch.opensearch.OpenSearchServiceImpl.SAMPLE_AGGREGATION_NAME;
+import static com.hyland.openarch.opensearch.OpenSearchServiceImpl.TERMS_AGGREGATION_NAME;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -56,10 +56,10 @@ import com.hyland.openarch.ecm.core.api.repository.RepositoryManager;
 import com.hyland.openarch.ecm.core.query.nxql.SortInfo;
 import com.hyland.openarch.ecm.core.model.LocationModel;
 import com.hyland.openarch.ecm.core.query.sql.HXQL;
-import org.nuxeo.opensearch.api.OpenSearchResult;
-import org.nuxeo.opensearch.api.OpenSearchService;
-import org.nuxeo.opensearch.query.OpenSearchQueryBuilder;
-import org.nuxeo.opensearch.query.WildcardUtils;
+import com.hyland.openarch.opensearch.api.OpenSearchResult;
+import com.hyland.openarch.opensearch.api.OpenSearchService;
+import com.hyland.openarch.opensearch.query.OpenSearchQueryBuilder;
+import com.hyland.openarch.opensearch.query.WildcardUtils;
 import org.nuxeo.rest.document.DocumentDTO;
 import org.nuxeo.rest.document.DocumentMapper;
 import org.nuxeo.rest.embedding.EmbeddingRestDTO;
@@ -229,7 +229,7 @@ public class OpenSearchQueryManager extends AbstractQueryManager {
             nxQuery.searchOnAllRepositories();
         }
         OpenSearchResult ret = Framework.getService(OpenSearchService.class).queryAndAggregate(nxQuery);
-        HitsMetadata<org.nuxeo.opensearch.io.DocumentDTO> hits = ret.getOpenSearchResponse().hits();
+        HitsMetadata<com.hyland.openarch.opensearch.io.DocumentDTO> hits = ret.getOpenSearchResponse().hits();
         Long totalSize = Optional.ofNullable(hits).map(HitsMetadata::total).map(TotalHits::value).orElse(null);
         boolean totalCountTruncated = ret.isTotalCountTruncated();
 
@@ -243,7 +243,7 @@ public class OpenSearchQueryManager extends AbstractQueryManager {
         return result;
     }
 
-    List<EmbeddingRestDTO> getEmbeddingRestDTOs(HitsMetadata<org.nuxeo.opensearch.io.DocumentDTO> hits,
+    List<EmbeddingRestDTO> getEmbeddingRestDTOs(HitsMetadata<com.hyland.openarch.opensearch.io.DocumentDTO> hits,
             CoreSession session) {
         Set<String> onPremIds = new HashSet<>();
         Map<String, List<String>> onPremIdsBySource = new HashMap<>();
@@ -422,7 +422,7 @@ public class OpenSearchQueryManager extends AbstractQueryManager {
     }
 
     @SuppressWarnings("unchecked")
-    EmbeddingRestDTO embeddingFromHit(Hit<org.nuxeo.opensearch.io.DocumentDTO> hit) {
+    EmbeddingRestDTO embeddingFromHit(Hit<com.hyland.openarch.opensearch.io.DocumentDTO> hit) {
         Map<String, Object> properties = hit.source().getProperties();
         return new EmbeddingRestDTO(hit.id(),
                 (String) properties.get(SYS_ID),

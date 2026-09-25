@@ -29,8 +29,8 @@
   <logger level="warn" name="org.nuxeo.ecm.blob.s3.S3BlobStore" />
   <logger level="warn" name="com.hyland.openarch.ecm.core.cache.CacheServiceImpl" />
   <logger level="warn" name="com.hyland.openarch.ecm.core.schema.XSDLoader" />
-  <logger level="warn" name="org.nuxeo.opensearch.client.OpenSearchRestClient" />
-  <logger level="warn" name="org.nuxeo.opensearch.OpenSearchServiceImpl" />
+  <logger level="warn" name="client.com.hyland.openarch.opensearch.OpenSearchRestClient" />
+  <logger level="warn" name="com.hyland.openarch.opensearch.OpenSearchServiceImpl" />
   <logger level="warn" name="com.hyland.openarch.runtime.cluster.ClusterServiceImpl" />
   <logger level="warn" name="org.nuxeo.renditions.listeners.CreateRenditionListener" />
   <logger level="warn" name="org.nuxeo.rest.exception.NuxeoExceptionController" />

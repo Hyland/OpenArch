@@ -61,7 +61,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-opensearch</artifactId>
+      <artifactId>openarch-opensearch</artifactId>
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
@@ -122,7 +122,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-opensearch</artifactId>
+      <artifactId>openarch-opensearch</artifactId>
       <type>test-jar</type>
     </dependency>
 

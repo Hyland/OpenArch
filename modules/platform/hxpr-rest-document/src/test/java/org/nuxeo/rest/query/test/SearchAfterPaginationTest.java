@@ -27,7 +27,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.nuxeo.opensearch.OpenSearchConstants;
+import com.hyland.openarch.opensearch.OpenSearchConstants;
 import org.nuxeo.rest.document.DocumentDTO;
 import org.nuxeo.rest.query.OpenSearchQueryManager;
 import org.nuxeo.rest.query.QueryAPI;

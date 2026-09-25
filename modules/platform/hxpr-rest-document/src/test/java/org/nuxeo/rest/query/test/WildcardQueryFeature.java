@@ -19,7 +19,7 @@ import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_TITLE;
 
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
-import org.nuxeo.opensearch.test.RepositoryOpenSearchFeature;
+import com.hyland.openarch.opensearch.test.RepositoryOpenSearchFeature;
 import com.hyland.openarch.runtime.test.runner.Features;
 import com.hyland.openarch.runtime.transaction.TransactionHelper;
 

@@ -37,7 +37,7 @@ repos:
     rev: 7d94620933e79b8acaa0cd9e60e9864b07673d86  # frozen: v0.1.11
     hooks:
       - id: ripsecrets
-        exclude: (modules/runtime/hxpr-runtime-mongodb/src/test/resources/test-certs/|modules/runtime/hxpr-runtime-mongodb/src/test/java/com/hyland/openarch/runtime/mongodb/MongoDBComponentTest.java|modules/core/openarch-core-test/src/test/java/com/hyland/openarch/ecm/core/TestBlobDispatcher2.java|modules/platform/hxpr-opensearch/src/test/java/org/nuxeo/opensearch/test/io/TestDocumentModelWriter.java|modules/platform/hxpr-rest-document/src/test/resources/rest/|modules/platform/hxpr-rest-document/src/test/java/org/nuxeo/rest/document/test/DocumentDTOWriteTest.java)
+        exclude: (modules/runtime/hxpr-runtime-mongodb/src/test/resources/test-certs/|modules/runtime/hxpr-runtime-mongodb/src/test/java/com/hyland/openarch/runtime/mongodb/MongoDBComponentTest.java|modules/core/openarch-core-test/src/test/java/com/hyland/openarch/ecm/core/TestBlobDispatcher2.java|modules/platform/openarch-opensearch/src/test/java/com/hyland/openarch/opensearch/test/io/TestDocumentModelWriter.java|modules/platform/hxpr-rest-document/src/test/resources/rest/|modules/platform/hxpr-rest-document/src/test/java/com/hyland/openarch/rest/document/test/DocumentDTOWriteTest.java)
 
   - repo: https://github.com/sirosen/check-jsonschema
     rev: b035497fb64e3f9faa91e833331688cc185891e6  # frozen: 0.36.0

@@ -13,7 +13,7 @@
   <modules>
     <module>openarch-login-filestore</module>
     <module>openarch-login</module>
-    <module>hxpr-opensearch</module>
+    <module>openarch-opensearch</module>
     <module>openarch-platform-test</module>
     <module>hxpr-rest-common</module>
     <module>hxpr-rest-document</module>

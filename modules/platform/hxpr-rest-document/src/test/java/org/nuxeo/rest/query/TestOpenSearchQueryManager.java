@@ -45,7 +45,7 @@ import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.EmbeddingChunkTextFetcher;
 import com.hyland.openarch.ecm.core.api.impl.DocumentModelListImpl;
 import com.hyland.openarch.ecm.core.model.LocationModel;
-import org.nuxeo.opensearch.io.DocumentDTO;
+import com.hyland.openarch.opensearch.io.DocumentDTO;
 import org.nuxeo.rest.embedding.EmbeddingRestDTO;
 import org.opensearch.client.opensearch.core.search.Hit;
 import org.opensearch.client.opensearch.core.search.HitsMetadata;

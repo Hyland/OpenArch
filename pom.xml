@@ -483,12 +483,12 @@
       </dependency>
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
-        <artifactId>hxpr-opensearch</artifactId>
+        <artifactId>openarch-opensearch</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
-        <artifactId>hxpr-opensearch</artifactId>
+        <artifactId>openarch-opensearch</artifactId>
         <version>${project.version}</version>
         <type>test-jar</type>
         <scope>test</scope>

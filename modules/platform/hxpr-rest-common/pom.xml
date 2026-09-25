@@ -68,12 +68,12 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-opensearch</artifactId>
+      <artifactId>openarch-opensearch</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-opensearch</artifactId>
+      <artifactId>openarch-opensearch</artifactId>
       <scope>test</scope>
       <type>test-jar</type>
     </dependency>
