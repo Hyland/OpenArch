@@ -8,7 +8,7 @@
   </parent>
 
   <artifactId>openarch-core-binarymanager-common</artifactId>
-  <name>HxPR Core BinaryManager Common</name>
+  <name>OpenArch Core BinaryManager Common</name>
 
   <properties>
     <manifest.file>src/main/resources/META-INF/MANIFEST.MF</manifest.file>
