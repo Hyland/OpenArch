@@ -89,11 +89,11 @@ import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.databind.DatabindException;
 
 /**
- * Unit test for {@link NuxeoExceptionController}
+ * Unit test for {@link RepositoryExceptionController}
  */
 @Features({ UserManagerMockFeature.class, DummyLoginFeature.class })
 @Import(UserManagerMockTestConfiguration.class)
-@SpringBootTest(classes = { NuxeoExceptionController.class, RepositoryExceptionControllerTest.ExceptionTestResource.class })
+@SpringBootTest(classes = { RepositoryExceptionController.class, RepositoryExceptionControllerTest.ExceptionTestResource.class })
 class RepositoryExceptionControllerTest extends RuntimeSpringBootTest {
 
     @RestController
@@ -101,8 +101,8 @@ class RepositoryExceptionControllerTest extends RuntimeSpringBootTest {
     @RequestMapping(path = "/exception", produces = MediaType.APPLICATION_JSON_VALUE)
     public static class ExceptionTestResource {
 
-        @GetMapping("/nuxeo")
-        public void nuxeo() {
+        @GetMapping("/oops")
+        public void oops() {
             throw new RepositoryException("oops", 456);
         }
 
@@ -238,7 +238,7 @@ class RepositoryExceptionControllerTest extends RuntimeSpringBootTest {
 
     @Test
     public void testRepositoryException() throws Exception {
-        doTestException("/exception/nuxeo", 456, "oops");
+        doTestException("/exception/oops", 456, "oops");
     }
 
     /**
@@ -255,7 +255,7 @@ class RepositoryExceptionControllerTest extends RuntimeSpringBootTest {
     @Test
     public void testServiceUnavailable() throws Exception {
         doTestExceptionAndHeaders("/exception/serviceunavail", SC_SERVICE_UNAVAILABLE, "service unavail",
-                Map.of(RETRY_AFTER, "2")); // NuxeoExceptionController.RETRY_AFTER_DEFAULT_DELAY
+                Map.of(RETRY_AFTER, "2")); // RepositoryExceptionController.RETRY_AFTER_DEFAULT_DELAY
     }
 
     /**
@@ -265,7 +265,7 @@ class RepositoryExceptionControllerTest extends RuntimeSpringBootTest {
      */
     @Test
     public void testServiceUnavailableIsLoggedAsAWarningWithItsCause() throws Exception {
-        Logger logger = (Logger) LoggerFactory.getLogger(NuxeoExceptionController.class);
+        Logger logger = (Logger) LoggerFactory.getLogger(RepositoryExceptionController.class);
         ListAppender<ILoggingEvent> events = new ListAppender<>();
         events.start();
         logger.addAppender(events);

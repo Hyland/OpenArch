@@ -27,7 +27,7 @@ import com.hyland.openarch.runtime.springboot.junit.RuntimeSpringBootTest;
 
 /**
  * Abstract base class for {@link UserAPI} tests, shared between community (mock) and enterprise (real IAM) variants.
- * Subclasses provide the Spring/Nuxeo annotations and the {@link UserManager} implementation via their feature/config.
+ * Subclasses provide the Spring/OpenArch annotations and the {@link UserManager} implementation via their feature/config.
  */
 public abstract class AbstractUserAPITest extends RuntimeSpringBootTest {
 

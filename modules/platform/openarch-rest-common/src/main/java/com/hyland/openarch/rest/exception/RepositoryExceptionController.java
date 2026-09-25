@@ -60,11 +60,11 @@ import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.exc.UnrecognizedPropertyException;
 
 @ControllerAdvice
-public class NuxeoExceptionController {
+public class RepositoryExceptionController {
 
     private static final String CONSTRAINT_VIOLATION_SEPARATOR = ": ";
 
-    private static final Logger log = LoggerFactory.getLogger(NuxeoExceptionController.class);
+    private static final Logger log = LoggerFactory.getLogger(RepositoryExceptionController.class);
 
     private static final String RETRY_AFTER_DEFAULT_DELAY = "2"; // 2s
 

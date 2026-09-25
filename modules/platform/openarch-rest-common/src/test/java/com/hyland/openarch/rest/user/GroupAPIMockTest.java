@@ -19,7 +19,7 @@ import com.hyland.openarch.ecm.core.api.local.DummyLoginFeature;
 import com.hyland.openarch.ecm.platform.test.UserManagerMock;
 import com.hyland.openarch.ecm.platform.test.UserManagerMockFeature;
 import com.hyland.openarch.ecm.platform.test.UserManagerMockTestConfiguration;
-import com.hyland.openarch.rest.exception.NuxeoExceptionController;
+import com.hyland.openarch.rest.exception.RepositoryExceptionController;
 import com.hyland.openarch.runtime.test.runner.Features;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
@@ -29,7 +29,7 @@ import org.springframework.context.annotation.Import;
  */
 @Features({ UserManagerMockFeature.class, DummyLoginFeature.class })
 @Import(UserManagerMockTestConfiguration.class)
-@SpringBootTest(classes = { GroupAPI.class, NuxeoExceptionController.class })
+@SpringBootTest(classes = { GroupAPI.class, RepositoryExceptionController.class })
 class GroupAPIMockTest extends AbstractGroupAPITest {
 
     @Override

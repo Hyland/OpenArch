@@ -44,7 +44,7 @@ import com.hyland.openarch.rest.document.DocumentDTO;
 import com.hyland.openarch.rest.document.ObjectMapperConfiguration;
 import com.hyland.openarch.rest.document.test.AbstractAPITest;
 import com.hyland.openarch.rest.document.test.ContentTestHelper;
-import com.hyland.openarch.rest.exception.NuxeoExceptionController;
+import com.hyland.openarch.rest.exception.RepositoryExceptionController;
 import com.hyland.openarch.rest.query.io.DocumentQueryResultDTO;
 import com.hyland.openarch.rest.utils.Versions;
 import org.skyscreamer.jsonassert.ArrayValueMatcher;
@@ -58,7 +58,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 
-@Import({ NuxeoExceptionController.class, ObjectMapperConfiguration.class })
+@Import({ RepositoryExceptionController.class, ObjectMapperConfiguration.class })
 public abstract class AbstractQueryAPITest extends AbstractAPITest {
 
     static final String PROPERTY_MATCHER_TEMPLATE = "%s[*].%s";

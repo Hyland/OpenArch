@@ -19,7 +19,7 @@ import com.hyland.openarch.ecm.core.api.local.DummyLoginFeature;
 import com.hyland.openarch.ecm.platform.login.filestore.UserManagerFileStore;
 import com.hyland.openarch.ecm.platform.login.filestore.UserManagerFileStoreFeature;
 import com.hyland.openarch.ecm.platform.login.filestore.UserManagerFileStoreTestConfiguration;
-import com.hyland.openarch.rest.exception.NuxeoExceptionController;
+import com.hyland.openarch.rest.exception.RepositoryExceptionController;
 import com.hyland.openarch.runtime.test.runner.Features;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -32,6 +32,6 @@ import org.springframework.boot.test.context.SpringBootTest;
  * satisfies the same contract as the enterprise version ({@link UserAPIEnterpriseTest}).
  */
 @Features({ UserManagerFileStoreFeature.class, DummyLoginFeature.class })
-@SpringBootTest(classes = { UserAPI.class, NuxeoExceptionController.class, UserManagerFileStoreTestConfiguration.class })
+@SpringBootTest(classes = { UserAPI.class, RepositoryExceptionController.class, UserManagerFileStoreTestConfiguration.class })
 class UserAPIFileStoreTest extends AbstractUserAPITest {
 }

@@ -42,8 +42,8 @@ public class TestSystemDenySecurityPolicy extends RuntimeSpringBootTest {
     /**
      * Rebuilds the {@link org.springframework.test.web.servlet.MockMvc} after the base class setup so that the
      * {@link DenySystemSecurityPolicy} filter (a servlet {@code Filter} bean) is part of the chain, replicating the
-     * behaviour previously provided by {@code @AutoConfigureMockMvc}. The {@code NuxeoLoginFilter} is intentionally
-     * left out: this test drives authentication through {@code @WithMockUser} rather than a real Nuxeo login.
+     * behaviour previously provided by {@code @AutoConfigureMockMvc}. The {@code RepositoryLoginFilter} is intentionally
+     * left out: this test drives authentication through {@code @WithMockUser} rather than a real OpenArch login.
      */
     @BeforeEach
     public void setupDenyFilter(@Autowired WebApplicationContext context, @Autowired DenySystemSecurityPolicy denyFilter) {

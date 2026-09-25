@@ -39,7 +39,7 @@ import org.springframework.web.util.ContentCachingRequestWrapper;
 @Component
 @ConditionalOnProperty(name = ErroredResponseFilter.LOG_ERRORED_RESPONSE_ENABLED, havingValue = "true")
 // Outermost of the application filters, so that the status observed is the one the client is actually served,
-// including what NuxeoLoginFilter and TransactionFilter turn a failure into on their way out.
+// including what RepositoryLoginFilter and TransactionFilter turn a failure into on their way out.
 @Order(Ordered.LOWEST_PRECEDENCE - 30)
 public class ErroredResponseFilter extends OncePerRequestFilter {
 

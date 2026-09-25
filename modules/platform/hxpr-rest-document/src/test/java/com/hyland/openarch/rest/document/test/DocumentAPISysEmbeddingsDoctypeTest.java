@@ -36,12 +36,12 @@ import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpMethod.PUT;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
+import com.hyland.openarch.rest.exception.RepositoryExceptionController;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import com.hyland.openarch.ecm.core.SysEmbeddingsViolation;
 import com.hyland.openarch.rest.document.DocumentAPI;
 import com.hyland.openarch.rest.document.DocumentMultipartController;
-import com.hyland.openarch.rest.exception.NuxeoExceptionController;
 import com.hyland.openarch.runtime.test.runner.Features;
 import com.hyland.openarch.runtime.test.runner.LogFeature;
 import com.hyland.openarch.runtime.test.runner.LoggerLevel;
@@ -106,7 +106,7 @@ public class DocumentAPISysEmbeddingsDoctypeTest extends AbstractAPITest {
      */
     @Test
     @WithMockUser(ADMIN)
-    @LoggerLevel(klass = NuxeoExceptionController.class, level = "OFF")
+    @LoggerLevel(klass = RepositoryExceptionController.class, level = "OFF")
     public void testRemoveSysHasEmbeddingsOnParentWithSysEmbeddingsChildShouldConflict() throws Exception {
         // given a doc with SysHasEmbeddings mixin
         String id = createDocWithSysHasEmbeddings();
@@ -129,7 +129,7 @@ public class DocumentAPISysEmbeddingsDoctypeTest extends AbstractAPITest {
      */
     @Test
     @WithMockUser(ADMIN)
-    @LoggerLevel(klass = NuxeoExceptionController.class, level = "OFF")
+    @LoggerLevel(klass = RepositoryExceptionController.class, level = "OFF")
     public void testCreateSysEmbeddingsWithoutSysHasEmbeddingsShouldFail() throws Exception {
         // given a doc without SysHasEmbeddings mixin
         String id = createDocWithoutSysHasEmbeddings();
@@ -154,7 +154,7 @@ public class DocumentAPISysEmbeddingsDoctypeTest extends AbstractAPITest {
      */
     @Test
     @WithMockUser(ADMIN)
-    @LoggerLevel(klass = NuxeoExceptionController.class, level = "OFF")
+    @LoggerLevel(klass = RepositoryExceptionController.class, level = "OFF")
     public void testCreateSysEmbeddingsWithNonPrefixedNameAndEnforcementShouldFail() throws Exception {
         // given a doc with SysHasEmbeddings mixin
         String id = createDocWithSysHasEmbeddings();
@@ -244,7 +244,7 @@ public class DocumentAPISysEmbeddingsDoctypeTest extends AbstractAPITest {
      */
     @Test
     @WithMockUser(ADMIN)
-    @LoggerLevel(klass = NuxeoExceptionController.class, level = "OFF")
+    @LoggerLevel(klass = RepositoryExceptionController.class, level = "OFF")
     public void testCreateDuplicateSysEmbeddingsNamesWithEnforcementShouldConflict() throws Exception {
         // given a doc with SysHasEmbeddings mixin
         String id = createDocWithSysHasEmbeddings();

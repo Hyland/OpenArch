@@ -44,7 +44,7 @@ import com.hyland.openarch.ecm.platform.test.UserManagerMockTestConfiguration;
 import com.hyland.openarch.rest.auth.RolesAllowedInterceptor;
 import com.hyland.openarch.rest.document.ObjectMapperConfiguration;
 import com.hyland.openarch.rest.document.test.multipart.MockMultiPartFilePart;
-import com.hyland.openarch.rest.exception.NuxeoExceptionController;
+import com.hyland.openarch.rest.exception.RepositoryExceptionController;
 import com.hyland.openarch.rest.utils.Versions;
 import com.hyland.openarch.runtime.springboot.junit.RuntimeSpringBootTest;
 import com.hyland.openarch.runtime.springboot.junit.SpringBootObjectMappers;
@@ -69,7 +69,7 @@ import tools.jackson.databind.ObjectMapper;
  * Unit-test version of the server document api rest testing.
  */
 @Features({CoreFeature.class, UserManagerMockFeature.class})
-@Import({ NuxeoExceptionController.class, ObjectMapperConfiguration.class, RolesAllowedInterceptor.class, UserManagerMockTestConfiguration.class })
+@Import({ RepositoryExceptionController.class, ObjectMapperConfiguration.class, RolesAllowedInterceptor.class, UserManagerMockTestConfiguration.class })
 @Deploy("org.nuxeo.springboot.rest.document.test:OSGI-INF/test-repo-core-types-contrib.xml")
 public abstract class AbstractAPITest extends RuntimeSpringBootTest {
 
