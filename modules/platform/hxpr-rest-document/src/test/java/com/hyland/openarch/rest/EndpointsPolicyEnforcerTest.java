@@ -33,7 +33,7 @@ import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
 
-@AnalyzeClasses(packages = "org.nuxeo.rest")
+@AnalyzeClasses(packages = "com.hyland.openarch.rest")
 public class EndpointsPolicyEnforcerTest {
 
     @ArchTest

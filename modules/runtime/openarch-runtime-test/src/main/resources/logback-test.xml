@@ -33,8 +33,8 @@
   <logger level="warn" name="com.hyland.openarch.opensearch.OpenSearchServiceImpl" />
   <logger level="warn" name="com.hyland.openarch.runtime.cluster.ClusterServiceImpl" />
   <logger level="warn" name="org.nuxeo.renditions.listeners.CreateRenditionListener" />
-  <logger level="warn" name="exception.com.hyland.openarch.rest.NuxeoExceptionController" />
-  <logger level="warn" name="security.com.hyland.openarch.rest.SecurityPolicyManager" />
+  <logger level="warn" name="com.hyland.openarch.rest.exception.NuxeoExceptionController" />
+  <logger level="warn" name="com.hyland.openarch.rest.security.SecurityPolicyManager" />
 
   <logger level="error" name="com.amazonaws.util.EC2MetadataUtils" />
   <logger level="error" name="com.amazonaws.util.VersionInfoUtils" />

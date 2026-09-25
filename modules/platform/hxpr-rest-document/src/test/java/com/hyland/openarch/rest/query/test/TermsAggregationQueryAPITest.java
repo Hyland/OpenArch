@@ -248,14 +248,14 @@ public class TermsAggregationQueryAPITest extends AbstractQueryAPITest {
         }
 
         @ParameterizedTest
-        @MethodSource("org.nuxeo.rest.query.test.TermsAggregationQueryAPITest#searchExpressionTestCases")
+        @MethodSource("com.hyland.openarch.rest.query.test.TermsAggregationQueryAPITest#searchExpressionTestCases")
         void testSearchExpressionVariants(String searchTerm, String expectedJsonPath) throws Exception {
             ResultActions result = checkTermsAggregationResponse(STRING_LIST_PROP_PATH, searchTerm, DEFAULT_LIMIT);
             checkResponseBody(expectedJsonPath, result);
         }
 
         @ParameterizedTest
-        @MethodSource("org.nuxeo.rest.query.test.TermsAggregationQueryAPITest#hxqlQueries")
+        @MethodSource("com.hyland.openarch.rest.query.test.TermsAggregationQueryAPITest#hxqlQueries")
         void testHxqlFilteredQueries(String query, String expectedJsonPath) throws Exception {
             ResultActions results = checkTermsAggregationResponse(STRING_LIST_PROP_PATH, "so", DEFAULT_LIMIT, query);
             checkResponseBody(expectedJsonPath, results);
@@ -292,7 +292,7 @@ public class TermsAggregationQueryAPITest extends AbstractQueryAPITest {
         }
 
         @ParameterizedTest
-        @MethodSource("org.nuxeo.rest.query.test.TermsAggregationQueryAPITest#searchExpressionTestCases")
+        @MethodSource("com.hyland.openarch.rest.query.test.TermsAggregationQueryAPITest#searchExpressionTestCases")
         void testSearchExpressionVariants(String searchTerm, String expectedJsonPath) throws Exception {
             DocumentQueryDTO query = new DocumentQueryDTO(REPO_ID, null, 1L, 0, true, -1, null);
             TermsAggregationQueryResultDTO result = openSearchQueryManager.getResults(query, STRING_LIST_PROP_PATH,
@@ -304,7 +304,7 @@ public class TermsAggregationQueryAPITest extends AbstractQueryAPITest {
         }
 
         @ParameterizedTest
-        @MethodSource("org.nuxeo.rest.query.test.TermsAggregationQueryAPITest#hxqlQueries")
+        @MethodSource("com.hyland.openarch.rest.query.test.TermsAggregationQueryAPITest#hxqlQueries")
         void testHxqlFilteredQueries(String query, String expectedJsonPath) throws Exception {
             DocumentQueryDTO documentQuery = new DocumentQueryDTO(REPO_ID, query, 1L, 0, true, -1, null);
             TermsAggregationQueryResultDTO result = openSearchQueryManager.getResults(documentQuery,
