@@ -17,7 +17,7 @@ Import-Package: com.google.inject,
  com.hyland.openarch.ecm.core.api;api=split,
  com.hyland.openarch.ecm.core.schema,
  com.hyland.openarch.ecm.core.schema.types,
- org.nuxeo.ecm.core.test,
+ com.hyland.openarch.ecm.core.test,
  org.nuxeo.ecm.directory.api,
  org.nuxeo.ecm.platform.usermanager,
  com.hyland.openarch.runtime.test.runner

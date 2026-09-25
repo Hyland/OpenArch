@@ -65,7 +65,7 @@ import com.hyland.openarch.runtime.test.runner.WithFrameworkProperty;
 @ExtendWith(FeaturesExtension.class)
 @Features({ CoreFeature.class })
 @RepositoryConfig(cleanup = Granularity.METHOD)
-@Deploy("org.nuxeo.ecm.core.test.tests:OSGI-INF/test-retention-remove-types-contrib.xml")
+@Deploy("com.hyland.openarch.ecm.core.test.tests:OSGI-INF/test-retention-remove-types-contrib.xml")
 public class TestRetentionRemove {
 
     public static final String JOHN = "John";

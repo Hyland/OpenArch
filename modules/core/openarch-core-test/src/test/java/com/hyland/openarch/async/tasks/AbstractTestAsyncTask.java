@@ -26,7 +26,7 @@ import com.hyland.openarch.runtime.test.runner.Features;
 import com.hyland.openarch.runtime.test.runner.TransactionalFeature;
 
 @Features({ CoreFeature.class, AsyncTasksFeature.class })
-@Deploy("org.nuxeo.ecm.core.test.tests:OSGI-INF/test-repo-core-types-contrib.xml")
+@Deploy("com.hyland.openarch.ecm.core.test.tests:OSGI-INF/test-repo-core-types-contrib.xml")
 @RepositoryConfig(init = DocumentSetRepositoryInit.class)
 public class AbstractTestAsyncTask extends RuntimeSpringBootTest {
 

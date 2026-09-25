@@ -59,7 +59,7 @@ import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
 import com.hyland.openarch.runtime.test.runner.TransactionalFeature;
 
 @ExtendWith(FeaturesExtension.class)
-@Deploy("org.nuxeo.ecm.core.test.tests:OSGI-INF/test-document-resolver-contrib.xml")
+@Deploy("com.hyland.openarch.ecm.core.test.tests:OSGI-INF/test-document-resolver-contrib.xml")
 @Features(CoreFeature.class)
 @RepositoryConfig(cleanup = Granularity.METHOD)
 public class TestDocumentModelResolver {

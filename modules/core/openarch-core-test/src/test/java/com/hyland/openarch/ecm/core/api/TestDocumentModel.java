@@ -35,7 +35,7 @@ import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
 @ExtendWith(FeaturesExtension.class)
 @Features(CoreFeature.class)
 @RepositoryConfig(cleanup = Granularity.METHOD)
-@Deploy("org.nuxeo.ecm.core.test.tests:OSGI-INF/test-repo-core-types-contrib.xml")
+@Deploy("com.hyland.openarch.ecm.core.test.tests:OSGI-INF/test-repo-core-types-contrib.xml")
 public class TestDocumentModel {
 
     @Inject

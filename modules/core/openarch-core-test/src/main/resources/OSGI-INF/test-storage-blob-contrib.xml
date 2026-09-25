@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<component name="org.nuxeo.ecm.core.test.blobmanager">
+<component name="com.hyland.openarch.ecm.core.test.blobmanager">
   <extension target="com.hyland.openarch.ecm.core.blob.BlobService" point="configuration">
     <blobprovider name="test">
       <class>com.hyland.openarch.ecm.core.blob.LocalBlobProvider</class>

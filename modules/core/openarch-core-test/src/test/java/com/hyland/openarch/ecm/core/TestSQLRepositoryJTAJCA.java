@@ -52,7 +52,7 @@ import com.hyland.openarch.runtime.transaction.TransactionRuntimeException;
 @ExtendWith(FeaturesExtension.class)
 @Features(CoreFeature.class)
 @RepositoryConfig(cleanup = Granularity.METHOD)
-@Deploy("org.nuxeo.ecm.core.test.tests:OSGI-INF/disable-schedulers.xml")
+@Deploy("com.hyland.openarch.ecm.core.test.tests:OSGI-INF/disable-schedulers.xml")
 public class TestSQLRepositoryJTAJCA {
 
     private static final Logger log = LogManager.getLogger(TestSQLRepositoryJTAJCA.class);

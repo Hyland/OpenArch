@@ -79,7 +79,7 @@ import com.hyland.openarch.async.tasks.TaskService;
 @Deploy("com.hyland.openarch.ecm.core")
 @Deploy("com.hyland.openarch.ecm.core.io")
 @Deploy("com.hyland.openarch.ecm.core.cache")
-@Deploy("org.nuxeo.ecm.core.test")
+@Deploy("com.hyland.openarch.ecm.core.test")
 @Deploy("com.hyland.openarch.ecm.core.storage.mem")
 @Deploy("com.hyland.openarch.runtime.kv") // for async tasks feature
 @Deploy("com.hyland.openarch.ecm.core.event")

@@ -34,7 +34,7 @@ import com.hyland.openarch.runtime.test.runner.Deploy;
 import com.hyland.openarch.runtime.test.runner.Features;
 
 @Features(CoreFeature.class)
-@Deploy("org.nuxeo.ecm.core.test.tests:OSGI-INF/disable-schedulers.xml")
+@Deploy("com.hyland.openarch.ecm.core.test.tests:OSGI-INF/disable-schedulers.xml")
 public abstract class TestFulltextAbstractNoQuery extends AbstractFullTextConfigurationTest {
 
     protected static final String CONTENT = "hello world";

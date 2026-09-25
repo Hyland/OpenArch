@@ -38,7 +38,7 @@ import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
 @ExtendWith(FeaturesExtension.class)
 @Features(CoreFeature.class)
 @RepositoryConfig(cleanup = Granularity.METHOD)
-@Deploy("org.nuxeo.ecm.core.test.tests:OSGI-INF/defaultvalue-docTypes.xml")
+@Deploy("com.hyland.openarch.ecm.core.test.tests:OSGI-INF/defaultvalue-docTypes.xml")
 public class TestSQLRepositoryDefaultValues {
 
     @Inject

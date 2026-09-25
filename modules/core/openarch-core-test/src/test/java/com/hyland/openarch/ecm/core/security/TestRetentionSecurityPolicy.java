@@ -56,7 +56,7 @@ import java.util.Map;
 
 @ExtendWith(FeaturesExtension.class)
 @Features(CoreFeature.class)
-@Deploy("org.nuxeo.ecm.core.test.tests:OSGI-INF/test-retention-security-policy.xml")
+@Deploy("com.hyland.openarch.ecm.core.test.tests:OSGI-INF/test-retention-security-policy.xml")
 public class TestRetentionSecurityPolicy {
 
     private DocumentRef fileRefRegular;

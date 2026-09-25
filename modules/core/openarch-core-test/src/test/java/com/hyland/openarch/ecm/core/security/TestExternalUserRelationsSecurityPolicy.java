@@ -61,7 +61,7 @@ import tools.jackson.databind.ObjectMapper;
 
 @ExtendWith(FeaturesExtension.class)
 @Features(CoreFeature.class)
-@Deploy("org.nuxeo.ecm.core.test.tests:OSGI-INF/test-external-user-relations-security-policy.xml")
+@Deploy("com.hyland.openarch.ecm.core.test.tests:OSGI-INF/test-external-user-relations-security-policy.xml")
 class TestExternalUserRelationsSecurityPolicy {
 
     private static final String REPOSITORY = "test";

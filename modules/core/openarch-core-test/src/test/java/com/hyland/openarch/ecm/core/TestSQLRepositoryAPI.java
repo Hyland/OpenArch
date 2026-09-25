@@ -172,8 +172,8 @@ import com.hyland.openarch.async.tasks.TaskService;
 @ExtendWith(FeaturesExtension.class)
 @Features(CoreFeature.class)
 @RepositoryConfig(cleanup = Granularity.METHOD)
-@Deploy("org.nuxeo.ecm.core.test.tests:OSGI-INF/test-repo-core-types-contrib.xml")
-@Deploy("org.nuxeo.ecm.core.test.tests:OSGI-INF/disable-schedulers.xml")
+@Deploy("com.hyland.openarch.ecm.core.test.tests:OSGI-INF/test-repo-core-types-contrib.xml")
+@Deploy("com.hyland.openarch.ecm.core.test.tests:OSGI-INF/disable-schedulers.xml")
 public class TestSQLRepositoryAPI {
 
     private static final String CANNOT_REMOVE_ROOT_DIRECTORY = "Cannot remove %s, it is the root directory";

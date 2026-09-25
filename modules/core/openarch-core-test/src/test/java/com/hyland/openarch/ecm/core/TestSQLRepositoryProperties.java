@@ -82,8 +82,8 @@ import com.hyland.openarch.runtime.transaction.TransactionHelper;
 @ExtendWith(FeaturesExtension.class)
 @Features(CoreFeature.class)
 @RepositoryConfig(cleanup = Granularity.METHOD)
-@Deploy("org.nuxeo.ecm.core.test.tests:OSGI-INF/test-repo-core-types-contrib.xml")
-@Deploy("org.nuxeo.ecm.core.test.tests:OSGI-INF/test-restriction-contrib.xml")
+@Deploy("com.hyland.openarch.ecm.core.test.tests:OSGI-INF/test-repo-core-types-contrib.xml")
+@Deploy("com.hyland.openarch.ecm.core.test.tests:OSGI-INF/test-restriction-contrib.xml")
 public class TestSQLRepositoryProperties {
 
     private static final String MY_FILE = "MyFile";

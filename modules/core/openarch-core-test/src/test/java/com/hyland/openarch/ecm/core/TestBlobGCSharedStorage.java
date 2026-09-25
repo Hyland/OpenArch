@@ -40,9 +40,9 @@ import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
 
 @ExtendWith(FeaturesExtension.class)
 @Features(CoreFeature.class)
-@Deploy("org.nuxeo.ecm.core.test.tests:OSGI-INF/test-repo-core-types-contrib.xml")
-@Deploy("org.nuxeo.ecm.core.test.tests:OSGI-INF/disable-schedulers.xml")
-@Deploy("org.nuxeo.ecm.core.test.tests:OSGI-INF/test-blob-gc-same-storage.xml")
+@Deploy("com.hyland.openarch.ecm.core.test.tests:OSGI-INF/test-repo-core-types-contrib.xml")
+@Deploy("com.hyland.openarch.ecm.core.test.tests:OSGI-INF/disable-schedulers.xml")
+@Deploy("com.hyland.openarch.ecm.core.test.tests:OSGI-INF/test-blob-gc-same-storage.xml")
 public class TestBlobGCSharedStorage {
 
     protected static final String CONTENT1 = "hello world";

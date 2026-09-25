@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<component name="org.nuxeo.ecm.core.security.extrel.tests">
+<component name="com.hyland.openarch.ecm.core.security.extrel.tests">
   <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="schema">
     <schema name="wdemployee" src="schemas/wdemployee.xsd" />
   </extension>

@@ -111,7 +111,7 @@ public class StorageConfiguration {
 
     protected void initExternal() {
         // Get DBSHelper by reflection
-        String className = String.format("org.nuxeo.ecm.core.storage.%s.DBSHelperImpl", coreType);
+        String className = String.format("com.hyland.openarch.ecm.core.storage.%s.DBSHelperImpl", coreType);
         try {
             dbsHelper = (DBSHelper) Class.forName(className).getDeclaredConstructor().newInstance();
             dbsHelper.init();
@@ -166,14 +166,14 @@ public class StorageConfiguration {
 
     public List<String> getExternalBundles() {
         if (isDBSExternal()) {
-            return Arrays.asList(String.format("org.nuxeo.ecm.core.storage.%s", coreType),
-                    String.format("org.nuxeo.ecm.core.storage.%s.test", coreType));
+            return Arrays.asList(String.format("com.hyland.openarch.ecm.core.storage.%s", coreType),
+                    String.format("com.hyland.openarch.ecm.core.storage.%s.test", coreType));
         }
         return Collections.emptyList();
     }
 
     public URL getBlobManagerContrib(FeaturesLoader loader) {
-        String bundleName = "org.nuxeo.ecm.core.test";
+        String bundleName = "com.hyland.openarch.ecm.core.test";
         String contribPath = "OSGI-INF/test-storage-blob-contrib.xml";
         RuntimeHarness harness = loader.getFeature(RuntimeFeature.class).getHarness();
         URL contribURL = harness.getOSGiAdapter().getBundleEntry(bundleName, contribPath);
@@ -187,13 +187,13 @@ public class StorageConfiguration {
         log.debug(msg);
 
         String contribPath;
-        String bundleName = "org.nuxeo.ecm.core.test";
+        String bundleName = "com.hyland.openarch.ecm.core.test";
         if (isDBSMem()) {
             contribPath = "OSGI-INF/test-storage-repo-mem-contrib.xml";
         } else if (isDBSMongoDB()) {
             contribPath = "OSGI-INF/test-storage-repo-mongodb-contrib.xml";
         } else if (isDBSExternal()) {
-            bundleName = String.format("org.nuxeo.ecm.core.storage.%s.test", coreType);
+            bundleName = String.format("com.hyland.openarch.ecm.core.storage.%s.test", coreType);
             contribPath = "OSGI-INF/test-storage-repo-contrib.xml";
         } else {
             throw new RepositoryException("Unkown DBS test configuration (not mem/mongodb)");

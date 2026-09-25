@@ -21,7 +21,7 @@ package com.hyland.openarch.ecm.core.api;
  */
 public class Constants {
 
-    public static final String CORE_TEST_TESTS_BUNDLE = "org.nuxeo.ecm.core.test.tests";
+    public static final String CORE_TEST_TESTS_BUNDLE = "com.hyland.openarch.ecm.core.test.tests";
 
     private Constants() {
     }

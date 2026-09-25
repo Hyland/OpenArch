@@ -53,7 +53,7 @@ import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
 @ExtendWith(FeaturesExtension.class)
 @Features(CoreFeature.class)
 @RepositoryConfig(cleanup = Granularity.METHOD)
-@Deploy("org.nuxeo.ecm.core.test:OSGI-INF/test-storage-blobstore-contrib.xml")
+@Deploy("com.hyland.openarch.ecm.core.test:OSGI-INF/test-storage-blobstore-contrib.xml")
 public class TestComputeDigestHelper {
 
     protected static final String FOO = "foo";

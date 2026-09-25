@@ -1,5 +1,5 @@
-Export-Package: org.nuxeo.ecm.core.test,
- org.nuxeo.ecm.core.test.annotations
+Export-Package: com.hyland.openarch.ecm.core.test,
+ com.hyland.openarch.ecm.core.test.annotations
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
 Manifest-Version: 1.0
@@ -11,7 +11,7 @@ Bundle-ManifestVersion: 2
 Bundle-Description: Nuxeo Core: Testing framewok
 Bundle-License: http://www.gnu.org/copyleft/lesser.txt
 Bundle-DocURL: http://www.nuxeo.com/en
-Bundle-SymbolicName: org.nuxeo.ecm.core.test
+Bundle-SymbolicName: com.hyland.openarch.ecm.core.test
 Import-Package: com.google.inject,
  com.google.inject.binder,
  org.apache.commons.logging,
@@ -21,12 +21,12 @@ Import-Package: com.google.inject,
  org.junit.runners,
  org.junit.runners.model,
  com.hyland.openarch.ecm.core.event,
- org.nuxeo.ecm.core.storage.sql;core=split,
- org.nuxeo.ecm.core.test,
- org.nuxeo.ecm.core.test.annotations,
+ com.hyland.openarch.ecm.core.storage.sql;core=split,
+ com.hyland.openarch.ecm.core.test,
+ com.hyland.openarch.ecm.core.test.annotations,
  com.hyland.openarch.runtime.api,
  com.hyland.openarch.runtime.test.runner,
  org.osgi.framework,
- org.nuxeo.ecm.core.work,
+ com.hyland.openarch.ecm.core.work,
  com.hyland.openarch.runtime
 Require-Bundle: com.hyland.openarch.ecm.core

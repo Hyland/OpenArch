@@ -37,7 +37,7 @@ import jakarta.inject.Inject;
 @ExtendWith(FeaturesExtension.class)
 @Features(CoreFeature.class)
 @RepositoryConfig(cleanup = Granularity.METHOD)
-@Deploy("org.nuxeo.ecm.core.test.tests:OSGI-INF/test-anytype-contrib.xml")
+@Deploy("com.hyland.openarch.ecm.core.test.tests:OSGI-INF/test-anytype-contrib.xml")
 public class TestAnyType {
 
     private static final String MY_ANY = "MyAny";

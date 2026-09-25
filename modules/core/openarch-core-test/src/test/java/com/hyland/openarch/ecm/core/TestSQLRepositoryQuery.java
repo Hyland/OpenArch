@@ -104,8 +104,8 @@ import com.hyland.openarch.runtime.transaction.TransactionHelper;
 @ExtendWith(FeaturesExtension.class)
 @Features({ CoreFeature.class, LogCaptureFeature.class })
 @RepositoryConfig(cleanup = Granularity.METHOD)
-@Deploy("org.nuxeo.ecm.core.test.tests:OSGI-INF/testquery-core-types-contrib.xml")
-@Deploy("org.nuxeo.ecm.core.test.tests:OSGI-INF/test-repo-core-types-contrib-2.xml")
+@Deploy("com.hyland.openarch.ecm.core.test.tests:OSGI-INF/testquery-core-types-contrib.xml")
+@Deploy("com.hyland.openarch.ecm.core.test.tests:OSGI-INF/test-repo-core-types-contrib-2.xml")
 public class TestSQLRepositoryQuery {
 
     private static final String MY_DOC_TYPE = "MyDocType";

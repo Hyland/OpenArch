@@ -74,7 +74,7 @@ import tools.jackson.databind.ObjectMapper;
 @TestInstance(Lifecycle.PER_CLASS)
 @ExtendWith(FeaturesExtension.class)
 @Features(CoreFeature.class)
-@Deploy("org.nuxeo.ecm.core.test.tests:OSGI-INF/test-security-level-security-policy.xml")
+@Deploy("com.hyland.openarch.ecm.core.test.tests:OSGI-INF/test-security-level-security-policy.xml")
 public class TestSecurityLevelSecurityPolicy {
 
     private static final String REPOSITORY = "test";

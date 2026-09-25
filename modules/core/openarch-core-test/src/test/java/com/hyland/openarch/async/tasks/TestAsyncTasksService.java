@@ -145,7 +145,7 @@ public class TestAsyncTasksService extends AbstractTestAsyncTasksService {
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.test.tests:OSGI-INF/async-task-failure-contrib.xml")
+    @Deploy("com.hyland.openarch.ecm.core.test.tests:OSGI-INF/async-task-failure-contrib.xml")
     public void testPolicyOnFailure() throws Exception {
         // add a doc
         DocumentModel doc = session.createDocumentModel("/", "doc", SYS_FILE);

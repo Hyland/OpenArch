@@ -60,7 +60,7 @@ import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
 
 @ExtendWith(FeaturesExtension.class)
 @Features(CoreFeature.class)
-@Deploy("org.nuxeo.ecm.core.test.tests:OSGI-INF/test-security-level-security-policy.xml")
+@Deploy("com.hyland.openarch.ecm.core.test.tests:OSGI-INF/test-security-level-security-policy.xml")
 public class TestSecurityPoliciesProperty {
 
     private static final String REPOSITORY = "test";
