@@ -7,7 +7,7 @@
     <version>12.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>hxpr-core-binarymanager-common</artifactId>
+  <artifactId>openarch-core-binarymanager-common</artifactId>
   <name>HxPR Core BinaryManager Common</name>
 
   <properties>

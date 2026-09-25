@@ -99,7 +99,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-core-binarymanager-common</artifactId>
+      <artifactId>openarch-core-binarymanager-common</artifactId>
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>

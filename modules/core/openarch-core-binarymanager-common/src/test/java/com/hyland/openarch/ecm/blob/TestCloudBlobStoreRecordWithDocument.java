@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.nuxeo.ecm.blob;
+package com.hyland.openarch.ecm.blob;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSFILE_BLOB;
