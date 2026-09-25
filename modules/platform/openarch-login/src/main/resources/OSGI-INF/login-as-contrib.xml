@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<component name="org.nuxeo.rest.common.login">
+<component name="com.hyland.openarch.rest.common.login">
   <extension target="com.hyland.openarch.runtime.LoginService" point="principalFactory">
     <implementation class="com.hyland.openarch.ecm.platform.login.UserManagerPrincipalFactory" />
   </extension>

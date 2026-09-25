@@ -1,4 +1,4 @@
-Export-Package: org.nuxeo.ecm.platform.login
+Export-Package: com.hyland.openarch.ecm.platform.login
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
 Manifest-Version: 1.0
@@ -27,7 +27,7 @@ Import-Package: javax.annotation;version="1.0",
  com.hyland.openarch.runtime.api,
  com.hyland.openarch.runtime.api.login,
  com.hyland.openarch.runtime.model
-Bundle-SymbolicName: org.nuxeo.ecm.platform.login
+Bundle-SymbolicName: com.hyland.openarch.ecm.platform.login
 Eclipse-RegisterBuddy: com.hyland.openarch.runtime
 Eclipse-BuddyPolicy: registered
 Nuxeo-Component: OSGI-INF/login-as-contrib.xml

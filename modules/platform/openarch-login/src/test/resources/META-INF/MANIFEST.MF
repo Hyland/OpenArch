@@ -1,4 +1,4 @@
-Export-Package: org.nuxeo.ecm.platform.login.test
+Export-Package: com.hyland.openarch.ecm.platform.login.test
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
 Manifest-Version: 1.0
@@ -7,4 +7,4 @@ Bundle-Localization: plugin
 Bundle-Name: Nuxeo Login Module Test
 Bundle-Vendor: Nuxeo
 Bundle-ManifestVersion: 2
-Bundle-SymbolicName: org.nuxeo.ecm.platform.login.test
+Bundle-SymbolicName: com.hyland.openarch.ecm.platform.login.test
