@@ -44,7 +44,7 @@ class EmbeddingsIndexerOnPremChunkTextTest {
     private static final String EMBEDDINGS_DOC_ID = "emb-1";
     private static final String PARENT_DOC_ID = "parent-1";
     private static final String EMBEDDING_TYPE = "type-a";
-    private static final String SYSTEM_INTEGRATION_ID_PLACEHOLDER = "placeholder-system-integration-id";
+    private static final String TENANT = "tenant-1";
 
     private final EmbeddingsParser parser = Mockito.mock(EmbeddingsParser.class);
 
@@ -52,14 +52,14 @@ class EmbeddingsIndexerOnPremChunkTextTest {
     private static final Collection<EmbeddingModel> SOME_EMBEDDINGS = Collections.singletonList(null);
 
     @Test
-    void writesChunkTextForOnPremIngestUsingPlaceholderSystemIntegrationId() {
+    void writesChunkTextForOnPremIngest() {
         DocumentModel embeddingsDoc = Mockito.mock(DocumentModel.class);
         DocumentModel parentDoc = Mockito.mock(DocumentModel.class);
         Blob chunksBlob = Mockito.mock(Blob.class);
         when(embeddingsDoc.getId()).thenReturn(EMBEDDINGS_DOC_ID);
         when(embeddingsDoc.getPropertyValue(DocumentConstants.SYSEMB_CHUNKS)).thenReturn(chunksBlob);
         when(parentDoc.getId()).thenReturn(PARENT_DOC_ID);
-        when(parentDoc.getPropertyValue(DocumentConstants.CIN_SOURCE_ID)).thenReturn("tenant-1");
+        when(parentDoc.getPropertyValue(DocumentConstants.CIN_SOURCE_ID)).thenReturn(TENANT);
         Map<String, String> chunks = Map.of("id-1", "text-1");
         when(parser.parseChunkTexts(chunksBlob, EMBEDDING_TYPE)).thenReturn(chunks);
 
@@ -71,8 +71,7 @@ class EmbeddingsIndexerOnPremChunkTextTest {
             EmbeddingsIndexer.writeOnPremChunkText(parser, REPOSITORY, ctx, SOME_EMBEDDINGS, false);
         }
 
-        verify(writer).writeChunkText(REPOSITORY, SYSTEM_INTEGRATION_ID_PLACEHOLDER, EMBEDDINGS_DOC_ID, PARENT_DOC_ID,
-                EMBEDDING_TYPE, chunks);
+        verify(writer).writeChunkText(REPOSITORY, TENANT, EMBEDDINGS_DOC_ID, PARENT_DOC_ID, EMBEDDING_TYPE, chunks);
     }
 
     @Test
@@ -170,7 +169,7 @@ class EmbeddingsIndexerOnPremChunkTextTest {
     }
 
     @Test
-    void usesPlaceholderWhenSystemIntegrationIdMissing() {
+    void skipsWhenSystemIntegrationIdMissing() {
         DocumentModel embeddingsDoc = Mockito.mock(DocumentModel.class);
         DocumentModel parentDoc = Mockito.mock(DocumentModel.class);
         Blob chunksBlob = Mockito.mock(Blob.class);
@@ -187,8 +186,7 @@ class EmbeddingsIndexerOnPremChunkTextTest {
             EmbeddingsIndexer.writeOnPremChunkText(parser, REPOSITORY, ctx, SOME_EMBEDDINGS, false);
         }
 
-        verify(writer).writeChunkText(REPOSITORY, SYSTEM_INTEGRATION_ID_PLACEHOLDER, EMBEDDINGS_DOC_ID, PARENT_DOC_ID,
-                EMBEDDING_TYPE, Map.of("id-1", "text-1"));
+        verify(writer, never()).writeChunkText(any(), any(), any(), any(), any(), any());
     }
 
     private static ProcessingContext context(DocumentModel embeddingsDoc, DocumentModel parentDoc, String residency) {

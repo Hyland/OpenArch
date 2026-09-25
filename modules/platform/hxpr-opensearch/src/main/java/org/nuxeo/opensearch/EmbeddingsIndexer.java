@@ -15,6 +15,7 @@
  */
 package org.nuxeo.opensearch;
 
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.CIN_SOURCE_ID;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_MIXIN_TYPES;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_NAME;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PARENT_ID;
@@ -35,6 +36,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.hyland.openarch.ecm.core.SysEmbeddingsPolicies;
@@ -78,7 +80,6 @@ public class EmbeddingsIndexer {
 
     private static final String EMBEDDINGS_INDEXING_SCROLL_KEEP_ALIVE = Framework.getProperty(
             "hxpr.opensearch.embeddingsIndexingScrollKeepAlive", "1m");
-    private static final String ON_PREM_SYSTEM_INTEGRATION_ID_PLACEHOLDER = "placeholder-system-integration-id";
 
     private final OpenSearchServiceImpl service;
 
@@ -159,7 +160,12 @@ public class EmbeddingsIndexer {
             log.debug("onPrem SysEmbeddings {} parsed no chunk texts; nothing to write to the EV Store", ctx.embeddingsDoc().getId());
             return;
         }
-        String systemIntegrationId = ON_PREM_SYSTEM_INTEGRATION_ID_PLACEHOLDER;
+        String systemIntegrationId = StringUtils.trimToNull((String) ctx.parentDoc().getPropertyValue(CIN_SOURCE_ID));
+        if (systemIntegrationId == null) {
+            log.error("Cannot write onPrem chunk text to the EV Store: parent {} of SysEmbeddings {} has no {}",
+                    ctx.parentDoc().getId(), ctx.embeddingsDoc().getId(), CIN_SOURCE_ID);
+            return;
+        }
         writer.writeChunkText(repository, systemIntegrationId, ctx.embeddingsDoc().getId(),
                 ctx.parentDoc().getId(), ctx.embeddingsType(), chunkTexts);
     }

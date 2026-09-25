@@ -41,8 +41,8 @@ public interface OnPremChunkTextWriter {
      * Entries with {@code null} text or a key that is not a valid UUID are skipped.
      *
      * @param repository          the OpenArch repository name owning the documents
-     * @param systemIntegrationId the system integration id used to scope EV Store calls (currently a fixed
-     *                            placeholder value until real client-provided integration id wiring is introduced)
+     * @param systemIntegrationId the system integration id supplied by the client and used to scope EV Store calls
+     *                            (currently sourced from the parent's {@code cin_sourceId})
      * @param contentId           the {@code SysEmbeddings} child {@code sys_id} (EV Store content id)
      * @param documentId          the parent document id (for diagnostics and logging)
      * @param embeddingType       the embedding type carried by the child (for diagnostics and logging)
