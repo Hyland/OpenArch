@@ -471,12 +471,12 @@
       </dependency>
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
-        <artifactId>hxpr-login</artifactId>
+        <artifactId>openarch-login</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
-        <artifactId>hxpr-login</artifactId>
+        <artifactId>openarch-login</artifactId>
         <version>${project.version}</version>
         <type>test-jar</type>
         <scope>test</scope>

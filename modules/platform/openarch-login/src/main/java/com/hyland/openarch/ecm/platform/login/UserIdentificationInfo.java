@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.nuxeo.ecm.platform.login;
+package com.hyland.openarch.ecm.platform.login;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 

@@ -25,7 +25,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-login</artifactId>
+      <artifactId>openarch-login</artifactId>
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>

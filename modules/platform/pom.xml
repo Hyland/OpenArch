@@ -12,7 +12,7 @@
 
   <modules>
     <module>openarch-login-filestore</module>
-    <module>hxpr-login</module>
+    <module>openarch-login</module>
     <module>hxpr-opensearch</module>
     <module>hxpr-platform-test</module>
     <module>hxpr-rest-common</module>

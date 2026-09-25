@@ -44,7 +44,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-login</artifactId>
+      <artifactId>openarch-login</artifactId>
       <type>test-jar</type>
       <scope>compile</scope>
     </dependency>
@@ -72,7 +72,7 @@
     <!-- runtime scope -->
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-login</artifactId>
+      <artifactId>openarch-login</artifactId>
       <scope>runtime</scope>
     </dependency>
 
