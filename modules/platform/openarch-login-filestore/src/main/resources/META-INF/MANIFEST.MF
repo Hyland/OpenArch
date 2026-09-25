@@ -5,5 +5,5 @@ Bundle-Vendor: Hyland
 Bundle-Version: 0.0.0.SNAPSHOT
 Bundle-Name: HxPR FileStore Login Module
 Bundle-ManifestVersion: 2
-Bundle-SymbolicName: org.nuxeo.ecm.platform.login.filestore;singleton:=true
+Bundle-SymbolicName: com.hyland.openarch.ecm.platform.login.filestore;singleton:=true
 Nuxeo-Component: OSGI-INF/usermanager-filestore-config.xml

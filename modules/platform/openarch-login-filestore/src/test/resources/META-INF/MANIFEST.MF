@@ -1,1 +1,1 @@
-Bundle-SymbolicName: org.nuxeo.ecm.platform.login.filestore.tests;
+Bundle-SymbolicName: com.hyland.openarch.ecm.platform.login.filestore.tests;

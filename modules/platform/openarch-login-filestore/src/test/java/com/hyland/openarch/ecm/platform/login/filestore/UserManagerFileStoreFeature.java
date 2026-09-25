@@ -47,7 +47,7 @@ import com.hyland.openarch.runtime.test.runner.RunnerFeature;
  * @see UserManagerFileStoreTestConfiguration
  */
 @Deploy("org.nuxeo.ecm.platform.usermanager")
-@Deploy("org.nuxeo.ecm.platform.login.filestore")
+@Deploy("com.hyland.openarch.ecm.platform.login.filestore")
 public class UserManagerFileStoreFeature implements RunnerFeature {
 
     protected FeaturesLoader loader;
