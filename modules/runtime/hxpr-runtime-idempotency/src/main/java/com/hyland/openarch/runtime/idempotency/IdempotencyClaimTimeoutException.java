@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hyland.hxpr.runtime.idempotency;
+package com.hyland.openarch.runtime.idempotency;
 
 /**
  * Thrown when a caller gives up waiting for a concurrent execution of the same idempotency key to

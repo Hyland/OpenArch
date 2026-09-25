@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hyland.hxpr.runtime.idempotency;
+package com.hyland.openarch.runtime.idempotency;
 
-import static com.hyland.hxpr.runtime.idempotency.IdempotencyHandlerFactory.DEFAULT_STORE_NAME;
-import static com.hyland.hxpr.runtime.idempotency.IdempotencyHandlerFactory.DEFAULT_TTL_SECONDS;
+import static com.hyland.openarch.runtime.idempotency.IdempotencyHandlerFactory.DEFAULT_STORE_NAME;
+import static com.hyland.openarch.runtime.idempotency.IdempotencyHandlerFactory.DEFAULT_TTL_SECONDS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;

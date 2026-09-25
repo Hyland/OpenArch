@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hyland.hxpr.runtime.idempotency;
+package com.hyland.openarch.runtime.idempotency;
+
+import static org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR;
 
 import java.io.Serializable;
 
 public record IdempotencyException(String key, String message, int httpErrorCode) implements Serializable {
 
     public IdempotencyException(String key, String message) {
-        this(key, message, 500);
+        this(key, message, SC_INTERNAL_SERVER_ERROR);
     }
 
 }

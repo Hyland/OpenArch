@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-SymbolicName: com.hyland.hxpr.runtime.idempotency
-Export-Package: com.hyland.hxpr.runtime.idempotency;version="12.0"
+Bundle-SymbolicName: com.hyland.openarch.runtime.idempotency
+Export-Package: com.hyland.openarch.runtime.idempotency;version="12.0"
 Nuxeo-Component: OSGI-INF/hxpr-idempotency-kv-store.xml

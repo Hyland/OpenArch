@@ -1,9 +1,7 @@
 <?xml version="1.0"?>
 
-<component name="com.hyland.hxpr.idempotency.kv-store">
-  <extension target="org.nuxeo.runtime.kv.KeyValueService" point="configuration">
-    <store name="hxpr-idempotency" class="org.nuxeo.ecm.core.mongodb.kv.MongoDBKeyValueStore">
-      <class>org.nuxeo.ecm.core.storage.mongodb.MongoDBKeyValueStore</class>
-    </store>
+<component name="com.hyland.openarch.runtime.idempotency.kv-store">
+  <extension target="com.hyland.openarch.runtime.kv.KeyValueService" point="configuration">
+    <store name="hxpr-idempotency" class="com.hyland.openarch.ecm.core.mongodb.kv.MongoDBKeyValueStore" />
   </extension>
 </component>
