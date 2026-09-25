@@ -52,7 +52,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-core-test</artifactId>
+      <artifactId>openarch-core-test</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

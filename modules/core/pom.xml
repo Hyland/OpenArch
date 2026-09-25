@@ -24,7 +24,7 @@
     <module>openarch-core-schema</module>
     <module>openarch-core-storage-mem</module>
     <module>openarch-core-storage-mongodb</module>
-    <module>hxpr-core-test</module>
+    <module>openarch-core-test</module>
   </modules>
 
   <dependencies>

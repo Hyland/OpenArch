@@ -10,10 +10,10 @@
     {
       "shard": "shard-2",
       "type": "community",
-      "modules": "hxpr-core-test",
+      "modules": "openarch-core-test",
       "expected_time": "115.5s",
       "test_count": 671,
-      "description": "Common: hxpr-core-test"
+      "description": "Common: openarch-core-test"
     },
     {
       "shard": "shard-3",
