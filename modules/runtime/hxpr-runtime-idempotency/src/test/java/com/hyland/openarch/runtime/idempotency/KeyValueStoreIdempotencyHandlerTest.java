@@ -51,6 +51,7 @@ import org.junit.jupiter.api.Test;
 import com.hyland.openarch.runtime.kv.KeyValueService;
 import com.hyland.openarch.runtime.kv.KeyValueStore;
 import com.hyland.openarch.runtime.kv.MemKeyValueStore;
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
@@ -118,6 +119,26 @@ class KeyValueStoreIdempotencyHandlerTest {
         assertEquals("value-b", second);
         assertTrue(store.get(NAMESPACE + "key-a").length > 0);
         assertTrue(store.get(NAMESPACE + "key-b").length > 0);
+    }
+
+    @Test
+    @DisplayName("execute with a TypeReference replays a generic list result as its concrete element "
+            + "type, not raw maps (type erasure would otherwise lose the element type on replay)")
+    void execute_withTypeReference_repeatCallReplaysConcreteElementType() {
+        String key = "key-generic-list";
+        TypeReference<ArrayList<SampleDto>> resultType = new TypeReference<ArrayList<SampleDto>>() {
+        };
+
+        ArrayList<SampleDto> first = handler.execute(key, resultType,
+                () -> new ArrayList<>(List.of(new SampleDto("a", 1)))).value();
+        ArrayList<SampleDto> second = handler.execute(key, resultType,
+                () -> new ArrayList<>(List.of(new SampleDto("should-not-run", -1)))).value();
+
+        assertEquals(first, second);
+        assertInstanceOf(SampleDto.class, second.get(0));
+    }
+
+    record SampleDto(String name, int value) implements Serializable {
     }
 
     @Test

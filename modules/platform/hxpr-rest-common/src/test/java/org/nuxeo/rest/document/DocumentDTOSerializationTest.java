@@ -28,7 +28,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.nuxeo.ecm.core.api.security.ACE;
+import com.hyland.openarch.ecm.core.api.security.ACE;
 import org.nuxeo.rest.acl.ACEDTO;
 import org.nuxeo.rest.user.GroupDTO;
 import org.nuxeo.rest.user.UserDTO;

@@ -17,7 +17,7 @@ package com.hyland.openarch.runtime.idempotency;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.StringUtils;
-import org.nuxeo.ecm.core.api.NuxeoException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tools.jackson.core.JacksonException;
@@ -78,7 +78,7 @@ public record IdempotencyOutput(boolean pending, String claimId, @JsonProperty("
      */
     public static IdempotencyOutput failure(Exception exception) {
         IdempotencyException idempotencyException;
-        if (exception instanceof NuxeoException nuxeoException) {
+        if (exception instanceof RepositoryException nuxeoException) {
             idempotencyException = new IdempotencyException(nuxeoException.getClass().getName(), nuxeoException.getMessage(), nuxeoException.getStatusCode());
         } else {
             idempotencyException = new IdempotencyException(exception.getClass().getName(), exception.getMessage());

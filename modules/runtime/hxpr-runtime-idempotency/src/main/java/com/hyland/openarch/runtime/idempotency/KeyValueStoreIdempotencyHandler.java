@@ -28,6 +28,7 @@ import org.apache.logging.log4j.Logger;
 import com.hyland.openarch.runtime.kv.KeyValueStore;
 import com.hyland.openarch.runtime.kv.KeyValueService;
 import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
@@ -94,10 +95,16 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
 
     @Override
     public <T extends Serializable> Outcome<T> execute(String key, IdempotentOperation<T> operation) {
-        return executeWithOutcome(key, operation);
+        return executeWithOutcome(key, null, operation);
     }
 
-    private <T extends Serializable> Outcome<T> executeWithOutcome(String key,
+    @Override
+    public <T extends Serializable> Outcome<T> execute(String key, TypeReference<T> resultType,
+            IdempotentOperation<T> operation) {
+        return executeWithOutcome(key, resultType, operation);
+    }
+
+    private <T extends Serializable> Outcome<T> executeWithOutcome(String key, TypeReference<T> resultType,
             IdempotentOperation<T> operation) {
         String cacheKey = getCacheKey(key);
 
@@ -105,7 +112,7 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
         if (claim.cachedResult() != null) {
             log.debug("Idempotency cache hit for key={}", key);
             @SuppressWarnings("unchecked")
-            T value = (T) unwrap(claim.cachedResult());
+            T value = (T) unwrap(claim.cachedResult(), resultType);
             return new Outcome<>(value, true);
         }
 
@@ -345,15 +352,25 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
      * If the cached output carries an exception, an {@link IdempotencyException} describing it is
      * returned as-is (it is not thrown): callers are responsible for detecting this case (e.g. via
      * {@code instanceof}) and deciding how to react to a replayed failure. Otherwise, the raw JSON
-     * value is converted to the concrete type recorded at serialization time.
+     * value is converted back to a concrete type.
+     * <p>
+     * When the caller supplies {@code resultType}, it is used as the deserialization target instead
+     * of the type recorded at serialization time: {@code output.typename()} is only ever the erased
+     * {@link Class} name (e.g. {@code java.util.ArrayList}), which loses a parameterized result's
+     * element type, so relying on it here would deserialize collection elements as raw {@code Map}s.
      *
-     * @param output the cached idempotency output to convert
+     * @param output     the cached idempotency output to convert
+     * @param resultType the caller-supplied full generic result type, or {@code null} to fall back
+     *                   to the erased type recorded at serialization time
      * @return either an {@link IdempotencyException} (replayed failure) or the deserialized result
      *         value (replayed success)
      */
-    private Object unwrap(IdempotencyOutput output) {
+    private Object unwrap(IdempotencyOutput output, TypeReference<?> resultType) {
         if (output.exception() != null) {
             return new IdempotencyException(output.exception().key(), output.exception().message(), output.exception().httpErrorCode());
+        }
+        if (resultType != null) {
+            return OBJECT_MAPPER.convertValue(output.value(), resultType);
         }
         try {
             Class<?> resultClass = Class.forName(output.typename());
