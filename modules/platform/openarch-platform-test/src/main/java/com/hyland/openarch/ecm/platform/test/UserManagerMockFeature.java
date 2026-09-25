@@ -43,7 +43,7 @@ import com.hyland.openarch.runtime.test.runner.RunnerFeature;
  */
 @Features({InMemoryCacheFeature.class})
 @Deploy("org.nuxeo.ecm.platform.usermanager")
-@Deploy("org.nuxeo.ecm.platform.test:OSGI-INF/usermanager-mock-config.xml")
+@Deploy("com.hyland.openarch.ecm.platform.test:OSGI-INF/usermanager-mock-config.xml")
 public class UserManagerMockFeature implements RunnerFeature {
 
     protected FeaturesLoader loader;

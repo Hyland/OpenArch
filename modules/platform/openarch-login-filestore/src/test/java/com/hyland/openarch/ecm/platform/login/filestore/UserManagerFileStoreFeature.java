@@ -28,7 +28,7 @@ import com.hyland.openarch.runtime.test.runner.RunnerFeature;
  * ({@link UserManagerFileStore}) for tests that exercise the community profile.
  * <p>
  * Use this feature as a drop-in replacement for
- * {@link org.nuxeo.ecm.platform.test.UserManagerMockFeature} when you want to validate behaviour
+ * {@link com.hyland.openarch.ecm.platform.test.UserManagerMockFeature} when you want to validate behaviour
  * against the real community {@code UserManager} rather than the hard-coded mock.
  *
  * <pre>{@code
