@@ -4,10 +4,10 @@ Bundle-ClassPath: .
 Manifest-Version: 1.0
 Bundle-Category: runtime
 Bundle-Localization: plugin
-Bundle-Name: Nuxeo Login Module
+Bundle-Name: OpenArch Login Module
 Created-By: 1.6.0_20 (Sun Microsystems Inc.)
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Bundle-Vendor: Nuxeo
+Bundle-Vendor: Hyland
 Bundle-Version: 0.0.0.SNAPSHOT
 Bundle-ManifestVersion: 2
 Import-Package: javax.annotation;version="1.0",

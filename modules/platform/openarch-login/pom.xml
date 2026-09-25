@@ -7,7 +7,7 @@
   </parent>
 
   <artifactId>openarch-login</artifactId>
-  <name>HxPR Login Manager</name>
+  <name>OpenArch Login Manager</name>
 
   <properties>
     <manifest.file>src/main/resources/META-INF/MANIFEST.MF</manifest.file>
