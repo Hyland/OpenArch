@@ -61,17 +61,6 @@
         "primaryTypes/SysRendition/mixins"
       ],
       "path": "primaryTypes/SysRendition/mixins"
-    },
-    {
-      "invalidValue": "SysFolder",
-      "message": "No parent type defined for primary type SysFolder at path primaryTypes/SysFolder/extends",
-      "messageKey": "label.schema.application.violation.ParentTypeValidationViolation",
-      "parameters": [
-        "No",
-        "SysFolder",
-        "primaryTypes/SysFolder/extends"
-      ],
-      "path": "primaryTypes/SysFolder/extends"
     }
   ],
   "warnings": [

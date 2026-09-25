@@ -414,13 +414,11 @@ public class SchemaManagerDTO extends SchemaManagerBase {
         DTOPath path = DTOPath.root(PRIMARY_TYPES, null).child(name, null);
         DocumentType superType = null;
         if (!name.equals(SYS_CONTENT)) {
-            if (dto.extend() == null) {
-                violations.add(new ParentTypeValidationViolation(path.child(EXTENDS, null).withValue(name), name, true));
-            } else {
-                superType = getRegisteredDocumentType(dto.extend());
-                if (superType == null) {
-                    violations.add(new ParentTypeValidationViolation(path.child(EXTENDS, dto.extend()).withValue(name), name, false));
-                }
+            String parentName = dto.extend() == null ? SYS_CONTENT : dto.extend();
+            superType = getRegisteredDocumentType(parentName);
+            if (superType == null) {
+                violations.add(new ParentTypeValidationViolation(path.child(EXTENDS, parentName).withValue(name), name,
+                        false));
             }
         }
         List<Schema> schemas = getNewDocumentTypeSchemas(dto, path, superType);

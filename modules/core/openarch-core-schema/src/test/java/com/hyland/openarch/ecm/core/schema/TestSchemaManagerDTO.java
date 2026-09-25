@@ -178,6 +178,27 @@ public class TestSchemaManagerDTO {
         assertTrue(manager.getField("sys_value").getCharacteristics().systemOwned());
     }
 
+    @Test
+    public void testMissingPrimaryTypeParentMeansSysContent() throws Exception {
+        String modelJson = """
+                {
+                  "types": {},
+                  "schemas": {},
+                  "mixinTypes": {},
+                  "primaryTypes": {
+                    "Custom": {},
+                    "SysContent": {}
+                  }
+                }
+                """;
+        Map<String, Object> map = MAPPER.readValue(modelJson, Map.class);
+
+        SchemaManager manager = new SchemaManagerDTO(map);
+
+        assertEquals("SysContent", manager.getDocumentType("Custom").getSuperType().getName());
+        assertEquals("SysContent", manager.toContentModel().primaryTypes().get("Custom").extend());
+    }
+
     /**
      * A type that belongs to a project must still say so once it has been through the schema layer
      * and back out again.
