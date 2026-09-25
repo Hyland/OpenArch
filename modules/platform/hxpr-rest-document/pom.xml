@@ -65,7 +65,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-rest-common</artifactId>
+      <artifactId>openarch-rest-common</artifactId>
     </dependency>
     <dependency>
       <groupId>io.github.vishwakarma</groupId>

@@ -22,7 +22,7 @@ import io.swagger.v3.oas.models.media.Content;
 import java.util.List;
 import java.util.Map;
 
-import org.nuxeo.rest.config.RestDocumentComponentConfiguration;
+import com.hyland.openarch.rest.config.RestDocumentComponentConfiguration;
 import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Bean;

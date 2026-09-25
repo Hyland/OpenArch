@@ -15,7 +15,7 @@
     <module>openarch-login</module>
     <module>openarch-opensearch</module>
     <module>openarch-platform-test</module>
-    <module>hxpr-rest-common</module>
+    <module>openarch-rest-common</module>
     <module>hxpr-rest-document</module>
     <module>hxpr-usermanager</module>
     <module>hxpr-usermanager-test</module>

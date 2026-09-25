@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
-<component name="org.nuxeo.rest.download.test.PresignedUrlProvider">
+<component name="com.hyland.openarch.rest.download.test.PresignedUrlProvider">
 
   <require>com.hyland.openarch.ecm.core.test.blobmanager</require>
 
   <extension target="com.hyland.openarch.ecm.core.blob.BlobService" point="configuration">
     <blobprovider name="test">
-      <class>org.nuxeo.rest.download.test.PresignedUrlProvider</class>
+      <class>com.hyland.openarch.rest.download.test.PresignedUrlProvider</class>
     </blobprovider>
     <blobprovider name="presignedUrlProvider">
-      <class>org.nuxeo.rest.download.test.PresignedUrlProvider</class>
+      <class>com.hyland.openarch.rest.download.test.PresignedUrlProvider</class>
     </blobprovider>
   </extension>
 </component>

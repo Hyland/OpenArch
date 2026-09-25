@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_CREATED;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_MODIFIED;
-import static org.nuxeo.rest.document.AbstractDocumentAPI.PATH;
+import static com.hyland.openarch.rest.document.AbstractDocumentAPI.PATH;
 import static org.skyscreamer.jsonassert.JSONCompareMode.NON_EXTENSIBLE;
 
 import com.hyland.hxpr.springboot.AbstractSpringTest;
