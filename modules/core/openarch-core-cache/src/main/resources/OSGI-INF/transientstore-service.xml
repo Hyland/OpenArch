@@ -14,7 +14,7 @@
   <extension-point name="store">
 
     <documentation>
-    Allow to declare a transient store inside Nuxeo.
+    Allow to declare a transient store inside OpenArch.
     The store is identified by a name and the descriptor has several parameters :
 
      <code>

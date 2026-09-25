@@ -91,7 +91,7 @@ import tools.jackson.databind.node.ObjectNode;
  *                        "filename": "...",
  *                        "length": &lt;bytes as native JSON number&gt;,
  *                        "digest": "..."}
- *                       HxPR always stores exactly one blob per entry.
+ *                       OpenArch always stores exactly one blob per entry.
  *                       Entries written before this layout carry a separate {@code entryKey.blob.0}
  *                       key; {@link #getBlob} reads both transparently until old entries expire.
  *                       Entries written by pre-{@code DOT_BLOB} code used {@code entryKey.blobinfo}

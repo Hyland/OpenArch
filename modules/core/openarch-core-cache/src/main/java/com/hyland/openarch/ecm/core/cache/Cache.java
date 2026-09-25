@@ -19,7 +19,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 /**
- * The nuxeo cache interface that define generic methods to use cache technologies
+ * The cache interface that defines generic methods to use cache technologies
  *
  * @since 6.0
  */

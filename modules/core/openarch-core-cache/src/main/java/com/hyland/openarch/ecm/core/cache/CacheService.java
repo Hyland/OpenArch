@@ -16,7 +16,7 @@
 package com.hyland.openarch.ecm.core.cache;
 
 /**
- * Nuxeo cache interface.
+ * Cache service interface.
  *
  * @since 6.0
  */

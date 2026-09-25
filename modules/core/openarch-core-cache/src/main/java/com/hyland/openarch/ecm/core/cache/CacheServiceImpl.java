@@ -36,7 +36,7 @@ import com.hyland.openarch.runtime.model.Component;
 import com.hyland.openarch.runtime.model.DefaultComponent;
 
 /**
- * Cache service implementation to manage nuxeo cache
+ * Cache service implementation to manage cache
  *
  * @since 6.0
  */

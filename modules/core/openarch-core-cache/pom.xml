@@ -8,7 +8,7 @@
   </parent>
 
   <artifactId>openarch-core-cache</artifactId>
-  <name>HxPR Core Cache</name>
+  <name>OpenArch Core Cache</name>
 
   <properties>
     <manifest.file>src/main/resources/META-INF/MANIFEST.MF</manifest.file>
