@@ -7,7 +7,7 @@
     <version>12.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>hxpr-core-management-jtajca</artifactId>
+  <artifactId>openarch-core-management-jtajca</artifactId>
   <name>HxPR Core Management JTA/JCA</name>
 
   <properties>
