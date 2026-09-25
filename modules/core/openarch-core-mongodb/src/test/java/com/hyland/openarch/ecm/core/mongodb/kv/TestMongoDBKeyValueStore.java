@@ -24,7 +24,7 @@ import com.hyland.openarch.runtime.test.runner.Deploy;
 import com.hyland.openarch.runtime.test.runner.Features;
 
 @Features(MongoDBFeature.class)
-@Deploy("org.nuxeo.ecm.core.mongodb:OSGI-INF/mongodb-kvstore-config.xml")
+@Deploy("com.hyland.openarch.ecm.core.mongodb:OSGI-INF/mongodb-kvstore-config.xml")
 public class TestMongoDBKeyValueStore extends AbstractKeyValueStoreTest {
 
     @Test
