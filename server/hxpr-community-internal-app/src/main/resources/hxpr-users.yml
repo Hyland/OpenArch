@@ -1,6 +1,6 @@
 # HxPR Community User Store — Test Fixture
 #
-# This file is bundled in the hxpr-login-filestore test-jar and serves as the
+# This file is bundled in the openarch-login-filestore test-jar and serves as the
 # default user store for tests that use UserManagerFileStoreFeature.
 #
 # It is a copy of server/hxpr-app-config/src/main/resources/hxpr-users.yml.

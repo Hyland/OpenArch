@@ -166,7 +166,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-login-filestore</artifactId>
+      <artifactId>openarch-login-filestore</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

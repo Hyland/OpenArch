@@ -11,7 +11,7 @@
   <name>HxPR Community Platform Parent</name>
 
   <modules>
-    <module>hxpr-login-filestore</module>
+    <module>openarch-login-filestore</module>
     <module>hxpr-login</module>
     <module>hxpr-opensearch</module>
     <module>hxpr-platform-test</module>

@@ -52,12 +52,12 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-login-filestore</artifactId>
+      <artifactId>openarch-login-filestore</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-login-filestore</artifactId>
+      <artifactId>openarch-login-filestore</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>

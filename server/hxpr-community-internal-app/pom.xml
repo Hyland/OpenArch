@@ -139,7 +139,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-login-filestore</artifactId>
+      <artifactId>openarch-login-filestore</artifactId>
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>

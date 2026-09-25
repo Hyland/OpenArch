@@ -16,14 +16,15 @@
 
 package org.nuxeo.ecm.platform.usermanager;
 
-import org.nuxeo.ecm.platform.login.filestore.UserManagerFileStoreFeature;
-import org.nuxeo.ecm.platform.login.filestore.UserManagerFileStoreTestConfiguration;
+import com.hyland.openarch.ecm.platform.login.filestore.UserManagerFileStore;
+import com.hyland.openarch.ecm.platform.login.filestore.UserManagerFileStoreFeature;
+import com.hyland.openarch.ecm.platform.login.filestore.UserManagerFileStoreTestConfiguration;
 import com.hyland.openarch.runtime.test.runner.Features;
 import org.springframework.boot.test.context.SpringBootTest;
 
 /**
  * Integration tests for {@link UserManagerResolver} backed by the community file-based
- * {@link org.nuxeo.ecm.platform.login.filestore.UserManagerFileStore}.
+ * {@link UserManagerFileStore}.
  */
 @Features({ UserManagerFileStoreFeature.class })
 @SpringBootTest(classes = { UserManagerFileStoreTestConfiguration.class })
