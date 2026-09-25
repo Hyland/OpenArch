@@ -15,8 +15,11 @@
  */
 package com.hyland.openarch.ecm.core.security;
 
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -26,8 +29,11 @@ import static com.hyland.openarch.ecm.core.api.DocumentConstants.KEY_ACE_PERMISS
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.KEY_ACE_PRINCIPAL;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.KEY_ACE_STATUS;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ACL;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PARENT_ID;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_READ_ACL;
 import static com.hyland.openarch.ecm.core.api.security.SecurityConstants.EVERYONE;
 import static com.hyland.openarch.ecm.core.api.security.SecurityConstants.READ;
+import static com.hyland.openarch.ecm.core.api.security.SecurityConstants.UNSUPPORTED_ACL;
 
 import java.util.List;
 import java.util.Set;
@@ -35,6 +41,7 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 import com.hyland.openarch.ecm.core.storage.State;
 import com.hyland.openarch.ecm.core.storage.State.StateDiff;
+import com.hyland.openarch.ecm.core.storage.dbs.DBSDocumentState;
 import com.hyland.openarch.ecm.core.storage.dbs.StateAccessor;
 
 class ACLDenormalizerTest {
@@ -73,5 +80,92 @@ class ACLDenormalizerTest {
         new ACLDenormalizer(securityService).updateDenormalizedPropertiesNoCache(List.of("doc1"), stateAccessor);
 
         verify(stateAccessor, never()).updateStateNoCache(any(), any());
+    }
+
+    private static State ace(String principal, String permission, Boolean grant) {
+        State ace = new State();
+        ace.put(KEY_ACE_PRINCIPAL, principal);
+        ace.put(KEY_ACE_PERMISSION, permission);
+        ace.put(KEY_ACE_GRANT, grant);
+        return ace;
+    }
+
+    private static SecurityService readSecurityService() {
+        SecurityService securityService = mock(SecurityService.class);
+        when(securityService.getAllPermissionsContaining(READ)).thenReturn(Set.of(READ));
+        return securityService;
+    }
+
+    @Test
+    void grantedReadProducesReadAcl() {
+        StateAccessor accessor = mock(StateAccessor.class);
+        DBSDocumentState docState = mock(DBSDocumentState.class);
+        State state = new State();
+        state.put(SYS_ACL, List.of(ace("alice", READ, TRUE)));
+        when(docState.getState()).thenReturn(state);
+        when(accessor.getStateForUpdate("id")).thenReturn(docState);
+
+        new ACLDenormalizer(readSecurityService()).updateDenormalizedProperties("id", accessor);
+
+        verify(docState).put(SYS_READ_ACL, List.of("alice"));
+    }
+
+    @Test
+    void denyEveryoneStopsInheritanceButKeepsGrants() {
+        StateAccessor accessor = mock(StateAccessor.class);
+        DBSDocumentState docState = mock(DBSDocumentState.class);
+        State state = new State();
+        state.put(SYS_ACL, List.of(ace("alice", READ, TRUE), ace(EVERYONE, READ, FALSE)));
+        state.put(SYS_PARENT_ID, "parent"); // recursion must stop at the EVERYONE deny
+        when(docState.getState()).thenReturn(state);
+        when(accessor.getStateForUpdate("id")).thenReturn(docState);
+
+        new ACLDenormalizer(readSecurityService()).updateDenormalizedProperties("id", accessor);
+
+        verify(docState).put(SYS_READ_ACL, List.of("alice"));
+        verify(accessor, never()).getStateForRead(any());
+    }
+
+    @Test
+    void denyNonEveryoneMarksUnsupported() {
+        StateAccessor accessor = mock(StateAccessor.class);
+        DBSDocumentState docState = mock(DBSDocumentState.class);
+        State state = new State();
+        state.put(SYS_ACL, List.of(ace("bob", READ, FALSE)));
+        when(docState.getState()).thenReturn(state);
+        when(accessor.getStateForUpdate("id")).thenReturn(docState);
+
+        new ACLDenormalizer(readSecurityService()).updateDenormalizedProperties("id", accessor);
+
+        verify(docState).put(SYS_READ_ACL, List.of(UNSUPPORTED_ACL));
+    }
+
+    @Test
+    void emptyAclReturnsNull() {
+        StateAccessor accessor = mock(StateAccessor.class);
+        DBSDocumentState docState = mock(DBSDocumentState.class);
+        when(docState.getState()).thenReturn(new State());
+        when(accessor.getStateForUpdate("id")).thenReturn(docState);
+
+        new ACLDenormalizer(readSecurityService()).updateDenormalizedProperties("id", accessor);
+
+        verify(docState).put(eq(SYS_READ_ACL), isNull());
+    }
+
+    @Test
+    void inheritsReadAclFromParent() {
+        StateAccessor accessor = mock(StateAccessor.class);
+        DBSDocumentState docState = mock(DBSDocumentState.class);
+        State child = new State();
+        child.put(SYS_PARENT_ID, "parent");
+        State parent = new State();
+        parent.put(SYS_ACL, List.of(ace("carol", READ, TRUE)));
+        when(docState.getState()).thenReturn(child);
+        when(accessor.getStateForUpdate("id")).thenReturn(docState);
+        when(accessor.getStateForRead("parent")).thenReturn(parent);
+
+        new ACLDenormalizer(readSecurityService()).updateDenormalizedProperties("id", accessor);
+
+        verify(docState).put(SYS_READ_ACL, List.of("carol"));
     }
 }
