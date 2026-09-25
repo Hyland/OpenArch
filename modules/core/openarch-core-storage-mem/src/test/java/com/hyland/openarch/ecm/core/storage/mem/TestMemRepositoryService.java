@@ -44,8 +44,8 @@ import com.hyland.openarch.runtime.test.runner.TransactionalFeature;
 @Deploy("com.hyland.openarch.ecm.core:OSGI-INF/RepositoryService.xml")
 @Deploy("com.hyland.openarch.ecm.core:OSGI-INF/dbs-repository-service.xml")
 @Deploy("com.hyland.openarch.ecm.core.schema")
-@Deploy("org.nuxeo.ecm.core.storage.mem")
-@Deploy("org.nuxeo.ecm.core.storage.mem:mock-repo-manager-contrib.xml")
+@Deploy("com.hyland.openarch.ecm.core.storage.mem")
+@Deploy("com.hyland.openarch.ecm.core.storage.mem:mock-repo-manager-contrib.xml")
 public class TestMemRepositoryService {
 
     @Inject
@@ -74,14 +74,14 @@ public class TestMemRepositoryService {
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.storage.mem:test-repo-contrib-1.xml")
+    @Deploy("com.hyland.openarch.ecm.core.storage.mem:test-repo-contrib-1.xml")
     public void testContrib() {
         check("testmem", "1");
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.storage.mem:test-repo-contrib-1.xml")
-    @Deploy("org.nuxeo.ecm.core.storage.mem:test-repo-contrib-2.xml")
+    @Deploy("com.hyland.openarch.ecm.core.storage.mem:test-repo-contrib-1.xml")
+    @Deploy("com.hyland.openarch.ecm.core.storage.mem:test-repo-contrib-2.xml")
     public void testMerge() {
         check("testmem", "2");
     }
