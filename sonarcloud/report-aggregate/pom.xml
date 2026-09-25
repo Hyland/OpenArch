@@ -94,7 +94,7 @@
     <!-- Core -->
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-core</artifactId>
+      <artifactId>openarch-core</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

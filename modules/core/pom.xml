@@ -12,7 +12,7 @@
   <name>HxPR Community Core Parent</name>
 
   <modules>
-    <module>hxpr-core</module>
+    <module>openarch-core</module>
     <module>openarch-core-api</module>
     <module>hxpr-core-binarymanager-common</module>
     <module>hxpr-core-cache</module>

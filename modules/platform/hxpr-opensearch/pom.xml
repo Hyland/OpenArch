@@ -19,7 +19,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-core</artifactId>
+      <artifactId>openarch-core</artifactId>
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
