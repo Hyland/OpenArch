@@ -7,7 +7,7 @@
   </parent>
 
   <artifactId>openarch-platform-test</artifactId>
-  <name>HxPR Platform Test Framework</name>
+  <name>OpenArch Platform Test Framework</name>
 
   <properties>
     <manifest.file>src/main/resources/META-INF/MANIFEST.MF</manifest.file>
