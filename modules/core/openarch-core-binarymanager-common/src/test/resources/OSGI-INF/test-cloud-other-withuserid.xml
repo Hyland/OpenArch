@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<component name="org.nuxeo.ecm.blob.cloud.other.adduserid.test">
+<component name="com.hyland.openarch.ecm.blob.cloud.other.adduserid.test">
   <!-- partial override merged onto the "other" provider deployed by the concrete feature -->
   <extension target="com.hyland.openarch.ecm.core.blob.BlobService" point="configuration">
     <blobprovider name="other">

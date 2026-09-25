@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<component name="org.nuxeo.ecm.blob.cloud.doctype.test">
+<component name="com.hyland.openarch.ecm.blob.cloud.doctype.test">
 
   <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="schema">
     <schema name="cloud-test" src="schemas/file.xsd" prefix="cloud-test" />

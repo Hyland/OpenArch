@@ -50,7 +50,7 @@ import com.hyland.openarch.runtime.test.runner.TransactionalFeature;
  * are dispatched.
  */
 @ExtendWith(FeaturesExtension.class)
-@Deploy("org.nuxeo.ecm.core.storage.binarymanager.common.tests:OSGI-INF/test-cloud-doctype.xml")
+@Deploy("com.hyland.openarch.ecm.core.storage.binarymanager.common.tests:OSGI-INF/test-cloud-doctype.xml")
 public abstract class TestCloudBlobProviderWithDocument {
 
     protected static final String CLOUD_DOC_TYPE = "CloudFile";
@@ -113,7 +113,7 @@ public abstract class TestCloudBlobProviderWithDocument {
 
     // NXP-30632
     @Test
-    @Deploy("org.nuxeo.ecm.core.storage.binarymanager.common.tests:OSGI-INF/test-cloud-other-managed.xml")
+    @Deploy("com.hyland.openarch.ecm.core.storage.binarymanager.common.tests:OSGI-INF/test-cloud-other-managed.xml")
     public void testMoveFromBlobProviderTestToBlobProviderOtherWithManagedKey() throws IOException {
         testMoveFromTestToOther();
     }
@@ -154,7 +154,7 @@ public abstract class TestCloudBlobProviderWithDocument {
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.storage.binarymanager.common.tests:OSGI-INF/test-cloud-other-withuserid.xml")
+    @Deploy("com.hyland.openarch.ecm.core.storage.binarymanager.common.tests:OSGI-INF/test-cloud-other-withuserid.xml")
     public void testStoreToBlobProviderWithUserId() throws IOException {
         ManagedBlob blob = testStoreToBlobProvider("other");
         var provider = Framework.getService(BlobService.class).getBlobProvider("other");
@@ -163,7 +163,7 @@ public abstract class TestCloudBlobProviderWithDocument {
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.storage.binarymanager.common.tests:OSGI-INF/test-cloud-other-withuserid.xml")
+    @Deploy("com.hyland.openarch.ecm.core.storage.binarymanager.common.tests:OSGI-INF/test-cloud-other-withuserid.xml")
     public void testStoreToBlobProviderWithUri() throws IOException {
         ManagedBlob blob = testStoreToBlobProvider("other");
         blob.setFilename("file.txt");
@@ -174,7 +174,7 @@ public abstract class TestCloudBlobProviderWithDocument {
     }
 
     @Test
-    @Deploy("org.nuxeo.ecm.core.storage.binarymanager.common.tests:OSGI-INF/test-cloud-other-withuserid.xml")
+    @Deploy("com.hyland.openarch.ecm.core.storage.binarymanager.common.tests:OSGI-INF/test-cloud-other-withuserid.xml")
     public void testStoreToBlobProviderWithUriInline() throws IOException {
         ManagedBlob blob = testStoreToBlobProvider("other");
         blob.setFilename("file.txt");

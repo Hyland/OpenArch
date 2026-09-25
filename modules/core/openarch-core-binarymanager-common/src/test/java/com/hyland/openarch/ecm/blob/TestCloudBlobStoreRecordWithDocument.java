@@ -42,7 +42,7 @@ import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
  * subclass whose backend does not support it must skip it.
  */
 @ExtendWith(FeaturesExtension.class)
-@Deploy("org.nuxeo.ecm.core.storage.binarymanager.common.tests:OSGI-INF/test-cloud-record-doctype.xml")
+@Deploy("com.hyland.openarch.ecm.core.storage.binarymanager.common.tests:OSGI-INF/test-cloud-record-doctype.xml")
 public abstract class TestCloudBlobStoreRecordWithDocument {
 
     protected static final String MY_FILE = "MyFile";
