@@ -593,14 +593,6 @@ public class TestSQLRepositoryAPI {
         assertEquals(333L, doc.getPropertyValue("cmpf_attachedFile/vignettes/0/width"));
     }
 
-    //
-    //
-    // ----------------------------------------------------
-    // ----- copied from TestAPI in nuxeo-core-facade -----
-    // ----------------------------------------------------
-    //
-    //
-
     protected final Random random = new Random(System.currentTimeMillis());
 
     protected String generateUnique() {

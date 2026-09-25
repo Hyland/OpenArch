@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<component name="com.hyland.hxpr.async.tasks.tests.config">
+<component name="com.hyland.openarch.async.tasks.tests.config">
 
   <extension target="com.hyland.openarch.async.tasks.AsyncTasksService" point="asyncTasks">
     <asyncTask name="fail" class="com.hyland.openarch.async.tasks.FailTaskProcessor"/>

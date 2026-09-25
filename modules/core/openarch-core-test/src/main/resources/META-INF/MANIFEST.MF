@@ -3,14 +3,13 @@ Export-Package: com.hyland.openarch.ecm.core.test,
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
 Manifest-Version: 1.0
-Bundle-Name: Nuxeo Core Test Framework
+Bundle-Name: OpenArch Core Test Framework
 Created-By: 1.6.0_20 (Sun Microsystems Inc.)
-Bundle-Vendor: Nuxeo
+Bundle-Vendor: Hyland
 Bundle-Version: 0.0.0.SNAPSHOT
 Bundle-ManifestVersion: 2
-Bundle-Description: Nuxeo Core: Testing framewok
+Bundle-Description: OpenArch Core: Testing framewok
 Bundle-License: http://www.gnu.org/copyleft/lesser.txt
-Bundle-DocURL: http://www.nuxeo.com/en
 Bundle-SymbolicName: com.hyland.openarch.ecm.core.test
 Import-Package: com.google.inject,
  com.google.inject.binder,

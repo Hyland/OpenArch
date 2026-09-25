@@ -1,4 +1,4 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: com.hyland.openarch.ecm.core.test.tests
-Bundle-Name: Nuxeo Core Tests Tests
+Bundle-Name: OpenArch Core Tests Tests

@@ -542,7 +542,7 @@ public class TestSQLRepositoryVersioning {
         DocumentModel doc = session.createDocumentModel("/", "myfile", MY_FILE);
         doc.create();
 
-        assertTrue(doc.isCheckedOut()); // nuxeo prop, false only on live
+        assertTrue(doc.isCheckedOut()); // false only on live
         assertFalse(doc.isVersion());
         assertEquals(0, (long) doc.getVersion());
 
