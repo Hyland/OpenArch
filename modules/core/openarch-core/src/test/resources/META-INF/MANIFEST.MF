@@ -29,7 +29,7 @@ Require-Bundle: com.hyland.openarch.ecm.core.api,com.hyland.openarch
 Bundle-Vendor: Nuxeo
 Tool: Bundlor 1.0.0.RELEASE
 Bundle-Localization: plugin
-Bundle-Name: NXCoreFacade tests
+Bundle-Name: com.hyland.openarch.ecm.core.tests
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: com.hyland.openarch.ecm.core.tests;singleton="true"
 Import-Package: Query,SQLQuery,javax.transaction.xa,javax.xml.parsers,

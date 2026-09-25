@@ -23,7 +23,7 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Import;
 
 /**
- * Auto-configuration for the Nuxeo ECM core storage feature.
+ * Auto-configuration for the OpenArch ECM core storage feature.
  * <p>
  * Beans are registered explicitly via {@link Import} instead of {@code @ComponentScan}: auto-configuration classes must
  * never enable component scanning (see the Spring Boot reference, "Locating Auto-configuration Candidates"). Every new
@@ -37,5 +37,5 @@ import org.springframework.context.annotation.Import;
         FullTextService.class,
         FulltextSupportProvider.class,
 })
-public class NuxeoEcmCoreAutoConfiguration {
+public class OpenArchCoreAutoConfiguration {
 }

@@ -307,7 +307,6 @@ public class TrashServiceImpl extends DefaultComponent implements TrashService {
     private TrashInfo getTrashInfo(List<DocumentModel> docs, RepositoryPrincipal principal, boolean checkDeleted) {
         TrashInfo info = getInfo(docs, principal, checkDeleted);
         // Keep only common tree roots (see NXP-1411)
-        // This is not strictly necessary with Nuxeo Core >= 1.3.2
         info.docs.sort(PathComparator.INSTANCE);
         info.rootPaths = new HashSet<>();
         info.rootRefs = new LinkedList<>();
