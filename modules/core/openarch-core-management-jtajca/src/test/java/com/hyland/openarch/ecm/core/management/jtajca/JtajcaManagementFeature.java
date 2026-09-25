@@ -49,7 +49,7 @@ import com.google.inject.name.Names;
 // - JtajcaManagementFeature (assert there's no remaining transactions)
 // we get this order by using features in tests like this @Features(JtajcaManagementFeature.class, CoreFeature.class)
 @Features(ManagementFeature.class)
-@Deploy("org.nuxeo.ecm.core.management.jtajca")
+@Deploy("com.hyland.openarch.ecm.core.management.jtajca")
 public class JtajcaManagementFeature implements RunnerFeature {
 
     protected static ObjectName nameOf(Class<?> itf) {

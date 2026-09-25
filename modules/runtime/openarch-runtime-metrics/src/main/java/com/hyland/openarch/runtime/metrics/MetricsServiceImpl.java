@@ -139,7 +139,7 @@ public class MetricsServiceImpl extends DefaultComponent implements MetricsServi
     protected void instrumentTomcat(boolean activate) {
         if (activate) {
             // TODO: do not hard code the common datasource
-            String pool = "org.nuxeo.ecm.core.management.jtajca:type=ConnectionPoolMonitor,name=jdbc/nuxeo";
+            String pool = "com.hyland.openarch.ecm.core.management.jtajca:type=ConnectionPoolMonitor,name=jdbc/nuxeo";
             String connector = String.format("Catalina:type=ThreadPool,name=\"http-nio-%s-%s\"",
                     Framework.getProperty("nuxeo.bind.address", "0.0.0.0"),
                     Framework.getProperty("nuxeo.bind.port", "8080"));
