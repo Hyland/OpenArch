@@ -183,7 +183,7 @@ jobs:
           password: ${{ secrets.GH_HS_HX_RO_CLASSIC_TOKEN }}
       - name: Docker Compose Up
         id: compose
-        working-directory: ./server/hxpr-community-internal-app
+        working-directory: ./server/openarch-app
         run: |
           # Use the Community compose stack: common modules do not need transform services.
           echo "Starting Community services for common integration..."
@@ -224,7 +224,7 @@ jobs:
           name: "${{ env.INTEGRATION_COMMON_TEST_COVERAGE_UPLOAD }}-shard-${{ matrix.shard }}"
           path: ${{ env.COVERAGE_OUTPUT_DIRECTORY }}/common-shard-${{ matrix.shard }}
   test-hxpr-community-internal-server:
-    name: Run tests in server/hxpr-community-internal-app
+    name: Run tests in server/openarch-app
     runs-on: ubuntu-latest
     needs: [ build-artifacts ]
     steps:
@@ -254,7 +254,7 @@ jobs:
       - name: Run the server test suite
         uses: ./.github/actions/test-community-internal-app
         with:
-          module-path: server/hxpr-community-internal-app
+          module-path: server/openarch-app
           coverage-output-directory: ${{ env.COVERAGE_OUTPUT_DIRECTORY }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload reports

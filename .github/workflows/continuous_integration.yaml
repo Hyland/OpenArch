@@ -77,7 +77,7 @@ jobs:
       - name: Compile project
         run: mvn clean install -DskipTests
       - name: Set Product version to current build
-        run: sed -i 's/^org\.nuxeo\.ecm\.product\.version=.*$/org\.nuxeo\.ecm\.product\.version=${{ env.VERSION }}/g' ./server/hxpr-community-internal-app/src/main/resources/application.properties
+        run: sed -i 's/^org\.nuxeo\.ecm\.product\.version=.*$/org\.nuxeo\.ecm\.product\.version=${{ env.VERSION }}/g' ./server/openarch-app/src/main/resources/application.properties
       - name: Set up QEMU
         uses: docker/setup-qemu-action@96fe6ef7f33517b61c61be40b68a1882f3264fb8 # v4.2.0
       - name: Set up Docker Buildx
@@ -89,13 +89,13 @@ jobs:
             network=host
       - name: Docker Compose Up
         id: compose
-        working-directory: ./server/hxpr-community-internal-app
+        working-directory: ./server/openarch-app
         run: docker compose up --quiet-pull -d
       - name: Build HxPR Community Server with Maven
         run: |
           # Skip enforcer on PRs to allow SNAPSHOT dependencies from in-flight upstream PRs.
           mvn --no-transfer-progress -nsu verify \
-          -f server/hxpr-community-internal-app -Plicense-check \
+          -f server/openarch-app -Plicense-check \
           -Dnuxeo.mongodb.server=$MONGODB_HOST:$MONGODB_PORT \
           -Dnuxeo.mongodb.dbname=unittests \
           ${{ github.event_name == 'pull_request' && '-Dnuxeo.skip.enforcer=true' || '' }}
@@ -107,20 +107,20 @@ jobs:
       - name: "Run mvn license plugin"
         run: mvn -nsu org.codehaus.mojo:license-maven-plugin:aggregate-add-third-party
       - name: "Download licenses"
-        run: mvn -nsu org.codehaus.mojo:license-maven-plugin:aggregate-download-licenses -DlicensesOutputDirectory=./server/hxpr-community-internal-app/target/licenses
+        run: mvn -nsu org.codehaus.mojo:license-maven-plugin:aggregate-download-licenses -DlicensesOutputDirectory=./server/openarch-app/target/licenses
       - name: "Clone Alfresco/third-party-license-overrides"
         run: git clone --depth=1 https://github.com/Alfresco/third-party-license-overrides.git
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
       - name: "Create third party license csv file and add it to the docker compose root directory"
         run: |
           python3 ./third-party-license-overrides/thirdPartyLicenseCSVCreator.py --project "${{ github.workspace }}" \
-          --version "${{ env.VERSION }}" --combined --output "./server/hxpr-community-internal-app/target"
+          --version "${{ env.VERSION }}" --combined --output "./server/openarch-app/target"
 
       - name: Build Docker Image
         uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
         with:
-          context: ./server/hxpr-community-internal-app
-          file: ./server/hxpr-community-internal-app/src/main/docker/Dockerfile
+          context: ./server/openarch-app
+          file: ./server/openarch-app/src/main/docker/Dockerfile
           tags: ghcr.io/hyland/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
           platforms: linux/amd64,linux/arm64
           push: false
@@ -139,8 +139,8 @@ jobs:
       - name: Push Docker Image
         uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
         with:
-          context: ./server/hxpr-community-internal-app
-          file: ./server/hxpr-community-internal-app/src/main/docker/Dockerfile
+          context: ./server/openarch-app
+          file: ./server/openarch-app/src/main/docker/Dockerfile
           tags: ghcr.io/hyland/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
           platforms: linux/amd64,linux/arm64
           push: true
@@ -181,7 +181,7 @@ jobs:
         run: docker stop HXPR_COMMUNITY_APP
       - name: Docker Compose Down
         if: always() && steps.compose.conclusion == 'success'
-        working-directory: server/hxpr-community-internal-app
+        working-directory: server/openarch-app
         run: docker compose down
       # Upload the contents of test results directory to workspace
       - name: Upload Bruno test artifacts

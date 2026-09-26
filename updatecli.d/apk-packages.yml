@@ -5,7 +5,7 @@ sources:
     kind: shell
     spec:
       command: |
-        ALPINE_VERSION=$(sed -nE 's|^FROM [^ ]*-alpine([0-9]+\.[0-9]+).* AS builder$|\1|p' server/hxpr-community-internal-app/src/main/docker/Dockerfile | head -n1)
+        ALPINE_VERSION=$(sed -nE 's|^FROM [^ ]*-alpine([0-9]+\.[0-9]+).* AS builder$|\1|p' server/openarch-app/src/main/docker/Dockerfile | head -n1)
         if [ -z "${ALPINE_VERSION}" ]; then
           echo "Unable to determine Alpine version from Dockerfile builder stage" >&2
           exit 1
@@ -22,6 +22,6 @@ targets:
     kind: file
     sourceid: curl_version
     spec:
-      file: server/hxpr-community-internal-app/src/main/docker/Dockerfile
+      file: server/openarch-app/src/main/docker/Dockerfile
       matchpattern: 'apk add --no-cache curl=([^ \\]+)'
       replacepattern: 'apk add --no-cache curl={{ source "curl_version" }}'

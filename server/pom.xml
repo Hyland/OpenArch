@@ -13,7 +13,7 @@
 
   <modules>
     <module>hxpr-server-common</module>
-    <module>hxpr-community-internal-app</module>
+    <module>openarch-app</module>
   </modules>
 
 </project>

@@ -1,1 +1,1 @@
-com.hyland.hxpr.springboot.server.config.HxprServerCommonAutoConfiguration
+com.hyland.openarch.springboot.server.config.HxprServerCommonAutoConfiguration

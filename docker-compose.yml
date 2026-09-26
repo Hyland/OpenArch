@@ -1,5 +1,5 @@
 include:
-  - server/hxpr-community-internal-app/docker-compose.yml
+  - server/openarch-app/docker-compose.yml
 
 services:
   hxpr-app:
