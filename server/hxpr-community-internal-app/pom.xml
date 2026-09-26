@@ -155,7 +155,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-rest-document</artifactId>
+      <artifactId>openarch-rest-document</artifactId>
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>

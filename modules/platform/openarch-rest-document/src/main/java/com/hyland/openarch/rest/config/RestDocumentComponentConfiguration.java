@@ -15,6 +15,7 @@
  */
 package com.hyland.openarch.rest.config;
 
+import com.hyland.openarch.autoconfiguration.RestDocumentAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
@@ -23,7 +24,7 @@ import org.springframework.context.annotation.Configuration;
  * <p>
  * This is a plain {@code @Configuration} (not an {@code @AutoConfiguration}) so that it may legitimately carry
  * {@code @ComponentScan}. It is pulled in from
- * {@link com.hyland.hxpr.autoconfiguration.RestDocumentAutoConfiguration} via {@code @Import}. The auto-configuration
+ * {@link RestDocumentAutoConfiguration} via {@code @Import}. The auto-configuration
  * itself deliberately lives outside {@code com.hyland.openarch.rest} so it is never picked up by this scan (see the Spring Boot
  * reference, "Locating Auto-configuration Candidates").
  */

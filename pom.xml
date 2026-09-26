@@ -513,12 +513,12 @@
       </dependency>
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
-        <artifactId>hxpr-rest-document</artifactId>
+        <artifactId>openarch-rest-document</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
-        <artifactId>hxpr-rest-document</artifactId>
+        <artifactId>openarch-rest-document</artifactId>
         <version>${project.version}</version>
         <scope>test</scope>
         <type>test-jar</type>
