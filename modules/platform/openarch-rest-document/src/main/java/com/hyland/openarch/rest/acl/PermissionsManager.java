@@ -36,7 +36,7 @@ import org.springframework.stereotype.Component;
 public class PermissionsManager {
 
     /**
-     * Expands a NuxeoPrincipal into the list of principal strings used for ACL evaluation,
+     * Expands a RepositoryPrincipal into the list of principal strings used for ACL evaluation,
      * including external user mappings and external group memberships from Nucleus System Integration
      * if present on the principal's properties.
      *
