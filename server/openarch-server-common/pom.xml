@@ -9,7 +9,7 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>hxpr-server-common</artifactId>
+  <artifactId>openarch-server-common</artifactId>
   <name>HxPR Server Common</name>
 
   <properties>

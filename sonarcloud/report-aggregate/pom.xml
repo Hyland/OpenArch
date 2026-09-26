@@ -208,7 +208,7 @@
     <!-- HxPR Server -->
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-server-common</artifactId>
+      <artifactId>openarch-server-common</artifactId>
       <version>${project.version}</version>
     </dependency>
   </dependencies>

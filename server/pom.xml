@@ -12,7 +12,7 @@
   <name>HxPR Community Server</name>
 
   <modules>
-    <module>hxpr-server-common</module>
+    <module>openarch-server-common</module>
     <module>openarch-app</module>
   </modules>
 

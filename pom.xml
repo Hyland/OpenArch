@@ -434,12 +434,12 @@
       <!-- HxPR Server -->
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
-        <artifactId>hxpr-server-common</artifactId>
+        <artifactId>openarch-server-common</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
-        <artifactId>hxpr-server-common</artifactId>
+        <artifactId>openarch-server-common</artifactId>
         <version>${project.version}</version>
         <type>test-jar</type>
         <scope>test</scope>
