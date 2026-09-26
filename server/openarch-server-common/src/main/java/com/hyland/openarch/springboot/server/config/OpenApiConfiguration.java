@@ -362,7 +362,7 @@ public class OpenApiConfiguration implements WebMvcConfigurer {
     @Bean
     public OpenApiCustomizer setInfo(ApplicationInfo applicationInfo) {
         Info info = new Info();
-        info.setTitle("hxpr-app API");
+        info.setTitle("openarch-app API");
         info.setVersion(applicationInfo.version());
         return openApi -> openApi.setInfo(info);
     }

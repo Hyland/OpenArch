@@ -39,7 +39,7 @@ public class DevEnabledRootResourceTest extends AbstractRestAssuredTest {
         given().get("")
                .then()
                .statusCode(200)
-               .body(allOf(containsString("Hyland Experience Platform Repository Community Version"),
+               .body(allOf(containsString("OpenArch"),
                        not(containsString("Page not available"))));
     }
 

@@ -45,10 +45,10 @@ public class ApplicationLifeCycle implements ApplicationListener<ApplicationEnvi
         if (strict) {
             RuntimeService runtime = Framework.getRuntime();
             if (runtime == null) {
-                log.error("Shutting down because Nuxeo Runtime is not initialized");
+                log.error("Shutting down because OpenArch Runtime is not initialized");
                 SpringApplication.exit(event.getApplicationContext(), () -> 1);
             } else if (runtime.hasErrors()) {
-                log.error("Shutting down because of Nuxeo Runtime errors at startup in strict mode");
+                log.error("Shutting down because of OpenArch Runtime errors at startup in strict mode");
                 SpringApplication.exit(event.getApplicationContext(), () -> 1);
             }
         }

@@ -10,7 +10,7 @@
   </parent>
 
   <artifactId>openarch-server-common</artifactId>
-  <name>HxPR Server Common</name>
+  <name>OpenArch Server Common</name>
 
   <properties>
     <manifest.file>src/main/resources/META-INF/MANIFEST.MF</manifest.file>

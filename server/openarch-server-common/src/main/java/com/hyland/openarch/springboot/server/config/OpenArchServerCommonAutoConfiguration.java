@@ -24,7 +24,7 @@ import com.hyland.openarch.springboot.server.RootResourceController;
 import com.hyland.openarch.springboot.server.VersionController;
 
 /**
- * Spring Boot auto-configuration for HxPR Community Server Common.
+ * Spring Boot auto-configuration for OpenArch Server Common.
  * <p>
  * Shared server beans (lifecycle listeners, controllers, configuration classes) are registered explicitly via
  * {@link Import} instead of {@code @ComponentScan}: auto-configuration classes must never enable component scanning (see
@@ -41,6 +41,6 @@ import com.hyland.openarch.springboot.server.VersionController;
         CorsPolicyConfiguration.class,
         OpenApiConfiguration.class,
 })
-public class HxprServerCommonAutoConfiguration {
+public class OpenArchServerCommonAutoConfiguration {
 
 }
