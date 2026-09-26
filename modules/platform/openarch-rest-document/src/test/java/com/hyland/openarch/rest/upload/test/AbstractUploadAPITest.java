@@ -82,7 +82,7 @@ import jakarta.ws.rs.core.Response.StatusType;
 import net.minidev.json.JSONArray;
 
 @Features(UploadFeature.class)
-@Deploy("org.nuxeo.springboot.rest.document.test:OSGI-INF/test-store-contrib.xml")
+@Deploy("com.hyland.openarch.springboot.rest.document.test:OSGI-INF/test-store-contrib.xml")
 @Import(UploadApiTestConfiguration.class)
 public abstract class AbstractUploadAPITest extends AbstractAPITest {
 

@@ -38,7 +38,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest(classes = { SecurityPolicyAPI.class, ExternalUserRelationsSecurityPolicyAPI.class,
         SecurityPolicyManager.class, SecurityPolicyConfigMapper.class })
-@Deploy("org.nuxeo.springboot.rest.document.test:OSGI-INF/test-external-user-relations-security-policy.xml")
+@Deploy("com.hyland.openarch.springboot.rest.document.test:OSGI-INF/test-external-user-relations-security-policy.xml")
 class ExternalUserRelationsSecurityPolicyTest extends AbstractAPITest {
 
     private static final String POLICY = "ExternalUserRelationsPolicy";

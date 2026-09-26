@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<component name="org.nuxeo.test.types.external-user-relations-security-policy">
+<component name="com.hyland.openarch.test.types.external-user-relations-security-policy">
 
   <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="schema">
     <schema name="owned" src="schema/owned.xsd" prefix="own" />

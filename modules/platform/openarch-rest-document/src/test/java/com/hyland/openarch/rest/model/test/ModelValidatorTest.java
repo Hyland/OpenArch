@@ -37,7 +37,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import tools.jackson.databind.DatabindException;
 
 @Features(CoreFeature.class)
-@Deploy("org.nuxeo.springboot.rest.document.test:OSGI-INF/test-repo-core-types-contrib.xml")
+@Deploy("com.hyland.openarch.springboot.rest.document.test:OSGI-INF/test-repo-core-types-contrib.xml")
 @SpringBootTest(classes = { ModelValidator.class, ObjectMapperConfiguration.class })
 public class ModelValidatorTest extends RuntimeSpringBootTest {
 

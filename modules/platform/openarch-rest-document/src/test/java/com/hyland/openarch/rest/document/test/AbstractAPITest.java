@@ -70,7 +70,7 @@ import tools.jackson.databind.ObjectMapper;
  */
 @Features({CoreFeature.class, UserManagerMockFeature.class})
 @Import({ RepositoryExceptionController.class, ObjectMapperConfiguration.class, RolesAllowedInterceptor.class, UserManagerMockTestConfiguration.class })
-@Deploy("org.nuxeo.springboot.rest.document.test:OSGI-INF/test-repo-core-types-contrib.xml")
+@Deploy("com.hyland.openarch.springboot.rest.document.test:OSGI-INF/test-repo-core-types-contrib.xml")
 public abstract class AbstractAPITest extends RuntimeSpringBootTest {
 
     protected static final String ROOT_ID = "00000000-0000-0000-0000-000000000000";

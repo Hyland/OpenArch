@@ -71,8 +71,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 
 @Features({ CoreFeature.class, UserManagerMockFeature.class, MockitoFeature.class })
-@Deploy("org.nuxeo.springboot.rest.document")
-@Deploy("org.nuxeo.springboot.rest.document.test:OSGI-INF/test-write-types-contrib.xml")
+@Deploy("com.hyland.openarch.springboot.rest.document")
+@Deploy("com.hyland.openarch.springboot.rest.document.test:OSGI-INF/test-write-types-contrib.xml")
 @Import(UserManagerMockTestConfiguration.class)
 @SpringBootTest(classes = { DocumentMapper.class, DocumentAPITestConfiguration.class })
 public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
@@ -143,7 +143,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
     }
 
     @Test
-    @Deploy("org.nuxeo.springboot.rest.document.test:OSGI-INF/test-retention-blobprovider-config.xml")
+    @Deploy("com.hyland.openarch.springboot.rest.document.test:OSGI-INF/test-retention-blobprovider-config.xml")
     public void testGovernable() throws Exception {
         doTestWrite(MY_GOVERNABLE_FILE, false, doc -> {
             session.setRecord(doc.getRef(), true);

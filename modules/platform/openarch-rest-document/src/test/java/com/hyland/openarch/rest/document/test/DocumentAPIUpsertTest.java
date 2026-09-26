@@ -58,7 +58,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 
 @Features(RestSingleDocumentFeature.class)
-@Deploy("org.nuxeo.springboot.rest.document.test:OSGI-INF/test-update-primary-type-contrib.xml")
+@Deploy("com.hyland.openarch.springboot.rest.document.test:OSGI-INF/test-update-primary-type-contrib.xml")
 @Import(DocumentAPITestConfiguration.class)
 @SpringBootTest(classes = { DocumentAPI.class,
         DocumentMultipartController.class }, properties = "hxpr.core.allowSetIdOnCreation=true")

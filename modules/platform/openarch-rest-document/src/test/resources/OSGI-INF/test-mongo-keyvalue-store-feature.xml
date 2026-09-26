@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<component name="org.nuxeo.bulkimport.test.feature">
+<component name="com.hyland.openarch.bulkimport.test.feature">
 
   <extension target="com.hyland.openarch.runtime.kv.KeyValueService" point="configuration">
     <store name="default" class="com.hyland.openarch.runtime.kv.MemKeyValueStore" />

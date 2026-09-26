@@ -59,7 +59,7 @@ import org.springframework.test.web.servlet.ResultActions;
  * Move Rest API tests.
  */
 @Features(RestSingleDocumentFeature.class)
-@Deploy("org.nuxeo.springboot.rest.document.test:OSGI-INF/test-write-types-contrib.xml")
+@Deploy("com.hyland.openarch.springboot.rest.document.test:OSGI-INF/test-write-types-contrib.xml")
 @Import({ DocumentAPITestConfiguration.class })
 @SpringBootTest(classes = { MoveAPI.class, DocumentAPI.class })
 public class MoveAPITest extends AbstractAPITest {

@@ -263,7 +263,7 @@ public class DownloadManagerTest {
     }
 
     @Test
-    @Deploy("org.nuxeo.springboot.rest.document.test:OSGI-INF/test-presignedurl-provider-contrib.xml")
+    @Deploy("com.hyland.openarch.springboot.rest.document.test:OSGI-INF/test-presignedurl-provider-contrib.xml")
     public void testGeneratePresignedUrlWithoutFilename() throws IOException {
         // blob to download
         DocumentModel doc = createDocument();
@@ -274,7 +274,7 @@ public class DownloadManagerTest {
     }
 
     @Test
-    @Deploy("org.nuxeo.springboot.rest.document.test:OSGI-INF/test-presignedurl-provider-contrib.xml")
+    @Deploy("com.hyland.openarch.springboot.rest.document.test:OSGI-INF/test-presignedurl-provider-contrib.xml")
     public void testGeneratePresignedUrlOnGlobalExpiryPost() throws IOException {
 
         DocumentModel doc = createDocument();

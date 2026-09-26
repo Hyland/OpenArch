@@ -137,9 +137,9 @@ import org.springframework.test.web.servlet.ResultActions;
  */
 @Features(RestSingleDocumentFeature.class)
 @Deploy("org.nuxeo.ecm.platform.vocabularies:OSGI-INF/vocabulary-resolver-contrib.xml")
-@Deploy("org.nuxeo.springboot.rest.document.test:OSGI-INF/test-custom-facet-contrib.xml")
-@Deploy("org.nuxeo.springboot.rest.document.test:OSGI-INF/test-doc-constraints-contrib.xml")
-@Deploy("org.nuxeo.springboot.rest.document.test:OSGI-INF/test-update-primary-type-contrib.xml")
+@Deploy("com.hyland.openarch.springboot.rest.document.test:OSGI-INF/test-custom-facet-contrib.xml")
+@Deploy("com.hyland.openarch.springboot.rest.document.test:OSGI-INF/test-doc-constraints-contrib.xml")
+@Deploy("com.hyland.openarch.springboot.rest.document.test:OSGI-INF/test-update-primary-type-contrib.xml")
 @Import(DocumentAPITestConfiguration.class)
 public abstract class AbstractDocumentAPITest extends AbstractAPITest {
 

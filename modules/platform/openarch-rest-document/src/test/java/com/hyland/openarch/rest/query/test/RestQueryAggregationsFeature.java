@@ -56,7 +56,7 @@ import com.hyland.openarch.async.tasks.TaskService;
 @Features({ UserManagerMockFeature.class, RepositoryOpenSearchFeature.class })
 @RepositoryConfig(cleanup = Granularity.CLASS)
 @Import(UserManagerMockTestConfiguration.class)
-@Deploy("org.nuxeo.springboot.rest.document.test:OSGI-INF/test-write-types-contrib.xml")
+@Deploy("com.hyland.openarch.springboot.rest.document.test:OSGI-INF/test-write-types-contrib.xml")
 public class RestQueryAggregationsFeature implements RunnerFeature {
 
     public static final String ANY_PROPERTY_FIELD = "any_obj";

@@ -59,7 +59,7 @@ import com.hyland.openarch.runtime.test.runner.Features;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Features(UploadFeature.class)
-@Deploy("org.nuxeo.springboot.rest.document.test:OSGI-INF/test-store-contrib.xml")
+@Deploy("com.hyland.openarch.springboot.rest.document.test:OSGI-INF/test-store-contrib.xml")
 public abstract class AbstractUploadHandlerTest extends RuntimeSpringBootTest {
 
     protected static final String USER = TEST_ADMIN_USER;

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<component name="org.nuxeo.rest.document.test.DocType">
+<component name="com.hyland.openarch.rest.document.test.DocType">
 
   <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="schema">
     <schema name="constraints" src="schema/constraintschema.xsd" prefix="cs"/>

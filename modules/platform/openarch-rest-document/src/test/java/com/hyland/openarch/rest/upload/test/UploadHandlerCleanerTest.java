@@ -45,7 +45,7 @@ import org.springframework.boot.test.context.SpringBootTest;
  * that request's transaction has committed.
  */
 @Features(UploadFeature.class)
-@Deploy("org.nuxeo.springboot.rest.document.test:OSGI-INF/test-store-contrib.xml")
+@Deploy("com.hyland.openarch.springboot.rest.document.test:OSGI-INF/test-store-contrib.xml")
 @SpringBootTest(classes = { DefaultUploadHandler.class, UploadHandlerCleaner.class })
 public class UploadHandlerCleanerTest extends RuntimeSpringBootTest {
 

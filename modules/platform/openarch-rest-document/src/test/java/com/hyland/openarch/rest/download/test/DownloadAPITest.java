@@ -82,7 +82,7 @@ import jakarta.ws.rs.core.Response;
 /**
  * Download Rest API tests.
  */
-@Deploy("org.nuxeo.springboot.rest.document.test:OSGI-INF/test-repo-core-types-contrib.xml")
+@Deploy("com.hyland.openarch.springboot.rest.document.test:OSGI-INF/test-repo-core-types-contrib.xml")
 @Features(CoreFeature.class)
 @SpringBootTest(classes = { DownloadAPI.class, DownloadStudioFormDataAPI.class, DownloadManager.class })
 @Import(DocumentAPITestConfiguration.class)
@@ -284,28 +284,28 @@ public class DownloadAPITest extends AbstractAPITest {
     }
 
     @Test
-    @Deploy("org.nuxeo.springboot.rest.document.test:OSGI-INF/test-presignedurl-provider-contrib.xml")
+    @Deploy("com.hyland.openarch.springboot.rest.document.test:OSGI-INF/test-presignedurl-provider-contrib.xml")
     public void testGetDownloadUrl() throws Exception {
         ResultActions r = checkResponseStatus(GET, OK, docId, SYSFILE_BLOB, GENERATE_URL_QUERY_PARAMS);
         assertTrue(containsPreSignedURLWithExpiration(r.andReturn().getResponse().getContentAsString(), 3600));
     }
 
     @Test
-    @Deploy("org.nuxeo.springboot.rest.document.test:OSGI-INF/test-presignedurl-provider-contrib.xml")
+    @Deploy("com.hyland.openarch.springboot.rest.document.test:OSGI-INF/test-presignedurl-provider-contrib.xml")
     public void testGetDownloadUrlInline() throws Exception {
         ResultActions r = checkResponseStatus(GET, OK, docId, SYSFILE_BLOB, Map.of("inline", "true"));
         assertTrue(r.andReturn().getResponse().getContentAsString().contains("inline=true"));
     }
 
     @Test
-    @Deploy("org.nuxeo.springboot.rest.document.test:OSGI-INF/test-presignedurl-provider-contrib.xml")
+    @Deploy("com.hyland.openarch.springboot.rest.document.test:OSGI-INF/test-presignedurl-provider-contrib.xml")
     public void testGetDownloadUrlDefaultsToNotInline() throws Exception {
         ResultActions r = checkResponseStatus(GET, OK, docId, SYSFILE_BLOB, GENERATE_URL_QUERY_PARAMS);
         assertTrue(r.andReturn().getResponse().getContentAsString().contains("inline=false"));
     }
 
     @Test
-    @Deploy("org.nuxeo.springboot.rest.document.test:OSGI-INF/test-presignedurl-provider-contrib.xml")
+    @Deploy("com.hyland.openarch.springboot.rest.document.test:OSGI-INF/test-presignedurl-provider-contrib.xml")
     public void testGetDownloadUrlComplexBlob() throws Exception {
         ResultActions r = checkResponseStatus(GET, OK, docId, "tp_fileComplexList/0/blobItem", GENERATE_URL_QUERY_PARAMS);
         assertTrue(containsPreSignedURLWithExpiration(r.andReturn().getResponse().getContentAsString(), 3600));

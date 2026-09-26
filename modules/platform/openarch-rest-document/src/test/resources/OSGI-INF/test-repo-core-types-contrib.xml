@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<component name="org.nuxeo.test.types">
+<component name="com.hyland.openarch.test.types">
 
   <require>com.hyland.openarch.ecm.core.CoreExtensions</require>
 

@@ -21,7 +21,7 @@ import com.hyland.openarch.runtime.test.runner.Features;
 import com.hyland.openarch.runtime.test.runner.RunnerFeature;
 
 @Features(CoreFeature.class)
-@Deploy("org.nuxeo.springboot.rest.document")
+@Deploy("com.hyland.openarch.springboot.rest.document")
 public class UploadFeature implements RunnerFeature {
 
 }

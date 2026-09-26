@@ -94,7 +94,7 @@ class DownloadAuditEventTest extends AbstractAPITest {
     }
 
     @Test
-    @Deploy("org.nuxeo.springboot.rest.document.test:OSGI-INF/test-presignedurl-provider-contrib.xml")
+    @Deploy("com.hyland.openarch.springboot.rest.document.test:OSGI-INF/test-presignedurl-provider-contrib.xml")
     void testPreSignedUrlFlagForDownLoadEvent() throws Exception {
         // create a document with a blob property
         String fileName = "test.txt";

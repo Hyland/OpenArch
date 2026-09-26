@@ -53,7 +53,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 
 @Features(RestSingleDocumentFeature.class)
-@Deploy("org.nuxeo.springboot.rest.document.test:OSGI-INF/test-write-types-contrib.xml")
+@Deploy("com.hyland.openarch.springboot.rest.document.test:OSGI-INF/test-write-types-contrib.xml")
 @SpringBootTest(classes = { DocumentAPI.class, CheckInAPI.class, DocumentManager.class, DocumentMapper.class,
         ObjectMapperConfiguration.class, ACLMapper.class, ACEMapper.class, ACLChangesHandler.class, VersionAPI.class })
 @Import(DocumentAPITestConfiguration.class)

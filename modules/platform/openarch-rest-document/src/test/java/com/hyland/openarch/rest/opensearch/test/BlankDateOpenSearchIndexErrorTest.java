@@ -64,7 +64,7 @@ import com.hyland.openarch.async.tasks.TaskService;
  */
 @Features({RepositoryOpenSearchFeature.class, UserManagerMockFeature.class})
 @Deploy("com.hyland.openarch.opensearch.core:opensearch-test-nested-mapping-contrib.xml")
-@Deploy("org.nuxeo.springboot.rest.document.test:OSGI-INF/open-search-blank-date-error-contrib.xml")
+@Deploy("com.hyland.openarch.springboot.rest.document.test:OSGI-INF/open-search-blank-date-error-contrib.xml")
 @Tag("useOpenSearch")
 @Import(UserManagerMockTestConfiguration.class)
 @SpringBootTest( classes = { OpenSearchQueryManager.class, DefaultNamedQueryRegistry.class, DocumentMapper.class,

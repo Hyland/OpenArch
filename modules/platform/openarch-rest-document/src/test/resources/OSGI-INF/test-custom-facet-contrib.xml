@@ -1,4 +1,4 @@
-<component name="org.nuxeo.rest.facet.test">
+<component name="com.hyland.openarch.rest.facet.test">
 
     <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="schema">
         <schema name="customschema" src="schema/customschema.xsd" />

@@ -73,7 +73,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 
 @Features({ CoreFeature.class, UserManagerMockFeature.class, MockitoFeature.class })
-@Deploy("org.nuxeo.springboot.rest.document")
+@Deploy("com.hyland.openarch.springboot.rest.document")
 @Import(UserManagerMockTestConfiguration.class)
 @SpringBootTest(classes = { DocumentMapper.class, DocumentAPITestConfiguration.class })
 public class DocumentMapperTest extends RuntimeSpringBootTest {

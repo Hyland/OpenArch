@@ -32,7 +32,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 
 
-@Deploy("org.nuxeo.springboot.rest.document.test:OSGI-INF/test-security-policy.xml")
+@Deploy("com.hyland.openarch.springboot.rest.document.test:OSGI-INF/test-security-policy.xml")
 @SpringBootTest(classes = { SecurityPolicyAPI.class, SecurityPolicyManager.class, SecurityPolicyConfigMapper.class })
 @TestPropertySource(properties = "logging.level.com.hyland.openarch.rest.security.SecurityPolicyManager=INFO")
 public abstract class AbstractSecurityPolicyAPITest extends AbstractAPITest {

@@ -61,7 +61,7 @@ import org.springframework.context.annotation.Import;
 
 @Features(CoreFeature.class)
 @Deploy("org.nuxeo.ecm.platform.vocabularies")
-@Deploy("org.nuxeo.springboot.rest.document.test:OSGI-INF/test-vocabulary-resolver-contrib.xml")
+@Deploy("com.hyland.openarch.springboot.rest.document.test:OSGI-INF/test-vocabulary-resolver-contrib.xml")
 @Import({ VocabularyAPITestConfiguration.class })
 @SpringBootTest(classes = { VocabularyAPI.class })
 public class VocabularyEntryResolverTest extends RuntimeSpringBootTest {

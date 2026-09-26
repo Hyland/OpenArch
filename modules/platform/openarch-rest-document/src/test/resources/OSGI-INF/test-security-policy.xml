@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<component name="org.nuxeo.test.types.security-policy">
+<component name="com.hyland.openarch.test.types.security-policy">
 
   <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="schema">
     <schema name="clearance" src="schema/clearance.xsd" prefix="clr" />

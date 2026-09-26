@@ -64,7 +64,7 @@ import org.springframework.test.util.AopTestUtils;
 import org.springframework.web.client.RestTemplate;
 
 @Features(UploadFeature.class)
-@Deploy("org.nuxeo.springboot.rest.document.test:OSGI-INF/test-store-contrib.xml")
+@Deploy("com.hyland.openarch.springboot.rest.document.test:OSGI-INF/test-store-contrib.xml")
 @SpringBootTest(classes = { UploadAPI.class }, properties = { "nuxeo.upload.handler.s3.enabled=false" })
 @DirtiesContext
 public class UploadAPITest extends AbstractUploadAPITest {
