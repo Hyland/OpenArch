@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(path = GreetingResourceController.PATH , produces = MediaType.TEXT_PLAIN_VALUE )
-@Tag(name = "Greeting", description = "Hello World Endpoint for HXPR Community")
+@Tag(name = "Greeting", description = "Hello World Endpoint for OpenArch")
 @ApiResponse200(description = "OK")
 public class GreetingResourceController {
 

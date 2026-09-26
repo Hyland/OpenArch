@@ -2,7 +2,7 @@
 .env
 config/application.properties
 
-# hxpr dev mode data
+# OpenArch dev mode data
 /nuxeo/
 /nxserver/
 

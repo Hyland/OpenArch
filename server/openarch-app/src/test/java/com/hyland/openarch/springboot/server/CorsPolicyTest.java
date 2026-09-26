@@ -178,8 +178,6 @@ public class CorsPolicyTest extends AbstractSpringTest {
     }
 
     private static List<Class<?>> getAllApiClasses() {
-        // Both packages are scanned: the REST API lives under com.hyland.openarch.rest, the app's own controllers and the
-        // enterprise ones (graph, evstore, ...) under com.hyland.hxpr. Only what is on the classpath is found.
         try (ScanResult scanResult = new ClassGraph().acceptPackages("com.hyland.openarch.rest", "com.hyland.hxpr")
                                                     .enableAllInfo()
                                                     .scan()) {

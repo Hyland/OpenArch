@@ -2,8 +2,8 @@
 
 This project uses SpringBoot.
 
-The Nuxeo Runtime bootstrap is done thanks to module `openarch-runtime-springboot` (see its README).
-This registers a SpringBoot listener and starts up the Nuxeo Runtime, looking up `META-INF/MANIFEST.MF` files in the classpath.
+The OpenArch Runtime bootstrap is done thanks to module `openarch-runtime-springboot` (see its README).
+This registers a SpringBoot listener and starts up the OpenArch Runtime, looking up `META-INF/MANIFEST.MF` files in the classpath.
 
 A mock REST endpoint is added by this module, available at http://localhost:8080/hello.
 
@@ -59,7 +59,7 @@ Application configuration lives in `src/main/resources/application.properties`. 
 
 User definitions for local testing are seeded from `src/main/resources/hxpr-users.yml`.
 
-## CI/CD in HXPR Community Internal
+## CI/CD in OpenArch
 
 The `Continuous Integration` workflow (`.github/workflows/continuous_integration.yaml`) is the entry point of the CI/CD pipeline. On every push or pull request to `main` it:
 
@@ -75,7 +75,7 @@ The version used for the Docker tag and for `org.nuxeo.ecm.product.version` is d
 After running the `docker compose up -d` command, you can run the application in a Docker container with (version 1.0.0 for this example):
 
 ```shell
-docker run --rm -d -p 8080:8080 --name=HXPR_APP --network="host" \
+docker run --rm -d -p 8080:8080 --name=OPENARCH_APP --network="host" \
   -e NUXEO_MONGODB_SERVER=localhost:27017 \
   -e NUXEO_DATA_DIR=/tmp \
   ghcr.io/hyland/openarch-app-jvm:1.0.0

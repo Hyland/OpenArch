@@ -29,7 +29,7 @@ import org.springframework.test.context.TestPropertySource;
  * Abstract class to be extended by all rest assured tests.
  * Provides the initialization of the port.
  */
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = HxprCommunityApplication.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = OpenArchApplication.class)
 @TestPropertySource(properties = "spring.profiles.active=default,local")
 public abstract class AbstractRestAssuredTest {
 

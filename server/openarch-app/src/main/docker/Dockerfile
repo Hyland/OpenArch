@@ -47,7 +47,7 @@ RUN mkdir -p /staging/bin \
 # Set default user information
 ARG GROUP_NAME=hyland
 ARG GROUP_ID=1000
-ARG USER_NAME=hxpr-app-user
+ARG USER_NAME=openarch-user
 ARG USER_ID=33010
 
 COPY target/openarch-app-*.jar /deployments/app.jar
@@ -91,6 +91,6 @@ COPY --from=builder $JAVA_HOME/conf/security/java.security $JAVA_HOME/conf/secur
 
 EXPOSE 8080
 
-USER hxpr-app-user
+USER openarch-user
 
 ENTRYPOINT ["/bin/sh", "/deployments/run-java.sh"]

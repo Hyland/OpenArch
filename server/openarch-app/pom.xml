@@ -9,7 +9,7 @@
   </parent>
 
   <artifactId>openarch-app</artifactId>
-  <name>HxPR Community App</name>
+  <name>OpenArch App</name>
 
   <properties>
     <manifest.file>src/main/resources/META-INF/MANIFEST.MF</manifest.file>

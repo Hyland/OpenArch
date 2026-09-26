@@ -22,7 +22,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class OpenArchApplicationConfiguration {
 
-    @Bean(name = "openArchApplication")
+    @Bean(name = "openArchRuntimeApplication")
     public OpenArchApplication openArchApplication() {
         return new OpenArchApplication();
     }

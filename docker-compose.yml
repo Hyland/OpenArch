@@ -2,17 +2,17 @@ include:
   - server/openarch-app/docker-compose.yml
 
 services:
-  hxpr-app:
+  openarch-app:
     image: ghcr.io/hyland/openarch-app-jvm:${HXPR_VERSION}
     depends_on:
       opensearch:
         condition: service_healthy
-    container_name: hxpr-app
-    hostname: hxpr-app
+    container_name: openarch-app
+    hostname: openarch-app
     environment:
       OPENSEARCH_ADDRESSLIST: "http://opensearch:9200"
       NUXEO_MONGODB_SERVER: mongo:27017
-      NUXEO_MONGODB_DBNAME: hxpr
+      NUXEO_MONGODB_DBNAME: openarch
     ports:
       - "8080:8080"
       - "5005:5005"

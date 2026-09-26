@@ -100,7 +100,7 @@ public class GreetingResourceTest extends AbstractSpringTest {
         when().get("/v3/api-docs")
               .then()
               .body(containsString("\"name\":\"Greeting\""),
-                  containsString("\"description\":\"Hello World Endpoint for HXPR Community\""));
+                  containsString("\"description\":\"Hello World Endpoint for OpenArch\""));
     }
 
 }

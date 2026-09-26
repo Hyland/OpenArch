@@ -1,4 +1,4 @@
-name: Update pinned apk package versions in hxpr-app Dockerfile
+name: Update pinned apk package versions in openarch-app Dockerfile
 
 sources:
   curl_version:
