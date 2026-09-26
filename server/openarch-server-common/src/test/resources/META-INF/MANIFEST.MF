@@ -1,4 +1,4 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: HxPR Server Common Testing
-Bundle-SymbolicName: com.hyland.hxpr.server.common.tests;singleton:=true
+Bundle-Name: OpenArch Server Common Testing
+Bundle-SymbolicName: com.hyland.openarch.server.common.tests;singleton:=true

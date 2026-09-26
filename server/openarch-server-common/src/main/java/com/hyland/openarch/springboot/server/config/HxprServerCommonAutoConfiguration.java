@@ -29,7 +29,7 @@ import com.hyland.openarch.springboot.server.VersionController;
  * Shared server beans (lifecycle listeners, controllers, configuration classes) are registered explicitly via
  * {@link Import} instead of {@code @ComponentScan}: auto-configuration classes must never enable component scanning (see
  * the Spring Boot reference, "Locating Auto-configuration Candidates"). Every new {@code @Component} /
- * {@code @Controller} / {@code @Configuration} added under {@code com.hyland.hxpr.springboot.server} must be listed here
+ * {@code @Controller} / {@code @Configuration} added under {@code com.hyland.openarch.springboot.server} must be listed here
  * to be picked up by the application.
  */
 @AutoConfiguration
