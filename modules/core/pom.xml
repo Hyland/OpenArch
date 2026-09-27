@@ -6,10 +6,9 @@
     <version>12.0-SNAPSHOT</version>
   </parent>
 
-  <groupId>com.hyland.hxpr</groupId>
-  <artifactId>hxpr-community-core-parent</artifactId>
+  <artifactId>openarch-core-parent</artifactId>
   <packaging>pom</packaging>
-  <name>HxPR Community Core Parent</name>
+  <name>OpenArch Core Parent</name>
 
   <modules>
     <module>openarch-core</module>
