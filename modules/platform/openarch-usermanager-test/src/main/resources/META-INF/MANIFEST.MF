@@ -1,8 +1,8 @@
-Export-Package: org.nuxeo.ecm.platform.usermanager;version="1.0.0"
+Export-Package: com.hyland.openarch.ecm.platform.usermanager;version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
 Manifest-Version: 1.0
 Bundle-Name: openarch-usermanager-test
 Bundle-Version: 0.0.0.SNAPSHOT
 Bundle-ManifestVersion: 2
-Bundle-SymbolicName: org.nuxeo.ecm.platform.usermanager.test.tests;singleton:=true
+Bundle-SymbolicName: com.hyland.openarch.ecm.platform.usermanager.test.tests;singleton:=true
