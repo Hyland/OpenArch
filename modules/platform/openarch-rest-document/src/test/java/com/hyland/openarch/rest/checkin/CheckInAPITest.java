@@ -55,7 +55,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.ResultActions;
 
 @Deploy("com.hyland.openarch.springboot.rest.document.test:OSGI-INF/test-write-types-contrib.xml")
-@Deploy("org.nuxeo.ecm.platform.usermanager")
+@Deploy("com.hyland.openarch.ecm.platform.usermanager")
 @SpringBootTest(classes = { DocumentAPI.class, CheckInAPI.class, DocumentManager.class, DocumentMapper.class,
         ObjectMapperConfiguration.class, ACLMapper.class, ACEMapper.class, ACLChangesHandler.class })
 class CheckInAPITest extends AbstractAPITest {

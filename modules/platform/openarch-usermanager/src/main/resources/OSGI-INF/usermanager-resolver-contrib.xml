@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 
-<component name="org.nuxeo.ecm.platform.usermanager.resolver">
+<component name="com.hyland.openarch.ecm.platform.usermanager.resolver">
   <documentation>
-    Resolver for NuxeoPrincipal and NuxeoGroup document properties. Values for properties must be prefixed
+    Resolver for RepositoryPrincipal and RepositoryGroup document properties. Values for properties must be prefixed
     by 'user:' or 'group:'.
   </documentation>
 

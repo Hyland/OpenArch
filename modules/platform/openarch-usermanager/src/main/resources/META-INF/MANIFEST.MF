@@ -1,11 +1,11 @@
-Export-Package: org.nuxeo.ecm.platform.usermanager;core=split,
- org.nuxeo.ecm.platform.computedgroups
+Export-Package: com.hyland.openarch.ecm.platform.usermanager;core=split,
+ com.hyland.openarch.ecm.platform.computedgroups
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
 Manifest-Version: 1.0
 Bundle-Category: web,
  stateful
-Bundle-Name: Nuxeo User Manager Module
+Bundle-Name: OpenArch User Manager Module
 Bundle-Localization: plugin
 Created-By: 1.6.0_20 (Sun Microsystems Inc.)
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
@@ -24,9 +24,9 @@ Import-Package: org.apache.commons.logging,
  com.hyland.openarch.ecm.core.api.security,
  org.nuxeo.ecm.directory;api=split,
  org.nuxeo.ecm.directory.api,
- org.nuxeo.ecm.platform.usermanager.exceptions,
+ com.hyland.openarch.ecm.platform.usermanager.exceptions,
  com.hyland.openarch.runtime,
  com.hyland.openarch.runtime.api,
  com.hyland.openarch.runtime.model,
  com.hyland.openarch.runtime.services.event
-Bundle-SymbolicName: org.nuxeo.ecm.platform.usermanager
+Bundle-SymbolicName: com.hyland.openarch.ecm.platform.usermanager

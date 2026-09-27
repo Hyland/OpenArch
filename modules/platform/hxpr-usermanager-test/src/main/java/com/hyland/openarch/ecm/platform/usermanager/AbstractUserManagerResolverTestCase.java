@@ -54,7 +54,7 @@ import com.hyland.openarch.runtime.test.runner.Features;
  * </p>
  */
 @Features({ CoreFeature.class })
-@Deploy("org.nuxeo.ecm.platform.usermanager.test:test-usermanager-resolver.xml")
+@Deploy("com.hyland.openarch.ecm.platform.usermanager.test:test-usermanager-resolver.xml")
 @RepositoryConfig(cleanup = Granularity.METHOD)
 @SuppressWarnings("java:S5960") // using Assert for production code...this is testcode
 public abstract class AbstractUserManagerResolverTestCase extends RuntimeSpringBootTest {

@@ -19,7 +19,7 @@ Import-Package: com.google.inject,
  com.hyland.openarch.ecm.core.schema.types,
  com.hyland.openarch.ecm.core.test,
  org.nuxeo.ecm.directory.api,
- org.nuxeo.ecm.platform.usermanager,
+ com.hyland.openarch.ecm.platform.usermanager,
  com.hyland.openarch.runtime.test.runner
 Bundle-SymbolicName: com.hyland.openarch.ecm.platform.test;singleton:=true
 Nuxeo-Component: OSGI-INF/usermanager-mock-config.xml

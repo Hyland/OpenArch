@@ -51,7 +51,7 @@ import com.hyland.openarch.async.tasks.TaskService;
 
 @Features(RepositoryOpenSearchFeature.class)
 @RepositoryConfig(cleanup = Granularity.CLASS)
-@Deploy("org.nuxeo.ecm.platform.usermanager")
+@Deploy("com.hyland.openarch.ecm.platform.usermanager")
 public class RestQueryMultipleDocumentsFeature implements RunnerFeature {
 
     public static final ZonedDateTime NOW = ZonedDateTime.now()
