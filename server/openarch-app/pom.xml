@@ -70,7 +70,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-runtime-mongodb</artifactId>
+      <artifactId>openarch-runtime-mongodb</artifactId>
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>

@@ -57,7 +57,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-runtime-mongodb</artifactId>
+      <artifactId>openarch-runtime-mongodb</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
