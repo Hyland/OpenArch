@@ -1,9 +1,8 @@
-# HxPR Community User Store — Test Fixture
+# OpenArch Community User Store — Test Fixture
 #
 # This file is bundled in the openarch-login-filestore test-jar and serves as the
 # default user store for tests that use UserManagerCommunityFeature.
 #
-# It is a copy of server/hxpr-app-config/src/main/resources/hxpr-users.yml.
 # The UUIDs match UserManagerMock constants used across the test suite.
 # Do not change the UUIDs — they are stored in test documents and fixtures.
 

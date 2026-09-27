@@ -8,7 +8,7 @@
   </parent>
 
   <artifactId>openarch-usermanager-test</artifactId>
-  <name>HxPR UserManager Test Framework</name>
+  <name>OpenArch UserManager Test Framework</name>
 
   <properties>
     <manifest.file>src/main/resources/META-INF/MANIFEST.MF</manifest.file>

@@ -359,7 +359,7 @@ public abstract class AbstractUserManagerResolverTestCase extends RuntimeSpringB
     }
 
     @Test
-    public void testFetchCastNuxeoPrincipal() {
+    public void testFetchCastRepositoryPrincipal() {
         UserManagerResolver umr = new UserManagerResolver();
         umr.configure(new HashMap<>());
         RepositoryPrincipal principal = umr.fetch(RepositoryPrincipal.class, PREFIXED_ADMIN);
@@ -371,7 +371,7 @@ public abstract class AbstractUserManagerResolverTestCase extends RuntimeSpringB
     }
 
     @Test
-    public void testFetchCastNuxeoGroup() {
+    public void testFetchCastRepositoryGroup() {
         UserManagerResolver umr = new UserManagerResolver();
         umr.configure(new HashMap<>());
         RepositoryGroup group = umr.fetch(RepositoryGroup.class, PREFIXED_MEMBERS_GROUP);
