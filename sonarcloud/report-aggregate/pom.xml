@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>com.hyland.hxpr</groupId>
+    <groupId>com.hyland.openarch</groupId>
     <artifactId>community-sonarcloud-modules</artifactId>
     <version>12.0-SNAPSHOT</version>
   </parent>
@@ -16,198 +16,198 @@
 
     <!-- Runtime -->
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-async-tasks</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-common</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-config</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-runtime</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-runtime-cluster-api</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-runtime-management</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-runtime-osgi</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-runtime-metrics</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-runtime-mongodb</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-runtime-jtajca</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-runtime-kv</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-runtime-pubsub</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-runtime-springboot</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-runtime-springboot-test</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-runtime-test</artifactId>
       <version>${project.version}</version>
     </dependency>
 
     <!-- Core -->
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-core</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-core-schema</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-core-api</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-core-binarymanager-common</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-core-cache</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-core-event</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-core-io</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-core-management-jtajca</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-core-mongodb</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-core-query</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-core-storage-mem</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-core-storage-mongodb</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-core-test</artifactId>
       <version>${project.version}</version>
     </dependency>
 
     <!-- HxPR Platform -->
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-usermanager</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-login-filestore</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-login</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-opensearch</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-platform-test</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-rest-common</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-rest-document</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-usermanager-test</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-vocabularies</artifactId>
       <version>${project.version}</version>
     </dependency>
 
     <!-- HxPR Server -->
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-server-common</artifactId>
       <version>${project.version}</version>
     </dependency>

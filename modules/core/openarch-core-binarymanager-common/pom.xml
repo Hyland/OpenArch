@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.hyland.hxpr</groupId>
+    <groupId>com.hyland.openarch</groupId>
     <artifactId>openarch-core-parent</artifactId>
     <version>12.0-SNAPSHOT</version>
   </parent>
@@ -16,19 +16,19 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-common</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-runtime</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-core-io</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-core</artifactId>
     </dependency>
     <dependency>
@@ -46,23 +46,23 @@
 
     <!-- Test dependencies, for the shared cloud blob provider test bases -->
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-runtime-test</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-core-test</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-core</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-core-api</artifactId>
       <type>test-jar</type>
       <scope>test</scope>

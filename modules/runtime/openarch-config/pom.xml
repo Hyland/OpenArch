@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.hyland.hxpr</groupId>
+    <groupId>com.hyland.openarch</groupId>
     <artifactId>openarch-runtime-parent</artifactId>
     <version>12.0-SNAPSHOT</version>
   </parent>
@@ -16,20 +16,20 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-common</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-runtime</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-runtime-pubsub</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-runtime-test</artifactId>
       <scope>test</scope>
     </dependency>

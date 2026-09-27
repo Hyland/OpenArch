@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>com.hyland.hxpr</groupId>
+    <groupId>com.hyland.openarch</groupId>
     <artifactId>openarch-platform-parent</artifactId>
     <version>12.0-SNAPSHOT</version>
   </parent>
@@ -16,48 +16,48 @@
   <dependencies>
     <!-- compile scope -->
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-runtime-test</artifactId>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-runtime-springboot-test</artifactId>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-core-api</artifactId>
       <type>test-jar</type>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-core-test</artifactId>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-core-test</artifactId>
       <type>test-jar</type>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-login</artifactId>
       <type>test-jar</type>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-usermanager</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-core-cache</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-core-cache</artifactId>
       <type>test-jar</type>
       <scope>compile</scope>
@@ -71,7 +71,7 @@
 
     <!-- runtime scope -->
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-login</artifactId>
       <scope>runtime</scope>
     </dependency>

@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.hyland.hxpr</groupId>
+    <groupId>com.hyland.openarch</groupId>
     <artifactId>openarch-core-parent</artifactId>
     <version>12.0-SNAPSHOT</version>
   </parent>
@@ -20,39 +20,39 @@
       <artifactId>spring-boot-autoconfigure</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-common</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-runtime</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-runtime-jtajca</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-runtime-cluster-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-core-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-core-query</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-core-schema</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-core-event</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-async-tasks</artifactId>
     </dependency>
 
@@ -74,7 +74,7 @@
       <artifactId>commons-pool2</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-runtime-metrics</artifactId>
     </dependency>
     <dependency>
@@ -91,17 +91,17 @@
     </dependency>
     <!-- test scope -->
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-runtime-test</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-runtime-cluster-api</artifactId>
       <type>test-jar</type>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-core-api</artifactId>
       <type>test-jar</type>
     </dependency>
@@ -122,7 +122,7 @@
     </dependency>
 
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
+      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-runtime-osgi</artifactId>
       <scope>test</scope>
     </dependency>
