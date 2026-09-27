@@ -45,7 +45,7 @@ import com.hyland.openarch.runtime.test.runner.Features;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @Features(CoreFeature.class)
-@Deploy("org.nuxeo.ecm.platform.vocabularies")
+@Deploy("com.hyland.openarch.ecm.platform.vocabularies")
 @SpringBootTest(classes = { VocabularyService.class, InternalVocabularyMapper.class })
 public class VocabularyServiceTest extends RuntimeSpringBootTest {
 

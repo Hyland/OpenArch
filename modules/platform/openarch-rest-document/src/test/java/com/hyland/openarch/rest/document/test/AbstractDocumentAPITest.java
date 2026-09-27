@@ -136,7 +136,7 @@ import org.springframework.test.web.servlet.ResultActions;
  * Unit-test version of the server document api rest testing.
  */
 @Features(RestSingleDocumentFeature.class)
-@Deploy("org.nuxeo.ecm.platform.vocabularies:OSGI-INF/vocabulary-resolver-contrib.xml")
+@Deploy("com.hyland.openarch.ecm.platform.vocabularies:OSGI-INF/vocabulary-resolver-contrib.xml")
 @Deploy("com.hyland.openarch.springboot.rest.document.test:OSGI-INF/test-custom-facet-contrib.xml")
 @Deploy("com.hyland.openarch.springboot.rest.document.test:OSGI-INF/test-doc-constraints-contrib.xml")
 @Deploy("com.hyland.openarch.springboot.rest.document.test:OSGI-INF/test-update-primary-type-contrib.xml")

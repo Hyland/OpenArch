@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<component name="org.nuxeo.ecm.vocabulary.resolver">
+<component name="com.hyland.openarch.ecm.vocabulary.resolver">
   <documentation>
     Resolver for document properties containing Vocabulary entries id. This resolver reference a proper
     vocabulary.
