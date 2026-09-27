@@ -40,7 +40,7 @@ import com.hyland.openarch.runtime.test.runner.TransactionalFeature;
 @Features({ RuntimeFeature.class, BasicClusterFeature.class, TransactionalFeature.class })
 @Deploy("com.hyland.openarch.runtime.pubsub")
 @Deploy("com.hyland.openarch.config")
-@Deploy("org.nuxeo.runtime.mongodb")
+@Deploy("com.hyland.openarch.runtime.mongodb")
 @Deploy("com.hyland.openarch.ecm.core:OSGI-INF/RepositoryService.xml")
 @Deploy("com.hyland.openarch.ecm.core:OSGI-INF/dbs-repository-service.xml")
 @Deploy("com.hyland.openarch.ecm.core.schema")

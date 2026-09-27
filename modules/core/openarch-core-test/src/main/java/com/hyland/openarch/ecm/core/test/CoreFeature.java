@@ -71,7 +71,7 @@ import com.hyland.openarch.async.tasks.TaskService;
 @Deploy("com.hyland.openarch.runtime.metrics")
 @Deploy("com.hyland.openarch.runtime.pubsub")
 @Deploy("com.hyland.openarch.config")
-@Deploy("org.nuxeo.runtime.mongodb")
+@Deploy("com.hyland.openarch.runtime.mongodb")
 @Deploy("com.hyland.openarch.ecm.core.schema")
 @Deploy("com.hyland.openarch.ecm.core.query")
 @Deploy("com.hyland.openarch.ecm.core.api")

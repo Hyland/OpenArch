@@ -27,8 +27,8 @@ import com.mongodb.client.MongoClient;
  */
 @Features(RuntimeFeature.class)
 @Deploy("com.hyland.openarch.runtime.kv")
-@Deploy("org.nuxeo.runtime.mongodb")
-@Deploy("org.nuxeo.runtime.mongodb.test")
+@Deploy("com.hyland.openarch.runtime.mongodb")
+@Deploy("com.hyland.openarch.runtime.mongodb.test")
 public class MongoDBFeature implements RunnerFeature {
 
     @Override
