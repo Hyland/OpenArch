@@ -8,7 +8,7 @@
   </parent>
 
   <artifactId>openarch-runtime-mongodb</artifactId>
-  <name>HxPR Runtime MongoDB</name>
+  <name>OpenArch Runtime MongoDB</name>
 
   <properties>
     <manifest.file>src/main/resources/META-INF/MANIFEST.MF</manifest.file>
