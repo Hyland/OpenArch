@@ -3,7 +3,7 @@
 
   <parent>
     <groupId>com.hyland.hxpr</groupId>
-    <artifactId>hxpr-community-server</artifactId>
+    <artifactId>openarch-server</artifactId>
     <version>12.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>

@@ -6,10 +6,9 @@
     <version>12.0-SNAPSHOT</version>
   </parent>
 
-  <groupId>com.hyland.hxpr</groupId>
-  <artifactId>hxpr-community-server</artifactId>
+  <artifactId>openarch-server</artifactId>
   <packaging>pom</packaging>
-  <name>HxPR Community Server</name>
+  <name>OpenArch Server</name>
 
   <modules>
     <module>openarch-server-common</module>
