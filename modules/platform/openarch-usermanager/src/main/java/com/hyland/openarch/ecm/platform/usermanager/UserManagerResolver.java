@@ -33,7 +33,7 @@ import com.hyland.openarch.runtime.api.Framework;
 /**
  * This {@link ObjectResolver} allows to manage integrity for fields containing group or user references.
  * <p>
- * References should have a prefix. NuxeoPrincipal.PREFIX for users, NuxeoGroup.PREFIX for groups.
+ * References should have a prefix. RepositoryPrincipal.PREFIX for users, RepositoryGroup.PREFIX for groups.
  * </p>
  * <p>
  * If only user or group are configured, the prefix is not needed but still supported. If noth user and group are

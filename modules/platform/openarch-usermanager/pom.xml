@@ -8,7 +8,7 @@
   </parent>
 
   <artifactId>openarch-usermanager</artifactId>
-  <name>HxPR User Manager</name>
+  <name>OpenArch User Manager</name>
 
   <properties>
     <manifest.file>src/main/resources/META-INF/MANIFEST.MF</manifest.file>

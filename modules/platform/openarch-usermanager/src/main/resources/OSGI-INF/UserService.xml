@@ -102,8 +102,6 @@
       The userPasswordPattern format is specified by java.util.regex.Pattern.
       <p />
       The values for users listingMode are: "all", "tabbed", "search_only".
-      (These values are defined in
-      org.nuxeo.ecm.webapp.security.UserManagerActionsBean.)
       <p />
       The values for groups listingMode are: "all" and "search_only".
     </documentation>

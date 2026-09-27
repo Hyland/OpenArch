@@ -9,7 +9,7 @@ Bundle-Name: OpenArch User Manager Module
 Bundle-Localization: plugin
 Created-By: 1.6.0_20 (Sun Microsystems Inc.)
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Bundle-Vendor: Nuxeo
+Bundle-Vendor: Hyland
 Eclipse-LazyStart: false
 Bundle-Version: 0.0.0.SNAPSHOT
 Nuxeo-Component: OSGI-INF/UserService.xml,
@@ -22,8 +22,6 @@ Import-Package: org.apache.commons.logging,
  com.hyland.openarch.ecm.core.api;api=split,
  com.hyland.openarch.ecm.core.api.impl,
  com.hyland.openarch.ecm.core.api.security,
- org.nuxeo.ecm.directory;api=split,
- org.nuxeo.ecm.directory.api,
  com.hyland.openarch.ecm.platform.usermanager.exceptions,
  com.hyland.openarch.runtime,
  com.hyland.openarch.runtime.api,
