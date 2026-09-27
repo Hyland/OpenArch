@@ -8,7 +8,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>openarch-vocabularies</artifactId>
-  <name>HxPR Definition of Vocabularies</name>
+  <name>OpenArch Definition of Vocabularies</name>
 
   <properties>
     <manifest.file>src/main/resources/META-INF/MANIFEST.MF</manifest.file>
