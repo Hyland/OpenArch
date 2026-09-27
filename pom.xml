@@ -2,13 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.hyland.hxpr</groupId>
-  <artifactId>hxpr-community-internal-parent</artifactId>
+  <artifactId>openarch-parent</artifactId>
   <version>12.0-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <name>HxPR Community Internal Parent</name>
+  <name>OpenArch Parent</name>
 
   <inceptionYear>2026</inceptionYear>
-  <url>https://github.com/HylandSoftware/hxpr-community-internal</url>
+  <url>https://github.com/Hyland/OpenArch</url>
   <organization>
     <name>Hyland Software Inc.</name>
     <url>https://www.hyland.com</url>
@@ -164,7 +164,7 @@
 
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
-        <artifactId>hxpr-community-internal-parent</artifactId>
+        <artifactId>openarch-parent</artifactId>
         <type>zip</type>
         <classifier>tools</classifier>
         <version>${project.version}</version>
