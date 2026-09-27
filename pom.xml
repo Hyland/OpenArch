@@ -525,7 +525,7 @@
       </dependency>
       <dependency>
         <groupId>com.hyland.hxpr</groupId>
-        <artifactId>hxpr-usermanager-test</artifactId>
+        <artifactId>openarch-usermanager-test</artifactId>
         <version>${project.version}</version>
         <scope>test</scope>
       </dependency>
