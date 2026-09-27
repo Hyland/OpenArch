@@ -29,7 +29,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 
 import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
-import org.nuxeo.ecm.platform.usermanager.UserManager;
+import com.hyland.openarch.ecm.platform.usermanager.UserManager;
 import com.hyland.openarch.rest.swagger.annotation.ApiResponse200;
 import com.hyland.openarch.rest.swagger.annotation.ApiResponse400;
 import com.hyland.openarch.rest.swagger.annotation.ApiResponse404;

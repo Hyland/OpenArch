@@ -15,7 +15,7 @@
  */
 package com.hyland.openarch.ecm.platform.test;
 
-import org.nuxeo.ecm.platform.usermanager.UserManager;
+import com.hyland.openarch.ecm.platform.usermanager.UserManager;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;

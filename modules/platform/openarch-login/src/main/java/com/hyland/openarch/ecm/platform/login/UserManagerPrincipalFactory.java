@@ -20,8 +20,8 @@ import java.security.Principal;
 import javax.security.auth.login.LoginException;
 
 import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
-import org.nuxeo.ecm.platform.usermanager.RepositoryPrincipalImpl;
-import org.nuxeo.ecm.platform.usermanager.UserManager;
+import com.hyland.openarch.ecm.platform.usermanager.RepositoryPrincipalImpl;
+import com.hyland.openarch.ecm.platform.usermanager.UserManager;
 import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.api.login.PrincipalFactory;
 

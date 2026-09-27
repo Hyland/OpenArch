@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <component name="org.nuxeo.ecm.platform.usermanager.test">
 
-  <extension target="org.nuxeo.ecm.platform.usermanager.UserService"
+  <extension target="com.hyland.openarch.ecm.platform.usermanager.UserService"
     point="userManager">
     <userManager class="com.hyland.openarch.ecm.platform.test.UserManagerMock" />
   </extension>

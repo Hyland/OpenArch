@@ -34,7 +34,7 @@ import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.RenditionException;
 import com.hyland.openarch.ecm.core.schema.validation.ValidationException;
 import com.hyland.openarch.ecm.core.schema.validation.violations.ValidationViolation;
-import org.nuxeo.ecm.platform.usermanager.UserManager;
+import com.hyland.openarch.ecm.platform.usermanager.UserManager;
 import com.hyland.openarch.rest.validation.io.ValidationErrorDTO;
 import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.springboot.security.SpringSecurityHelper;

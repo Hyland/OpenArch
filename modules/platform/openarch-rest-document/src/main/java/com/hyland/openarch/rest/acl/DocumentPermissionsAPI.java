@@ -45,7 +45,7 @@ import com.hyland.openarch.ecm.core.api.security.ACE;
 import com.hyland.openarch.ecm.core.api.security.SecurityConstants;
 import com.hyland.openarch.ecm.core.repository.RepositoryService;
 import com.hyland.openarch.ecm.core.security.SecurityService;
-import org.nuxeo.ecm.platform.usermanager.UserManager;
+import com.hyland.openarch.ecm.platform.usermanager.UserManager;
 import com.hyland.openarch.rest.document.AbstractDocumentAPI;
 import com.hyland.openarch.rest.document.DocumentManager;
 import com.hyland.openarch.rest.swagger.annotation.ApiResponse200;

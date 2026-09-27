@@ -161,7 +161,7 @@
     <!-- HxPR Platform -->
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-usermanager</artifactId>
+      <artifactId>openarch-usermanager</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

@@ -71,7 +71,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-usermanager</artifactId>
+      <artifactId>openarch-usermanager</artifactId>
       <scope>compile</scope>
     </dependency>
     <dependency>

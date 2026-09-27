@@ -18,13 +18,14 @@ package com.hyland.openarch.ecm.platform.login.filestore;
 import java.lang.reflect.Method;
 
 import com.hyland.openarch.ecm.core.api.local.WithUser;
+import com.hyland.openarch.ecm.platform.usermanager.UserManager;
 import com.hyland.openarch.runtime.springboot.junit.security.MockAuthenticationSupport;
 import com.hyland.openarch.runtime.test.runner.Deploy;
 import com.hyland.openarch.runtime.test.runner.FeaturesLoader;
 import com.hyland.openarch.runtime.test.runner.RunnerFeature;
 
 /**
- * Test feature that provides the file-based {@link org.nuxeo.ecm.platform.usermanager.UserManager} implementation
+ * Test feature that provides the file-based {@link UserManager} implementation
  * ({@link UserManagerFileStore}) for tests that exercise the community profile.
  * <p>
  * Use this feature as a drop-in replacement for

@@ -29,8 +29,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 import com.hyland.openarch.ecm.core.api.RepositoryGroup;
 import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
-import org.nuxeo.ecm.platform.usermanager.RepositoryGroupImpl;
-import org.nuxeo.ecm.platform.usermanager.RepositoryPrincipalImpl;
+import com.hyland.openarch.ecm.platform.usermanager.RepositoryGroupImpl;
+import com.hyland.openarch.ecm.platform.usermanager.RepositoryPrincipalImpl;
 
 /**
  * Immutable in-memory snapshot of all users and groups loaded from the YAML user-store file.

@@ -17,7 +17,7 @@
     <module>openarch-platform-test</module>
     <module>openarch-rest-common</module>
     <module>openarch-rest-document</module>
-    <module>hxpr-usermanager</module>
+    <module>openarch-usermanager</module>
     <module>hxpr-usermanager-test</module>
     <module>openarch-vocabularies</module>
   </modules>

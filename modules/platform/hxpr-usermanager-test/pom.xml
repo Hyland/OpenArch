@@ -18,7 +18,7 @@
     <!-- compile scope: needed by main sources (AbstractUserManagerResolverTestCase) -->
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-usermanager</artifactId>
+      <artifactId>openarch-usermanager</artifactId>
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
@@ -44,7 +44,7 @@
     <!-- test scope: needed by UserManagerResolverCommunityTest -->
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-usermanager</artifactId>
+      <artifactId>openarch-usermanager</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>

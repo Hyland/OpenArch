@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <component name="com.hyland.openarch.ecm.platform.login.filestore.UserManagerFileStore">
 
-  <extension target="org.nuxeo.ecm.platform.usermanager.UserService" point="userManager">
+  <extension target="com.hyland.openarch.ecm.platform.usermanager.UserService" point="userManager">
     <userManager class="com.hyland.openarch.ecm.platform.login.filestore.UserManagerFileStore" priority="999"/>
   </extension>
 

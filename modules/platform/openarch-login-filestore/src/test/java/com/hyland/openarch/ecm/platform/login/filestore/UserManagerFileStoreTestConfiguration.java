@@ -17,7 +17,7 @@ package com.hyland.openarch.ecm.platform.login.filestore;
 
 import com.hyland.openarch.runtime.springboot.junit.security.MockAuthenticationSupport;
 import com.hyland.openarch.ecm.platform.login.filestore.config.FileStoreUsersProperties;
-import org.nuxeo.ecm.platform.usermanager.UserManager;
+import com.hyland.openarch.ecm.platform.usermanager.UserManager;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.TestConfiguration;

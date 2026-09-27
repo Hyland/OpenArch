@@ -19,6 +19,7 @@ import java.lang.reflect.Method;
 
 import com.hyland.openarch.ecm.core.api.local.WithUser;
 import com.hyland.openarch.ecm.core.cache.InMemoryCacheFeature;
+import com.hyland.openarch.ecm.platform.usermanager.UserManager;
 import com.hyland.openarch.runtime.test.runner.Deploy;
 import com.hyland.openarch.runtime.test.runner.Features;
 import com.hyland.openarch.runtime.springboot.junit.security.MockAuthenticationSupport;
@@ -26,7 +27,7 @@ import com.hyland.openarch.runtime.test.runner.FeaturesLoader;
 import com.hyland.openarch.runtime.test.runner.RunnerFeature;
 
 /**
- * Test feature that provides an in-memory {@link org.nuxeo.ecm.platform.usermanager.UserManager} implementation
+ * Test feature that provides an in-memory {@link UserManager} implementation
  * ({@link UserManagerMock}) for community/platform tests that must not depend on {@code hxpr-login-hxp}.
  * <p>
  * Use this feature instead of {@code UserManagerFeature} wherever a real IdP connection is not needed.

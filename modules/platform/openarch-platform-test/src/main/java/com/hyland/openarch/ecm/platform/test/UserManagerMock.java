@@ -25,10 +25,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 import com.hyland.openarch.ecm.core.api.RepositoryGroup;
 import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
-import org.nuxeo.ecm.platform.usermanager.RepositoryGroupImpl;
-import org.nuxeo.ecm.platform.usermanager.RepositoryPrincipalImpl;
-import org.nuxeo.ecm.platform.usermanager.UserManager;
-import org.nuxeo.ecm.platform.usermanager.UserManagerDescriptor;
+import com.hyland.openarch.ecm.platform.usermanager.RepositoryGroupImpl;
+import com.hyland.openarch.ecm.platform.usermanager.RepositoryPrincipalImpl;
+import com.hyland.openarch.ecm.platform.usermanager.UserManager;
+import com.hyland.openarch.ecm.platform.usermanager.UserManagerDescriptor;
 
 /**
  * In-memory {@link UserManager} implementation for use in community/platform tests.

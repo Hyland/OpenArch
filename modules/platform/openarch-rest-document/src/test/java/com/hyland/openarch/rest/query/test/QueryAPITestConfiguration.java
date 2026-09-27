@@ -16,7 +16,7 @@
 package com.hyland.openarch.rest.query.test;
 
 import org.mockito.Mockito;
-import org.nuxeo.ecm.platform.usermanager.UserManager;
+import com.hyland.openarch.ecm.platform.usermanager.UserManager;
 import com.hyland.openarch.rest.acl.ACEMapper;
 import com.hyland.openarch.rest.acl.ACLMapper;
 import com.hyland.openarch.rest.document.DocumentManager;

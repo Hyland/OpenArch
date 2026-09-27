@@ -20,8 +20,8 @@ import java.util.List;
 import com.hyland.openarch.ecm.core.api.RepositoryGroup;
 import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.platform.login.filestore.store.UserStore;
-import org.nuxeo.ecm.platform.usermanager.UserManager;
-import org.nuxeo.ecm.platform.usermanager.UserManagerDescriptor;
+import com.hyland.openarch.ecm.platform.usermanager.UserManager;
+import com.hyland.openarch.ecm.platform.usermanager.UserManagerDescriptor;
 import com.hyland.openarch.runtime.springboot.framework.ApplicationContextHelper;
 
 /**

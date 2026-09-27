@@ -20,7 +20,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-usermanager</artifactId>
+      <artifactId>openarch-usermanager</artifactId>
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>

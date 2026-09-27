@@ -31,7 +31,7 @@ import com.hyland.openarch.ecm.core.api.RepositoryGroup;
 import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.security.ACE;
 import com.hyland.openarch.ecm.core.api.security.SecurityConstants;
-import org.nuxeo.ecm.platform.usermanager.UserManager;
+import com.hyland.openarch.ecm.platform.usermanager.UserManager;
 import com.hyland.openarch.rest.user.GroupDTO;
 import com.hyland.openarch.rest.user.UserDTO;
 import com.hyland.openarch.runtime.api.Framework;
