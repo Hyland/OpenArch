@@ -201,7 +201,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-vocabularies</artifactId>
+      <artifactId>openarch-vocabularies</artifactId>
       <version>${project.version}</version>
     </dependency>
 

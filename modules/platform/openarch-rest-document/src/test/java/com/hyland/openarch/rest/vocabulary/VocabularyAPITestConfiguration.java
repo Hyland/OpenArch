@@ -15,8 +15,8 @@
  */
 package com.hyland.openarch.rest.vocabulary;
 
-import org.nuxeo.ecm.platform.vocabulary.InternalVocabularyMapper;
-import org.nuxeo.ecm.platform.vocabulary.VocabularyService;
+import com.hyland.openarch.ecm.platform.vocabulary.InternalVocabularyMapper;
+import com.hyland.openarch.ecm.platform.vocabulary.VocabularyService;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Import;
 

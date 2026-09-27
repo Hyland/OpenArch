@@ -24,10 +24,10 @@ import static com.hyland.openarch.ecm.core.api.VocabularyConstants.VOCABULARY_LA
 
 import org.junit.jupiter.api.Test;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
-import org.nuxeo.ecm.platform.vocabulary.model.CreateVocabulary;
-import org.nuxeo.ecm.platform.vocabulary.model.CreateVocabularyEntry;
-import org.nuxeo.ecm.platform.vocabulary.model.VocabularyEntryWrapper;
-import org.nuxeo.ecm.platform.vocabulary.model.VocabularyWrapper;
+import com.hyland.openarch.ecm.platform.vocabulary.model.CreateVocabulary;
+import com.hyland.openarch.ecm.platform.vocabulary.model.CreateVocabularyEntry;
+import com.hyland.openarch.ecm.platform.vocabulary.model.VocabularyEntryWrapper;
+import com.hyland.openarch.ecm.platform.vocabulary.model.VocabularyWrapper;
 import com.hyland.openarch.rest.document.test.AbstractAPITest;
 import com.hyland.openarch.rest.vocabulary.io.VocabularyDTO;
 import com.hyland.openarch.rest.vocabulary.io.VocabularyEntryRequestDTO;

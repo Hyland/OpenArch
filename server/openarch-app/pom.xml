@@ -159,7 +159,7 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-vocabularies</artifactId>
+      <artifactId>openarch-vocabularies</artifactId>
     </dependency>
 
     <dependency>

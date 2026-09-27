@@ -18,7 +18,7 @@ package com.hyland.openarch.rest.vocabulary;
 
 import java.util.List;
 
-import org.nuxeo.ecm.platform.vocabulary.VocabularyService;
+import com.hyland.openarch.ecm.platform.vocabulary.VocabularyService;
 import com.hyland.openarch.rest.vocabulary.io.VocabularyDTO;
 import com.hyland.openarch.rest.vocabulary.io.VocabularyEntryRequestDTO;
 import com.hyland.openarch.rest.vocabulary.io.VocabularyEntryResponseDTO;
