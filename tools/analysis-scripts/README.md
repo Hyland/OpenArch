@@ -11,7 +11,7 @@ This directory contains various scripts for analyzing test execution and managin
 - **Usage**: Run after test execution to analyze and optimize sharding
 
 ```bash
-python3 development-files/analysis-scripts/generate_shards.py --target-shards 7 --output integration-shards.json
+python3 tools/analysis-scripts/generate_shards.py --target-shards 7 --output integration-shards.json
 ```
 
 ### `surefire_analysis.py`
