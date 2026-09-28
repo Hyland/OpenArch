@@ -19,7 +19,6 @@ Created-By: 1.6.0_20 (Sun Microsystems Inc.)
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: com.hyland.openarch.ecm.core.api;visibility:=reexport,
  com.hyland.openarch.ecm.core.event
-Bundle-Version: 5.4.2.qualifier
 Nuxeo-Component: OSGI-INF/RepositoryService.xml,
   OSGI-INF/dbs-repository-service.xml,
   OSGI-INF/CoreExtensions.xml,

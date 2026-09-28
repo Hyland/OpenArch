@@ -7,7 +7,6 @@ Bundle-Category: runtime
 Bundle-Name: com.hyland.openarch.runtime.management
 Created-By: 1.6.0_20 (Sun Microsystems Inc.)
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Bundle-Version: 5.4.2.qualifier
 Bundle-ManifestVersion: 2
 Nuxeo-Component: OSGI-INF/management-resource-publisher-service.xml,
  OSGI-INF/management-server-locator-service.xml,

@@ -1,5 +1,4 @@
 Manifest-Version: 1.0
-Bundle-Version: 1.0.0
 Bundle-ManifestVersion: 1
 Bundle-Name: OpenArch Runtime MongoDB
 Bundle-SymbolicName: com.hyland.openarch.runtime.mongodb;singleton:=true

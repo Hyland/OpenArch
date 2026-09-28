@@ -1,7 +1,6 @@
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
 Manifest-Version: 1.0
-Bundle-Version: 0.0.0.SNAPSHOT
 Bundle-Name: OpenArch FileStore Login Module
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: com.hyland.openarch.ecm.platform.login.filestore;singleton:=true

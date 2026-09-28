@@ -32,7 +32,6 @@ Manifest-Version: 1.0
 Bundle-Name: com.hyland.openarch.ecm.core.api
 Created-By: 1.6.0_20 (Sun Microsystems Inc.)
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Bundle-Version: 5.4.2.qualifier
 Bundle-ManifestVersion: 2
 Nuxeo-Component: OSGI-INF/RepositoryManager.xml,
   OSGI-INF/DocumentValidationService.xml,

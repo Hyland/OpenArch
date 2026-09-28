@@ -14,7 +14,6 @@ Manifest-Version: 1.0
 Bundle-Name: OpenArch Common
 Created-By: 1.6.0_20 (Sun Microsystems Inc.)
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Bundle-Version: 5.4.2.qualifier
 Eclipse-BuddyPolicy: registered
 Bundle-ManifestVersion: 2
 Import-Package: javax.naming,
