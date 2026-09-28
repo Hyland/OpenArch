@@ -2,14 +2,14 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.hyland.openarch</groupId>
-    <artifactId>community-sonarcloud-modules</artifactId>
+    <artifactId>openarch-sonarcloud-modules</artifactId>
     <version>12.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>community-report-aggregate</artifactId>
+  <artifactId>openarch-report-aggregate</artifactId>
   <packaging>pom</packaging>
-  <name>Community Test Coverage Aggregrate Report</name>
-  <description>Aggregates the coverate report from our individual hxpr-community modules</description>
+  <name>OpenArch Test Coverage Aggregrate Report</name>
+  <description>Aggregates the coverage report from our individual OpenArch modules</description>
 
   <dependencies>
     <!-- Modules -->

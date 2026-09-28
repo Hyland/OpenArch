@@ -6,9 +6,9 @@
       <version>12.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>community-sonarcloud-modules</artifactId>
+    <artifactId>openarch-sonarcloud-modules</artifactId>
     <packaging>pom</packaging>
-    <name>Community SonarCloud Modules</name>
+    <name>OpenArch SonarCloud Modules</name>
 
     <modules>
       <module>report-aggregate</module>
