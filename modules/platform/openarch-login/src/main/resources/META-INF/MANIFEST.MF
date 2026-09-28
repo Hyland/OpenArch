@@ -28,4 +28,4 @@ Import-Package: javax.annotation;version="1.0",
 Bundle-SymbolicName: com.hyland.openarch.ecm.platform.login
 Eclipse-RegisterBuddy: com.hyland.openarch.runtime
 Eclipse-BuddyPolicy: registered
-Nuxeo-Component: OSGI-INF/login-as-contrib.xml
+Repository-Component: OSGI-INF/login-as-contrib.xml

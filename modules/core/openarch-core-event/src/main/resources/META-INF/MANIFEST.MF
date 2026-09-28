@@ -35,7 +35,7 @@ Import-Package: javax.naming,
  com.hyland.openarch.runtime,
  com.codahale.metrics
 Bundle-SymbolicName: com.hyland.openarch.ecm.core.event;singleton:=true
-Nuxeo-Component: OSGI-INF/EventService.xml,
+Repository-Component: OSGI-INF/EventService.xml,
  OSGI-INF/scheduler-service.xml,
  OSGI-INF/event-async-tasks-contrib.xml,
  OSGI-INF/document-event-raiser-service.xml,

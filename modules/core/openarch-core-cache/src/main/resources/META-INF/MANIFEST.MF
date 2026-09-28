@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: com.hyland.openarch.ecm.core.cache
-Nuxeo-Component: OSGI-INF/CacheService.xml,
+Repository-Component: OSGI-INF/CacheService.xml,
  OSGI-INF/cache-config.xml,
  OSGI-INF/transientstore-service.xml,
  OSGI-INF/transientstore-config.xml

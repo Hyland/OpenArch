@@ -5,7 +5,7 @@ Import-Package: com.hyland.openarch.common,
  com.hyland.openarch.osgi,
  com.hyland.openarch.runtime,
  org.osgi.framework
-Nuxeo-Component: MyComp4.xml,
+Repository-Component: MyComp4.xml,
  invalid-xml.xml,
  invalid-xml-other.xml,
  invalid-file.xml,

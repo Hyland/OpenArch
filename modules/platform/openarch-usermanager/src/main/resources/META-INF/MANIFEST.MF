@@ -10,7 +10,7 @@ Bundle-Localization: plugin
 Created-By: 1.6.0_20 (Sun Microsystems Inc.)
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Eclipse-LazyStart: false
-Nuxeo-Component: OSGI-INF/UserService.xml,
+Repository-Component: OSGI-INF/UserService.xml,
  OSGI-INF/usermanager-resolver-contrib.xml
 Bundle-ManifestVersion: 2
 Import-Package: org.apache.commons.logging,

@@ -1,4 +1,4 @@
 Manifest-Version: 1.0
 Bundle-Name: Vocabularies Feature
 Bundle-SymbolicName: com.hyland.openarch.ecm.platform.vocabularies;singleton:=true
-Nuxeo-Component: OSGI-INF/vocabulary-resolver-contrib.xml
+Repository-Component: OSGI-INF/vocabulary-resolver-contrib.xml

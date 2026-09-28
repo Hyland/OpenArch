@@ -4,4 +4,4 @@ Manifest-Version: 1.0
 Bundle-Name: OpenArch FileStore Login Module
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: com.hyland.openarch.ecm.platform.login.filestore;singleton:=true
-Nuxeo-Component: OSGI-INF/usermanager-filestore-config.xml
+Repository-Component: OSGI-INF/usermanager-filestore-config.xml

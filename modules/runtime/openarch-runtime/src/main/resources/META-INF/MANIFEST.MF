@@ -27,7 +27,7 @@ Bundle-Name: OpenArch Runtime
 Created-By: 1.6.0_20 (Sun Microsystems Inc.)
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Eclipse-BuddyPolicy: registered
-Nuxeo-Component: OSGI-INF/EventService.xml,
+Repository-Component: OSGI-INF/EventService.xml,
  OSGI-INF/login-service.xml,
  OSGI-INF/FileEventTracker.xml,
  OSGI-INF/FileEventTrackerConfig.xml

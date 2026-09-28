@@ -2,4 +2,4 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 1
 Bundle-Name: OpenArch MongoDB Core
 Bundle-SymbolicName: com.hyland.openarch.ecm.core.mongodb;singleton:=true
-Nuxeo-Component: OSGI-INF/mongodb-kvstore-config.xml
+Repository-Component: OSGI-INF/mongodb-kvstore-config.xml

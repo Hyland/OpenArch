@@ -26,4 +26,4 @@ Import-Package: javax.annotation,
  com.hyland.openarch.runtime.transaction,
  org.osgi.framework
 Bundle-SymbolicName: com.hyland.openarch.runtime.jtajca;singleton:=true
-Nuxeo-Component: OSGI-INF/JtaActivator.xml
+Repository-Component: OSGI-INF/JtaActivator.xml

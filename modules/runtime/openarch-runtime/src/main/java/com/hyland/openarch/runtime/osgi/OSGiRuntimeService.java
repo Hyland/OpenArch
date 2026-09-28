@@ -341,7 +341,7 @@ public class OSGiRuntimeService implements RuntimeService, FrameworkListener {
     }
 
     public static String getComponentsList(Bundle bundle) {
-        return bundle.getHeaders().get("Nuxeo-Component");
+        return bundle.getHeaders().get("Repository-Component");
     }
 
     private void loadConfig() throws IOException {

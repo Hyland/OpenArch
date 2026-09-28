@@ -33,7 +33,7 @@ Bundle-Name: com.hyland.openarch.ecm.core.api
 Created-By: 1.6.0_20 (Sun Microsystems Inc.)
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ManifestVersion: 2
-Nuxeo-Component: OSGI-INF/RepositoryManager.xml,
+Repository-Component: OSGI-INF/RepositoryManager.xml,
   OSGI-INF/DocumentValidationService.xml,
   OSGI-INF/DocumentValidationService-activation.xml,
   OSGI-INF/blob-service.xml,

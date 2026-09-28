@@ -40,7 +40,7 @@ public final class BundleManifestReader {
 
     private static final Pattern PARAMS_PATTERN = Pattern.compile("\\s*([^:\\s]+)\\s*:=\\s*([^;\\s]+)\\s*;?");
 
-    public static final String REPOSITORY_COMPONENT = "Nuxeo-Component";
+    public static final String REPOSITORY_COMPONENT = "Repository-Component";
 
     // Utility class
     private BundleManifestReader() {

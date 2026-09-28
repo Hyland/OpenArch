@@ -1,4 +1,4 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: com.hyland.openarch.runtime.pubsub
-Nuxeo-Component: OSGI-INF/pubsub-service.xml
+Repository-Component: OSGI-INF/pubsub-service.xml
