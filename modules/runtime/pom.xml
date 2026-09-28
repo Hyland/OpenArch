@@ -16,7 +16,7 @@
     <module>openarch-config</module>
     <module>openarch-runtime</module>
     <module>openarch-runtime-cluster-api</module>
-    <module>hxpr-runtime-idempotency</module>
+    <module>openarch-runtime-idempotency</module>
     <module>openarch-runtime-jtajca</module>
     <module>openarch-runtime-kv</module>
     <module>openarch-runtime-management</module>

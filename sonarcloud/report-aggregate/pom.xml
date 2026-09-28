@@ -61,8 +61,8 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.hyland.hxpr</groupId>
-      <artifactId>hxpr-runtime-idempotency</artifactId>
+      <groupId>com.hyland.openarch</groupId>
+      <artifactId>openarch-runtime-idempotency</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

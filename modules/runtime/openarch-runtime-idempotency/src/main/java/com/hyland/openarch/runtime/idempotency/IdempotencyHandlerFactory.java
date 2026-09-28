@@ -30,15 +30,15 @@ public final class IdempotencyHandlerFactory {
 
     public static final long DEFAULT_TTL_SECONDS = TimeUnit.HOURS.toSeconds(24);
 
-    public static final String DEFAULT_STORE_NAME = "hxpr-idempotency";
+    public static final String DEFAULT_STORE_NAME = "openarch-idempotency";
 
     public static final String DEFAULT_IDEMPOTENCY_NAMESPACE = "idempotency:";
 
-    public static final String DEFAULT_IDEMPOTENCY_KEY_PREFIX = "hxpr:idem";
+    public static final String DEFAULT_IDEMPOTENCY_KEY_PREFIX = "openarch:idem";
 
     public static final String DEFAULT_IDEMPOTENCY_DEFAULT_TENANT = "default";
 
-    public static final String IDEMPOTENCY_TENANT_PROPERTY = "hxpr.idempotency.tenant-id";
+    public static final String IDEMPOTENCY_TENANT_PROPERTY = "openarch.idempotency.tenant-id";
 
 
     private IdempotencyHandlerFactory() {

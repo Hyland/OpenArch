@@ -124,7 +124,7 @@ class IdempotencyHandlerFactoryTest {
     @DisplayName("default constants expose the documented defaults")
     void defaultConstants_matchDocumentedValues() {
         assertEquals(TimeUnit.HOURS.toSeconds(24), IdempotencyHandlerFactory.DEFAULT_TTL_SECONDS);
-        assertEquals("hxpr-idempotency", DEFAULT_STORE_NAME);
+        assertEquals("openarch-idempotency", DEFAULT_STORE_NAME);
     }
 
 }

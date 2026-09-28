@@ -2,6 +2,6 @@
 
 <component name="com.hyland.openarch.runtime.idempotency.kv-store">
   <extension target="com.hyland.openarch.runtime.kv.KeyValueService" point="configuration">
-    <store name="hxpr-idempotency" class="com.hyland.openarch.ecm.core.mongodb.kv.MongoDBKeyValueStore" />
+    <store name="openarch-idempotency" class="com.hyland.openarch.ecm.core.mongodb.kv.MongoDBKeyValueStore" />
   </extension>
 </component>

@@ -1,6 +1,6 @@
-# HxPR Runtime Idempotency
+# OpenArch Runtime Idempotency
 
-Idempotency support for HxPR operations using a key-value store backend.
+Idempotency support for OpenArch operations using a key-value store backend.
 
 ## Purpose
 
@@ -11,7 +11,7 @@ Ensures that state-mutating operations are executed at most once, even when call
 - **Idempotent operation execution** - Cache results based on idempotency keys
 - **Failure recording** - Cache and replay exceptions to maintain consistency
 - **Configurable TTL** - Control how long results are cached (default: 24 hours)
-- **KeyValueService backend** - Uses the existing HxPR key-value store infrastructure
+- **KeyValueService backend** - Uses the existing OpenArch key-value store infrastructure
 
 ## Architecture
 
@@ -25,8 +25,8 @@ Ensures that state-mutating operations are executed at most once, even when call
 ### Dependency Flow
 
 ```
-hxpr-commands → hxpr-runtime-idempotency → hxpr-runtime-kv
-hxpr-async-tasks-aws → hxpr-runtime-idempotency → hxpr-runtime-kv
+hxpr-commands → openarch-runtime-idempotency → hxpr-runtime-kv
+hxpr-async-tasks-aws → openarch-runtime-idempotency → hxpr-runtime-kv
 ```
 
 ## Usage
@@ -70,7 +70,7 @@ configurable property today is the tenant id used when building idempotency keys
 `application.properties`:
 
 ```properties
-hxpr.idempotency.tenant-id=default
+openarch.idempotency.tenant-id=default
 ```
 
 ## Testing
@@ -78,7 +78,7 @@ hxpr.idempotency.tenant-id=default
 Run unit tests:
 
 ```bash
-mvn test -pl community/modules/runtime/hxpr-runtime-idempotency
+mvn test -pl community/modules/runtime/openarch-runtime-idempotency
 ```
 
 Tests verify:
