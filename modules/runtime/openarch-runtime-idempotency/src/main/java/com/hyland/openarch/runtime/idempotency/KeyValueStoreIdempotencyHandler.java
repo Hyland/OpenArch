@@ -108,9 +108,9 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
             IdempotentOperation<T> operation) {
         String cacheKey = getCacheKey(key);
 
-        ClaimOutcome<T> claim = claimOrAwaitCached(cacheKey, key);
+        ClaimOutcome claim = claimOrAwaitCached(cacheKey, key);
         if (claim.cachedResult() != null) {
-            log.debug("Idempotency cache hit for key={}", key);
+            log.debug("Idempotency cache hit for key={}", sanitizeForLog(key));
             @SuppressWarnings("unchecked")
             T value = (T) unwrap(claim.cachedResult(), resultType);
             return new Outcome<>(value, true);
@@ -131,7 +131,7 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
             result = operation.execute();
         } catch (RuntimeException e) {
             persistQuietly(cacheKey, key, ownerMarker, IdempotencyOutput.failure(e));
-            log.debug("Idempotency cache stored failure for key={}", key);
+            log.debug("Idempotency cache stored failure for key={}", sanitizeForLog(key));
             throw e;
         }
         publishSuccess(cacheKey, key, ownerMarker, result);
@@ -150,12 +150,12 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
             successResult = IdempotencyOutput.success(jsonNode, result.getClass().getName());
         } catch (JacksonException e) {
             log.error("Idempotency result for key={} could not be converted to JSON; releasing the claim without "
-                    + "caching, at-most-once is not guaranteed for this call", key, e);
+                    + "caching, at-most-once is not guaranteed for this call", sanitizeForLog(key), e);
             releaseClaim(cacheKey, ownerMarker);
             return;
         }
         persistQuietly(cacheKey, key, ownerMarker, successResult);
-        log.debug("Idempotency cache stored success for key={}", key);
+        log.debug("Idempotency cache stored success for key={}", sanitizeForLog(key));
     }
 
     /**
@@ -167,7 +167,7 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
             finalizeResult(cacheKey, ownerMarker, output);
         } catch (IdempotencyPersistenceException e) {
             log.error("Idempotency result for key={} could not be persisted; at-most-once is not "
-                    + "guaranteed for this call", key, e);
+                    + "guaranteed for this call", sanitizeForLog(key), e);
         }
     }
 
@@ -179,7 +179,7 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
         try {
             keyValueStore.compareAndSet(cacheKey, ownerMarker, null);
         } catch (RuntimeException e) {
-            log.warn("Failed to release idempotency claim for key={}: {}", cacheKey, e.getMessage());
+            log.warn("Failed to release idempotency claim for key={}: {}", sanitizeForLog(cacheKey), e.getMessage());
         }
     }
 
@@ -210,6 +210,16 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
     }
 
     /**
+     * Neutralizes characters that would let a client-supplied idempotency key forge or split log
+     * entries (CR, LF, and tab) before the value is interpolated into a log message. The
+     * idempotency key ultimately comes from an untrusted caller (e.g. the {@code Idempotency-Key}
+     * request header), so it must never be logged verbatim.
+     */
+    static String sanitizeForLog(String value) {
+        return value == null ? null : value.replaceAll("[\\r\\n\\t]", "_");
+    }
+
+    /**
      * Atomically claims {@code cacheKey} for exclusive execution, or returns the already-published
      * result if one exists.
      * <p>
@@ -220,7 +230,7 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
      * small buffer) for it to either publish a result or have its lease expire, throwing
      * {@link IdempotencyClaimTimeoutException} if neither happens in time.
      */
-    private <T extends Serializable> ClaimOutcome<T> claimOrAwaitCached(String cacheKey, String keyValue) {
+    private <T extends Serializable> ClaimOutcome claimOrAwaitCached(String cacheKey, String keyValue) {
         String ownerMarker = newClaimMarker();
         long deadlineNanos = System.nanoTime() + Duration.ofSeconds(leaseSeconds).toNanos()
                 + Duration.ofMillis(CLAIM_WAIT_BUFFER_MILLIS).toNanos();
@@ -277,7 +287,7 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
         if (!stored) {
             log.warn("Idempotency claim for key={} was reclaimed by another caller before this result could be "
                     + "finalized; discarding this outcome (the lease was too short for the operation's actual "
-                    + "duration)", cacheKey);
+                    + "duration)", sanitizeForLog(cacheKey));
             // Do NOT put(): the current value belongs to whoever reclaimed the key.
         }
     }
@@ -297,14 +307,14 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
      * Outcome of {@link #claimOrAwaitCached}: either an already-published result (cache hit), or a
      * fresh owner marker for a claim this call just won. Exactly one of the two fields is non-null.
      */
-    record ClaimOutcome<T extends Serializable>(IdempotencyOutput cachedResult, String ownerMarker) {
+    record ClaimOutcome(IdempotencyOutput cachedResult, String ownerMarker) {
 
-        static <T extends Serializable> ClaimOutcome<T> hit(IdempotencyOutput cachedResult) {
-            return new ClaimOutcome<>(cachedResult, null);
+        static <T extends Serializable> ClaimOutcome hit(IdempotencyOutput cachedResult) {
+            return new ClaimOutcome(cachedResult, null);
         }
 
-        static <T extends Serializable> ClaimOutcome<T> won(String ownerMarker) {
-            return new ClaimOutcome<>(null, ownerMarker);
+        static <T extends Serializable> ClaimOutcome won(String ownerMarker) {
+            return new ClaimOutcome(null, ownerMarker);
         }
 
         @Override
@@ -312,7 +322,7 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
             if (this == o) {
                 return true;
             }
-            if (!(o instanceof ClaimOutcome<?> other)) {
+            if (!(o instanceof ClaimOutcome other)) {
                 return false;
             }
             return Objects.equals(cachedResult, other.cachedResult) && Objects.equals(ownerMarker, other.ownerMarker);
@@ -413,7 +423,8 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
             }
             return null;
         } catch (RuntimeException e) {
-            log.warn("Failed to decode idempotency result from cache for key={}: {}", cacheKey, e.getMessage());
+            log.warn("Failed to decode idempotency result from cache for key={}: {}", sanitizeForLog(cacheKey),
+                    e.getMessage());
             return null;
         }
     }

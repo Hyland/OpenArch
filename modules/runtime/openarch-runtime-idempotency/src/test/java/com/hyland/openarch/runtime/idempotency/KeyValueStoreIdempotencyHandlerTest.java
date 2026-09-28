@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -48,6 +49,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.runtime.kv.KeyValueService;
 import com.hyland.openarch.runtime.kv.KeyValueStore;
 import com.hyland.openarch.runtime.kv.MemKeyValueStore;
@@ -488,6 +490,117 @@ class KeyValueStoreIdempotencyHandlerTest {
             throw new IllegalStateException("cannot serialize to JSON");
         }
 
+    }
+
+    @Test
+    @DisplayName("sanitizeForLog neutralizes CR, LF, and tab so a malicious key cannot forge or split log lines")
+    void sanitizeForLog_neutralizesCrLfAndTab() {
+        assertEquals("key__injected-fake-log-line_", KeyValueStoreIdempotencyHandler.sanitizeForLog(
+                "key\r\ninjected-fake-log-line\t"));
+        assertEquals("plain-key", KeyValueStoreIdempotencyHandler.sanitizeForLog("plain-key"));
+        assertNull(KeyValueStoreIdempotencyHandler.sanitizeForLog(null));
+    }
+
+    @Test
+    @DisplayName("execute with a key containing CR/LF still works and never propagates the raw control characters "
+            + "into the cache key used for logging")
+    void execute_withCrLfInKey_isHandledSafely() {
+        String maliciousKey = "attacker-key\r\nfake-log-entry=true";
+
+        Object result = handler.execute(maliciousKey, () -> "value").value();
+
+        assertEquals("value", result);
+        assertTrue(handler.isCached(maliciousKey));
+        String sanitizedCacheKey = KeyValueStoreIdempotencyHandler.sanitizeForLog(NAMESPACE + maliciousKey);
+        assertEquals("attacker-key__fake-log-entry=true", sanitizedCacheKey.substring(NAMESPACE.length()));
+    }
+
+    @Test
+    @DisplayName("a replayed RepositoryException failure preserves the original HTTP status code")
+    void execute_replaysRepositoryExceptionFailure_preservesHttpErrorCode() {
+        String key = "key-repository-exception";
+        RepositoryException original = new RepositoryException("conflict", 409);
+
+        RuntimeException firstThrown = assertThrows(RuntimeException.class, () -> handler.execute(key, () -> {
+            throw original;
+        }));
+        Object replayed = handler.execute(key, () -> "should not run").value();
+
+        assertSame(original, firstThrown);
+        IdempotencyException replayedException = assertInstanceOf(IdempotencyException.class, replayed);
+        assertEquals(original.getClass().getName(), replayedException.key());
+        assertEquals(original.getMessage(), replayedException.message());
+        assertEquals(409, replayedException.httpErrorCode());
+    }
+
+    @Test
+    @DisplayName("a cache hit whose recorded type can no longer be resolved throws IdempotencyPersistenceException "
+            + "instead of a raw ClassNotFoundException")
+    void execute_cacheHitWithUnresolvableTypename_throwsIdempotencyPersistenceException() {
+        String key = "key-unresolvable-typename";
+        String cacheKey = NAMESPACE + key;
+        String badTypeJson = "{\"pending\":false,\"__typename\":\"com.hyland.openarch.DoesNotExist\","
+                + "\"value\":{\"foo\":\"bar\"}}";
+        store.put(cacheKey, badTypeJson.getBytes(StandardCharsets.UTF_8), TTL_SECONDS);
+
+        assertThrows(KeyValueStoreIdempotencyHandler.IdempotencyPersistenceException.class,
+                () -> handler.execute(key, () -> "should not run"));
+    }
+
+    @Test
+    @DisplayName("a failure to release the claim after an unserializable result is logged but the result is still "
+            + "returned")
+    void execute_releaseClaimThrows_resultStillReturned() {
+        String key = "key-release-claim-throws";
+        String cacheKey = NAMESPACE + key;
+        KeyValueStore mockStore = mock(KeyValueStore.class);
+        when(mockStore.getString(cacheKey)).thenReturn(null);
+        when(mockStore.compareAndSet(eq(cacheKey), isNull(), anyString(), anyLong())).thenReturn(true);
+        when(mockStore.compareAndSet(eq(cacheKey), anyString(), isNull()))
+                .thenThrow(new RuntimeException("release failed"));
+        KeyValueStoreIdempotencyHandler mockHandler = handlerFor(mockStore);
+
+        UnserializableValue result = mockHandler.execute(key, UnserializableValue::new).value();
+
+        assertNotNull(result);
+        assertFalse(mockHandler.isCached(key));
+    }
+
+    @Test
+    @DisplayName("a syntactically valid but structurally unrecognized cache entry is ignored and the operation "
+            + "runs again")
+    void execute_unrecognizedJsonObjectShape_fallsBackToRunningOperation() {
+        String key = "key-unrecognized-shape";
+        String cacheKey = NAMESPACE + key;
+        store.put(cacheKey, "{}".getBytes(StandardCharsets.UTF_8));
+
+        String result = handler.execute(key, () -> "fresh-value").value();
+
+        assertEquals("fresh-value", result);
+    }
+
+    @Test
+    @DisplayName("a pending cache entry without a claimId is decoded without throwing")
+    void execute_pendingEntryWithoutClaimId_isHandledSafely() throws InterruptedException {
+        String key = "key-pending-no-claimid";
+        String cacheKey = NAMESPACE + key;
+        store.put(cacheKey, "{\"pending\":true}".getBytes(StandardCharsets.UTF_8), TTL_SECONDS);
+        AtomicReference<Throwable> caught = new AtomicReference<>();
+
+        Thread waiter = new Thread(() -> {
+            try {
+                handler.execute(key, () -> "should not run");
+            } catch (Throwable t) {
+                caught.set(t);
+            }
+        });
+        waiter.interrupt();
+        waiter.start();
+        waiter.join(TimeUnit.SECONDS.toMillis(10));
+
+        assertFalse(waiter.isAlive());
+        assertInstanceOf(IdempotencyClaimTimeoutException.class, caught.get());
+        assertInstanceOf(InterruptedException.class, caught.get().getCause());
     }
 
 }

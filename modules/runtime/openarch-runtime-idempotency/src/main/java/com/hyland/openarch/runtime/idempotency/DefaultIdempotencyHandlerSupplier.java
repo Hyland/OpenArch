@@ -19,6 +19,7 @@ import static com.hyland.openarch.runtime.idempotency.IdempotencyHandlerFactory.
 import static com.hyland.openarch.runtime.idempotency.IdempotencyHandlerFactory.DEFAULT_STORE_NAME;
 import static com.hyland.openarch.runtime.idempotency.IdempotencyHandlerFactory.DEFAULT_TTL_SECONDS;
 
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 import com.hyland.openarch.runtime.api.Framework;
@@ -32,7 +33,9 @@ import com.hyland.openarch.runtime.kv.KeyValueService;
  * {@link KeyValueService} is available (e.g. a Spring {@code @Component} created while the Spring
  * context starts up, or an OSGi {@code DefaultComponent} created before its {@code start()} runs).
  * The handler is therefore resolved on first use rather than at construction, and cached from then
- * on via double-checked locking.
+ * on in an {@link AtomicReference}. The factory call is cheap and side-effect-free, so under rare
+ * contention it may run more than once, but only one resulting instance is ever published and
+ * returned to all callers.
  * <p>
  * Each caller owns its own instance of this class; the underlying {@link IdempotencyHandler} it
  * resolves to is effectively shared across all callers because it is backed by the same default
@@ -40,23 +43,13 @@ import com.hyland.openarch.runtime.kv.KeyValueService;
  */
 public final class DefaultIdempotencyHandlerSupplier implements Supplier<IdempotencyHandler> {
 
-    private volatile IdempotencyHandler handler;
+    private final AtomicReference<IdempotencyHandler> handlerRef = new AtomicReference<>();
 
     @Override
     public IdempotencyHandler get() {
-        IdempotencyHandler current = handler;
-        if (current == null) {
-            synchronized (this) {
-                current = handler;
-                if (current == null) {
-                    KeyValueService keyValueService = Framework.getService(KeyValueService.class);
-                    current = IdempotencyHandlerFactory.create(keyValueService, DEFAULT_STORE_NAME, DEFAULT_IDEMPOTENCY_NAMESPACE,
-                            DEFAULT_TTL_SECONDS);
-                    handler = current;
-                }
-            }
-        }
-        return current;
+        return handlerRef.updateAndGet(current -> current != null ? current
+                : IdempotencyHandlerFactory.create(Framework.getService(KeyValueService.class), DEFAULT_STORE_NAME,
+                        DEFAULT_IDEMPOTENCY_NAMESPACE, DEFAULT_TTL_SECONDS));
     }
 
 }
