@@ -5,7 +5,7 @@ Manifest-Version: 1.0
 Bundle-Name: openarch-platform-test
 Created-By: 1.6.0_20 (Sun Microsystems Inc.)
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Bundle-Vendor: Leroy Merlin
+Bundle-Vendor: Hyland
 Bundle-Version: 0.0.0.SNAPSHOT
 Bundle-ManifestVersion: 2
 Import-Package: com.google.inject,
