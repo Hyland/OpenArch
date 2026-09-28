@@ -627,7 +627,6 @@ public class MongoDBConnection extends DBSConnectionBase {
         logQuery(filter, keys, orderBy, limit, offset);
 
         List<Map<String, Object>> projections;
-        long totalSize;
         try (MongoCursor<Document> cursor = find(filter).projection(keys)
                                                         .skip(offset)
                                                         .limit(limit)
@@ -651,46 +650,29 @@ public class MongoDBConnection extends DBSConnectionBase {
         } catch (MongoQueryException e) {
             throw newQueryFailure(e, filter);
         }
-        if (countUpTo == -1) {
-            // count full size
-            if (limit == 0) {
-                int psize = projections.size();
-                if (psize == 0) {
-                    totalSize = countDocuments(filter);
-                } else {
-                    totalSize = psize + (long) offset;
-                }
-            } else if (manualProjection) {
-                totalSize = -1; // unknown due to manual projection
-            } else {
-                totalSize = countDocuments(filter); // will return -2 if time out during count (e.g. too many results)
-            }
-        } else if (countUpTo == 0) {
-            // no count
-            totalSize = -1; // not counted
-        } else {
-            // count only if less than countUpTo
-            if (limit == 0) {
-                int psize = projections.size();
-                if (psize == 0) {
-                    totalSize = countDocuments(filter);
-                } else {
-                    totalSize = psize + (long) offset;
-                }
-            } else if (manualProjection) {
-                totalSize = -1; // unknown due to manual projection
-            } else {
-                totalSize = countDocuments(filter, new CountOptions().limit(countUpTo + 1));
-                // will return -2 if time out during count (e.g. too many results)
-            }
-            if (totalSize > countUpTo) {
-                totalSize = -2; // truncated
-            }
-        }
+        long totalSize = getTotalSize(filter, projections.size(), manualProjection, limit, offset, countUpTo);
         if (!projections.isEmpty()) {
             log.trace("MongoDB:    -> {}", projections::size);
         }
         return new PartialList<>(projections, totalSize);
+    }
+
+    protected long getTotalSize(Bson filter, int resultSize, boolean manualProjection, int limit, int offset,
+            int countUpTo) {
+        if (countUpTo == 0) {
+            return -1; // not counted
+        }
+        long totalSize;
+        if (limit == 0) {
+            totalSize = offset == 0 || resultSize != 0 ? resultSize + (long) offset : countDocuments(filter);
+        } else if (manualProjection) {
+            return -1; // unknown due to manual projection
+        } else if (countUpTo == -1) {
+            totalSize = countDocuments(filter);
+        } else {
+            totalSize = countDocuments(filter, new CountOptions().limit(countUpTo + 1));
+        }
+        return countUpTo > 0 && totalSize > countUpTo ? -2 : totalSize;
     }
 
     @SuppressWarnings("resource") // cursor is being registered, must not be closed
