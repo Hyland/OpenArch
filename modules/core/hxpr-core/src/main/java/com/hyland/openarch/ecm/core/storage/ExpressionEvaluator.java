@@ -23,6 +23,7 @@ import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_FULLTEXT_JO
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ID;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_IS_TRASHED;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_MIXIN_TYPES;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PARENT_PATH;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PATH;
 
 import java.util.ArrayList;
@@ -85,7 +86,9 @@ public abstract class ExpressionEvaluator {
             checkDateLiteralForCast(rvalue, name);
         }
 
-        if (SYS_PATH.equals(name)) {
+        if (SYS_PARENT_PATH.equals(name)) {
+            throw new QueryParseException(SYS_PARENT_PATH + " is not supported by repository queries");
+        } else if (SYS_PATH.equals(name)) {
             return walkEcmPath(lvalue, op, rvalue);
         } else if (SYS_ANCESTOR_IDS.equals(name)) {
             return walkAncestorId(lvalue, op, rvalue);

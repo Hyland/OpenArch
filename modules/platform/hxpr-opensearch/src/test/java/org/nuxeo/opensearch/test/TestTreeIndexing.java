@@ -187,6 +187,15 @@ public class TestTreeIndexing {
     }
 
     @Test
+    public void shouldQueryParentPath() throws Exception {
+        buildAndIndexTree();
+
+        DocumentModelList docs = oss.query(new OpenSearchQueryBuilder(session).hxql(
+                "SELECT * FROM SysContent WHERE sys_parentPath LIKE '/folder0/folder1%'"));
+        assertEquals(8, docs.totalSize());
+    }
+
+    @Test
     public void shouldUnIndexSubTree() throws Exception {
         buildAndIndexTree();
 

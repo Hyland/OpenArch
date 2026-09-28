@@ -24,6 +24,7 @@ import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_FULLTEXT;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ID;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_IS_TRASHED;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_MIXIN_TYPES;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PARENT_PATH;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PATH;
 
 import java.util.HashMap;
@@ -246,6 +247,14 @@ class ExpressionEvaluatorWalkTest {
         assertThrows(QueryParseException.class, () -> noResolver.walkExpression(badOperator));
         Predicate missingResolver = pred(ref(SYS_PATH), Operator.EQ, str("/a"));
         assertThrows(QueryParseException.class, () -> noResolver.walkExpression(missingResolver));
+    }
+
+    @Test
+    void parentPathIsUnavailableInRepositoryQueries() {
+        ExpressionEvaluator e = eval(Map.of(SYS_PARENT_PATH, "/a"));
+        Predicate predicate = pred(ref(SYS_PARENT_PATH), Operator.LIKE, str("/%"));
+        QueryParseException exception = assertThrows(QueryParseException.class, () -> e.walkExpression(predicate));
+        assertEquals(SYS_PARENT_PATH + " is not supported by repository queries", exception.getMessage());
     }
 
     @Test

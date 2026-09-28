@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PARENT_PATH;
 import static com.hyland.openarch.ecm.core.storage.mongodb.MongoDBConverter.DEFAULT_CONVERTER;
 
 import java.util.List;
@@ -60,6 +61,18 @@ public class TestMongoDBRepositoryQueryBuilder {
 
         QueryParseException e = assertThrows(QueryParseException.class, qb::walkProjection);
         assertEquals("Disallowed system property: sys_path", e.getMessage());
+    }
+
+    @Test
+    public void testParentPathPredicateIsRejected() {
+        SchemaManager schemaManager = mock(SchemaManager.class);
+        PathResolver pathResolver = mock(PathResolver.class);
+        Predicate predicate = new Predicate(new Reference(SYS_PARENT_PATH), Operator.LIKE, new StringLiteral("/foo%"));
+        MongoDBRepositoryQueryBuilder qb = new MongoDBRepositoryQueryBuilder(DEFAULT_CONVERTER, predicate, null, null,
+                pathResolver, schemaManager);
+
+        QueryParseException exception = assertThrows(QueryParseException.class, qb::walk);
+        assertEquals(SYS_PARENT_PATH + " is not supported by repository queries", exception.getMessage());
     }
 
     @Test

@@ -23,6 +23,7 @@ import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_FULLTEXT_SC
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ID;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_IS_TRASHED;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_MIXIN_TYPES;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PARENT_PATH;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PATH;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PRIMARY_TYPE;
 import static com.hyland.openarch.ecm.core.storage.mongodb.MongoDBRepository.MONGODB_ID;
@@ -183,7 +184,9 @@ public class MongoDBRepositoryQueryBuilder extends MongoDBAbstractQueryBuilder {
         Operand rvalue = expr.rvalue;
         Reference ref = lvalue instanceof Reference lvalueRef ? lvalueRef : null;
         String name = ref != null ? ref.name() : null;
-        if (op == Operator.STARTSWITH) {
+        if (SYS_PARENT_PATH.equals(name)) {
+            throw new QueryParseException(SYS_PARENT_PATH + " is not supported by repository queries");
+        } else if (op == Operator.STARTSWITH) {
             return walkStartsWith(lvalue, rvalue);
         } else if (SYS_PATH.equals(name)) {
             return walkEcmPath(op, rvalue);

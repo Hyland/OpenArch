@@ -53,6 +53,7 @@ public class HXQLQueryConverterTest {
                 "sys_acl", notIndexedField("string", false), //
                 "sys_fulltext", syntheticField("string", true), //
                 "sys_fulltextScore", syntheticField("double", false), //
+                "sys_parentPath", field(false, false), //
                 "sys_notindexed", notIndexedField("string", false), //
                 "sys_nonqueryable", field(false, false), //
                 "sys_nonprojectable", field(true, false));
@@ -87,6 +88,21 @@ public class HXQLQueryConverterTest {
         var query = HXQLParser.parse("SELECT sys_nonprojectable FROM SysContent");
         QueryParseException e = assertThrows(QueryParseException.class, () -> converter.getSelectClauseFields(query));
         assertEquals("Disallowed system property: sys_nonprojectable", e.getMessage());
+    }
+
+    @Test
+    public void testParentPathRemainsAvailableInOpenSearch() {
+        var like = HXQLParser.parse("SELECT * FROM SysContent WHERE sys_parentPath LIKE '/foo/%'");
+        assertDoesNotThrow(() -> converter.toESQueryBuilder(like, null));
+
+        var startsWith = HXQLParser.parse("SELECT * FROM SysContent WHERE sys_parentPath STARTSWITH '/foo'");
+        QueryParseException e = assertThrows(QueryParseException.class,
+                () -> converter.toESQueryBuilder(startsWith, null));
+        assertEquals("sys_parentPath does not support STARTSWITH", e.getMessage());
+
+        var query = HXQLParser.parse("SELECT sys_parentPath FROM SysContent ORDER BY sys_parentPath");
+        assertDoesNotThrow(() -> converter.getSelectClauseFields(query));
+        assertDoesNotThrow(() -> converter.getSortInfo(query));
     }
 
     @Test

@@ -18,6 +18,7 @@ package com.hyland.openarch.ecm.core;
 import static java.lang.reflect.Modifier.isStatic;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_CONTENT;
 import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
@@ -74,6 +75,15 @@ public class SystemPropertyCatalogTest {
     public void testCompatibilityTypes() {
         SchemaManager schemaManager = typeService.getDefaultSchemaManager();
         assertNotNull(schemaManager.getType("system#contributorList"));
+    }
+
+    @Test
+    public void testParentPathCharacteristics() {
+        var characteristics = typeService.getDefaultSchemaManager()
+                                         .getField("sys_parentPath")
+                                         .getCharacteristics();
+        assertFalse(characteristics.notQueryable());
+        assertTrue(characteristics.notProjectable());
     }
 
     protected static boolean isSystemPropertyConstant(String name) {

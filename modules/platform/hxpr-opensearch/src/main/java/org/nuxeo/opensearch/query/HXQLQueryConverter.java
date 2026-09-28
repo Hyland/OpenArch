@@ -19,6 +19,7 @@ import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ANCESTOR_ID
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_FULLTEXT;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_FULLTEXT_SCORE;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PARENT_ID;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PARENT_PATH;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PATH;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PRIMARY_TYPE;
 import static com.hyland.openarch.ecm.core.schema.types.FieldCharacteristics.Representation.INDEX;
@@ -365,6 +366,9 @@ public final class HXQLQueryConverter {
     }
 
     protected static ObjectBuilder<? extends QueryVariant> makeStartsWithQuery(String name, Object value) {
+        if (SYS_PARENT_PATH.equals(name)) {
+            throw new QueryParseException(SYS_PARENT_PATH + " does not support STARTSWITH");
+        }
         ObjectBuilder<? extends QueryVariant> filter;
         String indexName = name + ".children";
         if ("/".equals(value)) {
@@ -429,8 +433,8 @@ public final class HXQLQueryConverter {
         // convert the value to a wildcard query
         String wildcard = likeToWildcard(value);
         // use match phrase prefix when possible
-        if (StringUtils.countMatches(wildcard, "*") == 1 && wildcard.endsWith("*") && !wildcard.contains("?")
-                && !wildcard.contains("\\")) {
+        if (!SYS_PARENT_PATH.equals(name) && StringUtils.countMatches(wildcard, "*") == 1 && wildcard.endsWith("*")
+                && !wildcard.contains("?") && !wildcard.contains("\\")) {
             MatchPhrasePrefixQuery.Builder query = QueryBuilders.matchPhrasePrefix()
                                                                 .field(fieldName)
                                                                 .query(wildcard.replace("*", ""));
@@ -589,6 +593,10 @@ public final class HXQLQueryConverter {
             throw new QueryParseException("Disallowed system property: " + rootField.getName());
         }
         if (field == null) {
+            return;
+        }
+        // Kept for backward compatibility: parentPath is computed in the repository but stored in OpenSearch.
+        if (SYS_PARENT_PATH.equals(field.getName())) {
             return;
         }
         var characteristics = field.getCharacteristics();

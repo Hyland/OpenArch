@@ -482,7 +482,6 @@
           "extends": "string",
           "managed": {
             "source": "COMPUTED",
-            "notQueryable": true,
             "notProjectable": true,
             "systemOwned": true
           }
