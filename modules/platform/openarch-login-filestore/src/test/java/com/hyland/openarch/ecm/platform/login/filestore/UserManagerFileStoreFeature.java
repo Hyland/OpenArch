@@ -42,7 +42,7 @@ import com.hyland.openarch.runtime.test.runner.RunnerFeature;
  * <p>
  * Authentication is managed per test via the {@link WithUser} annotation; the default test principal is
  * {@code testuser} (UUID {@code ff7b0360-3594-416c-b587-2fa4dd0839ce}), matching the entry in the bundled
- * {@code hxpr-users.yml} test fixture.
+ * {@code openarch-users.yml} test fixture.
  *
  * @see UserManagerFileStore
  * @see UserManagerFileStoreTestConfiguration

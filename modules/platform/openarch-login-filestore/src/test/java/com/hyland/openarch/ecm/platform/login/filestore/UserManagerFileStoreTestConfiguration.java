@@ -33,7 +33,7 @@ import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 
 /**
  * Spring {@link TestConfiguration} that registers {@link UserManagerFileStore} as the {@code UserManager} bean,
- * backed by the YAML user-store bundled in the test-jar ({@code classpath:hxpr-users.yml}).
+ * backed by the YAML user-store bundled in the test-jar ({@code classpath:openarch-users.yml}).
  * <p>
  * Use together with {@link UserManagerFileStoreFeature} in tests that exercise the community profile.
  *

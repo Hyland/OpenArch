@@ -43,7 +43,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 /**
  * Verifies that {@link FileStoreSecurityConfiguration} enforces HTTP Basic Auth end-to-end: valid credentials are
- * accepted, missing or wrong credentials are rejected with 401. Uses the bundled {@code hxpr-users.yml} test fixture
+ * accepted, missing or wrong credentials are rejected with 401. Uses the bundled {@code openarch-users.yml} test fixture
  * (alice / secret via test-users.yml).
  */
 @SpringBootTest(classes = {

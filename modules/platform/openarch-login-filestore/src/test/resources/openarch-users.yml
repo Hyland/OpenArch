@@ -3,7 +3,7 @@
 # This file is bundled in the openarch-login-filestore test-jar and serves as the
 # default user store for tests that use UserManagerFileStoreFeature.
 #
-# It is a copy of server/hxpr-app-config/src/main/resources/hxpr-users.yml.
+# It is a copy of server/hxpr-app-config/src/main/resources/openarch-users.yml.
 # The UUIDs match UserManagerMock constants used across the community test suite.
 # Do not change the UUIDs — they are stored in test documents and fixtures.
 

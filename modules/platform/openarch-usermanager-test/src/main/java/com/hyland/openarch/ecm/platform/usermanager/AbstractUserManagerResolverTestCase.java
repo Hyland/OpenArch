@@ -61,10 +61,10 @@ public abstract class AbstractUserManagerResolverTestCase extends RuntimeSpringB
 
     private static final String USER_MANAGER_RESOLVER = "userManagerResolver";
 
-    /** UUID of the primary test user ({@code testuser}) defined in {@code hxpr-users.yml}. */
+    /** UUID of the primary test user ({@code testuser}) defined in {@code openarch-users.yml}. */
     public static final String ADMIN_USER = "ff7b0360-3594-416c-b587-2fa4dd0839ce";
 
-    /** UUID of the {@code members} group defined in {@code hxpr-users.yml}. */
+    /** UUID of the {@code members} group defined in {@code openarch-users.yml}. */
     public static final String MEMBERS_GROUP = "8d6542c9-50e9-4027-aa10-2cfb2179413f";
 
     private static final String USER_XPATH = "umr_user";

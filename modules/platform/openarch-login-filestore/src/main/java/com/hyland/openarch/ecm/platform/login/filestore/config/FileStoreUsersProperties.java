@@ -23,7 +23,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * The property {@code hxpr.users.file} specifies the location of the YAML file containing users and groups. It accepts
  * any Spring {@code Resource} location, e.g.:
  * <ul>
- *   <li>{@code classpath:hxpr-users.yml} — bundled inside the application JAR (default)</li>
+ *   <li>{@code classpath:openarch-users.yml} — bundled inside the application JAR (default)</li>
  *   <li>{@code file:/etc/hxpr/users.yml} — external file on the host for production overrides</li>
  * </ul>
  */
@@ -33,7 +33,7 @@ public class FileStoreUsersProperties {
     /**
      * Location of the YAML user-store file. Defaults to the bundled classpath resource shipped with the application.
      */
-    private String file = "classpath:hxpr-users.yml";
+    private String file = "classpath:openarch-users.yml";
 
     public String getFile() {
         return file;

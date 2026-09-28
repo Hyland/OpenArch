@@ -1,4 +1,4 @@
-# OpenArch Community User Store — Test Fixture
+# OpenArch User Store — Test Fixture
 #
 # This file is bundled in the openarch-login-filestore test-jar and serves as the
 # default user store for tests that use UserManagerCommunityFeature.

@@ -27,7 +27,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 /**
  * Community variant of {@link AbstractUserAPITest} — backed by the file-based
  * {@link UserManagerFileStore} loaded from the bundled
- * {@code hxpr-users.yml} test fixture.
+ * {@code openarch-users.yml} test fixture.
  *
  * <p>Verifies that the real community {@link UserManager} implementation
  * satisfies the same contract as the enterprise version ({@link UserAPIEnterpriseTest}).

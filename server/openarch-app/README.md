@@ -57,7 +57,7 @@ Application configuration lives in `src/main/resources/application.properties`. 
 - `nuxeo.mongodb.dbname` — MongoDB database name
 - `org.nuxeo.ecm.product.version` — Product version (set by CI to the build version)
 
-User definitions for local testing are seeded from `src/main/resources/hxpr-users.yml`.
+User definitions for local testing are seeded from `src/main/resources/openarch-users.yml`.
 
 ## CI/CD in OpenArch
 
