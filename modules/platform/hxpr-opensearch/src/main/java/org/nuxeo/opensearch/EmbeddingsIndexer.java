@@ -47,7 +47,6 @@ import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.ecm.core.api.OnPremChunkTextWriter;
 import com.hyland.openarch.ecm.core.model.EmbeddingModel;
 import org.nuxeo.opensearch.commands.IndexingCommand;
-import org.nuxeo.opensearch.config.EmbeddingsParserDescriptor;
 import org.nuxeo.opensearch.io.DocumentDTO;
 import org.nuxeo.opensearch.io.EmbeddingOSDTO;
 import org.nuxeo.opensearch.io.EmbeddingsParser;
@@ -97,7 +96,7 @@ public class EmbeddingsIndexer {
         this.embeddingsIndexTimer = SharedMetricRegistries.getOrCreate(MetricsService.class.getName())
                                                           .timer(MetricName.build("nuxeo.opensearch.service.timer")
                                                                            .tagged("service", "embeddingsIndex"));
-        this.embeddingsParser = loadEmbeddingsParser();
+        this.embeddingsParser = EmbeddingsParserLoader.load(service);
     }
 
     void process(IndexingCommand cmd, boolean isReindexing, int maxBulkSize) {
@@ -407,37 +406,6 @@ public class EmbeddingsIndexer {
         Set<String> idsToDelete = new HashSet<>(ctx.existingIds());
         idsToDelete.removeAll(newIds);
         return idsToDelete;
-    }
-
-    private EmbeddingsParser newParser(EmbeddingsParserDescriptor desc) {
-        try {
-            EmbeddingsParser parser = desc.newInstance();
-            log.debug("Registered EmbeddingsParser: {}", desc.getParserClass().getName());
-            return parser;
-        } catch (RuntimeException e) {
-            throw new RepositoryException("Failed to instantiate EmbeddingsParser: " + desc.getParserClass().getName(), e);
-        }
-    }
-
-    private EmbeddingsParser loadEmbeddingsParser() {
-        Map<String, EmbeddingsParserDescriptor> descriptors = service.getEmbeddingsParserDescriptors();
-
-        if (descriptors.size() > 1) {
-            // should never occur: tests should ensure only one contribution is active
-            String classes = descriptors.values().stream().map(d -> d.getParserClass().getName()).collect(Collectors.joining(", "));
-            throw new RepositoryException("Multiple EmbeddingsParser contributions found (" + classes + "). Exactly one parser is supported at this stage.");
-        }
-
-        if (descriptors.size() == 1) {
-            // should only occur from test contributions
-            EmbeddingsParserDescriptor desc = descriptors.values().iterator().next();
-            EmbeddingsParser parser = newParser(desc);
-            log.info("Using EmbeddingsParser implementation: {}", parser.getClass().getName());
-
-            return parser;
-        }
-
-        return EmbeddingsParser.newParser();
     }
 
     /**

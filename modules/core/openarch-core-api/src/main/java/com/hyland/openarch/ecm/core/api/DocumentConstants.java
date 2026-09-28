@@ -263,6 +263,7 @@ public class DocumentConstants {
     public static final String SYSEMB_RESIDENCY = "sysemb_residency";
     public static final String SYSEMB_RESIDENCY_ON_PREM = "onPrem";
     public static final String SYSEMB_RESIDENCY_CLOUD = "cloud";
+    public static final String SYSEMB_ON_PREM_PROCESSING_SUCCESS = "sysemb_onPremProcessingSuccess";
 
     // SysGraphable (ontology routing)
     public static final String SCHEMA_SYSGRAPH = "sysgraph";

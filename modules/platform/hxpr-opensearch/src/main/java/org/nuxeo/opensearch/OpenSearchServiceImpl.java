@@ -1642,7 +1642,7 @@ public class OpenSearchServiceImpl extends DefaultComponent implements OpenSearc
         return getClient().getIndexStoreStats(indexNames.values());
     }
 
-    // package-private helper for EmbeddingsIndexer access to parser contributions
+    // package-private helper for same-package parser loading/indexing access to parser contributions
     Map<String, EmbeddingsParserDescriptor> getEmbeddingsParserDescriptors() { // NOSONAR
         return this.<MapRegistry> getExtensionPointRegistry(EP_EMBEDDINGS_PARSER).getContributions();
     }

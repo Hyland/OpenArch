@@ -24,5 +24,6 @@
     <xs:element name="embeddings" type="nxs:blob" nillable="false" nxsv:nillable="false" />
     <xs:element name="chunks" type="nxs:blob" />
     <xs:element name="residency" type="xs:string" />
+    <xs:element name="onPremProcessingSuccess" type="xs:boolean" />
 
 </xs:schema>

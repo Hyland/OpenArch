@@ -582,6 +582,9 @@
         "sysemb_chunks": {
           "type": "blob"
         },
+        "sysemb_onPremProcessingSuccess": {
+          "type": "boolean"
+        },
         "sysemb_residency": {
           "type": "string"
         }

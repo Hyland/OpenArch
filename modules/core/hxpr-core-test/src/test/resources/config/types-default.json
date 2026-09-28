@@ -98,6 +98,9 @@
           "constraints": {
             "nullable": false
           }
+        },
+        "sysemb_onPremProcessingSuccess": {
+          "type": "boolean"
         }
       },
       "prefix": "sysemb"
