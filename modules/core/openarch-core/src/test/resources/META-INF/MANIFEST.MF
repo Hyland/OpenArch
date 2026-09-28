@@ -26,7 +26,6 @@ Export-Package: com.hyland.openarch.ecm.core;uses:="com.hyland.openar
  om.hyland.openarch.ecm.core.model",schema
 Require-Bundle: com.hyland.openarch.ecm.core.api,com.hyland.openarch
  .ecm.core.schema,com.hyland.openarch.ecm.core.query
-Bundle-Vendor: Nuxeo
 Tool: Bundlor 1.0.0.RELEASE
 Bundle-Localization: plugin
 Bundle-Name: com.hyland.openarch.ecm.core.tests

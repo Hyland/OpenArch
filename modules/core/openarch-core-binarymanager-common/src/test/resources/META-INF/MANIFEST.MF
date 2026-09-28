@@ -2,4 +2,3 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OpenArch Core BinaryManager Common Testing
 Bundle-SymbolicName: com.hyland.openarch.ecm.core.storage.binarymanager.common.tests;singleton:=true
-Bundle-Vendor: Hyland

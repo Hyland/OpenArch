@@ -35,7 +35,6 @@ public class SystemBundleFile extends DirectoryBundleFile {
         Attributes attrs = mf.getMainAttributes();
         attrs.putValue("Bundle-SymbolicName", "com.hyland.openarch.osgi.app");
         attrs.putValue("Bundle-Name", "Nuxeo App System Bundle");
-        attrs.putValue("Bundle-Vendor", "Nuxeo");
         attrs.putValue("Bundle-Version", "1.0.0");
         return mf;
     }

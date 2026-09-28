@@ -5,7 +5,6 @@ Bundle-ClassPath: .
 Manifest-Version: 1.0
 Bundle-Name: OpenArch Core Test Framework
 Created-By: 1.6.0_20 (Sun Microsystems Inc.)
-Bundle-Vendor: Hyland
 Bundle-Version: 0.0.0.SNAPSHOT
 Bundle-ManifestVersion: 2
 Bundle-Description: OpenArch Core: Testing framewok

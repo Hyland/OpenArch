@@ -1,7 +1,6 @@
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
 Manifest-Version: 1.0
-Bundle-Vendor: Hyland
 Bundle-Version: 0.0.0.SNAPSHOT
 Bundle-Name: OpenArch FileStore Login Module
 Bundle-ManifestVersion: 2

@@ -5,6 +5,5 @@ Manifest-Version: 1.0
 Bundle-Category: runtime
 Bundle-Localization: plugin
 Bundle-Name: OpenArch Login Module Test
-Bundle-Vendor: Hyland
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: com.hyland.openarch.ecm.platform.login.test
