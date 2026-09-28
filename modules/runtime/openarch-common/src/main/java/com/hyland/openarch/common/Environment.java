@@ -30,9 +30,6 @@ public class Environment {
 
     private static Logger logger = LogManager.getLogger(Environment.class);
 
-    // Jetty or GF3 embedded
-    public static final String NXSERVER_HOST = "NXServer";
-
     public static final String NUXEO_HOME_DIR = "nuxeo.home.dir";
 
     /**

@@ -178,7 +178,7 @@ public class CorsPolicyTest extends AbstractSpringTest {
     }
 
     private static List<Class<?>> getAllApiClasses() {
-        try (ScanResult scanResult = new ClassGraph().acceptPackages("com.hyland.openarch.rest", "com.hyland.hxpr")
+        try (ScanResult scanResult = new ClassGraph().acceptPackages("com.hyland.openarch.rest")
                                                     .enableAllInfo()
                                                     .scan()) {
             return scanResult.getAllClasses()

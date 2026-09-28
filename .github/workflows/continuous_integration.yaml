@@ -76,8 +76,6 @@ jobs:
         run: mvn --no-transfer-progress versions:set -DnewVersion=${{ env.VERSION }} -DgenerateBackupPoms=false -DprocessAllModules=true
       - name: Compile project
         run: mvn clean install -DskipTests
-      - name: Set Product version to current build
-        run: sed -i 's/^org\.nuxeo\.ecm\.product\.version=.*$/org\.nuxeo\.ecm\.product\.version=${{ env.VERSION }}/g' ./server/openarch-app/src/main/resources/application.properties
       - name: Set up QEMU
         uses: docker/setup-qemu-action@96fe6ef7f33517b61c61be40b68a1882f3264fb8 # v4.2.0
       - name: Set up Docker Buildx

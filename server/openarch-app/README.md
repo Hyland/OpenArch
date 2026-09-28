@@ -55,7 +55,7 @@ Application configuration lives in `src/main/resources/application.properties`. 
 
 - `nuxeo.mongodb.server` — MongoDB host/port (default points to the local docker stack)
 - `nuxeo.mongodb.dbname` — MongoDB database name
-- `org.nuxeo.ecm.product.version` — Product version (set by CI to the build version)
+- `com.hyland.openarch.product.version` — Product version (derived from the `pom.xml` version at build time)
 
 User definitions for local testing are seeded from `src/main/resources/openarch-users.yml`.
 
@@ -63,12 +63,12 @@ User definitions for local testing are seeded from `src/main/resources/openarch-
 
 The `Continuous Integration` workflow (`.github/workflows/continuous_integration.yaml`) is the entry point of the CI/CD pipeline. On every push or pull request to `main` it:
 
-1. Compiles the project with Maven.
-2. On push to `main`, runs the Maven release (`_ci/release.sh`) to produce a released version, tag the repository and publish the artifacts to the Hyland Nexus / GitHub Packages repository.
+1. Computes a build version from the `VERSION` file (`major.minor`) plus the number of commits since it last changed, then applies it to every module's POM with `mvn versions:set`.
+2. Compiles the project with Maven.
 3. Starts the docker-compose stack and runs the server build/tests against MongoDB.
 4. Builds a multi-architecture (`linux/amd64`, `linux/arm64`) Docker image for `openarch-app-jvm` and publishes it to `ghcr.io/hyland/`.
 
-The version used for the Docker tag and for `org.nuxeo.ecm.product.version` is derived from the `pom.xml` version (with `-SNAPSHOT` stripped on release builds), so it always matches the version produced by `_ci/release.sh`.
+The version used for the Docker tag and for `com.hyland.openarch.product.version` is the one computed in step 1, so it always matches the version actually used to build and tag the image.
 
 ## Running the Docker image
 

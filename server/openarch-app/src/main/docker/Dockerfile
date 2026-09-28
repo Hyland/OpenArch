@@ -68,8 +68,8 @@ ARG BUILD_DATE
 ARG COMMIT_SHA
 ARG BUILD_URL
 
-LABEL org.opencontainers.image.title="Hyland Community Platform Repository" \
- org.opencontainers.image.source="https://github.com/HylandSoftware/hxpr-community-internal" \
+LABEL org.opencontainers.image.title="OpenArch" \
+ org.opencontainers.image.source="https://github.com/Hyland/OpenArch" \
  org.opencontainers.image.created=$BUILD_DATE \
  org.opencontainers.image.revision=$COMMIT_SHA \
  org.opencontainers.image.url=$BUILD_URL

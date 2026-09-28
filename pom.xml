@@ -2025,10 +2025,9 @@
   </profiles>
 
   <scm>
-    <connection>scm:git:https://github.com/HylandSoftware/hxpr-community-internal.git</connection>
-    <developerConnection>scm:git:https://github.com/HylandSoftware/hxpr-community-internal.git</developerConnection>
-    <url>https://github.com/HylandSoftware/hxpr-community-internal</url>
-    <tag>0.0.2-SNAPSHOT</tag>
+    <connection>scm:git:https://github.com/Hyland/OpenArch.git</connection>
+    <developerConnection>scm:git:https://github.com/Hyland/OpenArch.git</developerConnection>
+    <url>https://github.com/Hyland/OpenArch</url>
   </scm>
 
   <distributionManagement>
