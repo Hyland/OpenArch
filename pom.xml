@@ -44,11 +44,11 @@
     <classifier.name>none</classifier.name>
     <manifest.file />
     <distribution-repository.url>https://example.com</distribution-repository.url>
-    <buildnumber-maven-plugin.version>3.3.0</buildnumber-maven-plugin.version>
+    <buildnumber-maven-plugin.version>3.3.1</buildnumber-maven-plugin.version>
     <parent-core-deploy.skip>false</parent-core-deploy.skip>
     <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
     <plexus-utils.version>4.1.0</plexus-utils.version>
-    <versions-maven-plugin.version>2.21.0</versions-maven-plugin.version>
+    <versions-maven-plugin.version>2.22.0</versions-maven-plugin.version>
 
     <maven.surefire.version>3.6.0</maven.surefire.version>
 
@@ -81,8 +81,8 @@
     <xercesImpl.version>2.12.2</xercesImpl.version>
     <apache.httpcomponents.version>4.5.14</apache.httpcomponents.version>
     <opencensus.version>0.31.1</opencensus.version>
-    <git-commit-id-plugin.version>10.0.0</git-commit-id-plugin.version>
-    <classgraph.version>4.8.194</classgraph.version>
+    <git-commit-id-plugin.version>10.0.1</git-commit-id-plugin.version>
+    <classgraph.version>4.8.195</classgraph.version>
     <metrics-bom.version>5.0.8</metrics-bom.version>
     <jackson-bom.version>3.2.2</jackson-bom.version>
     <osgi.version>4.3.1</osgi.version>
@@ -94,7 +94,7 @@
     <concurrent.version>1.3.4</concurrent.version>
     <guava.version>33.7.1-jre</guava.version>
     <expiringmap.version>0.5.11</expiringmap.version>
-    <bouncycastle.version>1.85.2</bouncycastle.version>
+    <bouncycastle.version>1.86.1</bouncycastle.version>
     <xsom.version>20140925</xsom.version>
     <swagger.version>2.2.55</swagger.version>
     <antlr4.version>4.13.2</antlr4.version>
@@ -113,7 +113,7 @@
     <spring-retry.version>2.0.13</spring-retry.version>
 
     <!-- MongoDB -->
-    <mongo.java.driver.version>5.11.0</mongo.java.driver.version>
+    <mongo.java.driver.version>5.12.0</mongo.java.driver.version>
     <quartz.version>2.3.2</quartz.version>
     <quartz.mongodb.version>2.2.0-rc2</quartz.mongodb.version>
 
