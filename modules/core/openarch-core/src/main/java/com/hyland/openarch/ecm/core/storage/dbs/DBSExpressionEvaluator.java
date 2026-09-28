@@ -25,6 +25,7 @@ import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ID;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_MIXIN_TYPES;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_NAME;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PARENT_ID;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PARENT_PATH;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PATH;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PRIMARY_TYPE;
 
@@ -417,8 +418,8 @@ public class DBSExpressionEvaluator extends ExpressionEvaluator {
 
     protected void addProjection(Reference ref, Map<String, Object> projection) {
         String name = ref.name();
-        if (name.equals(SYS_PATH)) {
-            // sys_path is special, computed and not stored in database
+        if (name.equals(SYS_PATH) || name.equals(SYS_PARENT_PATH)) {
+            // computed paths are not stored in the database
             if (!parsing) {
                 // to compute PATH we need NAME, ID and PARENT_ID for all states
                 projection.put(SYS_NAME, state.get(SYS_NAME));

@@ -433,8 +433,9 @@ public final class HXQLQueryConverter {
         // convert the value to a wildcard query
         String wildcard = likeToWildcard(value);
         // use match phrase prefix when possible
-        if (!SYS_PARENT_PATH.equals(name) && StringUtils.countMatches(wildcard, "*") == 1 && wildcard.endsWith("*")
-                && !wildcard.contains("?") && !wildcard.contains("\\")) {
+        // path properties are keyword fields, not text fields, so match_phrase_prefix cannot be used
+        if (!SYS_PATH.equals(name) && !SYS_PARENT_PATH.equals(name) && StringUtils.countMatches(wildcard, "*") == 1
+                && wildcard.endsWith("*") && !wildcard.contains("?") && !wildcard.contains("\\")) {
             MatchPhrasePrefixQuery.Builder query = QueryBuilders.matchPhrasePrefix()
                                                                 .field(fieldName)
                                                                 .query(wildcard.replace("*", ""));
@@ -593,10 +594,6 @@ public final class HXQLQueryConverter {
             throw new QueryParseException("Disallowed system property: " + rootField.getName());
         }
         if (field == null) {
-            return;
-        }
-        // Kept for backward compatibility: parentPath is computed in the repository but stored in OpenSearch.
-        if (SYS_PARENT_PATH.equals(field.getName())) {
             return;
         }
         var characteristics = field.getCharacteristics();

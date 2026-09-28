@@ -83,7 +83,7 @@ public class SystemPropertyCatalogTest {
                                          .getField("sys_parentPath")
                                          .getCharacteristics();
         assertFalse(characteristics.notQueryable());
-        assertTrue(characteristics.notProjectable());
+        assertFalse(characteristics.notProjectable());
     }
 
     protected static boolean isSystemPropertyConstant(String name) {

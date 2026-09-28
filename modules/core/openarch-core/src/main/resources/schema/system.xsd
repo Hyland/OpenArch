@@ -106,8 +106,7 @@
   <xs:element name="parentId" type="xs:string"
               m:systemOwned="true" />
   <xs:element name="parentPath" type="xs:string"
-              m:systemOwned="true" m:source="COMPUTED"
-              m:notProjectable="true" />
+              m:systemOwned="true" m:source="COMPUTED" />
   <xs:element name="path" type="xs:string"
               m:systemOwned="true" m:source="COMPUTED" />
   <xs:element name="pathDepth" type="xs:long"

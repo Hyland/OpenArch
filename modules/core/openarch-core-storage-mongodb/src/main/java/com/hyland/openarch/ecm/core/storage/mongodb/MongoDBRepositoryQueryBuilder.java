@@ -23,6 +23,7 @@ import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_FULLTEXT_SC
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ID;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_IS_TRASHED;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_MIXIN_TYPES;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PARENT_ID;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PARENT_PATH;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PATH;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PRIMARY_TYPE;
@@ -184,12 +185,12 @@ public class MongoDBRepositoryQueryBuilder extends MongoDBAbstractQueryBuilder {
         Operand rvalue = expr.rvalue;
         Reference ref = lvalue instanceof Reference lvalueRef ? lvalueRef : null;
         String name = ref != null ? ref.name() : null;
-        if (SYS_PARENT_PATH.equals(name)) {
-            throw new QueryParseException(SYS_PARENT_PATH + " is not supported by repository queries");
+        if (SYS_PATH.equals(name)) {
+            return walkEcmPath(lvalue, op, rvalue);
+        } else if (SYS_PARENT_PATH.equals(name)) {
+            return walkEcmParentPath(op, rvalue);
         } else if (op == Operator.STARTSWITH) {
             return walkStartsWith(lvalue, rvalue);
-        } else if (SYS_PATH.equals(name)) {
-            return walkEcmPath(op, rvalue);
         } else if (SYS_ANCESTOR_IDS.equals(name)) {
             return walkAncestorId(op, rvalue);
         } else if (SYS_IS_TRASHED.equals(name)) {
@@ -201,19 +202,31 @@ public class MongoDBRepositoryQueryBuilder extends MongoDBAbstractQueryBuilder {
         }
     }
 
-    protected Document walkEcmPath(Operator op, Operand rvalue) {
+    protected Document walkEcmPath(Operand lvalue, Operator op, Operand rvalue) {
+        if (op == Operator.STARTSWITH) {
+            return walkStartsWith(lvalue, rvalue);
+        } else {
+            return walkEcmPath(op, rvalue, SYS_PATH, SYS_ID);
+        }
+    }
+
+    protected Document walkEcmParentPath(Operator op, Operand rvalue) {
+        return walkEcmPath(op, rvalue, SYS_PARENT_PATH, SYS_PARENT_ID);
+    }
+
+    protected Document walkEcmPath(Operator op, Operand rvalue, String pathName, String idName) {
         if (op != Operator.EQ && op != Operator.NOTEQ) {
-            throw new QueryParseException(SYS_PATH + " requires = or <> operator");
+            throw new QueryParseException(pathName + " requires = or <> operator");
         }
         if (!(rvalue instanceof StringLiteral lit)) {
-            throw new QueryParseException(SYS_PATH + " requires literal path as right argument");
+            throw new QueryParseException(pathName + " requires literal path as right argument");
         }
         String path = lit.value();
         if (path.length() > 1 && path.endsWith("/")) {
             path = path.substring(0, path.length() - 1);
         }
         if (pathResolver == null) {
-            throw new QueryParseException(SYS_PATH + " not allowed in condition"); // conditional update
+            throw new QueryParseException(pathName + " not allowed in condition"); // conditional update
         }
         String id = pathResolver.getIdForPath(path);
         if (id == null) {
@@ -221,11 +234,12 @@ public class MongoDBRepositoryQueryBuilder extends MongoDBAbstractQueryBuilder {
             // TODO XXX do better
             return new Document(MONGODB_ID, "__nosuchid__");
         }
-        Object bsonId = converter.valueToBson(SYS_ID, id);
+        String bsonField = converter.keyToBson(idName);
+        Object bsonId = converter.valueToBson(idName, id);
         if (op == Operator.EQ) {
-            return new Document(MONGODB_ID, bsonId);
+            return new Document(bsonField, bsonId);
         } else {
-            return new Document(MONGODB_ID, new Document(MongoDBOperators.NE, bsonId));
+            return new Document(bsonField, new Document(MongoDBOperators.NE, bsonId));
         }
     }
 

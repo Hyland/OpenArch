@@ -193,6 +193,10 @@ public class TestTreeIndexing {
         DocumentModelList docs = oss.query(new OpenSearchQueryBuilder(session).hxql(
                 "SELECT * FROM SysContent WHERE sys_parentPath LIKE '/folder0/folder1%'"));
         assertEquals(8, docs.totalSize());
+
+        docs = oss.query(new OpenSearchQueryBuilder(session).hxql(
+                "SELECT * FROM SysContent WHERE sys_path LIKE '/folder0/folder1%'"));
+        assertEquals(9, docs.totalSize());
     }
 
     @Test

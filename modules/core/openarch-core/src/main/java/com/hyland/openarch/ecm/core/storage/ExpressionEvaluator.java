@@ -23,6 +23,7 @@ import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_FULLTEXT_JO
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ID;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_IS_TRASHED;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_MIXIN_TYPES;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PARENT_ID;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PARENT_PATH;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PATH;
 
@@ -86,10 +87,10 @@ public abstract class ExpressionEvaluator {
             checkDateLiteralForCast(rvalue, name);
         }
 
-        if (SYS_PARENT_PATH.equals(name)) {
-            throw new QueryParseException(SYS_PARENT_PATH + " is not supported by repository queries");
-        } else if (SYS_PATH.equals(name)) {
+        if (SYS_PATH.equals(name)) {
             return walkEcmPath(lvalue, op, rvalue);
+        } else if (SYS_PARENT_PATH.equals(name)) {
+            return walkEcmParentPath(op, rvalue);
         } else if (SYS_ANCESTOR_IDS.equals(name)) {
             return walkAncestorId(lvalue, op, rvalue);
         } else if (SYS_IS_TRASHED.equals(name)) {
@@ -134,22 +135,31 @@ public abstract class ExpressionEvaluator {
     protected Boolean walkEcmPath(Operand lvalue, Operator op, Operand rvalue) {
         if (op == Operator.STARTSWITH) {
             return walkStartsWith(lvalue, rvalue);
+        } else {
+            return walkEcmPath(op, rvalue, SYS_PATH, SYS_ID);
         }
+    }
+
+    protected Boolean walkEcmParentPath(Operator op, Operand rvalue) {
+        return walkEcmPath(op, rvalue, SYS_PARENT_PATH, SYS_PARENT_ID);
+    }
+
+    protected Boolean walkEcmPath(Operator op, Operand rvalue, String pathName, String idName) {
         if (op != Operator.EQ && op != Operator.NOTEQ) {
-            throw new QueryParseException(SYS_PATH + " requires = or <> operator");
+            throw new QueryParseException(pathName + " requires = or <> operator");
         }
         if (!(rvalue instanceof StringLiteral lit)) {
-            throw new QueryParseException(SYS_PATH + " requires literal path as right argument");
+            throw new QueryParseException(pathName + " requires literal path as right argument");
         }
         String path = lit.value();
         if (path.length() > 1 && path.endsWith("/")) {
             path = path.substring(0, path.length() - 1);
         }
         if (pathResolver == null) {
-            throw new QueryParseException(SYS_PATH + " not allowed in condition"); // conditional update
+            throw new QueryParseException(pathName + " not allowed in condition"); // conditional update
         }
         String id = pathResolver.getIdForPath(path);
-        Object right = walkReference(new Reference(SYS_ID));
+        Object right = walkReference(new Reference(idName));
         if (id == null) {
             return FALSE;
         }

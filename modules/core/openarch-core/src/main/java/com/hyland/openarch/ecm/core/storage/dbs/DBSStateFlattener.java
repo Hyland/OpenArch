@@ -16,12 +16,14 @@
 package com.hyland.openarch.ecm.core.storage.dbs;
 
 import static java.util.Objects.requireNonNull;
+import static com.hyland.openarch.ecm.core.storage.dbs.DBSDocument.KEY_PARENT_PATH_INTERNAL;
 import static com.hyland.openarch.ecm.core.storage.dbs.DBSDocument.KEY_PATH_INTERNAL;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import com.hyland.openarch.ecm.core.schema.SchemaManager;
 import com.hyland.openarch.ecm.core.schema.types.Field;
@@ -64,7 +66,7 @@ public class DBSStateFlattener {
             if (realName != null) {
                 name = realName;
             } else {
-                if (KEY_PATH_INTERNAL.equals(key)) {
+                if (Set.of(KEY_PATH_INTERNAL, KEY_PARENT_PATH_INTERNAL).contains(key)) {
                     continue;
                 }
                 Field field = schemaManager.getField(key);

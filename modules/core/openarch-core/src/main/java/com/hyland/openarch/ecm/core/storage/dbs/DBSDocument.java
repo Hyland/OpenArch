@@ -190,6 +190,8 @@ public class DBSDocument implements InternalDocument {
 
     public static final String KEY_PATH_INTERNAL = "sys___path";
 
+    public static final String KEY_PARENT_PATH_INTERNAL = "sys___parentPath";
+
     public static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
 
     public static final Long INITIAL_SYS_CHANGE_TOKEN = Long.valueOf(0);

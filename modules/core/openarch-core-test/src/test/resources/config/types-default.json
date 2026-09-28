@@ -639,7 +639,6 @@
           "extends": "string",
           "managed": {
             "source": "COMPUTED",
-            "notProjectable": true,
             "systemOwned": true
           }
         },

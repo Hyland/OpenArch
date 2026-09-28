@@ -53,7 +53,7 @@ public class HXQLQueryConverterTest {
                 "sys_acl", notIndexedField("string", false), //
                 "sys_fulltext", syntheticField("string", true), //
                 "sys_fulltextScore", syntheticField("double", false), //
-                "sys_parentPath", field(false, false), //
+                "sys_parentPath", field(true, true), //
                 "sys_notindexed", notIndexedField("string", false), //
                 "sys_nonqueryable", field(false, false), //
                 "sys_nonprojectable", field(true, false));

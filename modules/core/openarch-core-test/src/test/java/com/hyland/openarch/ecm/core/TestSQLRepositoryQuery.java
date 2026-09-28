@@ -36,6 +36,7 @@ import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_DESCRIPTION
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_FULLTEXT_JOB_ID;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ID;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PARENT_ID;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PARENT_PATH;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PATH;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_SYS_CHANGE_TOKEN;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_TITLE;
@@ -621,6 +622,22 @@ public class TestSQLRepositoryQuery {
     }
 
     @Test
+    public void testOrderByParentPath() {
+        createDocs();
+
+        DocumentModelList dml = session.query(
+                "SELECT * FROM SysContent WHERE sysver_isVersion = FALSE ORDER BY sys_parentPath");
+        assertEquals(List.of("/", "/", "/testfolder1", "/testfolder1", "/testfolder1", "/testfolder2",
+                "/testfolder2/testfolder3"),
+                dml.stream().map(doc -> (String) doc.getPropertyValue(SYS_PARENT_PATH)).toList());
+
+        dml = session.query("SELECT * FROM SysContent WHERE sysver_isVersion = FALSE ORDER BY sys_parentPath", 2, 3,
+                0);
+        assertEquals(List.of("/testfolder1", "/testfolder1"),
+                dml.stream().map(doc -> (String) doc.getPropertyValue(SYS_PARENT_PATH)).toList());
+    }
+
+    @Test
     public void testOrderByPos() {
         DocumentModelList dml;
 
@@ -880,6 +897,19 @@ public class TestSQLRepositoryQuery {
         sql = "SELECT * FROM SysContent WHERE sys_path <> '/testfolder1' AND sysver_isVersion = FALSE";
         dml = session.query(sql);
         assertEquals(6, dml.size());
+    }
+
+    @Test
+    public void testParentPathEqual() {
+        createDocs();
+
+        assertEquals(3, session.query(
+                "SELECT * FROM SysContent WHERE sys_parentPath = '/testfolder1' AND sysver_isVersion = FALSE").size());
+        // trailing slash accepted
+        assertEquals(3, session.query(
+                "SELECT * FROM SysContent WHERE sys_parentPath = '/testfolder1/' AND sysver_isVersion = FALSE").size());
+        assertEquals(4, session.query(
+                "SELECT * FROM SysContent WHERE sys_parentPath <> '/testfolder1' AND sysver_isVersion = FALSE").size());
     }
 
     @Test
@@ -2200,6 +2230,11 @@ public class TestSQLRepositoryQuery {
 
         result = session.queryAndFetch("SELECT sys_path FROM MyDocType WHERE sys_id = '%s'".formatted(doc.getId()));
         assertEquals(doc.getPathAsString(), result.iterator().next().get(SYS_PATH));
+        result.close();
+
+        result = session.queryAndFetch(
+                "SELECT sys_parentPath FROM MyDocType WHERE sys_id = '%s'".formatted(doc.getId()));
+        assertEquals("/folder1/folder2", result.iterator().next().get(SYS_PARENT_PATH));
         result.close();
     }
 

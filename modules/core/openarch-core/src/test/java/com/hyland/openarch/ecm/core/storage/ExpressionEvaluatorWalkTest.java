@@ -24,6 +24,7 @@ import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_FULLTEXT;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ID;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_IS_TRASHED;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_MIXIN_TYPES;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PARENT_ID;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PARENT_PATH;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PATH;
 
@@ -250,11 +251,15 @@ class ExpressionEvaluatorWalkTest {
     }
 
     @Test
-    void parentPathIsUnavailableInRepositoryQueries() {
-        ExpressionEvaluator e = eval(Map.of(SYS_PARENT_PATH, "/a"));
-        Predicate predicate = pred(ref(SYS_PARENT_PATH), Operator.LIKE, str("/%"));
-        QueryParseException exception = assertThrows(QueryParseException.class, () -> e.walkExpression(predicate));
-        assertEquals(SYS_PARENT_PATH + " is not supported by repository queries", exception.getMessage());
+    void parentPathResolvesToParentIdEquality() {
+        Map<String, Object> values = new HashMap<>();
+        values.put(SYS_PARENT_ID, "id1");
+        ExpressionEvaluator e = new MapEvaluator(values, List.of(), path -> "/a".equals(path) ? "id1" : null);
+        assertEquals(Boolean.TRUE, e.walkExpression(pred(ref(SYS_PARENT_PATH), Operator.EQ, str("/a/"))));
+        assertEquals(Boolean.FALSE, e.walkExpression(pred(ref(SYS_PARENT_PATH), Operator.EQ, str("/unknown"))));
+
+        Predicate badOperator = pred(ref(SYS_PARENT_PATH), Operator.LIKE, str("/%"));
+        assertThrows(QueryParseException.class, () -> e.walkExpression(badOperator));
     }
 
     @Test

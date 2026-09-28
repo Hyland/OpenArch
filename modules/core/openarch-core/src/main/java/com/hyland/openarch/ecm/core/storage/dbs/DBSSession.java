@@ -37,6 +37,7 @@ import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_MIXIN_TYPES
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_MODIFIED;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_NAME;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PARENT_ID;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PARENT_PATH;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PATH;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_POS;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PRIMARY_TYPE;
@@ -46,6 +47,7 @@ import static com.hyland.openarch.ecm.core.api.security.SecurityConstants.SYSTEM
 import static com.hyland.openarch.ecm.core.async.tasks.DeleteBatchTaskProcessor.BATCH_DELETE_TASK_NAME;
 import static com.hyland.openarch.ecm.core.query.sql.HXQL.KEY_ACE_PERMISSION_COMPAT;
 import static com.hyland.openarch.ecm.core.schema.MixinNames.SYS_VERSIONED_WITH_PARENT;
+import static com.hyland.openarch.ecm.core.storage.dbs.DBSDocument.KEY_PARENT_PATH_INTERNAL;
 import static com.hyland.openarch.ecm.core.storage.dbs.DBSDocument.KEY_PATH_INTERNAL;
 import static com.hyland.openarch.ecm.core.storage.dbs.DBSSession.ChildrenSelector.ALL;
 import static com.hyland.openarch.ecm.core.storage.dbs.DBSSession.ChildrenSelector.FOR_CHECK_IN;
@@ -1148,17 +1150,21 @@ public class DBSSession implements InternalSession {
                 projections = projections.subList(fromIndex, toIndex);
             }
         }
-        materializePathProjection(projections, statement.getSelectClause());
+        materializePathProjections(projections, statement.getSelectClause());
 
         return projections;
     }
 
-    protected void materializePathProjection(List<Map<String, Object>> projections, SelectClause selectClause) {
+    protected void materializePathProjections(List<Map<String, Object>> projections, SelectClause selectClause) {
         boolean selectPath = selectClause.elements()
                                          .stream()
                                          .anyMatch(operand -> operand instanceof Reference ref
                                                  && SYS_PATH.equals(ref.name()));
-        if (!selectPath) {
+        boolean selectParentPath = selectClause.elements()
+                                               .stream()
+                                               .anyMatch(operand -> operand instanceof Reference ref
+                                                       && SYS_PARENT_PATH.equals(ref.name()));
+        if (!selectPath && !selectParentPath) {
             return;
         }
         Set<String> selected = selectClause.elements()
@@ -1168,20 +1174,25 @@ public class DBSSession implements InternalSession {
                                            .map(Reference::name)
                                            .collect(Collectors.toSet());
         for (Map<String, Object> projection : projections) {
-            projection.put(SYS_PATH, getPath(projection));
+            if (selectPath) {
+                projection.put(SYS_PATH, getPath(projection));
+            }
+            if (selectParentPath) {
+                projection.put(SYS_PARENT_PATH, getParentPath(projection));
+            }
             Stream.of(SYS_NAME, SYS_ID, SYS_PARENT_ID)
                   .filter(name -> !selected.contains(name))
                   .forEach(projection::remove);
         }
     }
 
-    /** Does an ORDER BY clause include sys_path */
+    /** Does an ORDER BY clause include a computed path? */
     protected boolean isOrderByPath(OrderByClause orderByClause) {
         if (orderByClause == null) {
             return false;
         }
         for (OrderByExpr ob : orderByClause.elements()) {
-            if (ob.reference().name().equals(SYS_PATH)) {
+            if (Set.of(SYS_PATH, SYS_PARENT_PATH).contains(ob.reference().name())) {
                 return true;
             }
         }
@@ -1189,8 +1200,14 @@ public class DBSSession implements InternalSession {
     }
 
     protected String getPath(Map<String, Object> projection) {
-        String name = (String) projection.get(SYS_NAME);
-        String parentId = (String) projection.get(SYS_PARENT_ID);
+        return getPath((String) projection.get(SYS_NAME), (String) projection.get(SYS_PARENT_ID));
+    }
+
+    protected String getPath(State state) {
+        return getPath((String) state.get(SYS_NAME), (String) state.get(SYS_PARENT_ID));
+    }
+
+    protected String getPath(String name, String parentId) {
         State state;
         if (parentId == null || (state = transaction.getStateForRead(parentId)) == null) {
             if ("".equals(name)) {
@@ -1211,11 +1228,21 @@ public class DBSSession implements InternalSession {
         }
     }
 
+    protected String getParentPath(Map<String, Object> projection) {
+        String parentId = (String) projection.get(SYS_PARENT_ID);
+        if (parentId == null) {
+            return null;
+        }
+        State parentState = transaction.getStateForRead(parentId);
+        return parentState == null ? null : getPath(parentState);
+    }
+
     protected void doOrderBy(List<Map<String, Object>> projections, OrderByClause orderByClause) {
         if (isOrderByPath(orderByClause)) {
-            // add path info to do the sort
+            // add computed path information used for sorting
             for (Map<String, Object> projection : projections) {
                 projection.put(KEY_PATH_INTERNAL, getPath(projection));
+                projection.put(KEY_PARENT_PATH_INTERNAL, getParentPath(projection));
             }
         }
         projections.sort(new OrderByComparator(orderByClause));
@@ -1226,13 +1253,13 @@ public class DBSSession implements InternalSession {
         protected final OrderByClause orderByClause;
 
         public OrderByComparator(OrderByClause orderByClause) {
-            // replace sys_path with sys___path for evaluation
-            // (we don't want to allow sys_path to be usable anywhere else
-            // and resolve to a null value)
+            // replace computed paths with their materialized internal values
             List<OrderByExpr> obl = new ArrayList<>();
             for (OrderByExpr ob : orderByClause.elements()) {
                 if (ob.reference().name().equals(SYS_PATH)) {
                     ob = new OrderByExpr(new Reference(KEY_PATH_INTERNAL), ob.isDescending());
+                } else if (ob.reference().name().equals(SYS_PARENT_PATH)) {
+                    ob = new OrderByExpr(new Reference(KEY_PARENT_PATH_INTERNAL), ob.isDescending());
                 }
                 obl.add(ob);
             }

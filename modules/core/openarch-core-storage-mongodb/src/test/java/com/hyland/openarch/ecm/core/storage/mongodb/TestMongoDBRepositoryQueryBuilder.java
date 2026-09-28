@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PARENT_PATH;
 import static com.hyland.openarch.ecm.core.storage.mongodb.MongoDBConverter.DEFAULT_CONVERTER;
 
@@ -64,15 +65,21 @@ public class TestMongoDBRepositoryQueryBuilder {
     }
 
     @Test
-    public void testParentPathPredicateIsRejected() {
+    public void testParentPathPredicateUsesParentId() {
         SchemaManager schemaManager = mock(SchemaManager.class);
         PathResolver pathResolver = mock(PathResolver.class);
-        Predicate predicate = new Predicate(new Reference(SYS_PARENT_PATH), Operator.LIKE, new StringLiteral("/foo%"));
+        when(pathResolver.getIdForPath("/foo")).thenReturn("parent-id");
+        Predicate predicate = new Predicate(new Reference(SYS_PARENT_PATH), Operator.EQ, new StringLiteral("/foo"));
         MongoDBRepositoryQueryBuilder qb = new MongoDBRepositoryQueryBuilder(DEFAULT_CONVERTER, predicate, null, null,
                 pathResolver, schemaManager);
 
-        QueryParseException exception = assertThrows(QueryParseException.class, qb::walk);
-        assertEquals(SYS_PARENT_PATH + " is not supported by repository queries", exception.getMessage());
+        qb.walkTopLevelExpression();
+        assertEquals(new Document("sys_parentId", "parent-id"), qb.getQuery());
+
+        Predicate badOperator = new Predicate(new Reference(SYS_PARENT_PATH), Operator.LIKE,
+                new StringLiteral("/foo%"));
+        qb = new MongoDBRepositoryQueryBuilder(DEFAULT_CONVERTER, badOperator, null, null, pathResolver, schemaManager);
+        assertThrows(QueryParseException.class, qb::walkTopLevelExpression);
     }
 
     @Test
