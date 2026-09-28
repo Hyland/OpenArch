@@ -1384,20 +1384,20 @@ public class DBSSession implements InternalSession {
         public void skipTo(long pos) {
             if (pos < 0) {
                 pos = 0;
-            } else if (pos > totalSize) {
-                pos = totalSize;
+            } else if (pos > maps.size()) {
+                pos = maps.size();
             }
             this.pos = pos;
         }
 
         @Override
         public boolean hasNext() {
-            return pos < totalSize;
+            return !closed && pos < maps.size();
         }
 
         @Override
         public Map<String, Object> next() {
-            if (closed || pos == totalSize) {
+            if (!hasNext()) {
                 throw new NoSuchElementException();
             }
             Map<String, Object> map = maps.get((int) pos);
