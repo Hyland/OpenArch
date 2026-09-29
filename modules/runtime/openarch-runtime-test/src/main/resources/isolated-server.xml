@@ -2,6 +2,6 @@
 <component name="org.nuxeo.runtime.management.tests.isolated-server-contrib">
 	<extension target="com.hyland.openarch.runtime.management.ServerLocator"
 		point="locators">
-		<locator domain="org.nuxeo" exist="false" remote="false" />
+		<locator domain="com.hyland.openarch" exist="false" remote="false" />
 	</extension>
 </component>

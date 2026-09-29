@@ -15,7 +15,7 @@
        server URL can be found in the server log at line "Started a mbean server : ..."
   <extension target="com.hyland.openarch.runtime.management.ServerLocator"
     point="locators">
-    <locator domain="org.nuxeo" exist="false" rmiPort="2100"/>
+    <locator domain="com.hyland.openarch" exist="false" rmiPort="2100"/>
   </extension> -->
 
 </component>

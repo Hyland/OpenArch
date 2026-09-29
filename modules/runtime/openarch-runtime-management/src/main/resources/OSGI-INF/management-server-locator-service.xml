@@ -20,7 +20,7 @@
       is this mbean server already <emph>exist</emph>,
       the <emph>rmiPort</emph> where this mbean server is registered into.</p>
       <p>The following line figures out the use :<br/>
-      &lt;locator domain="org.nuxeo" default="true" exist="false" rmiPort="2100"/&gt;
+      &lt;locator domain="com.hyland.openarch" default="true" exist="false" rmiPort="2100"/&gt;
       </p>
     </documentation>
 
