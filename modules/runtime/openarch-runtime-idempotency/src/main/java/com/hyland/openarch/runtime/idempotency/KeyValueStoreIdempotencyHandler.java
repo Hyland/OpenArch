@@ -113,11 +113,17 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
             log.debug("Idempotency cache hit for key={}", sanitizeForLog(key));
             @SuppressWarnings("unchecked")
             T value = (T) unwrap(claim.cachedResult(), resultType);
-            return new Outcome<>(value, true);
+            if (value instanceof IdempotencyException exception) {
+                return new Outcome<>(null, exception, true);
+            }
+            return new Outcome<>(value, null, true);
         }
 
         T result = runAndFinalize(cacheKey, key, claim.ownerMarker(), operation);
-        return new Outcome<>(result, false);
+        if (result instanceof IdempotencyException exception) {
+            return new Outcome<>(null, exception, false);
+        }
+        return new Outcome<>(result, null, false);
     }
 
     /**

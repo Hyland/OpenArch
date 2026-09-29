@@ -36,18 +36,19 @@ hxpr-async-tasks-aws → openarch-runtime-idempotency → hxpr-runtime-kv
 ```java
 IdempotencyHandler handler = IdempotencyHandlerFactory.create(
     keyValueService,
+    "openarch-idempotency",
     "idempotency:commands:",
-    24,
-    TimeUnit.HOURS
+    24 * 60 * 60L
 );
 
 String key = clientKey; // Unique key sent by the client to identify the operation
 
 // Execute operation idempotently
-String result = handler.execute(key, () -> {
+IdempotencyHandler.Outcome<String> outcome = handler.execute(key, () -> {
     // Operation that must be idempotent
     return performStateChange();
 });
+String result = outcome.value();
 ```
 
 ### Integration with Retry Patterns

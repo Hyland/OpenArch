@@ -101,7 +101,11 @@ public interface IdempotencyHandler {
      *
      * @param <T> the type of the operation result
      */
-    record Outcome<T extends Serializable>(T value, boolean replay) {
+    record Outcome<T extends Serializable>(T value, IdempotencyException exception, boolean replay) {
+
+        public boolean isFailure() {
+            return exception != null;
+        }
     }
 
 }

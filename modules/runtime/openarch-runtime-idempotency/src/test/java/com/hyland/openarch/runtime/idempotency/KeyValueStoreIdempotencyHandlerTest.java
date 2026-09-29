@@ -46,6 +46,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.hyland.openarch.runtime.idempotency.IdempotencyHandler.Outcome;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -152,12 +153,12 @@ class KeyValueStoreIdempotencyHandlerTest {
         RuntimeException firstThrown = assertThrows(RuntimeException.class, () -> handler.execute(key, () -> {
             throw original;
         }));
-        Object replayed = handler.execute(key, () -> "should not run").value();
+        Outcome replayed = handler.execute(key, () -> "should not run");
 
         assertSame(original, firstThrown);
-        IdempotencyException replayedException = assertInstanceOf(IdempotencyException.class, replayed);
-        assertEquals(original.getClass().getName(), replayedException.key());
-        assertEquals(original.getMessage(), replayedException.message());
+        assertEquals(original.getClass().getName(), replayed.exception().key());
+        assertEquals(original.getMessage(), replayed.exception().message());
+        assertTrue(replayed.isFailure());
     }
 
     @Test
@@ -524,13 +525,13 @@ class KeyValueStoreIdempotencyHandlerTest {
         RuntimeException firstThrown = assertThrows(RuntimeException.class, () -> handler.execute(key, () -> {
             throw original;
         }));
-        Object replayed = handler.execute(key, () -> "should not run").value();
+        Outcome replayed = handler.execute(key, () -> "should not run");
 
         assertSame(original, firstThrown);
-        IdempotencyException replayedException = assertInstanceOf(IdempotencyException.class, replayed);
-        assertEquals(original.getClass().getName(), replayedException.key());
-        assertEquals(original.getMessage(), replayedException.message());
-        assertEquals(409, replayedException.httpErrorCode());
+        assertTrue(replayed.isFailure());
+        assertEquals(original.getClass().getName(), replayed.exception().key());
+        assertEquals(original.getMessage(), replayed.exception().message());
+        assertEquals(409, replayed.exception().httpErrorCode());
     }
 
     @Test
