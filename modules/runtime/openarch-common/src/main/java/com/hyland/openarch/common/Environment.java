@@ -28,54 +28,47 @@ import org.apache.logging.log4j.Logger;
  */
 public class Environment {
 
-    private static Logger logger = LogManager.getLogger(Environment.class);
+    private static final Logger logger = LogManager.getLogger(Environment.class);
 
-    public static final String NUXEO_HOME_DIR = "nuxeo.home.dir";
+    public static final String HOME_DIR = "nuxeo.home.dir";
 
     /**
      * @since 5.6
      */
-    public static final String NUXEO_HOME = "nuxeo.home";
+    public static final String HOME = "nuxeo.home";
 
     /**
      * @since 5.4.2
      */
-    public static final String NUXEO_RUNTIME_HOME = "nuxeo.runtime.home";
+    public static final String RUNTIME_HOME = "nuxeo.runtime.home";
 
-    public static final String NUXEO_DATA_DIR = "nuxeo.data.dir";
+    public static final String DATA_DIR = "nuxeo.data.dir";
 
     /**
      * @since 5.9.4
      */
     public static final String DEFAULT_DATA_DIR = "data";
 
-    public static final String NUXEO_LOG_DIR = "nuxeo.log.dir";
+    public static final String LOG_DIR = "nuxeo.log.dir";
 
     /**
      * @since 5.9.4
      */
     public static final String DEFAULT_LOG_DIR = "log";
 
-    public static final String NUXEO_PID_DIR = "nuxeo.pid.dir";
-
-    public static final String NUXEO_TMP_DIR = "nuxeo.tmp.dir";
+    public static final String TMP_DIR = "nuxeo.tmp.dir";
 
     /**
      * @since 5.9.4
      */
     public static final String DEFAULT_TMP_DIR = "tmp";
 
-    public static final String NUXEO_CONFIG_DIR = "nuxeo.config.dir";
+    public static final String CONFIG_DIR = "nuxeo.config.dir";
 
     /**
      * @since 5.9.4
      */
     public static final String DEFAULT_CONFIG_DIR = "config";
-
-    /**
-     * @since 5.6
-     */
-    public static final String NUXEO_CONTEXT_PATH = "org.nuxeo.ecm.contextPath";
 
     // volatile for double-checked locking
     private static volatile Environment defaultEnvironment; // NOSONAR (volatile for double-checked locking init)
@@ -97,27 +90,6 @@ public class Environment {
 
     // Handy parameter to distinguish from (Server)home
     private File runtimeHome = null;
-
-    // proxy
-    /**
-     * @since 6.0
-     */
-    public static final String NUXEO_HTTP_PROXY_HOST = "nuxeo.http.proxy.host";
-
-    /**
-     * @since 6.0
-     */
-    public static final String NUXEO_HTTP_PROXY_PORT = "nuxeo.http.proxy.port";
-
-    /**
-     * @since 6.0
-     */
-    public static final String NUXEO_HTTP_PROXY_LOGIN = "nuxeo.http.proxy.login";
-
-    /**
-     * @since 6.0
-     */
-    public static final String NUXEO_HTTP_PROXY_PASSWORD = "nuxeo.http.proxy.password";
 
     // internal API client
     public static final String PROPERTY_CLIENT_ID = "hxpr.internal.api.service.user.client.id";
@@ -160,7 +132,7 @@ public class Environment {
         if (defaultEnvironment == null) {
             synchronized (Environment.class) {
                 if (defaultEnvironment == null) {
-                    String homeDir = systemProperties.getProperty(NUXEO_HOME);
+                    String homeDir = systemProperties.getProperty(HOME);
                     if (homeDir != null) {
                         File home = new File(homeDir);
                         if (home.isDirectory()) {
@@ -181,7 +153,7 @@ public class Environment {
 
     public File getTemp() {
         if (temp == null) {
-            setTemp(properties.getProperty(NUXEO_TMP_DIR, DEFAULT_TMP_DIR));
+            setTemp(properties.getProperty(TMP_DIR, DEFAULT_TMP_DIR));
         }
         return temp;
     }
@@ -197,13 +169,13 @@ public class Environment {
 
     public void setTemp(File temp) {
         this.temp = temp.getAbsoluteFile();
-        setProperty(NUXEO_TMP_DIR, temp.getAbsolutePath());
+        setProperty(TMP_DIR, temp.getAbsolutePath());
         temp.mkdirs();
     }
 
     public File getConfig() {
         if (config == null) {
-            setConfig(properties.getProperty(NUXEO_CONFIG_DIR, DEFAULT_CONFIG_DIR));
+            setConfig(properties.getProperty(CONFIG_DIR, DEFAULT_CONFIG_DIR));
         }
         return config;
     }
@@ -220,13 +192,13 @@ public class Environment {
 
     public void setConfig(File config) {
         this.config = config.getAbsoluteFile();
-        setProperty(NUXEO_CONFIG_DIR, config.getAbsolutePath());
+        setProperty(CONFIG_DIR, config.getAbsolutePath());
         config.mkdirs();
     }
 
     public File getLog() {
         if (log == null) {
-            setLog(properties.getProperty(NUXEO_LOG_DIR, DEFAULT_LOG_DIR));
+            setLog(properties.getProperty(LOG_DIR, DEFAULT_LOG_DIR));
         }
         return log;
     }
@@ -242,13 +214,13 @@ public class Environment {
 
     public void setLog(File log) {
         this.log = log.getAbsoluteFile();
-        setProperty(NUXEO_LOG_DIR, log.getAbsolutePath());
+        setProperty(LOG_DIR, log.getAbsolutePath());
         log.mkdirs();
     }
 
     public File getData() {
         if (data == null) {
-            setData(properties.getProperty(NUXEO_DATA_DIR, DEFAULT_DATA_DIR));
+            setData(properties.getProperty(DATA_DIR, DEFAULT_DATA_DIR));
         }
         return data;
     }
@@ -264,7 +236,7 @@ public class Environment {
 
     public void setData(File data) {
         this.data = data.getAbsoluteFile();
-        setProperty(NUXEO_DATA_DIR, data.getAbsolutePath());
+        setProperty(DATA_DIR, data.getAbsolutePath());
         data.mkdirs();
     }
 
@@ -281,7 +253,7 @@ public class Environment {
      */
     public void setRuntimeHome(File runtimeHome) {
         this.runtimeHome = runtimeHome.getAbsoluteFile();
-        setProperty(NUXEO_RUNTIME_HOME, runtimeHome.getAbsolutePath());
+        setProperty(RUNTIME_HOME, runtimeHome.getAbsolutePath());
     }
 
     /**
@@ -297,7 +269,7 @@ public class Environment {
 
     /**
      * Initialization with System properties to avoid issues due to home set with runtime home instead of server home.
-     * If {@link #NUXEO_HOME} System property is not set, or if you want to set a custom server home, then you should
+     * If {@link #HOME} System property is not set, or if you want to set a custom server home, then you should
      * call {@link #setServerHome(File)} before.
      *
      * @since 5.4.1
@@ -306,22 +278,22 @@ public class Environment {
         initServerHome();
         initRuntimeHome();
 
-        String dataDir = System.getProperty(NUXEO_DATA_DIR);
+        String dataDir = System.getProperty(DATA_DIR);
         if (StringUtils.isNotEmpty(dataDir)) {
             setData(new File(dataDir));
         }
 
-        String configDir = System.getProperty(NUXEO_CONFIG_DIR);
+        String configDir = System.getProperty(CONFIG_DIR);
         if (StringUtils.isNotEmpty(configDir)) {
             setConfig(new File(configDir));
         }
 
-        String logDir = System.getProperty(NUXEO_LOG_DIR);
+        String logDir = System.getProperty(LOG_DIR);
         if (StringUtils.isNotEmpty(logDir)) {
             setLog(new File(logDir));
         }
 
-        String tmpDir = System.getProperty(NUXEO_TMP_DIR);
+        String tmpDir = System.getProperty(TMP_DIR);
         if (StringUtils.isNotEmpty(tmpDir)) {
             setTemp(new File(tmpDir));
         }
@@ -331,7 +303,7 @@ public class Environment {
         if (runtimeHome != null) {
             return;
         }
-        String runtimeDir = System.getProperty(NUXEO_RUNTIME_HOME);
+        String runtimeDir = System.getProperty(RUNTIME_HOME);
         if (runtimeDir != null && !runtimeDir.isEmpty()) {
             setRuntimeHome(new File(runtimeDir));
         } else {
@@ -340,7 +312,7 @@ public class Environment {
     }
 
     /**
-     * This method always returns the server home (or {@link #getHome()} if {@link #NUXEO_HOME_DIR} is not set).
+     * This method always returns the server home (or {@link #getHome()} if {@link #HOME_DIR} is not set).
      *
      * @since 5.4.2
      * @return Server home
@@ -355,19 +327,19 @@ public class Environment {
      */
     public void setServerHome(File serverHome) {
         this.serverHome = serverHome.getAbsoluteFile();
-        setProperty(NUXEO_HOME_DIR, serverHome.getAbsolutePath());
+        setProperty(HOME_DIR, serverHome.getAbsolutePath());
     }
 
     private void initServerHome() {
         if (serverHome != null) {
             return;
         }
-        String homeDir = System.getProperty(NUXEO_HOME, System.getProperty(NUXEO_HOME_DIR));
+        String homeDir = System.getProperty(HOME, System.getProperty(HOME_DIR));
         if (homeDir != null && !homeDir.isEmpty()) {
             setServerHome(new File(homeDir));
         } else {
             logger.warn("Could not set the server home from {} or {} system properties, will use {}",
-                    NUXEO_HOME, NUXEO_HOME_DIR, home);
+                    HOME, HOME_DIR, home);
             setServerHome(home);
         }
         logger.debug(this);

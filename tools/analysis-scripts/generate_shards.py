@@ -105,7 +105,7 @@ def main():
     parser.add_argument('--root-path', '-r', default='.',
                        help='Root path for analysis')
     parser.add_argument('--target-shards', '-s', type=int, default=4,
-                       help='Target number of shards (4 community)')
+                       help='Target number of shards')
     parser.add_argument('--max-time', '-t', type=float, default=600.0,
                        help='Maximum time per shard in seconds')
     parser.add_argument('--output', '-o', default='integration-shards.json',
@@ -122,8 +122,7 @@ def main():
         analyzer, COMMON_SHARD_COUNT, args.max_time
     )
 
-    # Generate GitHub matrix configuration (enforces common shards 1-4, enterprise shards 5-7)
-    # Each shard gets a 'type' field that serves as the source of truth for routing to docker-compose
+    # Generate GitHub matrix configuration (balanced shards, up to COMMON_SHARD_COUNT)
     matrix_config = generate_github_matrix(shards, args.root_path)
 
     # Output results

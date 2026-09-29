@@ -43,8 +43,7 @@ import com.hyland.openarch.runtime.springboot.framework.ApplicationContextHelper
  * <p>
  * This class is OpenArch Runtime-managed (registered via {@code OSGI-INF/usermanager-filestore-config.xml})
  * and therefore not a Spring bean. The {@link UserStoreLoader} Spring bean is accessed lazily via
- * {@link ApplicationContextHelper} following the same pattern used by the enterprise
- * {@code UserManagerNucleus}.
+ * {@link ApplicationContextHelper}.
  * </p>
  */
 public class UserManagerFileStore implements UserManager {

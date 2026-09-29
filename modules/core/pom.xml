@@ -37,7 +37,7 @@
           <artifactId>maven-dependency-plugin</artifactId>
           <configuration>
             <ignoredUnusedDeclaredDependencies combine.children="append">
-              <artifact>com.hyland.hxpr:openarch-runtime-test</artifact>
+              <artifact>com.hyland.openarch:openarch-runtime-test</artifact>
             </ignoredUnusedDeclaredDependencies>
           </configuration>
         </plugin>

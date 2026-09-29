@@ -25,7 +25,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 
 /**
- * Community variant of {@link AbstractGroupAPITest} — backed by the in-memory {@link UserManagerMock}.
+ * Variant of {@link AbstractGroupAPITest} backed by the in-memory {@link UserManagerMock}.
  */
 @Features({ UserManagerMockFeature.class, DummyLoginFeature.class })
 @Import(UserManagerMockTestConfiguration.class)

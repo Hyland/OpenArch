@@ -29,7 +29,7 @@ services:
 
   opensearch-dashboards:
     image: opensearchproject/opensearch-dashboards:2.19.6@sha256:7aaefffac1660cab61ecf1e52fdcde6c156587a020dfa9246d529ea5e784dcee
-    container_name: opensearch-community-dashboards
+    container_name: opensearch-dashboards
     ports:
       - 5601:5601
     expose:

@@ -8,7 +8,7 @@
   </parent>
 
   <artifactId>openarch-runtime-metrics</artifactId>
-  <name>HxPR Runtime Metrics</name>
+  <name>OpenArch Metrics</name>
 
   <properties>
     <manifest.file>src/main/resources/META-INF/MANIFEST.MF</manifest.file>

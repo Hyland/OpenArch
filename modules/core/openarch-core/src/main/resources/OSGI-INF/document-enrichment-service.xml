@@ -3,8 +3,7 @@
 
   <documentation>
     Invoked when a document is created or updated, immediately alongside the sys_modified
-    stamping and within the same transaction, so downstream distributions (e.g. the enterprise
-    distribution) can contribute pluggable logic. Community registers no enrichers by default.
+    stamping and within the same transaction.
   </documentation>
 
   <implementation class="com.hyland.openarch.ecm.core.DocumentEnrichmentComponent" />

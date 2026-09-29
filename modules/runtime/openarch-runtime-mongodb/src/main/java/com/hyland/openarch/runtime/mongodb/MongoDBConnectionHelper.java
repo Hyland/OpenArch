@@ -167,7 +167,7 @@ public class MongoDBConnectionHelper {
         if (StringUtils.isBlank(server)) {
             throw new RuntimeServiceException("Missing <server> in MongoDB descriptor");
         }
-        MongoClientSettings.Builder settingsBuilder = MongoClientSettings.builder().applicationName("Nuxeo");
+        MongoClientSettings.Builder settingsBuilder = MongoClientSettings.builder().applicationName("OpenArch");
         SSLContext sslContext = getSSLContext(config);
         if (sslContext == null) {
             if (config.ssl != null) {

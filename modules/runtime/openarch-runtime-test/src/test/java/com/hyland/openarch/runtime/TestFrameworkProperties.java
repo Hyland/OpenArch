@@ -133,14 +133,14 @@ public class TestFrameworkProperties {
     public void testIsDevModeSet() throws Exception {
         assertTrue(Framework.isInitialized());
         // check compat
-        assertEquals("org.nuxeo.dev", Framework.NUXEO_DEV_SYSTEM_PROP);
+        assertEquals("org.nuxeo.dev", Framework.DEV_SYSTEM_PROP);
         // make sure runtime prop is not set
-        assertNull(runtime.getProperty(Framework.NUXEO_DEV_SYSTEM_PROP));
-        runtime.setProperty(Framework.NUXEO_DEV_SYSTEM_PROP, "true");
+        assertNull(runtime.getProperty(Framework.DEV_SYSTEM_PROP));
+        runtime.setProperty(Framework.DEV_SYSTEM_PROP, "true");
         assertTrue(Framework.isDevModeSet());
-        runtime.setProperty(Framework.NUXEO_DEV_SYSTEM_PROP, "");
+        runtime.setProperty(Framework.DEV_SYSTEM_PROP, "");
         assertFalse(Framework.isDevModeSet());
-        runtime.setProperty(Framework.NUXEO_DEV_SYSTEM_PROP, "false");
+        runtime.setProperty(Framework.DEV_SYSTEM_PROP, "false");
         assertFalse(Framework.isDevModeSet());
     }
 

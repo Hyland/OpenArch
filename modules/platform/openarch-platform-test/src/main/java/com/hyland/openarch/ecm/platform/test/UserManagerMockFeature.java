@@ -28,9 +28,7 @@ import com.hyland.openarch.runtime.test.runner.RunnerFeature;
 
 /**
  * Test feature that provides an in-memory {@link UserManager} implementation
- * ({@link UserManagerMock}) for community/platform tests that must not depend on {@code hxpr-login-hxp}.
- * <p>
- * Use this feature instead of {@code UserManagerFeature} wherever a real IdP connection is not needed.
+ * ({@link UserManagerMock}) for tests.
  *
  * <pre>{@code
  * @Features({UserManagerMockFeature.class, DummyLoginFeature.class})

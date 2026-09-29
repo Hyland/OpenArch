@@ -15,12 +15,12 @@
  */
 package com.hyland.openarch.runtime.springboot;
 
-import static com.hyland.openarch.common.Environment.NUXEO_CONFIG_DIR;
-import static com.hyland.openarch.common.Environment.NUXEO_DATA_DIR;
-import static com.hyland.openarch.common.Environment.NUXEO_HOME;
-import static com.hyland.openarch.common.Environment.NUXEO_LOG_DIR;
-import static com.hyland.openarch.common.Environment.NUXEO_RUNTIME_HOME;
-import static com.hyland.openarch.common.Environment.NUXEO_TMP_DIR;
+import static com.hyland.openarch.common.Environment.CONFIG_DIR;
+import static com.hyland.openarch.common.Environment.DATA_DIR;
+import static com.hyland.openarch.common.Environment.HOME;
+import static com.hyland.openarch.common.Environment.LOG_DIR;
+import static com.hyland.openarch.common.Environment.RUNTIME_HOME;
+import static com.hyland.openarch.common.Environment.TMP_DIR;
 
 import com.hyland.openarch.common.Environment;
 import jakarta.annotation.PreDestroy;
@@ -79,12 +79,12 @@ public class OpenArchApplication {
 
     private static final String DEFAULT_HOME = "nuxeo";
 
-    private static final List<String> DEFAULT_RUNTIME_PROPERTIES = List.of(NUXEO_HOME, NUXEO_RUNTIME_HOME);
+    private static final List<String> DEFAULT_RUNTIME_PROPERTIES = List.of(HOME, RUNTIME_HOME);
 
-    private static final List<String> DEFAULT_SERVER_PROPERTIES = List.of(NUXEO_CONFIG_DIR, //
-            NUXEO_DATA_DIR, //
-            NUXEO_LOG_DIR, //
-            NUXEO_TMP_DIR);
+    private static final List<String> DEFAULT_SERVER_PROPERTIES = List.of(CONFIG_DIR, //
+            DATA_DIR, //
+            LOG_DIR, //
+            TMP_DIR);
 
     private static final List<String> DEFAULT_PROPERTIES = Stream.concat(DEFAULT_RUNTIME_PROPERTIES.stream(),
             DEFAULT_SERVER_PROPERTIES.stream()).toList();
@@ -104,13 +104,13 @@ public class OpenArchApplication {
             Map<String, File> bundles = getBundles();
             Map<String, Object> nxHostEnv = buildRepositoryHostEnv(env);
             // init nuxeo.tmp.dir to system tmp dir if unset
-            if (!nxHostEnv.containsKey(NUXEO_TMP_DIR)) {
-                nxHostEnv.put(NUXEO_TMP_DIR, System.getProperty("java.io.tmpdir"));
+            if (!nxHostEnv.containsKey(TMP_DIR)) {
+                nxHostEnv.put(TMP_DIR, System.getProperty("java.io.tmpdir"));
             }
             Map<String, String> nxConfEnv = buildRepositoryConfEnv(env);
 
-            String homePath = (String) nxHostEnv.get(NUXEO_RUNTIME_HOME);
-            System.setProperty(Environment.NUXEO_HOME, (String) nxHostEnv.get(NUXEO_RUNTIME_HOME));
+            String homePath = (String) nxHostEnv.get(RUNTIME_HOME);
+            System.setProperty(Environment.HOME, (String) nxHostEnv.get(RUNTIME_HOME));
             File home = new File(homePath);
 
             Properties sysprops = System.getProperties();

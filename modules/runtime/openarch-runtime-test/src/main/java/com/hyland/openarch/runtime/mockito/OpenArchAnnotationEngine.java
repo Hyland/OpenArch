@@ -34,13 +34,13 @@ import org.mockito.plugins.AnnotationEngine;
  * override (removed in Mockito 5). Registered through the Mockito plugin SPI in
  * {@code META-INF/mockito-extensions/org.mockito.plugins.AnnotationEngine}.
  */
-public class HxprAnnotationEngine extends InjectingAnnotationEngine {
+public class OpenArchAnnotationEngine extends InjectingAnnotationEngine {
 
     public static final String DELEGATE_FIELD_NAME = "delegate";
 
     public static final String ANNOTATION_PROCESSOR_MAP_FIELD_NAME = "annotationProcessorMap";
 
-    public HxprAnnotationEngine() {
+    public OpenArchAnnotationEngine() {
         // InjectingAnnotationEngine internally uses an IndependentAnnotationEngine as 'delegate'
         // to handle field-level annotations such as @Mock. We swap the default @Mock processor
         // with our OpenArch-aware one via reflection (no public API is exposed for that).

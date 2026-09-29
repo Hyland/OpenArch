@@ -30,8 +30,8 @@ import static com.hyland.openarch.ecm.core.schema.TypeConstants.KEY_BLOB_MIME_TY
 import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_EMBEDDINGS;
 import static com.hyland.openarch.rest.document.AbstractDocumentAPI.PATH;
 import static com.hyland.openarch.rest.document.test.ContentTestHelper.getJsonPath;
-import static com.hyland.openarch.rest.exception.HxprErrorResponse.ENTITY_TYPE_PROP_NAME;
-import static com.hyland.openarch.rest.exception.HxprErrorResponse.STATUS_PROP_NAME;
+import static com.hyland.openarch.rest.exception.RepositoryErrorResponse.ENTITY_TYPE_PROP_NAME;
+import static com.hyland.openarch.rest.exception.RepositoryErrorResponse.STATUS_PROP_NAME;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpMethod.PUT;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;

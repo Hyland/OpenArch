@@ -8,7 +8,7 @@
   </parent>
 
   <artifactId>openarch-rest-common</artifactId>
-  <name>HxPR Common REST</name>
+  <name>OpenArch Common REST</name>
 
   <properties>
     <manifest.file>src/main/resources/META-INF/MANIFEST.MF</manifest.file>

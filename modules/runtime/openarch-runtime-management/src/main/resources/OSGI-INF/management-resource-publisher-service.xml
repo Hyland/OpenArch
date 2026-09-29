@@ -43,7 +43,7 @@
   <extension-point name="shortcuts">
       <documentation>
         <p>Define a shortcuts to a published resource.</p>
-        <p>Nuxeo's published resources are published by the service using that shortcut</p>
+        <p>OpenArch's published resources are published by the service using that shortcut</p>
         <p>The following information have to be provided : the shortcut <emph>name</emph>, the management <emph>qualifiedName</emph> and the mbean server <emph>locator</emph> pattern.</p>
         <p>The following line figures out how using it.<br/>
         &lt;shortcut name="publisher" qualifiedName="org.openarch:name=managementResourcePublisher,type=service" locator="org.openarch"/&gt;

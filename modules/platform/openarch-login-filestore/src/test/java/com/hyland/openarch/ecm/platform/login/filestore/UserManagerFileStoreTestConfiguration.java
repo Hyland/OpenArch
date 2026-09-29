@@ -35,11 +35,11 @@ import org.springframework.security.web.authentication.HttpStatusEntryPoint;
  * Spring {@link TestConfiguration} that registers {@link UserManagerFileStore} as the {@code UserManager} bean,
  * backed by the YAML user-store bundled in the test-jar ({@code classpath:openarch-users.yml}).
  * <p>
- * Use together with {@link UserManagerFileStoreFeature} in tests that exercise the community profile.
+ * Use together with {@link UserManagerFileStoreFeature}.
  *
  * <pre>{@code
- * @Features({UserManagerCommunityFeature.class, DummyLoginFeature.class})
- * @Import(UserManagerCommunityTestConfiguration.class)
+ * @Features({UserManagerFileStoreFeature.class, DummyLoginFeature.class})
+ * @Import(UserManagerFileStoreTestConfiguration.class)
  * @SpringBootTest(classes = { MyController.class })
  * class MyControllerTest extends RuntimeSpringBootTest { ... }
  * }</pre>
@@ -63,7 +63,7 @@ public class UserManagerFileStoreTestConfiguration {
     }
 
     @Bean
-    public UserManager userManagerCommunity() {
+    public UserManager userManagerFileStore() {
         return new UserManagerFileStore();
     }
 

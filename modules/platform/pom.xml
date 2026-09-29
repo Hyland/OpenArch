@@ -33,7 +33,7 @@
           <artifactId>maven-dependency-plugin</artifactId>
           <configuration>
             <ignoredUnusedDeclaredDependencies combine.children="append">
-<!--              <artifact>com.hyland.hxpr:openarch-common</artifact>-->
+<!--              <artifact>com.hyland.openarch:openarch-common</artifact>-->
             </ignoredUnusedDeclaredDependencies>
           </configuration>
         </plugin>

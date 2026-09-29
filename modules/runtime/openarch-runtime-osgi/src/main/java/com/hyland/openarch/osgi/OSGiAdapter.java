@@ -64,7 +64,7 @@ public class OSGiAdapter {
 
     public OSGiAdapter(File workingDir) {
         this(workingDir,
-                new File(System.getProperty(Environment.NUXEO_DATA_DIR, workingDir + File.separator + "data")),
+                new File(System.getProperty(Environment.DATA_DIR, workingDir + File.separator + "data")),
                 new Properties());
     }
 
@@ -82,7 +82,7 @@ public class OSGiAdapter {
         frameworkListeners = new CopyOnWriteArrayList<>();
         bundleListeners = new CopyOnWriteArrayList<>();
         // setting up default properties
-        properties.put(Constants.FRAMEWORK_VENDOR, "Nuxeo");
+        properties.put(Constants.FRAMEWORK_VENDOR, "Hyland");
         properties.put(Constants.FRAMEWORK_VERSION, "1.0.0");
     }
 
@@ -207,7 +207,7 @@ public class OSGiAdapter {
                 listener.frameworkEvent(event);
                 log.debug("End execution of {} listener", listener.getClass());
             } catch (RuntimeException e) {
-                if (Boolean.getBoolean(Framework.NUXEO_STRICT_STARTUP_SYSTEM_PROP)) {
+                if (Boolean.getBoolean(Framework.STRICT_STARTUP_SYSTEM_PROP)) {
                     throw e;
                 } else {
                     log.error("Error during Framework Listener execution: {}", listener.getClass(), e);

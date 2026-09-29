@@ -67,7 +67,7 @@ public class SingleFlightCache<V> {
 
     /**
      * Runs {@code loader} for {@code key}, coalescing concurrent callers into one invocation. A null key bypasses
-     * coalescing entirely (Guava's cache rejects null keys, unlike the durable Nuxeo caches this sits alongside) and
+     * coalescing entirely (Guava's cache rejects null keys, unlike the durable OpenArch caches this sits alongside) and
      * just calls {@code loader} directly.
      */
     public V get(String key, Supplier<V> loader) {

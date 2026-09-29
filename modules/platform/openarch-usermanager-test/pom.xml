@@ -41,7 +41,7 @@
       <scope>compile</scope>
     </dependency>
 
-    <!-- test scope: needed by UserManagerResolverCommunityTest -->
+    <!-- test scope: needed by UserManagerResolverFileStoreTest -->
     <dependency>
       <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-usermanager</artifactId>

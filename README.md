@@ -32,9 +32,9 @@ See [Hyland OpenArch's documentation](https://hyland.github.io/ContentIntelligen
 ## Quick Start
 
 ### Start Hyland OpenArch with Docker
-Hyland OpenArch is available as a Docker image. You can start it with the following command, using the version 0.0.0 as an example:
+Hyland OpenArch is available as a Docker image. You can start it with the following command, using the version 1.0.0 as an example:
 ```shell
-export HXPR_VERSION=0.0.0
+export OPENARCH_VERSION=1.0.0
 docker-compose up
 ```
 

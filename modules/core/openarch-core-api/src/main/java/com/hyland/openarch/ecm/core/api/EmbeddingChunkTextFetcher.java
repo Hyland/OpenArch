@@ -22,9 +22,9 @@ import java.util.Map;
  * Resolves chunk text for embeddings whose text is not carried in the OpenSearch
  * {@code _source} - typically those written with {@code sysemb_residency = onPrem}.
  * <p>
- * The community read path publishes this contract; a residency-aware module
- * contributes the implementation. When no implementation is registered, the
- * caller receives an empty map and omits the affected hits from responses.
+ * A residency-aware module contributes the implementation. When no implementation
+ * is registered, the caller receives an empty map and omits the affected hits from
+ * responses.
  */
 public interface EmbeddingChunkTextFetcher {
 

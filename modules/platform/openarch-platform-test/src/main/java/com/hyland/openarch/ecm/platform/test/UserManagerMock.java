@@ -31,7 +31,7 @@ import com.hyland.openarch.ecm.platform.usermanager.UserManager;
 import com.hyland.openarch.ecm.platform.usermanager.UserManagerDescriptor;
 
 /**
- * In-memory {@link UserManager} implementation for use in community/platform tests.
+ * In-memory {@link UserManager} implementation for use in tests.
  * <p>
  * Pre-populated with a fixed set of test users and groups. See {@link UserManagerMockFeature}.
  */
@@ -67,7 +67,6 @@ public class UserManagerMock implements UserManager {
 
     public UserManagerMock() {
         addUser(TEST_USER_ID, "Test", "User", "test.user@hyland.com", null);
-        // Add IAM test attributes to match enterprise identity-resources.json test data
         users.get(TEST_USER_ID).setUserAttributes(
                 Map.of("YOJ", "2013", "empId", "E443336-3675", "favouriteColor", "beige"));
         addUser(TEST_USER_2_ID, "MyFirstOne", "MyFamilyOne", "firstOne.lastnameOne@hyland.com", "myUserNameOne");

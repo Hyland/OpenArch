@@ -39,9 +39,9 @@ public class BulkImportConstants {
 
     public static final String REPORT_FORMAT_EXTENSION = ".json";
 
-    public static final String HXPR_BULK_INGESTION_S_3_UPLOAD_ROLE_ARN = "hxpr.bulk.ingestion.s3.upload.roleArn";
+    public static final String BULK_INGESTION_S_3_UPLOAD_ROLE_ARN = "hxpr.bulk.ingestion.s3.upload.roleArn";
 
-    public static final String HXPR_BULK_INGESTION_S3_UPLOAD_BUCKET = "hxpr.bulk.ingestion.s3.upload.bucket";
+    public static final String BULK_INGESTION_S3_UPLOAD_BUCKET = "hxpr.bulk.ingestion.s3.upload.bucket";
 
     public enum JOB_STATUS {
         CREATED, VALID, INVALID, QUEUED, RUNNING, COMPLETED, FAILED, PAUSED, CANCELLED

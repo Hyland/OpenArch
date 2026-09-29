@@ -25,12 +25,9 @@ import com.hyland.openarch.runtime.test.runner.Features;
 import org.springframework.boot.test.context.SpringBootTest;
 
 /**
- * Community variant of {@link AbstractUserAPITest} — backed by the file-based
+ * Variant of {@link AbstractUserAPITest} backed by the file-based
  * {@link UserManagerFileStore} loaded from the bundled
  * {@code openarch-users.yml} test fixture.
- *
- * <p>Verifies that the real community {@link UserManager} implementation
- * satisfies the same contract as the enterprise version ({@link UserAPIEnterpriseTest}).
  */
 @Features({ UserManagerFileStoreFeature.class, DummyLoginFeature.class })
 @SpringBootTest(classes = { UserAPI.class, RepositoryExceptionController.class, UserManagerFileStoreTestConfiguration.class })

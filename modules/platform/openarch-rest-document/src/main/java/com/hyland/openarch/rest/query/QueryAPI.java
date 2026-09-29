@@ -37,7 +37,7 @@ import java.util.Map;
 
 import com.hyland.openarch.ecm.core.api.CoreInstance;
 import com.hyland.openarch.ecm.core.api.CoreSession;
-import com.hyland.openarch.rest.exception.HxprErrorResponse;
+import com.hyland.openarch.rest.exception.RepositoryErrorResponse;
 import com.hyland.openarch.rest.query.io.DocumentAdvancedQueryDTO;
 import com.hyland.openarch.rest.query.io.DocumentNamedQueryDTO;
 import com.hyland.openarch.rest.query.io.DocumentQueryDTO;
@@ -187,7 +187,7 @@ public class QueryAPI {
     @ApiResponse503(description = "The search index is unreachable. The request was not served and can be retried; Retry-After gives a delay in seconds.", //
             headers = @Header(name = RETRY_AFTER, description = "Seconds to wait before retrying.", schema = @Schema(type = "integer")))
     @ApiResponse400(description = "Invalid request body. Please be aware that termsAggregationProperty is required", content = {
-            @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = HxprErrorResponse.class), examples = {
+            @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = RepositoryErrorResponse.class), examples = {
                     @ExampleObject(value = QueryRequestConstants.TERMS_AGGREGATION_INVALID_INPUT_EXAMPLE) }) })
     public TermsAggregationQueryResultDTO queryTermsAggregation(
             @RequestBody(required = true) TermsAggregationsQueryDTO query) {

@@ -38,7 +38,7 @@ import ch.qos.logback.core.spi.FilterReply;
 
 class CondensingDuplicateMessageFilterTest {
 
-    private static final String TEST_LOGGER_NAME = "com.hyland.hxpr.TestLogger";
+    private static final String TEST_LOGGER_NAME = "com.hyland.openarch.TestLogger";
 
     private static final int ALLOWED_REPETITIONS = 3;
 

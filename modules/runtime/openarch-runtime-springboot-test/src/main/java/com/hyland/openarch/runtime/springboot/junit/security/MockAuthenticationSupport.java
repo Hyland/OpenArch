@@ -28,8 +28,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
- * Sets up Spring Security context for community/platform tests that use mock or community {@link UserManager}
- * implementations.
+ * Sets up Spring Security context for tests that use mock or {@link UserManager} implementations.
  * <p>
  * When {@link WithUser} is present, this support populates the {@link SecurityContextHolder} with a
  * {@link TestingAuthenticationToken} whose principal name is the user ID from the annotation (UUID). If the user is

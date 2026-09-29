@@ -1,4 +1,4 @@
-name: Continuous Integration - Build and test the HXPR Community project and its Docker image.
+name: Continuous Integration - Build and test OpenArch and its Docker image.
 
 on:
   push:
@@ -72,7 +72,7 @@ jobs:
           nexus-username: ${{ secrets.NEXUS_USERNAME }}
           nexus-password: ${{ secrets.NEXUS_PASSWORD }}
       - name: Set Maven version to current build
-        # processAllModules is required because the community tree has multiple parent poms.
+        # processAllModules is required to support multiple parent poms
         run: mvn --no-transfer-progress versions:set -DnewVersion=${{ env.VERSION }} -DgenerateBackupPoms=false -DprocessAllModules=true
       - name: Compile project
         run: mvn clean install -DskipTests
@@ -89,14 +89,14 @@ jobs:
         id: compose
         working-directory: ./server/openarch-app
         run: docker compose up --quiet-pull -d
-      - name: Build HxPR Community Server with Maven
+      - name: Build OpenArch Server with Maven
         run: |
           # Skip enforcer on PRs to allow SNAPSHOT dependencies from in-flight upstream PRs.
           mvn --no-transfer-progress -nsu verify \
           -f server/openarch-app -Plicense-check \
           -Dnuxeo.mongodb.server=$MONGODB_HOST:$MONGODB_PORT \
           -Dnuxeo.mongodb.dbname=unittests \
-          ${{ github.event_name == 'pull_request' && '-Dnuxeo.skip.enforcer=true' || '' }}
+          ${{ github.event_name == 'pull_request' && '-Dopenarch.skip.enforcer=true' || '' }}
         env:
           # use localhost for the host here because we are running the job on the VM.
           MONGODB_HOST: localhost
@@ -145,7 +145,7 @@ jobs:
 
       - name: Run Docker Image
         run: |
-          docker run --rm -d -p 8080:8080 --name=HXPR_COMMUNITY_APP --network="host" \
+          docker run --rm -d -p 8080:8080 --name=OPENARCH_APP --network="host" \
           -e NUXEO_MONGODB_SERVER=$MONGODB_HOST:$MONGODB_PORT \
           -e NUXEO_DATA_DIR=/tmp \
           ghcr.io/hyland/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
@@ -165,18 +165,18 @@ jobs:
       - name: Run Bruno collection
         working-directory: ${{ env.BRUNO_TEST_DIR }}
         run: |
-          bru run --env-file environments/community.localhost.json \
+          bru run --env-file environments/openarch.localhost.json \
             --reporter-html ${BRUNO_REPORTS_DIR}/bruno_test_report.html
       - name: Retrieve Docker Logs
         if: always()
         working-directory: ${{ env.BRUNO_TEST_DIR }}
-        run: docker logs HXPR_COMMUNITY_APP >> ${BRUNO_REPORTS_DIR}/hxpr_docker_logs.txt
+        run: docker logs OPENARCH_APP >> ${BRUNO_REPORTS_DIR}/docker_logs.txt
       - name: Dump docker logs on failure
         if: failure()
         uses: jwalton/gh-docker-logs@2741064ab9d7af54b0b1ffb6076cf64c16f0220e # v2.2.2
       - name: Stop Docker Image
         if: always()
-        run: docker stop HXPR_COMMUNITY_APP
+        run: docker stop OPENARCH_APP
       - name: Docker Compose Down
         if: always() && steps.compose.conclusion == 'success'
         working-directory: server/openarch-app

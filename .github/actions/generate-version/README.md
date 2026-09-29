@@ -1,6 +1,6 @@
 # Version Generation Action
 
-This action keeps community versioning decoupled by reading the major/minor value from `VERSION` and deriving the patch from git history.
+This action reads the major/minor value from `VERSION` and derives the patch from git history.
 
 ## How it works
 

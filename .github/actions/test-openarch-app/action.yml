@@ -1,4 +1,4 @@
-name: 'Test HxPR Server'
+name: 'Test OpenArch Server'
 description: 'Starts the server test services and runs the Maven verify for a server module'
 inputs:
   module-path:
@@ -21,14 +21,14 @@ runs:
         echo "Starting services with cached images for server tests..."
         # Images are already loaded from cache, so this should be fast
         docker compose -f docker-compose.yml up --quiet-pull -d
-    - name: Build HxPR Server with Maven
+    - name: Build OpenArch Server with Maven
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
         MODULE_PATH: ${{ inputs.module-path }}
         COVERAGE_OUTPUT_DIRECTORY: ${{ inputs.coverage-output-directory }}
         # Skip enforcer on PRs to allow SNAPSHOT dependencies from in-flight upstream PRs.
-        SKIP_ENFORCER: ${{ github.event_name == 'pull_request' && '-Dnuxeo.skip.enforcer=true' || '' }}
+        SKIP_ENFORCER: ${{ github.event_name == 'pull_request' && '-Dopenarch.skip.enforcer=true' || '' }}
         # use localhost for the host here because we are running the job on the VM.
         MONGODB_HOST: localhost
         MONGODB_PORT: 27017

@@ -71,7 +71,7 @@ public class RepositoryExceptionController {
     @Value("${nuxeo.rest.error.stack.show:false}")
     private boolean showStackTrace;
 
-    HxprErrorResponse createErrorResponse(int statusCode, Throwable cause) {
+    RepositoryErrorResponse createErrorResponse(int statusCode, Throwable cause) {
         // Jackson 3 appends source location to getMessage(); prefer the original message to keep responses clean.
         String message = (cause instanceof JacksonException je) ? je.getOriginalMessage() : cause.getMessage();
         if (statusCode == HttpStatus.INTERNAL_SERVER_ERROR.value()) {
@@ -80,7 +80,7 @@ public class RepositoryExceptionController {
         return createErrorResponse(statusCode, message, cause);
     }
 
-    HxprErrorResponse createErrorResponse(int status, String message, Throwable cause) {
+    RepositoryErrorResponse createErrorResponse(int status, String message, Throwable cause) {
         StackTraceElement[] stackTrace = null;
         Throwable exception = null;
         if (showStackTrace) {
@@ -110,7 +110,7 @@ public class RepositoryExceptionController {
                                .addKeyValue("isAdmin", principal.isAdministrator());
         }
         statusLog.log("STATUS is {} | {}", status, message);
-        return new HxprErrorResponse("exception", status, message, stackTrace, exception);
+        return new RepositoryErrorResponse("exception", status, message, stackTrace, exception);
     }
 
     protected <T> ResponseEntity<T> createResponseEntity(int status, T error) {
@@ -130,17 +130,17 @@ public class RepositoryExceptionController {
                 : RETRY_AFTER_DEFAULT_DELAY;
     }
 
-    protected ResponseEntity<HxprErrorResponse> createHxprErrorResponseResponseEntity(int status, String message,
-            Throwable cause) {
+    protected ResponseEntity<RepositoryErrorResponse> createRepositoryErrorResponseResponseEntity(int status, String message,
+                                                                                            Throwable cause) {
         return createResponseEntity(status, createErrorResponse(status, message, cause), cause);
     }
 
-    protected ResponseEntity<HxprErrorResponse> createHxprErrorResponseResponseEntity(int status, Throwable cause) {
+    protected ResponseEntity<RepositoryErrorResponse> createRepositoryErrorResponseResponseEntity(int status, Throwable cause) {
         return createResponseEntity(status, createErrorResponse(status, cause), cause);
     }
 
-    protected ResponseEntity<HxprErrorResponse> handleRepositoryException(RepositoryException exception) {
-        return createHxprErrorResponseResponseEntity(exception.getStatusCode(), exception);
+    protected ResponseEntity<RepositoryErrorResponse> handleRepositoryException(RepositoryException exception) {
+        return createRepositoryErrorResponseResponseEntity(exception.getStatusCode(), exception);
     }
 
     protected ResponseEntity<Map<String, List<ValidationErrorDTO>>> handleValidationException(ValidationException ve) {
@@ -157,25 +157,25 @@ public class RepositoryExceptionController {
     }
 
     @ExceptionHandler(value = InvalidFormatException.class)
-    public ResponseEntity<HxprErrorResponse> handleInvalidFormatException(InvalidFormatException exception) {
+    public ResponseEntity<RepositoryErrorResponse> handleInvalidFormatException(InvalidFormatException exception) {
         int status = HttpStatus.BAD_REQUEST.value();
         if (exception.getCause() instanceof DateTimeParseException) {
             String messageFormat = "Invalid date format for '%s' date";
             var exceptionPath = exception.getPath();
             String fieldName = exceptionPath.get(exceptionPath.size() - 1).getPropertyName();
-            return createHxprErrorResponseResponseEntity(status, messageFormat.formatted(fieldName),
+            return createRepositoryErrorResponseResponseEntity(status, messageFormat.formatted(fieldName),
                     exception.getCause());
         }
-        return createHxprErrorResponseResponseEntity(status, exception);
+        return createRepositoryErrorResponseResponseEntity(status, exception);
     }
 
     @ExceptionHandler(value = JsonPatchApplicationException.class)
-    public ResponseEntity<HxprErrorResponse> handleJsonPatchApplicationException(JsonPatchApplicationException cause) {
-        return createHxprErrorResponseResponseEntity(HttpStatus.BAD_REQUEST.value(), cause.getMessage(), cause);
+    public ResponseEntity<RepositoryErrorResponse> handleJsonPatchApplicationException(JsonPatchApplicationException cause) {
+        return createRepositoryErrorResponseResponseEntity(HttpStatus.BAD_REQUEST.value(), cause.getMessage(), cause);
     }
 
     @ExceptionHandler(value = HttpMessageConversionException.class)
-    public ResponseEntity<HxprErrorResponse> handleHttpMessageConversionException(
+    public ResponseEntity<RepositoryErrorResponse> handleHttpMessageConversionException(
             HttpMessageConversionException cause) {
         Throwable parseFailure = cause.getCause();
         if (parseFailure == null) {
@@ -184,11 +184,11 @@ public class RepositoryExceptionController {
             // runs. Reading this absent cause is what made the advice itself throw (HXCS-8835); the message is
             // fixed here because Spring's own names the handler method, which tells a caller nothing.
             if (cause instanceof HttpMessageNotReadableException) {
-                return createHxprErrorResponseResponseEntity(HttpStatus.BAD_REQUEST.value(),
+                return createRepositoryErrorResponseResponseEntity(HttpStatus.BAD_REQUEST.value(),
                         "Required request body is missing", cause);
             }
             // Not about reading the request -- a response the converters cannot write -- so it is ours.
-            return createHxprErrorResponseResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR.value(), cause);
+            return createRepositoryErrorResponseResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR.value(), cause);
         }
         int status = getStatusCode(parseFailure);
         if (parseFailure instanceof InvalidFormatException ife) {
@@ -198,11 +198,11 @@ public class RepositoryExceptionController {
         // characters), which are JacksonExceptions but not DatabindExceptions.
         if (parseFailure instanceof JacksonException jme) {
             if (parseFailure instanceof UnrecognizedPropertyException upe) {
-                return createHxprErrorResponseResponseEntity(HttpStatus.UNPROCESSABLE_ENTITY.value(), upe.getMessage(), upe);
+                return createRepositoryErrorResponseResponseEntity(HttpStatus.UNPROCESSABLE_ENTITY.value(), upe.getMessage(), upe);
             }
-            return createHxprErrorResponseResponseEntity(status, "Invalid input", jme);
+            return createRepositoryErrorResponseResponseEntity(status, "Invalid input", jme);
         }
-        return createHxprErrorResponseResponseEntity(status, cause);
+        return createRepositoryErrorResponseResponseEntity(status, cause);
     }
 
     /**
@@ -216,16 +216,16 @@ public class RepositoryExceptionController {
      * where the message is replaced and the cause is logged at ERROR.
      */
     @ExceptionHandler(value = MultipartException.class)
-    public ResponseEntity<HxprErrorResponse> handleMultipartException(MultipartException cause,
-            HttpServletRequest request) {
+    public ResponseEntity<RepositoryErrorResponse> handleMultipartException(MultipartException cause,
+                                                                            HttpServletRequest request) {
         if (cause instanceof ErrorResponse) {
             // The subclasses Spring classifies itself keep their own status, MaxUploadSizeExceededException's
             // 413 above all. getStatusCode already reads it, so the rule is not restated here.
-            return createHxprErrorResponseResponseEntity(getStatusCode(cause), cause);
+            return createRepositoryErrorResponseResponseEntity(getStatusCode(cause), cause);
         }
         int status = isUnparseableByItsOwnHeader(request) ? HttpStatus.BAD_REQUEST.value()
                 : HttpStatus.INTERNAL_SERVER_ERROR.value();
-        return createHxprErrorResponseResponseEntity(status, cause);
+        return createRepositoryErrorResponseResponseEntity(status, cause);
     }
 
     /**
@@ -246,33 +246,33 @@ public class RepositoryExceptionController {
     }
 
     @ExceptionHandler(value = TransactionRuntimeException.class)
-    public ResponseEntity<HxprErrorResponse> handleTransactionRuntimeException(TransactionRuntimeException cause) {
-        return createHxprErrorResponseResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR.value(), cause.getMessage(),
+    public ResponseEntity<RepositoryErrorResponse> handleTransactionRuntimeException(TransactionRuntimeException cause) {
+        return createRepositoryErrorResponseResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR.value(), cause.getMessage(),
                 cause);
     }
 
     @ExceptionHandler(value = RenditionException.class)
-    public ResponseEntity<HxprErrorResponse> handleRenditionException(RenditionException cause) {
-        return createHxprErrorResponseResponseEntity(cause.getStatusCode(), cause);
+    public ResponseEntity<RepositoryErrorResponse> handleRenditionException(RenditionException cause) {
+        return createRepositoryErrorResponseResponseEntity(cause.getStatusCode(), cause);
     }
 
     @ExceptionHandler(value = AccessDeniedException.class)
-    public ResponseEntity<HxprErrorResponse> handleAccessDeniedException(AccessDeniedException cause) {
-        return createHxprErrorResponseResponseEntity(HttpStatus.UNAUTHORIZED.value(), cause.getMessage(), cause);
+    public ResponseEntity<RepositoryErrorResponse> handleAccessDeniedException(AccessDeniedException cause) {
+        return createRepositoryErrorResponseResponseEntity(HttpStatus.UNAUTHORIZED.value(), cause.getMessage(), cause);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<HxprErrorResponse> handleConstraintViolationException(ConstraintViolationException cause) {
+    public ResponseEntity<RepositoryErrorResponse> handleConstraintViolationException(ConstraintViolationException cause) {
         String message = cause.getMessage();
         if (message != null && message.indexOf(CONSTRAINT_VIOLATION_SEPARATOR) >= 1) {
             message = message.split(CONSTRAINT_VIOLATION_SEPARATOR)[1];
         }
-        return createHxprErrorResponseResponseEntity(HttpStatus.BAD_REQUEST.value(), message, cause);
+        return createRepositoryErrorResponseResponseEntity(HttpStatus.BAD_REQUEST.value(), message, cause);
     }
 
     @ExceptionHandler(UnsupportedOperationException.class)
-    public ResponseEntity<HxprErrorResponse> handleUnsupportedOperationException(UnsupportedOperationException cause) {
-        return createHxprErrorResponseResponseEntity(HttpStatus.NOT_IMPLEMENTED.value(), HttpStatus.NOT_IMPLEMENTED.getReasonPhrase(), cause);
+    public ResponseEntity<RepositoryErrorResponse> handleUnsupportedOperationException(UnsupportedOperationException cause) {
+        return createRepositoryErrorResponseResponseEntity(HttpStatus.NOT_IMPLEMENTED.value(), HttpStatus.NOT_IMPLEMENTED.getReasonPhrase(), cause);
     }
 
     @ExceptionHandler(value = Throwable.class)
@@ -286,7 +286,7 @@ public class RepositoryExceptionController {
             return handleRepositoryException(ne);
         }
         int statusCode = getStatusCode(cause);
-        return createHxprErrorResponseResponseEntity(statusCode, cause);
+        return createRepositoryErrorResponseResponseEntity(statusCode, cause);
     }
 
     protected static int getStatusCode(Throwable t) {

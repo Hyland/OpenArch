@@ -33,7 +33,7 @@ import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Test;
 
-/** Isolated unit tests for {@link SingleFlightCache} - no mocking, no Spring/Nuxeo runtime. */
+/** Isolated unit tests for {@link SingleFlightCache} - no mocking, no Spring/OpenArch runtime. */
 class SingleFlightCacheTest {
 
     private static final String KEY = "key";
@@ -228,7 +228,7 @@ class SingleFlightCacheTest {
 
     /**
      * Guava's Cache rejects null keys ({@code NullPointerException} on both {@code get} and {@code invalidate}), unlike
-     * the durable Nuxeo caches this sits alongside - a null key must bypass coalescing entirely rather than blow up.
+     * the durable OpenArch caches this sits alongside - a null key must bypass coalescing entirely rather than blow up.
      */
     @Test
     void get_withNullKey_shouldBypassCacheAndCallLoaderDirectly() {

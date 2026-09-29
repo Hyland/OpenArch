@@ -23,7 +23,7 @@ import com.hyland.openarch.runtime.test.runner.Features;
 import org.springframework.boot.test.context.SpringBootTest;
 
 /**
- * Integration tests for {@link UserManagerResolver} backed by the community file-based
+ * Integration tests for {@link UserManagerResolver} backed by the file-based
  * {@link UserManagerFileStore}.
  */
 @Features({ UserManagerFileStoreFeature.class })

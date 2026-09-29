@@ -233,7 +233,7 @@ public class FrameworkLoader {
 
     private static Environment createEnvironment(File home, Map<String, Object> hostEnv) {
         Properties sysprops = System.getProperties();
-        sysprops.setProperty(Environment.NUXEO_RUNTIME_HOME, home.getAbsolutePath());
+        sysprops.setProperty(Environment.RUNTIME_HOME, home.getAbsolutePath());
 
         Environment env = Environment.getDefault();
         if (env == null) {
@@ -244,32 +244,32 @@ public class FrameworkLoader {
         }
 
         String v;
-        v = getEnvProperty(Environment.NUXEO_DATA_DIR, hostEnv, sysprops, true);
+        v = getEnvProperty(Environment.DATA_DIR, hostEnv, sysprops, true);
         if (v != null) {
             env.setData(new File(v));
         } else {
-            sysprops.setProperty(Environment.NUXEO_DATA_DIR, env.getData().getAbsolutePath());
+            sysprops.setProperty(Environment.DATA_DIR, env.getData().getAbsolutePath());
         }
 
-        v = getEnvProperty(Environment.NUXEO_LOG_DIR, hostEnv, sysprops, true);
+        v = getEnvProperty(Environment.LOG_DIR, hostEnv, sysprops, true);
         if (v != null) {
             env.setLog(new File(v));
         } else {
-            sysprops.setProperty(Environment.NUXEO_LOG_DIR, env.getLog().getAbsolutePath());
+            sysprops.setProperty(Environment.LOG_DIR, env.getLog().getAbsolutePath());
         }
 
-        v = getEnvProperty(Environment.NUXEO_TMP_DIR, hostEnv, sysprops, true);
+        v = getEnvProperty(Environment.TMP_DIR, hostEnv, sysprops, true);
         if (v != null) {
             env.setTemp(new File(v));
         } else {
-            sysprops.setProperty(Environment.NUXEO_TMP_DIR, env.getTemp().getAbsolutePath());
+            sysprops.setProperty(Environment.TMP_DIR, env.getTemp().getAbsolutePath());
         }
 
-        v = getEnvProperty(Environment.NUXEO_CONFIG_DIR, hostEnv, sysprops, true);
+        v = getEnvProperty(Environment.CONFIG_DIR, hostEnv, sysprops, true);
         if (v != null) {
             env.setConfig(new File(v));
         } else {
-            sysprops.setProperty(Environment.NUXEO_CONFIG_DIR, env.getConfig().getAbsolutePath());
+            sysprops.setProperty(Environment.CONFIG_DIR, env.getConfig().getAbsolutePath());
         }
 
         return env;

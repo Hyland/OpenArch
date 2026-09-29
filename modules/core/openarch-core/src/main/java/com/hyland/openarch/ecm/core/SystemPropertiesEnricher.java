@@ -29,7 +29,7 @@ import com.hyland.openarch.ecm.core.api.DocumentEnrichmentContext;
 import com.hyland.openarch.ecm.core.model.InternalDocument;
 
 /**
- * Community-provided enricher that stamps the document system fields ({@code sys_created},
+ * Enricher that stamps the document system fields ({@code sys_created},
  * {@code sys_creator}, {@code sys_modified}, {@code sys_lastContributor}, {@code sys_contributors})
  * on create and update. Registered against the {@code enrichers} extension point so it runs at the
  * same point as any downstream enrichers, in the same transaction.

@@ -60,7 +60,7 @@ import com.hyland.openarch.async.tasks.TaskService;
     This test checks the specific default behavior of OpenSearch functionality: date_detection.
     If in not yet indexed by OpenSearch field, properly formatted date data is sent to OpenSearch, OpenSearch will by default index it as date.
     Then, if you try to send not a date data in the same field of the document, opensearch indexing will fail and document won't be searchable.
-    For now, date detection should be disabled by default in hxpr app.
+    For now, date detection should be disabled by default in OpenArch app.
  */
 @Features({RepositoryOpenSearchFeature.class, UserManagerMockFeature.class})
 @Deploy("com.hyland.openarch.opensearch.core:opensearch-test-nested-mapping-contrib.xml")

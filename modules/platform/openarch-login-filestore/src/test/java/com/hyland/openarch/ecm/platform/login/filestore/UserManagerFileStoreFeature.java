@@ -26,15 +26,15 @@ import com.hyland.openarch.runtime.test.runner.RunnerFeature;
 
 /**
  * Test feature that provides the file-based {@link UserManager} implementation
- * ({@link UserManagerFileStore}) for tests that exercise the community profile.
+ * ({@link UserManagerFileStore}) for tests.
  * <p>
  * Use this feature as a drop-in replacement for
  * {@link com.hyland.openarch.ecm.platform.test.UserManagerMockFeature} when you want to validate behaviour
- * against the real community {@code UserManager} rather than the hard-coded mock.
+ * against the real {@code UserManager} rather than the hard-coded mock.
  *
  * <pre>{@code
- * @Features({UserManagerCommunityFeature.class, DummyLoginFeature.class})
- * @Import(UserManagerCommunityTestConfiguration.class)
+ * @Features({UserManagerFileStoreFeature.class, DummyLoginFeature.class})
+ * @Import(UserManagerFileStoreTestConfiguration.class)
  * @SpringBootTest(classes = { MyController.class })
  * class MyControllerTest extends RuntimeSpringBootTest { ... }
  * }</pre>

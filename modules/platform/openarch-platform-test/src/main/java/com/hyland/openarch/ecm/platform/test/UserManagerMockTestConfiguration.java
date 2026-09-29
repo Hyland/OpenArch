@@ -28,8 +28,7 @@ import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 /**
  * Spring {@link TestConfiguration} that registers {@link UserManagerMock} as the {@code UserManager} bean.
  * <p>
- * Use together with {@link UserManagerMockFeature} in community/platform tests that need a {@code UserManager}
- * without a dependency on {@code hxpr-login-hxp}.
+ * Use together with {@link UserManagerMockFeature} in tests that need a {@code UserManager}.
  *
  * <pre>{@code
  * @Features({UserManagerMockFeature.class, DummyLoginFeature.class})

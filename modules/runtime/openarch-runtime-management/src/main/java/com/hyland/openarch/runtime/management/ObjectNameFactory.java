@@ -26,13 +26,13 @@ import javax.management.ObjectName;
  */
 public class ObjectNameFactory {
 
-    public static final String NUXEO_DOMAIN_NAME = "com.hyland.openarch";
+    public static final String DOMAIN_NAME = "com.hyland.openarch";
 
     private ObjectNameFactory() {
     }
 
     public static String formatMetricQualifiedName(String instanceName, String metricName) {
-        StringBuilder sb = new StringBuilder(NUXEO_DOMAIN_NAME).append(":");
+        StringBuilder sb = new StringBuilder(DOMAIN_NAME).append(":");
         int lastDotIndex = instanceName.lastIndexOf('.');
         if (lastDotIndex > 0) {
             String packageName = instanceName.substring(0, lastDotIndex);
@@ -48,7 +48,7 @@ public class ObjectNameFactory {
     }
 
     public static String formatTypeQuery(String typeName) {
-        return String.format("%s:type=%s,*", NUXEO_DOMAIN_NAME, typeName);
+        return String.format("%s:type=%s,*", DOMAIN_NAME, typeName);
     }
 
     private static final Pattern namePattern = Pattern.compile(".*:.*");
@@ -74,9 +74,9 @@ public class ObjectNameFactory {
     public static String getQualifiedName(String name) {
         String qualifiedName = name;
         if (!hasAttributeValueAssertion(qualifiedName)) {
-            qualifiedName = NUXEO_DOMAIN_NAME + ":name=" + name + ",type=service";
+            qualifiedName = DOMAIN_NAME + ":name=" + name + ",type=service";
         } else if (!hasDomain(qualifiedName)) {
-            qualifiedName = NUXEO_DOMAIN_NAME + ":" + qualifiedName;
+            qualifiedName = DOMAIN_NAME + ":" + qualifiedName;
         }
         return qualifiedName;
     }

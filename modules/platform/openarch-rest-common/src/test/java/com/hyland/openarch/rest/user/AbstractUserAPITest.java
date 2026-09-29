@@ -26,7 +26,7 @@ import com.hyland.openarch.ecm.platform.usermanager.UserManager;
 import com.hyland.openarch.runtime.springboot.junit.RuntimeSpringBootTest;
 
 /**
- * Abstract base class for {@link UserAPI} tests, shared between community (mock) and enterprise (real IAM) variants.
+ * Abstract base class for {@link UserAPI} tests, shared between variants.
  * Subclasses provide the Spring/OpenArch annotations and the {@link UserManager} implementation via their feature/config.
  */
 public abstract class AbstractUserAPITest extends RuntimeSpringBootTest {

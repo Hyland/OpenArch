@@ -22,10 +22,9 @@ import java.util.Map;
  * Store, asynchronously.
  * <p>
  * The embeddings parquet drives cloud indexing for every document; the chunk parquet drives the EV
- * Store, but only for documents whose {@code sysemb_residency} is {@code onPrem}. The community
- * ingestion path publishes this contract and a residency-aware module contributes the
- * implementation. When no implementation is registered (a cloud-only deployment) the ingestion path
- * resolves {@code null} and simply skips the write.
+ * Store, but only for documents whose {@code sysemb_residency} is {@code onPrem}. A
+ * residency-aware module contributes the implementation. When no implementation is registered (a
+ * cloud-only deployment) the ingestion path resolves {@code null} and simply skips the write.
  * <p>
  * Implementations enqueue the write rather than performing it inline: each call fans the supplied
  * chunks out across one or more asynchronous EV Store bulk operations (at most 50 content values

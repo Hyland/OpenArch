@@ -8,7 +8,7 @@
   </parent>
 
   <artifactId>openarch-rest-document</artifactId>
-  <name>HxPR Document REST Endpoint</name>
+  <name>OpenArch REST Endpoint</name>
 
   <properties>
     <manifest.file>src/main/resources/META-INF/MANIFEST.MF</manifest.file>

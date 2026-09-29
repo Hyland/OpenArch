@@ -21,10 +21,10 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public record HxprErrorResponse(@JsonProperty(value = HxprErrorResponse.ENTITY_TYPE_PROP_NAME, index = 0) String entityType, int status,
-                                String message,
-                                @JsonInclude(JsonInclude.Include.NON_NULL) StackTraceElement[] stackTrace,
-                                @JsonInclude(JsonInclude.Include.NON_NULL) Throwable exception) {
+public record RepositoryErrorResponse(@JsonProperty(value = RepositoryErrorResponse.ENTITY_TYPE_PROP_NAME, index = 0) String entityType, int status,
+                                      String message,
+                                      @JsonInclude(JsonInclude.Include.NON_NULL) StackTraceElement[] stackTrace,
+                                      @JsonInclude(JsonInclude.Include.NON_NULL) Throwable exception) {
 
     public static final String ENTITY_TYPE_PROP_NAME = "entity-type";
     public static final String STATUS_PROP_NAME = "status";
@@ -37,7 +37,7 @@ public record HxprErrorResponse(@JsonProperty(value = HxprErrorResponse.ENTITY_T
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        HxprErrorResponse that = (HxprErrorResponse) obj;
+        RepositoryErrorResponse that = (RepositoryErrorResponse) obj;
         if (status != that.status) {
             return false;
         }
@@ -65,7 +65,7 @@ public record HxprErrorResponse(@JsonProperty(value = HxprErrorResponse.ENTITY_T
 
     @Override
     public String toString() {
-        return "HxprErrorResponse{" + //
+        return "RepositoryErrorResponse{" + //
                 "entityType='" + entityType + '\'' + //
                 ", status=" + status + //
                 ", message='" + message + '\'' + //

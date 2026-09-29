@@ -66,7 +66,7 @@ public class OSGiRuntimeService implements RuntimeService, FrameworkListener {
 
     private static final Logger log = LogManager.getLogger(OSGiRuntimeService.class);
 
-    public static final String PROP_NUXEO_BIND_ADDRESS = "nuxeo.bind.address";
+    public static final String PROP_BIND_ADDRESS = "nuxeo.bind.address";
 
     public static final String NAME = "OSGi NXRuntime";
 
@@ -96,9 +96,9 @@ public class OSGiRuntimeService implements RuntimeService, FrameworkListener {
         runtimeContexts = new ConcurrentHashMap<>();
 
         properties = new Properties(System.getProperties());
-        String bindAddress = bundleContext.getProperty(PROP_NUXEO_BIND_ADDRESS);
+        String bindAddress = bundleContext.getProperty(PROP_BIND_ADDRESS);
         if (bindAddress != null) {
-            properties.put(PROP_NUXEO_BIND_ADDRESS, bindAddress);
+            properties.put(PROP_BIND_ADDRESS, bindAddress);
         }
         workingDir = bundleContext.getDataFile("/");
         // environment may not be set by some bootstrappers (like tests) - we create it now if not yet created

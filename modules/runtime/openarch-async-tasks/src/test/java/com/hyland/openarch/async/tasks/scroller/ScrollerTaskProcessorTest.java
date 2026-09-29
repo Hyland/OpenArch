@@ -67,7 +67,7 @@ public class ScrollerTaskProcessorTest {
      * sequence under test: {@code handlePostProcessing} -&gt; {@code status.setState(COMPLETED)} -&gt;
      * {@code finally} -&gt; {@code asyncTasksService.setStatus(status)} -&gt; {@code handleFinalProcessing}. The
      * underlying {@link CoreSession} is mocked (with a static mock of {@link CoreInstance}) since this module has
-     * no dependency on a real Nuxeo core/repository test harness.
+     * no dependency on a real OpenArch core/repository test harness.
      * <p>
      * The assertion fetches the status fresh from {@link TaskService#getStatus(String)} from within
      * {@code handleFinalProcessing} itself, rather than relying on the local {@code status} variable held by

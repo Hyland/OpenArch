@@ -41,7 +41,7 @@ public class ApplicationLifeCycle implements ApplicationListener<ApplicationEnvi
     public void handleStrictMode(ApplicationReadyEvent event) {
         boolean strict = event.getApplicationContext()
                               .getEnvironment()
-                              .getProperty(Framework.NUXEO_STRICT_STARTUP_SYSTEM_PROP, Boolean.class, true);
+                              .getProperty(Framework.STRICT_STARTUP_SYSTEM_PROP, Boolean.class, true);
         if (strict) {
             RuntimeService runtime = Framework.getRuntime();
             if (runtime == null) {

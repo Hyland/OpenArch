@@ -41,7 +41,7 @@ public class OSGIRuntimeTestActivator extends OSGiRuntimeActivator {
         runtime = new OSGiRuntimeService(context);
         String tempDir = Environment.getDefault().getTemp().getAbsolutePath();
         System.setProperty("java.io.tmpdir", tempDir);
-        System.setProperty(Environment.NUXEO_TMP_DIR, tempDir);
+        System.setProperty(Environment.TMP_DIR, tempDir);
 
         // start it
         Framework.initialize(runtime);

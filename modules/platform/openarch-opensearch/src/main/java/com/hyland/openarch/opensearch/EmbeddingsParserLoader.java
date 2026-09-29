@@ -28,7 +28,7 @@ import com.hyland.openarch.opensearch.io.EmbeddingsParser;
 
 /**
  * Utility for loading the embeddings parser with validation that exactly one parser is registered.
- * Throws NuxeoException if multiple parsers are found; falls back to default if none.
+ * Throws RepositoryException if multiple parsers are found; falls back to default if none.
  */
 public class EmbeddingsParserLoader {
     private static final Logger log = LogManager.getLogger(EmbeddingsParserLoader.class);

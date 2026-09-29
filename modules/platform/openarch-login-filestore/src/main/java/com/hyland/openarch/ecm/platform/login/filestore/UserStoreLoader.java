@@ -85,10 +85,10 @@ public class UserStoreLoader {
             UsersFileModel model = mapper.readValue(inputStream, UsersFileModel.class);
             this.store = UserStore.from(model);
             this.userDetails = buildUserDetails(model, model.getAdministratorsGroups());
-            log.info("Loaded {} user(s) and {} group(s) from community user-store: {}", model.getUsers().size(),
+            log.info("Loaded {} user(s) and {} group(s) from file-based user-store: {}", model.getUsers().size(),
                     model.getGroups().size(), fileLocation);
         } catch (IOException | JacksonException e) {
-            throw new IllegalStateException("Failed to parse community user-store file: " + fileLocation, e);
+            throw new IllegalStateException("Failed to parse file-based user-store file: " + fileLocation, e);
         }
     }
 

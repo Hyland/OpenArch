@@ -69,7 +69,7 @@ public final class Framework {
      * @since 5.6
      * @see #isDevModeSet()
      */
-    public static final String NUXEO_DEV_SYSTEM_PROP = "org.nuxeo.dev";
+    public static final String DEV_SYSTEM_PROP = "org.nuxeo.dev";
 
     /**
      * Global testing property.
@@ -77,14 +77,14 @@ public final class Framework {
      * @since 5.6
      * @see #isTestModeSet()
      */
-    public static final String NUXEO_TESTING_SYSTEM_PROP = "com.hyland.openarch.runtime.testing";
+    public static final String TESTING_SYSTEM_PROP = "com.hyland.openarch.runtime.testing";
 
     /**
      * Property for strict mode startup.
      *
      * @since TODO
      */
-    public static final String NUXEO_STRICT_STARTUP_SYSTEM_PROP = "nuxeo.runtime.startup.strict";
+    public static final String STRICT_STARTUP_SYSTEM_PROP = "nuxeo.runtime.startup.strict";
 
     /**
      * The runtime instance.
@@ -439,7 +439,7 @@ public final class Framework {
      * reset some caches when that happens.
      */
     public static boolean isDevModeSet() {
-        return isBooleanPropertyTrue(NUXEO_DEV_SYSTEM_PROP);
+        return isBooleanPropertyTrue(DEV_SYSTEM_PROP);
     }
 
     /**
@@ -448,7 +448,7 @@ public final class Framework {
      * Activating this mode, some of the code may not behave as it would in production, to ease up testing.
      */
     public static boolean isTestModeSet() {
-        return isBooleanPropertyTrue(NUXEO_TESTING_SYSTEM_PROP);
+        return isBooleanPropertyTrue(TESTING_SYSTEM_PROP);
     }
 
     /**

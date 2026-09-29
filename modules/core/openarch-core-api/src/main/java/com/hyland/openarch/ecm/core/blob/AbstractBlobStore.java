@@ -82,7 +82,7 @@ public abstract class AbstractBlobStore implements BlobStore {
 
     protected void logTrace(String source, String arrow, String dest, String message) {
         if (source == null) {
-            source = "Nuxeo";
+            source = "OpenArch";
         }
         if (dest == null) {
             dest = name;

@@ -18,11 +18,6 @@ package com.hyland.openarch.ecm.core.api;
 /**
  * Pluggable hook invoked when a document is created or updated, immediately alongside the
  * {@code sys_modified} stamping and within the same transaction.
- * <p>
- * Community itself ships the {@code SystemPropertiesEnricher} against this hook to stamp the
- * {@code sys_*} system fields; downstream distributions (e.g. the enterprise distribution) contribute
- * further implementations to the {@code enrichers} extension point of the
- * {@code com.hyland.openarch.ecm.core.api.DocumentEnrichmentService} component.
  */
 public interface DocumentEnricher {
 

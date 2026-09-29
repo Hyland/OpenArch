@@ -286,7 +286,7 @@ public class ComponentManagerImpl implements ComponentManager {
             log.debug("The component exposing the service: {} is not resolved", serviceClass);
         }
         if (ri.getState() == RegistrationInfo.START_FAILURE
-                && Boolean.getBoolean(Framework.NUXEO_STRICT_STARTUP_SYSTEM_PROP)) {
+                && Boolean.getBoolean(Framework.STRICT_STARTUP_SYSTEM_PROP)) {
             log.warn("The component exposing the service: {} has failed to start", serviceClass);
             return null;
         }

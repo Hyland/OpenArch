@@ -24,7 +24,7 @@ import com.hyland.openarch.runtime.test.runner.Features;
 import org.springframework.boot.test.context.SpringBootTest;
 
 /**
- * Community variant of {@link AbstractGroupAPITest} — backed by the file based usermanager via
+ * Variant of {@link AbstractGroupAPITest} backed by the file based UserManager via
  * {@link UserManagerFileStoreTestConfiguration}.
  */
 @Features({ UserManagerFileStoreFeature.class, DummyLoginFeature.class })

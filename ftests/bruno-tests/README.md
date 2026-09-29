@@ -1,6 +1,6 @@
 # Bruno Tests
 
-This folder contains the Bruno collection for running end-to-end tests against the HxPR Community application.
+This folder contains the Bruno collection for running end-to-end tests against the OpenArch application.
 
 ## Installation
 
@@ -47,19 +47,19 @@ To import the collection into the Bruno App:
 1. Open the Bruno desktop application.
 2. Click **Open Collection** from the home screen (or **File → Open Collection** from the menu).
 3. Navigate to and select the `ftests/bruno-tests` directory.
-4. The **HxPR Community Tests** collection will appear in the left sidebar with all requests listed in order.
-5. Select the `community.localhost` environment from the environment dropdown (top-right corner) to load the default variables.
+4. The **OpenArch Tests** collection will appear in the left sidebar with all requests listed in order.
+5. Select the `openarch.localhost` environment from the environment dropdown (top-right corner) to load the default variables.
 
-> **Note:** You can edit the environment variables (e.g. `idp_user_name`, `idp_user_password`) directly in Bruno via **Environments → community.localhost**.
+> **Note:** You can edit the environment variables (e.g. `idp_user_name`, `idp_user_password`) directly in Bruno via **Environments → openarch.localhost**.
 
 ## Running Tests
 
 ### Prerequisites
 
-Make sure the HxPR Community application is running and accessible at `http://localhost:8080` before executing the tests. You can start it locally using Docker:
+Make sure the OpenArch application is running and accessible at `http://localhost:8080` before executing the tests. You can start it locally using Docker:
 
 ```bash
-docker run --rm -d -p 8080:8080 --name=HXPR_COMMUNITY_APP \
+docker run --rm -d -p 8080:8080 --name=OPENARCH_APP \
   -e NUXEO_MONGODB_SERVER=localhost:27017 \
   -e NUXEO_DATA_DIR=/tmp \
   ghcr.io/hyland/openarch-app-jvm:<version>
@@ -70,13 +70,13 @@ docker run --rm -d -p 8080:8080 --name=HXPR_COMMUNITY_APP \
 From the `ftests/bruno-tests` directory, run all requests in sequence using the Bruno CLI:
 
 ```bash
-bru run --env-file environments/community.localhost.json
+bru run --env-file environments/openarch.localhost.json
 ```
 
 ### Run with an HTML report
 
 ```bash
-bru run --env-file environments/community.localhost.json \
+bru run --env-file environments/openarch.localhost.json \
   --reporter-html localTestResults/bruno_test_report.html
 ```
 
@@ -85,5 +85,5 @@ The report will be generated at `localTestResults/bruno_test_report.html`.
 ### Run a single request
 
 ```bash
-bru run get-health-check.bru --env-file environments/community.localhost.json
+bru run get-health-check.bru --env-file environments/openarch.localhost.json
 ```

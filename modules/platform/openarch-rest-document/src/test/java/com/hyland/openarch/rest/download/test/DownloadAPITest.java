@@ -110,7 +110,6 @@ public class DownloadAPITest extends AbstractAPITest {
         doc.setPropertyValue("tp_fileList", List.of( //
                 getBlob("foo", "hello multiple world1!"), //
                 getBlob("bar", "hello multiple world2!"),
-                // non-regression test for https://github.com/HylandSoftware/hxpr/pull/201
                 Blobs.createBlob("hello multiple world3!".getBytes()) //
         ));
         doc.setPropertyValue("tp_fileComplexList", List.of( //
@@ -201,7 +200,6 @@ public class DownloadAPITest extends AbstractAPITest {
         r = checkResponseStatus(HEAD, NO_CONTENT, docId, "tp_fileList/1");
         r.andExpectAll(content().string(""), header().doesNotExist(HttpHeaders.CONTENT_ENCODING));
 
-        // non-regression test for https://github.com/HylandSoftware/hxpr/pull/201
         r = checkResponseStatus(HEAD, NO_CONTENT, docId, "tp_fileList/2");
         r.andExpectAll(content().string(""), header().doesNotExist(HttpHeaders.CONTENT_ENCODING));
 
@@ -254,7 +252,6 @@ public class DownloadAPITest extends AbstractAPITest {
         checkResponseStatus(GET, NOT_FOUND, docId, "tp_fileList/42");
         checkResponseAndContent(GET, OK, docId, "tp_fileList/1",
                 "3a3015cef5604dbbe1a5cc17bd1805b76129ca09814beec574163b9da8342e80", "hello multiple world2!");
-        // non-regression test for https://github.com/HylandSoftware/hxpr/pull/201
         ResultActions r = checkResponseStatus(GET, OK, docId, "tp_fileList/2");
         r.andExpect(content().contentType(Versions.APP_HXCS_OCTET_STREAM_V1));
         r.andExpectAll(

@@ -9,7 +9,6 @@
     },
     {
       "shard": "shard-2",
-      "type": "community",
       "modules": "openarch-core-test",
       "expected_time": "115.5s",
       "test_count": 671,

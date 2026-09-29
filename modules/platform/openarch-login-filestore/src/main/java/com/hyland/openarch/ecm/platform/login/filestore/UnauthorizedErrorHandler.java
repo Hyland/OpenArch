@@ -27,11 +27,6 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 
 /**
  * {@link AuthenticationEntryPoint} that returns a plain 401 response and logs the URL and reason.
- * <p>
- * Used by both the filestore (HTTP Basic) and Nucleus (OAuth2 JWT) security configurations. The class is duplicated
- * across {@code openarch-login-filestore} and {@code hxpr-login-hxp} because the two modules cannot share a common
- * dependency without introducing a circular or cross-boundary dependency.
- * </p>
  */
 public class UnauthorizedErrorHandler implements AuthenticationEntryPoint {
 

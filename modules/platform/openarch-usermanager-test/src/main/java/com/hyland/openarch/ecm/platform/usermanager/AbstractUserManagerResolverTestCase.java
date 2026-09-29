@@ -49,8 +49,7 @@ import com.hyland.openarch.runtime.test.runner.Features;
  * Abstract base test for {@link UserManagerResolver} that exercises the resolver with a concrete {@link UserManager}
  * implementation.
  * <p>
- * Subclasses provide the feature and Spring configuration needed to boot a specific UserManager backend (enterprise IdP
- * or community file-based).
+ * Subclasses provide the feature and Spring configuration needed to boot a specific UserManager backend.
  * </p>
  */
 @Features({ CoreFeature.class })

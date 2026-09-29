@@ -32,7 +32,7 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 /**
- * Spring Security configuration for the community profile.
+ * Spring Security configuration.
  * <p>
  * Activates HTTP Basic authentication backed by an in-memory user store populated from the YAML
  * user-store file via {@link UserStoreLoader}.
@@ -53,9 +53,9 @@ public class FileStoreSecurityConfiguration {
             }
             authorize.anyRequest().authenticated();
         // CSRF must be explicitly disabled for stateless REST clients (e.g. RestAssured in integration tests).
-        // The enterprise profile uses oauth2ResourceServer(), which implicitly applies STATELESS session
-        // management and therefore auto-disables CSRF. Basic Auth carries no such implicit policy, so
-        // Spring Security's default CSRF filter would block every POST/PUT/DELETE request with a 401/403.
+        // Configuring oauth2ResourceServer() implicitly applies STATELESS session management and therefore
+        // auto-disables CSRF, but Basic Auth carries no such implicit policy, so Spring Security's default
+        // CSRF filter would block every POST/PUT/DELETE request with a 401/403.
         }).csrf(CsrfConfigurer::disable) // NOSONAR java:S4502
             .cors(withDefaults())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
