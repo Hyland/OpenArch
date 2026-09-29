@@ -354,7 +354,6 @@ public class OSGiRuntimeService implements RuntimeService, FrameworkListener {
         }
 
         properties.putAll(env.getProperties());
-        loadRepositoryConf();
 
         File dir = env.getConfig();
         String[] names = dir.list();
@@ -397,21 +396,6 @@ public class OSGiRuntimeService implements RuntimeService, FrameworkListener {
         String contextPathProp = "org.nuxeo.ecm.contextPath";
         if (Framework.getProperty(contextPathProp) == null) {
             properties.setProperty(contextPathProp, "/nuxeo");
-        }
-    }
-
-    private void loadRepositoryConf() throws IOException {
-        String repositoryConfProperty = Framework.getProperty("nuxeo.conf");
-        File repositoryConf;
-        if (repositoryConfProperty == null) {
-            repositoryConf = new File(getHome(), "bin/nuxeo.conf");
-        } else {
-            repositoryConf = new File(repositoryConfProperty);
-        }
-        if (repositoryConf.exists()) {
-            try (InputStream in = new BufferedInputStream(new FileInputStream(repositoryConf))) {
-                loadProperties(in);
-            }
         }
     }
 

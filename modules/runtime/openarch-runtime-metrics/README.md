@@ -10,15 +10,6 @@ cd ./docker/graphite-grafana
 docker compose up -d
 ```
 
-Then configure your `nuxeo.conf` to report metrics and restart Nuxeo:
-```bash
-metrics.graphite.enabled=true
-metrics.graphite.host=localhost
-metrics.graphite.port=2003
-metrics.graphite.period=30
-metrics.log4j.enabled=true
-```
-
 Access Grafana using [http://localhost:3000](http://localhost:3000) with user: admin pwd: admin,
 you should have an OpenArch Grafana dashboard up and running.
 
