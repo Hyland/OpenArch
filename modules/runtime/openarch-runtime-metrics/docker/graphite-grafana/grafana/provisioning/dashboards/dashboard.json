@@ -99,7 +99,7 @@
           ],
           "thresholds": "10,20",
           "timeFrom": "1h",
-          "title": "Nuxeo nodes",
+          "title": "Nodes",
           "type": "singlestat",
           "valueFontSize": "80%",
           "valueMaps": [
@@ -1901,7 +1901,7 @@
           }
         }
       ],
-      "title": "Nuxeo Repository",
+      "title": "Repository",
       "type": "row"
     },
     {
@@ -2239,7 +2239,7 @@
           }
         }
       ],
-      "title": "Nuxeo opensearch",
+      "title": "opensearch",
       "type": "row"
     },
     {
@@ -2688,7 +2688,7 @@
           }
         }
       ],
-      "title": "Nuxeo WorkManager",
+      "title": "WorkManager",
       "type": "row"
     },
     {
@@ -2701,7 +2701,7 @@
       },
       "id": 44,
       "panels": [],
-      "title": "Nuxeo Audit (TODO)",
+      "title": "Audit (TODO)",
       "type": "row"
     },
     {
@@ -2990,7 +2990,7 @@
           }
         }
       ],
-      "title": "Nuxeo Streams (TODO)",
+      "title": "Streams (TODO)",
       "type": "row"
     },
     {
@@ -3386,7 +3386,7 @@
           }
         }
       ],
-      "title": "Nuxeo Misc",
+      "title": "Misc",
       "type": "row"
     }
   ],
@@ -3427,7 +3427,7 @@
     ]
   },
   "timezone": "",
-  "title": "Nuxeo",
+  "title": "OpenArch",
   "uid": "UUCf9dYmz",
   "version": 1
 }
