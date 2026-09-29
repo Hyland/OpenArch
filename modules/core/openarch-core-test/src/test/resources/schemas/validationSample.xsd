@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://nuxeo.com/schemas/validationSample"
-           xmlns:nxv="http://nuxeo.com/schemas/validationSample"
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.hyland.com/openarch/schemas/validationSample"
+           xmlns:nxv="http://www.hyland.com/openarch/schemas/validationSample"
            xmlns:nxsv="http://www.hyland.com/openarch/ecm/schemas/core/validation/"
            xmlns:ref="http://www.hyland.com/openarch/ecm/schemas/core/external-references/">
 

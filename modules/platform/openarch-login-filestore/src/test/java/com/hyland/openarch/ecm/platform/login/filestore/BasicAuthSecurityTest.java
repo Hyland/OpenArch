@@ -47,7 +47,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
  * (alice / secret via test-users.yml).
  */
 @SpringBootTest(classes = {
-        BasicAuthSecurityTest.TestApp.class }, properties = "hxpr.users.file=classpath:test-users.yml")
+        BasicAuthSecurityTest.TestApp.class }, properties = "openarch.users.file=classpath:test-users.yml")
 class BasicAuthSecurityTest {
 
     @Autowired

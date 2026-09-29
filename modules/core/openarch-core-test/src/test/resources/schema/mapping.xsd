@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  targetNamespace="http://nuxeo.com/schemas/mapping"
-  xmlns:nxt="http://nuxeo.com/schemas/mapping"
-  xmlns:nxs="http://nuxeo.com/schemas/base/">
+  targetNamespace="http://www.hyland.com/openarch/schemas/mapping"
+  xmlns:nxt="http://www.hyland.com/openarch/schemas/mapping"
+  xmlns:nxs="http://www.hyland.com/openarch/schemas/base/">
 
   <xs:include schemaLocation="base.xsd" />
   <xs:element name="comments" type="nxt:comments" />

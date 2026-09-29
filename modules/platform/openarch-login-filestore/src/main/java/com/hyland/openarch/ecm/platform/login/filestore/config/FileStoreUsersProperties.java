@@ -18,14 +18,14 @@ package com.hyland.openarch.ecm.platform.login.filestore.config;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * The property {@code hxpr.users.file} specifies the location of the YAML file containing users and groups. It accepts
+ * The property {@code openarch.users.file} specifies the location of the YAML file containing users and groups. It accepts
  * any Spring {@code Resource} location, e.g.:
  * <ul>
  *   <li>{@code classpath:openarch-users.yml} — bundled inside the application JAR (default)</li>
  *   <li>{@code file:/etc/openarch/users.yml} — external file on the host for production overrides</li>
  * </ul>
  */
-@ConfigurationProperties(prefix = "hxpr.users")
+@ConfigurationProperties(prefix = "openarch.users")
 public class FileStoreUsersProperties {
 
     /**

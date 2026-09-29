@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           xmlns:ml="http://nuxeo.org/schemas/model/"
+           xmlns:ml="http://www.hyland.com/openarch/schemas/model/"
            elementFormDefault="qualified"
-           targetNamespace="http://nuxeo.org/schemas/model/">
+           targetNamespace="http://www.hyland.com/openarch/schemas/model/">
 
     <xs:simpleType name="modelType">
         <xs:restriction base="xs:string">

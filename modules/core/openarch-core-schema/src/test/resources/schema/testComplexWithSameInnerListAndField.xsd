@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:nxs="http://nuxeo.com/schemas/sameInner"
-           targetNamespace="http://nuxeo.com/schemas/sameInner">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:nxs="http://www.hyland.com/openarch/schemas/sameInner"
+           targetNamespace="http://www.hyland.com/openarch/schemas/sameInner">
 
   <xs:element name="complexWithString" type="nxs:t_complexWithString" />
   <xs:complexType name="t_complexWithString">

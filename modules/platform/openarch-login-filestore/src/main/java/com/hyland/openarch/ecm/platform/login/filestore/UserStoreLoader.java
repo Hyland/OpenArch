@@ -76,7 +76,7 @@ public class UserStoreLoader {
         Resource resource = resourceLoader.getResource(fileLocation);
         if (!resource.exists()) {
             throw new IllegalStateException(
-                    "file user-store not found: " + fileLocation + ". Configure 'hxpr.users.file' to point to a valid YAML file.");
+                    "file user-store not found: " + fileLocation + ". Configure 'openarch.users.file' to point to a valid YAML file.");
         }
         ObjectMapper mapper = YAMLMapper.builder()
                                         .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)

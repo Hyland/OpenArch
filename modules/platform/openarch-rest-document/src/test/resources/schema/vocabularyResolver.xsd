@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           targetNamespace="http://nuxeo.com/schemas/externalReferenceSample"
+           targetNamespace="http://www.hyland.com/openarch/schemas/externalReferenceSample"
            xmlns:ref="http://www.hyland.com/openarch/ecm/schemas/core/external-references/">
 
   <xs:element name="vocabulary1Ref">
