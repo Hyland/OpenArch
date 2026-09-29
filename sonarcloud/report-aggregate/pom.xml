@@ -8,7 +8,7 @@
 
   <artifactId>openarch-report-aggregate</artifactId>
   <packaging>pom</packaging>
-  <name>OpenArch Test Coverage Aggregrate Report</name>
+  <name>OpenArch Test Coverage Aggregate Report</name>
   <description>Aggregates the coverage report from our individual OpenArch modules</description>
 
   <dependencies>

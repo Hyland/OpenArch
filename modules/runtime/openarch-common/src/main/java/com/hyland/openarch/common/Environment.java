@@ -73,7 +73,7 @@ public class Environment {
     // volatile for double-checked locking
     private static volatile Environment defaultEnvironment; // NOSONAR (volatile for double-checked locking init)
 
-    protected final File home;
+    protected final File rootHome;
 
     protected File data;
 
@@ -111,7 +111,7 @@ public class Environment {
      * @see #init()
      */
     public Environment(File home) {
-        this.home = home.getAbsoluteFile();
+        this.rootHome = home.getAbsoluteFile();
         this.properties = new Properties();
     }
 
@@ -148,7 +148,7 @@ public class Environment {
     }
 
     public File getHome() {
-        return home;
+        return rootHome;
     }
 
     public File getTemp() {
@@ -307,7 +307,7 @@ public class Environment {
         if (runtimeDir != null && !runtimeDir.isEmpty()) {
             setRuntimeHome(new File(runtimeDir));
         } else {
-            setRuntimeHome(home);
+            setRuntimeHome(rootHome);
         }
     }
 
@@ -339,8 +339,8 @@ public class Environment {
             setServerHome(new File(homeDir));
         } else {
             logger.warn("Could not set the server home from {} or {} system properties, will use {}",
-                    HOME, HOME_DIR, home);
-            setServerHome(home);
+                    HOME, HOME_DIR, rootHome);
+            setServerHome(rootHome);
         }
         logger.debug(this);
     }

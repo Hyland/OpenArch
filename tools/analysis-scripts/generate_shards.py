@@ -60,7 +60,7 @@ def generate_balanced_integration_shards(analyzer, target_shards=4, max_time_per
 # Shards 1-4 are reserved for common modules.
 COMMON_SHARD_COUNT = 4
 
-def generate_github_matrix(shards, root_path="."):
+def generate_github_matrix(shards, root_path=".", target_shards=COMMON_SHARD_COUNT):
     """Generate GitHub Actions matrix configuration."""
     common_modules = [
         m for shard in shards for m in shard
@@ -76,7 +76,7 @@ def generate_github_matrix(shards, root_path="."):
             times[idx] += mod['time']
         return buckets
 
-    common_buckets = _bin_pack(common_modules, COMMON_SHARD_COUNT)
+    common_buckets = _bin_pack(common_modules, target_shards)
 
     matrix_config = {"include": []}
 
@@ -119,11 +119,11 @@ def main():
 
     # Collect all integration modules (flat list — generate_github_matrix handles the split)
     shards, _ = generate_balanced_integration_shards(
-        analyzer, COMMON_SHARD_COUNT, args.max_time
+        analyzer, args.target_shards, args.max_time
     )
 
-    # Generate GitHub matrix configuration (balanced shards, up to COMMON_SHARD_COUNT)
-    matrix_config = generate_github_matrix(shards, args.root_path)
+    # Generate GitHub matrix configuration (balanced shards, up to target_shards)
+    matrix_config = generate_github_matrix(shards, args.root_path, args.target_shards)
 
     # Output results
     print("Generated Integration Test Shard Configuration:")
