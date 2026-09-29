@@ -16,8 +16,6 @@
 
 package com.hyland.openarch.osgi;
 
-import java.io.File;
-import java.net.URL;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.jar.Attributes;
@@ -44,39 +42,6 @@ public final class BundleManifestReader {
 
     // Utility class
     private BundleManifestReader() {
-    }
-
-    public static Dictionary<String, String> getHeadersFromJar(URL url) {
-        Manifest mf = BundleUtils.getManifest(url);
-        if (mf != null) {
-            try {
-                return getHeaders(mf);
-            } catch (BundleException e) {
-                log.error(e, e);
-            }
-        }
-        // not an osgi bundle
-        return getDefaultHeaders(url.toExternalForm());
-    }
-
-    public static Dictionary<String, String> getHeadersFromFile(File file) {
-        Manifest mf = BundleUtils.getManifest(file);
-        if (mf != null) {
-            try {
-                return getHeaders(mf);
-            } catch (BundleException e) {
-                log.error(e, e);
-            }
-        }
-        // not an osgi bundle
-        return getDefaultHeaders(file.getAbsolutePath());
-    }
-
-    public static Dictionary<String, String> getDefaultHeaders(String symbolicName) {
-        Dictionary<String, String> headers = new Hashtable<>();
-        headers.put(Constants.BUNDLE_SYMBOLICNAME, symbolicName);
-        headers.put(Constants.BUNDLE_ACTIVATOR, NullActivator.class.getName());
-        return headers;
     }
 
     public static Dictionary<String, String> getHeaders(Manifest mf) throws BundleException {
