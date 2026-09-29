@@ -2,7 +2,7 @@
 
 <xs:schema
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:nx="http://www.nuxeo.org/ecm/schema">
+	xmlns:nx="http://www.hyland.com/openarch/ecm/schema">
 
 	<xs:simpleType name="myStringFromLib">
 	  <xs:restriction base="xs:string">

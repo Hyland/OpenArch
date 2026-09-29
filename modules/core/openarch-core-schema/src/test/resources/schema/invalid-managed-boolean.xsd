@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<xs:schema targetNamespace="http://www.nuxeo.org/ecm/schemas/invalid-managed-boolean/"
+<xs:schema targetNamespace="http://www.hyland.com/openarch/ecm/schemas/invalid-managed-boolean/"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           xmlns:m="http://www.nuxeo.org/ecm/schemas/core/managed/">
+           xmlns:m="http://www.hyland.com/openarch/ecm/schemas/core/managed/">
   <xs:element name="value" type="xs:string" m:systemOwned="TRUE" />
 </xs:schema>

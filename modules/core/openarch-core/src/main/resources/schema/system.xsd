@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
-<xs:schema targetNamespace="http://www.nuxeo.org/ecm/schemas/system/"
+<xs:schema targetNamespace="http://www.hyland.com/openarch/ecm/schemas/system/"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           xmlns:nxs="http://www.nuxeo.org/ecm/schemas/system/"
-           xmlns:ref="http://www.nuxeo.org/ecm/schemas/core/external-references/"
-           xmlns:m="http://www.nuxeo.org/ecm/schemas/core/managed/">
+           xmlns:nxs="http://www.hyland.com/openarch/ecm/schemas/system/"
+           xmlns:ref="http://www.hyland.com/openarch/ecm/schemas/core/external-references/"
+           xmlns:m="http://www.hyland.com/openarch/ecm/schemas/core/managed/">
 
   <xs:simpleType name="stringList">
     <xs:list itemType="xs:string" />

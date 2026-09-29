@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 
 <xs:schema
-  targetNamespace="http://www.nuxeo.org/ecm/schemas/secupolicy/"
+  targetNamespace="http://www.hyland.com/openarch/ecm/schemas/secupolicy/"
   xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
   <xs:element name="securityLevel" type="xs:integer" default="3" />

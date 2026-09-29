@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://nuxeo.com/schemas/validationSample"
            xmlns:nxv="http://nuxeo.com/schemas/validationSample"
-           xmlns:nxsv="http://www.nuxeo.org/ecm/schemas/core/validation/"
-           xmlns:ref="http://www.nuxeo.org/ecm/schemas/core/external-references/">
+           xmlns:nxsv="http://www.hyland.com/openarch/ecm/schemas/core/validation/"
+           xmlns:ref="http://www.hyland.com/openarch/ecm/schemas/core/external-references/">
 
   <xs:element name="groupCode" type="xs:string" nillable="false" nxsv:nillable="false">
     <xs:simpleType>

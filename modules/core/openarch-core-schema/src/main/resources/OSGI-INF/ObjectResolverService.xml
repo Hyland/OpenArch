@@ -16,7 +16,7 @@
 
     <documentation>
       Extension Point to register an external entity resolver. You must provide an XSD type derived from xs:string and
-      registered under namespace http://www.nuxeo.org/ecm/schemas/core/external-references/. The resolver class must
+      registered under namespace http://www.hyland.com/openarch/ecm/schemas/core/external-references/. The resolver class must
       implement com.hyland.openarch.ecm.core.schema.types.resolver.ObjectResolver.
       Example :
       <resolver type="productReference" class="org.mycompany.product.ProductResolver" />
@@ -24,7 +24,7 @@
       By default, a constraint is added to documents about to be saved in order to validate if the property reference
       an existing external entity. You can disable this validation by setting attribute validation to false, for instance:
       <code xmlns:xs="http://www.w3.org/2001/XMLSchema"
-            xmlns:ref="http://www.nuxeo.org/ecm/schemas/core/external-references/">
+            xmlns:ref="http://www.hyland.com/openarch/ecm/schemas/core/external-references/">
         <xs:element name="lastContributor">
           <xs:simpleType>
             <xs:restriction base="xs:string" ref:resolver="userManagerResolver" ref:type="user" ref:validation="false" />

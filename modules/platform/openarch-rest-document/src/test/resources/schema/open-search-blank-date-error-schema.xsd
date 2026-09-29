@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<xs:schema targetNamespace="http://www.nuxeo.org/ecm/schemas/dateArray"
-           xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:nxs="http://www.nuxeo.org/ecm/schemas/dateArray">
+<xs:schema targetNamespace="http://www.hyland.com/openarch/ecm/schemas/dateArray"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:nxs="http://www.hyland.com/openarch/ecm/schemas/dateArray">
   <xs:element name="NewDateField" type="xs:string" />
 </xs:schema>

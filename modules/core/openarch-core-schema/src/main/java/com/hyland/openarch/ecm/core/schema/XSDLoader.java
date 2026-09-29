@@ -103,11 +103,11 @@ public class XSDLoader {
 
     private static final String ANONYMOUS_TYPE_SUFFIX = "#anonymousType";
 
-    private static final String NAMESPACE_CORE_VALIDATION = "http://www.nuxeo.org/ecm/schemas/core/validation/";
+    private static final String NAMESPACE_CORE_VALIDATION = "http://www.hyland.com/openarch/ecm/schemas/core/validation/";
 
-    private static final String NAMESPACE_CORE_EXTERNAL_REFERENCES = "http://www.nuxeo.org/ecm/schemas/core/external-references/";
+    private static final String NAMESPACE_CORE_EXTERNAL_REFERENCES = "http://www.hyland.com/openarch/ecm/schemas/core/external-references/";
 
-    private static final String NAMESPACE_CORE_MANAGED = "http://www.nuxeo.org/ecm/schemas/core/managed/";
+    private static final String NAMESPACE_CORE_MANAGED = "http://www.hyland.com/openarch/ecm/schemas/core/managed/";
 
     private static final String NS_XSD = "http://www.w3.org/2001/XMLSchema";
 

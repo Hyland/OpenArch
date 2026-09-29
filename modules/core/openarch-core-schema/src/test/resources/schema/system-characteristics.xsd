@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
-<xs:schema targetNamespace="http://www.nuxeo.org/ecm/schemas/system-characteristics/"
+<xs:schema targetNamespace="http://www.hyland.com/openarch/ecm/schemas/system-characteristics/"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           xmlns:m="http://www.nuxeo.org/ecm/schemas/core/managed/">
+           xmlns:m="http://www.hyland.com/openarch/ecm/schemas/core/managed/">
   <xs:element name="title" type="xs:string" />
   <xs:element name="acl" type="xs:string"
               m:noAutoCheckout="true"

@@ -14,10 +14,10 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<xs:schema targetNamespace="http://www.nuxeo.org/ecm/schemas/sysembeddings"
+<xs:schema targetNamespace="http://www.hyland.com/openarch/ecm/schemas/sysembeddings"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           xmlns:nxsv="http://www.nuxeo.org/ecm/schemas/core/validation/"
-           xmlns:nxs="http://www.nuxeo.org/ecm/schemas/sysembeddings">
+           xmlns:nxsv="http://www.hyland.com/openarch/ecm/schemas/core/validation/"
+           xmlns:nxs="http://www.hyland.com/openarch/ecm/schemas/sysembeddings">
 
     <xs:include schemaLocation="core-types.xsd" />
 

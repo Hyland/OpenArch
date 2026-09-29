@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema targetNamespace="http://www.nuxeo.org/ecm/schemas/cincontext"
+<xs:schema targetNamespace="http://www.hyland.com/openarch/ecm/schemas/cincontext"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           xmlns:nxs="http://www.nuxeo.org/ecm/schemas/cincontext">
+           xmlns:nxs="http://www.hyland.com/openarch/ecm/schemas/cincontext">
 
     <xs:include schemaLocation="base.xsd" />
     <xs:include schemaLocation="core-types.xsd" />

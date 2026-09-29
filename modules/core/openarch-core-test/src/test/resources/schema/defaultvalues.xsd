@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:nxs="http://www.nuxeo.org/ecm/project/schemas/test/v1/defaultvalue"
-  targetNamespace="http://www.nuxeo.org/ecm/project/schemas/test/v1/defaultvalue">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:nxs="http://www.hyland.com/openarch/ecm/project/schemas/test/v1/defaultvalue"
+  targetNamespace="http://www.hyland.com/openarch/ecm/project/schemas/test/v1/defaultvalue">
   <!-- used by com.hyland.openarch.ecm.core.TestSQLRepositoryDefaultValues -->
 
   <xs:simpleType name="stringList">
