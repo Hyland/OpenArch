@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -144,7 +145,8 @@ public class JarBundleFile implements BundleFile {
     }
 
     public static void extractNestedJar(JarFile file, ZipEntry entry, File dest) throws IOException {
-        if (!dest.getAbsolutePath().startsWith(dest.getParentFile().getCanonicalPath())) {
+        Path parent = dest.getParentFile().toPath().toAbsolutePath();
+        if (!parent.normalize().equals(parent)) {
             throw new IOException("Invalid destination path for nested jar: " + dest);
         }
         try (InputStream in = file.getInputStream(entry)) {
