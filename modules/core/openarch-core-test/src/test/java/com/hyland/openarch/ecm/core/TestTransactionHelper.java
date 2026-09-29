@@ -64,7 +64,7 @@ public class TestTransactionHelper {
     @Test
     public void testTransactionThreadNaming() {
         String threadName = TransactionHelper.runWithoutTransaction(() -> Thread.currentThread().getName());
-        assertTrue(threadName.startsWith("Nuxeo-"), threadName);
+        assertTrue(threadName.startsWith("Repository-"), threadName);
         assertTrue(threadName.endsWith("-runInTransaction"), threadName);
     }
 

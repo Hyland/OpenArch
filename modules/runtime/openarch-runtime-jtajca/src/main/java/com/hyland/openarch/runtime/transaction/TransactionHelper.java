@@ -64,7 +64,7 @@ public class TransactionHelper {
     protected static final ExecutorService EXECUTOR = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 5, TimeUnit.SECONDS,
             new SynchronousQueue<>());
 
-    private static final String THREAD_NAME_PREFIX = "Nuxeo-";
+    private static final String THREAD_NAME_PREFIX = "Repository-";
 
     private static final String THREAD_NAME_SUFFIX = "-runInTransaction";
 
