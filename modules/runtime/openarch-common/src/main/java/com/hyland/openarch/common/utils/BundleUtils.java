@@ -36,10 +36,15 @@ import java.util.jar.Manifest;
 /**
  * @author <a href="mailto:bs@nuxeo.com">Bogdan Stefanescu</a>
  */
-public final class JarUtils {
+public final class BundleUtils {
+
+    /**
+     * Manifest header listing the OSGi component contribution files for a bundle.
+     */
+    public static final String REPOSITORY_COMPONENT = "Repository-Component";
 
     // Utility class.
-    private JarUtils() {
+    private BundleUtils() {
     }
 
     public static Manifest getManifest(File file) {

@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import com.hyland.openarch.common.utils.JarUtils;
+import com.hyland.openarch.common.utils.BundleUtils;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 
@@ -40,14 +40,14 @@ public final class BundleManifestReader {
 
     private static final Pattern PARAMS_PATTERN = Pattern.compile("\\s*([^:\\s]+)\\s*:=\\s*([^;\\s]+)\\s*;?");
 
-    public static final String REPOSITORY_COMPONENT = "Repository-Component";
+    public static final String REPOSITORY_COMPONENT = BundleUtils.REPOSITORY_COMPONENT;
 
     // Utility class
     private BundleManifestReader() {
     }
 
     public static Dictionary<String, String> getHeadersFromJar(URL url) {
-        Manifest mf = JarUtils.getManifest(url);
+        Manifest mf = BundleUtils.getManifest(url);
         if (mf != null) {
             try {
                 return getHeaders(mf);
@@ -60,7 +60,7 @@ public final class BundleManifestReader {
     }
 
     public static Dictionary<String, String> getHeadersFromFile(File file) {
-        Manifest mf = JarUtils.getManifest(file);
+        Manifest mf = BundleUtils.getManifest(file);
         if (mf != null) {
             try {
                 return getHeaders(mf);

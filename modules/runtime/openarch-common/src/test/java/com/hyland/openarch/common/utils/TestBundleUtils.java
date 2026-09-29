@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
 /**
  * @since 9.10
  */
-public class TestJarUtils {
+public class TestBundleUtils {
 
     public static final String BUILT_JAR_NAME = "built-jar.jar";
 
@@ -51,9 +51,9 @@ public class TestJarUtils {
     public void testZipDirectory() throws Exception {
         Path source = resourcesRoot.resolve("TestJarUtils");
         Path target = resourcesRoot.resolve(BUILT_JAR_NAME);
-        target = JarUtils.zipDirectory(source, target);
+        target = BundleUtils.zipDirectory(source, target);
 
-        Manifest manifest = JarUtils.getManifest(target.toFile());
+        Manifest manifest = BundleUtils.getManifest(target.toFile());
         assertNotNull(manifest);
         Attributes mainAttributes = manifest.getMainAttributes();
         assertNotNull(mainAttributes);

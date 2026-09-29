@@ -29,7 +29,7 @@ import java.util.jar.Manifest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.hyland.openarch.common.utils.FileNamePattern;
-import com.hyland.openarch.common.utils.JarUtils;
+import com.hyland.openarch.common.utils.BundleUtils;
 import com.hyland.openarch.osgi.BundleFile;
 import com.hyland.openarch.osgi.DirectoryBundleFile;
 import com.hyland.openarch.osgi.JarBundleFile;
@@ -65,7 +65,7 @@ public class BundleWalker extends SimpleFileVisitor<Path> {
         }
         // check if this is an OSGi bundle
         try {
-            Manifest mf = JarUtils.getDirectoryManifest(dir.toFile());
+            Manifest mf = BundleUtils.getDirectoryManifest(dir.toFile());
             if (mf == null) {
                 return FileVisitResult.CONTINUE;
             }

@@ -35,6 +35,7 @@ import java.util.stream.Stream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.hyland.openarch.common.Environment;
+import com.hyland.openarch.common.utils.BundleUtils;
 import com.hyland.openarch.common.utils.TextTemplate;
 import com.hyland.openarch.runtime.RuntimeMessage;
 import com.hyland.openarch.runtime.RuntimeMessageHandler;
@@ -341,7 +342,7 @@ public class OSGiRuntimeService implements RuntimeService, FrameworkListener {
     }
 
     public static String getComponentsList(Bundle bundle) {
-        return bundle.getHeaders().get("Repository-Component");
+        return bundle.getHeaders().get(BundleUtils.REPOSITORY_COMPONENT);
     }
 
     private void loadConfig() throws IOException {
