@@ -15,6 +15,7 @@
  */
 package com.hyland.openarch.ecm.core;
 
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PARENT_PATH;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
@@ -29,6 +30,7 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
+import com.hyland.openarch.ecm.core.api.DocumentNotFoundException;
 import com.hyland.openarch.ecm.core.schema.SchemaManager;
 import com.hyland.openarch.ecm.core.schema.types.FieldCharacteristics;
 import com.hyland.openarch.ecm.core.schema.types.SchemaImpl;
@@ -83,5 +85,21 @@ public class TestSystemPropertyValues {
         assertEquals(Boolean.FALSE, index.get("sys_storeOnly"));
         assertNull(index.get("sys_storeAndIndex"));
         assertNull(index.get("sys_everywhere"));
+    }
+
+    @Test
+    public void missingParentPathIsIgnored() {
+        SchemaImpl schema = new SchemaImpl("system", "sys");
+        schema.addField("parentPath", StringType.INSTANCE, null, null);
+        SchemaManager schemaManager = mock(SchemaManager.class);
+        when(schemaManager.getSchema("system")).thenReturn(schema);
+        CoreSession session = mock(CoreSession.class);
+        when(session.getSchemaManager()).thenReturn(schemaManager);
+        DocumentModel doc = mock(DocumentModel.class);
+        when(doc.getCoreSession()).thenReturn(session);
+        when(doc.hasSchema("system")).thenReturn(true);
+        when(doc.getPropertyValue(SYS_PARENT_PATH)).thenThrow(new DocumentNotFoundException("parent removed"));
+
+        assertNull(SystemPropertyValues.forOutput(doc, INDEX).get(SYS_PARENT_PATH));
     }
 }

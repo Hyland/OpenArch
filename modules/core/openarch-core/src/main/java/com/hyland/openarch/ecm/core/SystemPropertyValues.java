@@ -17,6 +17,7 @@ package com.hyland.openarch.ecm.core;
 
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSVER_MINOR_VERSION;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSVER_VERSION;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PARENT_PATH;
 import static com.hyland.openarch.ecm.core.schema.SchemaManagerConstants.SYSTEM_SCHEMAS;
 import static com.hyland.openarch.ecm.core.schema.types.FieldCharacteristics.Representation.REST;
 
@@ -25,11 +26,14 @@ import java.util.Map;
 
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
+import com.hyland.openarch.ecm.core.api.DocumentNotFoundException;
 import com.hyland.openarch.ecm.core.schema.SchemaManager;
 import com.hyland.openarch.ecm.core.schema.types.Field;
 import com.hyland.openarch.ecm.core.schema.types.FieldCharacteristics;
 import com.hyland.openarch.ecm.core.schema.types.FieldCharacteristics.Representation;
 import com.hyland.openarch.ecm.core.schema.types.Schema;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Produces schema-typed raw system values. Transport adapters own any wire-specific conversion.
@@ -37,6 +41,8 @@ import com.hyland.openarch.ecm.core.schema.types.Schema;
 public final class SystemPropertyValues {
 
     private static final Long ZERO = Long.valueOf(0);
+
+    private static final Logger logger = LogManager.getLogger(SystemPropertyValues.class);
 
     private SystemPropertyValues() {
     }
@@ -83,7 +89,16 @@ public final class SystemPropertyValues {
 
     private static Object getRawValue(DocumentModel doc, String name, FieldCharacteristics characteristics,
             Representation representation) {
-        Object value = doc.getPropertyValue(name);
+        Object value;
+        try {
+            value = doc.getPropertyValue(name);
+        } catch (DocumentNotFoundException e) {
+            if (!SYS_PARENT_PATH.equals(name)) { // in case of indexing race condition when parent is already removed
+                throw e;
+            }
+            logger.warn("Parent document not found for {}:{}", doc.getId(), doc.getPathAsString());
+            value = null;
+        }
         if (Boolean.FALSE.equals(value) && characteristics.falseAsNull().contains(representation)) {
             return null;
         }
