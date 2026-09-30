@@ -1,0 +1,3 @@
+this is a marker file, do not move or delete
+it is used to differentiate test suites to minimize the CI/CD pipeline execution time
+for more information refer to the README.md file in this repository

@@ -15,6 +15,7 @@
  */
 package com.hyland.openarch.runtime.springboot.junit.security;
 
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 /**
@@ -23,18 +24,18 @@ import java.util.function.Supplier;
  */
 public final class BearerTokenProvider {
 
-    private static volatile Supplier<String> supplier = () -> null;
+    private static final AtomicReference<Supplier<String>> supplier = new AtomicReference<>(() -> null);
 
     private BearerTokenProvider() {
         // utility
     }
 
     public static void register(Supplier<String> tokenSupplier) {
-        supplier = tokenSupplier == null ? () -> null : tokenSupplier;
+        supplier.set(tokenSupplier == null ? () -> null : tokenSupplier);
     }
 
     public static String getOrNull() {
-        return supplier.get();
+        return supplier.get().get();
     }
 
 }
