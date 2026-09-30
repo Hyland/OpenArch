@@ -2,12 +2,10 @@
 
 This project uses SpringBoot.
 
-The OpenArch Runtime bootstrap is done thanks to module `openarch-runtime-springboot` (see its README).
+The OpenArch Runtime bootstrap is done thanks to module `openarch-runtime-springboot` (see its [README](https://github.com/Hyland/OpenArch/blob/main/modules/runtime/openarch-runtime-springboot/README.md)).
 This registers a SpringBoot listener and starts up the OpenArch Runtime, looking up `META-INF/MANIFEST.MF` files in the classpath.
 
 A mock REST endpoint is added by this module, available at http://localhost:8080/hello.
-
-Native build is not currently supported.
 
 ## Running the application in dev mode
 

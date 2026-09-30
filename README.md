@@ -174,11 +174,9 @@ To help you understand how you will integrate it with your existing solutions, w
 Discussions, questions and feedback are most welcome. Feel free to connect with us through the [discussions section](https://github.com/Hyland/OpenArch/discussions). Bug reports and feature requests should be reported through the [issues section](https://github.com/Hyland/OpenArch/issues).
 
 ## Contributing
-<!-- TODO: confirm the branch in the blob path matches the repo default branch -->
 Contributions are always welcome. Learn [how to contribute](https://github.com/Hyland/OpenArch/blob/main/CONTRIBUTING.md) here.
 
 ## Reporting a Security Issue
-<!-- TODO: check link -->
 Security reports can be safely transmitted to us by following these [security reporting guidelines](https://github.com/Hyland/OpenArch/security).
 
 ## License

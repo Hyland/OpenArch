@@ -1,6 +1,6 @@
 # openarch-runtime-springboot Project
 
-This project uses SpringBoot
+This project uses SpringBoot.
 
 The OpenArch Runtime bootstrap is done thanks to a Spring listener and starts up the OpenArch Runtime, looking up META-INF/MANIFEST.MF files in the classpath.
 

@@ -50,8 +50,6 @@ To import the collection into the Bruno App:
 4. The **OpenArch Tests** collection will appear in the left sidebar with all requests listed in order.
 5. Select the `openarch.localhost` environment from the environment dropdown (top-right corner) to load the default variables.
 
-> **Note:** You can edit the environment variables (e.g. `idp_user_name`, `idp_user_password`) directly in Bruno via **Environments → openarch.localhost**.
-
 ## Running Tests
 
 ### Prerequisites

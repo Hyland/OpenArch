@@ -1,10 +1,9 @@
-# About openarc-runtime-metrics
-
+# About openarch-runtime-metrics
 
 This module is here to configure the metrics reporter and add
 default metrics.
 
-For testing you can run a graphite/grafana stack using the provided [docker compose](./docker/graphite-grafana):
+For testing, you can run a graphite/grafana stack using the provided [docker compose](./docker/graphite-grafana):
 ```bash
 cd ./docker/graphite-grafana
 docker compose up -d
@@ -20,11 +19,9 @@ To stop Grafana (loosing all data):
 docker compose down
 ```
 
-For production you should use different retentions and docker volumes to persist data.
-
+For production, you should use different retentions and docker volumes to persist data.
 
 You can also find old example of json graphite dashboard [graphite](./graphite) directory.
 To use it from Graphite Dashboard > Edit Dashboard, paste the content
-
 
 See <http://metrics.codahale.com/> for Metrics documentation.

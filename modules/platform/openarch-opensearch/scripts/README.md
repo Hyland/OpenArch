@@ -1,6 +1,6 @@
-# Misc Scripts to manage OpenArch Elasticsearch index
+# Misc Scripts to manage OpenArch OpenSearch index
 
-## Dump the Elasticsearch settings and mapping in a single JSON file
+## Dump the OpenSearch settings and mapping in a single JSON file
 
      ./es_get_conf.sh
 
