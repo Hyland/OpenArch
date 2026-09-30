@@ -38,7 +38,9 @@ import tools.jackson.databind.json.JsonMapper;
  * for persistent idempotency across requests.
  * <p>
  * Results are serialized to bytes and stored with an expiration TTL to prevent unbounded cache
- * growth. The cache key is derived from the idempotency key and a namespace prefix.
+ * growth. The cache key is derived from the idempotency key and a namespace prefix. Result classes
+ * must be registered in {@link IdempotencyResultTypeRegistry}; their stable registry keys are
+ * persisted in cache entries instead of Java class names.
  * <p>
  * At-most-once execution is enforced by atomically claiming the cache key with
  * {@link KeyValueStore#compareAndSet(String, String, String, long)} before the operation runs: a
@@ -94,35 +96,31 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
     }
 
     @Override
-    public <T extends Serializable> Outcome<T> execute(String key, IdempotentOperation<T> operation) {
+    public <T> Outcome<T> execute(String key, IdempotentOperation<T> operation) {
         return executeWithOutcome(key, null, operation);
     }
 
     @Override
-    public <T extends Serializable> Outcome<T> execute(String key, TypeReference<T> resultType,
+    public <T> Outcome<T> execute(String key, TypeReference<T> resultType,
             IdempotentOperation<T> operation) {
         return executeWithOutcome(key, resultType, operation);
     }
 
-    private <T extends Serializable> Outcome<T> executeWithOutcome(String key, TypeReference<T> resultType,
+    private <T> Outcome<T> executeWithOutcome(String key, TypeReference<T> resultType,
             IdempotentOperation<T> operation) {
         String cacheKey = getCacheKey(key);
 
         ClaimOutcome claim = claimOrAwaitCached(cacheKey, key);
         if (claim.cachedResult() != null) {
             log.debug("Idempotency cache hit for key={}", sanitizeForLog(key));
-            @SuppressWarnings("unchecked")
-            T value = (T) unwrap(claim.cachedResult(), resultType);
-            if (value instanceof IdempotencyException exception) {
-                return new Outcome<>(null, exception, true);
+            Object unwrapped = unwrap(claim.cachedResult(), resultType);
+            if (unwrapped instanceof FailedOutCome failedOutCome) {
+                return new Outcome<>(null, failedOutCome, true);
             }
-            return new Outcome<>(value, null, true);
+            return new Outcome<>((T) unwrapped, null, true);
         }
 
         T result = runAndFinalize(cacheKey, key, claim.ownerMarker(), operation);
-        if (result instanceof IdempotencyException exception) {
-            return new Outcome<>(null, exception, false);
-        }
         return new Outcome<>(result, null, false);
     }
 
@@ -130,7 +128,7 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
      * Runs {@code operation}, which was just granted the claim identified by {@code ownerMarker},
      * and finalizes the cache entry with its outcome (success or failure).
      */
-    private <T extends Serializable> T runAndFinalize(String cacheKey, String key, String ownerMarker,
+    private <T> T runAndFinalize(String cacheKey, String key, String ownerMarker,
             IdempotentOperation<T> operation) {
         T result;
         try {
@@ -149,11 +147,18 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
      * the claim is released instead, so the failure to record never turns a success into a
      * replayed failure and never leaves waiters blocked until the lease expires.
      */
-    private <T extends Serializable> void publishSuccess(String cacheKey, String key, String ownerMarker, T result) {
+    private <T> void publishSuccess(String cacheKey, String key, String ownerMarker, T result) {
         IdempotencyOutput successResult;
         try {
             JsonNode jsonNode = OBJECT_MAPPER.valueToTree(result);
-            successResult = IdempotencyOutput.success(jsonNode, result.getClass().getName());
+            String resultTypeKey = IdempotencyResultTypeRegistry.getKey(result.getClass());
+            if (resultTypeKey == null) {
+                log.error("Idempotency result for key={} has unregistered type {}; releasing the claim without "
+                        + "caching", sanitizeForLog(key), result.getClass().getName());
+                releaseClaim(cacheKey, ownerMarker);
+                return;
+            }
+            successResult = IdempotencyOutput.success(jsonNode, resultTypeKey);
         } catch (JacksonException e) {
             log.error("Idempotency result for key={} could not be converted to JSON; releasing the claim without "
                     + "caching, at-most-once is not guaranteed for this call", sanitizeForLog(key), e);
@@ -206,6 +211,13 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
         return false;
     }
 
+    @Override
+    public boolean isOperationInProgress(String key) {
+        String cacheKey = getCacheKey(key);
+        IdempotencyOutput current = readOutput(cacheKey);
+        return current != null && current.pending();
+    }
+
     private IdempotencyOutput readOutput(String cacheKey) {
         String current = keyValueStore.getString(cacheKey);
         return current == null ? null : decode(current, cacheKey);
@@ -236,7 +248,7 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
      * small buffer) for it to either publish a result or have its lease expire, throwing
      * {@link IdempotencyClaimTimeoutException} if neither happens in time.
      */
-    private <T extends Serializable> ClaimOutcome claimOrAwaitCached(String cacheKey, String keyValue) {
+    private ClaimOutcome claimOrAwaitCached(String cacheKey, String keyValue) {
         String ownerMarker = newClaimMarker();
         long deadlineNanos = System.nanoTime() + Duration.ofSeconds(leaseSeconds).toNanos()
                 + Duration.ofMillis(CLAIM_WAIT_BUFFER_MILLIS).toNanos();
@@ -365,33 +377,32 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
      * Converts a cached {@link IdempotencyOutput} back into either the original failure or the
      * original {@code T} value.
      * <p>
-     * If the cached output carries an exception, an {@link IdempotencyException} describing it is
+     * If the cached output carries an exception, an {@link FailedOutCome} describing it is
      * returned as-is (it is not thrown): callers are responsible for detecting this case (e.g. via
      * {@code instanceof}) and deciding how to react to a replayed failure. Otherwise, the raw JSON
      * value is converted back to a concrete type.
      * <p>
      * When the caller supplies {@code resultType}, it is used as the deserialization target instead
-     * of the type recorded at serialization time: {@code output.typename()} is only ever the erased
-     * {@link Class} name (e.g. {@code java.util.ArrayList}), which loses a parameterized result's
+     * of the type recorded at serialization time: the registered key only identifies the erased
+     * {@link Class} (e.g. {@code java.util.ArrayList}), which loses a parameterized result's
      * element type, so relying on it here would deserialize collection elements as raw {@code Map}s.
      *
      * @param output     the cached idempotency output to convert
      * @param resultType the caller-supplied full generic result type, or {@code null} to fall back
      *                   to the erased type recorded at serialization time
-     * @return either an {@link IdempotencyException} (replayed failure) or the deserialized result
+     * @return either an {@link FailedOutCome} (replayed failure) or the deserialized result
      *         value (replayed success)
      */
     private Object unwrap(IdempotencyOutput output, TypeReference<?> resultType) {
         if (output.exception() != null) {
-            return new IdempotencyException(output.exception().key(), output.exception().message(), output.exception().httpErrorCode());
+            return new FailedOutCome(output.exception().message(), output.exception().statusCode());
         }
         if (resultType != null) {
             return OBJECT_MAPPER.convertValue(output.value(), resultType);
         }
         try {
-            Class<?> resultClass = Class.forName(output.typename());
-            return OBJECT_MAPPER.convertValue(output.value(), resultClass);
-        } catch (ClassNotFoundException e) {
+            return output.unwrap();
+        } catch (IllegalArgumentException e) {
             throw new IdempotencyPersistenceException(
                     "Failed to resolve idempotency result type: " + output.typename(), e);
         }
@@ -435,15 +446,13 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
         }
     }
 
-    private static IdempotencyException decodeException(JsonNode exceptionNode) {
-        JsonNode keyNode = exceptionNode.get("key");
+    private static FailedOutCome decodeException(JsonNode exceptionNode) {
         JsonNode messageNode = exceptionNode.get("message");
-        JsonNode httpErrorCodeNode = exceptionNode.get("httpErrorCode");
-        String key = keyNode == null || keyNode.isNull() ? null : keyNode.asString();
+        JsonNode httpErrorCodeNode = exceptionNode.get("statusCode");
         String message = messageNode == null || messageNode.isNull() ? null : messageNode.asString();
         int httpErrorCode = httpErrorCodeNode == null || httpErrorCodeNode.isNull() ? 0
                 : httpErrorCodeNode.asInt();
-        return new IdempotencyException(key, message, httpErrorCode);
+        return new FailedOutCome(message, httpErrorCode);
     }
 
     /**

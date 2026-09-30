@@ -15,11 +15,8 @@
  */
 package com.hyland.openarch.runtime.idempotency;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.commons.lang3.StringUtils;
 import com.hyland.openarch.ecm.core.api.RepositoryException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -33,20 +30,18 @@ import tools.jackson.databind.json.JsonMapper;
  * <li><b>pending</b> — the key has been claimed and the guarded operation is still running. The
  * {@code claimId} uniquely identifies the claim so that only its owner may publish a result.</li>
  * <li><b>success</b> — the operation completed; {@code value} holds the JSON representation of the
- * result and {@code typename} the concrete class it must be converted back to.</li>
+ * result and {@code typename} the registered key used to recover its concrete class.</li>
  * <li><b>failure</b> — the operation threw; {@code exception} holds the replayable details.</li>
  * </ul>
  *
  * @param pending   whether the operation is still in progress
  * @param claimId   unique token identifying the claim while {@code pending}, {@code null} otherwise
- * @param typename  the concrete class name of {@code value}, or {@code null}
+ * @param typename  the registered result-type key of {@code value}, or {@code null}
  * @param value     the JSON representation of the operation result, or {@code null}
  * @param exception the replayable failure details, or {@code null}
  */
 public record IdempotencyOutput(boolean pending, String claimId, @JsonProperty("__typename") String typename,
-        JsonNode value, IdempotencyException exception) {
-
-    private static final Logger log = LoggerFactory.getLogger(IdempotencyOutput.class);
+        JsonNode value, FailedOutCome exception) {
 
     private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder().build();
 
@@ -77,13 +72,13 @@ public record IdempotencyOutput(boolean pending, String claimId, @JsonProperty("
      * @return a new IdempotencyOutput with the given exception
      */
     public static IdempotencyOutput failure(Exception exception) {
-        IdempotencyException idempotencyException;
-        if (exception instanceof RepositoryException nuxeoException) {
-            idempotencyException = new IdempotencyException(nuxeoException.getClass().getName(), nuxeoException.getMessage(), nuxeoException.getStatusCode());
+        FailedOutCome failedOutCome;
+        if (exception instanceof RepositoryException re) {
+            failedOutCome = new FailedOutCome(re.getMessage(), re.getStatusCode());
         } else {
-            idempotencyException = new IdempotencyException(exception.getClass().getName(), exception.getMessage());
+            failedOutCome = new FailedOutCome(exception.getMessage());
         }
-        return new IdempotencyOutput(false, null, null, null, idempotencyException);
+        return new IdempotencyOutput(false, null, null, null, failedOutCome);
     }
 
     /**
@@ -100,31 +95,29 @@ public record IdempotencyOutput(boolean pending, String claimId, @JsonProperty("
         return !pending && exception != null;
     }
 
+    /**
+     * Deserializes a successful cached value using the class registered under its {@code __typename}
+     * key, or returns replayable failure details.
+     *
+     * @return the deserialized value, {@code null}, or a replayable failure
+     * @throws IllegalArgumentException when the result type key is not registered or its JSON
+     *                                  value cannot be deserialized
+     */
     public Object unwrap() {
         if (isFailure()) {
-            return new IdempotencyException(exception.key(), exception.message(), exception.httpErrorCode());
-        } else {
-            if (value == null || value.isNull()) {
-                return null;
-            }
-
-            JsonNode typenameNode = value.get("__typename");
-            if (typenameNode == null) {
-                log.debug("No __typename found in node, returning raw data");
-                return value;
-            }
-
-            String typename = typenameNode.asString();
-            if (StringUtils.isBlank(typename)) {
-                log.debug("Empty __typename found in node, returning raw data");
-                return value;
-            }
-            try {
-                return OBJECT_MAPPER.treeToValue(value, Class.forName(typename));
-            } catch (JacksonException | ClassNotFoundException e) {
-                log.debug("Failed to deserialize value {}, returning raw data", typename, e);
-                return value;
-            }
+            return new FailedOutCome(exception.message(), exception.statusCode());
+        }
+        if (value == null || value.isNull()) {
+            return null;
+        }
+        Class<?> resultType = IdempotencyResultTypeRegistry.getType(typename);
+        if (resultType == null) {
+            throw new IllegalArgumentException("No idempotency result type is registered for key: " + typename);
+        }
+        try {
+            return OBJECT_MAPPER.treeToValue(value, resultType);
+        } catch (JacksonException e) {
+            throw new IllegalArgumentException("Failed to deserialize idempotency result type: " + typename, e);
         }
     }
 }

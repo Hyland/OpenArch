@@ -17,12 +17,10 @@ package com.hyland.openarch.runtime.idempotency;
 
 import static org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR;
 
-import java.io.Serializable;
+public record FailedOutCome(String message, int statusCode) {
 
-public record IdempotencyException(String key, String message, int httpErrorCode) implements Serializable {
-
-    public IdempotencyException(String key, String message) {
-        this(key, message, SC_INTERNAL_SERVER_ERROR);
+    public FailedOutCome(String message) {
+        this(message, SC_INTERNAL_SERVER_ERROR);
     }
 
 }

@@ -47,8 +47,5 @@ public record ACEDTO(
         @Schema(format = "date-time", type = "string", description = "The date and time when the ACE rule starts being applied.")
         Instant begin,
         @Schema(enumAsRef = true, description = "The current status of the application of the ACE rule.")
-        ACE.Status status) implements Serializable {
-
-    private static final long serialVersionUID = 1L;
-
+        ACE.Status status) {
 }

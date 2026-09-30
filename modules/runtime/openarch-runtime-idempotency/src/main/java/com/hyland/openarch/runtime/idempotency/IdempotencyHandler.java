@@ -33,7 +33,7 @@ public interface IdempotencyHandler {
      * If a result for the given key already exists in the cache:
      * <ul>
      *   <li>If it was a success, return the cached value</li>
-     *   <li>If it was a failure, rethrow the cached exception</li>
+     *   <li>If it was a failure, return the cached failure</li>
      * </ul>
      * If no cached result exists, execute the operation, cache the result or exception, and return/rethrow.
      *
@@ -43,7 +43,7 @@ public interface IdempotencyHandler {
      * @return the outcome, carrying both the result and whether it was replayed
      * @throws RuntimeException if the operation fails or if cached failure is replayed
      */
-    <T extends Serializable> Outcome<T> execute(String key, IdempotentOperation<T> operation);
+    <T> Outcome<T> execute(String key, IdempotentOperation<T> operation);
 
     /**
      * Same contract as {@link #execute(String, IdempotentOperation)}, but for a result type that is
@@ -63,7 +63,7 @@ public interface IdempotencyHandler {
      * @return the outcome, carrying both the result and whether it was replayed
      * @throws RuntimeException if the operation fails or if cached failure is replayed
      */
-    default <T extends Serializable> Outcome<T> execute(String key, TypeReference<T> resultType,
+    default <T> Outcome<T> execute(String key, TypeReference<T> resultType,
             IdempotentOperation<T> operation) {
         return execute(key, operation);
     }
@@ -79,12 +79,19 @@ public interface IdempotencyHandler {
     boolean evict(String key);
 
     /**
+     * Checks if an operation is currently in progress for the given idempotency key.
+     *
+     * @param key the idempotency key value
+     * @return true if an operation is in progress, false otherwise
+     */
+    boolean isOperationInProgress(String key);
+    /**
      * Represents an idempotent operation that can be executed and cached.
      *
      * @param <T> the type of the operation result
      */
     @FunctionalInterface
-    interface IdempotentOperation<T extends Serializable> {
+    interface IdempotentOperation<T> {
 
         /**
          * Executes the operation.
@@ -101,7 +108,7 @@ public interface IdempotencyHandler {
      *
      * @param <T> the type of the operation result
      */
-    record Outcome<T extends Serializable>(T value, IdempotencyException exception, boolean replay) {
+    record Outcome<T>(T value, FailedOutCome exception, boolean replay) {
 
         public boolean isFailure() {
             return exception != null;

@@ -55,6 +55,7 @@ import com.hyland.openarch.runtime.kv.KeyValueService;
 import com.hyland.openarch.runtime.kv.KeyValueStore;
 import com.hyland.openarch.runtime.kv.MemKeyValueStore;
 import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
@@ -72,6 +73,8 @@ class KeyValueStoreIdempotencyHandlerTest {
 
     @BeforeEach
     void setUp() {
+        IdempotencyResultTypeRegistry.register("string", String.class);
+        IdempotencyResultTypeRegistry.register("sample-dto-list", ArrayList.class);
         store = new MemKeyValueStore();
         KeyValueService keyValueService = name -> store;
         handler = new KeyValueStoreIdempotencyHandler(keyValueService, "default", NAMESPACE, TTL_SECONDS);
@@ -122,6 +125,9 @@ class KeyValueStoreIdempotencyHandlerTest {
         assertEquals("value-b", second);
         assertTrue(store.get(NAMESPACE + "key-a").length > 0);
         assertTrue(store.get(NAMESPACE + "key-b").length > 0);
+        JsonNode storedOutput = JsonMapper.builder().build()
+                                          .readTree(store.getString(NAMESPACE + "key-a"));
+        assertEquals("string", storedOutput.get("__typename").asString());
     }
 
     @Test
@@ -156,7 +162,6 @@ class KeyValueStoreIdempotencyHandlerTest {
         Outcome replayed = handler.execute(key, () -> "should not run");
 
         assertSame(original, firstThrown);
-        assertEquals(original.getClass().getName(), replayed.exception().key());
         assertEquals(original.getMessage(), replayed.exception().message());
         assertTrue(replayed.isFailure());
     }
@@ -529,18 +534,16 @@ class KeyValueStoreIdempotencyHandlerTest {
 
         assertSame(original, firstThrown);
         assertTrue(replayed.isFailure());
-        assertEquals(original.getClass().getName(), replayed.exception().key());
         assertEquals(original.getMessage(), replayed.exception().message());
-        assertEquals(409, replayed.exception().httpErrorCode());
+        assertEquals(409, replayed.exception().statusCode());
     }
 
     @Test
-    @DisplayName("a cache hit whose recorded type can no longer be resolved throws IdempotencyPersistenceException "
-            + "instead of a raw ClassNotFoundException")
+    @DisplayName("a cache hit whose recorded type is not registered throws IdempotencyPersistenceException")
     void execute_cacheHitWithUnresolvableTypename_throwsIdempotencyPersistenceException() {
         String key = "key-unresolvable-typename";
         String cacheKey = NAMESPACE + key;
-        String badTypeJson = "{\"pending\":false,\"__typename\":\"com.hyland.openarch.DoesNotExist\","
+        String badTypeJson = "{\"pending\":false,\"__typename\":\"unregistered-type\","
                 + "\"value\":{\"foo\":\"bar\"}}";
         store.put(cacheKey, badTypeJson.getBytes(StandardCharsets.UTF_8), TTL_SECONDS);
 
