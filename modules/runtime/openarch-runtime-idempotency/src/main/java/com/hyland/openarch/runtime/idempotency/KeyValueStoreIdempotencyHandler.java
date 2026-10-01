@@ -28,7 +28,6 @@ import org.apache.logging.log4j.Logger;
 import com.hyland.openarch.runtime.kv.KeyValueStore;
 import com.hyland.openarch.runtime.kv.KeyValueService;
 import tools.jackson.core.JacksonException;
-import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
@@ -101,26 +100,26 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
     }
 
     @Override
-    public <T> Outcome<T> execute(String key, TypeReference<T> resultType,
+    public <T> Outcome<T> execute(String key, String typename,
             IdempotentOperation<T> operation) {
-        return executeWithOutcome(key, resultType, operation);
+        return executeWithOutcome(key, typename, operation);
     }
 
-    private <T> Outcome<T> executeWithOutcome(String key, TypeReference<T> resultType,
+    private <T> Outcome<T> executeWithOutcome(String key, String typename,
             IdempotentOperation<T> operation) {
         String cacheKey = getCacheKey(key);
 
         ClaimOutcome claim = claimOrAwaitCached(cacheKey, key);
         if (claim.cachedResult() != null) {
             log.debug("Idempotency cache hit for key={}", sanitizeForLog(key));
-            Object unwrapped = unwrap(claim.cachedResult(), resultType);
+            Object unwrapped = unwrap(claim.cachedResult());
             if (unwrapped instanceof FailedOutCome failedOutCome) {
                 return new Outcome<>(null, failedOutCome, true);
             }
             return new Outcome<>((T) unwrapped, null, true);
         }
 
-        T result = runAndFinalize(cacheKey, key, claim.ownerMarker(), operation);
+        T result = runAndFinalize(cacheKey, key, claim.ownerMarker(), operation, typename);
         return new Outcome<>(result, null, false);
     }
 
@@ -129,7 +128,7 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
      * and finalizes the cache entry with its outcome (success or failure).
      */
     private <T> T runAndFinalize(String cacheKey, String key, String ownerMarker,
-            IdempotentOperation<T> operation) {
+            IdempotentOperation<T> operation, String typename) {
         T result;
         try {
             result = operation.execute();
@@ -138,7 +137,7 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
             log.debug("Idempotency cache stored failure for key={}", sanitizeForLog(key));
             throw e;
         }
-        publishSuccess(cacheKey, key, ownerMarker, result);
+        publishSuccess(cacheKey, key, ownerMarker, result, typename);
         return result;
     }
 
@@ -146,12 +145,17 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
      * Records a successful outcome. If the result cannot be represented as JSON it is not cached —
      * the claim is released instead, so the failure to record never turns a success into a
      * replayed failure and never leaves waiters blocked until the lease expires.
+     * <p>
+     * When the caller did not supply a {@code typename} — which is mandatory for a generic result
+     * type, whose element types erasure would otherwise lose — the key registered for the result's
+     * runtime class is used instead.
      */
-    private <T> void publishSuccess(String cacheKey, String key, String ownerMarker, T result) {
+    private <T> void publishSuccess(String cacheKey, String key, String ownerMarker, T result, String typename) {
         IdempotencyOutput successResult;
         try {
             JsonNode jsonNode = OBJECT_MAPPER.valueToTree(result);
-            String resultTypeKey = IdempotencyResultTypeRegistry.getKey(result.getClass());
+            String resultTypeKey = typename != null ? typename
+                    : IdempotencyResultTypeRegistry.getKey(result.getClass());
             if (resultTypeKey == null) {
                 log.error("Idempotency result for key={} has unregistered type {}; releasing the claim without "
                         + "caching", sanitizeForLog(key), result.getClass().getName());
@@ -388,17 +392,12 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
      * element type, so relying on it here would deserialize collection elements as raw {@code Map}s.
      *
      * @param output     the cached idempotency output to convert
-     * @param resultType the caller-supplied full generic result type, or {@code null} to fall back
-     *                   to the erased type recorded at serialization time
      * @return either an {@link FailedOutCome} (replayed failure) or the deserialized result
      *         value (replayed success)
      */
-    private Object unwrap(IdempotencyOutput output, TypeReference<?> resultType) {
+    private Object unwrap(IdempotencyOutput output) {
         if (output.exception() != null) {
             return new FailedOutCome(output.exception().message(), output.exception().statusCode());
-        }
-        if (resultType != null) {
-            return OBJECT_MAPPER.convertValue(output.value(), resultType);
         }
         try {
             return output.unwrap();

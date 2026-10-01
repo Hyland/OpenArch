@@ -54,7 +54,6 @@ import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.runtime.kv.KeyValueService;
 import com.hyland.openarch.runtime.kv.KeyValueStore;
 import com.hyland.openarch.runtime.kv.MemKeyValueStore;
-import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -74,7 +73,7 @@ class KeyValueStoreIdempotencyHandlerTest {
     @BeforeEach
     void setUp() {
         IdempotencyResultTypeRegistry.register("string", String.class);
-        IdempotencyResultTypeRegistry.register("sample-dto-list", ArrayList.class);
+        IdempotencyResultTypeRegistry.registerList("sample-dto-list", SampleDto.class);
         store = new MemKeyValueStore();
         KeyValueService keyValueService = name -> store;
         handler = new KeyValueStoreIdempotencyHandler(keyValueService, "default", NAMESPACE, TTL_SECONDS);
@@ -131,16 +130,15 @@ class KeyValueStoreIdempotencyHandlerTest {
     }
 
     @Test
-    @DisplayName("execute with a TypeReference replays a generic list result as its concrete element "
-            + "type, not raw maps (type erasure would otherwise lose the element type on replay)")
-    void execute_withTypeReference_repeatCallReplaysConcreteElementType() {
+    @DisplayName("execute with a registered generic list type replays the result as its concrete "
+            + "element type, not raw maps (type erasure would otherwise lose the element type on replay)")
+    void execute_withRegisteredListType_repeatCallReplaysConcreteElementType() {
         String key = "key-generic-list";
-        TypeReference<ArrayList<SampleDto>> resultType = new TypeReference<ArrayList<SampleDto>>() {
-        };
+        String typename = "sample-dto-list";
 
-        ArrayList<SampleDto> first = handler.execute(key, resultType,
+        List<SampleDto> first = handler.execute(key, typename,
                 () -> new ArrayList<>(List.of(new SampleDto("a", 1)))).value();
-        ArrayList<SampleDto> second = handler.execute(key, resultType,
+        List<SampleDto> second = handler.execute(key, typename,
                 () -> new ArrayList<>(List.of(new SampleDto("should-not-run", -1)))).value();
 
         assertEquals(first, second);

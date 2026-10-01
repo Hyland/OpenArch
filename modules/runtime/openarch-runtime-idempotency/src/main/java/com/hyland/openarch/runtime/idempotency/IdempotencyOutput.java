@@ -18,6 +18,7 @@ package com.hyland.openarch.runtime.idempotency;
 import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JavaType;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
@@ -30,7 +31,7 @@ import tools.jackson.databind.json.JsonMapper;
  * <li><b>pending</b> — the key has been claimed and the guarded operation is still running. The
  * {@code claimId} uniquely identifies the claim so that only its owner may publish a result.</li>
  * <li><b>success</b> — the operation completed; {@code value} holds the JSON representation of the
- * result and {@code typename} the registered key used to recover its concrete class.</li>
+ * result and {@code typename} the registered key used to recover its result type.</li>
  * <li><b>failure</b> — the operation threw; {@code exception} holds the replayable details.</li>
  * </ul>
  *
@@ -96,8 +97,11 @@ public record IdempotencyOutput(boolean pending, String claimId, @JsonProperty("
     }
 
     /**
-     * Deserializes a successful cached value using the class registered under its {@code __typename}
+     * Deserializes a successful cached value using the type registered under its {@code __typename}
      * key, or returns replayable failure details.
+     * <p>
+     * The registered type is a Jackson {@code JavaType}, so a generic result such as a
+     * {@code List<DocumentDTO>} is replayed with its element type preserved.
      *
      * @return the deserialized value, {@code null}, or a replayable failure
      * @throws IllegalArgumentException when the result type key is not registered or its JSON
@@ -110,7 +114,7 @@ public record IdempotencyOutput(boolean pending, String claimId, @JsonProperty("
         if (value == null || value.isNull()) {
             return null;
         }
-        Class<?> resultType = IdempotencyResultTypeRegistry.getType(typename);
+        JavaType resultType = IdempotencyResultTypeRegistry.getType(typename);
         if (resultType == null) {
             throw new IllegalArgumentException("No idempotency result type is registered for key: " + typename);
         }

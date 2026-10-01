@@ -28,7 +28,7 @@ import com.hyland.openarch.runtime.kv.KeyValueService;
  */
 public final class IdempotencyHandlerFactory {
 
-    public static final long DEFAULT_TTL_SECONDS = TimeUnit.HOURS.toSeconds(24);
+    public static final long DEFAULT_TTL_SECONDS = TimeUnit.DAYS.toSeconds(1);
 
     public static final String DEFAULT_STORE_NAME = "openarch-idempotency";
 
@@ -38,8 +38,7 @@ public final class IdempotencyHandlerFactory {
 
     public static final String DEFAULT_IDEMPOTENCY_DEFAULT_TENANT = "default";
 
-    public static final String IDEMPOTENCY_TENANT_PROPERTY = "openarch.idempotency.tenant-id";
-
+    public static final String ENVIRONMENT_PROP = "environment.identifier";
 
     private IdempotencyHandlerFactory() {
         // utility class

@@ -16,6 +16,9 @@
 package com.hyland.openarch.runtime.idempotency;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.json.JsonMapper;
@@ -34,6 +37,19 @@ class IdempotencyOutputTest {
                                          .unwrap();
 
         assertEquals(expected, actual);
+    }
+
+    @Test
+    void unwrap_registeredListType_deserializesElementsToTheirConcreteType() {
+        IdempotencyResultTypeRegistry.registerList("sample-result-list", SampleResult.class);
+        List<SampleResult> expected = List.of(new SampleResult("first"), new SampleResult("second"));
+
+        Object actual = IdempotencyOutput
+                .success(JsonMapper.builder().build().valueToTree(expected), "sample-result-list")
+                .unwrap();
+
+        assertEquals(expected, actual);
+        assertInstanceOf(SampleResult.class, ((List<?>) actual).get(0));
     }
 
     record SampleResult(String value) {
