@@ -60,6 +60,8 @@ The response will be a JSON object containing the details of the created documen
         "00000000-0000-0000-0000-000000000000"
     ],
     "sys_changeToken": "0-0",
+    "sys_gen": 0,
+    "sys_ugen": 0,
     "sys_contributors": [
         {
             "id": "00000000-0000-0000-0000-000000000001",

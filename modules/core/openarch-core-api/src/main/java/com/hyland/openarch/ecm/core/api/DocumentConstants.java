@@ -63,6 +63,8 @@ public class DocumentConstants {
 
     public static final String SYS_FULLTEXT_SCORE = "sys_fulltextScore";
 
+    public static final String SYS_GENERATION = "sys_gen";
+
     public static final String SYS_ID = "sys_id";
 
     public static final String SYS_IS_FOLDERISH = "sys_isFolderish";
@@ -101,9 +103,9 @@ public class DocumentConstants {
 
     public static final String SYS_SECURITY_POLICIES = "sys_secpol";
 
-    public static final String SYS_SYS_CHANGE_TOKEN = "sys_systemChangeToken";
-
     public static final String SYS_TITLE = "sys_title";
+
+    public static final String SYS_USER_GENERATION = "sys_ugen";
 
     public static final String KEY_ACE_PRINCIPAL = "principal";
 

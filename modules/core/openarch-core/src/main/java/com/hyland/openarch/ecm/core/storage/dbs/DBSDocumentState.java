@@ -15,12 +15,12 @@
  */
 package com.hyland.openarch.ecm.core.storage.dbs;
 
-import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_CHANGE_TOKEN;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_GENERATION;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ID;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_NAME;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PARENT_ID;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PRIMARY_TYPE;
-import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_SYS_CHANGE_TOKEN;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_USER_GENERATION;
 
 import com.hyland.openarch.ecm.core.api.model.Delta;
 import com.hyland.openarch.ecm.core.model.InternalDocument;
@@ -86,10 +86,10 @@ public class DBSDocumentState {
     public void setNotDirty() {
         originalState = null;
         StateHelper.resetDeltas(state);
-        // reset the change token delta even if delta processing is disabled in StateHelper.resetDeltas
-        Object value = state.get(SYS_SYS_CHANGE_TOKEN);
+        // reset the generation delta even if delta processing is disabled in StateHelper.resetDeltas
+        Object value = state.get(SYS_GENERATION);
         if (value instanceof Delta delta) {
-            state.put(SYS_SYS_CHANGE_TOKEN, delta.getFullValue());
+            state.put(SYS_GENERATION, delta.getFullValue());
         }
     }
 
@@ -174,18 +174,12 @@ public class DBSDocumentState {
         return (String) get(SYS_PRIMARY_TYPE);
     }
 
-    public Long getSysChangeToken() {
-        return (Long) get(SYS_SYS_CHANGE_TOKEN);
+    public Long getGeneration() {
+        return (Long) get(SYS_GENERATION);
     }
 
-    public Long getChangeToken() {
-        return (Long) get(SYS_CHANGE_TOKEN);
-    }
-
-    public boolean validateUserVisibleChangeToken(String userVisibleChangeToken) {
-        Long sysChangeToken = getSysChangeToken();
-        Long changeToken = getChangeToken();
-        return DBSDocument.validateUserVisibleChangeToken(sysChangeToken, changeToken, userVisibleChangeToken);
+    public Long getUserGeneration() {
+        return (Long) get(SYS_USER_GENERATION);
     }
 
     @Override

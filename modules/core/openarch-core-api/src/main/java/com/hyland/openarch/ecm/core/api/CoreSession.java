@@ -56,26 +56,6 @@ public interface CoreSession {
     String SOURCE = "source";
 
     /**
-     * Change token, a String parameter passed in context data at {@link #saveDocument} time.
-     *
-     * @see DocumentModel#putContextData
-     * @see #getChangeToken
-     * @see DocumentModel#getChangeToken
-     * @since 9.1
-     */
-    String CHANGE_TOKEN = "changeToken";
-
-    /**
-     * User change, a Boolean parameter passed in context data at {@link #saveDocument} time.
-     * <p>
-     * When {@linkplain Boolean#TRUE TRUE}, it marks the document as being modified by a user change. This causes an
-     * additional change token increment and check during save.
-     *
-     * @since 9.2
-     */
-    String USER_CHANGE = "userChange";
-
-    /**
      * Cancels any pending change made through this session.
      */
     void cancel();
@@ -678,25 +658,6 @@ public interface CoreSession {
      * @return a DocumentModelRefresh object
      */
     DocumentModelRefresh refreshDocument(DocumentRef ref, int refreshFlags, String[] schemas);
-
-    /**
-     * Gets the current change token for the document.
-     * <p>
-     * The change token is an opaque string which is modified every time the document is changed.
-     * <p>
-     * Before saving a document through {@link CoreSession#saveDocument} it's possible to pass an expected change token
-     * in the document context data through {@code doc.putContextData(CoreSession.CHANGE_TOKEN, expectedChangeToken)}.
-     * If the change token does not match the stored one, it means that a concurrent update happened, and a
-     * {@link ConcurrentUpdateException ConcurrentUpdateException} will be thrown.
-     *
-     * @param ref the document reference
-     * @return the change token
-     * @since 9.1
-     * @see DocumentModel#putContextData
-     * @see #CHANGE_TOKEN
-     * @see #getChangeToken
-     */
-    String getChangeToken(DocumentRef ref);
 
     /**
      * Visits the blobs of a document and, for those with a matching key, replace their key and digest with new ones.

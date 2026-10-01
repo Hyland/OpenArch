@@ -272,7 +272,7 @@ public class DocumentAPIUpsertTest extends AbstractAPITest {
         dto.setPrimaryType("SysFile");
         var rootRef = new PathRef("/");
         RepositoryException e = assertThrows(RepositoryException.class,
-                () -> documentManager.upsertDocument(REPO_ID, rootRef, dto, false));
+                () -> documentManager.upsertDocument(REPO_ID, rootRef, dto, false, true));
         assertEquals(BAD_REQUEST.getStatusCode(), e.getStatusCode());
     }
 
@@ -283,7 +283,7 @@ public class DocumentAPIUpsertTest extends AbstractAPITest {
         dto.setPrimaryType("SysFile");
         var rootRef = new IdRef(ROOT_ID);
         RepositoryException e = assertThrows(RepositoryException.class,
-                () -> documentManager.upsertDocument(REPO_ID, rootRef, dto, true));
+                () -> documentManager.upsertDocument(REPO_ID, rootRef, dto, true, true));
         assertEquals(BAD_REQUEST.getStatusCode(), e.getStatusCode());
     }
 
@@ -310,7 +310,7 @@ public class DocumentAPIUpsertTest extends AbstractAPITest {
                     dto.setPrimaryType("SysFile");
                     // upsert needs an ambient transaction, which in a request is the one the transaction filter opens
                     UpsertDocumentResult r = TransactionHelper.runInTransaction(
-                            () -> documentManager.upsertDocument(REPO_ID, new PathRef("/"), dto, false));
+                            () -> documentManager.upsertDocument(REPO_ID, new PathRef("/"), dto, false, true));
                     if (r.created()) {
                         createdCount.incrementAndGet();
                     }

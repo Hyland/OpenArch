@@ -43,7 +43,7 @@ import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSVER_MINOR_VE
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSVER_VERSION;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ACL;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ANCESTOR_IDS;
-import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_CHANGE_TOKEN;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_GENERATION;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_DESCRIPTION;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_EFFECTIVE_ACL;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_EFFECTIVE_PERMISSIONS;
@@ -60,6 +60,7 @@ import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PATH_DEPTH;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PRIMARY_TYPE;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_SECURITY_POLICIES;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_TITLE;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_USER_GENERATION;
 import static com.hyland.openarch.ecm.core.api.event.CoreEventConstants.DIRTY_BLOB_XPATHS;
 import static com.hyland.openarch.ecm.core.api.event.CoreEventConstants.DIRTY_XPATHS;
 import static com.hyland.openarch.ecm.core.api.event.CoreEventConstants.RETAIN_UNTIL;
@@ -2424,8 +2425,8 @@ public class TestSQLRepositoryAPI {
             Assertions.assertEquals(doc.getRef(), docCreatedContext.getSourceDocument().getRef());
             Assertions.assertEquals(
                     List.of("sys_ancestorIds", "sys_ancestorIds/*", "sys_contributors", "sys_contributors/*",
-                            "sys_created", "sys_creator", "sys_id", "sys_lastContributor", "sys_modified", "sys_name",
-                            "sys_parentId", "sys_primaryType", "sys_systemChangeToken", "sys_title"),
+                            "sys_created", "sys_creator", "sys_gen", "sys_id", "sys_lastContributor", "sys_modified", "sys_name",
+                            "sys_parentId", "sys_primaryType", "sys_title", "sys_ugen"),
                     docCreatedContext.getProperty(DIRTY_XPATHS));
         }
     }
@@ -2445,9 +2446,9 @@ public class TestSQLRepositoryAPI {
             DocumentEventContext docCreatedContext = (DocumentEventContext) docCreatedEvent.getContext();
             Assertions.assertEquals(doc.getRef(), docCreatedContext.getSourceDocument().getRef());
             Assertions.assertEquals(List.of("sys_ancestorIds", "sys_ancestorIds/*", "sys_blobKeys", "sys_blobKeys/*",
-                    "sys_contributors", "sys_contributors/*", "sys_created", "sys_creator", "sys_id",
+                    "sys_contributors", "sys_contributors/*", "sys_created", "sys_creator", "sys_gen", "sys_id",
                     "sys_lastContributor", "sys_modified", "sys_name", "sys_parentId", "sys_primaryType",
-                    "sys_systemChangeToken", "sys_title", "sysfile_blob", "sysfile_blob/digest",
+                    "sys_title", "sys_ugen", "sysfile_blob", "sysfile_blob/digest",
                     "sysfile_blob/encoding", "sysfile_blob/key", "sysfile_blob/length", "sysfile_blob/mimeType"),
                     docCreatedContext.getProperty(DIRTY_XPATHS));
         }
@@ -2473,8 +2474,8 @@ public class TestSQLRepositoryAPI {
                     "cmpf_attachedFile/vignettes/*/content/key", "cmpf_attachedFile/vignettes/*/content/length",
                     "cmpf_attachedFile/vignettes/*/content/mimeType", "sys_ancestorIds", "sys_ancestorIds/*",
                     "sys_blobKeys", "sys_blobKeys/*", "sys_contributors", "sys_contributors/*", "sys_created",
-                    "sys_creator", "sys_id", "sys_lastContributor", "sys_modified", "sys_name", "sys_parentId",
-                    "sys_primaryType", "sys_systemChangeToken", "sys_title"),
+                    "sys_creator", "sys_gen", "sys_id", "sys_lastContributor", "sys_modified", "sys_name", "sys_parentId",
+                    "sys_primaryType", "sys_title", "sys_ugen"),
                     docCreatedContext.getProperty(DIRTY_XPATHS));
         }
     }
@@ -3059,7 +3060,8 @@ public class TestSQLRepositoryAPI {
         assertEquals(doc.getType(), doc.getPropertyValue(SYS_PRIMARY_TYPE));
         assertEquals(doc.isFolder(), doc.getPropertyValue(SYS_IS_FOLDERISH));
         assertEquals(doc.getEffectiveMixins(), Set.copyOf((List<String>) doc.getPropertyValue(SYS_MIXIN_TYPES)));
-        assertEquals(doc.getChangeToken(), doc.getPropertyValue(SYS_CHANGE_TOKEN));
+        assertEquals(doc.getGeneration(), (long) (Long) doc.getPropertyValue(SYS_GENERATION));
+        assertEquals(doc.getUserGeneration(), (long) (Long) doc.getPropertyValue(SYS_USER_GENERATION));
         assertEquals(doc.getLocalACL(), doc.getPropertyValue(SYS_ACL));
         assertEquals(doc.getEffectiveACL(), doc.getPropertyValue(SYS_EFFECTIVE_ACL));
         assertEquals(doc.getEffectivePermissions(),
@@ -3631,12 +3633,12 @@ public class TestSQLRepositoryAPI {
     }
 
     @Test
-    public void testChangeToken() {
+    public void testGeneration() {
         DocumentModel doc = session.createDocumentModel("/", "doc", SYS_FILE);
         doc.create();
         session.save();
-        String token = doc.getChangeToken();
-        assertEquals("0-0", token);
+        assertEquals(0L, doc.getGeneration());
+        assertEquals(0L, doc.getUserGeneration());
 
         // now change the doc
         doc.setPropertyValue(SYS_TITLE, "Doc Changed");
@@ -3644,29 +3646,26 @@ public class TestSQLRepositoryAPI {
 
         // the system change token has been updated
         // but not the user change token as this was not flagged a user change
-        String token2 = doc.getChangeToken();
-        assertNotEquals(token, token2);
-        assertEquals("1-0", token2);
+        assertEquals(1L, doc.getGeneration());
+        assertEquals(0L, doc.getUserGeneration());
 
         // change the doc again as a user change
-        doc.putContextData(CoreSession.USER_CHANGE, Boolean.TRUE);
         doc.setPropertyValue(SYS_TITLE, "Doc Changed Again");
+        doc.markUserChange();
         session.save();
 
         // the system change token has been updated again
         // and the user change token as well
-        String token3 = doc.getChangeToken();
-        assertNotEquals(token, token2);
-        assertNotEquals(token2, token3);
-        assertEquals("2-1", token3);
+        assertEquals(2L, doc.getGeneration());
+        assertEquals(1L, doc.getUserGeneration());
     }
 
     @Test
-    public void testChangeTokenSystem() {
+    public void testGenerationSystem() {
         DocumentModel doc = session.createDocumentModel("/", "doc", SYS_FILE);
         doc.create();
         session.save();
-        assertEquals("0-0", doc.getChangeToken());
+        assertEquals(0L, doc.getGeneration());
 
         // now change the doc
         doc.setPropertyValue(SYS_TITLE, "Doc Changed");
@@ -3677,33 +3676,11 @@ public class TestSQLRepositoryAPI {
         doc = session.getDocument(doc.getRef());
 
         // the system change token has been updated and written
-        assertEquals("1-0", doc.getChangeToken());
+        assertEquals(1L, doc.getGeneration());
     }
 
     @Test
-    public void testChangeTokenBatched() {
-        DocumentModel doc1 = session.createDocumentModel("/", "doc1", SYS_FILE);
-        DocumentModel doc2 = session.createDocumentModel("/", "doc2", SYS_FILE);
-        doc1.create();
-        doc2.create();
-        session.save();
-        String token1 = doc1.getChangeToken();
-        String token2 = doc2.getChangeToken();
-
-        // now change the docs
-        doc1.setPropertyValue(SYS_TITLE, "Doc 1 Changed");
-        doc2.setPropertyValue(SYS_TITLE, "Doc 2 Changed");
-        session.save();
-
-        // the change token has been updated
-        String token1b = doc1.getChangeToken();
-        String token2b = doc2.getChangeToken();
-        assertNotEquals(token1, token1b);
-        assertNotEquals(token2, token2b);
-    }
-
-    @Test
-    public void testChangeTokenForList() {
+    public void testGenerationForList() {
         DocumentModel doc = session.createDocumentModel("/", "doc", SYS_FILE);
         doc.create();
         session.save();
@@ -3713,19 +3690,18 @@ public class TestSQLRepositoryAPI {
         session.save();
 
         // get the token
-        String token = doc.getChangeToken();
+        assertEquals(1L, doc.getGeneration());
 
         // change the doc by changing a list
         doc.setPropertyValue("mydc_subjects", Arrays.asList("foo", "bar"));
         session.save();
 
         // the change token has been updated
-        String token2 = doc.getChangeToken();
-        assertNotEquals(token, token2);
+        assertEquals(2L, doc.getGeneration());
     }
 
     @Test
-    public void testChangeTokenForComplex() {
+    public void testGenerationForComplex() {
         DocumentModel doc = session.createDocumentModel("/", "doc", "ComplexDoc");
         doc.create();
         session.save();
@@ -3735,101 +3711,83 @@ public class TestSQLRepositoryAPI {
         session.save();
 
         // get the token
-        String token = doc.getChangeToken();
+        assertEquals(1L, doc.getGeneration());
 
         // change the doc by creating a complex property list
         doc.setPropertyValue("cmpf_attachedFile/vignettes", List.of(Map.of("label", "123")));
         session.save();
 
         // the change token has been updated
-        String token2 = doc.getChangeToken();
-        assertNotEquals(token, token2);
+        assertEquals(2L, doc.getGeneration());
 
         // change the doc by updating a complex property list
         doc.setPropertyValue("cmpf_attachedFile/vignettes", List.of(Map.of("label", "456")));
         session.save();
 
         // the change token has been updated again
-        String token3 = doc.getChangeToken();
-        assertNotEquals(token2, token3);
+        assertEquals(3L, doc.getGeneration());
 
         // change the doc by removing a complex property list
         doc.setPropertyValue("cmpf_attachedFile/vignettes", Collections.emptyList());
         session.save();
 
         // the change token has been updated again
-        String token4 = doc.getChangeToken();
-        assertNotEquals(token3, token4);
+        assertEquals(4L, doc.getGeneration());
     }
 
     @Test
-    public void testOptimisticLockingWithExplicitChangeToken() {
+    public void testOptimisticLockingWithExplicitCondition() {
         DocumentModel doc = session.createDocumentModel("/", "doc", SYS_FILE);
         doc.create();
         session.save();
-        String token = doc.getChangeToken();
-        assertEquals("0-0", token);
+        assertEquals(0L, doc.getGeneration());
+        assertEquals(0L, doc.getUserGeneration());
 
         // simulate some background system work
         doc.setPropertyValue(SYS_DESCRIPTION, "background update");
         session.save();
+        assertEquals(1L, doc.getGeneration());
+        assertEquals(0L, doc.getUserGeneration());
 
         // now change the doc, using the previously-retrieved change token
         doc = session.getDocument(doc.getRef());
-        doc.putContextData(CoreSession.CHANGE_TOKEN, token);
+        doc.setUpdateCondition(UpdateCondition.hxql("sys_ugen = 0"));
         doc.setPropertyValue(SYS_TITLE, "foo");
         session.save(); // save succeeds even though there was a background system update
-        String token2 = doc.getChangeToken();
-        assertEquals("2-1", token2);
-        assertNotEquals(token, token2);
+        assertEquals(2L, doc.getGeneration());
+        assertEquals(0L, doc.getUserGeneration());
     }
 
     @Test
-    public void testOptimisticLockingWithExplicitChangeTokenCollision() {
+    public void testOptimisticLockingWithExplicitConditionCollision() {
         DocumentModel doc = session.createDocumentModel("/", "doc", SYS_FILE);
         doc.create();
         session.save();
-        String token = doc.getChangeToken();
-        assertEquals("0-0", token);
+        assertEquals(0L, doc.getGeneration());
+        assertEquals(0L, doc.getUserGeneration());
 
         // simulate some parallel user work
-        doc.putContextData(CoreSession.CHANGE_TOKEN, token);
+        doc.markUserChange();
         doc.setPropertyValue(SYS_TITLE, "foo");
         session.save();
+        assertEquals(1L, doc.getGeneration());
+        assertEquals(1L, doc.getUserGeneration());
 
         // now change the doc, using the originally-retrieved change token
         try {
             doc = session.getDocument(doc.getRef());
-            doc.putContextData(CoreSession.CHANGE_TOKEN, token);
+            doc.setUpdateCondition(UpdateCondition.hxql("sys_ugen = 0"));
             doc.setPropertyValue(SYS_TITLE, "bar");
-            fail("save should fail because of wrong change token");
-        } catch (ConcurrentUpdateException e) {
+            session.save();
+            fail("save should fail because the user generation changed");
+        } catch (ConditionFailedException e) {
             TransactionHelper.setTransactionRollbackOnly();
-            assertEquals(doc.getId() + ", Invalid change token", e.getMessage());
+            assertEquals(doc.getId(), e.getMessage());
         }
     }
 
     @Test
-    public void testOptimisticLockingWithExplicitChangeTokenInvalid() {
-        DocumentModel doc = session.createDocumentModel("/", "doc", SYS_FILE);
-        doc.create();
-        session.save();
-        String token = doc.getChangeToken();
-        assertEquals("0-0", token);
-
-        // change the doc using a wrong change token
-        try {
-            doc.putContextData(CoreSession.CHANGE_TOKEN, "wrongchangetoken");
-            doc.setPropertyValue(SYS_TITLE, "bar");
-            fail("save should fail because of wrong change token");
-        } catch (ConcurrentUpdateException e) {
-            TransactionHelper.setTransactionRollbackOnly();
-            assertEquals(doc.getId() + ", Invalid change token", e.getMessage());
-        }
-    }
-
-    @Test
-    public void testOptimisticLockinWithAsyncWork() { // NOSONAR (no need to assert anything)
+    public void testOptimisticLockingWithAsyncWork() { // NOSONAR (no need to assert anything)
         DocumentModel file = session.createDocumentModel("/", "file", SYS_FILE);
         file.setPropertyValue(SYS_TITLE, "foo");
         file.create();
@@ -3840,7 +3798,7 @@ public class TestSQLRepositoryAPI {
         // modify file as a user change
         file.refresh();
         file.setPropertyValue(SYS_TITLE, "bar");
-        file.putContextData(CoreSession.USER_CHANGE, Boolean.TRUE);
+        file.markUserChange();
         session.save();
     }
 
@@ -3866,8 +3824,8 @@ public class TestSQLRepositoryAPI {
                 try {
                     CoreSession session2 = CoreInstance.getCoreSession(coreFeature.getRepositoryName());
                     DocumentModel doc2 = session2.getDocument(docRef);
-                    doc2.putContextData(CoreSession.USER_CHANGE, Boolean.TRUE);
                     doc2.setPropertyValue(SYS_TITLE, "bar parallel");
+                    doc2.markUserChange();
                     session2.save(); // save succeeds
                 } catch (RuntimeException e) {
                     me.setValue(e);
@@ -3882,8 +3840,8 @@ public class TestSQLRepositoryAPI {
 
         // now try to save the doc as a user change as well
         try {
-            doc.putContextData(CoreSession.USER_CHANGE, Boolean.TRUE);
             doc.setPropertyValue(SYS_TITLE, "bar");
+            doc.markUserChange();
             session.save();
             fail("save should fail because of concurrent update in other transaction");
         } catch (ConcurrentUpdateException e) {

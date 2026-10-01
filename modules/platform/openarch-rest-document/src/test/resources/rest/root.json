@@ -1,4 +1,7 @@
 {
+  "sys_changeToken": "0-0",
+  "sys_gen": 0,
+  "sys_ugen": 0,
   "sys_id": "00000000-0000-0000-0000-000000000000",
   "sys_effectivePermissions": [
     "CreateChild",

@@ -903,12 +903,6 @@ public class SessionImpl implements CoreSession {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    public String getChangeToken(DocumentRef docRef) {
-        InternalDocument doc = resolveReference(docRef, READ);
-        return doc.getChangeToken();
-    }
-
     protected String computeKeyForAtomicCreation(DocumentModel docModel) {
         String repositoryName = docModel.getRepositoryName();
         if (repositoryName == null) {

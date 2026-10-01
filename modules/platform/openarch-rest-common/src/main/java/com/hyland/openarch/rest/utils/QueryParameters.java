@@ -51,4 +51,10 @@ public class QueryParameters {
      */
     public static final String UPSERT = "upsert";
 
+    /**
+     * Document update parameter. When true (the default), the update is flagged as a user change and increments the
+     * document's {@code sys_ugen}. Pass false for technical updates that should not be seen as user changes.
+     */
+    public static final String USER_CHANGE = "userChange";
+
 }

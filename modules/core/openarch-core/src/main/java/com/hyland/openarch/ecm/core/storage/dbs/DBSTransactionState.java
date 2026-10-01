@@ -19,7 +19,7 @@ import static java.lang.Boolean.TRUE;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.FULLTEXT_EXTRACTOR_TASK_NAME;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ANCESTOR_IDS;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_BLOB_KEYS;
-import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_CHANGE_TOKEN;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_GENERATION;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_FULLTEXT_BINARY;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_FULLTEXT_JOB_ID;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ID;
@@ -31,14 +31,14 @@ import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PARENT_ID;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_POS;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PRIMARY_TYPE;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_READ_ACL;
-import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_SYS_CHANGE_TOKEN;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_USER_GENERATION;
 import static com.hyland.openarch.ecm.core.api.event.CoreEventConstants.DIRTY_BLOB_XPATHS;
 import static com.hyland.openarch.ecm.core.api.event.CoreEventConstants.DIRTY_XPATHS;
 import static com.hyland.openarch.ecm.core.api.event.DocumentEventTypes.DOCUMENT_CREATED;
 import static com.hyland.openarch.ecm.core.api.security.SecurityConstants.SYSTEM_USERNAME;
 import static com.hyland.openarch.ecm.core.schema.TypeConstants.KEY_BLOB_KEY;
-import static com.hyland.openarch.ecm.core.storage.dbs.DBSDocument.INITIAL_CHANGE_TOKEN;
-import static com.hyland.openarch.ecm.core.storage.dbs.DBSDocument.INITIAL_SYS_CHANGE_TOKEN;
+import static com.hyland.openarch.ecm.core.storage.dbs.DBSDocument.INITIAL_GENERATION;
+import static com.hyland.openarch.ecm.core.storage.dbs.DBSDocument.INITIAL_USER_GENERATION;
 
 import com.hyland.openarch.ecm.core.api.RepositoryException;
 import jakarta.transaction.Status;
@@ -429,8 +429,9 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
             docState.put(SYS_IS_FOLDERISH, TRUE);
         }
 
-        // sys_systemChangeToken
-        docState.put(SYS_SYS_CHANGE_TOKEN, INITIAL_SYS_CHANGE_TOKEN);
+        // sys_gen and sys_ugen
+        docState.put(SYS_GENERATION, INITIAL_GENERATION);
+        docState.put(SYS_USER_GENERATION, INITIAL_USER_GENERATION);
 
         // sys_racl
         securityPolicyService.updateDenormalizedProperties(id, this);
@@ -691,7 +692,7 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
                 undoLog.put(id, null); // marker to denote create
             }
             State state = docState.getState();
-            state.put(SYS_CHANGE_TOKEN, INITIAL_CHANGE_TOKEN);
+            state.put(SYS_GENERATION, INITIAL_GENERATION);
             statesToCreate.add(state);
         }
         if (!statesToCreate.isEmpty()) {
@@ -721,12 +722,14 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
                         // else there's already a create or an update in the undo log so original info is enough
                     }
                     ConditionalUpdates conditionalUpdates = new ConditionalUpdates();
-                    // increment system change token
-                    Long base = (Long) docState.get(SYS_SYS_CHANGE_TOKEN);
-                    docState.put(SYS_SYS_CHANGE_TOKEN, DeltaLong.valueOf(base, 1));
-                    diff.put(SYS_SYS_CHANGE_TOKEN, DeltaLong.valueOf(base, 1));
-                    // update change token if applicable (user change)
-                    addConditionalUpdateForUserChangeToken(conditionalUpdates, docState);
+                    // increment generation
+                    Long base = (Long) docState.get(SYS_GENERATION);
+                    docState.put(SYS_GENERATION, DeltaLong.valueOf(base, 1));
+                    diff.put(SYS_GENERATION, DeltaLong.valueOf(base, 1));
+                    // update user generation if applicable
+                    if (userChangeIds.contains(docState.getId())) {
+                        addConditionalUpdateForUserGeneration(conditionalUpdates, docState);
+                    }
                     // user-defined condition predicate
                     addUpdateConditionPredicate(conditionalUpdates, id);
 
@@ -761,36 +764,32 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
         }
     }
 
-    protected void addConditionalUpdateForUserChangeToken(ConditionalUpdates conditionalUpdates,
-                                                          DBSDocumentState docState) {
-        if (!userChangeIds.contains(docState.getId())) {
-            return;
-        }
+    protected void addConditionalUpdateForUserGeneration(ConditionalUpdates conditionalUpdates,
+            DBSDocumentState docState) {
         // condition and update
-        Long oldToken = (Long) docState.getOriginalState().get(SYS_CHANGE_TOKEN);
-        Long newToken = updateChangeToken(oldToken);
-        conditionalUpdates.setCondition(SYS_CHANGE_TOKEN, oldToken);
-        conditionalUpdates.addUpdate(SYS_CHANGE_TOKEN, newToken);
+        Long oldGen = (Long) docState.getOriginalState().get(SYS_USER_GENERATION);
+        Long newGen = incrementUserGeneration(oldGen);
+        conditionalUpdates.setCondition(SYS_USER_GENERATION, oldGen);
+        conditionalUpdates.addUpdate(SYS_USER_GENERATION, newGen);
         // callback
         Runnable callback = () -> {
-            // also store the new token in the state (without marking dirty)
-            Long ot = (Long) conditionalUpdates.getUpdates().get(SYS_CHANGE_TOKEN);
-            docState.getState().put(SYS_CHANGE_TOKEN, ot);
+            // also store the new generation in the state (without marking dirty)
+            Long og = (Long) conditionalUpdates.getUpdates().get(SYS_USER_GENERATION);
+            docState.getState().put(SYS_USER_GENERATION, og);
             // new conditional update
-            Long nt = updateChangeToken(ot);
-            conditionalUpdates.setCondition(SYS_CHANGE_TOKEN, ot);
-            conditionalUpdates.addUpdate(SYS_CHANGE_TOKEN, nt);
+            Long ng = incrementUserGeneration(og);
+            conditionalUpdates.setCondition(SYS_USER_GENERATION, og);
+            conditionalUpdates.addUpdate(SYS_USER_GENERATION, ng);
         };
         conditionalUpdates.addCallback(callback);
     }
 
-    protected static Long updateChangeToken(Long changeToken) {
-        if (changeToken == null) {
-            // document without change token, just created
-            return INITIAL_CHANGE_TOKEN;
-        } else {
-            return DBSDocument.updateChangeToken(changeToken);
+    protected static Long incrementUserGeneration(Long userGeneration) {
+        if (userGeneration == null) {
+            // for old documents created before this was defined and set at creation time
+            userGeneration = INITIAL_USER_GENERATION;
         }
+        return Long.valueOf(userGeneration.longValue() + 1);
     }
 
     protected void addUpdateConditionPredicate(ConditionalUpdates conditionalUpdates, String id) {

@@ -48,7 +48,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import com.hyland.openarch.ecm.core.model.InternalDocument;
-import com.hyland.openarch.ecm.core.model.InternalDocument.WriteContext;
 import com.hyland.openarch.ecm.core.model.WriteResult;
 import com.hyland.openarch.ecm.core.schema.DocumentType;
 import com.hyland.openarch.ecm.core.schema.SchemaManager;
@@ -185,7 +184,7 @@ public class TestDBSDocument {
         DBSDocument doc = new DBSDocument(state, type, dbsSession, false);
         clearInvocations(dbsSession);
 
-        WriteResult result = doc.setValue(SYS_NAME, "ignored", new WriteContext(null, null, true));
+        WriteResult result = doc.setValue(SYS_NAME, "ignored", null);
 
         assertSame(WriteResult.EMPTY, result);
         verifyNoInteractions(dbsSession);
@@ -200,7 +199,7 @@ public class TestDBSDocument {
         DBSDocument doc = new DBSDocument(state, type, dbsSession, true);
         clearInvocations(dbsSession);
 
-        WriteResult result = doc.setValue(SYS_TITLE, "title", new WriteContext(null, null, true));
+        WriteResult result = doc.setValue(SYS_TITLE, "title", null);
 
         assertSame(WriteResult.EMPTY, result);
         verifyNoInteractions(dbsSession);

@@ -125,13 +125,6 @@ public interface InternalSession {
     InternalDocument getRootDocument();
 
     /**
-     * Gets the null document, to be used as a fake parent to add placeless children.
-     *
-     * @return the null document
-     */
-    InternalDocument getNullDocument();
-
-    /**
      * Copies the source document to the given folder.
      * <p>
      * If the destination document is not a folder, an exception is thrown.

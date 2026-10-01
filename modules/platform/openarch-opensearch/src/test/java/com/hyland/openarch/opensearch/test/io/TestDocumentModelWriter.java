@@ -215,7 +215,8 @@ public class TestDocumentModelWriter {
                   "sys_ancestorIds": ["{ANCESTORIDS}"],
                   "sys_racl": ["u:bobId"],
                   "sys_secpol": ["mypolicy"],
-                  "sys_changeToken": "1-0",
+                  "sys_gen": 1,
+                  "sys_ugen": 0,
                   "sys_mixinTypes": [
                     "Clearance",
                     "SysFilish",
@@ -266,7 +267,8 @@ public class TestDocumentModelWriter {
                   "sys_ancestorIds": ["{ANCESTORIDS}"],
                   "sys_racl": ["u:bobId"],
                   "sys_secpol": ["mypolicy"],
-                  "sys_changeToken": "1-0",
+                  "sys_gen": 1,
+                  "sys_ugen": 0,
                   "sys_mixinTypes": [
                     "Clearance",
                     "SysFilish",
@@ -318,7 +320,8 @@ public class TestDocumentModelWriter {
                   "sys_ancestorIds": ["{ANCESTORIDS}"],
                   "sys_racl": ["u:bobId"],
                   "sys_secpol": ["mypolicy"],
-                  "sys_changeToken": "1-0",
+                  "sys_gen": 1,
+                  "sys_ugen": 0,
                   "sys_mixinTypes": [
                     "Clearance",
                     "SysFilish"
@@ -367,7 +370,8 @@ public class TestDocumentModelWriter {
                   "sys_ancestorIds": ["{ANCESTORIDS}"],
                   "sys_racl": ["u:bobId"],
                   "sys_secpol": ["mypolicy"],
-                  "sys_changeToken": "2-0",
+                  "sys_gen": 2,
+                  "sys_ugen": 0,
                   "sys_mixinTypes": [
                     "Clearance",
                     "SysFilish",
@@ -421,7 +425,8 @@ public class TestDocumentModelWriter {
                   "sys_ancestorIds": ["{ANCESTORIDS}"],
                   "sys_racl": ["u:bobId"],
                   "sys_secpol": ["mypolicy"],
-                  "sys_changeToken": "3-0",
+                  "sys_gen": 3,
+                  "sys_ugen": 0,
                   "sys_mixinTypes": [
                     "Clearance",
                     "SysFilish",
@@ -476,7 +481,8 @@ public class TestDocumentModelWriter {
                   "sys_ancestorIds": ["{ANCESTORIDS}"],
                   "sys_racl": ["u:aliceId", "u:bobId"],
                   "sys_secpol": ["mypolicy"],
-                  "sys_changeToken": "2-0",
+                  "sys_gen": 1,
+                  "sys_ugen": 0,
                   "sys_mixinTypes": [
                     "Clearance",
                     "SysFilish",
@@ -548,7 +554,8 @@ public class TestDocumentModelWriter {
                   "sys_ancestorIds": ["{ANCESTORIDS}"],
                   "sys_racl": ["u:bobId"],
                   "sys_secpol": ["mypolicy"],
-                  "sys_changeToken": "1-0",
+                  "sys_gen": 1,
+                  "sys_ugen": 0,
                   "sys_mixinTypes": [
                     "Clearance",
                     "SysFilish",

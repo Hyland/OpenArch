@@ -19,6 +19,7 @@ import static com.hyland.openarch.rest.document.DocumentManager.DEFAULT_REPOSITO
 import static com.hyland.openarch.rest.utils.Headers.HXCS_REPOSITORY;
 import static com.hyland.openarch.rest.utils.QueryParameters.CONDITION;
 import static com.hyland.openarch.rest.utils.QueryParameters.IF;
+import static com.hyland.openarch.rest.utils.QueryParameters.USER_CHANGE;
 import static com.hyland.openarch.rest.utils.Versions.APP_HXCS_JSON;
 import static com.hyland.openarch.rest.utils.Versions.APP_HXCS_JSON_V1;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -42,6 +43,7 @@ import com.hyland.openarch.rest.swagger.annotation.Authenticated;
 import com.hyland.openarch.rest.swagger.annotation.ParameterCondition;
 import com.hyland.openarch.rest.swagger.annotation.ParameterIf;
 import com.hyland.openarch.rest.swagger.annotation.ParameterRepoId;
+import com.hyland.openarch.rest.swagger.annotation.ParameterUserChange;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -76,6 +78,7 @@ public class MoveAPI extends AbstractDocumentAPI {
             @PathVariable("docId") @Parameter(description = "The document id to be moved.") String docId,
             @RequestParam(name = CONDITION, defaultValue = "") @ParameterCondition String hxql,
             @RequestParam(name = IF, defaultValue = "") @ParameterIf String expr,
+            @RequestParam(name = USER_CHANGE, defaultValue = "true") @ParameterUserChange boolean userChange,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId,
             @RequestBody MoveDTO moveRequestBody) {
         String targetParentId = moveRequestBody.targetParentId();
@@ -84,6 +87,6 @@ public class MoveAPI extends AbstractDocumentAPI {
                     BAD_REQUEST.value());
         }
         return documentManager.moveDocument(repoId, new IdRef(docId), new IdRef(targetParentId),
-                toUpdateCondition(hxql, expr));
+                toUpdateCondition(hxql, expr), userChange);
     }
 }

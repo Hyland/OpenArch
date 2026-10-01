@@ -17,6 +17,7 @@ package com.hyland.openarch.rest.checkin;
 
 import static com.hyland.openarch.rest.document.DocumentManager.DEFAULT_REPOSITORY_ID;
 import static com.hyland.openarch.rest.utils.Headers.HXCS_REPOSITORY;
+import static com.hyland.openarch.rest.utils.QueryParameters.USER_CHANGE;
 import static com.hyland.openarch.rest.utils.Versions.APP_HXCS_JSON;
 import static com.hyland.openarch.rest.utils.Versions.APP_HXCS_JSON_V1;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -37,6 +38,7 @@ import com.hyland.openarch.rest.swagger.annotation.ApiResponse422;
 import com.hyland.openarch.rest.swagger.annotation.Authenticated;
 import com.hyland.openarch.rest.swagger.annotation.ParameterCheckInMinor;
 import com.hyland.openarch.rest.swagger.annotation.ParameterRepoId;
+import com.hyland.openarch.rest.swagger.annotation.ParameterUserChange;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -65,7 +67,8 @@ public class CheckInAPI extends AbstractDocumentAPI {
     public DocumentDTO checkIn(
             @PathVariable("docId") @Parameter(description = "The id of the document to be checked in.") String docId,
             @RequestParam(value = "minor", required = false, defaultValue = "false") @ParameterCheckInMinor boolean minor,
+            @RequestParam(name = USER_CHANGE, defaultValue = "true") @ParameterUserChange boolean userChange,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId) {
-        return documentManager.checkinDocument(repoId, new IdRef(docId), minor);
+        return documentManager.checkinDocument(repoId, new IdRef(docId), minor, userChange);
     }
 }

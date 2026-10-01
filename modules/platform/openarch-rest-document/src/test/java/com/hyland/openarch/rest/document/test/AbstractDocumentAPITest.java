@@ -52,6 +52,7 @@ import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_NAME;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PATH;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PRIMARY_TYPE;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_TITLE;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_USER_GENERATION;
 import static com.hyland.openarch.ecm.core.api.impl.blob.AbstractBlob.TEXT_PLAIN;
 import static com.hyland.openarch.ecm.core.api.impl.blob.AbstractBlob.UTF_8;
 import static com.hyland.openarch.ecm.core.api.local.DummyLoginFeature.TEST_ADMIN_USER;
@@ -76,6 +77,7 @@ import static com.hyland.openarch.rest.utils.Headers.HXCS_REPOSITORY;
 import static com.hyland.openarch.rest.utils.QueryParameters.CONDITION;
 import static com.hyland.openarch.rest.utils.QueryParameters.ENFORCE_SYS_NAME;
 import static com.hyland.openarch.rest.utils.QueryParameters.IF;
+import static com.hyland.openarch.rest.utils.QueryParameters.USER_CHANGE;
 import static org.springframework.http.HttpMethod.DELETE;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.PATCH;
@@ -695,6 +697,77 @@ public abstract class AbstractDocumentAPITest extends AbstractAPITest {
                 getApiPath(id, path) + "?" + CONDITION + "=sys_title = 'My Folder'" + "&" + IF
                         + "=content.sys_title == \"My Folder\"");
         checkErrorResponse(BAD_REQUEST, "Cannot use both condition and if parameters", result);
+
+        // cleanup
+        checkResponseWithPayload(NO_CONTENT, DELETE, REPO_ID, "", getApiPath(id, path));
+    }
+
+    @Test
+    public void testConditionalUpdateUserGeneration() throws Exception {
+        String creationJson = getCreationJson();
+        var result = checkResponseWithPayload(OK, POST, REPO_ID, creationJson, getRootApiPath());
+        String id = getJsonPath(result, SYS_ID);
+        String name = getJsonPath(result, SYS_NAME);
+        String path = getJsonPath(result, SYS_PATH);
+        DocumentModel doc = coreSession.getDocument(new IdRef(id));
+        long ugen = doc.getUserGeneration();
+
+        // check update with condition that matches
+        String updateJson = getUpdateJson();
+        String condition = "sys_ugen = " + ugen;
+        result = checkResponseWithPayload(OK, PUT, REPO_ID, updateJson,
+                getApiPath(id, path) + "?" + CONDITION + "=" + condition);
+        checkResponseBodyReplacing("rest/folder_updated.json", id, name, result);
+
+        // check update with condition that does not match
+        updateJson = """
+                {
+                  "sys_title": "My Folder updated again"
+                }
+                """;
+        condition = "sys_title = 'no-such-title'";
+        checkResponseWithPayload(PRECONDITION_FAILED, PUT, REPO_ID, updateJson,
+                getApiPath(id, path) + "?" + CONDITION + "=" + condition);
+
+        // check again after failed update, nothing changed
+        result = checkResponse(OK, GET, REPO_ID, getApiPath(id, path));
+        checkResponseBodyReplacing("rest/folder_updated.json", id, name, result);
+
+        // cleanup
+        checkResponseWithPayload(NO_CONTENT, DELETE, REPO_ID, "", getApiPath(id, path));
+    }
+
+    @Test
+    public void testUserChange() throws Exception {
+        String creationJson = getCreationJson();
+        var result = checkResponseWithPayload(OK, POST, REPO_ID, creationJson, getRootApiPath());
+        String id = getJsonPath(result, SYS_ID);
+        String path = getJsonPath(result, SYS_PATH);
+        assertEquals(Integer.valueOf(0), getJsonPath(result, SYS_USER_GENERATION));
+
+        // by default an update is a user change
+        result = checkResponseWithPayload(OK, PUT, REPO_ID, getUpdateJson(), getApiPath(id, path));
+        assertEquals(Integer.valueOf(1), getJsonPath(result, SYS_USER_GENERATION));
+
+        // an explicit user change is also one
+        String updateJson = """
+                {
+                  "sys_title": "My Folder updated again"
+                }
+                """;
+        result = checkResponseWithPayload(OK, PUT, REPO_ID, updateJson,
+                getApiPath(id, path) + "?" + USER_CHANGE + "=true");
+        assertEquals(Integer.valueOf(2), getJsonPath(result, SYS_USER_GENERATION));
+
+        // a non-user change bumps sys_gen but not sys_ugen
+        updateJson = """
+                {
+                  "sys_title": "My Folder updated by a robot"
+                }
+                """;
+        result = checkResponseWithPayload(OK, PUT, REPO_ID, updateJson,
+                getApiPath(id, path) + "?" + USER_CHANGE + "=false");
+        assertEquals(Integer.valueOf(2), getJsonPath(result, SYS_USER_GENERATION));
 
         // cleanup
         checkResponseWithPayload(NO_CONTENT, DELETE, REPO_ID, "", getApiPath(id, path));

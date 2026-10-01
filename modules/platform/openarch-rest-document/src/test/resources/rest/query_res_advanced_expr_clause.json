@@ -3,6 +3,8 @@
   "documents": [
     {
       "sys_changeToken": "0-0",
+      "sys_gen": 0,
+      "sys_ugen": 0,
       "sys_effectivePermissions": [
         "CreateChild",
         "CreateVersion",
@@ -82,6 +84,8 @@
     },
     {
       "sys_changeToken": "0-0",
+      "sys_gen": 0,
+      "sys_ugen": 0,
       "sys_effectivePermissions": [
         "CreateChild",
         "CreateVersion",

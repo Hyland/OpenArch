@@ -157,6 +157,8 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   "sys_parentId": "{PARENTID}",
                   "sys_ancestorIds": ["{ANCESTORIDS}"],
                   "sys_changeToken": "1-0",
+                  "sys_gen": 1,
+                  "sys_ugen": 0,
                   "sys_mixinTypes": [
                     "SysFilish",
                     "SysGovernable"
@@ -272,6 +274,8 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   "sys_parentId": "{PARENTID}",
                   "sys_ancestorIds": ["{ANCESTORIDS}"],
                   "sys_changeToken": "1-0",
+                  "sys_gen": 1,
+                  "sys_ugen": 0,
                   "sys_mixinTypes": [
                     "SysFilish",
                     "SysGovernable"
@@ -390,6 +394,8 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                     "{ANCESTORIDS}"
                   ],
                   "sys_changeToken": "1-0",
+                  "sys_gen": 1,
+                  "sys_ugen": 0,
                   "sys_mixinTypes": [
                     "SysFilish"
                   ],
@@ -520,6 +526,8 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                     "{ANCESTORIDS}"
                   ],
                   "sys_changeToken": "2-0",
+                  "sys_gen": 2,
+                  "sys_ugen": 0,
                   "sys_mixinTypes": [
                     "SysFilish",
                     "SysVersionable"
@@ -656,6 +664,8 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                     "{ANCESTORIDS}"
                   ],
                   "sys_changeToken": "3-0",
+                  "sys_gen": 3,
+                  "sys_ugen": 0,
                   "sys_mixinTypes": [
                     "SysFilish",
                     "SysVersionable"
@@ -793,7 +803,9 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   "sys_ancestorIds": [
                     "{ANCESTORIDS}"
                   ],
-                  "sys_changeToken": "2-0",
+                  "sys_changeToken": "1-0",
+                  "sys_gen": 1,
+                  "sys_ugen": 0,
                   "sys_mixinTypes": [
                     "SysFilish",
                     "SysVersionable"
@@ -944,6 +956,8 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   "sys_parentId": "{PARENTID}",
                   "sys_ancestorIds": ["{ANCESTORIDS}"],
                   "sys_changeToken": "1-0",
+                  "sys_gen": 1,
+                  "sys_ugen": 0,
                   "sys_mixinTypes": [
                     "SysFilish",
                     "SysVersionable"
@@ -1094,6 +1108,8 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                     "{ANCESTORIDS}"
                   ],
                   "sys_changeToken": "0-0",
+                  "sys_gen": 0,
+                  "sys_ugen": 0,
                   "sys_mixinTypes": [
                     "SysFilish"
                   ],
@@ -1170,6 +1186,8 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   "sys_parentId": "{PARENTID}",
                   "sys_ancestorIds": ["{ANCESTORIDS}"],
                   "sys_changeToken": "1-0",
+                  "sys_gen": 1,
+                  "sys_ugen": 0,
                   "sys_mixinTypes": [
                     "SysFilish"
                   ],

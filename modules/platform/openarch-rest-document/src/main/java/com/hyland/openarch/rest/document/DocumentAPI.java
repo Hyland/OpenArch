@@ -23,6 +23,7 @@ import static com.hyland.openarch.rest.utils.QueryParameters.CONDITION;
 import static com.hyland.openarch.rest.utils.QueryParameters.ENFORCE_SYS_NAME;
 import static com.hyland.openarch.rest.utils.QueryParameters.IF;
 import static com.hyland.openarch.rest.utils.QueryParameters.UPSERT;
+import static com.hyland.openarch.rest.utils.QueryParameters.USER_CHANGE;
 import static com.hyland.openarch.rest.utils.Versions.APP_HXCS_JSON;
 import static com.hyland.openarch.rest.utils.Versions.APP_HXCS_JSON_V1;
 import static org.springframework.http.MediaType.ALL_VALUE;
@@ -53,6 +54,7 @@ import com.hyland.openarch.rest.swagger.annotation.ParameterDocPath;
 import com.hyland.openarch.rest.swagger.annotation.ParameterEnforceSysName;
 import com.hyland.openarch.rest.swagger.annotation.ParameterRepoId;
 import com.hyland.openarch.rest.swagger.annotation.ParameterUpsert;
+import com.hyland.openarch.rest.swagger.annotation.ParameterUserChange;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -161,6 +163,7 @@ public class DocumentAPI extends AbstractDocumentAPI {
             @RequestParam(name = CONDITION, defaultValue = "") @ParameterCondition String hxql,
             @RequestParam(name = IF, defaultValue = "") @ParameterIf String expr,
             @RequestParam(name = UPSERT, defaultValue = "false") @ParameterUpsert boolean upsert,
+            @RequestParam(name = USER_CHANGE, defaultValue = "true") @ParameterUserChange boolean userChange,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId,
             @RequestBody DocumentDTO doc) {
         if (upsert) {
@@ -168,11 +171,12 @@ public class DocumentAPI extends AbstractDocumentAPI {
             // create-or-update matched by id; creating one needs the parent id and the name from the body
             doc.setId(docId);
             UpsertDocumentResult result = documentManager.upsertDocument(repoId, new IdRef(doc.getParentId()), doc,
-                    true);
+                    true, userChange);
             return ResponseEntity.status(result.created() ? HttpStatus.CREATED : HttpStatus.OK).body(result.document());
         } else {
             return ResponseEntity.ok(
-                    documentManager.updateDocument(repoId, new IdRef(docId), doc, toUpdateCondition(hxql, expr)));
+                    documentManager.updateDocument(repoId, new IdRef(docId), doc, toUpdateCondition(hxql, expr),
+                            userChange));
         }
     }
 
@@ -189,6 +193,7 @@ public class DocumentAPI extends AbstractDocumentAPI {
             @RequestParam(name = CONDITION, defaultValue = "") @ParameterCondition String hxql,
             @RequestParam(name = IF, defaultValue = "") @ParameterIf String expr,
             @RequestParam(name = UPSERT, defaultValue = "false") @ParameterUpsert boolean upsert,
+            @RequestParam(name = USER_CHANGE, defaultValue = "true") @ParameterUserChange boolean userChange,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId,
             @PathVariable() @ParameterDocPath String docPath,
             @RequestBody DocumentDTO doc) {
@@ -206,11 +211,11 @@ public class DocumentAPI extends AbstractDocumentAPI {
             }
             doc.setName(name);
             PathRef parentRef = PathRefUtils.getPathRef(parentPath);
-            UpsertDocumentResult result = documentManager.upsertDocument(repoId, parentRef, doc, false);
+            UpsertDocumentResult result = documentManager.upsertDocument(repoId, parentRef, doc, false, userChange);
             return ResponseEntity.status(result.created() ? HttpStatus.CREATED : HttpStatus.OK).body(result.document());
         } else {
             return ResponseEntity.ok(documentManager.updateDocument(repoId, PathRefUtils.getPathRef(docPath), doc,
-                    toUpdateCondition(hxql, expr)));
+                    toUpdateCondition(hxql, expr), userChange));
         }
     }
 
@@ -225,10 +230,11 @@ public class DocumentAPI extends AbstractDocumentAPI {
     public DocumentDTO patchDocumentById(@PathVariable("docId") @ParameterDocId String docId,
             @RequestParam(name = CONDITION, defaultValue = "") @ParameterCondition String hxql,
             @RequestParam(name = IF, defaultValue = "") @ParameterIf String expr,
+            @RequestParam(name = USER_CHANGE, defaultValue = "true") @ParameterUserChange boolean userChange,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId,
             @RequestBody Object patch) throws JacksonException {
         return documentManager.patchDocument(repoId, new IdRef(docId), mapper.writeValueAsString(patch),
-                toUpdateCondition(hxql, expr));
+                toUpdateCondition(hxql, expr), userChange);
     }
 
     @PatchMapping(path = DOC_PATH + "/{*docPath}", consumes = APPLICATION_JSON_PATCH_JSON)
@@ -242,11 +248,12 @@ public class DocumentAPI extends AbstractDocumentAPI {
     public DocumentDTO patchDocumentByPath(
             @RequestParam(name = CONDITION, defaultValue = "") @ParameterCondition String hxql,
             @RequestParam(name = IF, defaultValue = "") @ParameterIf String expr,
+            @RequestParam(name = USER_CHANGE, defaultValue = "true") @ParameterUserChange boolean userChange,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId,
             @PathVariable() @ParameterDocPath String docPath,
             @RequestBody Object patch) throws JacksonException {
         return documentManager.patchDocument(repoId, PathRefUtils.getPathRef(docPath),
-                mapper.writeValueAsString(patch), toUpdateCondition(hxql, expr));
+                mapper.writeValueAsString(patch), toUpdateCondition(hxql, expr), userChange);
     }
 
     @DeleteMapping(path = "/{docId}", consumes = ALL_VALUE)

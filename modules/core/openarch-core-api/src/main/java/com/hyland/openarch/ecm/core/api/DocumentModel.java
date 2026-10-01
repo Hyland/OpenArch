@@ -506,6 +506,13 @@ public interface DocumentModel extends Serializable {
     void copyContextData(DocumentModel otherDocument);
 
     /**
+     * Marks the document as being modified by a user change.
+     * <p>
+     * This causes an additional user generation increment and check during save.
+     */
+    void markUserChange();
+
+    /**
      * Sets the condition under which the document is updated on {@link CoreSession#save save}.
      * <p>
      * A {@link ConditionFailedException} is thrown immediately when an expression is statically false; otherwise it is
@@ -607,20 +614,34 @@ public interface DocumentModel extends Serializable {
     DocumentModel clone() throws CloneNotSupportedException;
 
     /**
+     * Gets the current generation for this document.
+     * <p>
+     * The generation is incremented every time the document is changed.
+     *
+     * @return the generation
+     * @see #getUserGeneration
+     */
+    long getGeneration();
+
+    /**
+     * Gets the current user generation for this document.
+     * <p>
+     * The user generation is incremented every time the document is changed as a "user
+     * change". A user change is a user-initiated change to a document, which excludes some background system tasks.
+     *
+     * @return the user generation
+     * @see #getGeneration
+     */
+    long getUserGeneration();
+
+    /**
      * Gets the current change token for this document.
      * <p>
-     * The change token is an opaque string which is modified every time the document is changed.
-     * <p>
-     * Before saving a document through {@link CoreSession#saveDocument} it's possible to pass an expected change token
-     * in the document context data through {@code doc.putContextData(CoreSession.CHANGE_TOKEN, expectedChangeToken)}.
-     * If the change token does not match the stored one, it means that a concurrent update happened, and a
-     * {@link ConcurrentUpdateException ConcurrentUpdateException} will be thrown.
+     * The change token is an opaque string derived from the {@linkplain #getGeneration generation} and the
+     * {@linkplain #getUserGeneration user generation}. It is provided for clients that expect a single opaque value;
+     * new code should use the generations directly.
      *
      * @return the change token
-     * @since 5.5
-     * @see #putContextData
-     * @see CoreSession#CHANGE_TOKEN
-     * @see CoreSession#getChangeToken
      */
     String getChangeToken();
 

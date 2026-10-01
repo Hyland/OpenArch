@@ -54,8 +54,6 @@ import java.util.Arrays;
 
 public class DocumentAPIIntegrationTest extends AbstractSpringTest {
 
-    protected static final String CHANGE_TOKEN_PROPERTY = "sys_changeToken";
-
     protected static final String ID_PROPERTY = "sys_id";
 
     protected static final String NAME_PROPERTY = "sys_name";
@@ -70,8 +68,7 @@ public class DocumentAPIIntegrationTest extends AbstractSpringTest {
 
     protected static final JSONComparator DOC_COMPARATOR = new CustomComparator(NON_EXTENSIBLE,
             new Customization(SYS_CREATED, DATE_VALUE_MATCHER),
-            new Customization(SYS_MODIFIED, DATE_VALUE_MATCHER),
-            new Customization(CHANGE_TOKEN_PROPERTY, (o1, o2) -> true));
+            new Customization(SYS_MODIFIED, DATE_VALUE_MATCHER));
 
     protected String getReferenceContent(String path) throws IOException {
         try (InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(path)) {

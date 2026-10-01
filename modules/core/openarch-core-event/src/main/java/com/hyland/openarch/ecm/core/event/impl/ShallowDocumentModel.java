@@ -165,6 +165,11 @@ public class ShallowDocumentModel implements DocumentModel {
     }
 
     @Override
+    public void markUserChange() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void setUpdateCondition(UpdateCondition condition) {
         throw new UnsupportedOperationException();
     }
@@ -370,6 +375,16 @@ public class ShallowDocumentModel implements DocumentModel {
     @Override
     public DocumentRef checkIn(boolean minor) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long getGeneration() {
+        return 0;
+    }
+
+    @Override
+    public long getUserGeneration() {
+        return 0;
     }
 
     @Override

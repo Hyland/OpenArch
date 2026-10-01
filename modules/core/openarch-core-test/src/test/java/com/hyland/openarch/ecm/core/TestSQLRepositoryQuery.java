@@ -38,7 +38,7 @@ import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ID;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PARENT_ID;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PARENT_PATH;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PATH;
-import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_SYS_CHANGE_TOKEN;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_GENERATION;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_TITLE;
 import static com.hyland.openarch.ecm.core.api.local.DummyLoginFeature.TEST_ADMIN_USER;
 import static com.hyland.openarch.ecm.core.api.security.SecurityConstants.EVERYONE;
@@ -2218,11 +2218,11 @@ public class TestSQLRepositoryQuery {
         session.save();
 
         String query = "SELECT %s, %s, %s FROM MyDocType WHERE sys_id = '%s' AND %s IS NOT NULL".formatted(
-                SYS_SYS_CHANGE_TOKEN, SYS_ANCESTOR_IDS, SYS_FULLTEXT_JOB_ID, doc.getId(), SYS_SYS_CHANGE_TOKEN);
+                SYS_GENERATION, SYS_ANCESTOR_IDS, SYS_FULLTEXT_JOB_ID, doc.getId(), SYS_GENERATION);
         IterableQueryResult result = session.queryAndFetch(query);
         assertEquals(1, result.size());
         Map<String, Object> projection = result.iterator().next();
-        assertNotNull(projection.get(SYS_SYS_CHANGE_TOKEN));
+        assertNotNull(projection.get(SYS_GENERATION));
         assertEquals(session.getRootDocument().getId(), projection.get(SYS_ANCESTOR_IDS + "/0"));
         assertEquals(folder1.getId(), projection.get(SYS_ANCESTOR_IDS + "/1"));
         assertEquals(folder2.getId(), projection.get(SYS_ANCESTOR_IDS + "/2"));

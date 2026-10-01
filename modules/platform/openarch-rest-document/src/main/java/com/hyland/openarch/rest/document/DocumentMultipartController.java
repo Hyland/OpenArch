@@ -18,6 +18,7 @@ package com.hyland.openarch.rest.document;
 import static com.hyland.openarch.rest.document.DocumentManager.DEFAULT_REPOSITORY_ID;
 import static com.hyland.openarch.rest.utils.Headers.HXCS_REPOSITORY;
 import static com.hyland.openarch.rest.utils.QueryParameters.ENFORCE_SYS_NAME;
+import static com.hyland.openarch.rest.utils.QueryParameters.USER_CHANGE;
 import static com.hyland.openarch.rest.utils.Versions.APP_HXCS_JSON;
 import static com.hyland.openarch.rest.utils.Versions.APP_HXCS_JSON_V1;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -37,6 +38,7 @@ import com.hyland.openarch.rest.swagger.annotation.ParameterDocId;
 import com.hyland.openarch.rest.swagger.annotation.ParameterDocPath;
 import com.hyland.openarch.rest.swagger.annotation.ParameterEnforceSysName;
 import com.hyland.openarch.rest.swagger.annotation.ParameterRepoId;
+import com.hyland.openarch.rest.swagger.annotation.ParameterUserChange;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -103,10 +105,11 @@ public class DocumentMultipartController extends AbstractDocumentAPI {
     @ApiResponse404DocumentNotFound
     @ApiResponse422ValidationError
     public DocumentDTO updateDocumentByIdMultiPart(@PathVariable("docId") @ParameterDocId String docId,
+            @RequestParam(name = USER_CHANGE, defaultValue = "true") @ParameterUserChange boolean userChange,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId,
             @RequestPart(DOCUMENT_REQUEST_PART) DocumentDTO doc, HttpServletRequest request)
             throws IOException, ServletException {
-        return documentManager.uploadAndUpdateDocument(repoId, new IdRef(docId), doc, request.getParts());
+        return documentManager.uploadAndUpdateDocument(repoId, new IdRef(docId), doc, request.getParts(), userChange);
     }
 
     @PutMapping(DOC_PATH + "/{*docPath}")
@@ -117,10 +120,11 @@ public class DocumentMultipartController extends AbstractDocumentAPI {
     @ApiResponse404DocumentNotFound
     @ApiResponse422ValidationError
     public DocumentDTO updateDocumentByPathMultiPart(
+            @RequestParam(name = USER_CHANGE, defaultValue = "true") @ParameterUserChange boolean userChange,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId,
             @PathVariable() @ParameterDocPath String docPath, @RequestPart(DOCUMENT_REQUEST_PART) DocumentDTO doc,
             HttpServletRequest request) throws IOException, ServletException {
         return documentManager.uploadAndUpdateDocument(repoId, PathRefUtils.getPathRef(docPath),
-                doc, request.getParts());
+                doc, request.getParts(), userChange);
     }
 }

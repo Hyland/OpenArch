@@ -19,6 +19,7 @@ import static com.hyland.openarch.ecm.core.api.DocumentConstants.SCHEMA_NAME;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ACL;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ANCESTOR_IDS;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_CHANGE_TOKEN;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_GENERATION;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_CONTRIBUTORS;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_CREATED;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_CREATOR;
@@ -46,6 +47,7 @@ import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_READ_ACL;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_REPOSITORY;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_SECURITY_POLICIES;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_TITLE;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_USER_GENERATION;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.Instant;
@@ -156,11 +158,29 @@ public class DocumentDTO {
     @JsonInclude(Include.NON_NULL)
     @JsonProperty(SYS_CHANGE_TOKEN)
     @Schema(description = """
-            String bundle of two integer values for the system change token and the user change token.
+            String bundle of the generation and the user generation, as `"<generation>-<userGeneration>"`.
 
-            **Note:** The system change token is systematically incremented on each update to the document, while the user change token is incremented on demand when a client requests it.
+            **Note:** This is a computed property, kept for clients that expect a single opaque change token. New code should use `sys_gen` and `sys_ugen` directly.
             """)
     protected String changeToken;
+
+    @JsonInclude(Include.NON_NULL)
+    @JsonProperty(SYS_GENERATION)
+    @Schema(description = """
+            The generation of the document.
+
+            **Note:** The generation is incremented on each update (system or not) to the document.
+            """)
+    protected long generation;
+
+    @JsonInclude(Include.NON_NULL)
+    @JsonProperty(SYS_USER_GENERATION)
+    @Schema(description = """
+            The user generation of the document.
+
+            **Note:** The user generation is incremented on each client update to the document.
+            """)
+    protected long userGeneration;
 
     @JsonInclude(Include.NON_NULL)
     @JsonProperty(SYS_LIFECYCLE_STATE)
@@ -372,6 +392,22 @@ public class DocumentDTO {
 
     public void setChangeToken(String changeToken) {
         this.changeToken = changeToken;
+    }
+
+    public long getGeneration() {
+        return generation;
+    }
+
+    public void setGeneration(long gen) {
+        this.generation = gen;
+    }
+
+    public long getUserGeneration() {
+        return userGeneration;
+    }
+
+    public void setUserGeneration(long ugen) {
+        this.userGeneration = ugen;
     }
 
     public String getLifecycleState() {

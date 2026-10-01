@@ -33,7 +33,7 @@ public final class HXQLParser {
     }
 
     public static Statement parse(String string) throws QueryParseException {
-        return new HXQLVisitor().parse(string);
+        return ChangeTokenRewriter.rewrite(new HXQLVisitor().parse(string));
     }
 
     /**
@@ -47,7 +47,9 @@ public final class HXQLParser {
      * @since 12.0
      */
     public static Statement parse(String string, Map<String, Object> parameters) throws QueryParseException {
-        return QueryParameterBinder.bind(parse(string), parameters);
+        // rewrite after binding, so that a change token passed as a parameter is rewritten too
+        return ChangeTokenRewriter.rewrite(
+                QueryParameterBinder.bind(new HXQLVisitor().parse(string), parameters));
     }
 
     /**
@@ -58,7 +60,7 @@ public final class HXQLParser {
      * @since 12.0
      */
     public static Predicate parsePredicate(String clause) throws QueryParseException {
-        return new HXQLVisitor().parsePredicate(clause);
+        return ChangeTokenRewriter.rewrite(new HXQLVisitor().parsePredicate(clause));
     }
 
     /**

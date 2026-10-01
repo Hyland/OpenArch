@@ -34,6 +34,7 @@ import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ANCESTOR_ID
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_CHANGE_TOKEN;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_EFFECTIVE_ACL;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_EFFECTIVE_PERMISSIONS;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_GENERATION;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_FULLTEXT_BINARY;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ID;
 import static com.hyland.openarch.ecm.core.api.CoreSession.RETAIN_UNTIL_INDETERMINATE;
@@ -54,7 +55,6 @@ import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_READ_ACL;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_REPOSITORY;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSGOV_RETAIN_UNTIL;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_SECURITY_POLICIES;
-import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_SYS_CHANGE_TOKEN;
 import static com.hyland.openarch.ecm.core.api.event.CoreEventConstants.RETAIN_UNTIL;
 import static com.hyland.openarch.ecm.core.api.event.DocumentEventTypes.AFTER_EXTEND_RETENTION;
 import static com.hyland.openarch.ecm.core.api.event.DocumentEventTypes.AFTER_MAKE_RECORD;
@@ -112,7 +112,6 @@ import org.apache.logging.log4j.Logger;
 import com.hyland.openarch.ecm.core.api.BaseValuesVisitor;
 import com.hyland.openarch.ecm.core.api.Blob;
 import com.hyland.openarch.ecm.core.api.Blobs;
-import com.hyland.openarch.ecm.core.api.ConcurrentUpdateException;
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentSecurityException;
 import com.hyland.openarch.ecm.core.api.DocumentNotFoundException;
@@ -143,6 +142,7 @@ import com.hyland.openarch.ecm.core.model.InternalDocument;
 import com.hyland.openarch.ecm.core.model.InternalSession;
 import com.hyland.openarch.ecm.core.model.WriteResult;
 import com.hyland.openarch.ecm.core.query.QueryParseException;
+import com.hyland.openarch.ecm.core.query.sql.ChangeTokenRewriter;
 import com.hyland.openarch.ecm.core.schema.DocumentType;
 import com.hyland.openarch.ecm.core.schema.MixinNames;
 import com.hyland.openarch.ecm.core.schema.SchemaManager;
@@ -194,9 +194,9 @@ public class DBSDocument implements InternalDocument {
 
     public static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
 
-    public static final Long INITIAL_SYS_CHANGE_TOKEN = Long.valueOf(0);
+    public static final long INITIAL_GENERATION = 0;
 
-    public static final Long INITIAL_CHANGE_TOKEN = Long.valueOf(0);
+    public static final long INITIAL_USER_GENERATION = 0;
 
     // in particular : (colon), / (slash) and % (percent) are not allowed
     private static final Pattern ID_PATTERN = Pattern.compile("[a-zA-Z0-9-_.]+");
@@ -216,7 +216,6 @@ public class DBSDocument implements InternalDocument {
     private final SecurityPolicyService securityPolicyService;
 
     public DBSDocument(DBSDocumentState docState, DocumentType type, DBSSession session, boolean readonly) {
-        // no state for NullDocument (parent of placeless children)
         this.docState = docState;
         this.type = type;
         this.session = session;
@@ -260,7 +259,7 @@ public class DBSDocument implements InternalDocument {
     }
 
     private boolean isCreated() {
-        return session.getRootId().equals(getId()) || docState.get(SYS_SYS_CHANGE_TOKEN) != null;
+        return session.getRootId().equals(getId()) || docState.get(SYS_GENERATION) != null;
     }
 
     /**
@@ -301,7 +300,7 @@ public class DBSDocument implements InternalDocument {
 
     @Override
     public String getId() {
-        return docState == null ? null : docState.getId();
+        return docState.getId();
     }
 
     @Override
@@ -706,17 +705,17 @@ public class DBSDocument implements InternalDocument {
     }
 
     @Override
-    public WriteResult setValue(String xpath, Object value, WriteContext context) throws PropertyException {
+    public WriteResult setValue(String xpath, Object value, RepositoryPrincipal principal) throws PropertyException {
         Field managedField = checkManagedField(xpath);
         boolean managedWritePermission = managedField != null
                 && WRITE_MANAGED.equals(managedField.getCharacteristics().writePermission());
         // A MANAGED field's specialized handler owns authorization and all other write behavior.
-        if (!managedWritePermission && !prepareUserWrite(xpath, managedField, value, context)) {
+        if (!managedWritePermission && !prepareUserWrite(xpath, managedField, value, principal)) {
             // ignore this write
             return WriteResult.EMPTY;
         }
         if (managedField != null) {
-            WriteResult result = setManagedSystemValue(managedField, xpath, value, context.principal());
+            WriteResult result = setManagedSystemValue(managedField, xpath, value, principal);
             if (result != null) {
                 return result;
             }
@@ -726,27 +725,20 @@ public class DBSDocument implements InternalDocument {
             }
         }
         docState.markDirty();
-        setValueObject(docState.getState(), xpath, value, context);
+        setValueObject(docState.getState(), xpath, value, principal);
         return WriteResult.EMPTY;
     }
 
     /** {@return {@code true} if the write should proceed, {@code false} if it's ignored or already taken care of.} */
-    private boolean prepareUserWrite(String xpath, Field managedField, Object value, WriteContext context) {
+    private boolean prepareUserWrite(String xpath, Field managedField, Object value, RepositoryPrincipal principal) {
         if (SYS_ID.equals(xpath)) {
             // A top-level ID is assigned before creation, when the other checks do not apply.
             return true;
         }
-        RepositoryPrincipal principal = context.principal();
         checkPropertyWritePermission(managedField, principal);
         securityPolicyService.checkAllowedPropertyUpdate(this, principal, xpath);
-        if (!validateUserVisibleChangeToken(context.changeToken())) {
-            throw new ConcurrentUpdateException("Invalid change token").addInfo(getId());
-        }
         if (ignoresUserWrite(xpath, managedField, value, principal)) {
             return false;
-        }
-        if (context.userChange()) {
-            markUserChange();
         }
         boolean systemWrite = managedField != null && managedField.getCharacteristics().systemOwned()
                 && principal instanceof SystemPrincipal;
@@ -1080,18 +1072,20 @@ public class DBSDocument implements InternalDocument {
     }
 
     @Override
-    public String getChangeToken() {
-        Long sysChangeToken = docState.getSysChangeToken();
-        Long changeToken = docState.getChangeToken();
-        return buildUserVisibleChangeToken(sysChangeToken, changeToken);
+    public long getGeneration() {
+        Long gen = docState.getGeneration();
+        return gen == null ? INITIAL_GENERATION : gen;
     }
 
     @Override
-    public boolean validateUserVisibleChangeToken(String userVisibleChangeToken) {
-        if (userVisibleChangeToken == null) {
-            return true;
-        }
-        return docState.validateUserVisibleChangeToken(userVisibleChangeToken);
+    public long getUserGeneration() {
+        Long ugen = docState.getUserGeneration();
+        return ugen == null ? INITIAL_USER_GENERATION : ugen;
+    }
+
+    @Override
+    public String getChangeToken() {
+        return buildUserVisibleChangeToken(getGeneration(), getUserGeneration());
     }
 
     @Override
@@ -1604,7 +1598,7 @@ public class DBSDocument implements InternalDocument {
     /**
      * Sets a value (may be complex/list) into the document at the given xpath.
      */
-    private void setValueObject(State state, String xpath, Object value, WriteContext context)
+    private void setValueObject(State state, String xpath, Object value, RepositoryPrincipal principal)
             throws PropertyException {
         if (value instanceof List<?> list && list.isEmpty()) {
             // normalize empty lists to null
@@ -1638,7 +1632,7 @@ public class DBSDocument implements InternalDocument {
                 field = ((ListType) type).getField();
                 if (i == segments.length - 1) {
                     // last segment
-                    setValueComplex(state, field, xpath, value, context);
+                    setValueComplex(state, field, xpath, value, principal);
                 } else {
                     // not last segment
                     parentType = (ComplexType) field.getType();
@@ -1648,7 +1642,7 @@ public class DBSDocument implements InternalDocument {
 
             if (i == segments.length - 1) {
                 // last segment
-                setValueField(state, field, xpath, value, context);
+                setValueField(state, field, xpath, value, principal);
             } else {
                 // not last segment
                 if (type.isSimpleType()) {
@@ -1666,7 +1660,7 @@ public class DBSDocument implements InternalDocument {
         }
     }
 
-    protected void setValueField(State state, Field field, String xpath, Object value, WriteContext context)
+    protected void setValueField(State state, Field field, String xpath, Object value, RepositoryPrincipal principal)
             throws PropertyException {
         Type type = field.getType();
         String name = field.getName(); // normalize from map key
@@ -1677,7 +1671,7 @@ public class DBSDocument implements InternalDocument {
         } else if (type.isComplexType()) {
             // complex property
             State childState = getChildForWrite(state, name);
-            setValueComplex(childState, field, xpath, value, context);
+            setValueComplex(childState, field, xpath, value, principal);
         } else if (type.isListType()) {
             // list
             ListType listType = (ListType) type;
@@ -1721,7 +1715,7 @@ public class DBSDocument implements InternalDocument {
                     int i = 0;
                     for (Object v : values) {
                         State childState = new State();
-                        setValueComplex(childState, listField, xpath + '/' + i, v, context);
+                        setValueComplex(childState, listField, xpath + '/' + i, v, principal);
                         childStates.add(childState);
                         i++;
                     }
@@ -1857,7 +1851,7 @@ public class DBSDocument implements InternalDocument {
         }
     }
 
-    protected void setValueComplex(State state, Field field, String xpath, Object value, WriteContext context)
+    protected void setValueComplex(State state, Field field, String xpath, Object value, RepositoryPrincipal principal)
             throws PropertyException {
         ComplexType complexType = (ComplexType) field.getType();
         if (TypeConstants.isBlobType(complexType)) {
@@ -1882,7 +1876,7 @@ public class DBSDocument implements InternalDocument {
             String name = f.getName();
             keys.remove(name);
             value = map.get(name);
-            setValueField(state, f, xpath + '/' + name, value, context);
+            setValueField(state, f, xpath + '/' + name, value, principal);
         }
         if (!keys.isEmpty()) {
             throw new PropertyException("Unknown key: " + keys.iterator().next() + " for " + xpath);
@@ -2163,55 +2157,15 @@ public class DBSDocument implements InternalDocument {
         }
     }
 
-    // also used as a regexp for split
-    public static final String TOKEN_SEP = "-";
-
     /**
-     * Builds the user-visible change token from low-level change token and system change token information.
+     * Builds the user-visible change token from the generation and the user generation.
      *
-     * @param sysChangeToken the system change token
-     * @param changeToken the change token
+     * @param generation the generation
+     * @param userGeneration the user generation
      * @return the user-visible change token
-     * @since 9.2
      */
-    public static String buildUserVisibleChangeToken(Long sysChangeToken, Long changeToken) {
-        if (sysChangeToken == null || changeToken == null) {
-            return null;
-        }
-        return sysChangeToken.toString() + TOKEN_SEP + changeToken.toString();
-    }
-
-    /**
-     * Validates that the passed user-visible change token is compatible with the current change token.
-     *
-     * @param sysChangeToken the system change token
-     * @param changeToken the change token
-     * @param userVisibleChangeToken the user-visible change token
-     * @return {@code false} if the change token is not valid
-     * @since 9.2
-     */
-    public static boolean validateUserVisibleChangeToken(Long sysChangeToken, Long changeToken,
-            String userVisibleChangeToken) {
-        if (sysChangeToken == null || changeToken == null) {
-            return true;
-        }
-        // we only compare the change token, not the system change token, to allow background system updates
-        String[] parts = userVisibleChangeToken.split(TOKEN_SEP);
-        if (parts.length != 2) {
-            return false; // invalid format
-        }
-        return parts[1].equals(changeToken.toString());
-    }
-
-    /**
-     * Updates a change token to its new value.
-     *
-     * @param changeToken the change token (not {@code null})
-     * @return the updated change token
-     * @since 9.2
-     */
-    public static Long updateChangeToken(Long changeToken) {
-        return Long.valueOf(changeToken.longValue() + 1);
+    public static String buildUserVisibleChangeToken(long generation, long userGeneration) {
+        return generation + ChangeTokenRewriter.TOKEN_SEP + userGeneration;
     }
 
     @Override

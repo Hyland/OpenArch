@@ -162,10 +162,14 @@ public class DocumentManager {
         return documentMapper.documentModelToDocumentDTO(document);
     }
 
-    public DocumentDTO updateDocument(String repoId, DocumentRef docRef, DocumentDTO doc, UpdateCondition condition) {
+    public DocumentDTO updateDocument(String repoId, DocumentRef docRef, DocumentDTO doc, UpdateCondition condition,
+            boolean userChange) {
         CoreSession session = getSession(repoId);
         DocumentDTO currentDocument = getDocument(repoId, docRef);
         DocumentModel docModel = session.getDocument(docRef);
+        if (userChange) {
+            docModel.markUserChange();
+        }
         if (aclChangesHandler.isChangeInACL(currentDocument, doc)) {
             aclChangesHandler.applyACLChange(doc, docModel);
         }
@@ -205,22 +209,22 @@ public class DocumentManager {
      * whatever transaction is active when this returns (which is what the request transaction filter does).
      */
     public UpsertDocumentResult upsertDocument(String repoId, DocumentRef parentRef, DocumentDTO doc,
-            boolean matchById) {
+            boolean matchById, boolean userChange) {
         try {
-            return upsertDocumentOnce(repoId, parentRef, doc, matchById);
+            return upsertDocumentOnce(repoId, parentRef, doc, matchById, userChange);
         } catch (ConcurrentUpdateException e) {
             // a concurrent create won the race and doomed this transaction
             // restart it and retry: the document now exists, so this resolves to an update
             TransactionHelper.setTransactionRollbackOnly();
             TransactionHelper.commitOrRollbackTransaction();
             TransactionHelper.startTransaction();
-            return upsertDocumentOnce(repoId, parentRef, doc, matchById);
+            return upsertDocumentOnce(repoId, parentRef, doc, matchById, userChange);
         }
     }
 
     // runs within the upsertDocument transaction (self-invoked createDocument/updateDocument are not re-wrapped)
     private UpsertDocumentResult upsertDocumentOnce(String repoId, DocumentRef parentRef, DocumentDTO doc,
-            boolean matchById) {
+            boolean matchById, boolean userChange) {
         if (doc == null || StringUtils.isBlank(doc.getPrimaryType())) {
             throw new RepositoryException("Missing sys_primaryType for upsert", Response.Status.BAD_REQUEST.getStatusCode());
         }
@@ -255,7 +259,7 @@ public class DocumentManager {
                             Response.Status.CONFLICT.getStatusCode());
                 }
             }
-            return new UpsertDocumentResult(updateDocument(repoId, targetRef, doc, null), false);
+            return new UpsertDocumentResult(updateDocument(repoId, targetRef, doc, null, userChange), false);
         } else {
             if (matchById) {
                 // unlike the update, the create needs to know where to put the document and how to name it
@@ -295,15 +299,15 @@ public class DocumentManager {
         throw new IllegalStateException("Upsert by path requires a PathRef parent, got: " + parentRef);
     }
 
-    public DocumentDTO patchDocument(String repoId, DocumentRef docRef, String patchString, UpdateCondition condition)
-            throws JacksonException {
+    public DocumentDTO patchDocument(String repoId, DocumentRef docRef, String patchString, UpdateCondition condition,
+            boolean userChange) throws JacksonException {
         // TODO transform patch "test" statements into conditional updates, for better atomicity
         JsonNode patch = objectMapper.readTree(patchString);
         // compute a DocumentDTO with explicit empty lists, so that patch can add to them using mylist/-
         DocumentDTO document = getDocument(repoId, docRef, false, true); // with empty lists
         JsonNode patched = Jackson3JsonPatch.apply(patch, objectMapper.convertValue(document, JsonNode.class));
         document = objectMapper.treeToValue(patched, DocumentDTO.class);
-        return updateDocument(repoId, docRef, document, condition);
+        return updateDocument(repoId, docRef, document, condition, userChange);
     }
 
     public DocumentDTO copyDocument(String repoId, DocumentRef src, DocumentRef dst, String name) {
@@ -315,16 +319,22 @@ public class DocumentManager {
     }
 
     public DocumentDTO moveDocument(String repoId, DocumentRef docRef, DocumentRef parentRef,
-            UpdateCondition condition) {
+            UpdateCondition condition, boolean userChange) {
         CoreSession session = getSession(repoId);
+        if (userChange) {
+            session.getDocument(docRef).markUserChange();
+        }
         DocumentModel moved = session.move(docRef, parentRef, null, condition);
         session.save();
         moved.refresh();
         return documentMapper.documentModelToDocumentDTO(moved);
     }
 
-    public DocumentDTO checkinDocument(String repoId, DocumentRef docRef, boolean minor) {
+    public DocumentDTO checkinDocument(String repoId, DocumentRef docRef, boolean minor, boolean userChange) {
         CoreSession session = getSession(repoId);
+        if (userChange) {
+            session.getDocument(docRef).markUserChange();
+        }
         DocumentRef checkedInDoc = session.checkIn(docRef, minor);
         session.save();
         return getDocument(repoId, checkedInDoc);
@@ -381,9 +391,12 @@ public class DocumentManager {
         return documentMapper.documentModelToDocumentDTO(session.getDocument(docRef));
     }
 
-    public DocumentDTO restoreVersion(String repoId, DocumentRef versionRef) {
+    public DocumentDTO restoreVersion(String repoId, DocumentRef versionRef, boolean userChange) {
         CoreSession session = getSession(repoId);
         DocumentModel doc = session.restoreVersion(versionRef);
+        if (userChange) {
+            doc.markUserChange();
+        }
         session.save();
         doc.refresh();
         return documentMapper.documentModelToDocumentDTO(doc);
@@ -396,9 +409,9 @@ public class DocumentManager {
     }
 
     public DocumentDTO uploadAndUpdateDocument(String repoId, DocumentRef docRef, DocumentDTO doc,
-            Collection<Part> multiParts) {
+            Collection<Part> multiParts, boolean userChange) {
         uploadMultiParts(doc, multiParts);
-        return updateDocument(repoId, docRef, doc, null);
+        return updateDocument(repoId, docRef, doc, null, userChange);
     }
 
     /**

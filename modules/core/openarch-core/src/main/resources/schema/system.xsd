@@ -50,7 +50,7 @@
               m:systemOwned="true" m:notOutput="REST,INDEX" />
   <xs:element name="changeToken" type="xs:string"
               m:systemOwned="true" m:source="COMPUTED"
-              m:notQueryable="true" m:notProjectable="true" />
+              m:notProjectable="true" m:notOutput="INDEX" />
   <xs:element name="contributors" type="nxs:contributorList"
               m:systemOwned="true" />
   <xs:element name="created" type="xs:date"
@@ -79,6 +79,8 @@
               m:notOutput="REST,INDEX" />
   <xs:element name="fulltextScore" type="xs:double"
               m:systemOwned="true" m:source="QUERY_VIRTUAL" m:notOutput="REST,INDEX" />
+  <xs:element name="gen" type="xs:long"
+              m:systemOwned="true" />
   <xs:element name="id" type="xs:string"
               m:noAutoCheckout="true" />
   <xs:element name="isFolderish" type="xs:boolean"
@@ -124,8 +126,8 @@
   <xs:element name="secpol" type="nxs:stringList"
               m:noAutoCheckout="true"
               m:readPermission="ManageSecurity" m:writePermission="ManageSecurity" />
-  <xs:element name="systemChangeToken" type="xs:long"
-              m:systemOwned="true" m:notOutput="REST,INDEX" />
   <xs:element name="title" type="xs:string" />
+  <xs:element name="ugen" type="xs:long"
+              m:systemOwned="true" />
 
 </xs:schema>

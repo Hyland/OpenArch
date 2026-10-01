@@ -43,7 +43,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.hyland.openarch.ecm.core.api.RepositoryException;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.hyland.openarch.common.utils.IdUtils;
@@ -70,7 +69,6 @@ import com.hyland.openarch.ecm.core.api.security.ACL;
 import com.hyland.openarch.ecm.core.model.DocumentEventSpec;
 import com.hyland.openarch.ecm.core.model.InternalDocument;
 import com.hyland.openarch.ecm.core.model.InternalDocument.BlobAccessor;
-import com.hyland.openarch.ecm.core.model.InternalDocument.WriteContext;
 import com.hyland.openarch.ecm.core.model.InternalSession;
 import com.hyland.openarch.ecm.core.model.WriteResult;
 import com.hyland.openarch.ecm.core.query.QueryParseException;
@@ -392,7 +390,7 @@ public class DocumentImpl implements DocumentModel {
 
     @Override
     public Lock setLock() throws LockException {
-        return setValue(SYS_LOCK_OWNER, principal.getId(), new WriteContext(principal, null, false)).lock();
+        return setValue(SYS_LOCK_OWNER, principal.getId(), principal).lock();
     }
 
     @Override
@@ -403,7 +401,7 @@ public class DocumentImpl implements DocumentModel {
 
     @Override
     public Lock removeLock() throws LockException {
-        return setValue(SYS_LOCK_OWNER, null, new WriteContext(principal, null, false)).lock();
+        return setValue(SYS_LOCK_OWNER, null, principal).lock();
     }
 
     @Override
@@ -551,6 +549,11 @@ public class DocumentImpl implements DocumentModel {
     }
 
     @Override
+    public void markUserChange() {
+        doc.markUserChange();
+    }
+
+    @Override
     public void setUpdateCondition(UpdateCondition condition) throws QueryParseException {
         doc.setUpdateCondition(condition, principal);
     }
@@ -562,14 +565,11 @@ public class DocumentImpl implements DocumentModel {
 
     @Override
     public void setPropertyValue(String xpath, Object value) throws PropertyException {
-        String changeToken = (String) getContextData(CoreSession.CHANGE_TOKEN);
-        boolean userChange = StringUtils.isNotEmpty(changeToken) || TRUE.equals(getContextData(CoreSession.USER_CHANGE));
-        putContextData(CoreSession.USER_CHANGE, null);
-        setValue(xpath, value, new WriteContext(principal, changeToken, userChange));
+        setValue(xpath, value, principal);
     }
 
-    private WriteResult setValue(String xpath, Object value, WriteContext context) {
-        WriteResult result = doc.setValue(xpath, value, context);
+    private WriteResult setValue(String xpath, Object value, RepositoryPrincipal principal) {
+        WriteResult result = doc.setValue(xpath, value, principal);
         List<DocumentEventSpec> events = result.events();
         if (!events.isEmpty()) { // avoid constructing session if no events
             getCoreSession().publishWriteEvents(this, events);
@@ -622,6 +622,16 @@ public class DocumentImpl implements DocumentModel {
     @Override
     public DocumentModel clone() throws CloneNotSupportedException {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long getGeneration() {
+        return doc.getGeneration();
+    }
+
+    @Override
+    public long getUserGeneration() {
+        return doc.getUserGeneration();
     }
 
     @Override

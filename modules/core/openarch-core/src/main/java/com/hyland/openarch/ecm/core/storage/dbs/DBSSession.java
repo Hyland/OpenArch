@@ -465,11 +465,6 @@ public class DBSSession implements InternalSession {
         return getDocument(getRootId());
     }
 
-    @Override
-    public InternalDocument getNullDocument() {
-        return new DBSDocument(null, null, this, true);
-    }
-
     protected DBSDocument getDocument(String id) {
         DBSDocumentState docState = transaction.getStateForUpdate(id);
         return getDocument(docState);

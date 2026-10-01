@@ -290,7 +290,7 @@ public class TestSQLRepositoryVersioning {
         assertFalse(doc.isCheckedOut());
 
         // an ignored system-owned write does not auto-checkout
-        doc.putContextData(CoreSession.USER_CHANGE, Boolean.TRUE);
+        doc.markUserChange();
         doc.setPropertyValue(SYS_NAME, "ignored");
         assertEquals("file", doc.getName());
         assertFalse(doc.isCheckedOut());

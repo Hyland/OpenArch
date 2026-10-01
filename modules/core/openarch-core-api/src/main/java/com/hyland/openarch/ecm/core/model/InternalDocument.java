@@ -193,20 +193,11 @@ public interface InternalDocument {
     void setValue(String xpath, Object value) throws PropertyException;
 
     /**
-     * Caller context for a property write.
-     */
-    record WriteContext( //
-                         RepositoryPrincipal principal, //
-                         String changeToken, //
-                         boolean userChange) {
-    }
-
-    /**
-     * Sets a value with the caller context needed for permissions and repository-managed behavior.
+     * Sets a value with the caller principal needed for permissions and repository-managed behavior.
      *
      * @return the write result, including any events that the caller must publish
      */
-    WriteResult setValue(String xpath, Object value, WriteContext context) throws PropertyException;
+    WriteResult setValue(String xpath, Object value, RepositoryPrincipal principal) throws PropertyException;
 
     /**
      * Gets a simple property value.
@@ -414,27 +405,30 @@ public interface InternalDocument {
     String getRepositoryName();
 
     /**
-     * Gets the current change token for this document.
+     * Gets the current generation for this document.
+     *
+     * @return the generation
+     */
+    long getGeneration();
+
+    /**
+     * Gets the current user generation for this document.
+     *
+     * @return the user generation
+     */
+    long getUserGeneration();
+
+    /**
+     * Gets the current change token for this document, built from the generation and the user generation.
      *
      * @return the change token
-     * @since 9.1
      */
     String getChangeToken();
 
     /**
-     * Validates that the passed user-visible change token is compatible with the one for this document.
-     *
-     * @return {@code false} if the change token is not valid
-     * @since 9.2
-     */
-    boolean validateUserVisibleChangeToken(String changeToken);
-
-    /**
      * Marks the document as being modified by a user change.
      * <p>
-     * This causes an additional change token increment and check during save.
-     *
-     * @since 9.2
+     * This causes an additional user generation increment and check during save.
      */
     void markUserChange();
 

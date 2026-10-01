@@ -20,6 +20,7 @@ import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSGOV_PREFIX;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ACL;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ANCESTOR_IDS;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_CHANGE_TOKEN;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_GENERATION;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_CONTRIBUTORS;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_CREATED;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_CREATOR;
@@ -47,6 +48,7 @@ import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_READ_ACL;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_REPOSITORY;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_SECURITY_POLICIES;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_TITLE;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_USER_GENERATION;
 import static com.hyland.openarch.ecm.core.api.security.SecurityConstants.SYSTEM_USERNAME;
 import static com.hyland.openarch.ecm.core.schema.MixinNames.SYS_GOVERNABLE;
 import static com.hyland.openarch.ecm.core.schema.types.FieldCharacteristics.Representation.REST;
@@ -163,6 +165,8 @@ public class DocumentMapper implements ApplicationContextAware {
         res.setIsTrashed((Boolean) system.get(SYS_IS_TRASHED));
         res.setMixinTypes(sortedStringList(system.get(SYS_MIXIN_TYPES), withEmptyLists));
         res.setChangeToken((String) system.get(SYS_CHANGE_TOKEN));
+        res.setGeneration(longValue(system.get(SYS_GENERATION)));
+        res.setUserGeneration(longValue(system.get(SYS_USER_GENERATION)));
         res.setLifecycleState((String) system.get(SYS_LIFECYCLE_STATE));
         res.setPos((Long) system.get(SYS_POS));
         res.setSecurityPolicies(sortedStringList(system.get(SYS_SECURITY_POLICIES), withEmptyLists));
@@ -193,6 +197,10 @@ public class DocumentMapper implements ApplicationContextAware {
         res.setProperties(props);
 
         return res;
+    }
+
+    private static long longValue(Object value) {
+        return value == null ? 0L : ((Number) value).longValue();
     }
 
     @SuppressWarnings("unchecked")

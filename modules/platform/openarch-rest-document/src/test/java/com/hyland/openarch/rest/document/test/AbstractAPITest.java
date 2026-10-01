@@ -17,7 +17,6 @@ package com.hyland.openarch.rest.document.test;
 
 import static jakarta.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ANCESTOR_IDS;
-import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_CHANGE_TOKEN;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_CREATED;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_MODIFIED;
 import static com.hyland.openarch.ecm.core.api.local.DummyLoginFeature.TEST_ADMIN_USER;
@@ -109,7 +108,6 @@ public abstract class AbstractAPITest extends RuntimeSpringBootTest {
     protected static final JSONComparator DOC_COMPARATOR = new CustomComparator(NON_EXTENSIBLE,
             new Customization(SYS_CREATED, NON_NULL_MATCHER), //
             new Customization(SYS_MODIFIED, NON_NULL_MATCHER), //
-            new Customization(SYS_CHANGE_TOKEN, (o1, o2) -> true), //
             new Customization(SYS_ANCESTOR_IDS, NON_NULL_MATCHER));
 
     protected static final StatusType UNPROCESSABLE_ENTITY = new StatusType(){

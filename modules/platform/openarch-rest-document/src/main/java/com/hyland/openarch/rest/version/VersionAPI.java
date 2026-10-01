@@ -17,6 +17,7 @@ package com.hyland.openarch.rest.version;
 
 import static com.hyland.openarch.rest.document.DocumentManager.DEFAULT_REPOSITORY_ID;
 import static com.hyland.openarch.rest.utils.Headers.HXCS_REPOSITORY;
+import static com.hyland.openarch.rest.utils.QueryParameters.USER_CHANGE;
 import static com.hyland.openarch.rest.utils.Versions.APP_HXCS_JSON;
 import static com.hyland.openarch.rest.utils.Versions.APP_HXCS_JSON_V1;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -35,9 +36,11 @@ import com.hyland.openarch.rest.swagger.annotation.ApiResponse412;
 import com.hyland.openarch.rest.swagger.annotation.ApiResponse422;
 import com.hyland.openarch.rest.swagger.annotation.Authenticated;
 import com.hyland.openarch.rest.swagger.annotation.ParameterRepoId;
+import com.hyland.openarch.rest.swagger.annotation.ParameterUserChange;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -60,7 +63,8 @@ public class VersionAPI extends AbstractDocumentAPI {
     @ApiResponse200(description = "Returns a current working copy")
     public DocumentDTO restoreVersion(
             @PathVariable("versionId") @Parameter(description = "The id of the version to be restored") String versionId,
+            @RequestParam(name = USER_CHANGE, defaultValue = "true") @ParameterUserChange boolean userChange,
             @RequestHeader(name = HXCS_REPOSITORY, defaultValue = DEFAULT_REPOSITORY_ID) @ParameterRepoId String repoId) {
-        return documentManager.restoreVersion(repoId, new IdRef(versionId));
+        return documentManager.restoreVersion(repoId, new IdRef(versionId), userChange);
     }
 }

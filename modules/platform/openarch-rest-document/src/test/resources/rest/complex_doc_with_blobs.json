@@ -68,7 +68,9 @@
       "mimeType": "text/plain"
     }
   ],
-  "sys_changeToken": "1-0",
+  "sys_changeToken": "0-0",
+  "sys_gen": 0,
+  "sys_ugen": 0,
   "sys_effectivePermissions": [
     "CreateChild",
     "CreateVersion",

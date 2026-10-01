@@ -295,9 +295,11 @@
           "extends": "string",
           "managed": {
             "source": "COMPUTED",
-            "notQueryable": true,
             "notProjectable": true,
-            "systemOwned": true
+            "systemOwned": true,
+            "notOutput": [
+              "INDEX"
+            ]
           }
         },
         "sys_contributors": {
@@ -392,6 +394,12 @@
               "REST",
               "INDEX"
             ]
+          }
+        },
+        "sys_gen": {
+          "extends": "long",
+          "managed": {
+            "systemOwned": true
           }
         },
         "sys_id": {
@@ -537,18 +545,14 @@
             "writePermission": "ManageSecurity"
           }
         },
-        "sys_systemChangeToken": {
-          "extends": "long",
-          "managed": {
-            "systemOwned": true,
-            "notOutput": [
-              "REST",
-              "INDEX"
-            ]
-          }
-        },
         "sys_title": {
           "type": "string"
+        },
+        "sys_ugen": {
+          "extends": "long",
+          "managed": {
+            "systemOwned": true
+          }
         }
       },
       "prefix": "sys"
