@@ -15,6 +15,12 @@
  */
 package com.hyland.openarch.runtime.idempotency;
 
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.kv.KeyValueService;
+
 /**
  * Handles idempotent operation execution by caching results based on an idempotency key.
  * <p>
@@ -22,6 +28,43 @@ package com.hyland.openarch.runtime.idempotency;
  * same idempotency key, returning cached results on subsequent calls.
  */
 public interface IdempotencyHandler {
+
+    /** Default time-to-live of a cached result, in seconds. */
+    long DEFAULT_TTL_SECONDS = TimeUnit.DAYS.toSeconds(1);
+
+    /** Default name of the key-value store backing the default handler. */
+    String DEFAULT_STORE_NAME = "openarch-idempotency";
+
+    /** Default namespace prefixing every cache key of the default handler. */
+    String DEFAULT_IDEMPOTENCY_NAMESPACE = "idempotency:";
+
+    /** Default prefix of the idempotency keys built by call sites. */
+    String DEFAULT_IDEMPOTENCY_KEY_PREFIX = "openarch:idem";
+
+    /** Tenant identifier used when no environment identifier is configured. */
+    String DEFAULT_IDEMPOTENCY_DEFAULT_TENANT = "default";
+
+    /** Runtime property holding the environment identifier used as tenant segment of a key. */
+    String ENVIRONMENT_PROP = "environment.identifier";
+
+    /**
+     * Returns the shared default handler, backed by the default key-value store, namespace and TTL.
+     * <p>
+     * Resolution is lazy on purpose: callers typically hold this handler from a component that can
+     * itself be instantiated before the Nuxeo runtime owning {@link KeyValueService} is available
+     * (e.g. a Spring {@code @Component} created while the Spring context starts up, or an OSGi
+     * {@code DefaultComponent} created before its {@code start()} runs). The handler is therefore
+     * resolved on first call rather than at class initialization, and cached from then on. The
+     * construction is cheap and side-effect-free, so under rare contention it may run more than
+     * once, but only one resulting instance is ever published and returned to all callers.
+     *
+     * @return the shared default idempotency handler
+     */
+    static IdempotencyHandler instance() {
+        return Holder.REF.updateAndGet(current -> current != null ? current
+                : new KeyValueStoreIdempotencyHandler(Framework.getService(KeyValueService.class), DEFAULT_STORE_NAME,
+                        DEFAULT_IDEMPOTENCY_NAMESPACE, DEFAULT_TTL_SECONDS));
+    }
 
     /**
      * Executes an operation idempotently, caching and returning the result.
@@ -112,6 +155,25 @@ public interface IdempotencyHandler {
         public boolean isFailure() {
             return exception != null;
         }
+    }
+
+    /**
+     * Holder of the lazily resolved shared default handler, since an interface cannot declare
+     * private static state directly.
+     */
+    final class Holder {
+
+        private static final AtomicReference<IdempotencyHandler> REF = new AtomicReference<>();
+
+        private Holder() {
+            // utility class
+        }
+
+    }
+
+    /** Test-only: forces the next {@link #instance()} call to re-resolve the handler. Never call from production code. */
+    static void resetForTesting() {
+        Holder.REF.set(null);
     }
 
 }

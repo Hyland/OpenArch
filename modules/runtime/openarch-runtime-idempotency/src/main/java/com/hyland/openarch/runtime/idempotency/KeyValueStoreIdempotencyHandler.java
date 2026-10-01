@@ -15,7 +15,6 @@
  */
 package com.hyland.openarch.runtime.idempotency;
 
-import java.io.Serializable;
 import java.time.Duration;
 import java.util.Objects;
 import java.util.Random;
@@ -85,9 +84,23 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
      * @param storeName       the name of the key-value store to use
      * @param namespace       prefix for cache keys (e.g., "idempotency:commands:")
      * @param ttlSeconds      time-to-live for cached results in seconds
+     * @throws NullPointerException     if the key-value service, store name or namespace is null
+     * @throws IllegalArgumentException if the store name or namespace is blank, or the TTL is not positive
      */
     public KeyValueStoreIdempotencyHandler(KeyValueService keyValueService, String storeName, String namespace,
             long ttlSeconds) {
+        Objects.requireNonNull(keyValueService, "KeyValueService cannot be null");
+        Objects.requireNonNull(storeName, "Store name cannot be null");
+        Objects.requireNonNull(namespace, "Namespace cannot be null");
+        if (storeName.isBlank()) {
+            throw new IllegalArgumentException("Store name cannot be empty");
+        }
+        if (namespace.isBlank()) {
+            throw new IllegalArgumentException("Namespace cannot be empty");
+        }
+        if (ttlSeconds <= 0) {
+            throw new IllegalArgumentException("TTL must be positive");
+        }
         this.keyValueStore = keyValueService.getKeyValueStore(storeName);
         this.namespace = namespace;
         this.ttlSeconds = ttlSeconds;
@@ -331,11 +344,11 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
      */
     record ClaimOutcome(IdempotencyOutput cachedResult, String ownerMarker) {
 
-        static <T extends Serializable> ClaimOutcome hit(IdempotencyOutput cachedResult) {
+        static ClaimOutcome hit(IdempotencyOutput cachedResult) {
             return new ClaimOutcome(cachedResult, null);
         }
 
-        static <T extends Serializable> ClaimOutcome won(String ownerMarker) {
+        static ClaimOutcome won(String ownerMarker) {
             return new ClaimOutcome(null, ownerMarker);
         }
 

@@ -19,8 +19,8 @@ Ensures that state-mutating operations are executed at most once, even when call
 
 1. **IdempotencyOutput** - Wraps a cached outcome: pending (claimed), success or failure
 2. **IdempotencyHandler** - Interface for idempotent operation execution
-3. **KeyValueStoreIdempotencyHandler** - KV store-based implementation
-4. **IdempotencyHandlerFactory** - Factory for creating handlers
+3. **KeyValueStoreIdempotencyHandler** - KV store-based implementation, also usable directly with
+   a custom store name, namespace and TTL
 
 ### Dependency Flow
 
@@ -34,7 +34,11 @@ hxpr-async-tasks-aws → openarch-runtime-idempotency → hxpr-runtime-kv
 ### Basic Example
 
 ```java
-IdempotencyHandler handler = IdempotencyHandlerFactory.create(
+// Shared default handler, lazily resolved against the default store, namespace and TTL
+IdempotencyHandler handler = IdempotencyHandler.instance();
+
+// Or, for a dedicated store / namespace / TTL
+IdempotencyHandler handler = new KeyValueStoreIdempotencyHandler(
     keyValueService,
     "openarch-idempotency",
     "idempotency:commands:",
@@ -65,8 +69,9 @@ Retry → Idempotency → Circuit Breaker
 
 ## Configuration
 
-The store name, namespace and TTL are set per call site when creating the handler via
-`IdempotencyHandlerFactory.create(...)`; there is no global feature toggle. The only externally
+`IdempotencyHandler.instance()` uses the defaults declared on `IdempotencyHandler`
+(`DEFAULT_STORE_NAME`, `DEFAULT_IDEMPOTENCY_NAMESPACE`, `DEFAULT_TTL_SECONDS`); a call site needing
+other values constructs a `KeyValueStoreIdempotencyHandler` itself. There is no global feature toggle. The only externally
 configurable property today is the tenant id used when building idempotency keys, in
 `application.properties`:
 
@@ -89,7 +94,7 @@ Tests verify:
 
 ## Implementation Notes
 
-- **Plain Java factory** (not Spring beans) for OSGi compatibility
+- **Plain Java construction** (not Spring beans) for OSGi compatibility; `IdempotencyHandler.instance()` resolves lazily so it works before the runtime owning `KeyValueService` has started
 - **Thread-safe** via KeyValueService's underlying implementation
 - **Failure is cached** - Exceptions are also recorded and replayed on duplicate requests
 - **Serializable results** - Results must implement `Serializable` for KV store persistence
