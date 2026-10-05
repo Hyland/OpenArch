@@ -86,7 +86,7 @@
     <metrics-bom.version>5.0.8</metrics-bom.version>
     <jackson-bom.version>3.2.2</jackson-bom.version>
     <osgi.version>4.3.1</osgi.version>
-    <jakarta.enterprise.cdi.version>4.1.0</jakarta.enterprise.cdi.version>
+    <jakarta.enterprise.cdi.version>5.0.0</jakarta.enterprise.cdi.version>
     <hamcrest.version>3.0</hamcrest.version>
     <geronimo-transaction.version>4.0.0</geronimo-transaction.version>
     <guice.version>7.0.0</guice.version>
