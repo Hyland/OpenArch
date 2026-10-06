@@ -64,6 +64,7 @@ import com.hyland.openarch.ecm.core.event.impl.document.DownloadEvent;
 import com.hyland.openarch.ecm.core.io.download.DownloadHelper;
 import com.hyland.openarch.ecm.core.schema.SchemaManager;
 import com.hyland.openarch.ecm.core.schema.TypeService;
+import com.hyland.openarch.rest.blob.ContentTypes;
 import com.hyland.openarch.rest.utils.Headers;
 import com.hyland.openarch.rest.utils.Versions;
 import com.hyland.openarch.runtime.api.Framework;
@@ -176,6 +177,26 @@ public class DownloadManager {
             }
             responseHeaders.setContentType(contentType != null ? MediaType.valueOf(contentType)
                     : MediaType.valueOf(Versions.APP_HXCS_OCTET_STREAM_V1));
+            // the content type was chosen by whoever uploaded the blob, so stop a browser from reading past it to
+            // a type of its own choosing
+            responseHeaders.add(Headers.X_CONTENT_TYPE_OPTIONS, Headers.NO_SNIFF);
+
+            // inline display is honored only for a content type a browser renders without executing it: the type
+            // is the uploader's, so rendering an executable one inline would run their markup on this origin.
+            // This is decided before the conditional-request branches below, because the ETag is the digest of the
+            // bytes and the content type is not part of it: the same bytes re-declared as HTML keep their ETag, so
+            // a 304 that carried no disposition would leave a client reusing the inline one it cached when the
+            // content type was still safe.
+            if (StringUtils.isBlank(filename)) {
+                filename = StringUtils.defaultIfBlank(blob.getFilename(), "file");
+            }
+            boolean renderInline = inline && ContentTypes.isSafeToRenderInline(blob.getMimeType());
+            if (inline && !renderInline) {
+                log.info("Inline download refused for content type '{}' on document with id '{}', property='{}':"
+                        + " served as an attachment", blob.getMimeType(), doc.getId(), xpath);
+            }
+            responseHeaders.add(Headers.CONTENT_DISPOSITION, getRFC2231ContentDisposition(filename, renderInline));
+
             long length = blob.getLength();
             ByteRange byteRange = getByteRange(length);
 
@@ -241,12 +262,6 @@ public class DownloadManager {
             }
 
             // regular processing
-
-            if (StringUtils.isBlank(filename)) {
-                filename = StringUtils.defaultIfBlank(blob.getFilename(), "file");
-            }
-            String contentDisposition = getRFC2231ContentDisposition(filename, inline);
-            responseHeaders.add(Headers.CONTENT_DISPOSITION, contentDisposition);
 
             responseHeaders.add(Headers.ACCEPT_RANGES, "bytes");
             if (byteRange != null) {
@@ -322,8 +337,15 @@ public class DownloadManager {
         if (expirationSeconds == null) {
             expirationSeconds = -1L; // means use the default
         }
+        // a pre-signed URL is served by the storage provider, which overrides the content type and disposition but
+        // cannot add the nosniff header the direct download relies on, so the stricter rule applies here
+        boolean renderInline = inline && ContentTypes.isSafeToRenderInlineWithoutNoSniff(blob.getMimeType());
+        if (inline && !renderInline) {
+            log.info("Inline pre-signed URL refused for content type '{}' on document with id '{}',"
+                    + " property='{}': issued as an attachment", blob.getMimeType(), docId, xpath);
+        }
         URI uri = Framework.getService(BlobService.class)
-                           .getURI(blob, BlobService.UsageHint.DOWNLOAD, expirationSeconds, inline, null);
+                           .getURI(blob, BlobService.UsageHint.DOWNLOAD, expirationSeconds, renderInline, null);
         if (uri == null) {
             throw new RepositoryException("Pre-signed URL not available for this blob provider",
                     HttpStatus.NOT_IMPLEMENTED.value());

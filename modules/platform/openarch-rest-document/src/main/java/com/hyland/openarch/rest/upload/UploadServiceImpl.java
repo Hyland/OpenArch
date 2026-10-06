@@ -38,6 +38,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicHeaderValueParser;
 import com.hyland.openarch.ecm.core.api.Blob;
 import com.hyland.openarch.ecm.core.api.Blobs;
+import com.hyland.openarch.rest.blob.ContentTypes;
 import com.hyland.openarch.rest.upload.handler.UploadHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,19 +78,6 @@ public class UploadServiceImpl implements UploadService {
     public Upload processUpload(UploadHandler handler, String mediaType, UploadDTO uploadDTO, InputStream input) throws IOException, RepositoryException {
         Upload upload = getUploadFromId(handler, uploadDTO.id());
         boolean isLastChunkBeingUploaded = lastChunkIsBeingUploaded(upload, uploadDTO);
-        if (isLastChunkBeingUploaded) {
-            upload.setStatus(UploadStatus.PROCESSING);
-            if (_testProcessingStatusBarrier != null) {
-                try {
-                    // inform test thread that processing status is set
-                    _testProcessingStatusBarrier.await(10, SECONDS);
-                    // wait for test thread to have observed status
-                    _testProcessingStatusBarrier.await(10, SECONDS);
-                } catch (Exception e) {
-                    throw new RepositoryException(e);
-                }
-            }
-        }
 
         String mimeType;
         String encoding;
@@ -148,6 +136,34 @@ public class UploadServiceImpl implements UploadService {
                         encoding = s;
                     }
                     break;
+                }
+            }
+        }
+
+        // the content type and encoding are stored on the blob and sent back when it is downloaded, the encoding
+        // appended to the content type as a charset, so refuse a pair that could not be sent back as a header.
+        // Both branches below put them on a blob, hence the check here.
+        if (!ContentTypes.isWellFormed(mimeType)) {
+            throw new RepositoryException("Invalid mimeType", BAD_REQUEST.getStatusCode());
+        }
+        if (!ContentTypes.isWellFormed(mimeType, encoding)) {
+            // the content type passed on its own just above, so the encoding is what this request got wrong
+            throw new RepositoryException("Invalid encoding", BAD_REQUEST.getStatusCode());
+        }
+
+        // only now is the request going to change the upload. Publishing PROCESSING before this point would have
+        // to be undone when a request is refused, and a refused request cannot tell whether the state it would be
+        // undoing is still its own: a concurrent retry of the same final chunk may already have finished.
+        if (isLastChunkBeingUploaded) {
+            upload.setStatus(UploadStatus.PROCESSING);
+            if (_testProcessingStatusBarrier != null) {
+                try {
+                    // inform test thread that processing status is set
+                    _testProcessingStatusBarrier.await(10, SECONDS);
+                    // wait for test thread to have observed status
+                    _testProcessingStatusBarrier.await(10, SECONDS);
+                } catch (Exception e) {
+                    throw new RepositoryException(e);
                 }
             }
         }

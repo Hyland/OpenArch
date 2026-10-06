@@ -307,11 +307,13 @@ public class UploadAPITest extends AbstractUploadAPITest {
                 try (var __ = Framework.loginUserOrSystem(USER)) {
                     // wait for processUpload to be in processing status
                     UploadServiceImpl._testProcessingStatusBarrier.await(10, SECONDS);
-                    // get status
+                    // read the status while processUpload is still held: getStatus re-reads the transient store
+                    // on every call, so reading it after the barrier below would race the rest of the upload
                     Upload upload = handler.getUpload(uploadId);
+                    UploadStatus observed = upload == null ? null : upload.getStatus();
                     // status has been observed, let processUpload continue
                     UploadServiceImpl._testProcessingStatusBarrier.await(10, SECONDS);
-                    return upload == null ? null : upload.getStatus();
+                    return observed;
                 } catch (Exception e) {
                     e.printStackTrace();
                     return null;

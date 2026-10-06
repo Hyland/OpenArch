@@ -50,6 +50,11 @@ public class Headers {
 
     public static final String WANT_DIGEST = "Want-Digest";
 
+    public static final String X_CONTENT_TYPE_OPTIONS = "X-Content-Type-Options";
+
+    // Value for {@link #X_CONTENT_TYPE_OPTIONS}: use the declared content type rather than sniffing the body.
+    public static final String NO_SNIFF = "nosniff";
+
     public static final String HXCS_REPOSITORY = "HXCS-REPOSITORY";
 
 }

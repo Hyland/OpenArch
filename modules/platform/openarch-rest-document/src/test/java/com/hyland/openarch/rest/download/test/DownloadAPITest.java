@@ -290,8 +290,21 @@ public class DownloadAPITest extends AbstractAPITest {
     @Test
     @Deploy("com.hyland.openarch.springboot.rest.document.test:OSGI-INF/test-presignedurl-provider-contrib.xml")
     public void testGetDownloadUrlInline() throws Exception {
+        // a pre-signed URL cannot carry nosniff, so inline is granted only to content a browser identifies from
+        // the body itself (an image here, where the document's default text/plain blob no longer qualifies)
+        setSysFileBlob("image/png", "picture.png", "not really a png");
+
         ResultActions r = checkResponseStatus(GET, OK, docId, SYSFILE_BLOB, Map.of("inline", "true"));
         assertTrue(r.andReturn().getResponse().getContentAsString().contains("inline=true"));
+    }
+
+    @Test
+    @Deploy("com.hyland.openarch.springboot.rest.document.test:OSGI-INF/test-presignedurl-provider-contrib.xml")
+    public void testGetDownloadUrlIsNotInlineForTextWithoutNoSniff() throws Exception {
+        // text/plain renders inline on the direct download, which sends nosniff. Without that header a browser may
+        // read the body as markup instead, so the pre-signed URL refuses it
+        ResultActions r = checkResponseStatus(GET, OK, docId, SYSFILE_BLOB, Map.of("inline", "true"));
+        assertTrue(r.andReturn().getResponse().getContentAsString().contains("inline=false"));
     }
 
     @Test
@@ -342,6 +355,102 @@ public class DownloadAPITest extends AbstractAPITest {
             return true;
         }
         return false;
+    }
+
+    // Replaces the document's main blob with one of the given content type.
+    protected void setSysFileBlob(String mimeType, String filename, String content) {
+        DocumentModel doc = coreSession.getDocument(new IdRef(docId));
+        doc.setPropertyValue(SYSFILE_BLOB, new StringBlob(content, mimeType, "UTF-8", filename));
+        coreSession.save();
+    }
+
+    // Performs a download, following the async dispatch the streaming response starts.
+    protected ResultActions download(Map<String, String> queryParams) throws Exception {
+        String path = PATH + "/{docId}/{propertyXPathAndFilename}";
+        var requestBuilder = MockMvcRequestBuilders.request(GET, path, docId, SYSFILE_BLOB + "/test.txt")
+                                                   .headers(getRepositoryHttpHeaders(REPO_ID))
+                                                   .with(csrf());
+        for (Map.Entry<String, String> entry : queryParams.entrySet()) {
+            requestBuilder.queryParam(entry.getKey(), entry.getValue());
+        }
+        MvcResult mvcResult = mvc.perform(requestBuilder).andExpect(request().asyncStarted()).andReturn();
+        return mvc.perform(asyncDispatch(mvcResult));
+    }
+
+    /**
+     * The ETag is the digest of the bytes, so re-declaring the same bytes as HTML does not change it. A 304 that
+     * carried no {@code Content-Disposition} would leave a client reusing the inline one it cached while the
+     * content type was still safe, and the HTML would run from the cache.
+     */
+    @Test
+    public void testNotModifiedStillCarriesTheAttachmentDisposition() throws Exception {
+        setSysFileBlob("text/html", "evil.html", "<script>alert(1)</script>");
+
+        HttpHeaders httpHeaders = getRepositoryHttpHeaders(REPO_ID);
+        httpHeaders.add(Headers.IF_MODIFIED_SINCE, String.valueOf(System.currentTimeMillis()));
+        checkResponseStatus(GET, NOT_MODIFIED, httpHeaders, docId, SYSFILE_BLOB).andExpect(
+                header().string(CONTENT_DISPOSITION, "attachment; filename=test.txt"));
+    }
+
+    @Test
+    public void testNotModifiedByETagStillCarriesTheAttachmentDisposition() throws Exception {
+        setSysFileBlob("text/html", "evil.html", "<script>alert(1)</script>");
+
+        // read the digest-based ETag, then replay it as If-None-Match
+        String etag = download(Map.of()).andReturn().getResponse().getHeader(ETAG);
+        HttpHeaders httpHeaders = getRepositoryHttpHeaders(REPO_ID);
+        httpHeaders.add(Headers.IF_NONE_MATCH, etag);
+        checkResponseStatus(GET, NOT_MODIFIED, httpHeaders, docId, SYSFILE_BLOB).andExpect(
+                header().string(CONTENT_DISPOSITION, "attachment; filename=test.txt"));
+    }
+
+    @Test
+    public void testDownloadDeclaresNoSniff() throws Exception {
+        download(Map.of()).andExpect(status().isOk())
+                          .andExpect(header().string(Headers.X_CONTENT_TYPE_OPTIONS, Headers.NO_SNIFF));
+    }
+
+    @Test
+    public void testExecutableContentTypeIsNotRenderedInline() throws Exception {
+        setSysFileBlob("text/html", "evil.html", "<script>alert(1)</script>");
+
+        // the content type is kept, so the blob still downloads as what it is, only the rendering is refused
+        download(Map.of("inline", "true")).andExpect(status().isOk())
+                                          .andExpect(content().contentTypeCompatibleWith("text/html"))
+                                          .andExpect(header().string(CONTENT_DISPOSITION,
+                                                  "attachment; filename=test.txt"))
+                                          .andExpect(header().string(Headers.X_CONTENT_TYPE_OPTIONS,
+                                                  Headers.NO_SNIFF));
+    }
+
+    @Test
+    public void testSvgIsNotRenderedInline() throws Exception {
+        // an image/* type, but one a browser runs script from
+        setSysFileBlob("image/svg+xml", "evil.svg", "<svg xmlns=\"http://www.w3.org/2000/svg\"/>");
+
+        download(Map.of("inline", "true")).andExpect(status().isOk())
+                                          .andExpect(header().string(CONTENT_DISPOSITION,
+                                                  "attachment; filename=test.txt"));
+    }
+
+    @Test
+    public void testSafeContentTypeIsStillRenderedInline() throws Exception {
+        // the gate must not cost inline display of what it was always for
+        setSysFileBlob("image/png", "picture.png", "not really a png");
+
+        download(Map.of("inline", "true")).andExpect(status().isOk())
+                                          .andExpect(header().string(CONTENT_DISPOSITION,
+                                                  "inline; filename=test.txt"));
+    }
+
+    @Test
+    @Deploy("com.hyland.openarch.springboot.rest.document.test:OSGI-INF/test-presignedurl-provider-contrib.xml")
+    public void testPresignedUrlIsNotInlineForExecutableContentType() throws Exception {
+        setSysFileBlob("text/html", "evil.html", "<script>alert(1)</script>");
+
+        // a pre-signed URL is reachable without credentials, so it carries the same refusal
+        ResultActions r = checkResponseStatus(GET, OK, docId, SYSFILE_BLOB, Map.of("inline", "true"));
+        assertTrue(r.andReturn().getResponse().getContentAsString().contains("inline=false"));
     }
 
 }

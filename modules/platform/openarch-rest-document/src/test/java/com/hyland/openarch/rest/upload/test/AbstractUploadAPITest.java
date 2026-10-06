@@ -47,6 +47,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.hamcrest.Matchers.containsString;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -487,6 +489,52 @@ public abstract class AbstractUploadAPITest extends AbstractAPITest {
         assertEquals("test content but this time in chunks", blob.getString());
         assertNotNull(blob.getFile());
         assertTrue(blob.getFile().exists());
+    }
+
+    @Test
+    public void testUploadRejectsMalformedMimeType() throws Exception {
+        checkResponseWithPayload(BAD_REQUEST, POST, contentType(TEXT_PLAIN), "test content",
+                PATH + "?fileName={fileName}&mimeType={mimeType}", "testfile.txt", "text/pl@in")
+                        .andExpect(content().string(containsString("Invalid mimeType")));
+    }
+
+    @Test
+    public void testUploadRejectsMalformedEncoding() throws Exception {
+        // the encoding is appended to the content type as a charset, so a separator in it would start a
+        // parameter of the caller's choosing in the response header. The content type is fine here, and the
+        // message has to say so rather than sending the caller to look at the wrong input.
+        checkResponseWithPayload(BAD_REQUEST, POST, contentType(TEXT_PLAIN), "test content",
+                PATH + "?fileName={fileName}&encoding={encoding}", "testfile.txt", "UTF-8; evil=1")
+                        .andExpect(content().string(containsString("Invalid encoding")));
+    }
+
+    @Test
+    public void testFinalChunkRejectedForMalformedMimeTypeLeavesUploadRetryable() throws Exception {
+        HttpHeaders headers = contentType(TEXT_PLAIN);
+        var result = checkResponseWithPayload(ACCEPTED, POST, headers, "first half ",
+                PATH + "?fileName={fileName}&chunked=true&chunkCount=2&chunkIndex=0", "testfile.txt");
+        String uploadId = getJsonPath(result, "id");
+
+        // a refused final chunk must leave the upload exactly as it found it: the content type is checked before
+        // the request publishes PROCESSING, so there is no state to undo and nothing a concurrent retry can lose
+        checkResponseWithPayload(BAD_REQUEST, POST, headers, "second half",
+                PATH + "?id={id}&chunked=true&chunkCount=2&chunkIndex=1&mimeType={mimeType}", uploadId, "text/pl@in");
+
+        // the same holds when only the encoding is at fault
+        checkResponseWithPayload(BAD_REQUEST, POST, headers, "second half",
+                PATH + "?id={id}&chunked=true&chunkCount=2&chunkIndex=1&encoding={encoding}", uploadId, "UTF-8; evil=1");
+
+        // 202 is how this endpoint reports an upload still in progress, which is the point: it is not stuck
+        getUploadInfo(uploadId, ACCEPTED).andExpect(jsonPath("status").value("INCOMPLETE"))
+                                         .andExpect(jsonPath("chunksCompleted").value(false));
+
+        // and the same final chunk, sent with a usable content type, still completes the upload
+        checkResponseWithPayload(CREATED, POST, headers, "second half",
+                PATH + "?id={id}&chunked=true&chunkCount=2&chunkIndex=1", uploadId).andExpect(
+                        jsonPath("status").value("READY"))
+                                                                                   .andExpect(jsonPath(
+                                                                                           "chunksCompleted").value(
+                                                                                                   true));
     }
 
     @Test
