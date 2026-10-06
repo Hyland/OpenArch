@@ -1561,6 +1561,10 @@ public class OpenSearchServiceImpl extends DefaultComponent implements OpenSearc
 
     protected SearchRequest buildSearchRequestWithTopNAggregation(OpenSearchQueryBuilder nxqlQueryBuilder, String termsAggregationField,
             String searchTerm, int aggregationLimit) {
+        // the aggregated property is named by the caller and never passes through the HXQL statement, so it is
+        // validated here, before it is used as either a filter or an aggregation field below
+        nxqlQueryBuilder.validateAggregationField(termsAggregationField);
+
         List<String> indexes = getSearchIndexes(nxqlQueryBuilder.getSearchRepositories());
 
         String escapedWildcardPattern = (searchTerm == null ? "" : "*" + WildcardUtils.escapeForOpenSearchWildcard(searchTerm)) + "*";

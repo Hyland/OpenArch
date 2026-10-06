@@ -266,6 +266,18 @@ public class OpenSearchQueryBuilder {
     }
 
     /**
+     * Validates a property named directly by an aggregation on this query, which does not reach OpenSearch through
+     * the parsed HXQL statement and so is not covered by the checks {@link #makeQuery} applies.
+     *
+     * @param indexFieldName the property in index (dot-separated) notation
+     * @throws com.hyland.openarch.ecm.core.query.QueryParseException if the property may not be aggregated
+     * @see HXQLQueryConverter#validateAggregationField
+     */
+    public void validateAggregationField(String indexFieldName) {
+        hxqlQueryConverter.validateAggregationField(indexFieldName, session.getPrincipal());
+    }
+
+    /**
      * Get the OpenSearch queryBuilder. Note that it returns only the query part without order or limits, use the
      * udpateRequest to get the full request.
      */

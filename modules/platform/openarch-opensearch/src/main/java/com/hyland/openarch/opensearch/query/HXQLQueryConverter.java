@@ -39,6 +39,7 @@ import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
 import com.hyland.openarch.ecm.core.api.DocumentNotFoundException;
 import com.hyland.openarch.ecm.core.api.IdRef;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.query.QueryParameters;
 import com.hyland.openarch.ecm.core.query.QueryParseException;
 import com.hyland.openarch.ecm.core.query.nxql.SortInfo;
@@ -601,6 +602,93 @@ public final class HXQLQueryConverter {
         if (unsupported) {
             throw new QueryParseException("Disallowed system property: " + field.getName());
         }
+    }
+
+    /**
+     * Validates a property named directly by an aggregation, rather than reached through a parsed HXQL statement.
+     * <p>
+     * Such a property reaches OpenSearch without passing through {@link #toESQueryBuilder}, so neither of the checks
+     * that path applies runs on it: the security-property rejection performed by
+     * {@link StatementValidator#rejectSecurityProperties} and the field-characteristics check performed by
+     * {@link #validateFieldUse}. Both are applied here.
+     * <p>
+     * Two things differ from a statement reference. The name arrives in index notation ({@code a.b}) rather than
+     * HXQL notation ({@code a/b}), and a property whose <em>root</em> is not in the content model is rejected
+     * rather than ignored, so that an aggregation cannot reach an index field the content model never declared.
+     * Only the root is required to resolve: a sub-property of an open type (an {@code xs:anyType} element, say)
+     * is dynamic by design and carries no declaration of its own, yet aggregating it is a supported use.
+     * <p>
+     * A descendant that resolves to nothing is therefore allowed, but only beneath a root that may itself be
+     * projected. {@link #validateFieldUse} stops at the root's index representation when the leaf is unresolved,
+     * so the root's projectability is checked here: a sub-field of a property the content model keeps out of
+     * query results would otherwise expose the very values that property is held back for.
+     *
+     * @param indexFieldName the property in index (dot-separated) notation
+     * @param principal the caller, whose administrator status exempts it from the security-property check, as it
+     *            does for a statement reference
+     * @throws QueryParseException if the property may not be aggregated
+     */
+    public void validateAggregationField(String indexFieldName, RepositoryPrincipal principal) {
+        if (StringUtils.isBlank(indexFieldName)) {
+            throw new QueryParseException("Missing aggregation property");
+        }
+        String xpath = indexFieldName.replace('.', '/');
+        if ((principal == null || !principal.isAdministrator()) && schemaManager.isSecurityProperty(xpath)) {
+            throw new QueryParseException("Disallowed system property: " + indexFieldName);
+        }
+        FieldUse fieldUse = resolveFieldUse(xpath);
+        if (fieldUse.rootField() == null) {
+            throw new QueryParseException("Unknown property: " + indexFieldName);
+        }
+        validateFieldUse(fieldUse, true);
+        if (fieldUse.field() == null) {
+            validateNearestDeclaredAncestor(xpath, principal);
+        }
+    }
+
+    /**
+     * Holds a descendant that resolves to nothing to the restrictions of the deepest property that does resolve
+     * along its path.
+     * <p>
+     * The index can hold sub-fields the content model never declared, a multi-field among them, so a name such as
+     * {@code complex.secret.keyword} resolves to no field of its own. Falling back to the root would ask only
+     * whether {@code complex} may be projected and so would read the values of {@code complex/secret} straight
+     * past that property's own restriction. The deepest declared ancestor is the one whose answer governs.
+     */
+    private void validateNearestDeclaredAncestor(String xpath, RepositoryPrincipal principal) {
+        String ancestorPath = getNearestDeclaredAncestor(xpath);
+        if (ancestorPath == null) {
+            return; // the root resolved, so this cannot happen; nothing to hold the descendant to either way
+        }
+        if ((principal == null || !principal.isAdministrator()) && schemaManager.isSecurityProperty(ancestorPath)) {
+            throw new QueryParseException("Disallowed system property: " + ancestorPath);
+        }
+        Field ancestor = schemaManager.getField(ancestorPath);
+        var characteristics = ancestor.getCharacteristics();
+        if (characteristics.notProjectable()
+                || (!SYNTHETIC_OPENSEARCH_FIELDS.contains(ancestor.getName())
+                        && characteristics.notOutput().contains(INDEX))) {
+            throw new QueryParseException("Disallowed system property: " + ancestor.getName());
+        }
+    }
+
+    /**
+     * The xpath of the deepest property along the given path that the content model declares, or {@code null} if
+     * it declares none of them.
+     */
+    protected String getNearestDeclaredAncestor(String xpath) {
+        String nearest = null;
+        StringBuilder path = new StringBuilder();
+        for (String segment : xpath.split("/")) {
+            if (!path.isEmpty()) {
+                path.append('/');
+            }
+            path.append(segment);
+            if (schemaManager.getField(path.toString()) != null) {
+                nearest = path.toString();
+            }
+        }
+        return nearest;
     }
 
     protected record FieldUse(Field field, Field rootField) {
