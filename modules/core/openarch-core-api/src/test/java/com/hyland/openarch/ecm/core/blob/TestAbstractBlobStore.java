@@ -162,6 +162,25 @@ public abstract class TestAbstractBlobStore {
         }
     }
 
+    /**
+     * Checks that nothing at all remains for the given key, including any backend-specific leftovers like versions or
+     * delete markers. Subclasses whose backend keeps such leftovers override this.
+     */
+    protected void assertNothingLeftForKey(String key) throws IOException {
+        assertNoBlob(key);
+    }
+
+    /**
+     * Checks that the backend did accumulate leftovers for the given key after it was written, deleted and written
+     * again, so that {@link #assertNothingLeftForKey} is actually checking something. Subclasses whose backend keeps
+     * versions or delete markers override this; it is a no-op for the others, which keep no history at all.
+     *
+     * @param expectedVersions the number of versions the backend is expected to have kept for the key
+     */
+    protected void assertLeftoversForKey(String key, int expectedVersions) throws IOException {
+        // no leftovers to check by default
+    }
+
     @Test
     public void testMissing() throws IOException {
         assertNoBlob(ID1);
@@ -539,6 +558,28 @@ public abstract class TestAbstractBlobStore {
         gc.stop(false);
         assertNoBlob(recoveredKey);
         assertNoBlob(deletedKey);
+    }
+
+    @Test
+    public void testGCLeavesNothingBehind() throws IOException {
+        assumeFalse(bp.isTransactional(), "GC not tested in transactional blob store");
+
+        String keptKey = bs.writeBlob(blobContext(ID1, FOO));
+        String deletedKey = bs.writeBlob(blobContext(ID2, BAR));
+        // delete and write the same content again, so that a versioned backend ends up with two versions and a
+        // delete marker for that key, all of which the garbage collection must remove too
+        bs.deleteBlob(deletedKey);
+        assertEquals(deletedKey, bs.writeBlob(blobContext(ID2, BAR)));
+        assertLeftoversForKey(deletedKey, 2);
+        BinaryGarbageCollector gc = bs.getBinaryGarbageCollector();
+
+        AbstractBlobGarbageCollector.DELETE_WITH_RECOVERY = false;
+        gc.start(true);
+        gc.mark(keptKey);
+        gc.stop(true);
+
+        assertBlob(keptKey, FOO);
+        assertNothingLeftForKey(deletedKey);
     }
 
 }
