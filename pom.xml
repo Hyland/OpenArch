@@ -75,16 +75,16 @@
     <commons-text.version>1.15.0</commons-text.version>
     <commons-csv.version>1.14.1</commons-csv.version>
     <commons-fileupload2.version>2.0.0-M5</commons-fileupload2.version>
-    <commons-lang3.version>3.20.0</commons-lang3.version>
+    <commons-lang3.version>3.21.0</commons-lang3.version>
     <xercesImpl.version>2.12.2</xercesImpl.version>
     <apache.httpcomponents.version>4.5.14</apache.httpcomponents.version>
     <!-- Temporary tomcat version lock for security vulnerabilities. To be removed in HXCS-8955  -->
     <tomcat.version>11.0.25</tomcat.version>
     <opencensus.version>0.31.1</opencensus.version>
     <git-commit-id-plugin.version>10.0.1</git-commit-id-plugin.version>
-    <classgraph.version>4.8.195</classgraph.version>
+    <classgraph.version>4.8.196</classgraph.version>
     <metrics-bom.version>5.0.8</metrics-bom.version>
-    <jackson-bom.version>3.2.2</jackson-bom.version>
+    <jackson-bom.version>3.2.3</jackson-bom.version>
     <osgi.version>4.3.1</osgi.version>
     <jakarta.enterprise.cdi.version>5.0.0</jakarta.enterprise.cdi.version>
     <hamcrest.version>3.0</hamcrest.version>
@@ -101,19 +101,19 @@
     <jericho-html.version>3.4</jericho-html.version>
     <dumbster.version>1.7.1</dumbster.version>
     <zjsonpatch.version>0.6.3</zjsonpatch.version>
-    <archunit.version>1.5.0</archunit.version>
+    <archunit.version>1.5.1</archunit.version>
     <jupiter-pioneer.version>2.3.0</jupiter-pioneer.version>
     <woodstox.version>7.2.2</woodstox.version>
     <hadoop.version>3.5.0</hadoop.version>
     <snappy.version>1.1.10.8</snappy.version>
     <org.apache.log4j.version>2.26.1</org.apache.log4j.version>
-    <org.slf4j.version>2.0.19</org.slf4j.version>
+    <org.slf4j.version>2.0.20</org.slf4j.version>
     <jna.version>5.19.1</jna.version>
     <resilience4j.version>2.4.0</resilience4j.version>
     <spring-retry.version>2.0.13</spring-retry.version>
 
     <!-- MongoDB -->
-    <mongo.java.driver.version>5.12.0</mongo.java.driver.version>
+    <mongo.java.driver.version>5.13.0</mongo.java.driver.version>
     <quartz.version>2.3.2</quartz.version>
     <quartz.mongodb.version>2.2.0-rc2</quartz.mongodb.version>
 
@@ -128,7 +128,7 @@
 
     <!-- Test dependencies -->
     <mockito-inline.version>5.2.0</mockito-inline.version>
-    <mockito-core.version>5.23.0</mockito-core.version>
+    <mockito-core.version>5.24.0</mockito-core.version>
     <rest-assured.version>6.0.1</rest-assured.version>
 
     <openarch.skip.enforcer>false</openarch.skip.enforcer>
