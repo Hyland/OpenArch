@@ -4,7 +4,7 @@ First off, thank you for considering contributing to Hyland OpenArch! It's peopl
 
 Following these guidelines helps communicate that you respect the time of the developers managing and developing this open source project. In return, they should reciprocate that respect in addressing your issue, assessing changes, and helping you finalize your pull requests.
 
-This project and everyone participating in it is governed by our [Code of Conduct](https://github.com/Hyland/OpenArch/main/blob/CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
+This project and everyone participating in it is governed by our [Code of Conduct](https://github.com/Hyland/OpenArch/blob/main/CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
 
 ## Contributor License Agreement (CLA)
 
@@ -23,7 +23,7 @@ We love contributions from our community! Here are some ways you can help:
 ### Types of Contributions We Welcome
 - Bug Reports: Found a bug? [Let us know](https://github.com/Hyland/OpenArch/issues)!
 - Feature Requests: Have an idea to [improve Hyland OpenArch](https://github.com/Hyland/OpenArch/discussions)? We'd love to hear it!
-- Documentation: Help us improve or translate our [documentation](https://hyland.github.io/ContentIntelligence-Docs/)
+- Documentation: Help us improve or translate our [documentation](https://docs.hyland.com/r/Current/Hyland-Content-REST-API)
 - Test Cases: Add test coverage for existing features
 - Bug Fixes: Submit a fix for a [known issue](https://github.com/Hyland/OpenArch/issues)
 - New Features: Implement functionality that benefits the community
