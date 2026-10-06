@@ -124,12 +124,8 @@ public class CachingBlobStore extends AbstractBlobStore {
         // get the final key
         String key = blobWriteContext.getKey(); // may depend on write observer, for example for digests
 
-        // when using deduplication, check if it's in the cache already
-        if (blobWriteContext.useDeDuplication() && getFileFromCache(key, true).isPresent()) {
-            // delete tmp file, not needed anymore
-            cacheStore.deleteBlob(tmpKey);
-            return key;
-        }
+        // a cache hit doesn't guarantee that the backing blob still exists, for example when another node ran GC
+        boolean cacheHit = blobWriteContext.useDeDuplication() && getFileFromCache(key, true).isPresent();
 
         // we now have a file for this blob
         OptionalOrUnknown<Path> fileOpt = cacheStore.getFile(tmpKey);
@@ -139,8 +135,13 @@ public class CachingBlobStore extends AbstractBlobStore {
         blobWriteContext.setFile(fileOpt.get());
         // send the file to storage
         String returnedKey = store.writeBlob(blobWriteContext.copyWithNoWriteObserverAndKey(key));
-        // renamed the cached file to the actual key
-        renameCachedBlob(tmpKey, returnedKey);
+        if (cacheHit) {
+            // keep the existing cached file
+            cacheStore.deleteBlob(tmpKey);
+        } else {
+            // rename the cached file to the actual key
+            renameCachedBlob(tmpKey, returnedKey);
+        }
         return returnedKey;
     }
 

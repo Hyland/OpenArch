@@ -15,9 +15,32 @@
  */
 package com.hyland.openarch.ecm.core.blob;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.io.IOException;
+
+import org.junit.jupiter.api.Test;
+
 import com.hyland.openarch.runtime.test.runner.Deploy;
 
 @Deploy("com.hyland.openarch.ecm.core.api.tests:OSGI-INF/test-blob-provider-inmemory-caching.xml")
 public class TestCachingBlobStore extends TestAbstractBlobStore {
+
+    @Test
+    public void testDeduplicatedWriteRestoresMissingBackingBlob() throws IOException {
+        CachingBlobStore cachingStore = (CachingBlobStore) bs;
+        String key = bs.writeBlob(blobContext(ID1, FOO));
+        assertBlob(cachingStore.store, key, FOO);
+        assertBlob(cachingStore.cacheStore, key, FOO);
+
+        // Simulate GC on another node: backing storage is cleared but this node's local cache is stale.
+        cachingStore.store.deleteBlob(key);
+        assertNoBlob(cachingStore.store, key);
+        assertBlob(cachingStore.cacheStore, key, FOO);
+
+        assertEquals(key, bs.writeBlob(blobContext(ID2, FOO)));
+        assertBlob(cachingStore.store, key, FOO);
+        assertBlob(cachingStore.cacheStore, key, FOO);
+    }
 
 }
