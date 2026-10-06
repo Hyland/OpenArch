@@ -159,6 +159,9 @@ import com.hyland.openarch.ecm.core.schema.MixinNames;
 import com.hyland.openarch.ecm.core.schema.SchemaManager;
 import com.hyland.openarch.ecm.core.schema.SchemaManagerImpl;
 import com.hyland.openarch.ecm.core.security.RetentionExpiredFinderScheduledJob;
+import com.hyland.openarch.ecm.core.storage.State.StateDiff;
+import com.hyland.openarch.ecm.core.storage.dbs.DBSConnection;
+import com.hyland.openarch.ecm.core.storage.dbs.DBSRepository;
 import com.hyland.openarch.ecm.core.test.CoreFeature;
 import com.hyland.openarch.ecm.core.test.annotations.Granularity;
 import com.hyland.openarch.ecm.core.test.annotations.RepositoryConfig;
@@ -4203,6 +4206,44 @@ public class TestSQLRepositoryAPI {
 
         var e = assertThrows(RepositoryException.class, () -> doc.setId("custom-id-123"));
         assertEquals("Document already created", e.getMessage());
+    }
+
+    /**
+     * A document stored before {@code sys_gen} was introduced has no such field in the database. It must still be
+     * usable as a regular existing document, in particular as the parent of a newly created document.
+     */
+    @Test
+    public void testCreateChildInFolderWithoutGeneration() {
+        DocumentModel folder = session.createDocumentModel("/", "folder", SYS_FOLDER);
+        folder.create();
+        session.save();
+        String folderId = folder.getId();
+        nextTransaction();
+
+        // simulate a document written before sys_gen existed, by removing the field from the database
+        removeGeneration(folderId);
+        reopenSession();
+
+        DocumentModel parent = session.getDocument(new IdRef(folderId));
+        assertNull(parent.getPropertyValue(SYS_GENERATION));
+
+        // creating a child must not fail with "Document not yet created"
+        DocumentModel child = session.createDocumentModel(parent.getPathAsString(), "child", SYS_FILE);
+        child.create();
+        session.save();
+
+        assertEquals("/folder/child", child.getPathAsString());
+        assertTrue(session.hasChild(parent.getRef(), "child"));
+    }
+
+    /** Removes {@code sys_gen} from the stored state, bypassing the session. */
+    protected void removeGeneration(String id) {
+        StateDiff diff = new StateDiff();
+        diff.put(SYS_GENERATION, null); // a null value removes the field
+        Repository repository = repositoryService.getRepository(session.getRepositoryName());
+        try (DBSConnection connection = ((DBSRepository) repository).getConnection()) {
+            connection.updateState(id, diff, null);
+        }
     }
 
     @Test

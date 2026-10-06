@@ -34,7 +34,6 @@ import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ANCESTOR_ID
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_CHANGE_TOKEN;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_EFFECTIVE_ACL;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_EFFECTIVE_PERMISSIONS;
-import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_GENERATION;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_FULLTEXT_BINARY;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ID;
 import static com.hyland.openarch.ecm.core.api.CoreSession.RETAIN_UNTIL_INDETERMINATE;
@@ -213,6 +212,14 @@ public class DBSDocument implements InternalDocument {
 
     protected boolean readonly;
 
+    /**
+     * Whether the document does not yet exist in the {@link DBSTransactionState}, as opposed to being a regular
+     * document.
+     *
+     * @see #newUnCreatedDocument
+     */
+    private boolean uncreated;
+
     private final SecurityPolicyService securityPolicyService;
 
     public DBSDocument(DBSDocumentState docState, DocumentType type, DBSSession session, boolean readonly) {
@@ -250,7 +257,9 @@ public class DBSDocument implements InternalDocument {
             docState.put(SYS_PARENT_ID, parent.getId());
         }
         docState.put(SYS_NAME, name);
-        return new DBSDocument(docState, type, (DBSSession) session, false);
+        DBSDocument doc = new DBSDocument(docState, type, (DBSSession) session, false);
+        doc.uncreated = true;
+        return doc;
     }
 
     // called by DocumentImpl
@@ -259,7 +268,7 @@ public class DBSDocument implements InternalDocument {
     }
 
     private boolean isCreated() {
-        return session.getRootId().equals(getId()) || docState.get(SYS_GENERATION) != null;
+        return !uncreated;
     }
 
     /**
@@ -273,6 +282,7 @@ public class DBSDocument implements InternalDocument {
             throw new RepositoryException("Document already created");
         }
         session.create(docState);
+        uncreated = false;
     }
 
     public boolean isDirty() {
