@@ -85,10 +85,10 @@ public class EmptyBlobStore extends AbstractBlobStore {
         return gc;
     }
 
-    public class EmptyBlobGarbageCollector extends AbstractBlobGarbageCollector {
+    public class EmptyBlobGarbageCollector extends AbstractGarbageCollector {
 
         @Override
-        public String getId() {
+        public String getStorageAddress() {
             return toString();
         }
 

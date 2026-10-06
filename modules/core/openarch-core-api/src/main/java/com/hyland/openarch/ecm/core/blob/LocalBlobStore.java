@@ -46,8 +46,8 @@ public class LocalBlobStore extends AbstractBlobStore {
 
     protected final LocalBlobGarbageCollector gc;
 
-    public LocalBlobStore(String name, KeyStrategy keyStrategy, PathStrategy pathStrategy) {
-        super(name, keyStrategy);
+    public LocalBlobStore(String blobProviderId, String name, KeyStrategy keyStrategy, PathStrategy pathStrategy) {
+        super(blobProviderId, name, keyStrategy);
         this.pathStrategy = pathStrategy;
         gc = new LocalBlobGarbageCollector();
     }
@@ -235,10 +235,10 @@ public class LocalBlobStore extends AbstractBlobStore {
         return gc;
     }
 
-    public class LocalBlobGarbageCollector extends AbstractBlobGarbageCollector {
+    public class LocalBlobGarbageCollector extends AbstractGarbageCollector {
 
         @Override
-        public String getId() {
+        public String getStorageAddress() {
             return pathStrategy.dir.toUri().toString();
         }
 

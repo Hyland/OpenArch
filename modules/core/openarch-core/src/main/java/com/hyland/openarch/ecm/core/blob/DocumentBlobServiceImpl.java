@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -136,7 +138,8 @@ public class DocumentBlobServiceImpl extends DefaultComponent implements Documen
      * {@inheritDoc}
      * <p>
      * If the blob is managed and already uses the provider that's expected for this blob and document, there is no need
-     * to recompute a key. Otherwise, go through the blob provider.
+     * to recompute a key; the key is still marked in the provider's garbage collector, as reusing it creates a new
+     * reference to a blob that no write protects. Otherwise, go through the blob provider.
      */
     @Override
     public String writeBlob(Blob blob, InternalDocument doc, String xpath) throws IOException {
@@ -158,12 +161,19 @@ public class DocumentBlobServiceImpl extends DefaultComponent implements Documen
                 // is it something we don't have to dispatch?
                 if (!blobDispatcher.getBlobProviderIds().contains(currentProviderId)) {
                     // not something we have to dispatch, reuse the key
-                    return getBlobKeyReplacement(managedBlob);
-                }
-                dispatch = blobDispatcher.getBlobProvider(doc, blob, xpath);
-                if (dispatch.providerId.equals(currentProviderId)) {
-                    // same provider, just reuse the key
-                    return getBlobKeyReplacement(managedBlob);
+                    String key = markKeyForReuse(managedBlob, currentProviderId);
+                    if (key != null) {
+                        return key;
+                    }
+                } else {
+                    dispatch = blobDispatcher.getBlobProvider(doc, blob, xpath);
+                    if (dispatch.providerId.equals(currentProviderId)) {
+                        // same provider, just reuse the key
+                        String key = markKeyForReuse(managedBlob, currentProviderId);
+                        if (key != null) {
+                            return key;
+                        }
+                    }
                 }
             }
         }
@@ -181,6 +191,26 @@ public class DocumentBlobServiceImpl extends DefaultComponent implements Documen
         String key = blobProvider.writeBlob(new BlobContext(blob, doc, xpath));
         if (dispatch.addPrefix) {
             key = dispatch.providerId + ':' + key;
+        }
+        return key;
+    }
+
+    /**
+     * Marks an existing key as in use in its garbage collector, so that it can be referenced anew without being
+     * written again.
+     * <p>
+     * Unlike a regular write, reusing a key stores a new reference to a blob that no subsequent write protects, so
+     * without this mark a garbage collection whose repository scan misses the new reference (the scan is not atomic)
+     * would delete a blob that is now referenced.
+     *
+     * @return the key to reference, or {@code null} if a garbage collection deleted the blob and it must be written
+     *         again
+     */
+    protected String markKeyForReuse(ManagedBlob blob, String providerId) {
+        String key = getBlobKeyReplacement(blob);
+        BinaryGarbageCollector gc = getBlobProvider(providerId).getBinaryGarbageCollector();
+        if (gc != null && !gc.mark(stripBlobKeyPrefix(key))) {
+            return null;
         }
         return key;
     }
@@ -335,23 +365,26 @@ public class DocumentBlobServiceImpl extends DefaultComponent implements Documen
         // do the GC in a long-running transaction to avoid timeouts
         return runInTransaction(() -> {
             List<BinaryGarbageCollector> gcs = getGarbageCollectors();
-            // check whether two GCs share storage
-            Set<String> ids = gcs.stream().map(BinaryGarbageCollector::getId).collect(toSet());
-            boolean sharedStorage = ids.size() < gcs.size();
+            // check whether two GCs share storage, this is not supported
+            Set<String> addresses = gcs.stream().map(BinaryGarbageCollector::getStorageAddress).collect(toSet());
+            if (addresses.size() < gcs.size()) {
+                log.error("Several blob providers share the same storage, this is not supported, skipping garbage"
+                        + " collection");
+                return new BinaryManagerStatus();
+            }
             // start gc
             long start = System.nanoTime();
-            for (BinaryGarbageCollector gc : gcs) {
-                gc.start(delete);
-            }
-            BiConsumer<String, String> markerCallback;
-            if (sharedStorage) {
-                // mark in all GCs, as the blob may be visible from several blob providers
-                markerCallback = (key, repositoryName) -> {
-                    String skey = stripBlobKeyPrefix(key);
-                    gcs.forEach(gc -> gc.mark(skey));
-                };
-            } else {
-                markerCallback = (key, repositoryName) -> {
+            List<BinaryGarbageCollector> started = new ArrayList<>();
+            // GCs for which stop() has already been called (successfully or not); AbstractBlobGarbageCollector.stop()
+            // always fully cleans up (including releasing the cluster lock) in its own finally block even if it
+            // throws, so such a GC must not be stopped again in the catch block below
+            Set<BinaryGarbageCollector> stopAttempted = new HashSet<>();
+            try {
+                for (BinaryGarbageCollector gc : gcs) {
+                    gc.start(delete);
+                    started.add(gc);
+                }
+                BiConsumer<String, String> markerCallback = (key, repositoryName) -> {
                     BlobProvider blobProvider = getBlobProvider(key, repositoryName);
                     BinaryGarbageCollector gc = blobProvider.getBinaryGarbageCollector();
                     if (gc != null) {
@@ -361,25 +394,40 @@ public class DocumentBlobServiceImpl extends DefaultComponent implements Documen
                         log.error("Unknown binary manager for key: {}", key);
                     }
                 };
+                // in all repositories, mark referenced binaries
+                RepositoryService repositoryService = Framework.getService(RepositoryService.class);
+                for (String repositoryName : repositoryService.getRepositoryNames()) {
+                    Repository repository = repositoryService.getRepository(repositoryName);
+                    repository.markReferencedBlobs(markerCallback);
+                }
+                // stop gc
+                BinaryManagerStatus globalStatus = new BinaryManagerStatus();
+                for (BinaryGarbageCollector gc : gcs) {
+                    stopAttempted.add(gc);
+                    gc.stop(delete);
+                    BinaryManagerStatus status = gc.getStatus();
+                    globalStatus.setNumBinaries(globalStatus.getNumBinaries() + status.getNumBinaries());
+                    globalStatus.setSizeBinaries(globalStatus.getSizeBinaries() + status.getSizeBinaries());
+                    globalStatus.setNumBinariesGC(globalStatus.getNumBinariesGC() + status.getNumBinariesGC());
+                    globalStatus.setSizeBinariesGC(globalStatus.getSizeBinariesGC() + status.getSizeBinariesGC());
+                }
+                globalStatus.setDuration(Duration.ofNanos(System.nanoTime() - start));
+                return globalStatus;
+            } catch (RuntimeException e) {
+                // don't leave any started-but-not-yet-stopped GC holding its lock forever, whether start(), the
+                // marking phase, or an earlier gc.stop() in this same loop is what failed
+                for (BinaryGarbageCollector gc : started) {
+                    if (stopAttempted.contains(gc)) {
+                        continue;
+                    }
+                    try {
+                        gc.stop(false);
+                    } catch (RuntimeException ee) { // NOSONAR
+                        e.addSuppressed(ee);
+                    }
+                }
+                throw e;
             }
-            // in all repositories, mark referenced binaries
-            RepositoryService repositoryService = Framework.getService(RepositoryService.class);
-            for (String repositoryName : repositoryService.getRepositoryNames()) {
-                Repository repository = repositoryService.getRepository(repositoryName);
-                repository.markReferencedBlobs(markerCallback);
-            }
-            // stop gc
-            BinaryManagerStatus globalStatus = new BinaryManagerStatus();
-            for (BinaryGarbageCollector gc : gcs) {
-                gc.stop(delete);
-                BinaryManagerStatus status = gc.getStatus();
-                globalStatus.setNumBinaries(globalStatus.getNumBinaries() + status.getNumBinaries());
-                globalStatus.setSizeBinaries(globalStatus.getSizeBinaries() + status.getSizeBinaries());
-                globalStatus.setNumBinariesGC(globalStatus.getNumBinariesGC() + status.getNumBinariesGC());
-                globalStatus.setSizeBinariesGC(globalStatus.getSizeBinariesGC() + status.getSizeBinariesGC());
-            }
-            globalStatus.setDuration(Duration.ofNanos(System.nanoTime() - start));
-            return globalStatus;
         }, BINARY_GC_TX_TIMEOUT_SEC);
     }
 

@@ -302,6 +302,49 @@ public abstract class TestAbstractBlobStore {
         assertKey(ID2, key2);
     }
 
+    /**
+     * Checks that an optimized copy to the same store doesn't just return the source key when a garbage collection
+     * deleted the blob behind it in the meantime.
+     */
+    @Test
+    public void testWriteFromSameBlobProviderWhileGCDeletesTheBlob() throws IOException {
+        assumeFalse(bp.isTransactional(), "GC not tested in transactional blob store");
+        assumeTrue(useDeDuplication(), "copy to self is only done for a deduplicated write");
+        BinaryGarbageCollector gc = bs.getBinaryGarbageCollector();
+        assumeTrue(gc instanceof AbstractBlobGarbageCollector, "GC without a mark protocol");
+
+        // store blob
+        String key1 = bs.writeBlob(blobContext(ID1, FOO));
+        assertKey(ID1, key1);
+
+        // construct an actual Blob for it, as a document referencing it would have
+        BlobInfo blobInfo = new BlobInfo();
+        blobInfo.setKey("test:" + key1);
+        Blob blob = new SimpleManagedBlob(blobInfo);
+
+        gc.start(true);
+        try {
+            // simulate a run that claimed the key and is done deleting the blob, as the sweep does
+            AbstractBlobGarbageCollector blobGC = (AbstractBlobGarbageCollector) gc;
+            String markedKey = BlobKey.parse(key1).key();
+            assertTrue(blobGC.claimForDeletion(markedKey));
+            bs.deleteBlob(key1);
+            blobGC.releaseDeletionClaim(markedKey);
+
+            // this write would use an optimized copy to self, whose key now points to nothing
+            try {
+                String key2 = bs.writeBlob(new BlobContext(blob, ID2, SYSFILE_BLOB));
+                // the blob was written again (possible when a cache still holds its bytes)
+                assertBlob(key2, FOO);
+            } catch (IOException | RuntimeException e) {
+                // or the bytes are really gone and it failed loudly, which is also fine; what must not happen is
+                // silently returning the key of a blob that no longer exists
+            }
+        } finally {
+            gc.stop(false);
+        }
+    }
+
     @Test
     public void testBlobGetFile() throws IOException {
         assumeFalse(bs.unwrap() instanceof InMemoryBlobStore, "InMemoryBlobStore has no File");
@@ -334,15 +377,15 @@ public abstract class TestAbstractBlobStore {
         assumeFalse(bp.isTransactional(), "low-level copy/move not tested in transactional blob store");
 
         // stream available for source
-        BlobStore bs2 = new InMemoryBlobStore("mem", new KeyStrategyDigest(SHA_256));
+        BlobStore bs2 = new InMemoryBlobStore("bs2", "mem", new KeyStrategyDigest(SHA_256));
         testCopyOrMove(bs2, atomicMove);
 
         // no stream for the source, no local file
-        BlobStore bs3 = new InMemoryBlobStore("mem", new KeyStrategyDigest(SHA_256), true, false);
+        BlobStore bs3 = new InMemoryBlobStore("bs3", "mem", new KeyStrategyDigest(SHA_256), true, false);
         testCopyOrMove(bs3, atomicMove);
 
         // no stream for the source, but has local file
-        BlobStore bs4 = new InMemoryBlobStore("mem", new KeyStrategyDigest(SHA_256), true, true);
+        BlobStore bs4 = new InMemoryBlobStore("bs4", "mem", new KeyStrategyDigest(SHA_256), true, true);
         testCopyOrMove(bs4, atomicMove);
     }
 

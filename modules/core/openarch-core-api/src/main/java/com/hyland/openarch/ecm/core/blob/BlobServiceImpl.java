@@ -29,6 +29,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.hyland.openarch.ecm.core.api.Blob;
+import com.hyland.openarch.ecm.core.blob.binary.BinaryGarbageCollector;
 import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.kv.KeyValueService;
 import com.hyland.openarch.runtime.kv.KeyValueStore;
@@ -94,7 +95,37 @@ public class BlobServiceImpl extends DefaultComponent implements BlobService {
     // public for tests
     public void registerBlobProvider(BlobProviderDescriptor descr) {
         closeOldBlobProvider(descr.name);
-        blobProviders.put(descr.name, createBlobProvider(descr));
+        BlobProvider blobProvider = createBlobProvider(descr);
+        blobProviders.put(descr.name, blobProvider);
+        checkSharedStorage(descr.name, blobProvider);
+    }
+
+    /**
+     * Checks whether the newly-registered blob provider shares its underlying storage with another already-registered
+     * blob provider, and logs an error if so.
+     * <p>
+     * Several blob providers sharing the same storage is not supported: garbage collection is done independently per
+     * blob provider, so a blob referenced only through one provider but physically visible through another may be
+     * wrongly deleted.
+     */
+    protected void checkSharedStorage(String providerId, BlobProvider blobProvider) {
+        BinaryGarbageCollector gc = blobProvider.getBinaryGarbageCollector();
+        if (gc == null) {
+            return;
+        }
+        String storageAddress = gc.getStorageAddress();
+        for (Map.Entry<String, BlobProvider> entry : blobProviders.entrySet()) {
+            if (entry.getKey().equals(providerId)) {
+                continue;
+            }
+            BinaryGarbageCollector otherGC = entry.getValue().getBinaryGarbageCollector();
+            if (otherGC != null && storageAddress.equals(otherGC.getStorageAddress())) {
+                log.error(
+                        "Blob providers '{}' and '{}' share the same storage ({}), this is not supported and may cause"
+                                + " garbage collection to wrongly delete blobs",
+                        providerId, entry.getKey(), storageAddress);
+            }
+        }
     }
 
     // public for tests

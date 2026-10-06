@@ -60,10 +60,6 @@ public abstract class AbstractBlobStore implements BlobStore {
 
     protected final KeyStrategy keyStrategy;
 
-    protected AbstractBlobStore(String name, KeyStrategy keyStrategy) {
-        this(null, name, keyStrategy);
-    }
-
     /** @since 11.5 */
     protected AbstractBlobStore(String blobProviderId, String name, KeyStrategy keyStrategy) {
         this.blobProviderId = blobProviderId;
@@ -182,7 +178,12 @@ public abstract class AbstractBlobStore implements BlobStore {
             String digest;
             if (sourceStore == this) {
                 // copy to self, nothing to do (includes temporary pseudo-digest for async)
-                markForGC(sourceKey);
+                if (!markForGC(sourceKey)) {
+                    // a GC claimed the key and deleted the blob while we were marking it; unlike the other write
+                    // paths there is no write left here to recreate it, so returning the key would return a dangling
+                    // reference: fall back to a regular write, which recreates the blob from the source stream
+                    return null;
+                }
                 return sourceKey;
             } else if (sourceStore.getKeyStrategy().equals(keyStrategy)
                     && (digest = keyStrategy.getDigestFromKey(stripBlobKeyVersionSuffix(sourceKey))) != null) {
@@ -345,6 +346,18 @@ public abstract class AbstractBlobStore implements BlobStore {
             return key;
         }
         return Framework.getService(BlobService.class).getBlobKeyReplacement(blobProviderId, key);
+    }
+
+    /**
+     * Base class for this store's garbage collector, supplying {@link #getId} from the enclosing blob store's
+     * {@link #blobProviderId}, common to all concrete blob store implementations.
+     */
+    protected abstract class AbstractGarbageCollector extends AbstractBlobGarbageCollector {
+
+        @Override
+        protected String getId() {
+            return blobProviderId;
+        }
     }
 
 }

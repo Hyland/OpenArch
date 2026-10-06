@@ -665,12 +665,14 @@ public class TestKeyValueBlobTransientStore {
 
     static Stream<Arguments> isToDeleteEmptyCases() {
         AbstractBlobGarbageCollector emptyToDelete = new AbstractBlobGarbageCollector() {
-            @Override public String getId() { return "empty-toDelete"; }
+            @Override public String getStorageAddress() { return "empty-toDelete"; }
+            @Override protected String getId() { return "empty-toDelete"; }
             @Override public void computeToDelete() { /* nothing */ }
             @Override public long removeUnmarkedBlob(String key, boolean delete) { return -1; }
         };
         AbstractBlobGarbageCollector nonEmptyToDelete = new AbstractBlobGarbageCollector() {
-            @Override public String getId() { return "non-empty-toDelete"; }
+            @Override public String getStorageAddress() { return "non-empty-toDelete"; }
+            @Override protected String getId() { return "non-empty-toDelete"; }
             @Override public void computeToDelete() { toDelete.add("key"); }
             @Override public long removeUnmarkedBlob(String key, boolean delete) { return -1; }
         };

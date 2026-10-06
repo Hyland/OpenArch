@@ -71,22 +71,23 @@ public class InMemoryBlobStore extends AbstractBlobStore {
 
     protected final boolean allowByteRange;
 
-    public InMemoryBlobStore(String name, KeyStrategy keyStrategy) {
-        this(name, null, keyStrategy, false, false);
+    public InMemoryBlobStore(String blobProviderId, String name, KeyStrategy keyStrategy) {
+        this(blobProviderId, name, null, keyStrategy, false, false);
     }
 
-    public InMemoryBlobStore(String name, PropertyBasedConfiguration config, KeyStrategy keyStrategy) {
-        this(name, config, keyStrategy, false, false);
+    public InMemoryBlobStore(String blobProviderId, String name, PropertyBasedConfiguration config,
+            KeyStrategy keyStrategy) {
+        this(blobProviderId, name, config, keyStrategy, false, false);
     }
 
-    protected InMemoryBlobStore(String name, KeyStrategy keyStrategy, boolean emulateNoStream,
+    protected InMemoryBlobStore(String blobProviderId, String name, KeyStrategy keyStrategy, boolean emulateNoStream,
             boolean emulateLocalFile) {
-        this(name, null, keyStrategy, emulateNoStream, emulateLocalFile);
+        this(blobProviderId, name, null, keyStrategy, emulateNoStream, emulateLocalFile);
     }
 
-    protected InMemoryBlobStore(String name, PropertyBasedConfiguration config, KeyStrategy keyStrategy,
-            boolean emulateNoStream, boolean emulateLocalFile) {
-        super(name, keyStrategy);
+    protected InMemoryBlobStore(String blobProviderId, String name, PropertyBasedConfiguration config,
+            KeyStrategy keyStrategy, boolean emulateNoStream, boolean emulateLocalFile) {
+        super(blobProviderId, name, keyStrategy);
         this.emulateNoStream = emulateNoStream;
         this.emulateLocalFile = emulateLocalFile;
         emulateVersioning = config != null && config.getBooleanProperty("emulateVersioning");
@@ -266,10 +267,10 @@ public class InMemoryBlobStore extends AbstractBlobStore {
         return gc;
     }
 
-    public class InMemoryBlobGarbageCollector extends AbstractBlobGarbageCollector {
+    public class InMemoryBlobGarbageCollector extends AbstractGarbageCollector {
 
         @Override
-        public String getId() {
+        public String getStorageAddress() {
             return toString();
         }
 

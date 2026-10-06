@@ -59,7 +59,7 @@ public abstract class TestCloudBlobStoreAbstract extends TestAbstractBlobStore {
         BlobProvider otherbp = blobService.getBlobProvider("other");
         BlobStore otherCloudStore = ((BlobStoreBlobProvider) otherbp).getStore(); // no need for unwrap
         assertTrue(bs.copyBlobIsOptimized(otherCloudStore));
-        InMemoryBlobStore otherStore = new InMemoryBlobStore("mem", new KeyStrategyDigest("MD5"));
+        InMemoryBlobStore otherStore = new InMemoryBlobStore("other", "mem", new KeyStrategyDigest("MD5"));
         assertFalse(bs.copyBlobIsOptimized(otherStore));
     }
 
@@ -99,7 +99,7 @@ public abstract class TestCloudBlobStoreAbstract extends TestAbstractBlobStore {
     public void testCopyWithNullKey() throws IOException {
         assumeFalse(bp.isTransactional(), "low-level copy/move not tested in transactional blob store");
 
-        InMemoryBlobStore sourceStore = new InMemoryBlobStore("mem", new KeyStrategyDigest("MD5"));
+        InMemoryBlobStore sourceStore = new InMemoryBlobStore("source", "mem", new KeyStrategyDigest("MD5"));
         String sourceKey = sourceStore.writeBlob(blobContext(ID1, FOO));
         String key = bs.copyOrMoveBlob(null, sourceStore, sourceKey, false);
         assertNotNull(key);

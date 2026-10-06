@@ -44,17 +44,19 @@ public class LocalBlobProvider extends BlobStoreBlobProvider {
         } else {
             pathStrategy = new PathStrategyFlat(config.storageDir);
         }
-        BlobStore store = newBlobStore("File", keyStrategy, pathStrategy);
+        BlobStore store = newBlobStore(blobProviderId, "File", keyStrategy, pathStrategy);
         if (isTransactional()) {
             PathStrategy transientPathStrategy = new PathStrategyFlat(config.tmpDir);
-            BlobStore transientStore = new LocalBlobStore("File_tmp", keyStrategy, transientPathStrategy);
+            BlobStore transientStore = new LocalBlobStore(blobProviderId + ":tmp", "File_tmp", keyStrategy,
+                    transientPathStrategy);
             store = new TransactionalBlobStore(blobProviderId, store, transientStore);
         }
         return store;
     }
 
-    protected BlobStore newBlobStore(String name, KeyStrategy keyStrategy, PathStrategy pathStrategy) {
-        return new LocalBlobStore(name, keyStrategy, pathStrategy);
+    protected BlobStore newBlobStore(String blobProviderId, String name, KeyStrategy keyStrategy,
+            PathStrategy pathStrategy) {
+        return new LocalBlobStore(blobProviderId, name, keyStrategy, pathStrategy);
     }
 
     @Override

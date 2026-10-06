@@ -78,7 +78,8 @@ public class CachingBlobStore extends AbstractBlobStore {
         super(blobProviderId, name, store.getKeyStrategy());
         this.store = store;
         this.cacheConfig = config;
-        cacheStore = new LocalBlobStore(name, store.getKeyStrategy(), new PathStrategyFlat(config.dir));
+        cacheStore = new LocalBlobStore(blobProviderId + ":cache", name, store.getKeyStrategy(),
+                new PathStrategyFlat(config.dir));
         gc = new CachingBinaryGarbageCollector();
     }
 
@@ -447,26 +448,51 @@ public class CachingBlobStore extends AbstractBlobStore {
         }
 
         @Override
-        public String getId() {
-            return delegate.getId();
+        public String getStorageAddress() {
+            return delegate.getStorageAddress();
         }
 
         @Override
         public void start(boolean delete) {
             delegate.start(delete);
-            cacheDelegate.start(delete);
+            try {
+                cacheDelegate.start(delete);
+            } catch (RuntimeException e) {
+                try {
+                    delegate.stop(false);
+                } catch (RuntimeException cleanupException) { // NOSONAR
+                    e.addSuppressed(cleanupException);
+                }
+                throw e;
+            }
         }
 
         @Override
-        public void mark(String key) {
-            delegate.mark(key);
-            cacheDelegate.mark(key);
+        public boolean mark(String key) {
+            // non-short-circuiting &, as both must be marked
+            return delegate.mark(key) & cacheDelegate.mark(key);
         }
 
         @Override
         public void stop(boolean delete) {
-            delegate.stop(delete);
-            cacheDelegate.stop(delete);
+            RuntimeException failure = null;
+            try {
+                delegate.stop(delete);
+            } catch (RuntimeException e) {
+                failure = e;
+            }
+            try {
+                cacheDelegate.stop(failure == null && delete);
+            } catch (RuntimeException e) {
+                if (failure == null) {
+                    failure = e;
+                } else {
+                    failure.addSuppressed(e);
+                }
+            }
+            if (failure != null) {
+                throw failure;
+            }
         }
 
         @Override

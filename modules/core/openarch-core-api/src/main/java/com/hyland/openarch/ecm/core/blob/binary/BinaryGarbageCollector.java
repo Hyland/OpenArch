@@ -29,12 +29,12 @@ package com.hyland.openarch.ecm.core.blob.binary;
 public interface BinaryGarbageCollector {
 
     /**
-     * Gets a unique identifier for this garbage collector. Two garbage collectors that would impact the same files must
-     * have the same identifier.
+     * Gets the address of the underlying storage used by this garbage collector. Two garbage collectors that share
+     * the same storage (and therefore would impact the same files) must return the same address.
      *
-     * @return a unique identifier
+     * @return the storage address
      */
-    String getId();
+    String getStorageAddress();
 
     /**
      * Starts the garbage collection process.
@@ -57,8 +57,10 @@ public interface BinaryGarbageCollector {
      * Marks a binary as being in use.
      *
      * @param key the binary's key
+     * @return {@code true} if the binary was left alone and its key may be referenced as is, {@code false} if a
+     *         garbage collection deleted it instead and the caller must write it again
      */
-    void mark(String key);
+    boolean mark(String key);
 
     /**
      * Stops the garbage collection process and deletes all binaries that have not been marked (sweep).

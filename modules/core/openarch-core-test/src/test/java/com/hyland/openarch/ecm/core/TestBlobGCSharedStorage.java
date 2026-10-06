@@ -76,10 +76,10 @@ public class TestBlobGCSharedStorage {
         assertTrue(blob1.getKey().startsWith("first:"), blob1.getKey());
         assertTrue(blob2.getKey().startsWith("second:"), blob2.getKey());
 
-        // check that when the GC runs nothing gets deleted
+        // check that when the GC runs it detects the shared storage and does nothing at all
         sleepBeforeGC();
         BinaryManagerStatus status = documentBlobService.garbageCollectBinaries(true);
-        assertEquals(4, status.getNumBinaries()); // two binaries seen twice
+        assertEquals(0, status.getNumBinaries()); // GC skipped entirely
         assertEquals(0, status.getNumBinariesGC()); // nothing deleted
 
         // check that the blobs are still here

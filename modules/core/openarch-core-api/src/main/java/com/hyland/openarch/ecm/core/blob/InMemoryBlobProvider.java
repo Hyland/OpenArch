@@ -32,14 +32,14 @@ public class InMemoryBlobProvider extends BlobStoreBlobProvider {
         digestConfiguration = new DigestConfiguration(null, properties);
         PropertyBasedConfiguration config = new PropertyBasedConfiguration(null, properties);
         KeyStrategy keyStrategy = getKeyStrategy();
-        BlobStore store = new InMemoryBlobStore("mem", config, keyStrategy);
+        BlobStore store = new InMemoryBlobStore(blobProviderId, "mem", config, keyStrategy);
         if (isTransactional()) {
             BlobStore transientStore;
             if (store.hasVersioning()) {
                 // if versioning is used, we don't need a separate transient store for transactions
                 transientStore = store;
             } else {
-                transientStore = new InMemoryBlobStore("mem_tmp", keyStrategy);
+                transientStore = new InMemoryBlobStore(blobProviderId + ":tmp", "mem_tmp", keyStrategy);
             }
             store = new TransactionalBlobStore(blobProviderId, store, transientStore);
         }

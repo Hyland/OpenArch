@@ -145,6 +145,7 @@ import com.hyland.openarch.ecm.core.api.security.impl.ACLImpl;
 import com.hyland.openarch.ecm.core.async.tasks.RetentionExpiredBatchTaskProcessor;
 import com.hyland.openarch.ecm.core.blob.BlobProvider;
 import com.hyland.openarch.ecm.core.blob.BlobService;
+import com.hyland.openarch.ecm.core.blob.ManagedBlob;
 import com.hyland.openarch.ecm.core.blob.binary.BinaryGarbageCollector;
 import com.hyland.openarch.ecm.core.blob.binary.BinaryManagerStatus;
 import com.hyland.openarch.ecm.core.event.Event;
@@ -2978,7 +2979,55 @@ public class TestSQLRepositoryAPI {
         doc.create();
     }
 
+    /**
+     * Referencing an existing blob key anew doesn't rewrite the blob, so nothing but the write-time mark protects it
+     * from a concurrent GC whose repository scan missed the new reference (the scan isn't atomic).
+     */
+    @Test
+    public void testBinaryGCReferenceExistingKeyDuringGC() throws Exception {
+        // GC binaries from previous tests
+        runBinariesGC(true, false);
+
+        addBinary("STU", "STU");
+        session.save();
+        waitForAsyncCompletion();
+
+        // keep the managed blob around, then drop the only reference to it
+        ManagedBlob blob = (ManagedBlob) session.getDocument(new PathRef("/STU")).getPropertyValue(SYSFILE_BLOB);
+        session.removeDocument(new PathRef("/STU"));
+        session.save();
+        nextTransaction();
+
+        // run a GC whose scan sees no reference to the blob, but reference it anew while the GC is in progress
+        BinaryManagerStatus status = runBinariesGC(true, () -> {
+            DocumentModel doc = session.createDocumentModel("/", "STU2", SYS_FILE);
+            doc.setPropertyValue(SYSFILE_BLOB, blob);
+            doc.create();
+            session.save();
+            nextTransaction();
+        });
+        // the blob was a deletion candidate but the write-time mark saved it
+        assertEquals(0, status.getNumBinariesGC());
+
+        // the reference isn't dangling, the blob can still be read
+        Blob reread = (Blob) session.getDocument(new PathRef("/STU2")).getPropertyValue(SYSFILE_BLOB);
+        assertEquals("STU", reread.getString());
+    }
+
     protected BinaryManagerStatus runBinariesGC(boolean delete, boolean addDuringGC) {
+        return runBinariesGC(delete, addDuringGC ? () -> {
+            // while GC is in progress, add a new binary
+            addBinary("MNO", "MNO");
+            // and revive one that was about to be deleted
+            // note that this wouldn't work if we didn't recreate the Binary object from an InputStream
+            // and reused an old one
+            addBinary("DEF", "DEF3");
+            session.save();
+            nextTransaction();
+        } : null);
+    }
+
+    protected BinaryManagerStatus runBinariesGC(boolean delete, Runnable duringGC) {
         BlobProvider blobProvider = blobService.getBlobProvider(session.getRepositoryName());
         BinaryGarbageCollector gc = blobProvider.getBinaryGarbageCollector();
         Repository repository = repositoryService.getRepository(session.getRepositoryName());
@@ -2989,15 +3038,8 @@ public class TestSQLRepositoryAPI {
         repository.markReferencedBlobs((key, repositoryName) -> {
             gc.mark(key);
         });
-        if (addDuringGC) {
-            // while GC is in progress, add a new binary
-            addBinary("MNO", "MNO");
-            // and revive one that was about to be deleted
-            // note that this wouldn't work if we didn't recreate the Binary object from an InputStream
-            // and reused an old one
-            addBinary("DEF", "DEF3");
-            session.save();
-            nextTransaction();
+        if (duringGC != null) {
+            duringGC.run();
         }
         gc.stop(delete);
         return gc.getStatus();

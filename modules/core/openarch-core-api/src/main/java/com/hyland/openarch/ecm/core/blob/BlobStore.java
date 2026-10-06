@@ -285,11 +285,21 @@ public interface BlobStore {
      * A backend must call this once the key is known but <em>before</em> the blob is actually written to the backend:
      * because the mark happens before the write, the write is the last operation, so the blob is guaranteed to exist
      * afterwards even if a GC concurrently deletes it. Marking is a no-op when no GC is in progress.
+     * <p>
+     * This holds for a deduplicated write that then skips writing an already existing blob too: the mark is set
+     * atomically with respect to the GC's own claim of the key, so either the GC sees the mark and leaves the blob
+     * alone, or the GC claimed it first and this call blocks until it is done deleting it, after which the backend
+     * finds the blob gone and writes it again.
+     * <p>
+     * In a cluster, a GC running on another node is taken into account as well: the mark is then recorded in the
+     * key/value store, which is what that node consults before deleting anything.
      *
      * @param key the blob key
+     * @return {@code true} if the blob was left alone and its key may be referenced as is, {@code false} if a GC
+     *         deleted it instead and the caller must write it again
      */
-    default void markForGC(String key) {
-        getBinaryGarbageCollector().mark(key);
+    default boolean markForGC(String key) {
+        return getBinaryGarbageCollector().mark(key);
     }
 
     /**
