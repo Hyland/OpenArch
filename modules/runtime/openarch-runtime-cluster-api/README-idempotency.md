@@ -17,7 +17,7 @@ Ensures that state-mutating operations are executed at most once, even when call
 
 ### Key Components
 
-1. **IdempotencyOutput** - Wraps a cached outcome: pending (claimed), success or failure
+1. **IdempotencyEntry** - Wraps a cached outcome: pending (claimed), success or failure
 2. **IdempotencyHandler** - Interface for idempotent operation execution
 3. **KeyValueStoreIdempotencyHandler** - KV store-based implementation, also usable directly with
    a custom store name, namespace and TTL
@@ -40,7 +40,7 @@ IdempotencyHandler handler = IdempotencyHandler.instance();
 // Or, for a dedicated store / namespace / TTL
 IdempotencyHandler handler = new KeyValueStoreIdempotencyHandler(
     keyValueService,
-    "openarch-idempotency",
+    "idempotency",
     "idempotency:commands:",
     24 * 60 * 60L
 );

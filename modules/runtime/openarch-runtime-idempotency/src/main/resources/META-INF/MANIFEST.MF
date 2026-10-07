@@ -1,5 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-SymbolicName: com.hyland.openarch.runtime.idempotency
-Export-Package: com.hyland.openarch.runtime.idempotency
-Nuxeo-Component: OSGI-INF/openarch-idempotency-kv-store.xml

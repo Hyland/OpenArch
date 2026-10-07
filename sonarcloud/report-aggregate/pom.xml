@@ -62,11 +62,6 @@
     </dependency>
     <dependency>
       <groupId>com.hyland.openarch</groupId>
-      <artifactId>openarch-runtime-idempotency</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-runtime-jtajca</artifactId>
       <version>${project.version}</version>
     </dependency>

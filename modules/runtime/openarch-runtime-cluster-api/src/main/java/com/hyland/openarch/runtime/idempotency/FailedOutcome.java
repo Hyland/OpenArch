@@ -15,11 +15,23 @@
  */
 package com.hyland.openarch.runtime.idempotency;
 
-import static org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR;
+/**
+ * Represents a failed outcome with a message and a status code. The message and the status code are extracted from the
+ * exception that caused the failure. This record is used to communicate the failure details in a structured way.
+ *
+ * @param message the failure message
+ * @param statusCode the HTTP status code
+ */
+public record FailedOutcome(String message, int statusCode) {
 
-public record FailedOutCome(String message, int statusCode) {
+    public static final String MESSAGE_FIELD = "message";
 
-    public FailedOutCome(String message) {
+    public static final String STATUS_CODE_FIELD = "statusCode";
+
+    /** HTTP 500, used when the originating exception carries no explicit status code. */
+    private static final int SC_INTERNAL_SERVER_ERROR = 500;
+
+    public FailedOutcome(String message) {
         this(message, SC_INTERNAL_SERVER_ERROR);
     }
 

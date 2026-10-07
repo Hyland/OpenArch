@@ -42,7 +42,7 @@ import tools.jackson.databind.json.JsonMapper;
  * @param exception the replayable failure details, or {@code null}
  */
 public record IdempotencyOutput(boolean pending, String claimId, @JsonProperty("__typename") String typename,
-        JsonNode value, FailedOutCome exception) {
+        JsonNode value, FailedOutcome exception) {
 
     private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder().build();
 
@@ -73,11 +73,11 @@ public record IdempotencyOutput(boolean pending, String claimId, @JsonProperty("
      * @return a new IdempotencyOutput with the given exception
      */
     public static IdempotencyOutput failure(Exception exception) {
-        FailedOutCome failedOutCome;
+        FailedOutcome failedOutCome;
         if (exception instanceof RepositoryException re) {
-            failedOutCome = new FailedOutCome(re.getMessage(), re.getStatusCode());
+            failedOutCome = new FailedOutcome(re.getMessage(), re.getStatusCode());
         } else {
-            failedOutCome = new FailedOutCome(exception.getMessage());
+            failedOutCome = new FailedOutcome(exception.getMessage());
         }
         return new IdempotencyOutput(false, null, null, null, failedOutCome);
     }
@@ -109,7 +109,7 @@ public record IdempotencyOutput(boolean pending, String claimId, @JsonProperty("
      */
     public Object unwrap() {
         if (isFailure()) {
-            return new FailedOutCome(exception.message(), exception.statusCode());
+            return new FailedOutcome(exception.message(), exception.statusCode());
         }
         if (value == null || value.isNull()) {
             return null;
