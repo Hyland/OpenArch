@@ -16,7 +16,9 @@
 package com.hyland.openarch.runtime.idempotency;
 
 import com.hyland.openarch.ecm.core.api.RepositoryException;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.hyland.openarch.runtime.idempotency.IdempotencyHandler.Outcome;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.JsonNode;
@@ -39,77 +41,102 @@ import tools.jackson.databind.json.JsonMapper;
  * @param claimId   unique token identifying the claim while {@code pending}, {@code null} otherwise
  * @param typename  the registered result-type key of {@code value}, or {@code null}
  * @param value     the JSON representation of the operation result, or {@code null}
- * @param exception the replayable failure details, or {@code null}
+ * @param failure the replayable failure details, or {@code null}
  */
-public record IdempotencyOutput(boolean pending, String claimId, @JsonProperty("__typename") String typename,
-        JsonNode value, FailedOutcome exception) {
+public record IdempotencyEntry(@JsonProperty(PENDING_FIELD) boolean pending,
+                               @JsonProperty(CLAIM_ID_FIELD) String claimId,
+                               @JsonProperty(TYPENAME_FIELD) String typename,
+                               @JsonProperty(VALUE_FIELD) JsonNode value,
+                               @JsonProperty(FAILURE_FIELD) FailedOutcome failure) {
 
     private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder().build();
+
+    public static final String CLAIM_ID_FIELD = "claimId";
+
+    public static final String FAILURE_FIELD = "failure";
+
+    public static final String PENDING_FIELD = "pending";
+
+    public static final String TYPENAME_FIELD = "__typename";
+
+    public static final String VALUE_FIELD = "value";
 
     /**
      * Creates a result representing an in-progress (claimed but unresolved) operation.
      *
      * @param claimId unique token identifying the claim
-     * @return a new pending IdempotencyOutput
+     * @return a new pending IdempotencyEntry
      */
-    public static IdempotencyOutput pending(String claimId) {
-        return new IdempotencyOutput(true, claimId, null, null, null);
+    public static IdempotencyEntry pending(String claimId) {
+        return new IdempotencyEntry(true, claimId, null, null, null);
     }
 
     /**
      * Creates a result representing a successful operation outcome.
      *
      * @param value the operation result
-     * @return a new IdempotencyOutput with the given value
+     * @return a new IdempotencyEntry with the given value
      */
-    public static IdempotencyOutput success(JsonNode value, String typename) {
-        return new IdempotencyOutput(false, null, typename, value, null);
+    public static IdempotencyEntry success(JsonNode value, String typename) {
+        return new IdempotencyEntry(false, null, typename, value, null);
+    }
+
+    /**
+     * Creates a result representing a failed operation outcome.
+     *
+     * @param failedOutcome the replayable failure details
+     * @return a new IdempotencyEntry with the given failure
+     */
+    public static IdempotencyEntry failure(FailedOutcome failedOutcome) {
+        return new IdempotencyEntry(false, null, null, null, failedOutcome);
     }
 
     /**
      * Creates a result representing a failed operation outcome.
      *
      * @param exception the exception that occurred
-     * @return a new IdempotencyOutput with the given exception
+     * @return a new IdempotencyEntry with the given exception
      */
-    public static IdempotencyOutput failure(Exception exception) {
+    public static IdempotencyEntry failure(Exception exception) {
         FailedOutcome failedOutCome;
         if (exception instanceof RepositoryException re) {
             failedOutCome = new FailedOutcome(re.getMessage(), re.getStatusCode());
         } else {
             failedOutCome = new FailedOutcome(exception.getMessage());
         }
-        return new IdempotencyOutput(false, null, null, null, failedOutCome);
+        return new IdempotencyEntry(false, null, null, null, failedOutCome);
     }
 
     /**
      * Returns whether this result represents a successful outcome.
      */
+    @JsonIgnore
     public boolean isSuccess() {
-        return !pending && exception == null;
+        return !pending && failure == null;
     }
 
     /**
      * Returns whether this result represents a failed outcome.
      */
+    @JsonIgnore
     public boolean isFailure() {
-        return !pending && exception != null;
+        return !pending && failure != null;
     }
 
     /**
-     * Deserializes a successful cached value using the type registered under its {@code __typename}
-     * key, or returns replayable failure details.
+     * Deserializes a successful cached entry into an Outcome object containing either the result or the failure details.
      * <p>
-     * The registered type is a Jackson {@code JavaType}, so a generic result such as a
+     * For deserializing the value, the registered type is a Jackson {@code JavaType}, so a generic result such as a
      * {@code List<DocumentDTO>} is replayed with its element type preserved.
      *
-     * @return the deserialized value, {@code null}, or a replayable failure
+     * @return the Outcome, carrying both the result and whether it was replayed
      * @throws IllegalArgumentException when the result type key is not registered or its JSON
      *                                  value cannot be deserialized
      */
-    public Object unwrap() {
+    public Outcome<?> unwrap() {
         if (isFailure()) {
-            return new FailedOutcome(exception.message(), exception.statusCode());
+            var failedOutCome = new FailedOutcome(failure.message(), failure.statusCode());
+            return new Outcome<>(null, failedOutCome, true);
         }
         if (value == null || value.isNull()) {
             return null;
@@ -119,7 +146,8 @@ public record IdempotencyOutput(boolean pending, String claimId, @JsonProperty("
             throw new IllegalArgumentException("No idempotency result type is registered for key: " + typename);
         }
         try {
-            return OBJECT_MAPPER.treeToValue(value, resultType);
+            var value =  OBJECT_MAPPER.treeToValue(this.value, resultType);
+            return new Outcome<>(value, null, true);
         } catch (JacksonException e) {
             throw new IllegalArgumentException("Failed to deserialize idempotency result type: " + typename, e);
         }

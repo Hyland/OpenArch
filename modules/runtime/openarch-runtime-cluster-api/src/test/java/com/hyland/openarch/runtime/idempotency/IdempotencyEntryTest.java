@@ -24,17 +24,18 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
- * Unit tests for {@link IdempotencyOutput}.
+ * Unit tests for {@link IdempotencyEntry}.
  */
-class IdempotencyOutputTest {
+class IdempotencyEntryTest {
 
     @Test
     void unwrap_registeredType_deserializesTheJsonTree() {
         IdempotencyResultTypeRegistry.register("sample-result", SampleResult.class);
         SampleResult expected = new SampleResult("value");
 
-        Object actual = IdempotencyOutput.success(JsonMapper.builder().build().valueToTree(expected), "sample-result")
-                                         .unwrap();
+        Object actual = IdempotencyEntry.success(JsonMapper.builder().build().valueToTree(expected), "sample-result")
+                                         .unwrap()
+                                         .value();
 
         assertEquals(expected, actual);
     }
@@ -44,9 +45,10 @@ class IdempotencyOutputTest {
         IdempotencyResultTypeRegistry.registerList("sample-result-list", SampleResult.class);
         List<SampleResult> expected = List.of(new SampleResult("first"), new SampleResult("second"));
 
-        Object actual = IdempotencyOutput
+        Object actual = IdempotencyEntry
                 .success(JsonMapper.builder().build().valueToTree(expected), "sample-result-list")
-                .unwrap();
+                .unwrap()
+                .value();
 
         assertEquals(expected, actual);
         assertInstanceOf(SampleResult.class, ((List<?>) actual).get(0));

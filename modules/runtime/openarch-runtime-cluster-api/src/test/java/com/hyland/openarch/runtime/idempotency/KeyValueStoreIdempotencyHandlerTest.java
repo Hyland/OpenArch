@@ -477,7 +477,7 @@ class KeyValueStoreIdempotencyHandlerTest {
     private static byte[] claimMarker() {
         return JsonMapper.builder()
                          .build()
-                         .writeValueAsString(IdempotencyOutput.pending(UUID.randomUUID().toString()))
+                         .writeValueAsString(IdempotencyEntry.pending(UUID.randomUUID().toString()))
                          .getBytes(StandardCharsets.UTF_8);
     }
 
@@ -668,7 +668,7 @@ class KeyValueStoreIdempotencyHandlerTest {
     @DisplayName("default constants expose the documented defaults")
     void defaultConstants_matchDocumentedValues() {
         assertEquals(TimeUnit.HOURS.toSeconds(24), IdempotencyHandler.DEFAULT_TTL_SECONDS);
-        assertEquals("openarch-idempotency", IdempotencyHandler.DEFAULT_STORE_NAME);
+        assertEquals("idempotency", IdempotencyHandler.DEFAULT_STORE_NAME);
         assertEquals("idempotency:", IdempotencyHandler.DEFAULT_IDEMPOTENCY_NAMESPACE);
     }
 

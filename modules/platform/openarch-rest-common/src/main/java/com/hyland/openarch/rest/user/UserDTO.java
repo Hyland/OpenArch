@@ -47,9 +47,7 @@ public record UserDTO( //
         @Schema(description = "Email address of the user.")
         String email,
         @JsonInclude(Include.NON_EMPTY)
-        Map<String, Serializable> properties) implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+        Map<String, Serializable> properties) {
 
     public UserDTO {
         requireNonNull(id);

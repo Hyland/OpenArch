@@ -17,6 +17,7 @@ package com.hyland.openarch.runtime.idempotency;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 
 import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.kv.KeyValueService;
@@ -33,7 +34,7 @@ public interface IdempotencyHandler {
     long DEFAULT_TTL_SECONDS = TimeUnit.DAYS.toSeconds(1);
 
     /** Default name of the key-value store backing the default handler. */
-    String DEFAULT_STORE_NAME = "openarch-idempotency";
+    String DEFAULT_STORE_NAME = "idempotency";
 
     /** Default namespace prefixing every cache key of the default handler. */
     String DEFAULT_IDEMPOTENCY_NAMESPACE = "idempotency:";
@@ -47,11 +48,14 @@ public interface IdempotencyHandler {
     /** Runtime property holding the environment identifier used as tenant segment of a key. */
     String ENVIRONMENT_PROP = "environment.identifier";
 
+    /** Reference caching the lazily resolved shared default handler. */
+    AtomicReference<IdempotencyHandler> INSTANCE_REF = new AtomicReference<>();
+
     /**
      * Returns the shared default handler, backed by the default key-value store, namespace and TTL.
      * <p>
      * Resolution is lazy on purpose: callers typically hold this handler from a component that can
-     * itself be instantiated before the Nuxeo runtime owning {@link KeyValueService} is available
+     * itself be instantiated before the runtime owning {@link KeyValueService} is available
      * (e.g. a Spring {@code @Component} created while the Spring context starts up, or an OSGi
      * {@code DefaultComponent} created before its {@code start()} runs). The handler is therefore
      * resolved on first call rather than at class initialization, and cached from then on. The
@@ -61,7 +65,7 @@ public interface IdempotencyHandler {
      * @return the shared default idempotency handler
      */
     static IdempotencyHandler instance() {
-        return Holder.REF.updateAndGet(current -> current != null ? current
+        return INSTANCE_REF.updateAndGet(current -> current != null ? current
                 : new KeyValueStoreIdempotencyHandler(Framework.getService(KeyValueService.class), DEFAULT_STORE_NAME,
                         DEFAULT_IDEMPOTENCY_NAMESPACE, DEFAULT_TTL_SECONDS));
     }
@@ -78,7 +82,7 @@ public interface IdempotencyHandler {
      * <p>
      * The result type is resolved from the result's runtime class, which must be registered in
      * {@link IdempotencyResultTypeRegistry}; otherwise the result is not cached. Use
-     * {@link #execute(String, String, IdempotentOperation)} for a generic result type, whose
+     * {@link #execute(String, String, Supplier)} for a generic result type, whose
      * element types erasure would lose.
      *
      * @param <T>           the type of the operation result
@@ -87,10 +91,10 @@ public interface IdempotencyHandler {
      * @return the outcome, carrying both the result and whether it was replayed
      * @throws RuntimeException if the operation fails or if cached failure is replayed
      */
-    <T> Outcome<T> execute(String key, IdempotentOperation<T> operation);
+    <T> Outcome<T> execute(String key, Supplier<T> operation);
 
     /**
-     * Same contract as {@link #execute(String, IdempotentOperation)}, but with an explicit result
+     * Same contract as {@link #execute(String, Supplier)}, but with an explicit result
      * type key instead of one inferred from the result's runtime class.
      * <p>
      * This is required for a result type that is itself generic (e.g. {@code List<SomeDto>}): type
@@ -108,7 +112,7 @@ public interface IdempotencyHandler {
      * @return the outcome, carrying both the result and whether it was replayed
      * @throws RuntimeException if the operation fails or if cached failure is replayed
      */
-    <T> Outcome<T> execute(String key, String typename, IdempotentOperation<T> operation);
+    <T> Outcome<T> execute(String key, String typename, Supplier<T> operation);
 
     /**
      * Removes a cached result for the given idempotency key.
@@ -127,22 +131,6 @@ public interface IdempotencyHandler {
      * @return true if an operation is in progress, false otherwise
      */
     boolean isOperationInProgress(String key);
-    /**
-     * Represents an idempotent operation that can be executed and cached.
-     *
-     * @param <T> the type of the operation result
-     */
-    @FunctionalInterface
-    interface IdempotentOperation<T> {
-
-        /**
-         * Executes the operation.
-         *
-         * @return the operation result
-         */
-        T execute();
-
-    }
 
     /**
      * Outcome of {@link #executeWithOutcome}: the operation's result, and whether it was replayed
@@ -150,30 +138,11 @@ public interface IdempotencyHandler {
      *
      * @param <T> the type of the operation result
      */
-    record Outcome<T>(T value, FailedOutCome exception, boolean replay) {
+    record Outcome<T>(T value, FailedOutcome exception, boolean replay) {
 
         public boolean isFailure() {
             return exception != null;
         }
-    }
-
-    /**
-     * Holder of the lazily resolved shared default handler, since an interface cannot declare
-     * private static state directly.
-     */
-    final class Holder {
-
-        private static final AtomicReference<IdempotencyHandler> REF = new AtomicReference<>();
-
-        private Holder() {
-            // utility class
-        }
-
-    }
-
-    /** Test-only: forces the next {@link #instance()} call to re-resolve the handler. Never call from production code. */
-    static void resetForTesting() {
-        Holder.REF.set(null);
     }
 
 }

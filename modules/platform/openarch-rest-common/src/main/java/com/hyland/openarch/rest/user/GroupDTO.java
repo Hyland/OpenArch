@@ -18,8 +18,6 @@ package com.hyland.openarch.rest.user;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-import java.io.Serializable;
-
 import com.hyland.openarch.ecm.core.api.RepositoryGroup;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -35,7 +33,7 @@ public record GroupDTO(
         @JsonInclude(Include.NON_NULL)
         @Schema(description = "Name of the group.")
         String name
-) implements Serializable {
+) {
 
     private static final long serialVersionUID = 1L;
 
