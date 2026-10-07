@@ -23,7 +23,7 @@ repos:
         exclude: (modules/runtime/openarch-common/src/test/resources/test-xmap-saved.xml)
       - id: check-yaml
       - id: check-json
-        exclude: (query_re(q|s).*\.json$|devcontainer.json)
+        exclude: query_re(q|s).*\.json$
       - id: check-xml
         exclude: (empty-xml.xml|invalid-xml.xml)
       - id: check-merge-conflict
