@@ -15,21 +15,14 @@
  */
 package com.hyland.openarch.ecm.core.api;
 
-public class RenditionException extends RuntimeException {
-
-    protected final int statusCode;
+public class RenditionException extends RepositoryException {
 
     public RenditionException(String message, int statusCode) {
-        super(message);
-        this.statusCode = statusCode;
+        super(message, statusCode);
     }
 
     public RenditionException(String message, Throwable cause, int statusCode) {
-        super(message, cause);
-        this.statusCode = statusCode;
+        super(message, cause, statusCode);
     }
 
-    public int getStatusCode() {
-        return statusCode;
-    }
 }

@@ -4,5 +4,6 @@
     <store name="default" class="com.hyland.openarch.ecm.core.mongodb.kv.MongoDBKeyValueStore" merge="false">
       <property name="collection">kv</property>
     </store>
+    <store name="idempotency" class="com.hyland.openarch.ecm.core.mongodb.kv.MongoDBKeyValueStore" merge="false" />
   </extension>
 </component>

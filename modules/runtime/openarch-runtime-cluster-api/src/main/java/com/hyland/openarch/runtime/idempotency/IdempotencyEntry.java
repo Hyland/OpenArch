@@ -100,9 +100,9 @@ public record IdempotencyEntry(@JsonProperty(PENDING_FIELD) boolean pending,
     public static IdempotencyEntry failure(Exception exception) {
         FailedOutcome failedOutCome;
         if (exception instanceof RepositoryException re) {
-            failedOutCome = new FailedOutcome(re.getMessage(), re.getStatusCode());
+            failedOutCome = new FailedOutcome(re.getClass().getName(), re.getMessage(), re.getStatusCode());
         } else {
-            failedOutCome = new FailedOutcome(exception.getMessage());
+            failedOutCome = new FailedOutcome(exception.getClass().getName(), exception.getMessage());
         }
         return new IdempotencyEntry(false, null, null, null, failedOutCome);
     }
@@ -133,9 +133,9 @@ public record IdempotencyEntry(@JsonProperty(PENDING_FIELD) boolean pending,
      * @throws IllegalArgumentException when the result type key is not registered or its JSON
      *                                  value cannot be deserialized
      */
-    public Outcome<?> unwrap() {
+    public <T> Outcome<T> unwrap() {
         if (isFailure()) {
-            var failedOutCome = new FailedOutcome(failure.message(), failure.statusCode());
+            FailedOutcome failedOutCome = new FailedOutcome(failure.type(), failure.message(), failure.statusCode());
             return new Outcome<>(null, failedOutCome, true);
         }
         if (value == null || value.isNull()) {
@@ -146,7 +146,7 @@ public record IdempotencyEntry(@JsonProperty(PENDING_FIELD) boolean pending,
             throw new IllegalArgumentException("No idempotency result type is registered for key: " + typename);
         }
         try {
-            var value =  OBJECT_MAPPER.treeToValue(this.value, resultType);
+            T value =  OBJECT_MAPPER.treeToValue(this.value, resultType);
             return new Outcome<>(value, null, true);
         } catch (JacksonException e) {
             throw new IllegalArgumentException("Failed to deserialize idempotency result type: " + typename, e);

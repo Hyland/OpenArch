@@ -17,6 +17,7 @@ package com.hyland.openarch.runtime.idempotency;
 
 import static com.hyland.openarch.runtime.idempotency.FailedOutcome.MESSAGE_FIELD;
 import static com.hyland.openarch.runtime.idempotency.FailedOutcome.STATUS_CODE_FIELD;
+import static com.hyland.openarch.runtime.idempotency.FailedOutcome.TYPE_FIELD;
 import static com.hyland.openarch.runtime.idempotency.IdempotencyEntry.CLAIM_ID_FIELD;
 import static com.hyland.openarch.runtime.idempotency.IdempotencyEntry.FAILURE_FIELD;
 import static com.hyland.openarch.runtime.idempotency.IdempotencyEntry.PENDING_FIELD;
@@ -141,26 +142,25 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
             }
         }
 
-        T result = runAndFinalize(entryKey, claim.ownerMarker(), operation, typename);
-        return new Outcome<>(result, null, false);
+        return runAndFinalize(entryKey, claim.claimMarker(), operation, typename);
     }
 
     /**
-     * Runs {@code operation}, which was just granted the claim identified by {@code ownerMarker},
+     * Runs {@code operation}, which was just granted the claim identified by {@code claimMarker},
      * and finalizes the cache entry with its outcome (success or failure).
      */
-    private <T> T runAndFinalize(String entryKey, String ownerMarker,
-            Supplier<T> operation, String typename) {
+    private <T> Outcome<T> runAndFinalize(String entryKey, String claimMarker, Supplier<T> operation, String typename) {
         T result;
         try {
             result = operation.get();
+            publishSuccess(entryKey, claimMarker, result, typename);
+            return new Outcome<>(result, null, false);
         } catch (RuntimeException e) {
-            persistQuietly(entryKey, ownerMarker, IdempotencyEntry.failure(e));
+            IdempotencyEntry entryFailure = IdempotencyEntry.failure(e);
+            persistQuietly(entryKey, claimMarker, entryFailure);
             log.debug("Idempotency cache stored failure for key={}", sanitizeForLog(entryKey));
-            throw e;
+            return new Outcome<>(null, entryFailure.failure(), false);
         }
-        publishSuccess(entryKey, ownerMarker, result, typename);
-        return result;
     }
 
     /**
@@ -172,7 +172,7 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
      * type, whose element types erasure would otherwise lose — the key registered for the result's
      * runtime class is used instead.
      */
-    private <T> void publishSuccess(String entryKey, String ownerMarker, T result, String typename) {
+    private <T> void publishSuccess(String entryKey, String claimMarker, T result, String typename) {
         IdempotencyEntry successResult;
         try {
             JsonNode jsonNode = OBJECT_MAPPER.valueToTree(result);
@@ -181,17 +181,17 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
             if (resultTypeKey == null) {
                 log.error("Idempotency result for key={} has unregistered type {}; releasing the claim without "
                         + "caching", sanitizeForLog(entryKey), result.getClass().getName());
-                releaseClaim(entryKey, ownerMarker);
+                releaseClaim(entryKey, claimMarker);
                 return;
             }
             successResult = IdempotencyEntry.success(jsonNode, resultTypeKey);
         } catch (JacksonException e) {
             log.error("Idempotency result for key={} could not be converted to JSON; releasing the claim without "
                     + "caching, at-most-once is not guaranteed for this call", sanitizeForLog(entryKey), e);
-            releaseClaim(entryKey, ownerMarker);
+            releaseClaim(entryKey, claimMarker);
             return;
         }
-        persistQuietly(entryKey, ownerMarker, successResult);
+        persistQuietly(entryKey, claimMarker, successResult);
         log.debug("Idempotency cache stored success for key={}", sanitizeForLog(entryKey));
     }
 
@@ -199,9 +199,9 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
      * Finalizes the cache entry, downgrading a persistence failure to an error log: the operation
      * already ran, so its outcome must still be surfaced to the caller.
      */
-    private void persistQuietly(String entryKey, String ownerMarker, IdempotencyEntry output) {
+    private void persistQuietly(String entryKey, String claimMarker, IdempotencyEntry output) {
         try {
-            finalizeResult(entryKey, ownerMarker, output);
+            finalizeResult(entryKey, claimMarker, output);
         } catch (IdempotencyPersistenceException e) {
             log.error("Idempotency result for key={} could not be persisted; at-most-once is not "
                     + "guaranteed for this call", sanitizeForLog(entryKey), e);
@@ -212,9 +212,9 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
      * Clears this claim's marker so a subsequent caller can claim the key immediately, unless the
      * claim was already reclaimed by someone else.
      */
-    private void releaseClaim(String cacheKey, String ownerMarker) {
+    private void releaseClaim(String cacheKey, String claimMarker) {
         try {
-            keyValueStore.compareAndSet(cacheKey, ownerMarker, null);
+            keyValueStore.compareAndSet(cacheKey, claimMarker, null);
         } catch (RuntimeException e) {
             log.warn("Failed to release idempotency claim for key={}: {}", sanitizeForLog(cacheKey), e.getMessage());
         }
@@ -275,7 +275,7 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
      * {@link IdempotencyClaimTimeoutException} if neither happens in time.
      */
     private ClaimOutcome claimOrAwaitCached(String entryKey, String keyValue) {
-        String ownerMarker = newClaimMarker();
+        String newClaimMarker = newClaimMarker();
         long deadlineNanos = System.nanoTime() + Duration.ofSeconds(leaseSeconds).toNanos()
                 + Duration.ofMillis(CLAIM_WAIT_BUFFER_MILLIS).toNanos();
         String current = keyValueStore.getString(entryKey);
@@ -284,8 +284,8 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
             if (cached == null) {
                 // Empty slot, or neither a valid result nor a claim marker (e.g. corrupted data):
                 // claim it atomically, expecting the exact value we just observed.
-                if (keyValueStore.compareAndSet(entryKey, current, ownerMarker, leaseSeconds)) {
-                    return ClaimOutcome.won(ownerMarker);
+                if (keyValueStore.compareAndSet(entryKey, current, newClaimMarker, leaseSeconds)) {
+                    return ClaimOutcome.won(newClaimMarker);
                 }
                 // Lost the race against another caller: re-read and re-evaluate.
                 checkClaimDeadline(deadlineNanos, keyValue);
@@ -311,20 +311,20 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
     }
 
     /**
-     * Publishes the final result, atomically handing the key off from this claim's owner marker.
+     * Publishes the final result, atomically handing the key off from this claim's marker.
      * <p>
-     * If the lease already expired and the current value no longer matches {@code ownerMarker}
+     * If the lease already expired and the current value no longer matches {@code claimMarker}
      * (e.g. another caller reclaimed the slot after timing us out, or already published its own
      * result), this caller's outcome is stale: it is discarded (logged as a warning) rather than
      * force-written, since the current value belongs to whoever reclaimed the key. This indicates
      * the configured lease was too short for the operation's actual duration.
      */
-    private void finalizeResult(String cacheKey, String ownerMarker,
+    private void finalizeResult(String cacheKey, String claimMarker,
             IdempotencyEntry result) {
         String serialized = serialize(result);
         boolean stored;
         try {
-            stored = keyValueStore.compareAndSet(cacheKey, ownerMarker, serialized, ttlSeconds);
+            stored = keyValueStore.compareAndSet(cacheKey, claimMarker, serialized, ttlSeconds);
         } catch (RuntimeException e) {
             throw new IdempotencyPersistenceException("Failed to persist idempotency result for key=" + cacheKey, e);
         }
@@ -351,14 +351,14 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
      * Outcome of {@link #claimOrAwaitCached}: either an already-published result (cache hit), or a
      * fresh owner marker for a claim this call just won. Exactly one of the two fields is non-null.
      */
-    record ClaimOutcome(IdempotencyEntry cachedResult, String ownerMarker) {
+    record ClaimOutcome(IdempotencyEntry cachedResult, String claimMarker) {
 
         static ClaimOutcome hit(IdempotencyEntry cachedResult) {
             return new ClaimOutcome(cachedResult, null);
         }
 
-        static ClaimOutcome won(String ownerMarker) {
-            return new ClaimOutcome(null, ownerMarker);
+        static ClaimOutcome won(String claimMarker) {
+            return new ClaimOutcome(null, claimMarker);
         }
 
         @Override
@@ -369,17 +369,17 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
             if (!(o instanceof ClaimOutcome other)) {
                 return false;
             }
-            return Objects.equals(cachedResult, other.cachedResult) && Objects.equals(ownerMarker, other.ownerMarker);
+            return Objects.equals(cachedResult, other.cachedResult) && Objects.equals(claimMarker, other.claimMarker);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(cachedResult, ownerMarker);
+            return Objects.hash(cachedResult, claimMarker);
         }
 
         @Override
         public String toString() {
-            return "ClaimOutcome[cachedResult=" + cachedResult + ", ownerMarker=" + ownerMarker + "]";
+            return "ClaimOutcome[cachedResult=" + cachedResult + ", claimMarker=" + claimMarker + "]";
         }
     }
 
@@ -438,12 +438,14 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
     }
 
     private static FailedOutcome decodeException(JsonNode exceptionNode) {
+        JsonNode typeNode = exceptionNode.get(TYPE_FIELD);
         JsonNode messageNode = exceptionNode.get(MESSAGE_FIELD);
         JsonNode httpErrorCodeNode = exceptionNode.get(STATUS_CODE_FIELD);
+        String type = typeNode == null || typeNode.isNull() ? null : typeNode.asString();
         String message = messageNode == null || messageNode.isNull() ? null : messageNode.asString();
         int httpErrorCode = httpErrorCodeNode == null || httpErrorCodeNode.isNull() ? 0
                 : httpErrorCodeNode.asInt();
-        return new FailedOutcome(message, httpErrorCode);
+        return new FailedOutcome(type, message, httpErrorCode);
     }
 
     /**

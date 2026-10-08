@@ -22,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -156,14 +155,15 @@ class KeyValueStoreIdempotencyHandlerTest {
         String key = "key-3";
         IllegalStateException original = new IllegalStateException("boom");
 
-        RuntimeException firstThrown = assertThrows(RuntimeException.class, () -> handler.execute(key, () -> {
+        Outcome<?> first = handler.execute(key, () -> {
             throw original;
-        }));
-        Outcome replayed = handler.execute(key, () -> "should not run");
+        });
+        Outcome<?> replayed = handler.execute(key, () -> "should not run");
 
-        assertSame(original, firstThrown);
+        assertEquals(original.getMessage(), first.exception().message());
         assertEquals(original.getMessage(), replayed.exception().message());
         assertTrue(replayed.isFailure());
+        assertTrue(replayed.replay());
     }
 
     @Test
@@ -524,14 +524,15 @@ class KeyValueStoreIdempotencyHandlerTest {
         String key = "key-repository-exception";
         RepositoryException original = new RepositoryException("conflict", 409);
 
-        RuntimeException firstThrown = assertThrows(RuntimeException.class, () -> handler.execute(key, () -> {
+       Outcome<?> first = handler.execute(key, () -> {
             throw original;
-        }));
-        Outcome replayed = handler.execute(key, () -> "should not run");
+        });
+        Outcome<?> replayed = handler.execute(key, () -> "should not run");
 
-        assertSame(original, firstThrown);
+        assertEquals(original.getMessage(), first.exception().message());
         assertTrue(replayed.isFailure());
         assertEquals(original.getMessage(), replayed.exception().message());
+        assertEquals(409, first.exception().statusCode());
         assertEquals(409, replayed.exception().statusCode());
     }
 
