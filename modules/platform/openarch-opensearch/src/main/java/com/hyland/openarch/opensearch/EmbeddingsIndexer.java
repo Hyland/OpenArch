@@ -134,7 +134,8 @@ public class EmbeddingsIndexer {
      * ingested. Only genuine ingests are forwarded: reindexing rebuilds the cloud index from the embeddings parquet and
      * must not re-drive the EV Store, and cloud documents carry their text in the index so nothing is written for them.
      * The write is skipped silently when no {@link OnPremChunkTextWriter} is registered (a cloud-only deployment) or the
-     * child holds no chunks blob. Residency is read from the child rather than re-evaluated.
+     * child holds no chunks blob. A parsed-but-empty chunks parquet is still forwarded so EV Store can purge the prior
+     * scope during replacement. Residency is read from the child rather than re-evaluated.
      * <p>
      * Package-private and static so the branching can be unit-tested without a running repository.
      */
@@ -155,10 +156,6 @@ public class EmbeddingsIndexer {
             return;
         }
         Map<String, String> chunkTexts = embeddingsParser.parseChunkTexts(chunksBlob, ctx.embeddingsType());
-        if (chunkTexts.isEmpty()) {
-            log.debug("onPrem SysEmbeddings {} parsed no chunk texts; nothing to write to the EV Store", ctx.embeddingsDoc().getId());
-            return;
-        }
         String systemIntegrationId = StringUtils.trimToNull((String) ctx.parentDoc().getPropertyValue(CIN_SOURCE_ID));
         if (systemIntegrationId == null) {
             log.error("Cannot write onPrem chunk text to the EV Store: parent {} of SysEmbeddings {} has no {}",

@@ -150,14 +150,16 @@ class EmbeddingsIndexerOnPremChunkTextTest {
     }
 
     @Test
-    void skipsWhenNoChunkTextsParsed() {
+    void writesDeleteOnlyReplacementWhenNoChunkTextsParsed() {
         DocumentModel embeddingsDoc = Mockito.mock(DocumentModel.class);
+        DocumentModel parentDoc = Mockito.mock(DocumentModel.class);
         Blob chunksBlob = Mockito.mock(Blob.class);
         when(embeddingsDoc.getId()).thenReturn(EMBEDDINGS_DOC_ID);
         when(embeddingsDoc.getPropertyValue(DocumentConstants.SYSEMB_CHUNKS)).thenReturn(chunksBlob);
+        when(parentDoc.getId()).thenReturn(PARENT_DOC_ID);
+        when(parentDoc.getPropertyValue(DocumentConstants.CIN_SOURCE_ID)).thenReturn(TENANT);
         when(parser.parseChunkTexts(chunksBlob, EMBEDDING_TYPE)).thenReturn(Map.of());
-        ProcessingContext ctx = context(embeddingsDoc, Mockito.mock(DocumentModel.class),
-                DocumentConstants.SYSEMB_RESIDENCY_ON_PREM);
+        ProcessingContext ctx = context(embeddingsDoc, parentDoc, DocumentConstants.SYSEMB_RESIDENCY_ON_PREM);
         OnPremChunkTextWriter writer = Mockito.mock(OnPremChunkTextWriter.class);
 
         try (MockedStatic<Framework> framework = Mockito.mockStatic(Framework.class)) {
@@ -165,7 +167,7 @@ class EmbeddingsIndexerOnPremChunkTextTest {
             EmbeddingsIndexer.writeOnPremChunkText(parser, REPOSITORY, ctx, SOME_EMBEDDINGS, false);
         }
 
-        verifyNoInteractions(writer);
+        verify(writer).writeChunkText(REPOSITORY, TENANT, EMBEDDINGS_DOC_ID, PARENT_DOC_ID, EMBEDDING_TYPE, Map.of());
     }
 
     @Test

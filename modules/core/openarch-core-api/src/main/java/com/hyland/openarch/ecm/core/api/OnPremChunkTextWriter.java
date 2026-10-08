@@ -45,7 +45,7 @@ public interface OnPremChunkTextWriter {
      * @param contentId           the {@code SysEmbeddings} child {@code sys_id} (EV Store content id)
      * @param documentId          the parent document id (for diagnostics and logging)
      * @param embeddingType       the embedding type carried by the child (for diagnostics and logging)
-     * @param chunkTextById       embedding id to chunk text; never {@code null}
+     * @param chunkTextById       embedding id to chunk text; an empty map means "replace with no chunk values"
      */
     void writeChunkText(String repository, String systemIntegrationId, String contentId, String documentId,
             String embeddingType, Map<String, String> chunkTextById);
