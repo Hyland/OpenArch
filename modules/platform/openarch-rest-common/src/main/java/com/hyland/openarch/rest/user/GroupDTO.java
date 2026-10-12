@@ -35,8 +35,6 @@ public record GroupDTO(
         String name
 ) {
 
-    private static final long serialVersionUID = 1L;
-
     public GroupDTO(RepositoryGroup group) {
         this(group.getId(), group.getName());
     }

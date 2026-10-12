@@ -81,18 +81,16 @@ public final class IdempotencyResultTypeRegistry {
      */
     private static synchronized void registerJavaType(String key, JavaType resultType) {
         if (StringUtils.isBlank(key)) {
-            throw new IllegalArgumentException("Idempotency result type key cannot be blank");
+            throw new IllegalArgumentException();
         }
 
         JavaType registeredType = TYPES_BY_KEY.get(key);
         if (registeredType != null && !registeredType.equals(resultType)) {
-            throw new IllegalArgumentException(
-                    "Idempotency result type key is already registered for " + registeredType);
+            throw new IllegalArgumentException();
         }
         String registeredKey = KEYS_BY_TYPE.get(resultType);
         if (registeredKey != null && !registeredKey.equals(key)) {
-            throw new IllegalArgumentException(
-                    "Idempotency result type is already registered under key " + registeredKey);
+            throw new IllegalArgumentException();
         }
         TYPES_BY_KEY.put(key, resultType);
         KEYS_BY_TYPE.put(resultType, key);

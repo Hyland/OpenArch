@@ -15,10 +15,14 @@
  */
 package com.hyland.openarch.runtime.idempotency;
 
+import static org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR;
+
+import com.hyland.openarch.common.RetryAfterHint;
 import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.hyland.openarch.runtime.idempotency.IdempotencyHandler.Outcome;
+import org.apache.http.HttpStatus;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.JsonNode;
@@ -43,11 +47,11 @@ import tools.jackson.databind.json.JsonMapper;
  * @param value     the JSON representation of the operation result, or {@code null}
  * @param failure the replayable failure details, or {@code null}
  */
-public record IdempotencyEntry(@JsonProperty(PENDING_FIELD) boolean pending,
-                               @JsonProperty(CLAIM_ID_FIELD) String claimId,
+public record IdempotencyEntry(boolean pending,
+                               String claimId,
                                @JsonProperty(TYPENAME_FIELD) String typename,
-                               @JsonProperty(VALUE_FIELD) JsonNode value,
-                               @JsonProperty(FAILURE_FIELD) FailedOutcome failure) {
+                               JsonNode value,
+                               FailedOutcome failure) {
 
     private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder().build();
 
@@ -99,10 +103,14 @@ public record IdempotencyEntry(@JsonProperty(PENDING_FIELD) boolean pending,
      */
     public static IdempotencyEntry failure(Exception exception) {
         FailedOutcome failedOutCome;
+        int statusCode = HttpStatus.SC_INTERNAL_SERVER_ERROR;
         if (exception instanceof RepositoryException re) {
-            failedOutCome = new FailedOutcome(re.getClass().getName(), re.getMessage(), re.getStatusCode());
+            statusCode = re.getStatusCode();
+        }
+        if (exception instanceof RetryAfterHint rah) {
+            failedOutCome = new FailedOutcome(exception.getClass().getName(), exception.getMessage(), statusCode, rah.getRetryAfterSeconds());
         } else {
-            failedOutCome = new FailedOutcome(exception.getClass().getName(), exception.getMessage());
+            failedOutCome = new FailedOutcome(exception.getClass().getName(), exception.getMessage(), statusCode);
         }
         return new IdempotencyEntry(false, null, null, null, failedOutCome);
     }

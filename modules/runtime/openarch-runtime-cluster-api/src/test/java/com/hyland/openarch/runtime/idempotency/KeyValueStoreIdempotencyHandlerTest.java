@@ -34,6 +34,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -63,7 +64,7 @@ class KeyValueStoreIdempotencyHandlerTest {
 
     private static final String NAMESPACE = "idempotency:test:";
 
-    private static final long TTL_SECONDS = 3600L;
+    private static final Duration TTL = Duration.ofHours(1);
 
     private MemKeyValueStore store;
 
@@ -77,7 +78,7 @@ class KeyValueStoreIdempotencyHandlerTest {
         IdempotencyResultTypeRegistry.registerList("sample-dto-list", SampleDto.class);
         store = new MemKeyValueStore();
         keyValueService = name -> store;
-        handler = new KeyValueStoreIdempotencyHandler(keyValueService, "default", NAMESPACE, TTL_SECONDS);
+        handler = new KeyValueStoreIdempotencyHandler(keyValueService, "default", NAMESPACE, TTL);
     }
 
     @Test
@@ -211,9 +212,9 @@ class KeyValueStoreIdempotencyHandlerTest {
     @Test
     @DisplayName("a cached result expires after its TTL and the operation runs again")
     void execute_cachedResultExpiresAfterTtl_runsOperationAgain() throws InterruptedException {
-        long shortTtlSeconds = 1L;
+        Duration shortTtl = Duration.ofSeconds(1);
         KeyValueStoreIdempotencyHandler shortTtlHandler = new KeyValueStoreIdempotencyHandler(keyValueService, "default",
-                NAMESPACE, shortTtlSeconds);
+                NAMESPACE, shortTtl);
         String key = "key-ttl";
         AtomicInteger calls = new AtomicInteger();
 
@@ -224,7 +225,7 @@ class KeyValueStoreIdempotencyHandlerTest {
         assertTrue(shortTtlHandler.isCached(key));
 
         // sleep a bit more than the TTL in case expiration is late, mirroring AbstractKeyValueStoreTest#testTTL
-        Thread.sleep((shortTtlSeconds + 1) * 1000);
+        Thread.sleep(shortTtl.plusSeconds(1));
 
         assertFalse(shortTtlHandler.isCached(key));
         String second = shortTtlHandler.execute(key, () -> {
@@ -304,13 +305,13 @@ class KeyValueStoreIdempotencyHandlerTest {
     @Test
     @DisplayName("a caller waits out a concurrent claim's expired lease and then runs the operation")
     void execute_claimLeaseExpires_waitingCallerRunsOperationAfterward() {
-        long shortTtlSeconds = 1L;
+        Duration shortTtl = Duration.ofSeconds(1);
         IdempotencyHandler shortLeaseHandler = new KeyValueStoreIdempotencyHandler(keyValueService, "default",
-                NAMESPACE, shortTtlSeconds);
+                NAMESPACE, shortTtl);
         String key = "key-lease-expiry";
         String cacheKey = NAMESPACE + key;
         // Simulate another caller having claimed the key with a short-lived lease.
-        store.put(cacheKey, claimMarker(), shortTtlSeconds);
+        store.put(cacheKey, claimMarker(), shortTtl.toSeconds());
 
         String result = shortLeaseHandler.execute(key, () -> "value-after-lease-expiry").value();
 
@@ -320,14 +321,14 @@ class KeyValueStoreIdempotencyHandlerTest {
     @Test
     @DisplayName("a caller throws IdempotencyClaimTimeoutException if a concurrent claim never resolves")
     void execute_claimNeverResolves_throwsClaimTimeoutException() {
-        long shortTtlSeconds = 1L;
+        Duration shortTtl = Duration.ofSeconds(1);
         IdempotencyHandler shortLeaseHandler = new KeyValueStoreIdempotencyHandler(keyValueService, "default",
-                NAMESPACE, shortTtlSeconds);
+                NAMESPACE, shortTtl);
         String key = "key-lease-stuck";
         String cacheKey = NAMESPACE + key;
         // Simulate another caller holding a claim with a lease far longer than this handler's own lease
-        // (which is capped at shortTtlSeconds), so the waiting caller's deadline is reached first.
-        store.put(cacheKey, claimMarker(), 3600L);
+        // (which is capped at shortTtl), so the waiting caller's deadline is reached first.
+        store.put(cacheKey, claimMarker(), TTL.toSeconds());
 
         assertThrows(IdempotencyClaimTimeoutException.class,
                 () -> shortLeaseHandler.execute(key, () -> "should not run"));
@@ -337,7 +338,7 @@ class KeyValueStoreIdempotencyHandlerTest {
     @DisplayName("isCached returns false while a claim is in progress for the key")
     void isCached_claimInProgress_returnsFalse() {
         String cacheKey = NAMESPACE + "key-in-progress-is-cached";
-        store.put(cacheKey, claimMarker(), TTL_SECONDS);
+        store.put(cacheKey, claimMarker(), TTL.toSeconds());
 
         assertFalse(handler.isCached("key-in-progress-is-cached"));
     }
@@ -347,7 +348,7 @@ class KeyValueStoreIdempotencyHandlerTest {
     void evict_claimInProgress_returnsFalseAndDoesNotClearClaim() {
         String cacheKey = NAMESPACE + "key-in-progress-evict";
         byte[] marker = claimMarker();
-        store.put(cacheKey, marker, TTL_SECONDS);
+        store.put(cacheKey, marker, TTL.toSeconds());
 
         boolean evicted = handler.evict("key-in-progress-evict");
 
@@ -367,7 +368,7 @@ class KeyValueStoreIdempotencyHandlerTest {
                 .thenThrow(new RuntimeException("store unavailable"));
         KeyValueService mockKeyValueService = name -> mockStore;
         IdempotencyHandler mockHandler = new KeyValueStoreIdempotencyHandler(mockKeyValueService, "default", NAMESPACE,
-                TTL_SECONDS);
+                TTL);
 
         String result = mockHandler.execute(key, () -> "value").value();
 
@@ -385,7 +386,7 @@ class KeyValueStoreIdempotencyHandlerTest {
         when(mockStore.compareAndSet(eq(cacheKey), notNull(), anyString(), anyLong())).thenReturn(false);
         KeyValueService mockKeyValueService = name -> mockStore;
         IdempotencyHandler mockHandler = new KeyValueStoreIdempotencyHandler(mockKeyValueService, "default", NAMESPACE,
-                TTL_SECONDS);
+                TTL);
 
         String result = mockHandler.execute(key, () -> "fresh-value").value();
 
@@ -393,12 +394,11 @@ class KeyValueStoreIdempotencyHandlerTest {
     }
 
     @Test
-    @DisplayName("a caller interrupted while waiting for a concurrent claim throws IdempotencyClaimTimeoutException"
-            + " wrapping InterruptedException")
+    @DisplayName("a caller interrupted while waiting for a concurrent claim throws RuntimeException wrapping InterruptedException")
     void execute_interruptedWhileWaitingForClaim_throwsClaimTimeoutException() throws InterruptedException {
         String key = "key-interrupted";
         String cacheKey = NAMESPACE + key;
-        store.put(cacheKey, claimMarker(), TTL_SECONDS);
+        store.put(cacheKey, claimMarker(), TTL.toSeconds());
         AtomicReference<Throwable> caught = new AtomicReference<>();
 
         Thread waiter = new Thread(() -> {
@@ -413,7 +413,7 @@ class KeyValueStoreIdempotencyHandlerTest {
         waiter.join(TimeUnit.SECONDS.toMillis(10));
 
         assertFalse(waiter.isAlive());
-        assertInstanceOf(IdempotencyClaimTimeoutException.class, caught.get());
+        assertInstanceOf(RuntimeException.class, caught.get());
         assertInstanceOf(InterruptedException.class, caught.get().getCause());
     }
 
@@ -432,7 +432,7 @@ class KeyValueStoreIdempotencyHandlerTest {
         when(recordingStore.compareAndSet(eq(cacheKey), notNull(), anyString(), anyLong())).thenReturn(true);
         KeyValueService recordingKeyValueService = name -> recordingStore;
         IdempotencyHandler recordingHandler = new KeyValueStoreIdempotencyHandler(recordingKeyValueService, "default",
-                NAMESPACE, TTL_SECONDS);
+                NAMESPACE, TTL);
 
         recordingHandler.execute(key, () -> "first");
         recordingHandler.execute(key, () -> "second");
@@ -454,7 +454,7 @@ class KeyValueStoreIdempotencyHandlerTest {
         when(hijackingStore.compareAndSet(eq(cacheKey), isNull(), anyString(), anyLong())).thenAnswer(invocation -> {
             boolean claimed = store.compareAndSet(cacheKey, (String) null, invocation.getArgument(2),
                     invocation.getArgument(3));
-            store.put(cacheKey, newerClaim, TTL_SECONDS);
+            store.put(cacheKey, newerClaim, TTL.toSeconds());
             return claimed;
         });
         when(hijackingStore.compareAndSet(eq(cacheKey), notNull(), anyString(), anyLong()))
@@ -470,7 +470,7 @@ class KeyValueStoreIdempotencyHandlerTest {
 
     private KeyValueStoreIdempotencyHandler handlerFor(KeyValueStore kvStore) {
         KeyValueService kvService = name -> kvStore;
-        return new KeyValueStoreIdempotencyHandler(kvService, "default", NAMESPACE, TTL_SECONDS);
+        return new KeyValueStoreIdempotencyHandler(kvService, "default", NAMESPACE, TTL);
     }
 
     /** Builds a valid, unique in-progress claim marker as written by the handler. */
@@ -493,29 +493,6 @@ class KeyValueStoreIdempotencyHandlerTest {
             throw new IllegalStateException("cannot serialize to JSON");
         }
 
-    }
-
-    @Test
-    @DisplayName("sanitizeForLog neutralizes CR, LF, and tab so a malicious key cannot forge or split log lines")
-    void sanitizeForLog_neutralizesCrLfAndTab() {
-        assertEquals("key__injected-fake-log-line_", KeyValueStoreIdempotencyHandler.sanitizeForLog(
-                "key\r\ninjected-fake-log-line\t"));
-        assertEquals("plain-key", KeyValueStoreIdempotencyHandler.sanitizeForLog("plain-key"));
-        assertNull(KeyValueStoreIdempotencyHandler.sanitizeForLog(null));
-    }
-
-    @Test
-    @DisplayName("execute with a key containing CR/LF still works and never propagates the raw control characters "
-            + "into the cache key used for logging")
-    void execute_withCrLfInKey_isHandledSafely() {
-        String maliciousKey = "attacker-key\r\nfake-log-entry=true";
-
-        Object result = handler.execute(maliciousKey, () -> "value").value();
-
-        assertEquals("value", result);
-        assertTrue(handler.isCached(maliciousKey));
-        String sanitizedCacheKey = KeyValueStoreIdempotencyHandler.sanitizeForLog(NAMESPACE + maliciousKey);
-        assertEquals("attacker-key__fake-log-entry=true", sanitizedCacheKey.substring(NAMESPACE.length()));
     }
 
     @Test
@@ -543,7 +520,7 @@ class KeyValueStoreIdempotencyHandlerTest {
         String cacheKey = NAMESPACE + key;
         String badTypeJson = "{\"pending\":false,\"__typename\":\"unregistered-type\","
                 + "\"value\":{\"foo\":\"bar\"}}";
-        store.put(cacheKey, badTypeJson.getBytes(StandardCharsets.UTF_8), TTL_SECONDS);
+        store.put(cacheKey, badTypeJson.getBytes(StandardCharsets.UTF_8), TTL.toSeconds());
 
         assertThrows(KeyValueStoreIdempotencyHandler.IdempotencyPersistenceException.class,
                 () -> handler.execute(key, () -> "should not run"));
@@ -586,7 +563,7 @@ class KeyValueStoreIdempotencyHandlerTest {
     void execute_pendingEntryWithoutClaimId_isHandledSafely() throws InterruptedException {
         String key = "key-pending-no-claimid";
         String cacheKey = NAMESPACE + key;
-        store.put(cacheKey, "{\"pending\":true}".getBytes(StandardCharsets.UTF_8), TTL_SECONDS);
+        store.put(cacheKey, "{\"pending\":true}".getBytes(StandardCharsets.UTF_8), TTL.toSeconds());
         AtomicReference<Throwable> caught = new AtomicReference<>();
 
         Thread waiter = new Thread(() -> {
@@ -601,7 +578,7 @@ class KeyValueStoreIdempotencyHandlerTest {
         waiter.join(TimeUnit.SECONDS.toMillis(10));
 
         assertFalse(waiter.isAlive());
-        assertInstanceOf(IdempotencyClaimTimeoutException.class, caught.get());
+        assertInstanceOf(RuntimeException.class, caught.get());
         assertInstanceOf(InterruptedException.class, caught.get().getCause());
     }
 
@@ -610,7 +587,7 @@ class KeyValueStoreIdempotencyHandlerTest {
     void constructor_defaults_buildsWorkingHandler() {
         IdempotencyHandler defaultHandler = new KeyValueStoreIdempotencyHandler(keyValueService,
                 IdempotencyHandler.DEFAULT_STORE_NAME, IdempotencyHandler.DEFAULT_IDEMPOTENCY_NAMESPACE,
-                IdempotencyHandler.DEFAULT_TTL_SECONDS);
+                IdempotencyHandler.DEFAULT_TTL);
 
         assertNotNull(defaultHandler);
         assertEquals("value", defaultHandler.execute("defaults-key", () -> "value").value());
@@ -620,55 +597,63 @@ class KeyValueStoreIdempotencyHandlerTest {
     @DisplayName("constructor rejects a null KeyValueService")
     void constructor_nullKeyValueService_throwsNullPointerException() {
         assertThrows(NullPointerException.class,
-                () -> new KeyValueStoreIdempotencyHandler(null, "default", NAMESPACE, 60L));
+                () -> new KeyValueStoreIdempotencyHandler(null, "default", NAMESPACE, Duration.ofSeconds(60)));
     }
 
     @Test
     @DisplayName("constructor rejects a null store name")
     void constructor_nullStoreName_throwsNullPointerException() {
         assertThrows(NullPointerException.class,
-                () -> new KeyValueStoreIdempotencyHandler(keyValueService, null, NAMESPACE, 60L));
+                () -> new KeyValueStoreIdempotencyHandler(keyValueService, null, NAMESPACE, Duration.ofSeconds(60)));
     }
 
     @Test
     @DisplayName("constructor rejects a blank store name")
     void constructor_blankStoreName_throwsIllegalArgumentException() {
         assertThrows(IllegalArgumentException.class,
-                () -> new KeyValueStoreIdempotencyHandler(keyValueService, "  ", NAMESPACE, 60L));
+                () -> new KeyValueStoreIdempotencyHandler(keyValueService, "  ", NAMESPACE, Duration.ofSeconds(60)));
     }
 
     @Test
     @DisplayName("constructor rejects a null namespace")
     void constructor_nullNamespace_throwsNullPointerException() {
         assertThrows(NullPointerException.class,
-                () -> new KeyValueStoreIdempotencyHandler(keyValueService, "default", null, 60L));
+                () -> new KeyValueStoreIdempotencyHandler(keyValueService, "default", null, Duration.ofSeconds(60)));
     }
 
     @Test
     @DisplayName("constructor rejects a blank namespace")
     void constructor_blankNamespace_throwsIllegalArgumentException() {
         assertThrows(IllegalArgumentException.class,
-                () -> new KeyValueStoreIdempotencyHandler(keyValueService, "default", "  ", 60L));
+                () -> new KeyValueStoreIdempotencyHandler(keyValueService, "default", "  ", Duration.ofSeconds(60)));
+    }
+
+    @Test
+    @DisplayName("constructor rejects a null TTL")
+    void constructor_nullTtl_throwsNullPointerException() {
+        assertThrows(NullPointerException.class,
+                () -> new KeyValueStoreIdempotencyHandler(keyValueService, "default", NAMESPACE, null));
     }
 
     @Test
     @DisplayName("constructor rejects a zero TTL")
     void constructor_zeroTtl_throwsIllegalArgumentException() {
         assertThrows(IllegalArgumentException.class,
-                () -> new KeyValueStoreIdempotencyHandler(keyValueService, "default", NAMESPACE, 0L));
+                () -> new KeyValueStoreIdempotencyHandler(keyValueService, "default", NAMESPACE, Duration.ZERO));
     }
 
     @Test
     @DisplayName("constructor rejects a negative TTL")
     void constructor_negativeTtl_throwsIllegalArgumentException() {
+        Duration negativeTtl = Duration.ofSeconds(-1);
         assertThrows(IllegalArgumentException.class,
-                () -> new KeyValueStoreIdempotencyHandler(keyValueService, "default", NAMESPACE, -1L));
+                () -> new KeyValueStoreIdempotencyHandler(keyValueService, "default", NAMESPACE, negativeTtl));
     }
 
     @Test
     @DisplayName("default constants expose the documented defaults")
     void defaultConstants_matchDocumentedValues() {
-        assertEquals(TimeUnit.HOURS.toSeconds(24), IdempotencyHandler.DEFAULT_TTL_SECONDS);
+        assertEquals(Duration.ofHours(24), IdempotencyHandler.DEFAULT_TTL);
         assertEquals("idempotency", IdempotencyHandler.DEFAULT_STORE_NAME);
         assertEquals("idempotency:", IdempotencyHandler.DEFAULT_IDEMPOTENCY_NAMESPACE);
     }

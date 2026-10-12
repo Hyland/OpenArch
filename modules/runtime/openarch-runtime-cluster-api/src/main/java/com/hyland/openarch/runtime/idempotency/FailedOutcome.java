@@ -21,8 +21,9 @@ package com.hyland.openarch.runtime.idempotency;
  *
  * @param message the failure message
  * @param statusCode the HTTP status code
+ * @param retryAfter the retry after hint
  */
-public record FailedOutcome(String type, String message, int statusCode) {
+public record FailedOutcome(String type, String message, int statusCode, int retryAfter) {
 
     public static final String MESSAGE_FIELD = "message";
 
@@ -30,11 +31,9 @@ public record FailedOutcome(String type, String message, int statusCode) {
 
     public static final String TYPE_FIELD = "type";
 
-    /** HTTP 500, used when the originating exception carries no explicit status code. */
-    private static final int SC_INTERNAL_SERVER_ERROR = 500;
+    public static final String RETRY_AFTER_HINT_FIELD = "retryAfter";
 
-    public FailedOutcome(String type, String message) {
-        this(type, message, SC_INTERNAL_SERVER_ERROR);
+    public FailedOutcome(String type, String message, int statusCode) {
+        this(type, message, statusCode, 0);
     }
-
 }

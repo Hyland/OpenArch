@@ -68,74 +68,86 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
 
     private static final Logger log = LogManager.getLogger(KeyValueStoreIdempotencyHandler.class);
 
-    /** Default lease duration for a claim, in seconds, capped by the configured result TTL. */
-    private static final long DEFAULT_LEASE_SECONDS = 60L;
+    /** Default lease duration for a claim, capped by the configured result TTL. */
+    private static final Duration DEFAULT_LEASE = Duration.ofSeconds(60);
 
-    /** Interval between polls while waiting for a concurrent claim to resolve, in milliseconds. */
-    private static final long CLAIM_POLL_INTERVAL_MILLIS = 100L;
+    /** Minimum lease duration for a claim, however short the configured result TTL. */
+    private static final Duration MIN_LEASE = Duration.ofSeconds(1);
 
-    /** Extra grace period added to the lease when computing the wait deadline, in milliseconds. */
-    private static final long CLAIM_WAIT_BUFFER_MILLIS = 2_000L;
+    /** Interval between polls while waiting for a concurrent claim to resolve. */
+    private static final Duration CLAIM_POLL_INTERVAL = Duration.ofMillis(100);
+
+    /** Extra grace period added to the lease when computing the wait deadline. */
+    private static final Duration CLAIM_WAIT_BUFFER = Duration.ofSeconds(2);
 
     private final KeyValueStore keyValueStore;
 
     private final String namespace;
 
-    private final long ttlSeconds;
+    private final Duration resultTimeToLive;
 
-    private final long leaseSeconds;
+    private final Duration claimLease;
 
     private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder().build();
 
     /**
      * Creates a new idempotency handler using the given key-value service.
      *
-     * @param keyValueService the key-value service for obtaining stores
-     * @param storeName       the name of the key-value store to use
-     * @param namespace       prefix for cache keys (e.g., "idempotency:commands:")
-     * @param ttlSeconds      time-to-live for cached results in seconds
-     * @throws NullPointerException     if the key-value service, store name or namespace is null
+     * @param keyValueService  the key-value service for obtaining stores
+     * @param storeName        the name of the key-value store to use
+     * @param namespace        prefix for cache keys (e.g., "idempotency:commands:")
+     * @param resultTimeToLive time-to-live for cached results
+     * @throws NullPointerException     if the key-value service, store name, namespace or TTL is null
      * @throws IllegalArgumentException if the store name or namespace is blank, or the TTL is not positive
      */
     public KeyValueStoreIdempotencyHandler(KeyValueService keyValueService, String storeName, String namespace,
-            long ttlSeconds) {
+            Duration resultTimeToLive) {
         Objects.requireNonNull(keyValueService, "KeyValueService cannot be null");
         Objects.requireNonNull(storeName, "Store name cannot be null");
         Objects.requireNonNull(namespace, "Namespace cannot be null");
+        Objects.requireNonNull(resultTimeToLive, "TTL cannot be null");
         if (storeName.isBlank()) {
             throw new IllegalArgumentException("Store name cannot be empty");
         }
         if (namespace.isBlank()) {
             throw new IllegalArgumentException("Namespace cannot be empty");
         }
-        if (ttlSeconds <= 0) {
+        if (resultTimeToLive.isNegative() || resultTimeToLive.isZero()) {
             throw new IllegalArgumentException("TTL must be positive");
         }
         this.keyValueStore = keyValueService.getKeyValueStore(storeName);
         this.namespace = namespace;
-        this.ttlSeconds = ttlSeconds;
-        this.leaseSeconds = Math.max(1L, Math.min(ttlSeconds, DEFAULT_LEASE_SECONDS));
+        this.resultTimeToLive = resultTimeToLive;
+        this.claimLease = clampLease(resultTimeToLive);
+    }
+
+    /**
+     * Caps the claim lease by the configured result TTL — a claim must never outlive the entry it
+     * guards — while keeping it at least {@link #MIN_LEASE} so a claim is never effectively
+     * unleased.
+     *
+     * @param resultTimeToLive the configured time-to-live for cached results
+     * @return the lease duration to use for claims
+     */
+    private static Duration clampLease(Duration resultTimeToLive) {
+        Duration lease = resultTimeToLive.compareTo(DEFAULT_LEASE) < 0 ? resultTimeToLive : DEFAULT_LEASE;
+        return lease.compareTo(MIN_LEASE) < 0 ? MIN_LEASE : lease;
     }
 
     @Override
     public <T> Outcome<T> execute(String key, Supplier<T> operation) {
-        return executeWithOutcome(key, null, operation);
+        return execute(key, null, operation);
     }
 
     @Override
     public <T> Outcome<T> execute(String key, String typename, Supplier<T> operation) {
-        return executeWithOutcome(key, typename, operation);
-    }
-
-    private <T> Outcome<T> executeWithOutcome(String key, String typename,
-            Supplier<T> operation) {
         String entryKey = getCacheKey(key);
 
         ClaimOutcome claim = claimOrAwaitCached(entryKey, key);
         if (claim.cachedResult() != null) {
-            log.debug("Idempotency cache hit for key={}", sanitizeForLog(entryKey));
+            log.debug("Idempotency cache hit for key={}", entryKey);
             try {
-                return (Outcome<T>) claim.cachedResult().unwrap();
+                return claim.cachedResult().unwrap();
             } catch (IllegalArgumentException e) {
                 throw new IdempotencyPersistenceException(
                         "Failed to replay the cached idempotency result for key=" + entryKey, e);
@@ -158,7 +170,7 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
         } catch (RuntimeException e) {
             IdempotencyEntry entryFailure = IdempotencyEntry.failure(e);
             persistQuietly(entryKey, claimMarker, entryFailure);
-            log.debug("Idempotency cache stored failure for key={}", sanitizeForLog(entryKey));
+            log.debug("Idempotency cache stored failure for key={}", entryKey);
             return new Outcome<>(null, entryFailure.failure(), false);
         }
     }
@@ -180,19 +192,19 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
                     : IdempotencyResultTypeRegistry.getKey(result.getClass());
             if (resultTypeKey == null) {
                 log.error("Idempotency result for key={} has unregistered type {}; releasing the claim without "
-                        + "caching", sanitizeForLog(entryKey), result.getClass().getName());
+                        + "caching", entryKey, result.getClass().getName());
                 releaseClaim(entryKey, claimMarker);
                 return;
             }
             successResult = IdempotencyEntry.success(jsonNode, resultTypeKey);
         } catch (JacksonException e) {
             log.error("Idempotency result for key={} could not be converted to JSON; releasing the claim without "
-                    + "caching, at-most-once is not guaranteed for this call", sanitizeForLog(entryKey), e);
+                    + "caching, at-most-once is not guaranteed for this call", entryKey, e);
             releaseClaim(entryKey, claimMarker);
             return;
         }
         persistQuietly(entryKey, claimMarker, successResult);
-        log.debug("Idempotency cache stored success for key={}", sanitizeForLog(entryKey));
+        log.debug("Idempotency cache stored success for key={}", entryKey);
     }
 
     /**
@@ -204,7 +216,7 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
             finalizeResult(entryKey, claimMarker, output);
         } catch (IdempotencyPersistenceException e) {
             log.error("Idempotency result for key={} could not be persisted; at-most-once is not "
-                    + "guaranteed for this call", sanitizeForLog(entryKey), e);
+                    + "guaranteed for this call", entryKey, e);
         }
     }
 
@@ -216,7 +228,7 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
         try {
             keyValueStore.compareAndSet(cacheKey, claimMarker, null);
         } catch (RuntimeException e) {
-            log.warn("Failed to release idempotency claim for key={}: {}", sanitizeForLog(cacheKey), e.getMessage());
+            log.warn("Failed to release idempotency claim for key={}: {}", cacheKey, e.getMessage());
         }
     }
 
@@ -254,16 +266,6 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
     }
 
     /**
-     * Neutralizes characters that would let a client-supplied idempotency key forge or split log
-     * entries (CR, LF, and tab) before the value is interpolated into a log message. The
-     * idempotency key ultimately comes from an untrusted caller (e.g. the {@code Idempotency-Key}
-     * request header), so it must never be logged verbatim.
-     */
-    static String sanitizeForLog(String value) {
-        return value == null ? null : value.replaceAll("[\\r\\n\\t]", "_");
-    }
-
-    /**
      * Atomically claims {@code cacheKey} for exclusive execution, or returns the already-published
      * result if one exists.
      * <p>
@@ -276,38 +278,25 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
      */
     private ClaimOutcome claimOrAwaitCached(String entryKey, String keyValue) {
         String newClaimMarker = newClaimMarker();
-        long deadlineNanos = System.nanoTime() + Duration.ofSeconds(leaseSeconds).toNanos()
-                + Duration.ofMillis(CLAIM_WAIT_BUFFER_MILLIS).toNanos();
-        String current = keyValueStore.getString(entryKey);
-        while (true) {
-            IdempotencyEntry cached = current == null ? null : decode(entryKey, current);
+        long deadlineNanos = System.nanoTime() + claimLease.plus(CLAIM_WAIT_BUFFER).toNanos();
+        do {
+            String entry = keyValueStore.getString(entryKey);
+            IdempotencyEntry cached = entry == null ? null : decode(entryKey, entry);
             if (cached == null) {
                 // Empty slot, or neither a valid result nor a claim marker (e.g. corrupted data):
                 // claim it atomically, expecting the exact value we just observed.
-                if (keyValueStore.compareAndSet(entryKey, current, newClaimMarker, leaseSeconds)) {
+                if (keyValueStore.compareAndSet(entryKey, entry, newClaimMarker, claimLease.toSeconds())) {
                     return ClaimOutcome.won(newClaimMarker);
                 }
                 // Lost the race against another caller: re-read and re-evaluate.
-                checkClaimDeadline(deadlineNanos, keyValue);
             } else if (cached.pending()) {
-                checkClaimDeadline(deadlineNanos, keyValue);
-                sleepQuietly(CLAIM_POLL_INTERVAL_MILLIS);
+                sleepQuietly(CLAIM_POLL_INTERVAL);
             } else {
                 return ClaimOutcome.hit(cached);
             }
-            current = keyValueStore.getString(entryKey);
-        }
-    }
-
-    /**
-     * Throws {@link IdempotencyClaimTimeoutException} once the claim wait deadline has passed, so
-     * a claim that can never be acquired fails fast instead of spinning indefinitely.
-     */
-    private static void checkClaimDeadline(long deadlineNanos, String keyValue) {
-        if (System.nanoTime() >= deadlineNanos) {
-            throw new IdempotencyClaimTimeoutException(
-                    "Timed out waiting for a concurrent idempotent operation to complete for key=" + keyValue);
-        }
+        } while (System.nanoTime() - deadlineNanos < 0);
+        throw new IdempotencyClaimTimeoutException(
+                "Timed out waiting for a concurrent idempotent operation to complete for key=" + keyValue);
     }
 
     /**
@@ -324,14 +313,14 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
         String serialized = serialize(result);
         boolean stored;
         try {
-            stored = keyValueStore.compareAndSet(cacheKey, claimMarker, serialized, ttlSeconds);
+            stored = keyValueStore.compareAndSet(cacheKey, claimMarker, serialized, resultTimeToLive.toSeconds());
         } catch (RuntimeException e) {
             throw new IdempotencyPersistenceException("Failed to persist idempotency result for key=" + cacheKey, e);
         }
         if (!stored) {
             log.warn("Idempotency claim for key={} was reclaimed by another caller before this result could be "
                     + "finalized; discarding this outcome (the lease was too short for the operation's actual "
-                    + "duration)", sanitizeForLog(cacheKey));
+                    + "duration)", cacheKey);
             // Do NOT put(): the current value belongs to whoever reclaimed the key.
         }
     }
@@ -383,20 +372,27 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
         }
     }
 
-    private static void sleepQuietly(long millis) {
+    private static void sleepQuietly(Duration pollInterval) {
         try {
-            Thread.sleep(getRetryInterval(millis));
+            Thread.sleep(getRetryInterval(pollInterval));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new IdempotencyClaimTimeoutException("Interrupted while waiting for an idempotency claim", e);
+            throw new RuntimeException("Interrupted while waiting for an idempotency claim", e);
         }
     }
 
-    private static long getRetryInterval(long millis) {
+    /**
+     * Applies a +/-50% jitter to the poll interval so that concurrent waiters on the same key do
+     * not wake up in lockstep and hammer the store at the same instants.
+     *
+     * @param pollInterval the nominal interval between two polls
+     * @return the jittered interval to actually wait for
+     */
+    private static Duration getRetryInterval(Duration pollInterval) {
         Random random = ThreadLocalRandom.current();
         var jitterFactor = 0.5; // 50% jitter
         double factor = 1.0 + (random.nextDouble() * 2 - 1) * jitterFactor;
-        return (long) (millis * factor);
+        return Duration.ofNanos((long) (pollInterval.toNanos() * factor));
     }
 
     /**
@@ -431,7 +427,7 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
             }
             return null;
         } catch (RuntimeException e) {
-            log.warn("Failed to decode idempotency result from cache for key={}: {}", sanitizeForLog(cacheKey),
+            log.warn("Failed to decode idempotency result from cache for key={}: {}", cacheKey,
                     e.getMessage());
             return null;
         }
@@ -441,10 +437,15 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
         JsonNode typeNode = exceptionNode.get(TYPE_FIELD);
         JsonNode messageNode = exceptionNode.get(MESSAGE_FIELD);
         JsonNode httpErrorCodeNode = exceptionNode.get(STATUS_CODE_FIELD);
+        JsonNode retryAfterHintNode = exceptionNode.get(FailedOutcome.RETRY_AFTER_HINT_FIELD);
         String type = typeNode == null || typeNode.isNull() ? null : typeNode.asString();
         String message = messageNode == null || messageNode.isNull() ? null : messageNode.asString();
         int httpErrorCode = httpErrorCodeNode == null || httpErrorCodeNode.isNull() ? 0
                 : httpErrorCodeNode.asInt();
+        if (retryAfterHintNode != null && !retryAfterHintNode.isNull()) {
+            int retryAfterHint = retryAfterHintNode.asInt();
+            return new FailedOutcome(type, message, httpErrorCode, retryAfterHint);
+        }
         return new FailedOutcome(type, message, httpErrorCode);
     }
 

@@ -1,6 +1,0 @@
-<?xml version="1.0"?>
-<component name="com.hyland.openarch.runtime.idempotency.kv-store">
-  <extension target="com.hyland.openarch.runtime.kv.KeyValueService" point="configuration">
-    <store name="idempotency" class="com.hyland.openarch.runtime.kv.MemKeyValueStore" />
-  </extension>
-</component>

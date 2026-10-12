@@ -70,7 +70,7 @@ Retry → Idempotency → Circuit Breaker
 ## Configuration
 
 `IdempotencyHandler.instance()` uses the defaults declared on `IdempotencyHandler`
-(`DEFAULT_STORE_NAME`, `DEFAULT_IDEMPOTENCY_NAMESPACE`, `DEFAULT_TTL_SECONDS`); a call site needing
+(`DEFAULT_STORE_NAME`, `DEFAULT_IDEMPOTENCY_NAMESPACE`, `DEFAULT_TTL`); a call site needing
 other values constructs a `KeyValueStoreIdempotencyHandler` itself. There is no global feature toggle. The only externally
 configurable property today is the tenant id used when building idempotency keys, in
 `application.properties`:

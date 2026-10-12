@@ -1,5 +1,4 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: com.hyland.openarch.runtime.cluster.api
-Repository-Component: OSGI-INF/cluster-service.xml,
-    OSGI-INF/openarch-idempotency-kv-store.xml
+Repository-Component: OSGI-INF/cluster-service.xml

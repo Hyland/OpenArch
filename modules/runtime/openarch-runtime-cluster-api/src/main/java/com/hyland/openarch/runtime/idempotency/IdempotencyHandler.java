@@ -15,7 +15,7 @@
  */
 package com.hyland.openarch.runtime.idempotency;
 
-import java.util.concurrent.TimeUnit;
+import java.time.Duration;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
@@ -30,8 +30,8 @@ import com.hyland.openarch.runtime.kv.KeyValueService;
  */
 public interface IdempotencyHandler {
 
-    /** Default time-to-live of a cached result, in seconds. */
-    long DEFAULT_TTL_SECONDS = TimeUnit.DAYS.toSeconds(1);
+    /** Default time-to-live of a cached result. */
+    Duration DEFAULT_TTL = Duration.ofDays(1);
 
     /** Default name of the key-value store backing the default handler. */
     String DEFAULT_STORE_NAME = "idempotency";
@@ -40,7 +40,7 @@ public interface IdempotencyHandler {
     String DEFAULT_IDEMPOTENCY_NAMESPACE = "idempotency:";
 
     /** Default prefix of the idempotency keys built by call sites. */
-    String DEFAULT_IDEMPOTENCY_KEY_PREFIX = "openarch:idem";
+    String DEFAULT_IDEMPOTENCY_KEY_PREFIX = "idem";
 
     /** Tenant identifier used when no environment identifier is configured. */
     String DEFAULT_IDEMPOTENCY_DEFAULT_TENANT = "default";
@@ -67,7 +67,7 @@ public interface IdempotencyHandler {
     static IdempotencyHandler instance() {
         return INSTANCE_REF.updateAndGet(current -> current != null ? current
                 : new KeyValueStoreIdempotencyHandler(Framework.getService(KeyValueService.class), DEFAULT_STORE_NAME,
-                        DEFAULT_IDEMPOTENCY_NAMESPACE, DEFAULT_TTL_SECONDS));
+                        DEFAULT_IDEMPOTENCY_NAMESPACE, DEFAULT_TTL));
     }
 
     /**

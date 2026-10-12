@@ -15,6 +15,8 @@
  */
 package com.hyland.openarch.rest.acl;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.time.Instant;
 
 import com.hyland.openarch.ecm.core.api.security.ACE;
@@ -23,7 +25,6 @@ import com.hyland.openarch.rest.user.UserDTO;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(name = "ACE", title = "ACE", description = "REST representation of ACEs.")
 public record ACEDTO(
