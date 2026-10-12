@@ -92,7 +92,7 @@
     <guice.version>7.0.0</guice.version>
     <asm.version>9.10.1</asm.version>
     <concurrent.version>1.3.4</concurrent.version>
-    <guava.version>33.7.1-jre</guava.version>
+    <guava.version>33.7.2-jre</guava.version>
     <expiringmap.version>0.5.11</expiringmap.version>
     <bouncycastle.version>1.86.1</bouncycastle.version>
     <xsom.version>20140925</xsom.version>
@@ -103,7 +103,7 @@
     <zjsonpatch.version>0.6.3</zjsonpatch.version>
     <archunit.version>1.5.1</archunit.version>
     <jupiter-pioneer.version>2.3.0</jupiter-pioneer.version>
-    <woodstox.version>7.2.2</woodstox.version>
+    <woodstox.version>7.3.0</woodstox.version>
     <hadoop.version>3.5.0</hadoop.version>
     <snappy.version>1.1.10.10</snappy.version>
     <org.apache.log4j.version>2.26.1</org.apache.log4j.version>
@@ -119,7 +119,7 @@
 
     <!-- OpenSearch -->
     <opensearch.version>3.10.0</opensearch.version>
-    <opensearch.rest.version>3.8.0</opensearch.rest.version>
+    <opensearch.rest.version>3.9.0</opensearch.rest.version>
     <parsson.version>1.1.9</parsson.version>
 
     <!-- Apache -->
@@ -766,7 +766,7 @@
       <dependency>
         <groupId>org.codehaus.woodstox</groupId>
         <artifactId>stax2-api</artifactId>
-        <version>4.3.0</version>
+        <version>4.3.1</version>
       </dependency>
       <!-- Hadoop dependencies -->
       <dependency>
