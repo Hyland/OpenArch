@@ -62,7 +62,8 @@ public class NamedQueryDefinitionAPITest extends AbstractQueryAPITest {
 
     protected static final String FOLDER_LISTING_QUERY = DEFAULT_SELECT_STATEMENT //
             + " WHERE sys_parentId = '00000000-0000-0000-0000-000000000000'" //
-            + " AND sysver_isVersion = 0 ORDER BY sys_title";
+            + " AND sysver_isVersion = 0"
+            + " AND sys_primaryType NOT IN ('SysRendition', 'SysRenditionsContainer') ORDER BY sys_title";
 
     protected ResultActions checkResponse(Status expectedStatus, Map<String, Object> queryParameters) throws Exception {
         return checkResponse(expectedStatus, API_PATH, POST, queryParameters);
@@ -110,7 +111,8 @@ public class NamedQueryDefinitionAPITest extends AbstractQueryAPITest {
                 Map.of("fulltext", "File*"), List.of(TITLE_SORT), null);
         DocumentQueryResultDTO r = manager.getResults(q);
         checkResult(r, REPO_ID,
-                DEFAULT_SELECT_STATEMENT + " WHERE sys_fulltext = 'File*' AND sysver_isVersion = 0 ORDER BY sys_title",
+                DEFAULT_SELECT_STATEMENT + " WHERE sys_fulltext = 'File*' AND sysver_isVersion = 0"
+                        + " AND sys_primaryType NOT IN ('SysRendition', 'SysRenditionsContainer') ORDER BY sys_title",
                 -1L, 0, 10, 10L);
         checkResultDocument(r, 0, "File0");
     }
@@ -118,10 +120,11 @@ public class NamedQueryDefinitionAPITest extends AbstractQueryAPITest {
     protected void checkAdvancedSearch(QueryManager manager) {
         DocumentNamedQueryDTO q = new DocumentNamedQueryDTO("advanced_search", REPO_ID, -1L, 0, true, -1,
                 Map.of("fulltext", "File*"), List.of(TITLE_SORT), null);
-        DocumentQueryResultDTO r = manager.getResults(q);;
+        DocumentQueryResultDTO r = manager.getResults(q);
         checkResult(r, REPO_ID, //
                 DEFAULT_SELECT_STATEMENT + " WHERE sys_fulltext = 'File*'" //
                         + " AND sys_parentId IS NOT NULL AND sys_title IS NOT NULL AND sysver_isVersion = 0" //
+                        + " AND sys_primaryType NOT IN ('SysRendition', 'SysRenditionsContainer')" //
                         + " ORDER BY sys_title", //
                 -1L, 0, 10, 10L);
         checkResultDocument(r, 0, "File0");

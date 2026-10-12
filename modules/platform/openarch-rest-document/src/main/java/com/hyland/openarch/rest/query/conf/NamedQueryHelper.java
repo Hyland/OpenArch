@@ -21,7 +21,10 @@ import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_MIXIN_TYPES
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PARENT_ID;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PATH;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_POS;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PRIMARY_TYPE;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_TITLE;
+import static com.hyland.openarch.ecm.core.api.RenditionsConstants.RENDITIONS_CONTAINER_DOCUMENT_TYPE;
+import static com.hyland.openarch.ecm.core.api.RenditionsConstants.RENDITION_DOCUMENT_TYPE;
 import static com.hyland.openarch.rest.query.spec.QueryAssembler.DEFAULT_SELECT_STATEMENT;
 import static com.hyland.openarch.rest.query.spec.QueryAssembler.SORTED_COLUMN;
 
@@ -51,7 +54,9 @@ public class NamedQueryHelper {
 
     // clauses
 
-    public static final String BASIC_FILTER_CLAUSE = "%s=0".formatted(SYSVER_IS_VERSION);
+    // Keep the documents the rendition service creates out of the named query results; plain HXQL still finds them.
+    public static final String BASIC_FILTER_CLAUSE = "%s=0 AND %s NOT IN ('%s', '%s')".formatted(SYSVER_IS_VERSION,
+            SYS_PRIMARY_TYPE, RENDITION_DOCUMENT_TYPE, RENDITIONS_CONTAINER_DOCUMENT_TYPE);
 
     // predicates
 

@@ -3,7 +3,7 @@
   "documents": [],
   "limit": -1,
   "offset": 0,
-  "query": "SELECT * FROM SysContent WHERE sys_parentId = '00000000-0000-0000-0000-000000000000' AND sysver_isVersion = 0 ORDER BY sys_title",
+  "query": "SELECT * FROM SysContent WHERE sys_parentId = '00000000-0000-0000-0000-000000000000' AND sysver_isVersion = 0 AND sys_primaryType NOT IN ('SysRendition', 'SysRenditionsContainer') ORDER BY sys_title",
   "repositoryId": "test",
   "totalCount": 0
 }
