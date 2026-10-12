@@ -462,28 +462,30 @@ public class QueryAPITest extends AbstractQueryAPITest {
 
     @Test
     public void testQueryAllPOSTSyncTrue() throws Exception {
-        var result = checkResponse(OK, POST, Map.of("sync", true));
+        var result = checkResponse(OK, PATH + "?sync=true", POST, Map.of());
         checkQueryResponseBody("rest/query_res_all.json", result, "");
     }
 
     @Test
     public void testQueryAllSortedPOSTSyncTrue() throws Exception {
-        var result = checkResponse(OK, POST, Map.of("sync", true, "sort", List.of(TITLE_SORT)));
+        var result = checkResponse(OK, PATH + "?sync=true", POST, Map.of("sort", List.of(TITLE_SORT)));
         checkQueryResponseBody("rest/query_res_all.json", result, " ORDER BY sys_title");
     }
 
     @Test
-    public void testValidQueryPOSTSyncTrue() throws Exception {
-        String validQuery = "SELECT * from Foo";
-        var result = checkResponse(OK, POST, Map.of("sync", true, QUERY_STRING_PROP, validQuery));
-        checkQueryResponseBody("rest/query_res_default.json", result);
+    public void testUnknownTypeQueryPOSTSyncTrue() throws Exception {
+        String unknownTypeQuery = "SELECT * from Foo";
+        var result = checkResponse(BAD_REQUEST, PATH + "?sync=true", POST,
+                Map.of(QUERY_STRING_PROP, unknownTypeQuery));
+        ContentTestHelper.checkErrorResponse(BAD_REQUEST, Pattern.compile(".*Unknown type: Foo.*"), result);
     }
 
     @Test
     public void testComplexQueriesPOSTSyncTrue() throws Exception {
-        checkResponse(OK, POST, Map.of("sync", true, QUERY_STRING_PROP, "SELECT * from TestDocument"))
+        checkResponse(OK, PATH + "?sync=true", POST, Map.of(QUERY_STRING_PROP, "SELECT * from TestDocument"))
                 .andExpect(jsonPath("count").value(1));
-        checkResponse(OK, POST, Map.of("sync", true, QUERY_STRING_PROP, "SELECT * FROM SysContent WHERE sys_title = \"title\""))
+        checkResponse(OK, PATH + "?sync=true", POST,
+                Map.of(QUERY_STRING_PROP, "SELECT * FROM SysContent WHERE sys_title = \"title\""))
                 .andExpect(jsonPath("count").value(1));
     }
 }
