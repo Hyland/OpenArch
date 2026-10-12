@@ -190,11 +190,10 @@ public class QueryAPITest extends AbstractQueryAPITest {
     }
 
     @Test
-    public void testValidQueryPOST() throws Exception {
-        // ES actually fine with "from Foo"...
-        String validQuery = "SELECT * from Foo";
-        var result = checkResponse(OK, POST, Map.of(QUERY_STRING_PROP, validQuery));
-        checkQueryResponseBody("rest/query_res_default.json", result);
+    public void testUnknownTypeQueryPOST() throws Exception {
+        String unknownTypeQuery = "SELECT * from Foo";
+        var result = checkResponse(BAD_REQUEST, POST, Map.of(QUERY_STRING_PROP, unknownTypeQuery));
+        ContentTestHelper.checkErrorResponse(BAD_REQUEST, Pattern.compile(".*Unknown type: Foo.*"), result);
     }
 
     /**

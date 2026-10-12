@@ -121,9 +121,10 @@ public final class HXQLQueryConverter {
         for (String type : query.getFromClause().elements()) {
             // Removed code for SYS_CONTENT optimization. See, HXCS-3121 Get rid of optimization until inconsistencies are fixed
             Set<String> types = schemaManager.getDocumentTypeNamesExtending(type);
-            if (types != null) {
-                fromList.addAll(types);
+            if (types == null) {
+                throw new QueryParseException("Unknown type: " + type);
             }
+            fromList.addAll(types);
         }
         if (query.getWhereClause() != null) {
             walkPredicate(query.getWhereClause().predicate(), builders, session);

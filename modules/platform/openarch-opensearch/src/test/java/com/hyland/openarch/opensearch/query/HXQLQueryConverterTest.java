@@ -35,6 +35,7 @@ import com.hyland.openarch.ecm.core.query.sql.HXQLParser;
 import com.hyland.openarch.ecm.core.schema.SchemaManagerDTO;
 import com.hyland.openarch.ecm.core.schema.dto.ContentModelDTO;
 import com.hyland.openarch.ecm.core.schema.dto.FieldDTO;
+import com.hyland.openarch.ecm.core.schema.dto.PrimaryTypeDTO;
 import com.hyland.openarch.ecm.core.schema.dto.SchemaDTO;
 import com.hyland.openarch.ecm.core.schema.types.Field;
 import com.hyland.openarch.ecm.core.schema.types.FieldCharacteristics;
@@ -57,8 +58,11 @@ public class HXQLQueryConverterTest {
                 "sys_notindexed", notIndexedField("string", false), //
                 "sys_nonqueryable", field(false, false), //
                 "sys_nonprojectable", field(true, false));
+        Map<String, PrimaryTypeDTO> primaryTypes = Map.of( //
+                "SysContent", new PrimaryTypeDTO(null, null, List.of("system"), null, null), //
+                "Document", new PrimaryTypeDTO(null, "SysContent", null, null, null));
         ContentModelDTO model = new ContentModelDTO(
-                Map.of("system", new SchemaDTO(null, fields, false, "sys")), null, null, null);
+                Map.of("system", new SchemaDTO(null, fields, false, "sys")), null, null, primaryTypes);
         schemaManager = new SchemaManagerDTO(model, null, false);
         converter = new HXQLQueryConverter(schemaManager);
     }
@@ -132,6 +136,22 @@ public class HXQLQueryConverterTest {
         var query = HXQLParser.parse("SELECT sys_acl/*/permission FROM SysContent");
         QueryParseException e = assertThrows(QueryParseException.class, () -> converter.getSelectClauseFields(query));
         assertEquals("Disallowed system property: sys_acl", e.getMessage());
+    }
+
+    @Test
+    public void testUnknownTypeInFromClauseIsRejected() {
+        var query = HXQLParser.parse("SELECT * FROM Unknown");
+        QueryParseException e = assertThrows(QueryParseException.class,
+                () -> converter.toESQueryBuilder(query, null));
+        assertEquals("Unknown type: Unknown", e.getMessage());
+    }
+
+    @Test
+    public void testUnknownTypeAmongValidOnesInFromClauseIsRejected() {
+        var query = HXQLParser.parse("SELECT * FROM Document, Unknown");
+        QueryParseException e = assertThrows(QueryParseException.class,
+                () -> converter.toESQueryBuilder(query, null));
+        assertEquals("Unknown type: Unknown", e.getMessage());
     }
 
     @Test
