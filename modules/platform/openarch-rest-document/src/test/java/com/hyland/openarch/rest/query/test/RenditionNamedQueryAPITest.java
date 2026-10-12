@@ -69,8 +69,8 @@ import com.hyland.openarch.async.tasks.TaskService;
 import tools.jackson.databind.JsonNode;
 
 /**
- * HXCS-5382: the named queries (default searches) must not return the documents the rendition service creates under
- * a source document, while plain HXQL queries must still find them.
+ * HXCS-9083: navigation named queries (default searches) must not return documents marked
+ * {@code SysHiddenInNavigation}, while plain HXQL queries must still find them.
  */
 @Features(RestQueryMultipleDocumentsFeature.class)
 @Tag("useOpenSearch")
@@ -202,17 +202,17 @@ class RenditionNamedQueryAPITest extends AbstractQueryAPITest {
     }
 
     @Test
-    void shouldExcludeRenditionTypesFromNamedQueriesOnOpenSearch() {
+    void shouldExcludeHiddenDocumentsFromNamedQueriesOnOpenSearch() {
         assertNamedCalls(openSearchQueryManager, allNamedCalls());
     }
 
     @Test
-    void shouldExcludeRenditionTypesFromNamedQueriesOnRepository() {
+    void shouldExcludeHiddenDocumentsFromNamedQueriesOnRepository() {
         assertNamedCalls(repositoryQueryManager, repositoryNamedCalls());
     }
 
     @Test
-    void shouldExcludeRenditionTypesFromNamedQueriesThroughRest() throws Exception {
+    void shouldExcludeHiddenDocumentsFromNamedQueriesThroughRest() throws Exception {
         SoftAssertions softly = new SoftAssertions();
         for (String sync : List.of("false", "true")) {
             List<NamedCall> calls = "true".equals(sync) ? repositoryNamedCalls() : allNamedCalls();
@@ -237,7 +237,7 @@ class RenditionNamedQueryAPITest extends AbstractQueryAPITest {
                                                                                               .getContentAsString());
             softly.assertThat(definition.at("/whereClauseDefinition/query").asString())
                   .as(name)
-                  .contains("sys_primaryType NOT IN ('SysRendition', 'SysRenditionsContainer')");
+                  .contains("sys_mixinTypes <> 'SysHiddenInNavigation'");
         }
         softly.assertAll();
     }

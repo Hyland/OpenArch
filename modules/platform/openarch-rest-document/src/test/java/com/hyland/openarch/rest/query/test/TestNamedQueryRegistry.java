@@ -41,12 +41,12 @@ import com.hyland.openarch.rest.query.spec.NamedQueryRegistry;
 public class TestNamedQueryRegistry implements NamedQueryRegistry {
 
     public static final NamedQueryDefinition FOLDER_LISTING_TEST = new NamedQueryDefinition("folder_listing_test", null, WhereClauseDTO.of( //
-            DEFAULT_SELECT_STATEMENT + " WHERE sys_parentId=:parentId AND " + BASIC_FILTER_CLAUSE, //
+            DEFAULT_SELECT_STATEMENT + " WHERE sys_parentId = :parentId AND " + BASIC_FILTER_CLAUSE, //
             List.of(FULLTEXT_PREDICATE)), List.of(TITLE_SORT), null);
 
     public static final NamedQueryDefinition FOLDER_LISTING_TEST2 = new NamedQueryDefinition("folder_listing_test2", null,
             WhereClauseDTO.of( //
-                    DEFAULT_SELECT_STATEMENT + " WHERE sys_parentId=:parentId AND " + BASIC_FILTER_CLAUSE, //
+                    DEFAULT_SELECT_STATEMENT + " WHERE sys_parentId = :parentId AND " + BASIC_FILTER_CLAUSE, //
                     List.of(FULLTEXT_PREDICATE)),
             List.of(TITLE_SORT), null);
 

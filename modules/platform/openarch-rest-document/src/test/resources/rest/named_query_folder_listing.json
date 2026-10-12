@@ -19,6 +19,6 @@
         "searchParameter": "sys_fulltext"
       }
     ],
-    "query": "SELECT * FROM SysContent WHERE sys_parentId=:parentId AND sysver_isVersion=0 AND sys_primaryType NOT IN ('SysRendition', 'SysRenditionsContainer')"
+    "query": "SELECT * FROM SysContent WHERE sys_parentId = :parentId AND sysver_isVersion = 0 AND sys_mixinTypes <> 'SysHiddenInNavigation'"
   }
 }

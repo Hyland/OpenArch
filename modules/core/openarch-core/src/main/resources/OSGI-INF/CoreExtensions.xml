@@ -56,6 +56,7 @@
 
     <!-- standard mixins with no schema -->
     <mixin name="SysFolderish" perDocumentQuery="false"/> <!-- used by system -->
+    <mixin name="SysHiddenInNavigation" perDocumentQuery="false"/> <!-- used by system -->
     <mixin name="SysOrderable" /> <!-- used by system -->
     <mixin name="SysVersionable">  <!-- used by system -->
       <schema name="sysversionable"/>
@@ -145,6 +146,7 @@
     </doctype>
 
     <doctype name="SysRenditionsContainer" extends="SysFolder">
+      <mixin name="SysHiddenInNavigation"/>
       <mixin name="SysVersionedWithParent"/>
       <subtypes>
         <type>SysRendition</type>
@@ -153,6 +155,7 @@
 
     <doctype name="SysRendition" extends="SysContent">
       <schema name="sysrendition" />
+      <mixin name="SysHiddenInNavigation"/>
     </doctype>
 
     <!-- Embeddings doctype and its marker mixin -->

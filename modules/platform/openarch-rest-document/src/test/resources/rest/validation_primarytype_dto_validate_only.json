@@ -134,6 +134,19 @@
         "primaryTypes/SysRelation/schemas"
       ],
       "path": "primaryTypes/SysRelation/schemas"
+    },
+    {
+      "invalidValue": "mixins-foobar",
+      "message": "The value \"mixins-foobar\" cannot be applied as \"primaryTypes/SysRendition/mixins\" already exists with value \"[SysHiddenInNavigation]\".",
+      "messageKey": "label.schema.application.violation.AlreadyExistsViolation.modified",
+      "parameters": [
+        "mixins-foobar",
+        [
+          "SysHiddenInNavigation"
+        ],
+        "primaryTypes/SysRendition/mixins"
+      ],
+      "path": "primaryTypes/SysRendition/mixins"
     }
   ]
 }

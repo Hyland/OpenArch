@@ -1158,6 +1158,9 @@
     "SysFolderish": {
       "noPerDocumentQuery": true
     },
+    "SysHiddenInNavigation": {
+      "noPerDocumentQuery": true
+    },
     "SysFullTextIndexable": {},
     "SysGovernable": {
       "schemas": [
@@ -1302,11 +1305,15 @@
       "extends": "SysContent",
       "schemas": [
         "sysrendition"
+      ],
+      "mixins": [
+        "SysHiddenInNavigation"
       ]
     },
     "SysRenditionsContainer": {
       "extends": "SysFolder",
       "mixins": [
+        "SysHiddenInNavigation",
         "SysVersionedWithParent"
       ],
       "subtypes": [

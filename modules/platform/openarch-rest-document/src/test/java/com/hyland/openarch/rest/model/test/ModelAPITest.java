@@ -1115,11 +1115,15 @@ class ModelAPITest extends AbstractAPITest {
                         "extends": "SysContent",
                         "schemas": [
                             "sysrendition"
+                        ],
+                        "mixins": [
+                            "SysHiddenInNavigation"
                         ]
                     },
                     "SysRenditionsContainer": {
                         "extends": "SysFolder",
                         "mixins": [
+                            "SysHiddenInNavigation",
                             "SysVersionedWithParent"
                         ],
                         "subtypes": [

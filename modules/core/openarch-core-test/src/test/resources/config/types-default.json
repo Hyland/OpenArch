@@ -984,6 +984,9 @@
       ]
     },
     "SysHasEmbeddings": {},
+    "SysHiddenInNavigation": {
+      "noPerDocumentQuery": true
+    },
     "SysMDAnnotatable": {
       "schemas": [
         "sysmdannotatable"
@@ -1108,11 +1111,15 @@
       "extends": "SysContent",
       "schemas": [
         "sysrendition"
+      ],
+      "mixins": [
+        "SysHiddenInNavigation"
       ]
     },
     "SysRenditionsContainer": {
       "extends": "SysFolder",
       "mixins": [
+        "SysHiddenInNavigation",
         "SysVersionedWithParent"
       ],
       "subtypes": [

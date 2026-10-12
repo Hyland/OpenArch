@@ -79,6 +79,15 @@
         "sysrelation",
         "system"
       ]
+    },
+    "SysRendition": {
+      "extends": "SysContent"
+    },
+    "SysRenditionsContainer": {
+      "extends": "SysFolder",
+      "subtypes": [
+        "SysRendition"
+      ]
     }
   }
 }

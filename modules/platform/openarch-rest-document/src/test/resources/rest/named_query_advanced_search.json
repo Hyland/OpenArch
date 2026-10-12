@@ -2,7 +2,7 @@
   "name": "advanced_search",
   "quickFilters": [
     {
-      "clause": "sys_mixinTypes!='SysFolderish'",
+      "clause": "sys_mixinTypes <> 'SysFolderish'",
       "name": "noFolder"
     },
     {
@@ -63,6 +63,6 @@
         "searchParameter": "sys_path"
       }
     ],
-    "query": "SELECT * FROM SysContent WHERE sys_parentId IS NOT NULL AND SORTED_COLUMN IS NOT NULL AND sysver_isVersion=0 AND sys_primaryType NOT IN ('SysRendition', 'SysRenditionsContainer')"
+    "query": "SELECT * FROM SysContent WHERE sys_parentId IS NOT NULL AND SORTED_COLUMN IS NOT NULL AND sysver_isVersion = 0 AND sys_mixinTypes <> 'SysHiddenInNavigation'"
   }
 }

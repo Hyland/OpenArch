@@ -36,6 +36,8 @@ import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_PREFIX;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSGRAPH_GRAPH_DB_IDS;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSGRAPH_ONTOLOGY_REFS;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSGRAPH_PREFIX;
+import static com.hyland.openarch.ecm.core.api.RenditionsConstants.RENDITIONS_CONTAINER_DOCUMENT_TYPE;
+import static com.hyland.openarch.ecm.core.api.RenditionsConstants.RENDITION_DOCUMENT_TYPE;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSMD_ANNOTATION_ADDITIONAL_DATA;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSMD_ANNOTATION_CONTENT_ITEM_ID;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSMD_ANNOTATION_DATA;
@@ -121,6 +123,7 @@ import static com.hyland.openarch.ecm.core.schema.MixinNames.SYS_GRAPHABLE;
 import static com.hyland.openarch.ecm.core.schema.MixinNames.CIN_CONTEXT;
 import static com.hyland.openarch.ecm.core.schema.MixinNames.CIN_REMOTE;
 import static com.hyland.openarch.ecm.core.schema.MixinNames.SYS_HAS_EMBEDDINGS;
+import static com.hyland.openarch.ecm.core.schema.MixinNames.SYS_HIDDEN_IN_NAVIGATION;
 import static com.hyland.openarch.ecm.core.schema.MixinNames.SYS_VERSIONED_WITH_PARENT;
 import static com.hyland.openarch.ecm.core.schema.MixinNames.SYS_MD_ANNOTATABLE;
 import static com.hyland.openarch.ecm.core.schema.MixinNames.SYS_MD_HL;
@@ -131,6 +134,7 @@ import static com.hyland.openarch.ecm.core.schema.MixinNames.SYS_MD_REDACTABLE;
 import static com.hyland.openarch.ecm.core.schema.MixinNames.SYS_MD_TEXT;
 import static com.hyland.openarch.ecm.core.schema.SchemaManagerConstants.CONSTRAINTS;
 import static com.hyland.openarch.ecm.core.schema.SchemaManagerConstants.EXTENDS;
+import static com.hyland.openarch.ecm.core.schema.SchemaManagerConstants.NO_PER_DOCUMENT_QUERY;
 import static com.hyland.openarch.ecm.core.schema.SchemaManagerConstants.NULLABLE;
 import static com.hyland.openarch.ecm.core.schema.TypeConstants.BLOB_TYPE;
 import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_CONTENT;
@@ -651,7 +655,30 @@ public class MongoDBRepository extends DBSRepositoryBase implements Configuratio
         // Content Intelligence model (CinRemote / CinContext) for existing repositories
         needsMigration |= migrateCinModel(types, schemas, mixins);
 
+        // SysHiddenInNavigation mixin on the rendition types
+        needsMigration |= migrateHiddenInNavigation(mixins, primaryTypes);
+
         return needsMigration;
+    }
+
+    /**
+     * Declares the {@code SysHiddenInNavigation} mixin and applies it to the {@code SysRendition} and
+     * {@code SysRenditionsContainer} primary types of an existing repository whose stored content model predates it.
+     * <p>
+     * New repositories get the mixin natively from {@code CoreExtensions.xml}; this migration only backfills
+     * repositories provisioned before it shipped. The mixin is declared with {@code noPerDocumentQuery} so it is
+     * carried by the type rather than stored on each document, which means no document has to be rewritten. It is
+     * idempotent and reports no change once the model is up to date.
+     *
+     * @return {@code true} if the model was changed (a migration is needed), {@code false} otherwise
+     */
+    private boolean migrateHiddenInNavigation(Map<String, Object> mixins, Map<String, Object> primaryTypes) {
+        boolean migrated = mixins.putIfAbsent(SYS_HIDDEN_IN_NAVIGATION,
+                Map.of(NO_PER_DOCUMENT_QUERY, Boolean.TRUE)) == null;
+        migrated |= addMixinToPrimaryType(primaryTypes, RENDITION_DOCUMENT_TYPE, SYS_HIDDEN_IN_NAVIGATION);
+        migrated |= addMixinToPrimaryType(primaryTypes, RENDITIONS_CONTAINER_DOCUMENT_TYPE,
+                SYS_HIDDEN_IN_NAVIGATION);
+        return migrated;
     }
 
     /**
