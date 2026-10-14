@@ -80,9 +80,4 @@ public interface KeyValueStoreProvider extends KeyValueStore {
      */
     void clear();
 
-    /**
-     * Removes specific content of this Key/Value store provider.
-     */
-    boolean remove(String key);
-
 }

@@ -15,12 +15,6 @@
  */
 package com.hyland.openarch.ecm.core.mongodb.kv;
 
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Filters.exists;
-import static com.mongodb.client.model.Filters.in;
-import static com.mongodb.client.model.Filters.not;
-import static com.mongodb.client.model.Filters.regex;
 import static com.mongodb.client.model.Projections.include;
 import static com.mongodb.client.model.Updates.inc;
 import static com.mongodb.client.model.Updates.set;
@@ -53,8 +47,11 @@ import com.hyland.openarch.runtime.mongodb.MongoDBConnectionService;
 import com.mongodb.ErrorCategory;
 import com.mongodb.MongoCommandException;
 import com.mongodb.MongoWriteException;
+import com.mongodb.client.ClientSession;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.FindOneAndUpdateOptions;
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.ReplaceOptions;
@@ -69,6 +66,9 @@ import com.mongodb.client.result.UpdateResult;
  * <ul>
  * <li>collection: the MongoDB collection prefix to use, the default is "kv". This will be followed by the Store name.
  * </ul>
+ * <p>
+ * This implementation supports transactions: a store contributed with {@code transactional="true"} does all its work
+ * in the MongoDB session of the current transaction, see {@link MongoDBConnectionService#getOrCreateSession}.
  *
  * @since 9.3
  */
@@ -91,6 +91,11 @@ public class MongoDBKeyValueStore extends AbstractKeyValueStoreProvider {
     protected MongoCollection<Document> coll;
 
     @Override
+    protected boolean supportsTransactions() {
+        return true;
+    }
+
+    @Override
     public void initialize(KeyValueStoreDescriptor descriptor) {
         super.initialize(descriptor);
         Map<String, String> properties = descriptor.properties;
@@ -109,10 +114,42 @@ public class MongoDBKeyValueStore extends AbstractKeyValueStoreProvider {
         coll.createIndex(new Document(TTL_KEY, ONE), indexOptions);
     }
 
+    /**
+     * Checks that this store is not transactional, for operations whose result could not be acted upon before the
+     * transaction commits.
+     */
+    protected void checkNotTransactional(String operation) {
+        if (transactional) {
+            throw new UnsupportedOperationException(
+                    operation + " cannot be used on a transactional key/value store: " + name);
+        }
+    }
+
+    /**
+     * Gets the MongoDB session in which the operations of this store must take place, or {@code null} if this store is
+     * not transactional.
+     * <p>
+     * If this store is the first MongoDB-based store or repository connection to need a session in the current
+     * transaction, one is lazily created, see {@link MongoDBConnectionService#getOrCreateSession}.
+     *
+     * @return the session, or {@code null}
+     * @throws IllegalStateException if this store is transactional but no transaction is active
+     */
+    protected ClientSession getSession() {
+        if (!transactional) {
+            return null;
+        }
+        try {
+            return Framework.getService(MongoDBConnectionService.class).getOrCreateSession();
+        } catch (IllegalStateException e) {
+            throw new IllegalStateException(
+                    "No active MongoDB transaction to take part in for key/value store: " + name, e);
+        }
+    }
+
     @Override
     public Stream<String> keyStream() {
-        return StreamSupport.stream(coll.find().projection(include(ID_KEY)).spliterator(), false)
-                            .map(doc -> doc.getString(ID_KEY));
+        return keyStream(Filters.empty());
     }
 
     @Override
@@ -123,20 +160,25 @@ public class MongoDBKeyValueStore extends AbstractKeyValueStoreProvider {
 
     @Override
     public Stream<String> keyStreamWithoutTTL() {
-        Bson filter = not(exists(TTL_KEY));
+        Bson filter = Filters.not(Filters.exists(TTL_KEY));
         return getProjection(filter);
     }
 
     @Override
     public Stream<String> keyStreamWithoutTTL(String prefix) {
-        Bson filter = not(exists(TTL_KEY));
-        filter = and(filter, regex(ID_KEY, Pattern.compile('^' + Pattern.quote(prefix))));
+        Bson filter = Filters.not(Filters.exists(TTL_KEY));
+        filter = Filters.and(filter, Filters.regex(ID_KEY, Pattern.compile('^' + Pattern.quote(prefix))));
         return getProjection(filter);
     }
 
     private Stream<String> getProjection(Bson filter) {
-        return StreamSupport.stream(coll.find(filter).projection(include(ID_KEY)).spliterator(), false)
-                .map(doc -> doc.getString(ID_KEY));
+        return keyStream(filter);
+    }
+
+    private Stream<String> keyStream(Bson filter) {
+        FindIterable<Document> it = find(filter);
+        return StreamSupport.stream(it.projection(include(ID_KEY)).spliterator(), false)
+                            .map(doc -> doc.getString(ID_KEY));
     }
 
     /** Sanitizes an object so that it can be logged without risking log injection attacks. */
@@ -146,21 +188,19 @@ public class MongoDBKeyValueStore extends AbstractKeyValueStoreProvider {
 
     @Override
     public void close() {
-        if (coll != null) {
-            coll = null;
-        }
+        coll = null;
     }
 
     @Override
     public void clear() {
         log.trace("MongoDB: CLEAR");
-        coll.deleteMany(new Document());
+        deleteMany(Filters.empty());
     }
 
     public boolean remove(String key) {
-        Bson filter = eq(ID_KEY, key);
+        Bson filter = Filters.eq(ID_KEY, key);
         log.trace("MongoDB: DEL {}", () -> sanitized(key));
-        DeleteResult res = coll.deleteOne(filter);
+        DeleteResult res = deleteOne(filter);
         return res.getDeletedCount() == 1;
     }
 
@@ -253,8 +293,8 @@ public class MongoDBKeyValueStore extends AbstractKeyValueStoreProvider {
     }
 
     protected Object getObject(String key) {
-        Bson filter = eq(ID_KEY, key);
-        Document doc = coll.find(filter).first();
+        Bson filter = Filters.eq(ID_KEY, key);
+        Document doc = find(filter).first();
         if (doc == null) {
             log.trace("MongoDB: GET {} = null", () -> sanitized(key));
             return null;
@@ -323,7 +363,8 @@ public class MongoDBKeyValueStore extends AbstractKeyValueStoreProvider {
      * @since 9.10
      */
     protected void findByKeys(Collection<String> keys, Consumer<Document> block) {
-        coll.find(in(ID_KEY, keys)).projection(include(ID_KEY, VALUE_KEY)).forEach(block);
+        Bson filter = Filters.in(ID_KEY, keys);
+        find(filter).projection(include(ID_KEY, VALUE_KEY)).forEach(block);
     }
 
     protected Date getDateFromTTL(long ttl) {
@@ -356,24 +397,16 @@ public class MongoDBKeyValueStore extends AbstractKeyValueStoreProvider {
     }
 
     protected void put(String key, Object value, long ttl) {
-        Bson filter = eq(ID_KEY, key);
+        Bson filter = Filters.eq(ID_KEY, key);
         if (value == null) {
             log.trace("MongoDB: DEL {}", () -> sanitized(key));
-            coll.deleteOne(filter);
+            deleteOne(filter);
         } else {
             Document doc = new Document(VALUE_KEY, value);
             addTTL(doc, ttl);
             log.trace("MongoDB: PUT {} = {}{}", () -> sanitized(key), () -> sanitized(value),
                     () -> ttl == 0 ? "" : " (TTL " + ttl + ")");
-            try {
-                coll.replaceOne(filter, doc, new ReplaceOptions().upsert(true));
-            } catch (MongoWriteException e) {
-                if (ErrorCategory.fromErrorCode(e.getCode()) != ErrorCategory.DUPLICATE_KEY) {
-                    throw e;
-                }
-                // retry once, as not all server versions do server-side retries on upsert
-                coll.replaceOne(filter, doc, new ReplaceOptions().upsert(true));
-            }
+            replaceOne(filter, doc, new ReplaceOptions().upsert(true));
         }
     }
 
@@ -385,7 +418,7 @@ public class MongoDBKeyValueStore extends AbstractKeyValueStoreProvider {
 
     @Override
     public boolean setTTL(String key, long ttl) {
-        Bson filter = eq(ID_KEY, key);
+        Bson filter = Filters.eq(ID_KEY, key);
         Bson update;
         if (ttl == 0) {
             update = unset(TTL_KEY);
@@ -393,7 +426,7 @@ public class MongoDBKeyValueStore extends AbstractKeyValueStoreProvider {
             update = set(TTL_KEY, getDateFromTTL(ttl));
         }
         log.trace("MongoDB: SETTTL {} = {}", () -> sanitized(key), () -> ttl);
-        UpdateResult res = coll.updateOne(filter, update);
+        UpdateResult res = updateOne(filter, update);
         return res.getModifiedCount() == 1;
     }
 
@@ -408,7 +441,8 @@ public class MongoDBKeyValueStore extends AbstractKeyValueStoreProvider {
     }
 
     protected boolean compareAndSet(String key, Object expected, Object value, long ttl) {
-        Bson filter = eq(ID_KEY, key);
+        checkNotTransactional("compareAndSet");
+        Bson filter = Filters.eq(ID_KEY, key);
         if (expected == null && value == null) {
             // check that document doesn't exist
             Document doc = coll.find(filter).first();
@@ -435,7 +469,7 @@ public class MongoDBKeyValueStore extends AbstractKeyValueStoreProvider {
             return set;
         } else if (value == null) {
             // delete if previous value exists
-            filter = and(filter, eq(VALUE_KEY, expected));
+            filter = Filters.and(filter, Filters.eq(VALUE_KEY, expected));
             DeleteResult res = coll.deleteOne(filter);
             boolean set = res.getDeletedCount() == 1;
             log.trace("MongoDB: TEST {} = {} ? {}", () -> sanitized(key), () -> sanitized(expected),
@@ -443,7 +477,7 @@ public class MongoDBKeyValueStore extends AbstractKeyValueStoreProvider {
             return set;
         } else {
             // replace if previous value exists
-            filter = and(filter, eq(VALUE_KEY, expected));
+            filter = Filters.and(filter, Filters.eq(VALUE_KEY, expected));
             Document doc = new Document(VALUE_KEY, value);
             addTTL(doc, ttl);
             UpdateResult res = coll.replaceOne(filter, doc);
@@ -456,7 +490,8 @@ public class MongoDBKeyValueStore extends AbstractKeyValueStoreProvider {
 
     @Override
     public long addAndGet(String key, long delta) throws NumberFormatException { // NOSONAR
-        Bson filter = eq(ID_KEY, key);
+        checkNotTransactional("addAndGet");
+        Bson filter = Filters.eq(ID_KEY, key);
         Bson update = inc(VALUE_KEY, Long.valueOf(delta));
         Document result;
         try {
@@ -499,6 +534,51 @@ public class MongoDBKeyValueStore extends AbstractKeyValueStoreProvider {
                 return result;
             }
             // else loop to try again
+        }
+    }
+
+    protected FindIterable<Document> find(Bson filter) {
+        ClientSession session = getSession();
+        if (session != null) {
+            return coll.find(session, filter);
+        } else {
+            return coll.find(filter);
+        }
+    }
+
+    protected DeleteResult deleteOne(Bson filter) {
+        ClientSession session = getSession();
+        if (session != null) {
+            return coll.deleteOne(session, filter);
+        } else {
+            return coll.deleteOne(filter);
+        }
+    }
+
+    protected DeleteResult deleteMany(Bson filter) {
+        ClientSession session = getSession();
+        if (session != null) {
+            return coll.deleteMany(session, filter);
+        } else {
+            return coll.deleteMany(filter);
+        }
+    }
+
+    protected UpdateResult updateOne(Bson filter, Bson update) {
+        ClientSession session = getSession();
+        if (session != null) {
+            return coll.updateOne(session, filter, update);
+        } else {
+            return coll.updateOne(filter, update);
+        }
+    }
+
+    protected void replaceOne(Bson filter, Document replacement, ReplaceOptions options) {
+        ClientSession session = getSession();
+        if (session != null) {
+            coll.replaceOne(session, filter, replacement, options);
+        } else {
+            coll.replaceOne(filter, replacement, options);
         }
     }
 

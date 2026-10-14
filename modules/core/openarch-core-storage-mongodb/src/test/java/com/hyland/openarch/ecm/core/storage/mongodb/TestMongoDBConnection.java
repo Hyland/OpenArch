@@ -16,25 +16,38 @@
 package com.hyland.openarch.ecm.core.storage.mongodb;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.mongodb.MongoDBConnectionService;
+
+import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.CountOptions;
 
 public class TestMongoDBConnection {
+
+    protected MongoDBRepository repository;
 
     protected MongoDBConnection connection;
 
@@ -42,10 +55,87 @@ public class TestMongoDBConnection {
 
     @BeforeEach
     public void setUp() {
-        MongoDBRepository repository = mock(MongoDBRepository.class);
+        repository = mock(MongoDBRepository.class);
         when(repository.getCollection()).thenReturn(mock(MongoCollection.class));
         connection = spy(new MongoDBConnection(repository, false));
         filter = new Document();
+    }
+
+    @Test
+    public void testSessionCommitLifecycle() {
+        ClientSession session = mock(ClientSession.class);
+        when(repository.supportsTransactions()).thenReturn(true);
+        try (var _ = mockSession(session)) {
+            connection = new MongoDBConnection(repository, false);
+
+            connection.begin();
+            assertTrue(connection.transactionStarted);
+            assertSame(session, connection.clientSession);
+
+            connection.commit();
+            assertFalse(connection.transactionStarted);
+            assertNull(connection.clientSession);
+
+            connection.close();
+            // the MongoDB commit and close of the shared session are left to the enclosing transaction
+            verifyNoInteractions(session);
+        }
+    }
+
+    @Test
+    public void testSessionRollbackLifecycle() {
+        ClientSession session = mock(ClientSession.class);
+        when(repository.supportsTransactions()).thenReturn(true);
+        try (var _ = mockSession(session)) {
+            connection = new MongoDBConnection(repository, false);
+
+            connection.begin();
+            assertSame(session, connection.clientSession);
+
+            connection.rollback();
+            assertFalse(connection.transactionStarted);
+            assertNull(connection.clientSession);
+
+            connection.close();
+            // the MongoDB abort and close of the shared session are left to the enclosing transaction
+            verifyNoInteractions(session);
+        }
+    }
+
+    @Test
+    public void testNoSessionWhenNotSupported() {
+        ClientSession session = mock(ClientSession.class);
+        when(repository.supportsTransactions()).thenReturn(false);
+        try (var _ = mockSession(session)) {
+            connection = new MongoDBConnection(repository, false);
+
+            connection.begin();
+            assertFalse(connection.transactionStarted);
+            assertNull(connection.clientSession);
+
+            connection.commit();
+            connection.close();
+            verifyNoInteractions(session);
+        }
+    }
+
+    @Test
+    public void testNoSessionWhenTransactionsNotSupported() {
+        ClientSession session = mock(ClientSession.class);
+        // a deployment may support sessions without supporting transactions, in which case the undo log is used
+        when(repository.supportsSessions()).thenReturn(true);
+        when(repository.supportsTransactions()).thenReturn(false);
+        try (var _ = mockSession(session)) {
+            connection = new MongoDBConnection(repository, false);
+
+            connection.begin();
+            assertFalse(connection.transactionStarted);
+            assertNull(connection.clientSession);
+
+            connection.commit();
+            connection.close();
+            verifyNoInteractions(session);
+        }
     }
 
     @Test
@@ -120,5 +210,14 @@ public class TestMongoDBConnection {
     protected void verifyNoCount(MongoDBConnection connection) {
         verify(connection, never()).countDocuments(any(Bson.class));
         verify(connection, never()).countDocuments(any(Bson.class), any(CountOptions.class));
+    }
+
+    /** Mocks the {@link MongoDBConnectionService} so that it hands out the given session. */
+    protected MockedStatic<Framework> mockSession(ClientSession session) {
+        MongoDBConnectionService mongoService = mock(MongoDBConnectionService.class);
+        when(mongoService.getOrCreateSession()).thenReturn(session);
+        MockedStatic<Framework> framework = mockStatic(Framework.class);
+        framework.when(() -> Framework.getService(MongoDBConnectionService.class)).thenReturn(mongoService);
+        return framework;
     }
 }

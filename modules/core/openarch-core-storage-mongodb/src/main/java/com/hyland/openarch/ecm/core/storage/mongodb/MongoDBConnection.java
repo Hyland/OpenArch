@@ -80,6 +80,8 @@ import com.hyland.openarch.ecm.core.storage.dbs.DBSExpressionEvaluator;
 import com.hyland.openarch.ecm.core.storage.dbs.DBSStateFlattener;
 import com.hyland.openarch.ecm.core.storage.dbs.DBSTransactionState.ConditionalUpdates;
 import com.hyland.openarch.ecm.core.storage.mongodb.MongoDBConverter.ConditionsAndUpdates;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.mongodb.MongoDBConnectionService;
 import com.hyland.openarch.runtime.mongodb.MongoDBOperators;
 import com.hyland.openarch.runtime.transaction.TransactionHelper;
 import com.hyland.openarch.runtime.transaction.TransactionRuntimeException;
@@ -136,11 +138,6 @@ public class MongoDBConnection extends DBSConnectionBase {
         super(repository);
         mongoDBRepository = repository;
         coll = repository.getCollection();
-        if (repository.supportsSessions()) {
-            clientSession = repository.getClient().startSession();
-        } else {
-            clientSession = null;
-        }
         if (initialize) {
             initRepository();
         }
@@ -148,10 +145,10 @@ public class MongoDBConnection extends DBSConnectionBase {
 
     @Override
     public void close() {
-        if (clientSession != null) {
-            clientSession.close();
-            clientSession = null;
-        }
+        // the session may be shared with another MongoDB-based store taking part in the same transaction, so it is
+        // not closed here: it is committed/aborted and closed by MongoDBConnectionService when the transaction
+        // completes
+        clientSession = null;
     }
 
     // the schema manager is kept invariant for the duration of the transaction
@@ -174,8 +171,9 @@ public class MongoDBConnection extends DBSConnectionBase {
     @Override
     public void begin() {
         setSchemaManager(repository.getSchemaManager());
-        if (clientSession != null) {
-            clientSession.startTransaction();
+        if (mongoDBRepository.supportsTransactions()) {
+            // join the session already in use for the current transaction, if any, or create it
+            clientSession = Framework.getService(MongoDBConnectionService.class).getOrCreateSession();
             transactionStarted = true;
         }
     }
@@ -183,25 +181,19 @@ public class MongoDBConnection extends DBSConnectionBase {
     @Override
     public void commit() {
         setSchemaManager(null);
-        if (clientSession != null) {
-            try {
-                clientSession.commitTransaction();
-            } finally {
-                transactionStarted = false;
-            }
-        }
+        // the actual MongoDB-level commit/abort/close of the session happens at the end of the enclosing transaction,
+        // since the session may be shared with another MongoDB-based store
+        transactionStarted = false;
+        clientSession = null;
     }
 
     @Override
     public void rollback() {
         setSchemaManager(null);
-        if (clientSession != null) {
-            try {
-                clientSession.abortTransaction();
-            } finally {
-                transactionStarted = false;
-            }
-        }
+        // the actual MongoDB-level commit/abort/close of the session happens at the end of the enclosing transaction,
+        // since the session may be shared with another MongoDB-based store
+        transactionStarted = false;
+        clientSession = null;
     }
 
     /**
@@ -690,7 +682,7 @@ public class MongoDBConnection extends DBSConnectionBase {
 
         MongoCursor<Document> cursor;
         try {
-            cursor = find(filter).projection(keys).batchSize(batchSize).iterator();
+            cursor = findOutsideTransaction(filter).projection(keys).batchSize(batchSize).iterator();
             cursor.hasNext(); // check timeout asap - NOSONAR
         } catch (MongoExecutionTimeoutException e) {
             throw newQueryTimeout(e, filter);
@@ -871,6 +863,19 @@ public class MongoDBConnection extends DBSConnectionBase {
         }
         it.maxTime(getMaxTimeMs(), MILLISECONDS);
         return it;
+    }
+
+    /**
+     * Finds without using the session of the current transaction, for a cursor that must outlive it.
+     * <p>
+     * A MongoDB cursor created inside a transaction is killed by the server when that transaction completes, and a
+     * transaction is in addition limited to {@code transactionLifetimeLimitSeconds} (60s by default). A scroll is by
+     * contract iterated over several transactions, for up to its {@code keepAliveSeconds} lifetime, so it cannot be
+     * transactional. As a consequence a scroll does not see the uncommitted changes of the transaction that started
+     * it.
+     */
+    protected FindIterable<Document> findOutsideTransaction(Bson filter) {
+        return coll.find(filter).maxTime(getMaxTimeMs(), MILLISECONDS);
     }
 
     protected long getMaxTimeMs() {

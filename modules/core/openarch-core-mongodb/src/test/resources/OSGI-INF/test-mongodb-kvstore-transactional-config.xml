@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<component name="com.hyland.openarch.mongodb.kvstore.transactional.test">
+  <extension target="com.hyland.openarch.runtime.kv.KeyValueService" point="configuration">
+    <store name="transactional" class="com.hyland.openarch.ecm.core.mongodb.kv.MongoDBKeyValueStore"
+        transactional="true">
+      <property name="collection">kv</property>
+    </store>
+    <store name="transactional-other" class="com.hyland.openarch.ecm.core.mongodb.kv.MongoDBKeyValueStore"
+        transactional="true">
+      <property name="collection">kv</property>
+    </store>
+  </extension>
+</component>

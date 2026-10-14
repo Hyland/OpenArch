@@ -1138,7 +1138,9 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
         clearTransient();
         userChangeIds.clear();
         updateConditionPredicates.clear();
-        undoLog.clear();;
+        if (undoLog != null) {
+            undoLog.clear();
+        }
     }
 
     /**

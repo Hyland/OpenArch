@@ -183,7 +183,7 @@ import com.hyland.openarch.runtime.mongodb.MongoDBConnectionService;
 import com.hyland.openarch.config.ConfigurationService;
 import com.hyland.openarch.config.ConfigurationServiceIO;
 import com.hyland.openarch.config.ConfigurationWithVersion;
-import com.mongodb.MongoClientException;
+import com.mongodb.MongoException;
 import com.mongodb.MongoWriteException;
 import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
@@ -299,6 +299,17 @@ public class MongoDBRepository extends DBSRepositoryBase implements Configuratio
      */
     protected static final Duration MAX_TIME_DEFAULT = Duration.ofHours(1);
 
+    /**
+     * Framework property enabling MongoDB sessions and transactions for the repository.
+     * <p>
+     * This is disabled by default. Note that document locks are stored as fields of the document itself and are
+     * deliberately written outside of the session, because a lock must be immediately visible to other threads and
+     * must survive a rollback. Locking a document that the current transaction has already read and later updates
+     * therefore causes a MongoDB write conflict, even without any concurrent client. Locks need to be moved to
+     * their own collection before this property can be used in production.
+     */
+    public static final String TRANSACTIONS_ENABLED_PROP = "hxpr.mongodb.transactions.enabled";
+
     protected final MongoDBRepositoryDescriptor descriptor;
 
     protected final MongoClient mongoClient;
@@ -343,21 +354,26 @@ public class MongoDBRepository extends DBSRepositoryBase implements Configuratio
             hasSessions = true;
             try {
                 session.startTransaction();
+                // an actual operation must be attempted, as starting and aborting a transaction is purely
+                // client-side and succeeds even on a deployment that does not support transactions
+                coll.find(session, new Document()).projection(Projections.include(MONGODB_ID)).first();
                 session.abortTransaction();
                 hasTransactions = true;
-            } catch (MongoClientException e) {
+            } catch (MongoException e) {
                 hasTransactions = false;
             }
-        } catch (MongoClientException ee) {
+        } catch (MongoException ee) {
             // startSession may throw
             // "Sessions are not supported by the MongoDB cluster to which this client is connected"
             // startTransaction may throw
             hasSessions = false;
             hasTransactions = false;
         }
-        // TODO: reactivate sessions/transactions when they can be better tested
-        hasSessions = false;
-        hasTransactions = false;
+        // sessions/transactions remain opt-in until they can be better tested
+        if (!Boolean.parseBoolean(Framework.getProperty(TRANSACTIONS_ENABLED_PROP, "false"))) {
+            hasSessions = false;
+            hasTransactions = false;
+        }
         supportsSessions = hasSessions;
         supportsTransactions = hasTransactions;
         initRepository();

@@ -52,6 +52,14 @@ public class KeyValueStoreDescriptor {
     public Map<String, String> properties = new HashMap<>();
 
     /**
+     * Whether the operations of this store must take part in the transaction of the underlying storage running in the
+     * same thread, and therefore be committed or rolled back together with it.
+     * <p>
+     * Only stores whose implementation supports transactions may be declared transactional.
+     */
+    @XNode("@transactional")
+    public boolean transactional;
+    /**
      * Empty constructor.
      */
     public KeyValueStoreDescriptor() {
@@ -67,6 +75,7 @@ public class KeyValueStoreDescriptor {
         klass = other.klass;
         namespace = other.namespace;
         properties.putAll(other.properties);
+        transactional = other.transactional;
     }
 
 }

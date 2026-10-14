@@ -34,9 +34,30 @@ public abstract class AbstractKeyValueStoreProvider implements KeyValueStoreProv
 
     protected String name;
 
+    /**
+     * Whether the operations of this store take part in the transaction of the underlying storage running in the same
+     * thread, as declared by the {@code transactional} attribute of its contribution.
+     */
+    protected boolean transactional;
+
     @Override
     public void initialize(KeyValueStoreDescriptor descriptor) {
         name = descriptor.name;
+        transactional = descriptor.transactional;
+        if (transactional && !supportsTransactions()) {
+            throw new UnsupportedOperationException("Transactions are not supported by store: " + name);
+        }
+    }
+
+    /**
+     * Checks whether this store implementation can take part in the transaction of the underlying storage.
+     * <p>
+     * The default implementation returns {@code false}, as most Key/Value stores have no notion of transaction.
+     *
+     * @return {@code true} if this store implementation supports transactions
+     */
+    protected boolean supportsTransactions() {
+        return false;
     }
 
     @Override

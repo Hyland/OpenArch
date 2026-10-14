@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<component name="com.hyland.openarch.runtime.kv.KeyValueService.transactional.test">
+
+  <extension target="com.hyland.openarch.runtime.kv.KeyValueService" point="configuration">
+    <store name="transactional" class="com.hyland.openarch.runtime.kv.MemKeyValueStore" transactional="true">
+    </store>
+  </extension>
+
+</component>

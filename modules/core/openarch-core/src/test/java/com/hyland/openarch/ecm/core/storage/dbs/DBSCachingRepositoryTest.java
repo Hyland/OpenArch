@@ -101,6 +101,17 @@ class DBSCachingRepositoryTest {
     }
 
     @Test
+    void transactionalClusterDisabledStillInitializesPropagator() {
+        DBSCachingRepository repo = build(true, false, null, "cachingRepoTestB2");
+
+        // each connection owns its cache, so invalidations must be propagated between them even without clustering,
+        // which only adds propagation between nodes
+        assertNull(repo.getCache());
+        assertNotNull(repo.getInvalidationsPropagator());
+        assertNull(repo.getClusterInvalidator());
+    }
+
+    @Test
     void clusterInvalidatorInstantiationFailureWrapsInRepositoryException() {
         assertThrows(RepositoryException.class,
                 () -> build(true, true, FailingClusterInvalidator.class, "cachingRepoTestC"));

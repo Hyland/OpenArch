@@ -27,6 +27,10 @@
       <groupId>com.hyland.openarch</groupId>
       <artifactId>openarch-runtime-osgi</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.hyland.openarch</groupId>
+      <artifactId>openarch-runtime-jtajca</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>org.mongodb</groupId>

@@ -157,11 +157,10 @@ public class DBSCachingRepository implements DBSRepository {
 
     /**
      * Invalidations need to be propagated between connection caches only if there is such a cache, which is the case
-     * only if transactions are used.
+     * only if transactions are used. This is independent of clustering, which only adds propagation between nodes.
      */
     protected DBSInvalidationsPropagator initInvalidationsPropagator() {
-        ClusterService clusterService = Framework.getService(ClusterService.class);
-        if (clusterService.isEnabled() && supportsTransactions()) {
+        if (supportsTransactions()) {
             return new DBSInvalidationsPropagator();
         } else {
             return null;

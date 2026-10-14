@@ -15,11 +15,15 @@
  */
 package com.hyland.openarch.runtime.mongodb;
 
+import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
 
 /**
  * Service used to get a database connection to MongoDB.
+ * <p>
+ * The service also keeps track of the MongoDB session, if any, in which the MongoDB-based stores running on the
+ * current thread must do their work, so that they all take part in the same MongoDB transaction.
  *
  * @since 9.1
  */
@@ -34,5 +38,19 @@ public interface MongoDBConnectionService {
      * Gets the MongoDB database.
      */
     MongoDatabase getDatabase();
+
+    /**
+     * Gets the MongoDB session in which the work of the current thread must take place, lazily starting one if there
+     * is none yet.
+     * <p>
+     * Whichever MongoDB-based store or repository connection is the first to call this method for a given transaction
+     * creates the session and starts the MongoDB transaction. The ones coming later in the same transaction all share
+     * that session, and therefore that MongoDB transaction. The session is committed or aborted, then closed, when
+     * the enclosing transaction completes.
+     *
+     * @return the session, never {@code null}
+     * @throws IllegalStateException if there is no active transaction to attach the session's lifecycle to
+     */
+    ClientSession getOrCreateSession();
 
 }

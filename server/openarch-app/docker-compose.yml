@@ -2,10 +2,30 @@ services:
   mongodb:
     image: mongo:7.0.39@sha256:9bdaeb6dac6e7e762e84e2f84103d1f9bb078fa1ba6bde8bb9d2274f655ad173
     hostname: mongo
+    command: [ "mongod", "--replSet", "rs0", "--bind_ip_all" ]
     ports:
       - "27017:27017"
     volumes:
       - mongodb-data:/data/db
+
+  # a replica set is required for MongoDB sessions and transactions, even with a single node
+  # the replica set advertises mongo:27017, so clients outside Docker need "mongo" to resolve to 127.0.0.1
+  mongodb-init:
+    image: mongo:7.0.39@sha256:9bdaeb6dac6e7e762e84e2f84103d1f9bb078fa1ba6bde8bb9d2274f655ad173
+    depends_on:
+      - mongodb
+    restart: "no"
+    command:
+      - /bin/sh
+      - -c
+      - |-
+        for i in $$(seq 60); do
+          mongosh --host mongo:27017 --quiet --eval 'db.runCommand({ping:1}).ok' | grep -q 1 && break
+          sleep 1
+        done
+        mongosh --host mongo:27017 --quiet --eval 'db.runCommand({ping:1}).ok' | grep -q 1 ||
+        { echo "MongoDB not reachable after 60s"; exit 1; }
+        mongosh --host mongo:27017 --quiet --eval 'try { rs.status().ok; } catch (error) { rs.initiate({_id: "rs0", members: [{_id: 0, host: "mongo:27017"}]}); }'
 
   opensearch:
     image: opensearchproject/opensearch:2.19.6@sha256:8690b204fe914c60ca76d451ac73bc0481e034d32d3779944c8caca56a2b003f

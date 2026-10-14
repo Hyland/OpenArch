@@ -28,9 +28,12 @@ public interface KeyValueService {
      * Gets the Key/Value store with the given name.
      * <p>
      * If the store is not found, the default store is returned.
+     * <p>
+     * The returned store is transactional if it was contributed with {@code transactional="true"}.
      *
      * @param name the store name
      * @return the store with the given name, or the default store
+     * @see KeyValueStoreDescriptor#transactional
      */
     KeyValueStore getKeyValueStore(String name);
 

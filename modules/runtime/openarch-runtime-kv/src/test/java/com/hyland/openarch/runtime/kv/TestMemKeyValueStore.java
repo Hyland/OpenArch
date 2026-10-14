@@ -15,9 +15,13 @@
  */
 package com.hyland.openarch.runtime.kv;
 
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
+
+import com.hyland.openarch.runtime.test.runner.Deploy;
 
 /**
  * @since 9.1
@@ -27,6 +31,14 @@ public class TestMemKeyValueStore extends AbstractKeyValueStoreTest {
     @Test
     public void testClass() {
         assertTrue(store instanceof MemKeyValueStore);
+    }
+
+    @Test
+    @Deploy("com.hyland.openarch.runtime.kv.tests:OSGI-INF/test-keyvalueservice-transactional.xml")
+    public void testTransactionalStoreNotSupported() {
+        assertSame(store, keyValueService.getKeyValueStore("default"));
+        // this store implementation cannot take part in a transaction
+        assertThrows(UnsupportedOperationException.class, () -> keyValueService.getKeyValueStore("transactional"));
     }
 
     @Override
