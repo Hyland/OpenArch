@@ -32,9 +32,9 @@ See [OpenArch's documentation](https://docs.hyland.com/r/Current/Hyland-Content-
 ## Quick Start
 
 ### Start OpenArch with Docker
-OpenArch is available as a Docker image. You can start it with the following command, using the version 1.0.0 as an example:
+OpenArch is available as a Docker image. You can start it with the following command, using the version `latest` (or an explicit version such as: `1.0.0`) as an example:
 ```shell
-export OPENARCH_VERSION=1.0.0
+export OPENARCH_VERSION=latest
 docker-compose up
 ```
 
