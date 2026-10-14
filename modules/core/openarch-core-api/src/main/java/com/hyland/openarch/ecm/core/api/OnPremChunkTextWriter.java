@@ -49,4 +49,19 @@ public interface OnPremChunkTextWriter {
      */
     void writeChunkText(String repository, String systemIntegrationId, String contentId, String documentId,
             String embeddingType, Map<String, String> chunkTextById);
+
+    /**
+     * Enqueues a full scope purge for a single {@code onPrem} {@code SysEmbeddings} child.
+     * <p>
+     * This is used by delete propagation: when a document removal cascades to its SysEmbeddings
+     * children, each child purges its own EV Store scope so all embedding types are covered.
+     *
+     * @param repository          the OpenArch repository name owning the documents
+     * @param systemIntegrationId the system integration id used to scope EV Store calls
+     * @param contentId           the {@code SysEmbeddings} child {@code sys_id} (EV Store content id)
+     * @param documentId          the parent document id (for diagnostics and logging)
+     * @param embeddingType       the embedding type carried by the child (for diagnostics and logging)
+     */
+    void deleteChunkTextScope(String repository, String systemIntegrationId, String contentId, String documentId,
+            String embeddingType);
 }
