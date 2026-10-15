@@ -57,24 +57,24 @@ public class UserManagerMock implements UserManager {
     public static final String MEMBERS_GROUP_ID = "8d6542c9-50e9-4027-aa10-2cfb2179413f";
     public static final String MEMBERS_GROUP_NAME = "members";
 
-    // UUID of the alternative test user "jchan", referenced by {@code AbstractAPITest.ALT_USER_ID}.
+    // UUID of the alternative test user "testuser4", referenced by {@code AbstractAPITest.ALT_USER_ID}.
     public static final String ALT_USER_ID = "ced9ee59-c4d5-4b58-866a-b84cd6cc6fae";
-    public static final String ALT_USER_NAME = "jchan";
+    public static final String ALT_USER_NAME = "testuser4";
 
     // LinkedHashMap: insertion order is stable so any test that iterates values gets a predictable sequence
     private final Map<String, RepositoryPrincipalImpl> users = new LinkedHashMap<>();
     private final Map<String, RepositoryGroupImpl> groups = new LinkedHashMap<>();
 
     public UserManagerMock() {
-        addUser(TEST_USER_ID, "Test", "User", "test.user@hyland.com", null);
+        addUser(TEST_USER_ID, "Test", "User", "test.user@example.com", null);
         users.get(TEST_USER_ID).setUserAttributes(
                 Map.of("YOJ", "2013", "empId", "E443336-3675", "favouriteColor", "beige"));
-        addUser(TEST_USER_2_ID, "MyFirstOne", "MyFamilyOne", "firstOne.lastnameOne@hyland.com", "myUserNameOne");
-        addUser(TEST_USER_3_ID, "MyFirstTwo", "MyFamilyTwo", "firstTwo.lastnameTwo@hyland.com", "myUserNameTwo");
+        addUser(TEST_USER_2_ID, "MyFirstOne", "MyFamilyOne", "firstOne.lastnameOne@example.com", "myUserNameOne");
+        addUser(TEST_USER_3_ID, "MyFirstTwo", "MyFamilyTwo", "firstTwo.lastnameTwo@example.com", "myUserNameTwo");
         // User with identical first and last name to exercise deduplication in searchPrincipalsByName
-        addUser("dd94b0c1-bbb0-4e22-b0e6-8f07b93dcf01", "Tiry", "Tiry", "tiry.delprat@hyland.com", null);
+        addUser("dd94b0c1-bbb0-4e22-b0e6-8f07b93dcf01", "Demo", "Demo", "testuser3@example.com", "testuser3");
         // Alternative test user referenced by AbstractAPITest.ALT_USER / ALT_USER_ID
-        addUser(ALT_USER_ID, "Jacky", "Chan", "jacky.chan@hyland.com", ALT_USER_NAME);
+        addUser(ALT_USER_ID, "Test", "User Four", "testuser4@example.com", ALT_USER_NAME);
 
         addGroup(TEST_GROUP_1_ID, TEST_GROUP_1_NAME);
         addGroup(TEST_GROUP_2_ID, TEST_GROUP_2_NAME);

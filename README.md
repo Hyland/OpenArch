@@ -41,6 +41,9 @@ docker-compose up
 ### Access OpenArch
 Once OpenArch is running, you can access the API endpoint list at [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html).
 
+### Default Users
+OpenArch ships with default user credentials for local development. For details on available default users, how to change the admin credentials, and how to add new users, see [Default Users Documentation](docs/DEFAULT_USERS.md).
+
 #### Create a New Document
 The following command creates a new document in OpenArch. The document will be created at the root of the repository with the `sys_primaryType` of `SysFolder` and a title of `My Test Folder`. You can change the values in the JSON payload to create a different type of document or set different metadata.
 ```shell

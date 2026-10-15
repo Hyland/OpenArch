@@ -84,10 +84,10 @@ public abstract class AbstractAPITest extends RuntimeSpringBootTest {
 
     protected static final String ADMIN = TEST_ADMIN_USER;
 
-    protected static final String ALT_USER = "jchan";
+    protected static final String ALT_USER = "testuser4";
     protected static final String ALT_USER_ID = "ced9ee59-c4d5-4b58-866a-b84cd6cc6fae";
 
-    protected static final String ALT_ANOTHER_USER = "tiry";
+    protected static final String ALT_ANOTHER_USER = "testuser3";
 
     protected static final String NOT_JSON = "this-is-not-json";
 

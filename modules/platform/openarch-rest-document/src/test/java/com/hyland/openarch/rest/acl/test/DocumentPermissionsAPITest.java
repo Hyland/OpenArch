@@ -198,10 +198,10 @@ public class DocumentPermissionsAPITest extends AbstractAPITest {
                       "granted": true,
                       "user": {
                         "id": "ced9ee59-c4d5-4b58-866a-b84cd6cc6fae",
-                        "firstName": "Jacky",
-                        "lastName": "Chan",
-                        "username": "jchan",
-                        "email": "jacky.chan@hyland.com"
+                        "firstName": "Test",
+                        "lastName": "User Four",
+                        "username": "testuser4",
+                        "email": "testuser4@example.com"
                       },
                       "status": "EFFECTIVE"
                     }
@@ -218,7 +218,7 @@ public class DocumentPermissionsAPITest extends AbstractAPITest {
                         "firstName": "MyFirstOne",
                         "lastName": "MyFamilyOne",
                         "username": "myUserNameOne",
-                        "email": "firstOne.lastnameOne@hyland.com"
+                        "email": "firstOne.lastnameOne@example.com"
                       },
                       "status": "EFFECTIVE"
                     }

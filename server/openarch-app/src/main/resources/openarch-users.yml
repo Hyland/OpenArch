@@ -51,7 +51,7 @@ users:
     password: "{noop}password"
     firstName: Test
     lastName: User
-    email: test.user@hyland.com
+    email: test.user@example.com
     groups:
       - administrators
       - members
@@ -66,7 +66,7 @@ users:
     password: "{noop}password"
     firstName: MyFirstOne
     lastName: MyFamilyOne
-    email: firstOne.lastnameOne@hyland.com
+    email: firstOne.lastnameOne@example.com
     groups:
       - members
 
@@ -76,25 +76,25 @@ users:
     password: "{noop}password"
     firstName: MyFirstTwo
     lastName: MyFamilyTwo
-    email: firstTwo.lastnameTwo@hyland.com
+    email: firstTwo.lastnameTwo@example.com
     groups:
       - members
 
   - id: "6a5a0abb-6092-489c-842b-777a74b6ad6a"
-    username: delprat
-    firstName: Tiry
-    lastName: Tiry
-    email: tiry.delprat@hyland.com
+    username: testuser3
+    firstName: Demo
+    lastName: Demo
+    email: testuser3@example.com
     groups:
       - administrators
       - members
 
-  # UserManagerMock.ALT_USER_ID (AbstractAPITest.ALT_USER / jchan)
+  # UserManagerMock.ALT_USER_ID (AbstractAPITest.ALT_USER / testuser4)
   - id: "ced9ee59-c4d5-4b58-866a-b84cd6cc6fae"
-    username: jchan
+    username: testuser4
     password: "{noop}password"
-    firstName: Jacky
-    lastName: Chan
-    email: jacky.chan@hyland.com
+    firstName: Test
+    lastName: User Four
+    email: testuser4@example.com
     groups:
       - members

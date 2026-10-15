@@ -56,12 +56,12 @@ public class TestRepositoryPrincipalImpl {
     public void testUserProperties() {
         RepositoryPrincipalImpl principal = new RepositoryPrincipalImpl("foo");
         principal.setUserAttributes(Collections.singletonMap("PROPERTY1", "VALUE1"));
-        principal.setEmail("foo@hyland.com");
+        principal.setEmail("foo@example.com");
         assertEquals("VALUE1", principal.getProperties().get("PROPERTY1"));
         assertThat(principal.getProperties()).hasSize(3).containsAllEntriesOf(Map.of(
             principal.getConfig().idKey, "foo",
             "PROPERTY1", "VALUE1",
-            "email", "foo@hyland.com"
+            "email", "foo@example.com"
         ));
         assertThat(principal.getUserAttributes()).hasSize(1).containsEntry("PROPERTY1", "VALUE1");
     }
@@ -84,7 +84,7 @@ public class TestRepositoryPrincipalImpl {
     @Test
     public void userAttributesCannotOverwriteInternalFields() {
         RepositoryPrincipalImpl principal = new RepositoryPrincipalImpl("foo");
-        principal.setEmail("foo@hyland.com");
+        principal.setEmail("foo@example.com");
         principal.setUserAttributes(Map.of(
             principal.getConfig().idKey, "maliciousUser",
             principal.getConfig().passwordKey, "maliciousPassword",
@@ -92,7 +92,7 @@ public class TestRepositoryPrincipalImpl {
                 "USERPROPERTY", "someValue"));
         assertThat(principal.getProperties()).hasSize(3).containsAllEntriesOf(Map.of(
             principal.getConfig().idKey, "foo",
-            principal.getConfig().emailKey, "foo@hyland.com",
+            principal.getConfig().emailKey, "foo@example.com",
                 "USERPROPERTY", "someValue"));
         assertThat(principal.getUserAttributes()).hasSize(4).containsAllEntriesOf(Map.of(
             principal.getConfig().idKey, "maliciousUser",

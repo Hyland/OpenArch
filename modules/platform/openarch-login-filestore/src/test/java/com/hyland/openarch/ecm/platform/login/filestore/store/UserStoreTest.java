@@ -180,10 +180,10 @@ class UserStoreTest {
         // but a user whose firstName == lastName would appear only once
         UsersFileModel model = new UsersFileModel();
         model.setGroups(List.of());
-        model.setUsers(List.of(user("id-1", "tiry", "Tiry", "Tiry", "tiry@example.com", List.of())));
+        model.setUsers(List.of(user("id-1", "testuser3", "Demo", "Demo", "testuser3@example.com", List.of())));
         UserStore s = UserStore.from(model);
 
-        List<RepositoryPrincipal> results = s.searchPrincipalsByName("tiry");
+        List<RepositoryPrincipal> results = s.searchPrincipalsByName("Demo");
         assertThat(results).hasSize(1);
     }
 

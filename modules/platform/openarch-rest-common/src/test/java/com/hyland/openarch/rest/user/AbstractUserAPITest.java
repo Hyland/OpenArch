@@ -54,7 +54,7 @@ public abstract class AbstractUserAPITest extends RuntimeSpringBootTest {
         mvc.perform(get(UserAPI.PATH + "?name=myUserNameTwo"))
                .andExpect(jsonPath("$.size()", is(1)))
                .andExpect(jsonPath("$[0].id", is(TEST_USER_3_ID)))
-               .andExpect(jsonPath("$[0].email", is("firstTwo.lastnameTwo@hyland.com")))
+               .andExpect(jsonPath("$[0].email", is("firstTwo.lastnameTwo@example.com")))
                .andExpect(jsonPath("$[0].firstName", is("MyFirstTwo")))
                .andExpect(jsonPath("$[0].lastName", is("MyFamilyTwo")))
                .andExpect(jsonPath("$[0].username", is("myUserNameTwo")));
@@ -76,7 +76,7 @@ public abstract class AbstractUserAPITest extends RuntimeSpringBootTest {
 
     @Test
     void shouldFindUserWithSameFirstAndLastNameOnlyOnce() throws Exception {
-        mvc.perform(get(UserAPI.PATH + "?name=tiry"))
+        mvc.perform(get(UserAPI.PATH + "?name=Demo"))
                .andExpect(jsonPath("$.size()", is(1)));
     }
 

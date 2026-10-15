@@ -205,7 +205,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   "sys_lifecycleState": "draft",
                   "sys_lockCreated": "2021-10-24T00:00:00.000Z",
                   "sys_lockOwner": {
-                "email" : "test.user@hyland.com",
+                "email" : "test.user@example.com",
                 "firstName" : "Test",
                 "id" : "ff7b0360-3594-416c-b587-2fa4dd0839ce",
                 "lastName" : "User",
@@ -220,7 +220,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   "sysgov_retainUntil": "2021-10-24T00:00:02.000Z",
                   "sys_pathDepth": 4,
                             "sys_contributors": [{
-                "email" : "test.user@hyland.com",
+                "email" : "test.user@example.com",
                 "firstName" : "Test",
                 "id" : "ff7b0360-3594-416c-b587-2fa4dd0839ce",
                 "lastName" : "User",
@@ -231,7 +231,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   }}],
                   "sys_created": "2021-10-24T00:00:00.000Z",
                             "sys_creator": {
-                "email" : "test.user@hyland.com",
+                "email" : "test.user@example.com",
                 "firstName" : "Test",
                 "id" : "ff7b0360-3594-416c-b587-2fa4dd0839ce",
                 "lastName" : "User",
@@ -242,7 +242,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   }},
                   "sys_description": "My description",
                             "sys_lastContributor": {
-                "email" : "test.user@hyland.com",
+                "email" : "test.user@example.com",
                 "firstName" : "Test",
                 "id" : "ff7b0360-3594-416c-b587-2fa4dd0839ce",
                 "lastName" : "User",
@@ -325,7 +325,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   "sys_lifecycleState": "draft",
                   "sys_lockCreated": "2021-10-24T00:00:00.000Z",
                             "sys_lockOwner": {
-                "email" : "test.user@hyland.com",
+                "email" : "test.user@example.com",
                 "firstName" : "Test",
                 "id" : "ff7b0360-3594-416c-b587-2fa4dd0839ce",
                 "lastName" : "User",
@@ -339,7 +339,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   "sysgov_isRecord": false,
                   "sys_pathDepth": 4,
                             "sys_contributors": [{
-                "email" : "test.user@hyland.com",
+                "email" : "test.user@example.com",
                 "firstName" : "Test",
                 "id" : "ff7b0360-3594-416c-b587-2fa4dd0839ce",
                 "lastName" : "User",
@@ -350,7 +350,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   }}],
                   "sys_created": "2021-10-24T00:00:00.000Z",
                             "sys_creator": {
-                "email" : "test.user@hyland.com",
+                "email" : "test.user@example.com",
                 "firstName" : "Test",
                 "id" : "ff7b0360-3594-416c-b587-2fa4dd0839ce",
                 "lastName" : "User",
@@ -361,7 +361,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   }},
                   "sys_description": "My description",
                             "sys_lastContributor": {
-                "email" : "test.user@hyland.com",
+                "email" : "test.user@example.com",
                 "firstName" : "Test",
                 "id" : "ff7b0360-3594-416c-b587-2fa4dd0839ce",
                 "lastName" : "User",
@@ -451,7 +451,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   "sys_pathDepth": 4,
                   "sys_contributors": [
                     {
-                      "email": "test.user@hyland.com",
+                      "email": "test.user@example.com",
                       "firstName": "Test",
                       "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
                       "lastName": "User",
@@ -464,7 +464,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   ],
                   "sys_created": "2021-10-24T00:00:00.000Z",
                   "sys_creator": {
-                    "email": "test.user@hyland.com",
+                    "email": "test.user@example.com",
                     "firstName": "Test",
                     "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
                     "lastName": "User",
@@ -476,7 +476,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   },
                   "sys_description": "My description",
                   "sys_lastContributor": {
-                    "email": "test.user@hyland.com",
+                    "email": "test.user@example.com",
                     "firstName": "Test",
                     "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
                     "lastName": "User",
@@ -491,7 +491,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   "sys_lifecycleState": "draft",
                   "sys_lockCreated": "2021-10-24T00:00:00.000Z",
                   "sys_lockOwner": {
-                    "email": "test.user@hyland.com",
+                    "email": "test.user@example.com",
                     "firstName": "Test",
                     "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
                     "lastName": "User",
@@ -584,7 +584,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   "sys_pathDepth": 4,
                   "sys_contributors": [
                     {
-                      "email": "test.user@hyland.com",
+                      "email": "test.user@example.com",
                       "firstName": "Test",
                       "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
                       "lastName": "User",
@@ -597,7 +597,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   ],
                   "sys_created": "2021-10-24T00:00:00.000Z",
                   "sys_creator": {
-                    "email": "test.user@hyland.com",
+                    "email": "test.user@example.com",
                     "firstName": "Test",
                     "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
                     "lastName": "User",
@@ -609,7 +609,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   },
                   "sys_description": "My description",
                   "sys_lastContributor": {
-                    "email": "test.user@hyland.com",
+                    "email": "test.user@example.com",
                     "firstName": "Test",
                     "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
                     "lastName": "User",
@@ -624,7 +624,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   "sys_lifecycleState": "draft",
                   "sys_lockCreated": "2021-10-24T00:00:00.000Z",
                   "sys_lockOwner": {
-                    "email": "test.user@hyland.com",
+                    "email": "test.user@example.com",
                     "firstName": "Test",
                     "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
                     "lastName": "User",
@@ -722,7 +722,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   "sys_pathDepth": 4,
                   "sys_contributors": [
                     {
-                      "email": "test.user@hyland.com",
+                      "email": "test.user@example.com",
                       "firstName": "Test",
                       "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
                       "lastName": "User",
@@ -735,7 +735,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   ],
                   "sys_created": "2021-10-24T00:00:00.000Z",
                   "sys_creator": {
-                    "email": "test.user@hyland.com",
+                    "email": "test.user@example.com",
                     "firstName": "Test",
                     "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
                     "lastName": "User",
@@ -747,7 +747,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   },
                   "sys_description": "My description",
                   "sys_lastContributor": {
-                    "email": "test.user@hyland.com",
+                    "email": "test.user@example.com",
                     "firstName": "Test",
                     "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
                     "lastName": "User",
@@ -762,7 +762,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   "sys_lifecycleState": "draft",
                   "sys_lockCreated": "2021-10-24T00:00:00.000Z",
                   "sys_lockOwner": {
-                    "email": "test.user@hyland.com",
+                    "email": "test.user@example.com",
                     "firstName": "Test",
                     "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
                     "lastName": "User",
@@ -860,7 +860,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   "sys_pathDepth": 5,
                   "sys_contributors": [
                     {
-                      "email": "test.user@hyland.com",
+                      "email": "test.user@example.com",
                       "firstName": "Test",
                       "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
                       "lastName": "User",
@@ -873,7 +873,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   ],
                   "sys_created": "2021-10-24T00:00:00.000Z",
                   "sys_creator": {
-                    "email": "test.user@hyland.com",
+                    "email": "test.user@example.com",
                     "firstName": "Test",
                     "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
                     "lastName": "User",
@@ -885,7 +885,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   },
                   "sys_description": "My description",
                   "sys_lastContributor": {
-                    "email": "test.user@hyland.com",
+                    "email": "test.user@example.com",
                     "firstName": "Test",
                     "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
                     "lastName": "User",
@@ -900,7 +900,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   "sys_lifecycleState": "draft",
                   "sys_lockCreated": "2021-10-24T00:00:00.000Z",
                   "sys_lockOwner": {
-                    "email": "test.user@hyland.com",
+                    "email": "test.user@example.com",
                     "firstName": "Test",
                     "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
                     "lastName": "User",
@@ -1008,7 +1008,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   "sys_pathDepth": 4,
                   "sys_contributors": [
                     {
-                      "email": "test.user@hyland.com",
+                      "email": "test.user@example.com",
                       "firstName": "Test",
                       "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
                       "lastName": "User",
@@ -1021,7 +1021,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   ],
                   "sys_created": "2021-10-24T00:00:00.000Z",
                   "sys_creator": {
-                    "email": "test.user@hyland.com",
+                    "email": "test.user@example.com",
                     "firstName": "Test",
                     "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
                     "lastName": "User",
@@ -1033,7 +1033,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   },
                   "sys_description": "My description",
                   "sys_lastContributor": {
-                    "email": "test.user@hyland.com",
+                    "email": "test.user@example.com",
                     "firstName": "Test",
                     "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
                     "lastName": "User",
@@ -1048,7 +1048,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   "sys_lifecycleState": "draft",
                   "sys_lockCreated": "2021-10-24T00:00:00.000Z",
                   "sys_lockOwner": {
-                    "email" : "test.user@hyland.com",
+                    "email" : "test.user@example.com",
                     "firstName" : "Test",
                     "id" : "ff7b0360-3594-416c-b587-2fa4dd0839ce",
                     "lastName" : "User",
@@ -1139,7 +1139,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   "sys_pathDepth": 2,
                   "sys_contributors": [
                     {
-                      "email": "test.user@hyland.com",
+                      "email": "test.user@example.com",
                       "firstName": "Test",
                       "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
                       "lastName": "User",
@@ -1152,7 +1152,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   ],
                   "sys_created": "2021-10-24T00:00:00.000Z",
                   "sys_creator": {
-                    "email": "test.user@hyland.com",
+                    "email": "test.user@example.com",
                     "firstName": "Test",
                     "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
                     "lastName": "User",
@@ -1163,7 +1163,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                     }
                   },
                   "sys_lastContributor": {
-                    "email": "test.user@hyland.com",
+                    "email": "test.user@example.com",
                     "firstName": "Test",
                     "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
                     "lastName": "User",
@@ -1237,7 +1237,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   "sys_pathDepth": 4,
                   "sys_contributors": [
                     {
-                      "email": "test.user@hyland.com",
+                      "email": "test.user@example.com",
                       "firstName": "Test",
                       "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
                       "lastName": "User",
@@ -1250,7 +1250,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   ],
                   "sys_created": "2021-10-24T00:00:00.000Z",
                   "sys_creator": {
-                    "email": "test.user@hyland.com",
+                    "email": "test.user@example.com",
                     "firstName": "Test",
                     "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
                     "lastName": "User",
@@ -1262,7 +1262,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   },
                   "sys_description": "My description",
                   "sys_lastContributor": {
-                    "email" : "test.user@hyland.com",
+                    "email" : "test.user@example.com",
                     "firstName" : "Test",
                     "id" : "ff7b0360-3594-416c-b587-2fa4dd0839ce",
                     "lastName" : "User",
@@ -1276,7 +1276,7 @@ public class DocumentDTOWriteTest extends RuntimeSpringBootTest {
                   "sys_lifecycleState": "draft",
                   "sys_lockCreated": "2021-10-24T00:00:00.000Z",
                   "sys_lockOwner": {
-                    "email": "test.user@hyland.com",
+                    "email": "test.user@example.com",
                     "firstName": "Test",
                     "id": "ff7b0360-3594-416c-b587-2fa4dd0839ce",
                     "lastName": "User",
