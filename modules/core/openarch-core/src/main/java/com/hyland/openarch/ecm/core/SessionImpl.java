@@ -24,6 +24,7 @@ import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSVER_TITLE;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSVER_VERSION;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_CREATED;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ID;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSGRAPH_GRAPH_DB_IDS;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSGOV_HAS_LEGAL_HOLD;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSGOV_IS_RECORD;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSGOV_RETAIN_UNTIL;
@@ -95,6 +96,7 @@ import com.hyland.openarch.ecm.core.query.sql.model.Reference;
 import com.hyland.openarch.ecm.core.query.sql.model.SelectClause;
 import com.hyland.openarch.ecm.core.query.sql.model.Statement;
 import com.hyland.openarch.ecm.core.repository.RepositoryService;
+import com.hyland.openarch.ecm.core.schema.MixinNames;
 import com.hyland.openarch.ecm.core.schema.SchemaManager;
 import com.hyland.openarch.ecm.core.storage.dbs.DBSDocument;
 import com.hyland.openarch.runtime.api.Framework;
@@ -391,6 +393,14 @@ public class SessionImpl implements CoreSession {
         DocumentModel docModel = readModel(doc);
         Map<String, Serializable> options = new HashMap<>();
         options.put(CoreEventConstants.DOCUMENT_PARENT_ID, docModel.getParentRef());
+        // The sysgraph_graphDBIds property only exists on documents carrying the SysGraphable mixin;
+        // guard the read to avoid a PropertyNotFoundException on plain (non-graphable) documents.
+        if (doc.hasMixin(MixinNames.SYS_GRAPHABLE)) {
+            Serializable graphDBIds = (Serializable) doc.getValue(SYSGRAPH_GRAPH_DB_IDS);
+            if (graphDBIds != null) {
+                options.put(SYSGRAPH_GRAPH_DB_IDS, graphDBIds);
+            }
+        }
         InternalDocument sourceDoc = doc.isVersion() ? doc.getParent() : null;
         doc.remove(principal);
         if (sourceDoc != null) {
