@@ -45,4 +45,13 @@ public interface Task {
         return false;
     }
 
+    /**
+     * Returns true if this task type should leave failed deliveries unacknowledged so the SQS redrive policy
+     * can move them to a dead-letter queue.
+     */
+    @SuppressWarnings("unused")
+    default boolean requiresDlqRedrive() {
+        return false;
+    }
+
 }
