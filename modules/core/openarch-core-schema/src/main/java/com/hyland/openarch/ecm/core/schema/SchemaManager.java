@@ -68,6 +68,9 @@ public interface SchemaManager {
      */
     List<List<String>> getBlobKeysPaths();
 
+    /** Gets the fulltext indexing metadata precomputed for this content-model snapshot. */
+    FulltextConfiguration getFulltextConfiguration();
+
     /** Finds which mixins are configured as no-per-instance-query. */
     Set<String> getNoPerDocumentQueryMixins();
 

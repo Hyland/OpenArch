@@ -23,7 +23,7 @@ import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.hyland.openarch.ecm.core.api.Lock;
-import com.hyland.openarch.ecm.core.api.repository.FulltextConfiguration;
+import com.hyland.openarch.ecm.core.schema.FulltextConfiguration;
 import com.hyland.openarch.ecm.core.model.InternalSession;
 import com.hyland.openarch.ecm.core.schema.SchemaManager;
 import com.hyland.openarch.ecm.core.storage.State;
@@ -268,8 +268,4 @@ public class DBSCachingRepository implements DBSRepository {
         return repository.getSchemaManager();
     }
 
-    @Override
-    public void reloadFullTextConfiguration(FulltextConfiguration updatedConfiguration) {
-        repository.reloadFullTextConfiguration(updatedConfiguration);
-    }
 }

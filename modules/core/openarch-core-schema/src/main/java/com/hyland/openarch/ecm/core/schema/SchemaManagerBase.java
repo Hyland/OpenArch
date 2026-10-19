@@ -80,6 +80,7 @@ public class SchemaManagerBase implements SchemaManager {
     /** Paths to the blob keys of all the blobs of the content model, see {@link #getBlobKeysPaths}. */
     protected List<List<String>> blobKeysPaths = List.of();
 
+    protected FulltextConfiguration fulltextConfiguration;
 
     // ============================================================
 
@@ -226,6 +227,11 @@ public class SchemaManagerBase implements SchemaManager {
         return blobKeysPaths;
     }
 
+    @Override
+    public FulltextConfiguration getFulltextConfiguration() {
+        return fulltextConfiguration;
+    }
+
     // ============================================================
 
     // utilities
@@ -251,6 +257,7 @@ public class SchemaManagerBase implements SchemaManager {
         });
 
         computeBlobKeysPaths();
+        fulltextConfiguration = FulltextConfiguration.fromSchemaManager(this);
     }
 
     /** Precomputes the blob keys paths. */

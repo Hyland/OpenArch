@@ -25,9 +25,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.model.DefaultComponent;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 
 import com.hyland.openarch.config.Configurable;
 import com.hyland.openarch.config.ConfigurationService;
@@ -47,7 +44,7 @@ import java.util.LinkedHashMap;
  * The implementation is delegated to the SchemaManager.
  */
 public class TypeServiceImpl extends DefaultComponent
-        implements TypeService, Configurable<SchemaManager>, ApplicationContextAware {
+        implements TypeService, Configurable<SchemaManager> {
 
     private static final Logger log = LogManager.getLogger(TypeServiceImpl.class);
 
@@ -65,13 +62,6 @@ public class TypeServiceImpl extends DefaultComponent
     private SchemaManagerBase defaultSchemaManager;
 
     private final Map<String, SchemaManager> schemaManagers = new ConcurrentHashMap<>();
-
-    private ApplicationContext applicationContext;
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
-    }
 
     @Override
     public int getApplicationStartedOrder() {
@@ -152,12 +142,6 @@ public class TypeServiceImpl extends DefaultComponent
     @Override
     public void setLocalState(String repositoryName, SchemaManager schemaManager) {
         schemaManagers.put(repositoryName, schemaManager);
-        // send local invalidation
-        if (applicationContext != null) {
-            applicationContext.publishEvent(new SchemaManagerUpdatedEvent(repositoryName));
-        } else {
-            log.debug("No application context available to publish event for repository: {}", repositoryName);
-        }
     }
 
     // Configurable

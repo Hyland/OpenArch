@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import com.hyland.openarch.ecm.core.api.Lock;
 import com.hyland.openarch.ecm.core.api.RepositoryException;
-import com.hyland.openarch.ecm.core.api.repository.FulltextConfiguration;
+import com.hyland.openarch.ecm.core.schema.FulltextConfiguration;
 import com.hyland.openarch.ecm.core.schema.SchemaManager;
 
 import com.hyland.openarch.runtime.api.Framework;
@@ -158,9 +158,6 @@ class DBSCachingRepositoryTest {
         repo.markReferencedBlobs(marker);
         verify(backend).markReferencedBlobs(marker);
 
-        FulltextConfiguration updated = mock(FulltextConfiguration.class);
-        repo.reloadFullTextConfiguration(updated);
-        verify(backend).reloadFullTextConfiguration(updated);
     }
 
     /** A cluster invalidator that records the node id passed to {@link #initialize}. */

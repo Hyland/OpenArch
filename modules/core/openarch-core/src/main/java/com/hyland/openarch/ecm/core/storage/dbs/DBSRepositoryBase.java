@@ -19,11 +19,10 @@ package com.hyland.openarch.ecm.core.storage.dbs;
 
 import com.hyland.openarch.ecm.core.api.Lock;
 import com.hyland.openarch.ecm.core.api.lock.LockManager;
-import com.hyland.openarch.ecm.core.api.repository.FulltextConfiguration;
+import com.hyland.openarch.ecm.core.schema.FulltextConfiguration;
 import com.hyland.openarch.ecm.core.model.InternalSession;
 import com.hyland.openarch.ecm.core.schema.SchemaManager;
 import com.hyland.openarch.ecm.core.schema.TypeService;
-import com.hyland.openarch.ecm.core.storage.FullTextConfigurationService;
 import com.hyland.openarch.runtime.api.Framework;
 
 /**
@@ -42,7 +41,11 @@ public abstract class DBSRepositoryBase implements DBSRepository {
 
     protected final String repositoryName;
 
-    protected FulltextConfiguration fulltextConfiguration;
+    protected boolean fulltextDisabled;
+
+    protected boolean fulltextStoredInBlob;
+
+    protected int fulltextFieldSizeLimit;
 
     protected LockManager lockManager;
 
@@ -54,18 +57,9 @@ public abstract class DBSRepositoryBase implements DBSRepository {
     }
 
     protected void initialize(DBSRepositoryDescriptor descriptor) {
-        // this requires a schema manager
-        initFulltextConfiguration(descriptor);
-    }
-
-    private void initFulltextConfiguration(DBSRepositoryDescriptor descriptor) {
-        if (descriptor.isFulltextSearchDisabled()) {
-            fulltextConfiguration = null;
-        } else {
-            var fullTextConfigurationService = Framework.getService(FullTextConfigurationService.class);
-            fulltextConfiguration = fullTextConfigurationService.makeConfiguration(getSchemaManager(),
-                    descriptor.getFulltextFieldSizeLimit(), descriptor.isFullTextStoredInBlob());
-        }
+        fulltextDisabled = descriptor.isFulltextSearchDisabled();
+        fulltextStoredInBlob = !fulltextDisabled && descriptor.isFullTextStoredInBlob();
+        fulltextFieldSizeLimit = descriptor.getFulltextFieldSizeLimit();
     }
 
     @Override
@@ -84,7 +78,9 @@ public abstract class DBSRepositoryBase implements DBSRepository {
 
     @Override
     public FulltextConfiguration getFulltextConfiguration() {
-        return fulltextConfiguration;
+        return fulltextDisabled ? null
+                : getSchemaManager().getFulltextConfiguration()
+                                    .withFieldSizeLimitAndStoredInBlob(fulltextFieldSizeLimit, fulltextStoredInBlob);
     }
 
     @Override
@@ -110,12 +106,12 @@ public abstract class DBSRepositoryBase implements DBSRepository {
 
     @Override
     public boolean isFulltextDisabled() {
-        return fulltextConfiguration == null;
+        return fulltextDisabled;
     }
 
     @Override
     public boolean isFulltextStoredInBlob() {
-        return fulltextConfiguration != null && fulltextConfiguration.isFulltextStoredInBlob();
+        return fulltextStoredInBlob;
     }
 
     @Override
@@ -123,8 +119,4 @@ public abstract class DBSRepositoryBase implements DBSRepository {
         return new DBSSession(this);
     }
 
-    @Override
-    public void reloadFullTextConfiguration(FulltextConfiguration updatedConfiguration) {
-        fulltextConfiguration = updatedConfiguration;
-    }
 }

@@ -35,7 +35,7 @@ import com.hyland.openarch.ecm.core.api.Blob;
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
 import com.hyland.openarch.ecm.core.api.IdRef;
-import com.hyland.openarch.ecm.core.api.repository.FulltextConfiguration;
+import com.hyland.openarch.ecm.core.schema.FulltextConfiguration;
 import com.hyland.openarch.ecm.core.model.Repository;
 import com.hyland.openarch.ecm.core.repository.RepositoryService;
 import com.hyland.openarch.ecm.core.utils.BlobsExtractor;
@@ -131,7 +131,7 @@ public class FulltextExtractionSupport implements FulltextSupport {
 
     // Returns a list blobs to extract
     public static List<Blob> getBlobs(DocumentModel document, FulltextConfiguration fulltextConfiguration) {
-        BlobsExtractor blobsExtractor = new BlobsExtractor(fulltextConfiguration.getPropPathBlobProperties());
+        BlobsExtractor blobsExtractor = new BlobsExtractor(fulltextConfiguration.propPathBlobProperties());
         return blobsExtractor.getBlobs(document);
     }
 

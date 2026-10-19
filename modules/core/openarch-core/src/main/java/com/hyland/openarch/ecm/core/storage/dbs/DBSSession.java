@@ -106,7 +106,7 @@ import com.hyland.openarch.ecm.core.api.ScrollResult;
 import com.hyland.openarch.ecm.core.api.UpdateCondition;
 import com.hyland.openarch.ecm.core.api.lock.LockManager;
 import com.hyland.openarch.ecm.core.api.query.QueryParameters;
-import com.hyland.openarch.ecm.core.api.repository.FulltextConfiguration;
+import com.hyland.openarch.ecm.core.schema.FulltextConfiguration;
 import com.hyland.openarch.ecm.core.async.tasks.DeleteBatchTaskProcessor;
 import com.hyland.openarch.ecm.core.blob.DocumentBlobService;
 import com.hyland.openarch.ecm.core.event.Event;
@@ -194,7 +194,7 @@ public class DBSSession implements InternalSession {
         this.repository = repository;
         transaction = new DBSTransactionState(repository, this);
         FulltextConfiguration fulltextConfiguration = repository.getFulltextConfiguration();
-        fulltextStoredInBlob = fulltextConfiguration != null && fulltextConfiguration.isFulltextStoredInBlob();
+        fulltextStoredInBlob = fulltextConfiguration != null && fulltextConfiguration.storedInBlob();
 
         saveTimer = registry.timer(MetricName.build("nuxeo", "repositories", "repository", "save")
                                              .tagged("repository", repository.getName()));

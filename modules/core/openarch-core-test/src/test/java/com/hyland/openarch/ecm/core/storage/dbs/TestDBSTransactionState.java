@@ -36,6 +36,8 @@ import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ID;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import jakarta.transaction.Status;
 
@@ -43,7 +45,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import com.hyland.openarch.ecm.core.api.repository.FulltextConfiguration;
+import com.hyland.openarch.ecm.core.schema.FulltextConfiguration;
+import com.hyland.openarch.ecm.core.schema.SchemaManager;
 import com.hyland.openarch.ecm.core.security.SecurityPolicyService;
 import com.hyland.openarch.ecm.core.security.SecurityService;
 import com.hyland.openarch.ecm.core.storage.State;
@@ -83,7 +86,9 @@ public class TestDBSTransactionState {
         doReturn(REPO_ID).when(repository).getName();
         doReturn(connection).when(repository).getConnection();
         FulltextConfiguration mockFulltextConfiguration = mock(FulltextConfiguration.class);
-        doReturn(mockFulltextConfiguration).when(repository).getFulltextConfiguration();
+        SchemaManager schemaManager = mock(SchemaManager.class);
+        when(connection.getSchemaManager()).thenReturn(schemaManager);
+        when(schemaManager.getFulltextConfiguration()).thenReturn(mockFulltextConfiguration);
         when(mockFulltextConfiguration.isFulltextIndexable(any())).thenReturn(true);
         state = spy(new DBSTransactionState(repository, session));
     }
@@ -120,6 +125,18 @@ public class TestDBSTransactionState {
 
         var tasks = state.getFulltextTasks();
         tasks.forEach(task -> assertNotNull(task.getTimestamp()));
+    }
+
+    @Test
+    public void dirtyFulltextBinariesUseConnectionSchemaSnapshot() {
+        var configuration = connection.getSchemaManager().getFulltextConfiguration();
+        when(configuration.propPathBlobProperties()).thenReturn(Map.of("MyType", Set.of("myblob/key")));
+        DBSDocumentState doc = mock(DBSDocumentState.class);
+        when(doc.getPrimaryType()).thenReturn("MyType");
+        doReturn(List.of("myblob/key", "other/key")).when(state).getDirtyPaths(doc);
+
+        assertThat(state.getDirtyBinariesPaths(doc, true)).containsExactly("myblob/key");
+        verify(repository, never()).getFulltextConfiguration();
     }
 
     @Test

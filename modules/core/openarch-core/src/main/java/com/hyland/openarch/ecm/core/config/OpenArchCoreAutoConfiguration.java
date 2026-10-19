@@ -15,7 +15,6 @@
  */
 package com.hyland.openarch.ecm.core.config;
 
-import com.hyland.openarch.ecm.core.storage.FullTextService;
 import com.hyland.openarch.ecm.core.storage.FulltextSupportProvider;
 import com.hyland.openarch.ecm.core.storage.config.FulltextSpringContext;
 import com.hyland.openarch.ecm.core.storage.config.FulltextSupportConfiguration;
@@ -34,7 +33,6 @@ import org.springframework.context.annotation.Import;
 @Import({
         FulltextSupportConfiguration.class,
         FulltextSpringContext.class,
-        FullTextService.class,
         FulltextSupportProvider.class,
 })
 public class OpenArchCoreAutoConfiguration {

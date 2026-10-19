@@ -86,10 +86,4 @@ public interface TypeService {
     record ModelWithVersion(ContentModelDTO model, long version) {
     }
 
-    /**
-     * CDI event sent when the schema manager for a repository changes.
-     */
-    record SchemaManagerUpdatedEvent(String repositoryName) {
-    }
-
 }

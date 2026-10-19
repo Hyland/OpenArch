@@ -31,7 +31,6 @@ Repository-Component: OSGI-INF/RepositoryService.xml,
   OSGI-INF/scheduler-contrib.xml,
   OSGI-INF/retention-and-hold-contrib.xml,
   OSGI-INF/asyncdigest-listener-contrib.xml,
-  OSGI-INF/fulltext-configuration-service.xml,
   OSGI-INF/async-tasks-config.xml,
   OSGI-INF/document-enrichment-service.xml,
   OSGI-INF/system-properties-enricher-contrib.xml

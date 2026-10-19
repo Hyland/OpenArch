@@ -18,7 +18,7 @@ package com.hyland.openarch.ecm.core.model;
 
 import java.util.function.BiConsumer;
 
-import com.hyland.openarch.ecm.core.api.repository.FulltextConfiguration;
+import com.hyland.openarch.ecm.core.schema.FulltextConfiguration;
 
 /**
  * Interface to manage a low-level repository.
@@ -39,15 +39,10 @@ public interface Repository {
     void markReferencedBlobs(BiConsumer<String, String> markerCallback);
 
     /**
-     * Gets the fulltext configuration for this repository.
+     * Gets the fulltext configuration for this repository using its current content model, or {@code null} if disabled.
      *
      * @since 10.3 (already available since 8.1 for DBSRepository)
      */
     FulltextConfiguration getFulltextConfiguration();
-
-    /**
-     * Reload the FullText configuration, used after an update in the schema manager definition.
-     */
-    void reloadFullTextConfiguration(FulltextConfiguration updatedConfiguration);
 
 }

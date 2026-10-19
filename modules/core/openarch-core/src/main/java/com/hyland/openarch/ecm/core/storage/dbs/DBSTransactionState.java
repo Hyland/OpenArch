@@ -79,7 +79,6 @@ import com.hyland.openarch.ecm.core.api.ScrollResult;
 import com.hyland.openarch.ecm.core.api.ValuesVisitor;
 import com.hyland.openarch.ecm.core.api.lock.LockManager;
 import com.hyland.openarch.ecm.core.api.model.DeltaLong;
-import com.hyland.openarch.ecm.core.api.repository.FulltextConfiguration;
 import com.hyland.openarch.ecm.core.api.repository.RepositoryManager;
 import com.hyland.openarch.ecm.core.api.validation.DocumentValidationException;
 import com.hyland.openarch.ecm.core.api.validation.DocumentValidationReport;
@@ -1197,7 +1196,7 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
     }
 
     protected void markIndexingInProgress(Set<String> ids) {
-        FulltextConfiguration fulltextConfiguration = repository.getFulltextConfiguration();
+        var fulltextConfiguration = connection.getSchemaManager().getFulltextConfiguration();
         for (DBSDocumentState docState : getStatesForUpdate(ids)) {
             if (!fulltextConfiguration.isFulltextIndexable(docState.getPrimaryType())) {
                 continue;
@@ -1287,8 +1286,8 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
         List<String> paths = getDirtyPaths(docState);
 
         if (onlyFullTextBinaries) {
-            FulltextConfiguration fulltextConfiguration = repository.getFulltextConfiguration();
-            Set<String> indexedBinaryFields = fulltextConfiguration.getPropPathBlobProperties().get(docState.getPrimaryType());
+            var fulltextConfiguration = connection.getSchemaManager().getFulltextConfiguration();
+            Set<String> indexedBinaryFields = fulltextConfiguration.propPathBlobProperties().get(docState.getPrimaryType());
             List<String> dirtyBlobPaths = new ArrayList<>();
             for (String path : paths) {
                 if (indexedBinaryFields != null && indexedBinaryFields.contains(path)) {
