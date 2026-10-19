@@ -19,22 +19,21 @@ import static jakarta.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpHeaders;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import com.hyland.openarch.ecm.core.api.RepositoryException;
 import jakarta.ws.rs.core.Response;
 
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.entity.ContentType;
+import org.apache.http.impl.client.CloseableHttpClient;
 import com.hyland.openarch.runtime.api.Framework;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,13 +55,16 @@ public class UploadExternalUriClient {
 
     private static final String SCHEME_HTTPS = "https";
 
-    private HttpClient httpClient;
+    private final CloseableHttpClient httpClient;
 
-    public UploadExternalUriClient(HttpClient httpClient) {
+    public UploadExternalUriClient(CloseableHttpClient httpClient) {
         this.httpClient = httpClient;
     }
 
-    public HttpResponse<InputStream> downloadResourceFromURI(UriWithHeaders uriWithHeaders) {
+    /**
+     * Downloads a resource. The caller must close the returned response after consuming its entity.
+     */
+    public CloseableHttpResponse downloadResourceFromURI(UriWithHeaders uriWithHeaders) {
         URI uri = uriWithHeaders.uri();
         if (!isValidURI(uri)) {
             throw new RepositoryException("Invalid URI %s".formatted(uri), BAD_REQUEST.getStatusCode());
@@ -70,20 +72,21 @@ public class UploadExternalUriClient {
         var headers = uriWithHeaders.headers();
         validateHeaders(headers);
         try {
-            HttpRequest.Builder httpRequestBuilder = HttpRequest.newBuilder(uri);
-            headers.forEach(httpRequestBuilder::header);
-            HttpRequest httpRequest = httpRequestBuilder.GET().build();
-            HttpResponse<InputStream> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofInputStream());
-            if (response == null || response.body() == null) {
+            HttpGet request = new HttpGet(uri);
+            headers.forEach(request::setHeader);
+            CloseableHttpResponse response = httpClient.execute(request);
+            if (response == null) {
                 throw new RepositoryException("Error during stream downloading of URI: %s".formatted(uri), BAD_REQUEST.getStatusCode());
             }
-            if (response.statusCode() != Response.Status.OK.getStatusCode()) {
-                throw new RepositoryException("Stream download response code is: %s".formatted(response.statusCode()), BAD_REQUEST.getStatusCode());
+            if (response.getEntity() == null || response.getStatusLine().getStatusCode() != Response.Status.OK.getStatusCode()) {
+                try (response) {
+                    if (response.getEntity() == null) {
+                        throw new RepositoryException("Error during stream downloading of URI: %s".formatted(uri), BAD_REQUEST.getStatusCode());
+                    }
+                    throw new RepositoryException("Stream download response code is: %s".formatted(response.getStatusLine().getStatusCode()), BAD_REQUEST.getStatusCode());
+                }
             }
             return response;
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new RepositoryException(e);
         } catch (IOException e) {
             throw new RepositoryException("IOException occurred during stream download of URI: %s.  %s".formatted(uri, e.getMessage()));
         }
@@ -105,9 +108,10 @@ public class UploadExternalUriClient {
         }
     }
 
-    public MimeTypeAndEncoding getMimeTypeAndEncoding(HttpHeaders headers) {
-        String mimeType = getContentType(headers).getMimeType();
-        Charset charset = getContentType(headers).getCharset();
+    public MimeTypeAndEncoding getMimeTypeAndEncoding(HttpResponse response) {
+        ContentType contentType = getContentType(response);
+        String mimeType = contentType.getMimeType();
+        Charset charset = contentType.getCharset();
         String encoding = charset == null ? null : charset.name();
         return new MimeTypeAndEncoding(mimeType, encoding);
     }
@@ -121,12 +125,12 @@ public class UploadExternalUriClient {
         return uriAllowedHostList.stream().anyMatch(hostname -> hostname.equals("*") || hostname.equals(uri.getHost()));
     }
 
-    private ContentType getContentType(HttpHeaders headers) {
-        Optional<String> headerContentType = headers.firstValue(CONTENT_TYPE);
-        if (headerContentType.isEmpty()) {
+    private ContentType getContentType(HttpResponse response) {
+        Header headerContentType = response.getFirstHeader(CONTENT_TYPE);
+        if (headerContentType == null) {
             throw new RepositoryException("Content-Type not found in response headers of stream download URI", BAD_REQUEST.getStatusCode());
         }
-        return ContentType.parse(headerContentType.get());
+        return ContentType.parse(headerContentType.getValue());
     }
 
     private static List<String> getAllowedHeaders() {
