@@ -82,6 +82,7 @@ users:
 
   - id: "6a5a0abb-6092-489c-842b-777a74b6ad6a"
     username: testuser3
+    password: "{noop}password"
     firstName: Demo
     lastName: Demo
     email: testuser3@example.com
