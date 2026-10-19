@@ -17,10 +17,14 @@ package com.hyland.openarch.ecm.core.schema;
 
 import static java.util.Objects.requireNonNull;
 import static com.hyland.openarch.common.function.FunctionUtils.sortByKeyAndMapValue;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.KEY_BLOB_KEY;
 import static com.hyland.openarch.ecm.core.schema.types.FieldCharacteristics.Representation.STORE;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -72,6 +76,10 @@ public class SchemaManagerBase implements SchemaManager {
     protected Map<String, Set<String>> documentTypesExtendedBy = new HashMap<>();
 
     protected Map<String, Set<String>> documentTypesForMixin = new HashMap<>();
+
+    /** Paths to the blob keys of all the blobs of the content model, see {@link #getBlobKeysPaths}. */
+    protected List<List<String>> blobKeysPaths = List.of();
+
 
     // ============================================================
 
@@ -213,6 +221,11 @@ public class SchemaManagerBase implements SchemaManager {
         return field;
     }
 
+    @Override
+    public List<List<String>> getBlobKeysPaths() {
+        return blobKeysPaths;
+    }
+
     // ============================================================
 
     // utilities
@@ -236,6 +249,96 @@ public class SchemaManagerBase implements SchemaManager {
                 documentTypesForMixin.computeIfAbsent(mixin, k -> new HashSet<>()).add(name);
             }
         });
+
+        computeBlobKeysPaths();
+    }
+
+    /** Precomputes the blob keys paths. */
+    protected void computeBlobKeysPaths() {
+        BlobFinder finder = new BlobFinder(this);
+        finder.visit();
+        blobKeysPaths = List.copyOf(finder.blobKeysPaths);
+    }
+
+    /** Finds the paths for all blobs in all document types. */
+    protected static class BlobFinder {
+
+        private final SchemaManager schemaManager;
+
+        protected final Set<String> schemaDone = new HashSet<>();
+
+        protected final Deque<String> path = new ArrayDeque<>();
+
+        protected List<List<String>> blobKeysPaths = new ArrayList<>();
+
+        public BlobFinder(SchemaManager schemaManager) {
+            this.schemaManager = schemaManager;
+        }
+
+        public void visit() {
+            // document types
+            for (DocumentType docType : schemaManager.getDocumentTypes()) {
+                visitSchemas(docType.getSchemas());
+            }
+            // mixins
+            for (CompositeType type : schemaManager.getMixins()) {
+                visitSchemas(type.getSchemas());
+            }
+        }
+
+        protected void visitSchemas(Collection<Schema> schemas) {
+            for (Schema schema : schemas) {
+                if (schemaDone.add(schema.getName())) {
+                    visitComplexType(schema);
+                }
+            }
+        }
+
+        protected void visitComplexType(ComplexType complexType) {
+            if (TypeConstants.isBlobType(complexType)) {
+                path.addLast(KEY_BLOB_KEY);
+                recordBlobPath();
+                path.removeLast();
+                return;
+            }
+            for (Field field : complexType.getFields()) {
+                visitField(field);
+            }
+        }
+
+        /** Records a blob path, stored in the {@link #path} field. */
+        protected void recordBlobPath() {
+            blobKeysPaths.add(new ArrayList<>(path));
+        }
+
+        protected void visitField(Field field) {
+            Type type = field.getType();
+            if (type.isSimpleType()) {
+                // scalar
+                // assume no bare binary exists
+            } else if (type.isComplexType()) {
+                // complex property
+                String name = field.getName();
+                path.addLast(name);
+                visitComplexType((ComplexType) type);
+                path.removeLast();
+            } else if (type.isListType()) {
+                // array or list
+                Type fieldType = ((ListType) type).getFieldType();
+                if (fieldType.isSimpleType()) {
+                    // array
+                    // assume no array of bare binaries exist
+                } else {
+                    // complex list
+                    String name = field.getName();
+                    path.addLast(name);
+                    visitComplexType((ComplexType) fieldType);
+                    path.removeLast();
+                }
+            } else {
+                // any: ignore (assume contains no binaries)
+            }
+        }
     }
 
     // ============================================================

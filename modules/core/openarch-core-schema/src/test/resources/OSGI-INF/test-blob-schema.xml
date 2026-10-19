@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<component name="com.hyland.openarch.ecm.core.test.blob.schema">
+
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="schema">
+    <schema name="file" prefix="fl" src="schema/file.xsd" />
+  </extension>
+
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="doctype">
+    <doctype name="FileDoc" extends="SysContent">
+      <schema name="file" />
+    </doctype>
+  </extension>
+
+</component>

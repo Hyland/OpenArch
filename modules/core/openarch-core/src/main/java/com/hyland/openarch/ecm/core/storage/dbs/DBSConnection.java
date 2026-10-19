@@ -239,6 +239,12 @@ public interface DBSConnection extends AutoCloseable, LockManager {
     SchemaManager getSchemaManager();
 
     /**
+     * Gets the list of blob keys paths of all possible blobs in all schemas, for this connection's schema manager, see
+     * {@link SchemaManager#getBlobKeysPaths}.
+     */
+    List<List<String>> getBlobKeysPaths();
+
+    /**
      * Starts a new transaction.
      *
      * @since 8.10

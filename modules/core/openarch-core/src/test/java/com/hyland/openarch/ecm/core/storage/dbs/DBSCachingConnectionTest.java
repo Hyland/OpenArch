@@ -276,6 +276,8 @@ class DBSCachingConnectionTest {
         when(delegate.hasChild("p", "n", Set.of())).thenReturn(true);
         when(delegate.queryKeyValuePresence("k", "v", Set.of())).thenReturn(true);
         when(delegate.getSchemaManager()).thenReturn(mock(SchemaManager.class));
+        List<List<String>> blobKeysPaths = List.of(List.of("content", "key"));
+        when(delegate.getBlobKeysPaths()).thenReturn(blobKeysPaths);
 
         List<State> byKey = List.of(state("id1", null, null));
         when(delegate.queryKeyValue("k", "v", Set.of())).thenReturn(byKey);
@@ -306,6 +308,7 @@ class DBSCachingConnectionTest {
         assertSame(scroll, conn.scroll(evaluator, 10, 60));
         assertSame(scrollById, conn.scroll("scrollId"));
         assertSame(conn.getSchemaManager(), conn.getSchemaManager());
+        assertSame(blobKeysPaths, conn.getBlobKeysPaths());
     }
 
     @Test

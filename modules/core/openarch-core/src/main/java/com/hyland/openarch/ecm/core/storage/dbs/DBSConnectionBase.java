@@ -15,10 +15,14 @@
  */
 package com.hyland.openarch.ecm.core.storage.dbs;
 
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_FULLTEXT_BINARY;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ID;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_NAME;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PRIMARY_TYPE;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_TITLE;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import com.hyland.openarch.ecm.core.schema.TypeConstants;
 import com.hyland.openarch.ecm.core.storage.State;
@@ -34,6 +38,17 @@ public abstract class DBSConnectionBase implements DBSConnection {
 
     protected DBSConnectionBase(DBSRepositoryBase repository) {
         this.repository = repository;
+    }
+
+    @Override
+    public List<List<String>> getBlobKeysPaths() {
+        List<List<String>> blobKeysPaths = getSchemaManager().getBlobKeysPaths();
+        if (repository.isFulltextStoredInBlob()) {
+            // the extracted fulltext blob isn't part of the content model, it depends on the repository configuration
+            blobKeysPaths = new ArrayList<>(blobKeysPaths);
+            blobKeysPaths.add(List.of(SYS_FULLTEXT_BINARY));
+        }
+        return blobKeysPaths;
     }
 
     @Override

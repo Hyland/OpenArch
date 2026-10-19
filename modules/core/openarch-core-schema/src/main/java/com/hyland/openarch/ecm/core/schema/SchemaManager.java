@@ -15,6 +15,7 @@
  */
 package com.hyland.openarch.ecm.core.schema;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -50,6 +51,22 @@ public interface SchemaManager {
 
     /** Gets the list of mixins. */
     CompositeType[] getMixins();
+
+    /**
+     * Gets the paths to the blob keys of all the blobs of all the document types and mixins.
+     * <p>
+     * Each "path" is a list of path components. Example:
+     * {@code [[sysfile_blob, key], [sysfiles_blobs, blob, key], ...]}
+     * <p>
+     * A complex list contributes a single path, in which it is traversed without an index: the path
+     * {@code [sysfiles_blobs, blob, key]} designates the blob key of every element of the {@code sysfiles_blobs} list.
+     * <p>
+     * This is computed from this schema manager, which is replaced when the content model is updated while the
+     * application is running, so that the blob fields it declares are taken into account. A missing path means that
+     * the blob key is not recorded in the document's {@code sys_blobKeys}, which makes the blob garbage collector
+     * believe that the blob is not referenced and delete it.
+     */
+    List<List<String>> getBlobKeysPaths();
 
     /** Finds which mixins are configured as no-per-instance-query. */
     Set<String> getNoPerDocumentQueryMixins();

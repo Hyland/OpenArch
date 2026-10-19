@@ -60,6 +60,12 @@ public class TestSchemaManager {
     }
 
     @Test
+    @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/test-blob-schema.xml")
+    public void testBlobKeysPaths() {
+        assertEquals(List.of(List.of("fl_blob", "key")), schemaManager.getBlobKeysPaths());
+    }
+
+    @Test
     @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/test-system-characteristics.xml")
     public void testIsSecurityProperty() {
         // non-system properties are not security properties

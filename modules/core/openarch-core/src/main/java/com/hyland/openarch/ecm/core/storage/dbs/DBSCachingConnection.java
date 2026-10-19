@@ -155,6 +155,11 @@ public class DBSCachingConnection implements DBSConnection {
     }
 
     @Override
+    public List<List<String>> getBlobKeysPaths() {
+        return connection.getBlobKeysPaths();
+    }
+
+    @Override
     public void begin() {
         connection.begin();
         processReceivedInvalidations();

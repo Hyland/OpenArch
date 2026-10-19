@@ -988,7 +988,7 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
     }
 
     protected void updateDenormalizedState() {
-        BlobKeysFinder blobKeysFinder = new BlobKeysFinder(repository.getBlobKeysPaths());
+        BlobKeysFinder blobKeysFinder = new BlobKeysFinder(connection.getBlobKeysPaths());
         for (DBSDocumentState docState : transientStates.values()) {
             computeBlobKeys(docState, blobKeysFinder);
             // denormalization of sys_isFolderish done in DBSDocument
@@ -1313,7 +1313,7 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
      */
     private List<String> getDirtyBlobsPath(List<String> dirtyPaths) {
         List<String> dirtyBlobPaths = new ArrayList<>();
-        List<String> blobKeysPaths = repository.getBlobKeysPaths()
+        List<String> blobKeysPaths = connection.getBlobKeysPaths()
                 .stream()
                 .map(path -> String.join("/", path))
                 .filter(path -> !SYS_FULLTEXT_BINARY.equals(path))

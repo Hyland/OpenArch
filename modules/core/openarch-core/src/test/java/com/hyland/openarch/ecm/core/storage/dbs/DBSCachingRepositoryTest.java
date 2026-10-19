@@ -140,8 +140,7 @@ class DBSCachingRepositoryTest {
         Lock setLock = mock(Lock.class);
         when(backend.setLock("id", setLock)).thenReturn(lock);
         when(backend.removeLock("id", "owner")).thenReturn(lock);
-        List<List<String>> blobPaths = List.of(List.of("a"));
-        when(backend.getBlobKeysPaths()).thenReturn(blobPaths);
+        List.of(List.of("a"));
         SchemaManager schemaManager = mock(SchemaManager.class);
         when(backend.getSchemaManager()).thenReturn(schemaManager);
 
@@ -152,7 +151,6 @@ class DBSCachingRepositoryTest {
         assertSame(lock, repo.setLock("id", setLock));
         assertSame(lock, repo.removeLock("id", "owner"));
         assertEquals("cachingRepoTestE", repo.getName());
-        assertSame(blobPaths, repo.getBlobKeysPaths());
         assertSame(schemaManager, repo.getSchemaManager());
 
         @SuppressWarnings("unchecked")
