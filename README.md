@@ -169,6 +169,9 @@ The result will be a JSON object containing the search results, including the do
 #### Going Further
 Check our [documentation](https://docs.hyland.com/r/Current/Hyland-Content-REST-API) for further use cases and options.
 
+## Testing
+If you'd rather poke at the API from a REST client than with curl, there's a Bruno collection of end-to-end tests in [ftests/bruno-tests](ftests/bruno-tests/README.md). It covers the main endpoints and can be run from the Bruno app or from the command line with the Bruno CLI. See the [README](ftests/bruno-tests/README.md) for setup and usage.
+
 ## Integrating OpenArch
 <!-- TODO: update link once the demo gets moved to the OSS org -->
 OpenArch will run as a component in your AI platform stack.

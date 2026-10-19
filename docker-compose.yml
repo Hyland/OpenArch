@@ -3,7 +3,7 @@ include:
 
 services:
   openarch-app:
-    image: ghcr.io/hyland/openarch-app-jvm:${OPENARCH_VERSION}
+    image: ghcr.io/hyland/openarch-app-jvm:${OPENARCH_VERSION:-latest}
     depends_on:
       opensearch:
         condition: service_healthy

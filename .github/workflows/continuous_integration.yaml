@@ -114,12 +114,22 @@ jobs:
           python3 ./third-party-license-overrides/thirdPartyLicenseCSVCreator.py --project "${{ github.workspace }}" \
           --version "${{ env.VERSION }}" --combined --output "./server/openarch-app/target"
 
+      - name: Docker Metadata
+        id: meta
+        uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5.10.0
+        with:
+          images: ghcr.io/hyland/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=${{ env.VERSION }}
+            type=raw,value=latest,enable={{is_default_branch}}
+
       - name: Build Docker Image
         uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
         with:
           context: ./server/openarch-app
           file: ./server/openarch-app/src/main/docker/Dockerfile
-          tags: ghcr.io/hyland/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64
           push: false
           build-args: |
@@ -139,7 +149,8 @@ jobs:
         with:
           context: ./server/openarch-app
           file: ./server/openarch-app/src/main/docker/Dockerfile
-          tags: ghcr.io/hyland/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64
           push: true
 
