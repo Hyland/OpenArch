@@ -41,6 +41,8 @@ docker-compose up
 ### Access OpenArch
 Once OpenArch is running, you can access the API endpoint list at [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html).
 
+For instructions on authenticating API requests in Swagger UI, see [Swagger UI authentication](server/openarch-app/README.md#swagger-ui-authentication).
+
 ### Default Users
 OpenArch ships with default user credentials for local development. For details on available default users, how to change the admin credentials, and how to add new users, see [Default Users Documentation](docs/DEFAULT_USERS.md).
 

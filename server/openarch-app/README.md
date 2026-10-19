@@ -57,6 +57,15 @@ Application configuration lives in `src/main/resources/application.properties`. 
 
 User definitions for local testing are seeded from `src/main/resources/openarch-users.yml`.
 
+## Swagger UI authentication
+
+Open http://localhost:8080/swagger-ui/index.html, select **Authorize**, and enter a configured
+OpenArch username and password under **BasicAuth**. Swagger UI then sends HTTP Basic credentials
+with **Try it out** API requests. Enter the username and password as plain text in their separate
+fields; Swagger UI automatically Base64-encodes `username:password` for the
+`Authorization: Basic <encoded credentials>` header. Do not encode the credentials yourself.
+Base64 is not encryption; use HTTPS when accessing the application remotely.
+
 ## CI/CD in OpenArch
 
 The `Continuous Integration` workflow (`.github/workflows/continuous_integration.yaml`) is the entry point of the CI/CD pipeline. On every push or pull request to `main` it:

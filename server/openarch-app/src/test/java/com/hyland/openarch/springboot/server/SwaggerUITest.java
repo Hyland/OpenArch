@@ -16,6 +16,10 @@
 package com.hyland.openarch.springboot.server;
 
 import static io.restassured.RestAssured.when;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.List;
+import java.util.Map;
 
 import com.hyland.openarch.springboot.AbstractSpringTest;
 import org.junit.jupiter.api.Test;
@@ -29,6 +33,16 @@ class SwaggerUITest extends AbstractSpringTest {
     @Test
     void testSwaggerUI() {
         when().get("/swagger-ui/index.html").then().statusCode(200);
+    }
+
+    @Test
+    void testBasicAuthenticationIsPublished() {
+        var document = when().get("/v3/api-docs").then().statusCode(200).extract().jsonPath();
+
+        assertThat(document.getString("components.securitySchemes.BasicAuth.type")).isEqualTo("http");
+        assertThat(document.getString("components.securitySchemes.BasicAuth.scheme")).isEqualTo("basic");
+        assertThat(document.<Map<String, Object>>getList("security"))
+                .containsExactly(Map.of("SecurityScheme", List.of()), Map.of("BasicAuth", List.of()));
     }
 
 }

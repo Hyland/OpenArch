@@ -28,6 +28,8 @@ import io.swagger.v3.oas.models.parameters.HeaderParameter;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.parameters.PathParameter;
 import io.swagger.v3.oas.models.parameters.QueryParameter;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.InvocationTargetException;
@@ -36,6 +38,33 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class OpenApiConfigurationTest {
+    @Test
+    public void testSharedSecurityRemainsBearerOnly() {
+        OpenAPI openApi = new OpenApiConfiguration().addSecuritySchemes();
+
+        assertThat(openApi.getComponents().getSecuritySchemes()).containsOnlyKeys("SecurityScheme");
+        SecurityScheme bearer = openApi.getComponents().getSecuritySchemes().get("SecurityScheme");
+        assertThat(bearer.getType()).isEqualTo(SecurityScheme.Type.HTTP);
+        assertThat(bearer.getScheme()).isEqualTo("bearer");
+        assertThat(bearer.getBearerFormat()).isEqualTo("JWT");
+        assertThat(openApi.getSecurity()).containsExactly(new SecurityRequirement().addList("SecurityScheme"));
+    }
+
+    @Test
+    public void testCommunityAddsBasicAuthenticationAsAnAlternative() {
+        OpenAPI openApi = new OpenApiConfiguration().addSecuritySchemes();
+
+        new OpenArchApplication().communityBasicAuthentication().customise(openApi);
+
+        assertThat(openApi.getComponents().getSecuritySchemes()).containsOnlyKeys("SecurityScheme", "BasicAuth");
+        SecurityScheme basic = openApi.getComponents().getSecuritySchemes().get("BasicAuth");
+        assertThat(basic.getType()).isEqualTo(SecurityScheme.Type.HTTP);
+        assertThat(basic.getScheme()).isEqualTo("basic");
+        assertThat(basic.getBearerFormat()).isNull();
+        assertThat(openApi.getSecurity()).containsExactly(new SecurityRequirement().addList("SecurityScheme"),
+                new SecurityRequirement().addList("BasicAuth"));
+    }
+
     @Test
     public void testGetSortedParameterList()
         throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {

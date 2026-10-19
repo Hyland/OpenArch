@@ -15,13 +15,30 @@
  */
 package com.hyland.openarch.springboot.server;
 
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
+import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
 public class OpenArchApplication {
 
     public static void main(String... args) {
         SpringApplication.run(OpenArchApplication.class, args);
+    }
+
+    @Bean
+    public OpenApiCustomizer communityBasicAuthentication() {
+        return openApi -> {
+            String schemeName = "BasicAuth";
+            openApi.getComponents().addSecuritySchemes(schemeName,
+                    new SecurityScheme().type(SecurityScheme.Type.HTTP)
+                                        .scheme("basic")
+                                        .description("Authenticate with a configured OpenArch username and password."));
+            // Separate requirements are alternatives (OR), not credentials required together (AND).
+            openApi.addSecurityItem(new SecurityRequirement().addList(schemeName));
+        };
     }
 }

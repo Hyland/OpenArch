@@ -56,6 +56,8 @@ COPY target/*-3rd-Party-libraries.csv /deployments/licenses/
 
 RUN addgroup -g ${GROUP_ID} ${GROUP_NAME} && \
     adduser -D -u ${USER_ID} -G ${GROUP_NAME} ${USER_NAME} && \
+    mkdir -p /deployments/nxserver/data && \
+    chown -R ${USER_NAME}:${GROUP_NAME} /deployments/nxserver && \
     chgrp -R ${GROUP_NAME} /deployments && \
     chmod +x /deployments/run-java.sh && \
     chmod 640 /deployments/app.jar && \
