@@ -79,6 +79,11 @@ public final class CoreEventConstants {
     public static final String DIRTY_BLOB_XPATHS = "dirtyBlobsPaths";
 
     /**
+     * Passed with event context to disable automatic indexing for a document update.
+     */
+    public static final String DISABLE_AUTO_INDEXING = "disableAutoIndexing";
+
+    /**
      * Passed with events involving multiple documents (query results, bulk operations, ...). The value is e.g.
      * an ID for all documents involved in one operation.
      */

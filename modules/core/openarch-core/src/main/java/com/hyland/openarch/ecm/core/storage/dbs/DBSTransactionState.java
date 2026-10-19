@@ -32,8 +32,13 @@ import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_POS;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PRIMARY_TYPE;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_READ_ACL;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_USER_GENERATION;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_CHUNKS;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_EMBEDDINGS;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY_ON_PREM;
 import static com.hyland.openarch.ecm.core.api.event.CoreEventConstants.DIRTY_BLOB_XPATHS;
 import static com.hyland.openarch.ecm.core.api.event.CoreEventConstants.DIRTY_XPATHS;
+import static com.hyland.openarch.ecm.core.api.event.CoreEventConstants.DISABLE_AUTO_INDEXING;
 import static com.hyland.openarch.ecm.core.api.event.DocumentEventTypes.DOCUMENT_CREATED;
 import static com.hyland.openarch.ecm.core.api.security.SecurityConstants.SYSTEM_USERNAME;
 import static com.hyland.openarch.ecm.core.schema.TypeConstants.KEY_BLOB_KEY;
@@ -754,14 +759,36 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
                                      Map<String, Map<String, Serializable>> contextForDocsWithDirtyProps,
                                      Map<String, Map<String, Serializable>> contextForDocsWithDirtyBlobs) {
         List<String> dirtyPaths = getDirtyPaths(docState);
+        Map<String, Serializable> propsContext = new HashMap<>();
         if (!dirtyPaths.isEmpty()) {
             List<String> condensedPaths = condenseDirtyPaths(dirtyPaths);
-            contextForDocsWithDirtyProps.put(id, Map.of(DIRTY_XPATHS, (Serializable) condensedPaths));
+            propsContext.put(DIRTY_XPATHS, (Serializable) condensedPaths);
+        }
+        if (isOnPremChunksCleanup(docState)) {
+            propsContext.put(DISABLE_AUTO_INDEXING, true);
+        }
+        if (!propsContext.isEmpty()) {
+            contextForDocsWithDirtyProps.put(id, propsContext);
         }
         List<String> dirtyBlobPaths = getDirtyBlobsPath(dirtyPaths);
         if (!dirtyBlobPaths.isEmpty()) {
             contextForDocsWithDirtyBlobs.put(id, Map.of(DIRTY_BLOB_XPATHS, (Serializable) dirtyBlobPaths));
         }
+    }
+
+    /**
+     * Whether this update only clears {@code sysemb_chunks} on an {@code onPrem} SysEmbeddings document, as done after
+     * a confirmed EV Store write. Such an update must not re-drive embeddings indexing: the vectors are unchanged and
+     * onPrem indexing never reads the chunks blob. An update that also touches {@code sysemb_embeddings} still indexes.
+     */
+    private static boolean isOnPremChunksCleanup(DBSDocumentState docState) {
+        if (!SYSEMB_RESIDENCY_ON_PREM.equals(docState.get(SYSEMB_RESIDENCY))) {
+            return false;
+        }
+        StateDiff diff = docState.getStateChange();
+        return diff != null && diff.containsKey(SYSEMB_CHUNKS)
+                && StateHelper.equalsLoose(diff.get(SYSEMB_CHUNKS), null)
+                && !diff.containsKey(SYSEMB_EMBEDDINGS);
     }
 
     protected void addConditionalUpdateForUserGeneration(ConditionalUpdates conditionalUpdates,

@@ -15,6 +15,7 @@
  */
 package com.hyland.openarch.opensearch.commands;
 
+import static com.hyland.openarch.ecm.core.api.event.CoreEventConstants.DISABLE_AUTO_INDEXING;
 import static com.hyland.openarch.ecm.core.api.event.DocumentEventTypes.ABOUT_TO_CHECKIN;
 import static com.hyland.openarch.ecm.core.api.event.DocumentEventTypes.AFTER_EXTEND_RETENTION;
 import static com.hyland.openarch.ecm.core.api.event.DocumentEventTypes.AFTER_MAKE_RECORD;
@@ -86,7 +87,7 @@ public abstract class IndexingCommandsStacker {
     }
 
     protected void stackCommand(DocumentModel doc, DocumentEventContext docCtx, String eventId) {
-        Boolean block = (Boolean) docCtx.getProperty(OpenSearchConstants.DISABLE_AUTO_INDEXING);
+        Boolean block = (Boolean) docCtx.getProperty(DISABLE_AUTO_INDEXING);
         if (block != null && block) {
             if (log.isDebugEnabled()) {
                 log.debug("Indexing is disable, skip indexing command for doc {}", doc);

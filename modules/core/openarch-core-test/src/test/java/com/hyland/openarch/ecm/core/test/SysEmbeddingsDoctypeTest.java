@@ -25,11 +25,18 @@ import static com.hyland.openarch.ecm.core.SysEmbeddingsPolicies.EMBEDDINGS_NAME
 import static com.hyland.openarch.ecm.core.api.CoreSession.ENFORCE_SYS_NAME;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_CHUNKS;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_EMBEDDINGS;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY_CLOUD;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY_ON_PREM;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_TITLE;
+import static com.hyland.openarch.ecm.core.api.event.CoreEventConstants.DISABLE_AUTO_INDEXING;
+import static com.hyland.openarch.ecm.core.api.event.DocumentEventTypes.DOCUMENT_UPDATED;
 import static com.hyland.openarch.ecm.core.schema.MixinNames.SYS_HAS_EMBEDDINGS;
 import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_EMBEDDINGS;
 import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
 
 import java.io.IOException;
+import java.util.List;
 
 import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.junit.jupiter.api.Test;
@@ -40,6 +47,9 @@ import com.hyland.openarch.ecm.core.api.Blobs;
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
 import com.hyland.openarch.ecm.core.api.validation.DocumentValidationException;
+import com.hyland.openarch.ecm.core.event.Event;
+import com.hyland.openarch.ecm.core.event.impl.DocumentEventContext;
+import com.hyland.openarch.ecm.core.event.test.CapturingEventListener;
 import com.hyland.openarch.ecm.core.schema.MixinNames;
 import com.hyland.openarch.runtime.test.runner.Features;
 import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
@@ -356,7 +366,94 @@ class SysEmbeddingsDoctypeTest {
         assertEquals("hello embeddings", embeddings.getString());
     }
 
+    /**
+     * Clearing {@code sysemb_chunks} on an onPrem SysEmbeddings (post EV Store write cleanup) flags the
+     * {@code documentModified} event so that it does not trigger a second embeddings indexing.
+     */
+    @Test
+    void testClearOnPremSysembChunksDisablesAutoIndexing() {
+        // given an onPrem SysEmbeddings child holding both blobs
+        DocumentModel emb = createEmbeddingsWithChunks("onprem", SYSEMB_RESIDENCY_ON_PREM);
+
+        // when clearing sysemb_chunks
+        emb.setPropertyValue(SYSEMB_CHUNKS, null);
+
+        // then automatic indexing is disabled for that update
+        assertEquals(Boolean.TRUE, saveAndCaptureUpdatedContext().getProperty(DISABLE_AUTO_INDEXING));
+    }
+
+    @Test
+    void testClearCloudSysembChunksKeepsAutoIndexing() {
+        // given a cloud SysEmbeddings child holding both blobs
+        DocumentModel emb = createEmbeddingsWithChunks("cloud", SYSEMB_RESIDENCY_CLOUD);
+
+        // when clearing sysemb_chunks
+        emb.setPropertyValue(SYSEMB_CHUNKS, null);
+
+        // then automatic indexing is kept
+        assertNull(saveAndCaptureUpdatedContext().getProperty(DISABLE_AUTO_INDEXING));
+    }
+
+    @Test
+    void testClearOnPremSysembChunksWithEmbeddingsUpdateKeepsAutoIndexing() {
+        // given an onPrem SysEmbeddings child holding both blobs
+        DocumentModel emb = createEmbeddingsWithChunks("onpremupdate", SYSEMB_RESIDENCY_ON_PREM);
+
+        // when clearing sysemb_chunks while replacing sysemb_embeddings
+        emb.setPropertyValue(SYSEMB_EMBEDDINGS, Blobs.createBlob("new embeddings"));
+        emb.setPropertyValue(SYSEMB_CHUNKS, null);
+
+        // then automatic indexing is kept
+        assertNull(saveAndCaptureUpdatedContext().getProperty(DISABLE_AUTO_INDEXING));
+    }
+
+    @Test
+    void testUpdateOnPremSysembEmbeddingsKeepsAutoIndexing() {
+        // given an onPrem SysEmbeddings child holding both blobs
+        DocumentModel emb = createEmbeddingsWithChunks("onpremembonly", SYSEMB_RESIDENCY_ON_PREM);
+
+        // when replacing sysemb_embeddings only
+        emb.setPropertyValue(SYSEMB_EMBEDDINGS, Blobs.createBlob("new embeddings"));
+
+        // then automatic indexing is kept
+        assertNull(saveAndCaptureUpdatedContext().getProperty(DISABLE_AUTO_INDEXING));
+    }
+
+    @Test
+    void testUpdateNonEmbeddingsDocumentKeepsAutoIndexing() {
+        // given a regular document, which has no sysemb_residency
+        DocumentModel doc = session.createDocumentModel("/", "plain", SYS_FILE);
+        doc.create();
+        session.save();
+
+        // when updating it
+        doc.setPropertyValue(SYS_TITLE, "updated");
+
+        // then automatic indexing is kept
+        assertNull(saveAndCaptureUpdatedContext().getProperty(DISABLE_AUTO_INDEXING));
+    }
+
     // =======================================================================
+
+    DocumentModel createEmbeddingsWithChunks(String suffix, String residency) {
+        DocumentModel doc = createDocWithSysHasEmbeddings();
+        DocumentModel emb = newEmbeddings(doc, EMBEDDINGS_NAME_PREFIX + suffix);
+        emb.setPropertyValue(SYSEMB_EMBEDDINGS, Blobs.createBlob("hello embeddings"));
+        emb.setPropertyValue(SYSEMB_CHUNKS, Blobs.createBlob("hello chunks"));
+        emb.setPropertyValue(SYSEMB_RESIDENCY, residency);
+        emb.create();
+        session.save();
+        return emb;
+    }
+
+    DocumentEventContext saveAndCaptureUpdatedContext() {
+        try (CapturingEventListener listener = new CapturingEventListener(DOCUMENT_UPDATED)) {
+            session.save();
+            List<Event> events = listener.getCapturedEvents();
+            assertEquals(1, events.size());
+            return (DocumentEventContext) events.getFirst().getContext();
+        }
+    }
 
     DocumentModel createDocWithSysHasEmbeddings() {
         DocumentModel doc = session.createDocumentModel("/", "doc", SYS_FILE);
