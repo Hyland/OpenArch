@@ -66,6 +66,7 @@ import org.opensearch.client.json.JsonpSerializable;
 import org.opensearch.client.opensearch._types.SearchType;
 import org.opensearch.client.opensearch._types.query_dsl.Query;
 import org.opensearch.client.opensearch._types.query_dsl.QueryBuilders;
+import org.opensearch.client.opensearch.core.IndexRequest;
 import org.opensearch.client.opensearch.core.SearchRequest;
 import org.opensearch.client.opensearch.core.SearchResponse;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -132,6 +133,39 @@ public class TestHXQLConversion {
                                                            .query(query)
                                                            .build();
         return oss.getClient().search(request);
+    }
+
+    @Test
+    public void testTypeOnlyMixinWithStaleIndexedMixins() {
+        try {
+            oss.getClient().index(IndexRequest.of(b -> b.index(IDX_NAME).id("stale-folder")
+                    .document(new DocumentDTO(Map.of("sys_primaryType", "SysFolder")))));
+            oss.getClient().index(IndexRequest.of(b -> b.index(IDX_NAME).id("stale-file")
+                    .document(new DocumentDTO(Map.of("sys_primaryType", "SysFile",
+                            "sys_mixinTypes", "SysFolderish")))));
+            oss.refresh();
+
+            for (String comparison : List.of("= 'SysFolderish'", "IN ('SysFolderish')")) {
+                Query query = nxqlQueryConverter.toESQueryBuilder(
+                        HXQLQueryConverter.parse("SELECT * FROM SysContent WHERE sys_mixinTypes " + comparison), null)
+                                               .build().toQuery();
+                List<String> ids = search(query).hits().hits().stream().map(hit -> hit.id()).toList();
+                assertTrue(ids.contains("stale-folder"), comparison);
+                assertFalse(ids.contains("stale-file"), comparison);
+            }
+            for (String comparison : List.of("<> 'SysFolderish'", "NOT IN ('SysFolderish')")) {
+                Query query = nxqlQueryConverter.toESQueryBuilder(
+                        HXQLQueryConverter.parse("SELECT * FROM SysContent WHERE sys_mixinTypes " + comparison), null)
+                                               .build().toQuery();
+                List<String> ids = search(query).hits().hits().stream().map(hit -> hit.id()).toList();
+                assertFalse(ids.contains("stale-folder"), comparison);
+                assertTrue(ids.contains("stale-file"), comparison);
+            }
+        } finally {
+            oss.getClient().delete(IDX_NAME, "stale-folder");
+            oss.getClient().delete(IDX_NAME, "stale-file");
+            oss.refresh();
+        }
     }
 
     @Test

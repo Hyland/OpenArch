@@ -19,10 +19,16 @@ import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
 import static jakarta.ws.rs.core.Response.Status.NOT_ACCEPTABLE;
 import static jakarta.ws.rs.core.Response.Status.OK;
 import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 import static com.hyland.openarch.ecm.core.api.local.DummyLoginFeature.TEST_ANONYMOUS_USER;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ID;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_MIXIN_TYPES;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_TITLE;
+import static com.hyland.openarch.ecm.core.schema.MixinNames.SYS_HIDDEN_IN_NAVIGATION;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
 import static com.hyland.openarch.rest.query.QueryAPI.PATH;
 import static com.hyland.openarch.rest.query.conf.NamedQueryHelper.TITLE_SORT;
 import static com.hyland.openarch.rest.query.io.DocumentQueryDTO.DEFAULT_LIMIT_VALUE;
@@ -36,14 +42,27 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import jakarta.ws.rs.core.Response.Status;
 
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import com.hyland.openarch.async.tasks.TaskService;
+import com.hyland.openarch.ecm.core.api.CoreSession;
+import com.hyland.openarch.ecm.core.api.DocumentModel;
+import com.hyland.openarch.ecm.core.api.IdRef;
 import com.hyland.openarch.ecm.core.api.local.WithUser;
 import com.hyland.openarch.ecm.core.query.QuerySyntax;
+import com.hyland.openarch.ecm.core.schema.SchemaManagerDTO;
+import com.hyland.openarch.ecm.core.schema.TypeService;
+import com.hyland.openarch.ecm.core.schema.dto.ContentModelDTO;
+import com.hyland.openarch.ecm.core.schema.dto.PrimaryTypeDTO;
+import com.hyland.openarch.opensearch.api.OpenSearchService;
 import com.hyland.openarch.rest.document.test.ContentTestHelper;
 import com.hyland.openarch.rest.query.OpenSearchQueryManager;
 import com.hyland.openarch.rest.query.QueryAPI;
@@ -53,19 +72,120 @@ import com.hyland.openarch.rest.query.io.DocumentQueryDTO;
 import com.hyland.openarch.rest.query.io.DocumentQueryResultDTO;
 import com.hyland.openarch.rest.query.io.EmbeddingQueryDTO;
 import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.transaction.TransactionHelper;
+import org.opensearch.client.opensearch.core.GetRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.ResultActions;
+import tools.jackson.databind.JsonNode;
 
 @Features(RestQuerySingleDocumentFeature.class)
 @Tag("useOpenSearch")
 @Import({ QueryAPITestConfiguration.class })
 @SpringBootTest(classes = { QueryAPI.class })
 public class QueryAPITest extends AbstractQueryAPITest {
+
+    @Test
+    void shouldExcludeDocumentsIndexedBeforeTheirTypeBecameHidden(ApplicationContext context) throws Exception {
+        String typeName = "HiddenAfterIndexing";
+        CoreSession session = getState(context).getInjector().getInstance(CoreSession.class);
+        TypeService typeService = Framework.getService(TypeService.class);
+        OpenSearchService openSearchService = Framework.getService(OpenSearchService.class);
+        var originalManager = typeService.getSchemaManager(REPO_ID);
+        var model = originalManager.toContentModel();
+        var primaryTypes = new HashMap<>(model.primaryTypes());
+        primaryTypes.put(typeName, new PrimaryTypeDTO(null, SYS_FILE, null, null, null));
+        String documentId = null;
+        try {
+            // Index the document while its type has no hidden mixin.
+            typeService.setSchemaManager(REPO_ID, new SchemaManagerDTO(
+                    new ContentModelDTO(model.schemas(), model.types(), model.mixinTypes(), primaryTypes), null, false));
+            TransactionHelper.startTransaction();
+            String visibleId = getState(context).getInjector().getInstance(DocumentModel.class).getId();
+            DocumentModel doc = session.createDocumentModel("/", typeName, typeName);
+            doc.setPropertyValue(SYS_TITLE, typeName);
+            doc.create();
+            documentId = doc.getId();
+            session.save();
+            commitAndWaitForIndexing();
+
+            String index = openSearchService.getIndexNameForRepository(REPO_ID);
+            String id = documentId;
+            GetRequest indexedDocument = GetRequest.of(b -> b.index(index).id(id));
+            var before = openSearchService.getClient().get(indexedDocument);
+            assertThat(before.found()).isTrue();
+            assertThat(before.source().getProperties().get(SYS_MIXIN_TYPES)).asList()
+                    .doesNotContain(SYS_HIDDEN_IN_NAVIGATION);
+            // Initially the exclusion matches both this document and an unchanged visible control document.
+            String scope = "SELECT * FROM SysContent WHERE sys_id IN ('%s', '%s')".formatted(id, visibleId);
+            JsonNode initial = MAPPER.readTree(checkResponse(OK, PATH + "?sync=false", POST,
+                    Map.of("query", scope + " AND sys_mixinTypes <> 'SysHiddenInNavigation'"))
+                    .andReturn().getResponse().getContentAsString());
+            assertThat(queryDocumentIds(initial)).containsExactlyInAnyOrder(id, visibleId);
+
+            // Change only the content model: leave the document and its indexed mixins untouched.
+            primaryTypes.put(typeName,
+                    new PrimaryTypeDTO(null, SYS_FILE, null, List.of(SYS_HIDDEN_IN_NAVIGATION), null));
+            typeService.setSchemaManager(REPO_ID, new SchemaManagerDTO(
+                    new ContentModelDTO(model.schemas(), model.types(), model.mixinTypes(), primaryTypes), null, false));
+
+            // OpenSearch still finds the document, but REST exposes mixins from the current model.
+            JsonNode unfiltered = MAPPER.readTree(checkResponse(OK, PATH + "?sync=false", POST,
+                    Map.of("query", scope + " AND sys_id = '" + id + "'"))
+                    .andReturn().getResponse().getContentAsString());
+            assertThat(queryDocumentIds(unfiltered)).containsExactly(id);
+            List<String> effectiveMixins = new ArrayList<>();
+            unfiltered.at("/documents/0/" + SYS_MIXIN_TYPES).forEach(mixin -> effectiveMixins.add(mixin.asString()));
+            assertThat(effectiveMixins).contains(SYS_HIDDEN_IN_NAVIGATION);
+
+            // Both exclusions must use the current type mixins, not the stale indexed mixins.
+            for (String predicate : List.of("<> 'SysHiddenInNavigation'", "NOT IN ('SysHiddenInNavigation')")) {
+                JsonNode filtered = MAPPER.readTree(checkResponse(OK, PATH + "?sync=false", POST,
+                        Map.of("query", scope + " AND sys_mixinTypes " + predicate, "trackTotalCount", true))
+                        .andReturn().getResponse().getContentAsString());
+                assertThat(queryDocumentIds(filtered)).as(predicate).containsExactly(visibleId);
+                assertThat(filtered.get("totalCount").asLong()).as(predicate).isEqualTo(1);
+            }
+            // Prove that no reindexing was needed to obtain the correct results.
+            var after = openSearchService.getClient().get(indexedDocument);
+            assertThat(after.version()).isEqualTo(before.version());
+            assertThat(after.source().getProperties()).isEqualTo(before.source().getProperties());
+        } finally {
+            try {
+                if (!TransactionHelper.isTransactionActive()) {
+                    TransactionHelper.startTransaction();
+                }
+                if (documentId != null && session.exists(new IdRef(documentId))) {
+                    session.removeDocument(new IdRef(documentId));
+                    session.save();
+                }
+                commitAndWaitForIndexing();
+            } finally {
+                typeService.setSchemaManager(REPO_ID, originalManager);
+            }
+        }
+    }
+
+    private static List<String> queryDocumentIds(JsonNode body) {
+        List<String> ids = new ArrayList<>();
+        body.get("documents").forEach(doc -> ids.add(doc.get(SYS_ID).asString()));
+        return ids;
+    }
+
+    private static void commitAndWaitForIndexing() throws Exception {
+        TransactionHelper.commitOrRollbackTransaction();
+        Duration wait = Duration.ofSeconds(20);
+        assertThat(Framework.getService(TaskService.class).awaitCompletion(wait)).as("async tasks completed").isTrue();
+        OpenSearchService openSearchService = Framework.getService(OpenSearchService.class);
+        openSearchService.prepareWaitForIndexing().get(wait.toSeconds(), TimeUnit.SECONDS);
+        openSearchService.refresh();
+    }
 
     protected ResultActions checkResponse(Status expectedStatus, HttpMethod method, HttpHeaders headers,
             Map<String, Object> queryParameters) throws Exception {

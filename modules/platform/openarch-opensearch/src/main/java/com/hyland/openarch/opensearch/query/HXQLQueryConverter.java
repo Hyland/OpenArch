@@ -18,6 +18,7 @@ package com.hyland.openarch.opensearch.query;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ANCESTOR_IDS;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_FULLTEXT;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_FULLTEXT_SCORE;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_MIXIN_TYPES;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PARENT_ID;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PARENT_PATH;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PATH;
@@ -33,6 +34,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
 import com.hyland.openarch.ecm.core.api.CoreSession;
@@ -72,6 +74,7 @@ import org.opensearch.client.json.JsonData;
 import org.opensearch.client.opensearch._types.FieldValue;
 import org.opensearch.client.opensearch._types.query_dsl.BoolQuery;
 import org.opensearch.client.opensearch._types.query_dsl.MatchPhrasePrefixQuery;
+import org.opensearch.client.opensearch._types.query_dsl.Query;
 import org.opensearch.client.opensearch._types.query_dsl.QueryBuilders;
 import org.opensearch.client.opensearch._types.query_dsl.QueryVariant;
 import org.opensearch.client.opensearch._types.query_dsl.SimpleQueryStringQuery;
@@ -266,6 +269,12 @@ public final class HXQLQueryConverter {
             if (op == Operator.NOTEQ) {
                 filter = QueryBuilders.bool().mustNot(filter.build().toQuery());
             }
+        } else if (SYS_MIXIN_TYPES.equals(nxqlName)
+                && (op == Operator.EQ || op == Operator.NOTEQ || op == Operator.IN || op == Operator.NOTIN)) {
+            filter = makeMixinTypesFilter(values == null ? List.of(value) : Arrays.asList(values));
+            if (isNegated(op)) {
+                filter = QueryBuilders.bool().mustNot(filter.build().toQuery());
+            }
         } else {
             switch (op) {
             case EQ -> {
@@ -322,6 +331,78 @@ public final class HXQLQueryConverter {
             }
         }
         return new QueryAndFilter(query, filter);
+    }
+
+    /**
+     * Matches any of the given mixins, resolving type-defined mixins from the current model even when indexed mixins
+     * predate a model change. Like repository queries, type-only mixins never consult the per-document mixin field.
+     * <p>
+     * Used for:
+     * <ul>
+     * <li>{@code sys_mixinTypes = 'Foo'}
+     * <li>{@code sys_mixinTypes <> 'Foo'}
+     * <li>{@code sys_mixinTypes IN ('Foo', 'Bar')}
+     * <li>{@code sys_mixinTypes NOT IN ('Foo', 'Bar')}
+     * </ul>
+     * For example, if {@code Foo} is type-only and {@code Bar} allows per-document queries,
+     * {@code sys_mixinTypes IN ('Foo', 'Bar')} produces:
+     *
+     * <pre>
+     * { "bool": {
+     *     "should": [
+     *       { "terms": { "sys_primaryType": [ ... types with Foo or Bar ... ] } },
+     *       { "terms": { "sys_mixinTypes": [ "Bar" ] } }
+     *     ]
+     * } }
+     * </pre>
+     *
+     * The caller wraps this positive filter in {@code must_not} for {@code <>} and {@code NOT IN}. Thus,
+     * {@code sys_mixinTypes NOT IN ('Foo', 'Bar')} produces:
+     *
+     * <pre>
+     * { "bool": { "must_not": [
+     *   { "bool": {
+     *       "should": [
+     *         { "terms": { "sys_primaryType": [ ... types with Foo or Bar ... ] } },
+     *         { "terms": { "sys_mixinTypes": [ "Bar" ] } }
+     *       ]
+     *   } }
+     * ] } }
+     * </pre>
+     *
+     * Empty alternatives are omitted; if neither primary types nor per-document mixins can match, returns
+     * {@code match_none}.
+     */
+    protected ObjectBuilder<? extends QueryVariant> makeMixinTypesFilter(List<String> mixins) {
+        Set<String> primaryTypes = new TreeSet<>();
+        Set<String> instanceMixins = new TreeSet<>();
+        Set<String> typeOnlyMixins = schemaManager.getNoPerDocumentQueryMixins();
+        for (String mixin : mixins) {
+            Set<String> types = schemaManager.getDocumentTypeNamesForMixin(mixin);
+            if (types != null) {
+                primaryTypes.addAll(types);
+            }
+            if (!typeOnlyMixins.contains(mixin)) {
+                instanceMixins.add(mixin);
+            }
+        }
+        List<Query> alternatives = new ArrayList<>();
+        if (!primaryTypes.isEmpty()) {
+            alternatives.add(QueryBuilders.terms()
+                                          .field(SYS_PRIMARY_TYPE)
+                                          .terms(t -> t.value(primaryTypes.stream().map(FieldValue::of).toList()))
+                                          .build().toQuery());
+        }
+        if (!instanceMixins.isEmpty()) {
+            alternatives.add(QueryBuilders.terms()
+                                          .field(SYS_MIXIN_TYPES)
+                                          .terms(t -> t.value(instanceMixins.stream().map(FieldValue::of).toList()))
+                                          .build().toQuery());
+        }
+        if (alternatives.isEmpty()) {
+            return QueryBuilders.matchNone();
+        }
+        return QueryBuilders.bool().should(alternatives);
     }
 
     /** Whether an operator is the negation of another one, and so is rendered as its query wrapped in mustNot. */
