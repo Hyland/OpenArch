@@ -30,8 +30,8 @@ import java.util.concurrent.CyclicBarrier;
 
 import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.apache.commons.codec.CodecPolicy;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Base64InputStream;
-import org.apache.commons.codec.binary.BaseNCodec;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HeaderElement;
 import org.apache.http.NameValuePair;
@@ -111,8 +111,10 @@ public class UploadServiceImpl implements UploadService {
 
         if (BODY_ENCODING_BASE64.equals(bodyEncoding)) {
             // decode Base64 with STRICT decoding policy (forbid truncated trailing bits)
-            input = new Base64InputStream(input, false, BaseNCodec.MIME_CHUNK_SIZE, BaseNCodec.getChunkSeparator(),
-                    CodecPolicy.STRICT);
+            input = Base64InputStream.builder()
+                                     .setInputStream(input)
+                                     .setBaseNCodec(Base64.builder().setDecodingPolicy(CodecPolicy.STRICT).get())
+                                     .get();
         } else if (StringUtils.isNotBlank(bodyEncoding)) {
             throw new RepositoryException("Invalid bodyEncoding", BAD_REQUEST.getStatusCode());
         }
