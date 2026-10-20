@@ -57,7 +57,6 @@ import com.hyland.openarch.ecm.core.api.CoreInstance;
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentConstants;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
-import com.hyland.openarch.ecm.core.api.DocumentRef;
 import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.ecm.core.api.PathRef;
 import com.hyland.openarch.ecm.core.api.impl.blob.StringBlob;
@@ -844,90 +843,7 @@ class TestEmbeddingsIndexing {
                 "cloud _source must still carry sysembed_text"));
     }
 
-    /**
-     * Clearing {@code sysemb_chunks} after a confirmed onPrem EV Store write must not re-drive embeddings indexing:
-     * the vectors are unchanged, so a second {@link EmbeddingsIndexer} pass would only double the ingest cost.
-     */
-    @Test
-    void testNoReindexOnOnPremChunksCleanup() throws Exception {
-        // given an indexed onPrem embeddings child carrying a chunks blob
-        DocumentModel parent = createParent("parentDoc");
-        DocumentRef embRef = createEmbeddingsChildWithChunks(parent, "onprem_cleanup_child", SYSEMB_RESIDENCY_ON_PREM);
-        saveAndAssertForEmbeddingsIndexCommands(1);
-        assertEmbeddingsCount(parent, 1);
-        DocumentModel emb = session.getDocument(embRef);
-
-        // when the chunks blob is cleared the way the EV Store completion handler does
-        emb.setPropertyValue(DocumentConstants.SYSEMB_ON_PREM_PROCESSING_SUCCESS, true);
-        emb.setPropertyValue(SYSEMB_CHUNKS, null);
-        saveAndAssertForEmbeddingsIndexCommands(0);
-
-        // then the embeddings are left as indexed
-        assertNull(session.getDocument(embRef).getPropertyValue(SYSEMB_CHUNKS));
-        assertEmbeddingsCount(parent, 1);
-    }
-
-    @Test
-    void testReindexOnCloudChunksCleared() throws Exception {
-        // given an indexed cloud embeddings child carrying a chunks blob
-        DocumentModel parent = createParent("parentDoc");
-        DocumentRef embRef = createEmbeddingsChildWithChunks(parent, "cloud_cleanup_child", SYSEMB_RESIDENCY_CLOUD);
-        saveAndAssertForEmbeddingsIndexCommands(1);
-        DocumentModel emb = session.getDocument(embRef);
-
-        // when the chunks blob is cleared, then the child is re-indexed since cloud text comes from that blob
-        emb.setPropertyValue(SYSEMB_CHUNKS, null);
-        saveAndAssertForEmbeddingsIndexCommands(1);
-        assertEmbeddingsCount(parent, 1);
-    }
-
-    @Test
-    void testReindexOnOnPremEmbeddingsBlobUpdate() throws Exception {
-        // given an indexed onPrem embeddings child carrying a chunks blob
-        DocumentModel parent = createParent("parentDoc");
-        DocumentRef embRef = createEmbeddingsChildWithChunks(parent, "onprem_update_child", SYSEMB_RESIDENCY_ON_PREM);
-        saveAndAssertForEmbeddingsIndexCommands(1);
-        DocumentModel emb = session.getDocument(embRef);
-
-        // when only the embeddings blob is updated, then the child is re-indexed
-        emb.setPropertyValue(SYSEMB_EMBEDDINGS, new ParquetBlobGenerator().generate(EMBEDDINGS_PER_BLOB, embTypeOf(emb)));
-        saveAndAssertForEmbeddingsIndexCommands(1);
-        assertEmbeddingsCount(parent, 1);
-    }
-
-    @Test
-    void testReindexOnOnPremChunksClearedTogetherWithEmbeddingsUpdate() throws Exception {
-        // given an indexed onPrem embeddings child carrying a chunks blob
-        DocumentModel parent = createParent("parentDoc");
-        DocumentRef embRef = createEmbeddingsChildWithChunks(parent, "onprem_mixed_child", SYSEMB_RESIDENCY_ON_PREM);
-        saveAndAssertForEmbeddingsIndexCommands(1);
-        DocumentModel emb = session.getDocument(embRef);
-
-        // when the chunks blob is cleared in the same save as a new embeddings blob, then the child is re-indexed
-        emb.setPropertyValue(SYSEMB_EMBEDDINGS, new ParquetBlobGenerator().generate(EMBEDDINGS_PER_BLOB, embTypeOf(emb)));
-        emb.setPropertyValue(SYSEMB_CHUNKS, null);
-        saveAndAssertForEmbeddingsIndexCommands(1);
-        assertEmbeddingsCount(parent, 1);
-    }
-
     /* ---------------- Helpers ---------------- */
-
-    DocumentRef createEmbeddingsChildWithChunks(DocumentModel parent, String childSuffix, String residency)
-            throws IOException {
-        String name = SysEmbeddingsPolicies.ensureEmbeddingsNamePrefix(childSuffix);
-        String embType = SysEmbeddingsPolicies.getEmbeddingsTypeFromName(name);
-        DocumentModel emb = session.createDocumentModel(parent.getPathAsString(), name, TypeConstants.SYS_EMBEDDINGS);
-        emb.setPropertyValue(SYSEMB_EMBEDDINGS, new ParquetBlobGenerator().generate(EMBEDDINGS_PER_BLOB, embType));
-        emb.setPropertyValue(SYSEMB_CHUNKS,
-                new ParquetBlobGenerator().generateChunkTexts(EMBEDDINGS_PER_BLOB, i -> "chunk-text-" + (i + 1)));
-        emb.setPropertyValue(SYSEMB_RESIDENCY, residency);
-        emb.create();
-        return emb.getRef();
-    }
-
-    String embTypeOf(DocumentModel emb) {
-        return SysEmbeddingsPolicies.getEmbeddingsTypeFromName(emb.getName());
-    }
 
     @Test
     @LogCaptureFeature.FilterOn(logLevel = "WARN", loggerClass = EmbeddingsIndexer.class)

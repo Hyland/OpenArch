@@ -19,7 +19,6 @@ package com.hyland.openarch.opensearch.test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSFILE_BLOB;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_TITLE;
-import static com.hyland.openarch.ecm.core.api.event.CoreEventConstants.DISABLE_AUTO_INDEXING;
 import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
 
 import java.time.Duration;
@@ -36,6 +35,7 @@ import com.hyland.openarch.ecm.core.api.DocumentModel;
 import com.hyland.openarch.ecm.core.blob.BlobProvider;
 import com.hyland.openarch.ecm.core.blob.BlobService;
 import com.hyland.openarch.ecm.core.blob.BlobStoreBlobProvider;
+import com.hyland.openarch.opensearch.OpenSearchConstants;
 import com.hyland.openarch.opensearch.api.OpenSearchService;
 import com.hyland.openarch.opensearch.commands.IndexingCommand;
 import com.hyland.openarch.opensearch.commands.IndexingCommand.Type;
@@ -113,7 +113,7 @@ public class TestCommandReindexing {
         DocumentModel doc = session.createDocumentModel("/", "testDoc", SYS_FILE);
         doc.setPropertyValue(SYS_TITLE, "Testme");
         // disable automatic indexing to control manually the indexing command
-        doc.putContextData(DISABLE_AUTO_INDEXING, Boolean.TRUE);
+        doc.putContextData(OpenSearchConstants.DISABLE_AUTO_INDEXING, Boolean.TRUE);
         doc.create();
         session.save();
 
@@ -144,7 +144,7 @@ public class TestCommandReindexing {
         // Create the document with a string blob
         startTransaction();
         DocumentModel doc = session.createDocumentModel("/", "myBlobFile", SYS_FILE);
-        doc.putContextData(DISABLE_AUTO_INDEXING, Boolean.TRUE);
+        doc.putContextData(OpenSearchConstants.DISABLE_AUTO_INDEXING, Boolean.TRUE);
         doc.setPropertyValue(SYS_TITLE, "myBlob");
         Blob fb = Blobs.createBlob("Not worth it", "image/jpeg");
         doc.setPropertyValue(SYSFILE_BLOB, fb);
@@ -178,7 +178,7 @@ public class TestCommandReindexing {
 
         DocumentModel doc = session.createDocumentModel("/", "testDoc", SYS_FILE);
         doc.setPropertyValue(SYS_TITLE, "TestMe");
-        doc.putContextData(DISABLE_AUTO_INDEXING, Boolean.TRUE);
+        doc.putContextData(OpenSearchConstants.DISABLE_AUTO_INDEXING, Boolean.TRUE);
         doc.create();
         session.save();
 

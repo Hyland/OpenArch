@@ -51,6 +51,8 @@ public final class OpenSearchConstants {
 
     public static final String INDEX_BULK_MAX_SIZE_PROPERTY = "opensearch.index.bulkMaxSize";
 
+    public static final String DISABLE_AUTO_INDEXING = "disableAutoIndexing";
+
     public static final String OPENSEARCH_SYNC_INDEXING_FLAG = "OpenSearchSyncIndexing";
 
     public static final String EPOCH_MILLIS_FORMAT = "epoch_millis";
