@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<component name="com.hyland.openarch.opensearch.core.listener.test.disableAutoIndexing">
+
+  <!-- Runs ahead of openSearchInlineListener (priority 500), as a listener contributed by another module would -->
+  <extension point="listener" target="com.hyland.openarch.ecm.core.event.EventService">
+
+    <listener name="testDisableAutoIndexingListener"
+              class="com.hyland.openarch.opensearch.test.DisableAutoIndexingTestListener" priority="100">
+      <event>documentModified</event>
+    </listener>
+
+  </extension>
+</component>
