@@ -42,6 +42,7 @@ import java.util.Map;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.client.HttpRequestRetryHandler;
+import org.apache.http.client.ServiceUnavailableRetryStrategy;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -54,7 +55,7 @@ import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 
 import com.hyland.openarch.ecm.core.api.RepositoryException;
-import com.hyland.openarch.common.httpclient.JitteredExponentialBackoffRetryHandler;
+import com.hyland.openarch.runtime.httpclient.RepositoryRetryHandler;
 import jakarta.ws.rs.core.Response.Status;
 
 import org.junit.jupiter.api.Test;
@@ -63,12 +64,15 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.core.env.MapPropertySource;
-import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.mock.env.MockEnvironment;
+import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.rest.upload.UriWithHeaders;
 import com.hyland.openarch.rest.upload.UploadExternalUriClient;
 import com.hyland.openarch.rest.upload.UploadServiceImpl;
+import com.hyland.openarch.rest.upload.config.UploadServiceConfiguration;
 import com.hyland.openarch.runtime.mockito.MockitoFeature;
 import com.hyland.openarch.runtime.test.runner.Features;
 import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
@@ -83,14 +87,15 @@ public class UploadExternalUriClientTest {
     private HttpResponse headers;
 
     @Test
-    void shouldConfigurePoolTimeoutsAndRetryHandlerFromProperties() {
+    void springConstructionUsesEnvironmentBeforeFrameworkStarts() {
         HttpClientBuilder builder = Mockito.mock(HttpClientBuilder.class, Mockito.RETURNS_SELF);
-        CloseableHttpClient httpClient = Mockito.mock(CloseableHttpClient.class);
-        when(builder.build()).thenReturn(httpClient);
-        try (MockedStatic<HttpClients> clients = Mockito.mockStatic(HttpClients.class);
+        when(builder.build()).thenReturn(Mockito.mock(CloseableHttpClient.class));
+        try (var _ = Mockito.mockStatic(Framework.class);
+                MockedStatic<HttpClients> clients = Mockito.mockStatic(HttpClients.class);
                 AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
+            assertFalse(Framework.isInitialized());
             clients.when(HttpClients::custom).thenReturn(builder);
-            context.getEnvironment().getPropertySources().addFirst(new MapPropertySource("httpclient", Map.of(
+            context.getEnvironment().getPropertySources().addFirst(new MapPropertySource("http", Map.of(
                     "hxpr.httpclient.retry.max-attempts", "5",
                     "hxpr.httpclient.retry.base-delay-ms", "250",
                     "hxpr.httpclient.retry.jitter-factor", "0.25",
@@ -99,8 +104,39 @@ public class UploadExternalUriClientTest {
                     "hxpr.httpclient.timeout.socket", "3000",
                     "hxpr.httpclient.pool.max-total", "80",
                     "hxpr.httpclient.pool.max-per-route", "40")));
-            context.register(UploadServiceImpl.class);
+            context.register(UploadServiceConfiguration.class);
             context.refresh();
+            Mockito.verify(builder).setMaxConnTotal(80);
+            Mockito.verify(builder).setMaxConnPerRoute(40);
+            ArgumentCaptor<RequestConfig> config = ArgumentCaptor.forClass(RequestConfig.class);
+            Mockito.verify(builder).setDefaultRequestConfig(config.capture());
+            assertEquals(1000, config.getValue().getConnectTimeout());
+            assertEquals(2000, config.getValue().getConnectionRequestTimeout());
+            assertEquals(3000, config.getValue().getSocketTimeout());
+            ArgumentCaptor<HttpRequestRetryHandler> retry = ArgumentCaptor.forClass(HttpRequestRetryHandler.class);
+            Mockito.verify(builder).setRetryHandler(retry.capture());
+            assertEquals(5, ReflectionTestUtils.getField(retry.getValue(), "maxTry"));
+            assertEquals(250L, ReflectionTestUtils.getField(retry.getValue(), "baseDelayMs"));
+            assertEquals(0.25, ReflectionTestUtils.getField(retry.getValue(), "jitterFactor"));
+        }
+    }
+
+    @Test
+    void shouldConfigurePoolTimeoutsAndRetryHandlerFromProperties() throws IOException {
+        HttpClientBuilder builder = Mockito.mock(HttpClientBuilder.class, Mockito.RETURNS_SELF);
+        CloseableHttpClient httpClient = Mockito.mock(CloseableHttpClient.class);
+        when(builder.build()).thenReturn(httpClient);
+        try (MockedStatic<HttpClients> clients = Mockito.mockStatic(HttpClients.class)) {
+            clients.when(HttpClients::custom).thenReturn(builder);
+            UploadServiceImpl service = new UploadServiceImpl(new MockEnvironment()
+                    .withProperty("hxpr.httpclient.retry.max-attempts", "5")
+                    .withProperty("hxpr.httpclient.retry.base-delay-ms", "250")
+                    .withProperty("hxpr.httpclient.retry.jitter-factor", "0.25")
+                    .withProperty("hxpr.httpclient.timeout.connect", "1000")
+                    .withProperty("hxpr.httpclient.timeout.connection-request", "2000")
+                    .withProperty("hxpr.httpclient.timeout.socket", "3000")
+                    .withProperty("hxpr.httpclient.pool.max-total", "80")
+                    .withProperty("hxpr.httpclient.pool.max-per-route", "40"));
 
             Mockito.verify(builder).setMaxConnTotal(80);
             Mockito.verify(builder).setMaxConnPerRoute(40);
@@ -113,10 +149,12 @@ public class UploadExternalUriClientTest {
 
             ArgumentCaptor<HttpRequestRetryHandler> retryHandler = ArgumentCaptor.forClass(HttpRequestRetryHandler.class);
             Mockito.verify(builder).setRetryHandler(retryHandler.capture());
-            assertInstanceOf(JitteredExponentialBackoffRetryHandler.class, retryHandler.getValue());
+            assertInstanceOf(RepositoryRetryHandler.class, retryHandler.getValue());
             assertEquals(5, ReflectionTestUtils.getField(retryHandler.getValue(), "maxTry"));
             assertEquals(250L, ReflectionTestUtils.getField(retryHandler.getValue(), "baseDelayMs"));
             assertEquals(0.25, ReflectionTestUtils.getField(retryHandler.getValue(), "jitterFactor"));
+            Mockito.verify(builder).setServiceUnavailableRetryStrategy(any(ServiceUnavailableRetryStrategy.class));
+            service.close();
         }
     }
 
@@ -127,7 +165,7 @@ public class UploadExternalUriClientTest {
         when(builder.build()).thenReturn(httpClient);
         try (MockedStatic<HttpClients> clients = Mockito.mockStatic(HttpClients.class)) {
             clients.when(HttpClients::custom).thenReturn(builder);
-            UploadServiceImpl service = new UploadServiceImpl();
+            UploadServiceImpl service = new UploadServiceImpl(new MockEnvironment());
 
             Mockito.verify(builder).setMaxConnTotal(50);
             Mockito.verify(builder).setMaxConnPerRoute(50);
@@ -140,7 +178,8 @@ public class UploadExternalUriClientTest {
 
             ArgumentCaptor<HttpRequestRetryHandler> retryHandler = ArgumentCaptor.forClass(HttpRequestRetryHandler.class);
             Mockito.verify(builder).setRetryHandler(retryHandler.capture());
-            assertInstanceOf(JitteredExponentialBackoffRetryHandler.class, retryHandler.getValue());
+            assertInstanceOf(RepositoryRetryHandler.class, retryHandler.getValue());
+            Mockito.verify(builder).setServiceUnavailableRetryStrategy(any(ServiceUnavailableRetryStrategy.class));
             Mockito.verify(builder).disableCookieManagement();
             Mockito.verify(builder).disableRedirectHandling();
 
@@ -151,10 +190,8 @@ public class UploadExternalUriClientTest {
 
     @Test
     void shouldRejectNonPositivePoolLimits() {
-        assertThrows(IllegalArgumentException.class,
-                () -> new UploadServiceImpl(3, 100, 0.5, 5000, 5000, 5000, 0, 50));
-        assertThrows(IllegalArgumentException.class,
-                () -> new UploadServiceImpl(3, 100, 0.5, 5000, 5000, 5000, 50, -1));
+        assertThrows(IllegalArgumentException.class, () -> new UploadServiceImpl(
+                new MockEnvironment().withProperty("hxpr.httpclient.pool.max-total", "0")));
     }
 
     @Test

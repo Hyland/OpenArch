@@ -56,7 +56,7 @@ public final class OpenSearchRetryFactory {
     private static final double JITTER_FACTOR = 0.5;
 
     // HTTP statuses considered transient and therefore worth retrying, mirroring the idempotent set used by
-    // com.hyland.openarch.common.httpclient.JitteredExponentialBackoffRetryHandler
+    // com.hyland.openarch.runtime.httpclient.RepositoryRetryHandler
     private static final Set<Integer> RETRYABLE_STATUS = Set.of(408, 425, 429, 500, 502, 503, 504);
 
     private OpenSearchRetryFactory() {

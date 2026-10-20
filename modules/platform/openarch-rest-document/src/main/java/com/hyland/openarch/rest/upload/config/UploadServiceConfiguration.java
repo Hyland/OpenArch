@@ -19,12 +19,13 @@ import com.hyland.openarch.rest.upload.UploadService;
 import com.hyland.openarch.rest.upload.UploadServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 
 @Configuration
 public class UploadServiceConfiguration {
 
     @Bean
-    public UploadService uploadService() {
-        return new UploadServiceImpl();
+    public UploadService uploadService(Environment environment) {
+        return new UploadServiceImpl(environment);
     }
 }

@@ -46,6 +46,7 @@ import com.hyland.openarch.runtime.test.runner.Features;
 import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
 import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.env.MockEnvironment;
 
 @ExtendWith(FeaturesExtension.class)
 @Features({RuntimeFeature.class, CoreFeature.class, MockitoFeature.class})
@@ -59,11 +60,11 @@ public class UploadServiceTest {
         String mimeType = "text/plain";
         String mimeTypeWithEncoding = "text/plain;charset=utf-8";
         UploadDTO uploadDTO = new UploadDTO(null, fileName, mimeTypeWithEncoding, null, null, false, 0, 0);
-        var response = new UploadServiceImpl().handleUpload(handler, mimeType, uploadDTO, new ByteArrayInputStream(body.getBytes(UTF_8)));
+        var response = new UploadServiceImpl(new MockEnvironment()).handleUpload(handler, mimeType, uploadDTO, new ByteArrayInputStream(body.getBytes(UTF_8)));
         assertSuccessfulUploadCreated(response, fileName, mimeType);
 
         uploadDTO = new UploadDTO(null, fileName, null, null, null, false, 0, 0);
-        response = new UploadServiceImpl().handleUpload(handler, mimeType, uploadDTO, new ByteArrayInputStream(body.getBytes(UTF_8)));
+        response = new UploadServiceImpl(new MockEnvironment()).handleUpload(handler, mimeType, uploadDTO, new ByteArrayInputStream(body.getBytes(UTF_8)));
         assertSuccessfulUploadCreated(response, fileName, mimeType);
     }
 
@@ -71,7 +72,7 @@ public class UploadServiceTest {
     public void testUploadServiceWithExternalURI() throws IOException {
         UploadHandler handler = new DefaultUploadHandler();
         UploadDTO uploadDTO = new UploadDTO(null, HYLAND_PNG, null, null, null, false, 0, 0);
-        var response = new UploadServiceImpl().handleUpload(handler, CONTENT_TYPE_URI_LIST, uploadDTO, new ByteArrayInputStream(EXTERNAL_URI.getBytes(UTF_8)));
+        var response = new UploadServiceImpl(new MockEnvironment()).handleUpload(handler, CONTENT_TYPE_URI_LIST, uploadDTO, new ByteArrayInputStream(EXTERNAL_URI.getBytes(UTF_8)));
         assertSuccessfulUploadCreated(response, HYLAND_PNG, MIME_TYPE);
     }
 
@@ -79,7 +80,7 @@ public class UploadServiceTest {
     public void testUploadServiceWithExternalURIAndExplicitMimeType() throws IOException {
         UploadHandler handler = new DefaultUploadHandler();
         UploadDTO uploadDTO = new UploadDTO(null, HYLAND_PNG, MIME_TYPE_OVERRIDE, null, null, false, 0, 0);
-        var response = new UploadServiceImpl().handleUpload(handler, CONTENT_TYPE_URI_LIST, uploadDTO, new ByteArrayInputStream(EXTERNAL_URI.getBytes(UTF_8)));
+        var response = new UploadServiceImpl(new MockEnvironment()).handleUpload(handler, CONTENT_TYPE_URI_LIST, uploadDTO, new ByteArrayInputStream(EXTERNAL_URI.getBytes(UTF_8)));
         assertSuccessfulUploadCreated(response, HYLAND_PNG, MIME_TYPE_OVERRIDE);
     }
 
@@ -87,7 +88,7 @@ public class UploadServiceTest {
     public void testUploadServiceWithExternalURIAndUriListMimetype() throws IOException {
         UploadHandler handler = new DefaultUploadHandler();
         UploadDTO uploadDTO = new UploadDTO(null, HYLAND_PNG, CONTENT_TYPE_URI_LIST, null, null, false, 0, 0);
-        var response = new UploadServiceImpl().handleUpload(handler, CONTENT_TYPE_URI_LIST, uploadDTO, new ByteArrayInputStream(EXTERNAL_URI.getBytes(UTF_8)));
+        var response = new UploadServiceImpl(new MockEnvironment()).handleUpload(handler, CONTENT_TYPE_URI_LIST, uploadDTO, new ByteArrayInputStream(EXTERNAL_URI.getBytes(UTF_8)));
         //if mimetype is set to text/uri-list, the service should set the mimetype based on the external resource
         assertSuccessfulUploadCreated(response, HYLAND_PNG, MIME_TYPE);
     }
@@ -96,7 +97,7 @@ public class UploadServiceTest {
     public void testUploadServiceWithExternalURIAndBlankMimeTypeUsesTheExternalResourceOne() throws IOException {
         UploadHandler handler = new DefaultUploadHandler();
         UploadDTO uploadDTO = new UploadDTO(null, HYLAND_PNG, " ", null, null, false, 0, 0);
-        var response = new UploadServiceImpl().handleUpload(handler, CONTENT_TYPE_URI_LIST, uploadDTO, new ByteArrayInputStream(EXTERNAL_URI.getBytes(UTF_8)));
+        var response = new UploadServiceImpl(new MockEnvironment()).handleUpload(handler, CONTENT_TYPE_URI_LIST, uploadDTO, new ByteArrayInputStream(EXTERNAL_URI.getBytes(UTF_8)));
         assertSuccessfulUploadCreated(response, HYLAND_PNG, MIME_TYPE);
     }
 
@@ -105,7 +106,7 @@ public class UploadServiceTest {
         UploadHandler handler = new DefaultUploadHandler();
         String uri = "https://www.example.com/test.docx";
         UploadDTO uploadDTO = new UploadDTO(null, "test.docx", CONTENT_TYPE_URI_LIST, null, null, false, 0, 0);
-        UploadServiceImpl uploadService = new UploadServiceImpl();
+        UploadServiceImpl uploadService = new UploadServiceImpl(new MockEnvironment());
         ByteArrayInputStream data = new ByteArrayInputStream(uri.getBytes(UTF_8));
 
         RepositoryException repositoryException = assertThrows(RepositoryException.class, () -> {
@@ -120,7 +121,7 @@ public class UploadServiceTest {
         UploadHandler handler = new DefaultUploadHandler();
         String mimeType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
         UploadDTO uploadDTO = new UploadDTO("abcd", "test.docx", mimeType, null, null, false, 0, 0);
-        UploadServiceImpl uploadService = new UploadServiceImpl();
+        UploadServiceImpl uploadService = new UploadServiceImpl(new MockEnvironment());
         ByteArrayInputStream data = new ByteArrayInputStream("test".getBytes());
 
         RepositoryException repositoryException = assertThrows(RepositoryException.class, () -> {
@@ -135,7 +136,7 @@ public class UploadServiceTest {
         UploadHandler handler = new DefaultUploadHandler();
         String externalUri = "http://abc.com\nhttp://xyz.com";
         UploadDTO uploadDTO = new UploadDTO(null, "test.docx", CONTENT_TYPE_URI_LIST, null, null, false, 0, 0);
-        UploadServiceImpl uploadService = new UploadServiceImpl();
+        UploadServiceImpl uploadService = new UploadServiceImpl(new MockEnvironment());
         ByteArrayInputStream data = new ByteArrayInputStream(externalUri.getBytes());
 
         RepositoryException repositoryException = assertThrows(RepositoryException.class, () -> {

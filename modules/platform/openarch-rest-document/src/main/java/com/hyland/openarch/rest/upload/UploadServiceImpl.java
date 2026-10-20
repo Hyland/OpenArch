@@ -28,7 +28,7 @@ import java.util.concurrent.CyclicBarrier;
 
 import jakarta.annotation.PreDestroy;
 
-import com.hyland.openarch.common.httpclient.JitteredExponentialBackoffRetryHandler;
+import com.hyland.openarch.runtime.httpclient.HttpClientHelper;
 import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.apache.commons.codec.CodecPolicy;
 import org.apache.commons.codec.binary.Base64;
@@ -36,10 +36,10 @@ import org.apache.commons.codec.binary.Base64InputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HeaderElement;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.apache.http.message.BasicHeaderValueParser;
 import com.hyland.openarch.ecm.core.api.Blob;
 import com.hyland.openarch.ecm.core.api.Blobs;
@@ -47,8 +47,6 @@ import com.hyland.openarch.rest.blob.ContentTypes;
 import com.hyland.openarch.rest.upload.handler.UploadHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -70,37 +68,11 @@ public class UploadServiceImpl implements UploadService {
     // only used for testing
     public static volatile CyclicBarrier _testProcessingStatusBarrier;
 
-    public UploadServiceImpl() {
-        this(JitteredExponentialBackoffRetryHandler.DEFAULT_MAX_TRY,
-                JitteredExponentialBackoffRetryHandler.DEFAULT_BASE_DELAY_MS,
-                JitteredExponentialBackoffRetryHandler.DEFAULT_JITTER_FACTOR, 5000, 5000, 5000, 50, 50);
-    }
-
     @Autowired
-    public UploadServiceImpl(@Value("${hxpr.httpclient.retry.max-attempts:3}") int retryMaxAttempts,
-            @Value("${hxpr.httpclient.retry.base-delay-ms:100}") long retryBaseDelayMs,
-            @Value("${hxpr.httpclient.retry.jitter-factor:0.5}") double retryJitterFactor,
-            @Value("${hxpr.httpclient.timeout.connect:5000}") int connectTimeout,
-            @Value("${hxpr.httpclient.timeout.connection-request:5000}") int connectionRequestTimeout,
-            @Value("${hxpr.httpclient.timeout.socket:5000}") int socketTimeout,
-            @Value("${hxpr.httpclient.pool.max-total:50}") int maxConnTotal,
-            @Value("${hxpr.httpclient.pool.max-per-route:50}") int maxConnPerRoute) {
-        if (maxConnTotal <= 0 || maxConnPerRoute <= 0) {
-            throw new IllegalArgumentException("hxpr.httpclient.pool.max-total and "
-                    + "hxpr.httpclient.pool.max-per-route must be strictly positive");
-        }
-        httpClient = HttpClients.custom()
-            .setMaxConnTotal(maxConnTotal)
-            .setMaxConnPerRoute(maxConnPerRoute)
-            .setDefaultRequestConfig(RequestConfig.custom()
-                    .setConnectTimeout(connectTimeout)
-                    .setConnectionRequestTimeout(connectionRequestTimeout)
-                    .setSocketTimeout(socketTimeout)
-                    .build())
+    public UploadServiceImpl(Environment environment) {
+        httpClient = HttpClientHelper.custom(environment::getProperty)
             .disableRedirectHandling() // don't bypass URI allowedHostList or risk leaking credentials
             .disableCookieManagement() // don't share cookie state between uploaders
-            .setRetryHandler(new JitteredExponentialBackoffRetryHandler(retryMaxAttempts, retryBaseDelayMs,
-                    retryJitterFactor))
             .build();
     }
 
