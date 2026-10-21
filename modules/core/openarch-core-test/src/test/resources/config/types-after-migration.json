@@ -365,6 +365,14 @@
       },
       "prefix": "sysrelation"
     },
+    "sysresidency": {
+      "fields": {
+        "sysres_residency": {
+          "type": "string"
+        }
+      },
+      "prefix": "sysres"
+    },
     "system": {
       "fields": {
         "sys_acl": {
@@ -958,6 +966,11 @@
     "SysMDText": {
       "schemas": [
         "sysmdtext"
+      ]
+    },
+    "SysResidency": {
+      "schemas": [
+        "sysresidency"
       ]
     },
     "SysVersionedWithParent": {},

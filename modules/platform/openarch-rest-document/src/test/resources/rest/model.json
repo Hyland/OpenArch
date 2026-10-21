@@ -604,6 +604,14 @@
         }
       }
     },
+    "sysresidency": {
+      "prefix": "sysres",
+      "fields": {
+        "sysres_residency": {
+          "type": "string"
+        }
+      }
+    },
     "sysversionable": {
       "fields": {
         "sysver_created": {
@@ -1214,6 +1222,11 @@
     "SysGraphable": {
       "schemas": [
         "sysgraph"
+      ]
+    },
+    "SysResidency": {
+      "schemas": [
+        "sysresidency"
       ]
     },
     "CinContext": {

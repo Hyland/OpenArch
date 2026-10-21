@@ -28,6 +28,7 @@ import static com.hyland.openarch.ecm.core.api.DocumentConstants.SCHEMA_CINCONTE
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SCHEMA_CINREMOTE;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SCHEMA_SYSEMB;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SCHEMA_SYSGRAPH;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SCHEMA_SYSRESIDENCY;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_CHUNKS;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_EMBEDDINGS;
@@ -36,6 +37,8 @@ import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_PREFIX;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSGRAPH_GRAPH_DB_IDS;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSGRAPH_ONTOLOGY_REFS;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSGRAPH_PREFIX;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSRES_PREFIX;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSRES_RESIDENCY;
 import static com.hyland.openarch.ecm.core.api.RenditionsConstants.RENDITIONS_CONTAINER_DOCUMENT_TYPE;
 import static com.hyland.openarch.ecm.core.api.RenditionsConstants.RENDITION_DOCUMENT_TYPE;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSMD_ANNOTATION_ADDITIONAL_DATA;
@@ -124,6 +127,7 @@ import static com.hyland.openarch.ecm.core.schema.MixinNames.CIN_CONTEXT;
 import static com.hyland.openarch.ecm.core.schema.MixinNames.CIN_REMOTE;
 import static com.hyland.openarch.ecm.core.schema.MixinNames.SYS_HAS_EMBEDDINGS;
 import static com.hyland.openarch.ecm.core.schema.MixinNames.SYS_HIDDEN_IN_NAVIGATION;
+import static com.hyland.openarch.ecm.core.schema.MixinNames.SYS_RESIDENCY;
 import static com.hyland.openarch.ecm.core.schema.MixinNames.SYS_VERSIONED_WITH_PARENT;
 import static com.hyland.openarch.ecm.core.schema.MixinNames.SYS_MD_ANNOTATABLE;
 import static com.hyland.openarch.ecm.core.schema.MixinNames.SYS_MD_HL;
@@ -967,6 +971,12 @@ public class MongoDBRepository extends DBSRepositoryBase implements Configuratio
             migrated = true;
         }
 
+        // Content residency
+        schemas.computeIfAbsent(SCHEMA_SYSRESIDENCY, k -> Map.of(
+                PREFIX, SYSRES_PREFIX,
+                FIELDS, Map.of(
+                        SYSRES_RESIDENCY, StringType.ID)));
+
         // Knowledge Graph
         schemas.computeIfAbsent(SCHEMA_SYSGRAPH, k -> Map.of(
                 PREFIX, SYSGRAPH_PREFIX,
@@ -1001,6 +1011,9 @@ public class MongoDBRepository extends DBSRepositoryBase implements Configuratio
 
         // Embeddings
         mixins.computeIfAbsent(SYS_HAS_EMBEDDINGS, k -> Map.of());
+
+        // Content residency
+        mixins.computeIfAbsent(SYS_RESIDENCY, k -> Map.of(SCHEMAS, List.of(SCHEMA_SYSRESIDENCY)));
 
         // Knowledge Graph
         mixins.computeIfAbsent(SYS_GRAPHABLE, k -> Map.of(SCHEMAS, List.of(SCHEMA_SYSGRAPH)));

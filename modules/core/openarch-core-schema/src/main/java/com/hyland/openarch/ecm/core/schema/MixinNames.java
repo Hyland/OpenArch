@@ -54,6 +54,11 @@ public final class MixinNames {
     public static final String SYS_HAS_EMBEDDINGS = "SysHasEmbeddings";
 
     /**
+     * Mixin recording where a document's content is stored: in the cloud or on-premises.
+     */
+    public static final String SYS_RESIDENCY = "SysResidency";
+
+    /**
      * Marker mixin indicating a technical document that UIs should not show when navigating the repository. Documents
      * carrying it are filtered out of the navigation-oriented named queries, but remain reachable through plain HXQL.
      */

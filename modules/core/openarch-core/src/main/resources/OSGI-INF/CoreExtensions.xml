@@ -25,6 +25,9 @@
     <!-- Embeddings schema -->
     <schema name="sysembeddings" prefix="sysemb" src="schema/sysembeddings.xsd"/>
 
+    <!-- Content residency schema -->
+    <schema name="sysresidency" prefix="sysres" src="schema/sysresidency.xsd"/>
+
     <!-- Knowledge Graph schema -->
     <schema name="sysgraph" prefix="sysgraph" src="schema/sysgraph.xsd"/>
 
@@ -89,6 +92,11 @@
     </mixin>
     <mixin name="SysMDRedactable">
       <schema name="sysmdredactable"/>
+    </mixin>
+
+  <!-- Content residency mixin -->
+    <mixin name="SysResidency">
+      <schema name="sysresidency"/>
     </mixin>
 
   <!-- Knowledge Graph mixin -->

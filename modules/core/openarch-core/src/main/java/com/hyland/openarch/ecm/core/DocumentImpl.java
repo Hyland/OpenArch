@@ -18,6 +18,7 @@ package com.hyland.openarch.ecm.core;
 import static java.lang.Boolean.TRUE;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ACL;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ANCESTOR_IDS;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_CHANGE_TOKEN;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_EFFECTIVE_ACL;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_EFFECTIVE_PERMISSIONS;
@@ -32,6 +33,7 @@ import static com.hyland.openarch.ecm.core.api.security.SecurityConstants.WRITE;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -125,6 +127,7 @@ public class DocumentImpl implements DocumentModel {
         sanitizeNameAndTitle();
         // stamp sys_* fields and run any registered document enrichers, before persistence
         if (!isVersion()) {
+            setPendingAncestorIds(parent);
             enrichOnCreate();
         }
         // security policies
@@ -211,6 +214,18 @@ public class DocumentImpl implements DocumentModel {
             name += "." + IdUtils.generateStringId();
         }
         return name;
+    }
+
+    /**
+     * Gives the enrichers the ancestors the document will have. They are otherwise only set when the document is
+     * persisted, which is after the enrichers have run, and persisting recomputes them.
+     */
+    private void setPendingAncestorIds(InternalDocument parent) {
+        if (parent != null) {
+            List<String> ancestorIds = new ArrayList<>(parent.getAncestorIds());
+            ancestorIds.add(parent.getId());
+            doc.setPropertyValue(SYS_ANCESTOR_IDS, ancestorIds);
+        }
     }
 
     private void enrichOnCreate() {

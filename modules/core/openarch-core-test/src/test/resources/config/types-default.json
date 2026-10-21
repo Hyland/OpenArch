@@ -434,6 +434,14 @@
       },
       "prefix": "sysrendition"
     },
+    "sysresidency": {
+      "fields": {
+        "sysres_residency": {
+          "type": "string"
+        }
+      },
+      "prefix": "sysres"
+    },
     "system": {
       "fields": {
         "sys_acl": {
@@ -1023,6 +1031,11 @@
       ]
     },
     "SysOrderable": {},
+    "SysResidency": {
+      "schemas": [
+        "sysresidency"
+      ]
+    },
     "SysTestDocument": {},
     "SysVersionable": {
       "schemas": [
