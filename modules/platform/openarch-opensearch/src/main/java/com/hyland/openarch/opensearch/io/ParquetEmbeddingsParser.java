@@ -34,6 +34,7 @@ import org.apache.parquet.avro.AvroParquetReader;
 import org.apache.parquet.io.LocalInputFile;
 import com.hyland.openarch.common.utils.IdUtils;
 import com.hyland.openarch.ecm.core.api.Blob;
+import com.hyland.openarch.ecm.core.api.ChunkTexts;
 import com.hyland.openarch.ecm.core.api.CloseableFile;
 import com.hyland.openarch.ecm.core.model.EmbeddingModel;
 import com.hyland.openarch.ecm.core.model.LocationModel;
@@ -83,41 +84,45 @@ public class ParquetEmbeddingsParser implements EmbeddingsParser {
     }
 
     @Override
-    public Map<String, String> parseChunkTexts(Blob chunksBlob, String embeddingsType) {
+    public ChunkTexts parseChunkTexts(Blob chunksBlob, String embeddingsType) {
         if (chunksBlob == null) {
-            return Map.of();
+            return ChunkTexts.EMPTY;
         }
         long len = chunksBlob.getLength();
         if (len == 0) {
             log.debug("parseChunkTexts skip: empty blob length=0 (type={})", embeddingsType);
-            return Map.of();
+            return ChunkTexts.EMPTY;
         }
         Map<String, String> chunks = new HashMap<>();
         try (CloseableFile closeableFile = chunksBlob.getCloseableFile()) {
             var inputFile = new LocalInputFile(closeableFile.getFile().toPath());
+            var invalidIds = 0;
             try (var reader = AvroParquetReader.<GenericRecord> builder(inputFile).build()) {
                 GenericRecord first = reader.read();
                 if (first == null) {
-                    return Map.of();
+                    return ChunkTexts.EMPTY;
                 }
                 if (first.getSchema().getField(FIELD_ID) == null || first.getSchema().getField(FIELD_TEXT) == null) {
-                    log.debug("parseChunkTexts skip: id/text field missing from schema (type={})", embeddingsType);
-                    return Map.of();
+                    log.error("parseChunkTexts skip: id/text field missing from schema (type={})", embeddingsType);
+                    return ChunkTexts.EMPTY;
                 }
                 for (GenericRecord rec = first; rec != null; rec = reader.read()) {
                     String id = toScopedId(rec.get(FIELD_ID), embeddingsType);
+                    if (toStringValue(rec.get(FIELD_ID)).isBlank()) {
+                        invalidIds++;
+                    }
                     String text = toNullableString(rec.get(FIELD_TEXT));
                     chunks.put(id, text);
                 }
             }
+            return new ChunkTexts(chunks, invalidIds);
         } catch (IOException | RuntimeException e) {
             // Impact: with the chunks blob present but unreadable, the two-blob parse will overlay an empty map
             // and every embedding for this document ends up with null text. Elevated to error so ops sees it.
             log.error("parseChunkTexts failure - indexed text will be null for all rows (type={} mimeType={} length={})",
                     embeddingsType, chunksBlob.getMimeType(), len, e);
-            return Map.of();
+            return ChunkTexts.EMPTY;
         }
-        return chunks;
     }
 
     protected EmbeddingModel toEmbeddingModel(GenericRecord emb, String repositoryName, String parentDocId,

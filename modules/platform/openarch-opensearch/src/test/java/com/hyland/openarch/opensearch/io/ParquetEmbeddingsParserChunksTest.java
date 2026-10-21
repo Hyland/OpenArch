@@ -30,6 +30,7 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import com.hyland.openarch.ecm.core.api.Blob;
+import com.hyland.openarch.ecm.core.api.ChunkTexts;
 import com.hyland.openarch.ecm.core.api.impl.blob.FileBlob;
 import com.hyland.openarch.ecm.core.api.impl.blob.StringBlob;
 import com.hyland.openarch.ecm.core.model.EmbeddingModel;
@@ -53,6 +54,7 @@ class ParquetEmbeddingsParserChunksTest {
     private final StandaloneParquetBlobGenerator generator = new StandaloneParquetBlobGenerator();
 
     private final String parentId = UUID.randomUUID().toString();
+    private final String embeddingDocId = UUID.randomUUID().toString();
 
     // ---- tests ----
 
@@ -61,7 +63,7 @@ class ParquetEmbeddingsParserChunksTest {
         Blob emb = generator.generate(3, TYPE);
         Blob chunks = generator.generateChunkTexts(3, i -> "text-" + (i + 1));
 
-        Collection<EmbeddingModel> models = parser.parse(emb, chunks, REPO, parentId, TYPE);
+        Collection<EmbeddingModel> models = parser.parse(emb, chunks, REPO, parentId, TYPE, embeddingDocId);
 
         assertEquals(3, models.size());
         List<String> texts = models.stream().map(EmbeddingModel::text).toList();
@@ -73,7 +75,7 @@ class ParquetEmbeddingsParserChunksTest {
     void twoBlobParseWithNullChunksReturnsEmbeddingsBlobText() throws IOException {
         Blob emb = generator.generate(2, TYPE);
 
-        Collection<EmbeddingModel> models = parser.parse(emb, null, REPO, parentId, TYPE);
+        Collection<EmbeddingModel> models = parser.parse(emb, null, REPO, parentId, TYPE, embeddingDocId);
 
         assertEquals(2, models.size());
         models.forEach(m -> {
@@ -87,7 +89,7 @@ class ParquetEmbeddingsParserChunksTest {
         Blob emb = generator.generate(2, TYPE);
         Blob emptyChunks = generator.generateChunkTexts(0, i -> "");
 
-        Collection<EmbeddingModel> models = parser.parse(emb, emptyChunks, REPO, parentId, TYPE);
+        Collection<EmbeddingModel> models = parser.parse(emb, emptyChunks, REPO, parentId, TYPE, embeddingDocId);
 
         assertEquals(2, models.size());
         models.forEach(m -> assertNull(m.text(),
@@ -102,7 +104,7 @@ class ParquetEmbeddingsParserChunksTest {
                 generator.getRawEmbeddingIdForIndex(1), "covered-1",
                 generator.getRawEmbeddingIdForIndex(2), "covered-2"));
 
-        Collection<EmbeddingModel> models = parser.parse(emb, chunks, REPO, parentId, TYPE);
+        Collection<EmbeddingModel> models = parser.parse(emb, chunks, REPO, parentId, TYPE, embeddingDocId);
 
         assertEquals(4, models.size());
         long withText = models.stream().filter(m -> m.text() != null).count();
@@ -111,25 +113,25 @@ class ParquetEmbeddingsParserChunksTest {
 
     @Test
     void parseChunkTextsReturnsEmptyForNullBlob() {
-        assertTrue(parser.parseChunkTexts(null, TYPE).isEmpty());
+        assertTrue(parser.parseChunkTexts(null, TYPE).texts().isEmpty());
     }
 
     @Test
     void parseChunkTextsReturnsEmptyForZeroLengthBlob() {
-        assertTrue(parser.parseChunkTexts(new StringBlob(""), TYPE).isEmpty());
+        assertTrue(parser.parseChunkTexts(new StringBlob(""), TYPE).texts().isEmpty());
     }
 
     @Test
     void parseChunkTextsReturnsEmptyOnUnreadableBlob() {
         Blob junk = new StringBlob("not a parquet file at all");
-        assertTrue(parser.parseChunkTexts(junk, TYPE).isEmpty(),
+        assertTrue(parser.parseChunkTexts(junk, TYPE).texts().isEmpty(),
                 "Unreadable blob should be treated as 'no text', not throw");
     }
 
     @Test
     void twoBlobParseReturnsEmptyWhenEmbeddingsBlobUnreadable() {
         Blob junk = new StringBlob("not a parquet file");
-        assertTrue(parser.parse(junk, junk, REPO, parentId, TYPE).isEmpty());
+        assertTrue(parser.parse(junk, junk, REPO, parentId, TYPE, embeddingDocId).isEmpty());
     }
 
     /**
@@ -148,12 +150,12 @@ class ParquetEmbeddingsParserChunksTest {
             }
         };
 
-        Collection<EmbeddingModel> viaDefault = minimal.parse(emb, /* chunksBlob */ null, REPO, parentId, TYPE);
+        Collection<EmbeddingModel> viaDefault = minimal.parse(emb, /* chunksBlob */ null, REPO, parentId, TYPE, embeddingDocId);
         assertEquals(2, viaDefault.size());
 
-        Map<String, String> defaultChunks = minimal.parseChunkTexts(emb, TYPE);
+        ChunkTexts defaultChunks = minimal.parseChunkTexts(emb, TYPE);
         assertNotNull(defaultChunks);
-        assertTrue(defaultChunks.isEmpty(), "Default parseChunkTexts must return empty map");
+        assertTrue(defaultChunks.texts().isEmpty(), "Default parseChunkTexts must return empty map");
     }
 
     /**

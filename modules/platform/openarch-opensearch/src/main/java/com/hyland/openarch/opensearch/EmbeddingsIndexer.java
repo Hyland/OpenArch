@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -49,6 +48,7 @@ import com.hyland.openarch.ecm.core.model.EmbeddingModel;
 import com.hyland.openarch.opensearch.commands.IndexingCommand;
 import com.hyland.openarch.opensearch.io.DocumentDTO;
 import com.hyland.openarch.opensearch.io.EmbeddingOSDTO;
+import com.hyland.openarch.ecm.core.api.ChunkTexts;
 import com.hyland.openarch.opensearch.io.EmbeddingsParser;
 import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.metrics.MetricsService;
@@ -155,7 +155,7 @@ public class EmbeddingsIndexer {
             log.debug("onPrem SysEmbeddings {} has no chunks blob; nothing to write to the EV Store", ctx.embeddingsDoc().getId());
             return;
         }
-        Map<String, String> chunkTexts = embeddingsParser.parseChunkTexts(chunksBlob, ctx.embeddingsType());
+        ChunkTexts chunks = embeddingsParser.parseChunkTexts(chunksBlob, ctx.embeddingsType());
         String systemIntegrationId = StringUtils.trimToNull((String) ctx.parentDoc().getPropertyValue(CIN_SOURCE_ID));
         if (systemIntegrationId == null) {
             log.error("Cannot write onPrem chunk text to the EV Store: parent {} of SysEmbeddings {} has no {}",
@@ -163,7 +163,7 @@ public class EmbeddingsIndexer {
             return;
         }
         writer.writeChunkText(repository, systemIntegrationId, ctx.embeddingsDoc().getId(),
-                ctx.parentDoc().getId(), ctx.embeddingsType(), chunkTexts);
+                ctx.parentDoc().getId(), ctx.embeddingsType(), chunks);
     }
 
     /**
@@ -384,13 +384,14 @@ public class EmbeddingsIndexer {
                 return List.of();
             }
             // onPrem: chunk text is never indexed, so skip the chunks overlay to avoid parsing text we discard.
+            // This also means the cloud invalid-id log in EmbeddingsParser never runs for on-prem documents.
             Blob chunksBlob = SYSEMB_RESIDENCY_ON_PREM.equals(ctx.residency()) ? null
                     : (Blob) ctx.embeddingsDoc().getPropertyValue(DocumentConstants.SYSEMB_CHUNKS);
             log.debug("Parsing embeddings blob (length={}, chunksBlob={}) for command {} (type={} parentId={})",
                     embeddingsBlob.getLength(), chunksBlob == null ? "absent" : "present (length=" + chunksBlob.getLength() + ")",
                     cmd.getId(), ctx.embeddingsType(), ctx.parentDoc().getId());
             Collection<EmbeddingModel> parsed = embeddingsParser.parse(embeddingsBlob, chunksBlob,
-                    cmd.getRepositoryName(), ctx.parentDoc().getId(), ctx.embeddingsType());
+                    cmd.getRepositoryName(), ctx.parentDoc().getId(), ctx.embeddingsType(), ctx.embeddingsDoc().getId());
             log.debug("Parser returned {} embeddings for command {}", parsed.size(), cmd.getId());
             return parsed;
         } catch (RuntimeException e) {

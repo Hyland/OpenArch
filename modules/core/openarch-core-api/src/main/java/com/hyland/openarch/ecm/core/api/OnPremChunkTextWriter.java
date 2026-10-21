@@ -15,7 +15,6 @@
  */
 package com.hyland.openarch.ecm.core.api;
 
-import java.util.Map;
 
 /**
  * Writes the chunk text of an {@code onPrem} {@code SysEmbeddings} child to the on-premises EV
@@ -45,10 +44,11 @@ public interface OnPremChunkTextWriter {
      * @param contentId           the {@code SysEmbeddings} child {@code sys_id} (EV Store content id)
      * @param documentId          the parent document id (for diagnostics and logging)
      * @param embeddingType       the embedding type carried by the child (for diagnostics and logging)
-     * @param chunkTextById       embedding id to chunk text; an empty map means "replace with no chunk values"
+     * @param chunkTexts          the chunk texts to write; an empty map means "replace with no chunk values"
+     *
      */
     void writeChunkText(String repository, String systemIntegrationId, String contentId, String documentId,
-            String embeddingType, Map<String, String> chunkTextById);
+            String embeddingType, ChunkTexts chunkTexts);
 
     /**
      * Enqueues a full scope purge for a single {@code onPrem} {@code SysEmbeddings} child.

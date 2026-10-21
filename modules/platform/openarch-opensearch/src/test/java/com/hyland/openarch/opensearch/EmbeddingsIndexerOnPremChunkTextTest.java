@@ -35,6 +35,7 @@ import com.hyland.openarch.ecm.core.api.DocumentModel;
 import com.hyland.openarch.ecm.core.api.OnPremChunkTextWriter;
 import com.hyland.openarch.ecm.core.model.EmbeddingModel;
 import com.hyland.openarch.opensearch.EmbeddingsIndexer.ProcessingContext;
+import com.hyland.openarch.ecm.core.api.ChunkTexts;
 import com.hyland.openarch.opensearch.io.EmbeddingsParser;
 import com.hyland.openarch.runtime.api.Framework;
 
@@ -61,7 +62,7 @@ class EmbeddingsIndexerOnPremChunkTextTest {
         when(parentDoc.getId()).thenReturn(PARENT_DOC_ID);
         when(parentDoc.getPropertyValue(DocumentConstants.CIN_SOURCE_ID)).thenReturn(TENANT);
         Map<String, String> chunks = Map.of("id-1", "text-1");
-        when(parser.parseChunkTexts(chunksBlob, EMBEDDING_TYPE)).thenReturn(chunks);
+        when(parser.parseChunkTexts(chunksBlob, EMBEDDING_TYPE)).thenReturn(new ChunkTexts(chunks, 0));
 
         ProcessingContext ctx = context(embeddingsDoc, parentDoc, DocumentConstants.SYSEMB_RESIDENCY_ON_PREM);
         OnPremChunkTextWriter writer = Mockito.mock(OnPremChunkTextWriter.class);
@@ -71,7 +72,33 @@ class EmbeddingsIndexerOnPremChunkTextTest {
             EmbeddingsIndexer.writeOnPremChunkText(parser, REPOSITORY, ctx, SOME_EMBEDDINGS, false);
         }
 
-        verify(writer).writeChunkText(REPOSITORY, TENANT, EMBEDDINGS_DOC_ID, PARENT_DOC_ID, EMBEDDING_TYPE, chunks);
+        verify(writer).writeChunkText(REPOSITORY, TENANT, EMBEDDINGS_DOC_ID, PARENT_DOC_ID, EMBEDDING_TYPE,
+                new ChunkTexts(chunks, 0));
+    }
+
+    @Test
+    void passesInvalidChunkIdCountToWriterForOnPremIngest() {
+        DocumentModel embeddingsDoc = Mockito.mock(DocumentModel.class);
+        DocumentModel parentDoc = Mockito.mock(DocumentModel.class);
+        Blob chunksBlob = Mockito.mock(Blob.class);
+        when(embeddingsDoc.getId()).thenReturn(EMBEDDINGS_DOC_ID);
+        when(embeddingsDoc.getPropertyValue(DocumentConstants.SYSEMB_CHUNKS)).thenReturn(chunksBlob);
+        when(parentDoc.getId()).thenReturn(PARENT_DOC_ID);
+        when(parentDoc.getPropertyValue(DocumentConstants.CIN_SOURCE_ID)).thenReturn(TENANT);
+        Map<String, String> chunks = Map.of("id-1", "text-1");
+        when(parser.parseChunkTexts(chunksBlob, EMBEDDING_TYPE)).thenReturn(new ChunkTexts(chunks, 2));
+
+        ProcessingContext ctx = context(embeddingsDoc, parentDoc, DocumentConstants.SYSEMB_RESIDENCY_ON_PREM);
+        OnPremChunkTextWriter writer = Mockito.mock(OnPremChunkTextWriter.class);
+
+        try (MockedStatic<Framework> framework = Mockito.mockStatic(Framework.class)) {
+            framework.when(() -> Framework.getService(OnPremChunkTextWriter.class)).thenReturn(writer);
+            EmbeddingsIndexer.writeOnPremChunkText(parser, REPOSITORY, ctx, SOME_EMBEDDINGS, false);
+        }
+
+        // The writer decides what to do with invalid rows; the indexer must hand it the count, not hide it.
+        verify(writer).writeChunkText(REPOSITORY, TENANT, EMBEDDINGS_DOC_ID, PARENT_DOC_ID, EMBEDDING_TYPE,
+                new ChunkTexts(chunks, 2));
     }
 
     @Test
@@ -158,7 +185,7 @@ class EmbeddingsIndexerOnPremChunkTextTest {
         when(embeddingsDoc.getPropertyValue(DocumentConstants.SYSEMB_CHUNKS)).thenReturn(chunksBlob);
         when(parentDoc.getId()).thenReturn(PARENT_DOC_ID);
         when(parentDoc.getPropertyValue(DocumentConstants.CIN_SOURCE_ID)).thenReturn(TENANT);
-        when(parser.parseChunkTexts(chunksBlob, EMBEDDING_TYPE)).thenReturn(Map.of());
+        when(parser.parseChunkTexts(chunksBlob, EMBEDDING_TYPE)).thenReturn(ChunkTexts.EMPTY);
         ProcessingContext ctx = context(embeddingsDoc, parentDoc, DocumentConstants.SYSEMB_RESIDENCY_ON_PREM);
         OnPremChunkTextWriter writer = Mockito.mock(OnPremChunkTextWriter.class);
 
@@ -167,7 +194,8 @@ class EmbeddingsIndexerOnPremChunkTextTest {
             EmbeddingsIndexer.writeOnPremChunkText(parser, REPOSITORY, ctx, SOME_EMBEDDINGS, false);
         }
 
-        verify(writer).writeChunkText(REPOSITORY, TENANT, EMBEDDINGS_DOC_ID, PARENT_DOC_ID, EMBEDDING_TYPE, Map.of());
+        verify(writer).writeChunkText(REPOSITORY, TENANT, EMBEDDINGS_DOC_ID, PARENT_DOC_ID, EMBEDDING_TYPE,
+                ChunkTexts.EMPTY);
     }
 
     @Test
@@ -179,7 +207,7 @@ class EmbeddingsIndexerOnPremChunkTextTest {
         when(embeddingsDoc.getPropertyValue(DocumentConstants.SYSEMB_CHUNKS)).thenReturn(chunksBlob);
         when(parentDoc.getId()).thenReturn(PARENT_DOC_ID);
         when(parentDoc.getPropertyValue(DocumentConstants.CIN_SOURCE_ID)).thenReturn("  ");
-        when(parser.parseChunkTexts(chunksBlob, EMBEDDING_TYPE)).thenReturn(Map.of("id-1", "text-1"));
+        when(parser.parseChunkTexts(chunksBlob, EMBEDDING_TYPE)).thenReturn(new ChunkTexts(Map.of("id-1", "text-1"), 0));
         ProcessingContext ctx = context(embeddingsDoc, parentDoc, DocumentConstants.SYSEMB_RESIDENCY_ON_PREM);
         OnPremChunkTextWriter writer = Mockito.mock(OnPremChunkTextWriter.class);
 

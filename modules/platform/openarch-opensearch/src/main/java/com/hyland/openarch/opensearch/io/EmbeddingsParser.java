@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.hyland.openarch.ecm.core.api.Blob;
+import com.hyland.openarch.ecm.core.api.ChunkTexts;
 import com.hyland.openarch.ecm.core.model.EmbeddingModel;
 
 /**
@@ -63,12 +64,15 @@ public interface EmbeddingsParser {
      * </p>
      */
     default Collection<EmbeddingModel> parse(Blob embeddingsBlob, Blob chunksBlob, String repositoryName,
-            String parentDocId, String embeddingsType) {
+            String parentDocId, String embeddingsType, String embeddingDocId) {
         Collection<EmbeddingModel> parsed = parse(embeddingsBlob, repositoryName, parentDocId, embeddingsType);
         if (chunksBlob == null) {
             return parsed;
         }
-        Map<String, String> chunkTexts = parseChunkTexts(chunksBlob, embeddingsType);
+        ChunkTexts chunks = parseChunkTexts(chunksBlob, embeddingsType);
+        // Cloud only: on-prem passes a null chunks blob, so the on-prem summary comes from the writer instead.
+        chunks.logIfInvalid(parentDocId, embeddingDocId);
+        Map<String, String> chunkTexts = chunks.texts();
         List<EmbeddingModel> merged = new ArrayList<>(parsed.size());
         for (EmbeddingModel m : parsed) {
             merged.add(new EmbeddingModel(m.id(), m.repository(), m.docId(), m.type(), m.vector(),
@@ -78,12 +82,12 @@ public interface EmbeddingsParser {
     }
 
     /**
-     * Extracts an id -> chunk text map from a chunk-text blob. Returns an empty map when the blob is null,
+     * Extracts chunk texts from a chunk-text blob, keyed by embedding id. Returns empty texts when the blob is null,
      * empty, or in an unrecognised format. Keys must match the ids produced by
      * {@link #parse(Blob, String, String, String)} so callers can join without further conversion.
      */
-    default Map<String, String> parseChunkTexts(Blob chunksBlob, String embeddingsType) {
-        return Map.of();
+    default ChunkTexts parseChunkTexts(Blob chunksBlob, String embeddingsType) {
+        return ChunkTexts.EMPTY;
     }
 
 }
