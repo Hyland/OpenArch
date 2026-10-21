@@ -1546,13 +1546,13 @@ public class OpenSearchServiceImpl extends DefaultComponent implements OpenSearc
         // For embedding queries (vector/hybrid/embeddingId), use the embeddings index with denormalized data
         // For regular queries, use the main document index
         boolean isEmbeddingQuery = query.isEmbeddingQuery();
-        List<String> indexes = isEmbeddingQuery
-                ? getEmbeddingsSearchIndexes(query.getSearchRepositories())
-                : getSearchIndexes(query.getSearchRepositories());
+        String index = isEmbeddingQuery
+                ? getEmbeddingsIndexNameForRepository(query.getSearchRepository())
+                : getIndexNameForRepository(query.getSearchRepository());
         // Log which index type is being used for verification - debug level to reduce production noise
-        log.debug("Routing to {} index: indexes={}", isEmbeddingQuery ? "embeddings" : "document", indexes);
+        log.debug("Routing to {} index: index={}", isEmbeddingQuery ? "embeddings" : "document", index);
 
-        SearchRequest.Builder builder = new SearchRequest.Builder().index(indexes) //
+        SearchRequest.Builder builder = new SearchRequest.Builder().index(index) //
                                                                    .searchType(searchType)
                                                                    .timeout(timeOf(keepAlive));
         query.updateRequest(builder);
@@ -1565,7 +1565,7 @@ public class OpenSearchServiceImpl extends DefaultComponent implements OpenSearc
         // validated here, before it is used as either a filter or an aggregation field below
         nxqlQueryBuilder.validateAggregationField(termsAggregationField);
 
-        List<String> indexes = getSearchIndexes(nxqlQueryBuilder.getSearchRepositories());
+        String index = getIndexNameForRepository(nxqlQueryBuilder.getSearchRepository());
 
         String escapedWildcardPattern = (searchTerm == null ? "" : "*" + WildcardUtils.escapeForOpenSearchWildcard(searchTerm)) + "*";
         WildcardQuery wildcardQuery = QueryBuilders.wildcard()
@@ -1594,7 +1594,7 @@ public class OpenSearchServiceImpl extends DefaultComponent implements OpenSearc
         Aggregation sampleAggregation = new Aggregation.Builder().sampler(samplerAggregation)
                                                                   .aggregations(TERMS_AGGREGATION_NAME, topOccurrencesAggregation)
                                                                   .build();
-        var searchRequestBuilder = new SearchRequest.Builder().index(indexes)
+        var searchRequestBuilder = new SearchRequest.Builder().index(index)
                                        .query(combinedQuery.toQuery())
                                        .size(0)
                                        .aggregations(SAMPLE_AGGREGATION_NAME, sampleAggregation);
@@ -1603,35 +1603,6 @@ public class OpenSearchServiceImpl extends DefaultComponent implements OpenSearc
 
     protected String timeOf(long keepAlive) {
         return keepAlive > 0 ? keepAlive + "s" : null;
-    }
-
-    protected List<String> getSearchIndexes(List<String> searchRepositories) {
-        if (searchRepositories.isEmpty()) {
-            return new ArrayList<>(indexNames.values());
-        } else {
-            return searchRepositories.stream().map(this::getIndexNameForRepository).toList();
-        }
-    }
-
-    /**
-     * Returns the list of embeddings indexes to search for the specified repositories.
-     * <p>
-     * Embeddings indexes contain denormalized embeddings with parent document metadata,
-     * allowing for faster queries without expensive parent-child joins. These indexes
-     * follow the naming convention: {@code {repositoryName}_embeddings}
-     * <p>
-     * If no repositories are specified (empty list), returns all configured embeddings
-     * indexes across all repositories.
-     *
-     * @param searchRepositories list of repository names to search, or empty list for all repositories
-     * @return list of embeddings index names to query, or empty list if no embeddings indexes are configured
-     */
-    protected List<String> getEmbeddingsSearchIndexes(List<String> searchRepositories) {
-        if (searchRepositories.isEmpty()) {
-            return new ArrayList<>(embeddingsIndexNames.values());
-        } else {
-            return searchRepositories.stream().map(this::getEmbeddingsIndexNameForRepository).toList();
-        }
     }
 
     // misc ====================================================================

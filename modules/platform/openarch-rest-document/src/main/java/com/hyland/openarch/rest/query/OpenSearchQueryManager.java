@@ -143,9 +143,6 @@ public class OpenSearchQueryManager extends AbstractQueryManager {
         if (limit >= 0) {
             nxQuery.limit(limit);
         }
-        if (repositoryId == null || "*".equals(repositoryId)) {
-            nxQuery.searchOnAllRepositories();
-        }
         OpenSearchResult ret = Framework.getService(OpenSearchService.class).queryAndAggregate(nxQuery);
         DocumentModelList docs = ret.getDocuments();
         long totalSize = 0;
@@ -194,7 +191,7 @@ public class OpenSearchQueryManager extends AbstractQueryManager {
         CoreSession session = CoreInstance.getCoreSession(repositoryId);
         OpenSearchQueryBuilder nxQuery = new OpenSearchQueryBuilder(session).embeddingIdQuery(embeddingId, nxql).offset(0).limit(1);
 
-        return getEmbeddingQueryResultDTO(session, repositoryId, spec, nxQuery, null);
+        return getEmbeddingQueryResultDTO(session, spec, nxQuery, null);
     }
 
     @Override
@@ -220,14 +217,11 @@ public class OpenSearchQueryManager extends AbstractQueryManager {
         if (limit >= 0) {
             nxQuery.limit(limit);
         }
-        return getEmbeddingQueryResultDTO(session, repositoryId, spec, nxQuery, query.vector());
+        return getEmbeddingQueryResultDTO(session, spec, nxQuery, query.vector());
     }
 
-    private EmbeddingQueryResultDTO getEmbeddingQueryResultDTO(CoreSession session, String repositoryId,
-            QuerySpecification spec, OpenSearchQueryBuilder nxQuery, List<Double> vector) {
-        if (repositoryId == null || "*".equals(repositoryId)) {
-            nxQuery.searchOnAllRepositories();
-        }
+    private EmbeddingQueryResultDTO getEmbeddingQueryResultDTO(CoreSession session, QuerySpecification spec,
+            OpenSearchQueryBuilder nxQuery, List<Double> vector) {
         OpenSearchResult ret = Framework.getService(OpenSearchService.class).queryAndAggregate(nxQuery);
         HitsMetadata<com.hyland.openarch.opensearch.io.DocumentDTO> hits = ret.getOpenSearchResponse().hits();
         Long totalSize = Optional.ofNullable(hits).map(HitsMetadata::total).map(TotalHits::value).orElse(null);
@@ -328,9 +322,6 @@ public class OpenSearchQueryManager extends AbstractQueryManager {
             nxQuery.limit(limit);
         }
 
-        if (repositoryId == null || "*".equals(repositoryId)) {
-            nxQuery.searchOnAllRepositories();
-        }
 
         aggregationLimit = (int) getLimit(aggregationLimit);
 

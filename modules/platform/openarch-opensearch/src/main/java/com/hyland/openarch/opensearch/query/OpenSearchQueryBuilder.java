@@ -77,7 +77,7 @@ public class OpenSearchQueryBuilder {
 
     private final List<SortInfo> sortInfos = new ArrayList<>();
 
-    private final List<String> repositories = new ArrayList<>();
+    private final String repository;
 
     private final HXQLQueryConverter hxqlQueryConverter;
 
@@ -92,8 +92,6 @@ public class OpenSearchQueryBuilder {
     private Map<String, Object> parameters = Map.of();
 
     private Query osQuery;
-
-    private boolean searchOnAllRepo = false;
 
     private String[] selectFields = { OpenSearchConstants.ID_FIELD };
 
@@ -123,7 +121,7 @@ public class OpenSearchQueryBuilder {
 
     public OpenSearchQueryBuilder(CoreSession coreSession) {
         session = coreSession;
-        repositories.add(session.getRepositoryName());
+        repository = session.getRepositoryName();
         hxqlQueryConverter = new HXQLQueryConverter(session.getSchemaManager());
         schemaManager = coreSession.getSchemaManager();
     }
@@ -132,7 +130,7 @@ public class OpenSearchQueryBuilder {
     protected OpenSearchQueryBuilder(CoreSession coreSession, String repositoryName, HXQLQueryConverter hxqlQueryConverter,
             SchemaManager schemaManager) {
         session = coreSession;
-        repositories.add(repositoryName);
+        repository = repositoryName;
         this.hxqlQueryConverter = hxqlQueryConverter;
         this.schemaManager = schemaManager;
     }
@@ -491,35 +489,12 @@ public class OpenSearchQueryBuilder {
     }
 
     /**
-     * Add a specific repository to search. Default search is done on the session repository only.
+     * Returns the name of the repository to search, which is the one of the session.
      *
      * @since 6.0
      */
-    public OpenSearchQueryBuilder addSearchRepository(String repositoryName) {
-        repositories.add(repositoryName);
-        return this;
-    }
-
-    /**
-     * Search on all available repositories.
-     *
-     * @since 6.0
-     */
-    public OpenSearchQueryBuilder searchOnAllRepositories() {
-        searchOnAllRepo = true;
-        return this;
-    }
-
-    /**
-     * Return the list of repositories to search, or an empty list to search on all available repositories;
-     *
-     * @since 6.0
-     */
-    public List<String> getSearchRepositories() {
-        if (searchOnAllRepo) {
-            return Collections.emptyList();
-        }
-        return repositories;
+    public String getSearchRepository() {
+        return repository;
     }
 
     /**
