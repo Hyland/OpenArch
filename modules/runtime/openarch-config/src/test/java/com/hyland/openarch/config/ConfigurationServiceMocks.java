@@ -88,4 +88,28 @@ public final class ConfigurationServiceMocks {
             return null;
         }).when(configurationService).updateConfiguration(any(), any(), any());
     }
+
+    /**
+     * Makes a mocked {@link ConfigurationService} behave like the real one for
+     * {@link ConfigurationService#readConfigurationForUpdate}: what {@link ConfigurationService#readConfiguration}
+     * reports, or the {@link Configurable}'s local configuration at version {@code 0} when nothing is persisted.
+     * <p>
+     * The stubbing is lenient, see {@link #stubSetConfiguration}.
+     *
+     * @param configurationService the mocked configuration service
+     */
+    @SuppressWarnings("unchecked")
+    public static void stubReadConfigurationForUpdate(ConfigurationService configurationService) {
+        lenient().doAnswer(invocation -> {
+            String repositoryName = invocation.getArgument(0);
+            Configurable<Object> configurable = invocation.getArgument(1);
+            ConfigurationWithVersion persisted = configurationService.readConfiguration(repositoryName,
+                    configurable.getConfigurableConfigName());
+            if (persisted != null && persisted.config() != null) {
+                return persisted;
+            }
+            return new ConfigurationWithVersion(
+                    configurable.toConfigMap(configurable.getLocalState(repositoryName)), 0L);
+        }).when(configurationService).readConfigurationForUpdate(any(), any());
+    }
 }
