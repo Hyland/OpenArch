@@ -54,6 +54,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Predicate;
 
 import java.io.IOException;
 
@@ -1072,26 +1073,16 @@ public class OpenSearchServiceImpl extends DefaultComponent implements OpenSearc
             }
             // best effort to delete the doc by id
             getClient().delete(indexName, cmd.getTargetDocumentId());
+            // the doc was not indexed yet but its descendants may already be: without this they would stay in the
+            // index (ghost documents) because they are normally found through the path of the doc itself
+            deleteDescendantsOfNotIndexedDocument(cmd, indexName);
             return;
         }
 
         // Run the scroll query
-        Query filter = QueryBuilders.term()
-                                    .field(SYS_PATH + ".children")
-                                    .value(FieldValue.of(docPath))
-                                    .build()
-                                    .toQuery();
-        Query query = ConstantScoreQuery.of(b -> b.filter(filter)).toQuery();
+        Query query = termFilterQuery(SYS_PATH + ".children", docPath);
         Time keepAlive = Time.of(b -> b.time("1m"));
-        SearchRequest request = SearchRequest.of(b -> b.index(indexName) //
-                                                       .scroll(keepAlive)
-                                                       .source(sb -> {
-                                                           sb.fetch(true);
-                                                           sb.filter(f -> f.includes(EMBEDDINGS_DELETION_CONTEXT_FIELDS));
-                                                           return sb;
-                                                       })
-                                                       .size(100)
-                                                       .query(query));
+        SearchRequest request = deletionScrollRequest(indexName, query, keepAlive);
 
         // Refresh index before bulk delete
         getClient().refresh(indexName);
@@ -1122,6 +1113,74 @@ public class OpenSearchServiceImpl extends DefaultComponent implements OpenSearc
                     cmd.getTargetDocumentId(), docPath, indexName);
         }
 
+        List<String> deletedDocumentIds = scrollAndDelete(cmd, request, keepAlive, null);
+
+        postDeletionGhostDocumentCheck(indexName, cmd.getTargetDocumentId(), deletedDocumentIds);
+    }
+
+    /**
+     * Deletes from the index the descendants (by {@code sys_ancestorIds}) of a document that is not in the index.
+     * <p>
+     * Descendants that were moved out of the deleted document are kept (their {@code sys_ancestorIds} in the index
+     * can be stale). Descendants that are still in the repository but under the deleted document are waiting for its
+     * asynchronous removal, and nothing else will remove them from the index: they are deleted.
+     */
+    private void deleteDescendantsOfNotIndexedDocument(IndexingCommand cmd, String indexName) {
+        Query query = termFilterQuery(SYS_ANCESTOR_IDS, cmd.getTargetDocumentId());
+        Time keepAlive = Time.of(b -> b.time("1m"));
+        SearchRequest request = deletionScrollRequest(indexName, query, keepAlive);
+        // make the descendants indexed a moment ago visible to the search
+        getClient().refresh(indexName);
+        List<String> deletedDocumentIds = scrollAndDelete(cmd, request, keepAlive,
+                id -> isMovedOutOfDeletedDocument(cmd.getRepositoryName(), id, cmd.getTargetDocumentId()));
+        if (!deletedDocumentIds.isEmpty()) {
+            log.info("Deleted {} descendant(s) of the document {} that was not indexed yet", deletedDocumentIds.size(),
+                    cmd.getTargetDocumentId());
+        }
+    }
+
+    private Query termFilterQuery(String field, String value) {
+        Query filter = QueryBuilders.term().field(field).value(FieldValue.of(value)).build().toQuery();
+        return ConstantScoreQuery.of(b -> b.filter(filter)).toQuery();
+    }
+
+    /**
+     * Scroll request fetching, for the documents matching the query, the fields needed to delete their embeddings.
+     */
+    private SearchRequest deletionScrollRequest(String indexName, Query query, Time keepAlive) {
+        return SearchRequest.of(b -> b.index(indexName) //
+                                      .scroll(keepAlive)
+                                      .source(sb -> {
+                                          sb.fetch(true);
+                                          sb.filter(f -> f.includes(EMBEDDINGS_DELETION_CONTEXT_FIELDS));
+                                          return sb;
+                                      })
+                                      .size(100)
+                                      .query(query));
+    }
+
+    /**
+     * Returns true if the document exists in the repository and is not under the deleted document anymore.
+     */
+    boolean isMovedOutOfDeletedDocument(String repositoryName, String docId, String deletedDocId) {
+        CoreSession session = CoreInstance.getCoreSessionSystem(repositoryName);
+        IdRef ref = new IdRef(docId);
+        try {
+            return session.exists(ref) && !session.getDocument(ref).getAncestorIds().contains(deletedDocId);
+        } catch (DocumentNotFoundException e) {
+            // removed in the meantime
+            return false;
+        }
+    }
+
+    /**
+     * Scrolls over the documents matching the request and deletes them (and their embeddings) from the index.
+     *
+     * @param keep when not null, the documents for which it returns true are not deleted
+     * @return the ids of the deleted documents
+     */
+    private List<String> scrollAndDelete(IndexingCommand cmd, SearchRequest request, Time keepAlive,
+            Predicate<String> keep) {
         boolean hasEmbeddings = hasEmbeddingsIndex(cmd.getRepositoryName());
         String embeddingsIndex = hasEmbeddings ? getEmbeddingsWriteIndexForRepository(cmd.getRepositoryName()) : null;
         List<String> deletedDocumentIds = new ArrayList<>();
@@ -1131,6 +1190,9 @@ public class OpenSearchServiceImpl extends DefaultComponent implements OpenSearc
                 // Build bulk delete request
                 List<BulkOperation> bulkOperations = new ArrayList<>();
                 for (Hit<DocumentDTO> hit : response.hits().hits()) {
+                    if (keep != null && keep.test(hit.id())) {
+                        continue;
+                    }
                     bulkOperations.add(BulkOperation.of(b -> b.delete(dob -> dob.index(hit.index()) //
                                                                                 .id(hit.id()))));
                     if (hasEmbeddings) {
@@ -1141,19 +1203,20 @@ public class OpenSearchServiceImpl extends DefaultComponent implements OpenSearc
                         }
                     }
                 }
-                List<String> idsToDelete = bulkOperations.stream().map(op -> op.delete().id()).toList();
-                deletedDocumentIds.addAll(idsToDelete);
-                BulkRequest bulkRequest = BulkRequest.of(b -> b.operations(bulkOperations));
-                log.debug("Bulk delete request on {} elements", bulkRequest.operations().size());
-                // Run bulk delete request
-                getClient().bulk(bulkRequest);
+                if (!bulkOperations.isEmpty()) {
+                    List<String> idsToDelete = bulkOperations.stream().map(op -> op.delete().id()).toList();
+                    deletedDocumentIds.addAll(idsToDelete);
+                    BulkRequest bulkRequest = BulkRequest.of(b -> b.operations(bulkOperations));
+                    log.debug("Bulk delete request on {} elements", bulkRequest.operations().size());
+                    // Run bulk delete request
+                    getClient().bulk(bulkRequest);
+                }
                 response = runNextScroll(response, keepAlive);
             }
         } finally {
             safelyClearScroll(response.scrollId(), cmd.getTargetDocumentId());
         }
-
-        postDeletionGhostDocumentCheck(indexName, cmd.getTargetDocumentId(), deletedDocumentIds);
+        return deletedDocumentIds;
     }
 
     void safelyClearScroll(String scrollId, String docId) {
