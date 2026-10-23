@@ -16,10 +16,13 @@
 package com.hyland.openarch.ecm.platform.login.filestore;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
 import com.hyland.openarch.ecm.platform.login.filestore.config.FileStoreUsersProperties;
@@ -34,12 +37,16 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Verifies that {@link FileStoreSecurityConfiguration} enforces HTTP Basic Auth end-to-end: valid credentials are
@@ -92,6 +99,21 @@ class BasicAuthSecurityTest {
                .andExpect(status().isUnauthorized());
     }
 
+    /** Streamed downloads need the security headers in place before the body is written from another thread. */
+    @Test
+    void securityHeadersAreWrittenBeforeTheHandlerRuns() throws Exception {
+        mockMvc.perform(get("/security-headers").header(HttpHeaders.AUTHORIZATION, basicAuth("alice", "secret")))
+               .andExpect(status().isOk())
+               .andExpect(content().string("nosniff"));
+    }
+
+    @Test
+    void cacheControlSetByTheHandlerReplacesTheSecurityDefault() throws Exception {
+        mockMvc.perform(get("/cached").header(HttpHeaders.AUTHORIZATION, basicAuth("alice", "secret")))
+               .andExpect(status().isOk())
+               .andExpect(header().stringValues(HttpHeaders.CACHE_CONTROL, "max-age=15, must-revalidate"));
+    }
+
     @SpringBootConfiguration
     @EnableWebMvc
     @EnableConfigurationProperties(FileStoreUsersProperties.class)
@@ -108,6 +130,18 @@ class BasicAuthSecurityTest {
             @GetMapping("/ping")
             String ping() {
                 return "pong";
+            }
+
+            @GetMapping("/security-headers")
+            String securityHeaders(HttpServletResponse response) {
+                return String.valueOf(response.getHeader("X-Content-Type-Options"));
+            }
+
+            @GetMapping("/cached")
+            ResponseEntity<String> cached() {
+                return ResponseEntity.ok()
+                                     .cacheControl(CacheControl.maxAge(15, TimeUnit.SECONDS).mustRevalidate())
+                                     .body("cached");
             }
         }
     }

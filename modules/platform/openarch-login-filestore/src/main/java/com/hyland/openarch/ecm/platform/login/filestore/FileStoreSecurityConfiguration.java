@@ -23,6 +23,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
@@ -30,6 +31,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.header.HeaderWriterFilter;
 
 /**
  * Spring Security configuration.
@@ -41,6 +43,20 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 public class FileStoreSecurityConfiguration {
+
+    /**
+     * Writes the security headers before the request is handled instead of when the filter chain unwinds. A
+     * {@code StreamingResponseBody} download is written and committed from an async thread while the request thread
+     * unwinds, and Tomcat's header store is not thread-safe, so late writes from the request thread can corrupt the
+     * response (spring-projects/spring-security#15510).
+     */
+    static final ObjectPostProcessor<HeaderWriterFilter> WRITE_HEADERS_EAGERLY = new ObjectPostProcessor<>() {
+        @Override
+        public <O extends HeaderWriterFilter> O postProcess(O filter) {
+            filter.setShouldWriteHeadersEagerly(true);
+            return filter;
+        }
+    };
 
     @Bean
     @ConditionalOnMissingBean(SecurityFilterChain.class)
@@ -58,6 +74,7 @@ public class FileStoreSecurityConfiguration {
         // CSRF filter would block every POST/PUT/DELETE request with a 401/403.
         }).csrf(CsrfConfigurer::disable) // NOSONAR java:S4502
             .cors(withDefaults())
+            .headers(headers -> headers.withObjectPostProcessor(WRITE_HEADERS_EAGERLY))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .httpBasic(basic -> basic.authenticationEntryPoint(new UnauthorizedErrorHandler()));
         return http.build();

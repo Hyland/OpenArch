@@ -155,13 +155,20 @@ public class BufferedResponseWrapper extends ContentCachingResponseWrapper {
         if (bufferAbandoned) {
             return;
         }
-        // a Content-Length held back by the cache is only written along with a non-empty body
-        String contentLength = getHeader(CONTENT_LENGTH);
-        bufferAbandoned = true;
-        // not complete: what follows is still to be written, so don't derive a Content-Length from the buffer
-        copyBodyToResponse(false);
-        if (contentLength != null && httpResponse().getHeader(CONTENT_LENGTH) == null) {
-            httpResponse().setContentLengthLong(Long.parseLong(contentLength));
+        try {
+            // a Content-Length held back by the cache is only written along with a non-empty body
+            String contentLength = getHeader(CONTENT_LENGTH);
+            // not complete: what follows is still to be written, so don't derive a Content-Length from the buffer
+            copyBodyToResponse(false);
+            if (contentLength != null && httpResponse().getHeader(CONTENT_LENGTH) == null) {
+                httpResponse().setContentLengthLong(Long.parseLong(contentLength));
+            }
+        } finally {
+            // Only published once the buffer and the Content-Length have been written: the asynchronous dispatch
+            // reads it without the lock and then writes, and so commits, the response directly. Publishing it earlier
+            // would let the container commit while this thread is still setting headers, and Tomcat's header store
+            // is not thread-safe.
+            bufferAbandoned = true;
         }
     }
 
