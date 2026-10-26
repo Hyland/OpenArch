@@ -81,28 +81,12 @@ public interface IdempotencyHandler {
      * If no cached result exists, execute the operation, cache the result or exception, and return/rethrow.
      * <p>
      * The result type is resolved from the result's runtime class, which must be registered in
-     * {@link IdempotencyResultTypeRegistry}; otherwise the result is not cached. Use
-     * {@link #execute(String, String, Supplier)} for a generic result type, whose
-     * element types erasure would lose.
-     *
-     * @param <T>           the type of the operation result
-     * @param key           the idempotency key value identifying this operation
-     * @param operation     the operation to execute (must be idempotent and deterministic)
-     * @return the outcome, carrying both the result and whether it was replayed
-     * @throws RuntimeException if the operation fails or if cached failure is replayed
-     */
-    <T> Outcome<T> execute(String key, Supplier<T> operation);
-
-    /**
-     * Same contract as {@link #execute(String, Supplier)}, but with an explicit result
-     * type key instead of one inferred from the result's runtime class.
-     * <p>
+     * {@link IdempotencyResultTypeRegistry}; otherwise the result is not cached.
      * This is required for a result type that is itself generic (e.g. {@code List<SomeDto>}): type
      * erasure means {@code result.getClass()} alone cannot recover the element type, so a replayed
      * cache hit would deserialize a parameterized collection's elements as raw {@code Map}s rather
-     * than their concrete DTO type. The key must be registered in
-     * {@link IdempotencyResultTypeRegistry}, for instance through
-     * {@link IdempotencyResultTypeRegistry#registerList(String, Class)}.
+     * than their concrete DTO type. The key must be registered in {@link IdempotencyResultTypeRegistry},
+     * for instance through {@link IdempotencyResultTypeRegistry#registerList(String, Class)}.
      *
      * @param <T>       the type of the operation result
      * @param key       the idempotency key value identifying this operation

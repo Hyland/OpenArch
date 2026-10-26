@@ -87,7 +87,7 @@ class KeyValueStoreIdempotencyHandlerTest {
         String key = "key-1";
         AtomicInteger calls = new AtomicInteger();
 
-        Object result = handler.execute(key, () -> {
+        Object result = handler.execute(key, "string", () -> {
             calls.incrementAndGet();
             return "value";
         }).value();
@@ -103,11 +103,11 @@ class KeyValueStoreIdempotencyHandlerTest {
         String key = "key-2";
         AtomicInteger calls = new AtomicInteger();
 
-        String first = handler.execute(key, () -> {
+        String first = handler.execute(key, "string", () -> {
             calls.incrementAndGet();
             return "value-" + calls.get();
         }).value();
-        String second = handler.execute(key, () -> {
+        String second = handler.execute(key, "string", () -> {
             calls.incrementAndGet();
             return "value-" + calls.get();
         }).value();
@@ -119,8 +119,8 @@ class KeyValueStoreIdempotencyHandlerTest {
     @Test
     @DisplayName("different keys are cached independently under the configured namespace")
     void execute_differentKeys_doNotCollide() {
-        String first = handler.execute("key-a", () -> "value-a").value();
-        String second = handler.execute("key-b", () -> "value-b").value();
+        String first = handler.execute("key-a", "string", () -> "value-a").value();
+        String second = handler.execute("key-b", "string", () -> "value-b").value();
 
         assertEquals("value-a", first);
         assertEquals("value-b", second);
@@ -156,10 +156,10 @@ class KeyValueStoreIdempotencyHandlerTest {
         String key = "key-3";
         IllegalStateException original = new IllegalStateException("boom");
 
-        Outcome<?> first = handler.execute(key, () -> {
+        Outcome<?> first = handler.execute(key, "string", () -> {
             throw original;
         });
-        Outcome<?> replayed = handler.execute(key, () -> "should not run");
+        Outcome<?> replayed = handler.execute(key, "string", () -> "should not run");
 
         assertEquals(original.getMessage(), first.exception().message());
         assertEquals(original.getMessage(), replayed.exception().message());
@@ -177,7 +177,7 @@ class KeyValueStoreIdempotencyHandlerTest {
     @DisplayName("evict removes a cached result and reports true")
     void evict_cachedKey_removesResultAndReturnsTrue() {
         String key = "key-5";
-        handler.execute(key, () -> "value");
+        handler.execute(key, "string", () -> "value");
 
         boolean evicted = handler.evict(key);
 
@@ -218,7 +218,7 @@ class KeyValueStoreIdempotencyHandlerTest {
         String key = "key-ttl";
         AtomicInteger calls = new AtomicInteger();
 
-        String first = shortTtlHandler.execute(key, () -> {
+        String first = shortTtlHandler.execute(key, "string", () -> {
             calls.incrementAndGet();
             return "value-" + calls.get();
         }).value();
@@ -228,7 +228,7 @@ class KeyValueStoreIdempotencyHandlerTest {
         Thread.sleep(shortTtl.plusSeconds(1));
 
         assertFalse(shortTtlHandler.isCached(key));
-        String second = shortTtlHandler.execute(key, () -> {
+        String second = shortTtlHandler.execute(key, "string", () -> {
             calls.incrementAndGet();
             return "value-" + calls.get();
         }).value();
@@ -244,7 +244,7 @@ class KeyValueStoreIdempotencyHandlerTest {
         String cacheKey = NAMESPACE + "key-6";
         store.put(cacheKey, "not-a-serialized-object".getBytes());
 
-        String result = handler.execute("key-6", () -> "fresh-value").value();
+        String result = handler.execute("key-6", "string", () -> "fresh-value").value();
 
         assertEquals("fresh-value", result);
     }
@@ -254,7 +254,7 @@ class KeyValueStoreIdempotencyHandlerTest {
     void execute_unserializableResult_isReturnedButNotCached() {
         String key = "key-7";
 
-        UnserializableValue result = handler.execute(key, UnserializableValue::new).value();
+        UnserializableValue result = handler.execute(key, "string", UnserializableValue::new).value();
 
         assertNotNull(result);
         assertFalse(handler.isCached(key));
@@ -275,7 +275,7 @@ class KeyValueStoreIdempotencyHandlerTest {
                 futures.add(pool.submit(() -> {
                     ready.countDown();
                     start.await();
-                    return handler.execute(key, () -> {
+                    return handler.execute(key, "string", () -> {
                         calls.incrementAndGet();
                         try {
                             Thread.sleep(150);
@@ -313,7 +313,7 @@ class KeyValueStoreIdempotencyHandlerTest {
         // Simulate another caller having claimed the key with a short-lived lease.
         store.put(cacheKey, claimMarker(), shortTtl.toSeconds());
 
-        String result = shortLeaseHandler.execute(key, () -> "value-after-lease-expiry").value();
+        String result = shortLeaseHandler.execute(key, "string", () -> "value-after-lease-expiry").value();
 
         assertEquals("value-after-lease-expiry", result);
     }
@@ -331,7 +331,7 @@ class KeyValueStoreIdempotencyHandlerTest {
         store.put(cacheKey, claimMarker(), TTL.toSeconds());
 
         assertThrows(IdempotencyClaimTimeoutException.class,
-                () -> shortLeaseHandler.execute(key, () -> "should not run"));
+                () -> shortLeaseHandler.execute(key, "string", () -> "should not run"));
     }
 
     @Test
@@ -370,7 +370,7 @@ class KeyValueStoreIdempotencyHandlerTest {
         IdempotencyHandler mockHandler = new KeyValueStoreIdempotencyHandler(mockKeyValueService, "default", NAMESPACE,
                 TTL);
 
-        String result = mockHandler.execute(key, () -> "value").value();
+        String result = mockHandler.execute(key, "string", () -> "value").value();
 
         assertEquals("value", result);
     }
@@ -388,7 +388,7 @@ class KeyValueStoreIdempotencyHandlerTest {
         IdempotencyHandler mockHandler = new KeyValueStoreIdempotencyHandler(mockKeyValueService, "default", NAMESPACE,
                 TTL);
 
-        String result = mockHandler.execute(key, () -> "fresh-value").value();
+        String result = mockHandler.execute(key, "string", () -> "fresh-value").value();
 
         assertEquals("fresh-value", result);
     }
@@ -403,7 +403,7 @@ class KeyValueStoreIdempotencyHandlerTest {
 
         Thread waiter = new Thread(() -> {
             try {
-                handler.execute(key, () -> "should not run");
+                handler.execute(key, "string", () -> "should not run");
             } catch (Throwable t) {
                 caught.set(t);
             }
@@ -434,8 +434,8 @@ class KeyValueStoreIdempotencyHandlerTest {
         IdempotencyHandler recordingHandler = new KeyValueStoreIdempotencyHandler(recordingKeyValueService, "default",
                 NAMESPACE, TTL);
 
-        recordingHandler.execute(key, () -> "first");
-        recordingHandler.execute(key, () -> "second");
+        recordingHandler.execute(key, "string", () -> "first");
+        recordingHandler.execute(key, "string", () -> "second");
 
         assertEquals(2, markers.size());
         assertNotEquals(markers.get(0), markers.get(1));
@@ -462,7 +462,7 @@ class KeyValueStoreIdempotencyHandlerTest {
                         invocation.<String>getArgument(2), invocation.<Long>getArgument(3)));
         IdempotencyHandler staleHandler = handlerFor(hijackingStore);
 
-        String staleResult = staleHandler.execute(key, () -> "stale-value").value();
+        String staleResult = staleHandler.execute(key, "string", () -> "stale-value").value();
 
         assertEquals("stale-value", staleResult);
         assertArrayEquals(newerClaim, store.get(cacheKey));
@@ -501,10 +501,10 @@ class KeyValueStoreIdempotencyHandlerTest {
         String key = "key-repository-exception";
         RepositoryException original = new RepositoryException("conflict", 409);
 
-       Outcome<?> first = handler.execute(key, () -> {
+       Outcome<?> first = handler.execute(key, "string", () -> {
             throw original;
         });
-        Outcome<?> replayed = handler.execute(key, () -> "should not run");
+        Outcome<?> replayed = handler.execute(key, "string", () -> "should not run");
 
         assertEquals(original.getMessage(), first.exception().message());
         assertTrue(replayed.isFailure());
@@ -523,7 +523,7 @@ class KeyValueStoreIdempotencyHandlerTest {
         store.put(cacheKey, badTypeJson.getBytes(StandardCharsets.UTF_8), TTL.toSeconds());
 
         assertThrows(KeyValueStoreIdempotencyHandler.IdempotencyPersistenceException.class,
-                () -> handler.execute(key, () -> "should not run"));
+                () -> handler.execute(key, "string", () -> "should not run"));
     }
 
     @Test
@@ -539,7 +539,7 @@ class KeyValueStoreIdempotencyHandlerTest {
                 .thenThrow(new RuntimeException("release failed"));
         KeyValueStoreIdempotencyHandler mockHandler = handlerFor(mockStore);
 
-        UnserializableValue result = mockHandler.execute(key, UnserializableValue::new).value();
+        UnserializableValue result = mockHandler.execute(key, "string", UnserializableValue::new).value();
 
         assertNotNull(result);
         assertFalse(mockHandler.isCached(key));
@@ -553,7 +553,7 @@ class KeyValueStoreIdempotencyHandlerTest {
         String cacheKey = NAMESPACE + key;
         store.put(cacheKey, "{}".getBytes(StandardCharsets.UTF_8));
 
-        String result = handler.execute(key, () -> "fresh-value").value();
+        String result = handler.execute(key, "string", () -> "fresh-value").value();
 
         assertEquals("fresh-value", result);
     }
@@ -568,7 +568,7 @@ class KeyValueStoreIdempotencyHandlerTest {
 
         Thread waiter = new Thread(() -> {
             try {
-                handler.execute(key, () -> "should not run");
+                handler.execute(key, "string", () -> "should not run");
             } catch (Throwable t) {
                 caught.set(t);
             }
@@ -590,7 +590,7 @@ class KeyValueStoreIdempotencyHandlerTest {
                 IdempotencyHandler.DEFAULT_TTL);
 
         assertNotNull(defaultHandler);
-        assertEquals("value", defaultHandler.execute("defaults-key", () -> "value").value());
+        assertEquals("value", defaultHandler.execute("defaults-key", "string", () -> "value").value());
     }
 
     @Test

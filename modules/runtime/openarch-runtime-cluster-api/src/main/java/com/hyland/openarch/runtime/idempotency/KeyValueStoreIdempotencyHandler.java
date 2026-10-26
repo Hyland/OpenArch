@@ -135,11 +135,6 @@ public final class KeyValueStoreIdempotencyHandler implements IdempotencyHandler
     }
 
     @Override
-    public <T> Outcome<T> execute(String key, Supplier<T> operation) {
-        return execute(key, null, operation);
-    }
-
-    @Override
     public <T> Outcome<T> execute(String key, String typename, Supplier<T> operation) {
         String entryKey = getCacheKey(key);
 
