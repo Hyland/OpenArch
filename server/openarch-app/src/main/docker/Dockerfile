@@ -29,7 +29,7 @@ FROM amazoncorretto:25-alpine3.23@sha256:40938dac47cb8161e397f12d5ee2302a6190a00
 ARG RUN_JAVA_VERSION=1.3.8
 
 # Install run-java script. curl is pinned and immediately removed to keep the layer clean.
-RUN apk add --no-cache curl=8.22.0-r0 \
+RUN apk add --no-cache curl=8.23.0-r0 \
     && mkdir /deployments \
     && curl https://repo1.maven.org/maven2/io/fabric8/run-java-sh/${RUN_JAVA_VERSION}/run-java-sh-${RUN_JAVA_VERSION}-sh.sh \
          -o /deployments/run-java.sh \
