@@ -179,11 +179,23 @@ public class CorsPolicyTest extends AbstractSpringTest {
 
     private static List<Class<?>> getAllApiClasses() {
         try (ScanResult scanResult = new ClassGraph().acceptPackages("com.hyland.openarch.rest")
-                                                    .enableAllInfo()
+                                                    .enableClasspath()
+                                                    .ignoreClassVisibility()
+                                                    .enableClassInfo()
+                                                    .enableAnnotationInfo()
                                                     .scan()) {
-            return scanResult.getAllClasses()
-                             .filter(classInfo -> classInfo.hasAnnotation(RestController.class))
-                             .loadClasses();
+            return scanResult.getClassesWithAnnotation(RestController.class)
+                             .stream()
+                             .<Class<?>>map(classInfo -> loadClass(classInfo.getName()))
+                             .toList();
+        }
+    }
+
+    private static Class<?> loadClass(String name) {
+        try {
+            return Class.forName(name);
+        } catch (ClassNotFoundException e) {
+            throw new IllegalStateException(e);
         }
     }
 

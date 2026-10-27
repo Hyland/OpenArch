@@ -92,7 +92,7 @@ public class AnnotationScanner {
             Annotation[] data = clazz.getAnnotations();
             result.addAll(Arrays.asList(data));
         } catch (ArrayStoreException cause) {
-            String classpathFiles = new ClassGraph().getClasspathFiles().toString();
+            String classpathFiles = new ClassGraph().enableClasspath().getClasspathFiles().toString();
             throw new AssertionError("Cannot load annotations of " + clazz.getName()
                     + ", check your classpath for missing classes\n" + classpathFiles, cause);
         }

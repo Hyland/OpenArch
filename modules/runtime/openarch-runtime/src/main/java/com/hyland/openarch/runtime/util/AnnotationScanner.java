@@ -45,7 +45,7 @@ public class AnnotationScanner {
      *            wildcard ('*').
      */
     public AnnotationScanner(String... packageNames) {
-        this.classScanner = new ClassGraph().enableClassInfo().enableAnnotationInfo().acceptPackages(packageNames);
+        this.classScanner = new ClassGraph().enableClasspath().enableClassInfo().enableAnnotationInfo().acceptPackages(packageNames);
     }
 
     /**
