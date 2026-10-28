@@ -218,7 +218,7 @@ public class DocumentBlobServiceImpl extends DefaultComponent implements Documen
     protected String markKeyForReuse(ManagedBlob blob, String providerId) {
         String key = getBlobKeyReplacement(blob);
         BinaryGarbageCollector gc = getBlobProvider(providerId).getBinaryGarbageCollector();
-        if (gc != null && !gc.mark(stripBlobKeyPrefix(key))) {
+        if (gc != null && !gc.markForWrite(stripBlobKeyPrefix(key))) {
             return null;
         }
         return key;

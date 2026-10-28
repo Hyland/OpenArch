@@ -110,6 +110,7 @@ import java.util.concurrent.TimeoutException;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -143,6 +144,7 @@ import com.hyland.openarch.ecm.core.api.security.ACL;
 import com.hyland.openarch.ecm.core.api.security.SecurityConstants;
 import com.hyland.openarch.ecm.core.api.security.impl.ACLImpl;
 import com.hyland.openarch.ecm.core.async.tasks.RetentionExpiredBatchTaskProcessor;
+import com.hyland.openarch.ecm.core.blob.AbstractBlobGarbageCollector;
 import com.hyland.openarch.ecm.core.blob.BlobProvider;
 import com.hyland.openarch.ecm.core.blob.BlobService;
 import com.hyland.openarch.ecm.core.blob.ManagedBlob;
@@ -180,6 +182,19 @@ import com.hyland.openarch.async.tasks.TaskService;
 @Deploy("com.hyland.openarch.ecm.core.test.tests:OSGI-INF/test-repo-core-types-contrib.xml")
 @Deploy("com.hyland.openarch.ecm.core.test.tests:OSGI-INF/disable-schedulers.xml")
 public class TestSQLRepositoryAPI {
+
+    private long previousWriteTTL;
+
+    @BeforeEach
+    public void disableWriteGracePeriod() {
+        previousWriteTTL = AbstractBlobGarbageCollector.GC_WRITE_TTL_SECONDS;
+        AbstractBlobGarbageCollector.GC_WRITE_TTL_SECONDS = 0;
+    }
+
+    @AfterEach
+    public void restoreWriteGracePeriod() {
+        AbstractBlobGarbageCollector.GC_WRITE_TTL_SECONDS = previousWriteTTL;
+    }
 
     private static final String CANNOT_REMOVE_ROOT_DIRECTORY = "Cannot remove %s, it is the root directory";
 

@@ -293,13 +293,15 @@ public interface BlobStore {
      * <p>
      * In a cluster, a GC running on another node is taken into account as well: the mark is then recorded in the
      * key/value store, which is what that node consults before deleting anything.
+     * A write-protection mark is also published without an active GC, to protect references not yet committed when
+     * a later run starts. Its TTL is one hour; document references must commit within that period.
      *
      * @param key the blob key
      * @return {@code true} if the blob was left alone and its key may be referenced as is, {@code false} if a GC
      *         deleted it instead and the caller must write it again
      */
     default boolean markForGC(String key) {
-        return getBinaryGarbageCollector().mark(key);
+        return getBinaryGarbageCollector().markForWrite(key);
     }
 
     /**

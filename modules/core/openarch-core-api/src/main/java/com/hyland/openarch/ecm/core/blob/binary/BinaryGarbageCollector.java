@@ -80,6 +80,15 @@ public interface BinaryGarbageCollector {
     boolean mark(String key);
 
     /**
+     * Protects a binary being written or reused, including before a GC starts. The reference must become committed
+     * and visible within the write-protection TTL.
+     *
+     * @param key the binary's key
+     * @return whether the existing binary can be reused, or must be written again because GC deleted it
+     */
+    boolean markForWrite(String key);
+
+    /**
      * Stops the garbage collection process and deletes all binaries that have not been marked (sweep).
      *
      * @param delete {@code true} if actual deletion must be performed, {@code false} if the binaries to delete should

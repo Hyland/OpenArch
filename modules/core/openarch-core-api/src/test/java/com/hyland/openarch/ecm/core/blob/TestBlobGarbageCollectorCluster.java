@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -33,6 +34,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -42,15 +44,25 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import com.hyland.openarch.runtime.kv.KeyValueStore;
-import com.hyland.openarch.runtime.kv.KeyValueStoreDescriptor;
-import com.hyland.openarch.runtime.kv.MemKeyValueStore;
+import com.hyland.openarch.runtime.api.Framework;
+import com.hyland.openarch.runtime.kv.KeyValueService;
+import com.hyland.openarch.runtime.test.runner.Deploy;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
+import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
 import com.hyland.openarch.ecm.core.blob.binary.BlobKeySlot;
 
 /**
  * Tests the cluster-wide coordination of blob garbage collection: two nodes are simulated by two garbage collectors
  * sharing a single key/value store.
  */
+@ExtendWith(FeaturesExtension.class)
+@Features(RuntimeFeature.class)
+@Deploy("com.hyland.openarch.runtime.kv")
 public class TestBlobGarbageCollectorCluster {
 
     protected static final String KEY1 = "key1";
@@ -94,7 +106,7 @@ public class TestBlobGarbageCollectorCluster {
 
         @Override
         protected KeyValueStore getKVStore() {
-            // these tests simulate a cluster without a runtime, using a shared in-memory store
+            // simulated nodes share a runtime-provided store; some tests replace it with a failing mock
             return sharedStore;
         }
 
@@ -129,11 +141,8 @@ public class TestBlobGarbageCollectorCluster {
 
     @BeforeEach
     public void setUp() {
-        MemKeyValueStore store = new MemKeyValueStore();
-        KeyValueStoreDescriptor descriptor = new KeyValueStoreDescriptor();
-        descriptor.name = AbstractBlobGarbageCollector.GC_KV_STORE_NAME_PREFIX;
-        store.initialize(descriptor);
-        sharedStore = store;
+        sharedStore = Framework.getService(KeyValueService.class)
+                               .getKeyValueStore(AbstractBlobGarbageCollector.GC_KV_STORE_NAME_PREFIX + UUID.randomUUID());
         // don't slow down the tests; correctness doesn't depend on the value
         AbstractBlobGarbageCollector.GC_ACTIVE_CACHE = Duration.ZERO;
     }
@@ -171,8 +180,8 @@ public class TestBlobGarbageCollectorCluster {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         List<Future<Boolean>> writes = new ArrayList<>();
         node.removeUnmarkedBlobHook = () -> {
-            // Deletion has been claimed, but has not removed the blob yet.
-            writes.add(executor.submit(() -> node.mark("a1")));
+            // Deletion has passed its final write-protection check, but has not removed the blob yet.
+            writes.add(executor.submit(() -> node.markForWrite("a1")));
             try {
                 assertTrue(captured.await(10, TimeUnit.SECONDS), "Writer did not capture the old run");
             } catch (InterruptedException e) {
@@ -479,7 +488,7 @@ public class TestBlobGarbageCollectorCluster {
                 Thread.currentThread().interrupt();
                 return;
             }
-            node2.mark(KEY1);
+            node2.markForWrite(KEY1);
             order.add("written");
             written.countDown();
         });
@@ -550,8 +559,9 @@ public class TestBlobGarbageCollectorCluster {
         assertTrue(node3.blobs.isEmpty());
     }
 
-    @Test
-    public void testMarksAreCheckedInBatches() {
+    @ParameterizedTest
+    @ValueSource(booleans = { false, true })
+    public void testMarksAreCheckedInBatches(boolean recentWrites) {
         // more keys than a single batch, to exercise the batching of the key/value store reads
         int count = 3 * AbstractBlobGarbageCollector.GC_MARK_BATCH_SIZE + 7;
         Set<String> blobs = new LinkedHashSet<>();
@@ -561,13 +571,22 @@ public class TestBlobGarbageCollectorCluster {
         Node node1 = new Node(blobs);
         Node node2 = new Node(blobs);
 
-        node1.start(true);
-        // every third blob is rewritten on the other node during the GC
+        if (!recentWrites) {
+            node1.start(true);
+        }
+        // protect every third blob, either before the run or while it is active
         Set<String> kept = new HashSet<>();
         for (int i = 0; i < count; i += 3) {
             String key = "key" + i;
-            node2.mark(key);
+            if (recentWrites) {
+                node2.markForWrite(key);
+            } else {
+                node2.mark(key);
+            }
             kept.add(key);
+        }
+        if (recentWrites) {
+            node1.start(true);
         }
         node1.stop(true);
 
@@ -576,13 +595,96 @@ public class TestBlobGarbageCollectorCluster {
     }
 
     @Test
-    public void testNoMarkWrittenWhenNoGarbageCollectionRuns() {
+    public void testRepositoryMarkDoesNotProtectFutureRuns() {
         Node node = newNode(KEY1);
 
         node.mark(KEY1);
 
-        // nothing was written to the key/value store, blob writes don't pay for it outside a GC
+        // repository marking must not refresh write protection
         assertNull(sharedStore.getString(node.getMarkKey("any", KEY1)));
+        assertNull(sharedStore.getString("write:" + KEY1));
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = { false, true })
+    public void testWriteBeforeRunIsProtected(boolean remote) {
+        Node gc = newNode("a1");
+        Node writer = remote ? new Node(gc.blobs) : gc;
+        assertTrue(writer.markForWrite("a1"));
+        gc.start(true);
+        gc.stop(true);
+        assertEquals(Set.of("a1"), gc.blobs);
+        assertTrue(gc.deleted.isEmpty());
+
+        // simulate TTL expiry; a later run can collect the blob if no reference was committed
+        sharedStore.put("write:a1", (String) null);
+        gc.start(true);
+        gc.stop(true);
+        assertEquals(List.of("a1"), gc.deleted);
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = { false, true })
+    public void testWriteSurvivesSlotTransition(boolean remote) {
+        Node gc = newNode("a1");
+        Node writer = remote ? new Node(gc.blobs) : gc;
+        gc.start(true, new BlobKeySlot("0"));
+        assertTrue(writer.markForWrite("a1"));
+        gc.stop(true);
+        gc.start(true, new BlobKeySlot("a"));
+        gc.stop(true);
+        assertEquals(Set.of("a1"), gc.blobs);
+        assertTrue(gc.deleted.isEmpty());
+    }
+
+    @Test
+    public void testWriteProtectionRecheckedAfterClaim() {
+        Node gc = newNode(KEY1);
+        gc.retainNotMarkedRemotelyHook = () -> sharedStore.put("write:" + KEY1, "in use", 3_600);
+        gc.start(true);
+        gc.stop(true);
+        assertEquals(Set.of(KEY1), gc.blobs);
+        assertTrue(gc.deleted.isEmpty());
+        assertEquals(AbstractBlobGarbageCollector.MARK_IN_USE,
+                sharedStore.getString(gc.getMarkKey("1", KEY1)));
+    }
+
+    @Test
+    public void testWriteProtectionExpires() throws InterruptedException {
+        Node gc = newNode(KEY1);
+        assertTrue(gc.markForWrite(KEY1));
+        // shorten the published mark's lifetime without changing the production TTL
+        sharedStore.put("write:" + KEY1, "in use", 1);
+        Thread.sleep(1_100);
+        assertNull(sharedStore.getString("write:" + KEY1));
+        gc.start(true);
+        gc.stop(true);
+        assertEquals(List.of(KEY1), gc.deleted);
+    }
+
+    @Test
+    public void testWriteProtectionExpiryDuringRun() {
+        Node gc = newNode(KEY1);
+        assertTrue(gc.markForWrite(KEY1));
+        gc.start(true);
+        // The reference was still uncommitted at the start of the repository scan. Protection must survive the run.
+        sharedStore.put("write:" + KEY1, (String) null);
+        gc.stop(true);
+        assertEquals(Set.of(KEY1), gc.blobs);
+        assertTrue(gc.deleted.isEmpty());
+
+        gc.start(true);
+        gc.stop(true);
+        assertEquals(List.of(KEY1), gc.deleted);
+    }
+
+    @Test
+    public void testWriteProtectionFailureFailsTheWrite() {
+        sharedStore = mock(KeyValueStore.class);
+        RuntimeException failure = new RuntimeException("KV unavailable");
+        doThrow(failure).when(sharedStore).put("write:" + KEY1, AbstractBlobGarbageCollector.MARK_IN_USE, 3_600L);
+        Node writer = newNode(KEY1);
+        assertEquals(failure, assertThrows(RuntimeException.class, () -> writer.markForWrite(KEY1)));
     }
 
     @Test

@@ -37,6 +37,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import com.hyland.openarch.ecm.core.api.Blobs;
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
+import com.hyland.openarch.ecm.core.blob.AbstractBlobGarbageCollector;
 import com.hyland.openarch.ecm.core.blob.DocumentBlobService;
 import com.hyland.openarch.ecm.core.blob.DocumentBlobServiceImpl;
 import com.hyland.openarch.ecm.core.blob.ManagedBlob;
@@ -61,6 +62,8 @@ public class TestBlobGCSlots {
 
     private int previousPrefixLength;
 
+    private long previousWriteTTL;
+
     @Inject
     private CoreFeature coreFeature;
 
@@ -72,11 +75,14 @@ public class TestBlobGCSlots {
 
     @BeforeEach
     public void setUp() {
+        previousWriteTTL = AbstractBlobGarbageCollector.GC_WRITE_TTL_SECONDS;
+        AbstractBlobGarbageCollector.GC_WRITE_TTL_SECONDS = 0;
         previousPrefixLength = DocumentBlobServiceImpl.GC_SLOT_PREFIX_LENGTH;
     }
 
     @AfterEach
     public void tearDown() {
+        AbstractBlobGarbageCollector.GC_WRITE_TTL_SECONDS = previousWriteTTL;
         DocumentBlobServiceImpl.GC_SLOT_PREFIX_LENGTH = previousPrefixLength;
     }
 

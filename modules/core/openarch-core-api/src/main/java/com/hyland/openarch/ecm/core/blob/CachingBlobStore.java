@@ -469,6 +469,11 @@ public class CachingBlobStore extends AbstractBlobStore {
         }
 
         @Override
+        public boolean markForWrite(String key) {
+            return delegate.markForWrite(key) & cacheDelegate.markForWrite(key);
+        }
+
+        @Override
         public boolean mark(String key) {
             // non-short-circuiting &, as both must be marked
             return delegate.mark(key) & cacheDelegate.mark(key);

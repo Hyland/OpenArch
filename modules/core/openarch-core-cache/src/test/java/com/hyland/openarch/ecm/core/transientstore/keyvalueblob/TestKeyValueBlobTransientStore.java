@@ -85,6 +85,8 @@ import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
 @Features(KeyValueBlobTransientStoreFeature.class)
 public class TestKeyValueBlobTransientStore {
 
+    private long previousWriteTTL;
+
     protected static final String NAME = "testkvb";
 
     protected static final String NAME2 = "testkvb2";
@@ -98,6 +100,8 @@ public class TestKeyValueBlobTransientStore {
 
     @BeforeEach
     public void setUp() {
+        previousWriteTTL = AbstractBlobGarbageCollector.GC_WRITE_TTL_SECONDS;
+        AbstractBlobGarbageCollector.GC_WRITE_TTL_SECONDS = 0;
         setUp(NAME);
     }
 
@@ -108,6 +112,7 @@ public class TestKeyValueBlobTransientStore {
 
     @AfterEach
     public void tearDown() {
+        AbstractBlobGarbageCollector.GC_WRITE_TTL_SECONDS = previousWriteTTL;
         tsp.removeAll();
     }
 

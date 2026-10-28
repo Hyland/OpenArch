@@ -34,14 +34,22 @@ import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import com.hyland.openarch.ecm.core.api.Blob;
 import com.hyland.openarch.ecm.core.api.impl.blob.ByteArrayBlob;
+import com.hyland.openarch.runtime.test.runner.Deploy;
+import com.hyland.openarch.runtime.test.runner.Features;
+import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
+import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
 
 /**
  * Tests the pure caching aspects of the CachingBlobStore.
  *
  * @since 11.5
  */
+@ExtendWith(FeaturesExtension.class)
+@Features(RuntimeFeature.class)
+@Deploy("com.hyland.openarch.runtime.kv")
 public class TestCachingBlobStoreCaching {
 
     protected static final Blob BLOB_30 = new ByteArrayBlob(new byte[30]);

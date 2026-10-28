@@ -47,18 +47,24 @@ import com.hyland.openarch.runtime.kv.MemKeyValueStore;
  * A run may be restricted to a {@link BlobKeySlot slot} of the key space (see {@link #start(boolean, BlobKeySlot)}):
  * only the keys of that slot are then candidates for deletion, and marks for keys outside of it are ignored, which
  * bounds the memory used by a run to the size of the slot. Each slot is processed by a complete, independent run, with
- * its own lock acquisition and run counter, so that a slot can be garbage collected on its own and so that the marks of
- * one slot can never protect or affect the keys of another.
+ * its own lock acquisition and run counter, so that a slot can be garbage collected on its own. Write protection is
+ * independent of these runs, so that a write can span slot transitions before its reference commits.
  * <h2>Cluster-wide coordination</h2>
  * A garbage collection is cluster-wide but runs on a single node, while blobs are written on all of them. The
  * coordination goes through a key/value store (see {@link #GC_KV_STORE_NAME_PREFIX}) holding a lock and, for the
- * duration of a run, one mark per blob key the run has seen.
+ * duration of a run, one mark per blob key the run has seen, plus expiring write-protection marks.
  * <p>
  * The lock makes a run exclusive for a store, and its value is the run counter that namespaces that run's marks. A
  * node about to write a blob reads the lock (cached for a short while, see {@link #GC_ACTIVE_CACHE}): if there is no
- * lock then no garbage collection is in progress and the write proceeds unimpeded, otherwise the write must first
+ * lock then no garbage collection is in progress, otherwise the write must first
  * mark the key in the key/value store, which is the only thing the garbage collecting node can see. If that read
  * fails the write fails too, as proceeding without knowing whether a run is in progress could lose a blob.
+ * <p>
+ * Every write or reuse first publishes a run-independent {@code write:<blobKey>} mark, even without an active GC.
+ * This protects uncommitted references when a later run starts. Its TTL is one hour (see
+ * {@link #GC_WRITE_TTL_SECONDS}); references must commit and become visible within that period. Repository marking
+ * does not refresh these marks. A GC snapshots them before scanning references, and checks them again during sweep
+ * and after claiming a key for deletion.
  * <h2>Mark states</h2>
  * A mark is not a boolean "in use" flag but the state of a blob key with respect to the run in progress. It is absent
  * until either side touches the key, and then holds one of:
@@ -67,7 +73,8 @@ import com.hyland.openarch.runtime.kv.MemKeyValueStore;
  * <li>{@link #MARK_DELETING} — the garbage collector got there first and is deleting the blob right now;</li>
  * <li>{@link #MARK_DELETED} — the garbage collector is done deleting the blob.</li>
  * </ul>
- * The only transitions are from absent to any of the three, and from {@code DELETING} to {@code DELETED}:
+ * The transitions are from absent to any of the three, and from {@code DELETING} to {@code DELETED}. A deletion claim
+ * is instead changed to {@code IN_USE} if its final check finds a recent write-protection mark:
  *
  * <pre>
  *            writer wins             GC wins              deletion done
@@ -118,11 +125,12 @@ public abstract class AbstractBlobGarbageCollector implements BinaryGarbageColle
      * <ul>
      * <li>{@code runcounter:<storeId>} — persistent counter whose numeric value allocates the next run counter;</li>
      * <li>{@code lock:<storeId>} — current lock, whose value is the active run counter;</li>
-     * <li>{@code mark:<runCounter>:<blobKey>} — marker showing the state of that blob during that run.</li>
+     * <li>{@code mark:<runCounter>:<blobKey>} — marker showing the state of that blob during that run;</li>
+     * <li>{@code write:<blobKey>} — expiring protection for a recent write or reuse, independent of any run.</li>
      * </ul>
      * <p>
      * The run counter is held only by the lock: a node that finds no lock knows that no garbage collection is in
-     * progress, and therefore that there are no marks to look at.
+     * progress, and therefore that there are no run-scoped deletion claims to look at.
      */
     public static final String GC_KV_STORE_NAME_PREFIX = "blobgc:";
 
@@ -182,6 +190,17 @@ public abstract class AbstractBlobGarbageCollector implements BinaryGarbageColle
          */
         DELETED
     }
+
+    /**
+     * Write-protection TTL in seconds. The one-hour delay covers the window between marking a blob before writing
+     * it to S3 (or another backend), or reusing it, and committing its document reference so that MongoDB's
+     * {@code sys_blobKeys} scan can see it. The blob may exist in storage before its reference is visible.
+     * The upload and remaining transaction work must complete within this period; otherwise protection can expire
+     * too early. Unreferenced blobs are also protected for this period after their last write or reuse.
+     * <p>
+     * Hardcoded for now, not final so tests can disable the grace period when collecting freshly written blobs.
+     */
+    public static long GC_WRITE_TTL_SECONDS = 3_600; // NOSONAR
 
     // TTL of a cluster-wide mark; it only has to outlive the garbage collection run that it protects a key from, as
     // marks are scoped to a run and are therefore meaningless once the run is over. A run that lasts longer than this
@@ -293,6 +312,7 @@ public abstract class AbstractBlobGarbageCollector implements BinaryGarbageColle
             // write from now on are marked in the key/value store before we snapshot the deletion candidates
             awaitRemoteNodes();
             computeToDelete();
+            markRecentWrites();
             completedAbruptly = false;
         } finally {
             if (completedAbruptly) {
@@ -443,17 +463,10 @@ public abstract class AbstractBlobGarbageCollector implements BinaryGarbageColle
     }
 
     /**
-     * Gets the key/value store holding the cluster-wide garbage collection locks and marks, or {@code null} if there
-     * is none.
-     * <p>
-     * There is always one in production. There is none in plain unit tests running without a runtime, where there is
-     * no cluster either, so nothing has to be coordinated.
+     * Gets the key/value store holding the cluster-wide garbage collection locks and marks.
      */
     protected KeyValueStore getKVStore() {
-        KeyValueService service;
-        if (!Framework.isInitialized() || (service = Framework.getService(KeyValueService.class)) == null) {
-            return null;
-        }
+        KeyValueService service = Framework.getService(KeyValueService.class);
         return service.getKeyValueStore(GC_KV_STORE_NAME_PREFIX + getId());
     }
 
@@ -559,6 +572,49 @@ public abstract class AbstractBlobGarbageCollector implements BinaryGarbageColle
      */
     protected void recoverRecoveryDirectory() {
         // no recovery directory by default
+    }
+
+    @Override
+    public boolean markForWrite(String key) {
+        KeyValueStore store = getKVStore();
+        long ttl = GC_WRITE_TTL_SECONDS;
+        // Tests set the TTL to zero to allow collecting freshly written blobs without waiting for protection to expire.
+        if (ttl > 0) {
+            store.put(getWriteKey(key), MARK_IN_USE, ttl);
+        }
+        return mark(key);
+    }
+
+    private static String getWriteKey(String key) {
+        return "write:" + key;
+    }
+
+    /**
+     * Preserves recent-write protection for this whole run, even if its TTL expires after the repository scan.
+     * Called before scanning references: a reference whose protection already expired must be committed by then.
+     */
+    private void markRecentWrites() {
+        KeyValueStore store = getKVStore();
+        if (toDelete.isEmpty()) {
+            return;
+        }
+        Map<String, String> writeKeys = new HashMap<>();
+        for (String key : toDelete) {
+            writeKeys.put(getWriteKey(key), key);
+            if (writeKeys.size() == GC_MARK_BATCH_SIZE) {
+                markRecentWrites(store, writeKeys);
+                writeKeys.clear();
+            }
+        }
+        markRecentWrites(store, writeKeys);
+    }
+
+    private void markRecentWrites(KeyValueStore store, Map<String, String> writeKeys) {
+        if (!writeKeys.isEmpty()) {
+            for (String writeKey : store.getStrings(writeKeys.keySet()).keySet()) {
+                markingState.marked().putIfAbsent(writeKeys.get(writeKey), MARK_IN_USE);
+            }
+        }
     }
 
     @Override
@@ -690,9 +746,16 @@ public abstract class AbstractBlobGarbageCollector implements BinaryGarbageColle
         if (marked.putIfAbsent(key, MARK_DELETING) != null) {
             return false; // marked in use on this node
         }
-        if (!getKVStore().compareAndSet(getMarkKey(runCounter, key), null, MARK_DELETING, GC_MARK_TTL.toSeconds())) {
+        KeyValueStore store = getKVStore();
+        if (!store.compareAndSet(getMarkKey(runCounter, key), null, MARK_DELETING, GC_MARK_TTL.toSeconds())) {
             // marked in use on another node; drop the local claim so that the key is simply left alone
             marked.put(key, MARK_IN_USE);
+            return false;
+        }
+        // A writer may have published protection since the batch lookup, before noticing this run's deletion claim.
+        if (store.getString(getWriteKey(key)) != null) {
+            marked.put(key, MARK_IN_USE);
+            store.put(getMarkKey(runCounter, key), MARK_IN_USE, GC_MARK_TTL.toSeconds());
             return false;
         }
         return true;
@@ -714,17 +777,12 @@ public abstract class AbstractBlobGarbageCollector implements BinaryGarbageColle
      * <p>
      * A failure to read the lock is propagated to the caller, which fails the blob write: we cannot tell whether a
      * garbage collection is running, so we cannot mark the key, and letting the write proceed would let it reference
-     * a blob that a run may be deleting right now. Failing the write is recoverable, losing the blob is not. This
-     * does not apply when there is no runtime at all (unit tests), as there is then no cluster either.
+     * a blob that a run may be deleting right now. Failing the write is recoverable, losing the blob is not.
      */
     protected void fetchRemoteRunCounter() {
         long now = System.nanoTime();
         if (now - remoteRunCounterDeadline >= 0) {
             KeyValueStore store = getKVStore();
-            if (store == null) {
-                // no key/value store, therefore no cluster and no other node that could be garbage collecting
-                return;
-            }
             remoteRunCounter = store.getString(getLockKey());
             remoteRunCounterDeadline = now + GC_ACTIVE_CACHE.toNanos();
         }
@@ -746,8 +804,7 @@ public abstract class AbstractBlobGarbageCollector implements BinaryGarbageColle
     }
 
     /**
-     * Retains in the given keys only those that were not marked as in use in the key/value store by another node
-     * during this garbage collection run.
+     * Retains only keys with neither a remote mark for this run nor a recent write-protection mark.
      */
     protected void retainNotMarkedRemotely(Set<String> keys) {
         if (keys.isEmpty()) {
@@ -760,6 +817,7 @@ public abstract class AbstractBlobGarbageCollector implements BinaryGarbageColle
         Map<String, String> markKeys = new HashMap<>();
         for (String key : keys) {
             markKeys.put(getMarkKey(runCounter, key), key);
+            markKeys.put(getWriteKey(key), key);
             if (markKeys.size() == GC_MARK_BATCH_SIZE) {
                 collectMarkedRemotely(store, markKeys, markedRemotely);
                 markKeys.clear();

@@ -51,6 +51,19 @@ import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
 @Features(BlobManagerFeature.class)
 public abstract class TestAbstractBlobStore {
 
+    private long previousWriteTTL;
+
+    @BeforeEach
+    public void disableWriteGracePeriod() {
+        previousWriteTTL = AbstractBlobGarbageCollector.GC_WRITE_TTL_SECONDS;
+        AbstractBlobGarbageCollector.GC_WRITE_TTL_SECONDS = 0;
+    }
+
+    @AfterEach
+    public void restoreWriteGracePeriod() {
+        AbstractBlobGarbageCollector.GC_WRITE_TTL_SECONDS = previousWriteTTL;
+    }
+
     protected static final String ID1 = "id1";
 
     protected static final String ID2 = "id2";
@@ -412,6 +425,20 @@ public abstract class TestAbstractBlobStore {
             return ((CachingBlobStore) bs).cacheStore.pathStrategy;
         }
         return null;
+    }
+
+    @Test
+    public void testWriteProtectedBeforeGC() throws IOException {
+        AbstractBlobGarbageCollector.GC_WRITE_TTL_SECONDS = 3_600;
+        assumeFalse(bp.isTransactional(), "GC not tested in transactional blob store");
+        String content = "write before collection";
+        String key = bs.writeBlob(blobContext("protected-write", content));
+        BinaryGarbageCollector gc = bs.getBinaryGarbageCollector();
+        gc.start(true);
+        gc.stop(true);
+        assertEquals(0, gc.getStatus().getNumBinariesGC());
+        assertEquals(1, gc.getStatus().getNumBinaries());
+        assertBlob(key, content);
     }
 
     @Test
