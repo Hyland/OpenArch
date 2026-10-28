@@ -29,6 +29,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.ecm.core.blob.binary.BinaryGarbageCollector;
+import com.hyland.openarch.ecm.core.blob.binary.BlobKeySlot;
 import com.hyland.openarch.ecm.core.blob.binary.BinaryManagerStatus;
 import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.kv.KeyValueService;
@@ -42,6 +43,12 @@ import com.hyland.openarch.runtime.kv.MemKeyValueStore;
  * A run is framed by {@link #start} and {@link #stop}. {@link #start} snapshots the keys that are candidates for
  * deletion into {@link #toDelete}, the caller then marks every key still referenced by calling {@link #mark}, and
  * {@link #stop} deletes the candidates that were never marked.
+ * <h2>Key space partitioning</h2>
+ * A run may be restricted to a {@link BlobKeySlot slot} of the key space (see {@link #start(boolean, BlobKeySlot)}):
+ * only the keys of that slot are then candidates for deletion, and marks for keys outside of it are ignored, which
+ * bounds the memory used by a run to the size of the slot. Each slot is processed by a complete, independent run, with
+ * its own lock acquisition and run counter, so that a slot can be garbage collected on its own and so that the marks of
+ * one slot can never protect or affect the keys of another.
  * <h2>Cluster-wide coordination</h2>
  * A garbage collection is cluster-wide but runs on a single node, while blobs are written on all of them. The
  * coordination goes through a key/value store (see {@link #GC_KV_STORE_NAME_PREFIX}) holding a lock and, for the
@@ -162,6 +169,11 @@ public abstract class AbstractBlobGarbageCollector implements BinaryGarbageColle
     protected enum MarkResult {
         /** No garbage collection was in progress, nothing was marked. */
         NO_GC,
+        /**
+         * The garbage collection in progress in this JVM is restricted to a slot that doesn't contain the key, which is
+         * therefore not a candidate for deletion; nothing was marked.
+         */
+        NOT_CANDIDATE,
         /** The key is marked as in use, the run will not delete the blob. */
         MARKED,
         /**
@@ -195,7 +207,7 @@ public abstract class AbstractBlobGarbageCollector implements BinaryGarbageColle
     // How often a blob write waiting for a deletion re-checks whether it is over.
     protected static final Duration GC_DELETION_POLL = Duration.ofMillis(50);
 
-    // volatile as this is designed to be called from another thread
+    // Read by isInProgress() from other threads.
     protected volatile long startTime;
 
     // The counter of the garbage collection run in progress, null if there is none. Also used as the value of the
@@ -224,13 +236,13 @@ public abstract class AbstractBlobGarbageCollector implements BinaryGarbageColle
 
     protected BinaryManagerStatus status;
 
-    // State of the keys involved in this GC, keyed by blob key: MARK_IN_USE, MARK_DELETING or MARK_DELETED. Positive
-    // marking (rather than removing from toDelete) so that a mark arriving before computeToDelete() has added the key
-    // as a candidate isn't lost. The map is thread-safe (ConcurrentHashMap, whose putIfAbsent is also what makes the
-    // claim atomic) because mark() is called from other threads (e.g. concurrent blob writes); the field is also
-    // volatile to publish the reference, which start()/stop() reassign (null when no GC is in progress).
-    @SuppressWarnings("java:S3077") // volatile is for reference publication; the value is already a thread-safe type
-    protected volatile Map<String, String> marked;
+    // Publish the slot and marks together: a writer retaining an old run's map must not use a later run's slot.
+    // The map records MARK_IN_USE, MARK_DELETING or MARK_DELETED, even before a key becomes a candidate.
+    protected record MarkingState(BlobKeySlot slot, Map<String, String> marked) {
+    }
+
+    @SuppressWarnings("java:S3077") // immutable state containing a thread-safe map
+    protected volatile MarkingState markingState;
 
     // Keys candidate for deletion, computed at start(). Confined to the GC thread (populated by computeToDelete(),
     // consumed by stop()); mark() doesn't touch it, so it needs neither thread-safety nor volatile.
@@ -251,7 +263,7 @@ public abstract class AbstractBlobGarbageCollector implements BinaryGarbageColle
     }
 
     @Override
-    public void start(boolean delete) {
+    public void start(boolean delete, BlobKeySlot slot) {
         if (startTime != 0) {
             throw new GCAlreadyStartedException("Already started");
         }
@@ -265,15 +277,17 @@ public abstract class AbstractBlobGarbageCollector implements BinaryGarbageColle
         this.runCounter = runCounter;
         boolean completedAbruptly = true;
         try {
-            log.info("Starting blob GC for {} (run {})", getId(), runCounter);
+            log.info("Starting blob GC for {} (run {}, slot {})", getId(), runCounter, slot);
             if (!delete && RECOVER_RECOVERY) {
+                // not restricted to the slot: the first run of a partitioned cycle recovers everything, and the
+                // following ones find little or nothing left to do
                 recoverRecoveryDirectory();
             }
             startTime = System.nanoTime();
             status = new BinaryManagerStatus();
             // allocate the thread-safe marked map before computeToDelete(), so that blobs written concurrently during
             // the traversal are recorded as in use even before their key is added as a candidate
-            marked = new ConcurrentHashMap<>();
+            markingState = new MarkingState(slot, new ConcurrentHashMap<>());
             toDelete = new HashSet<>();
             // wait for the other nodes to notice that a garbage collection is in progress, so that the blobs they
             // write from now on are marked in the key/value store before we snapshot the deletion candidates
@@ -284,7 +298,7 @@ public abstract class AbstractBlobGarbageCollector implements BinaryGarbageColle
             if (completedAbruptly) {
                 // don't leave the store locked if the garbage collection could not be started
                 startTime = 0;
-                marked = null;
+                markingState = null;
                 toDelete = null;
                 this.runCounter = null;
                 releaseLock(runCounter);
@@ -294,6 +308,8 @@ public abstract class AbstractBlobGarbageCollector implements BinaryGarbageColle
 
     /**
      * Computes the keys candidate for deletion, adding them to {@link #toDelete}.
+     * <p>
+     * Only the keys belonging to the slot of the current {@link #markingState} must be added.
      */
     public abstract void computeToDelete();
 
@@ -302,7 +318,8 @@ public abstract class AbstractBlobGarbageCollector implements BinaryGarbageColle
         if (startTime == 0) {
             throw new RepositoryException("Not started");
         }
-        log.info("Stopping blob GC for {} ...", getId());
+        BlobKeySlot slot = markingState.slot();
+        log.info("Stopping blob GC for {} (slot {}) ...", getId(), slot);
         try {
             if (hasLostLock()) {
                 // the cluster-wide lock was lost or may have expired during this run, this node's view of what is
@@ -316,7 +333,7 @@ public abstract class AbstractBlobGarbageCollector implements BinaryGarbageColle
                 return;
             }
             // delete the candidate blobs that were not marked as in use, and update the status
-            Map<String, String> marked = this.marked;
+            Map<String, String> marked = markingState.marked();
             // the keys marked locally are known, but blobs written on other nodes during this run were marked in the
             // key/value store, so check there too before deleting anything
             Set<String> unmarked = new HashSet<>();
@@ -367,21 +384,21 @@ public abstract class AbstractBlobGarbageCollector implements BinaryGarbageColle
                     // blob not present (shouldn't happen except if concurrently removed); don't count it
                     continue;
                 }
-                status.setSizeBinariesGC(status.getSizeBinariesGC() + length);
-                status.setNumBinariesGC(status.getNumBinariesGC() + 1);
-                status.setSizeBinaries(status.getSizeBinaries() - length);
-                status.setNumBinaries(status.getNumBinaries() - 1);
+                status.addGC(1, length);
+                status.add(-1, -length);
             }
             if (delete && !DELETE_WITH_RECOVERY) {
+                // not restricted to the slot: the first run of a partitioned cycle removes everything, and the
+                // following ones find little or nothing left to do
                 removeRecoveryDirectory();
             }
-            status.setDuration(Duration.ofNanos(System.nanoTime() - startTime));
-            log.info("Completed blob GC for {}: {}", getId(), status);
+            status.finish();
+            log.info("Completed blob GC for {} (slot {}): {}", getId(), slot, status);
         } catch (RuntimeException e) {
-            log.error("Failed blob GC for {}", getId(), e);
+            log.error("Failed blob GC for {} (slot {})", getId(), slot, e);
             throw e;
         } finally {
-            marked = null;
+            markingState = null;
             toDelete = null;
             startTime = 0;
             String runCounter = this.runCounter;
@@ -560,12 +577,24 @@ public abstract class AbstractBlobGarbageCollector implements BinaryGarbageColle
      * Marks the key as in use for a garbage collection running in this JVM, waiting if it is being deleted right now.
      */
     protected MarkResult markLocally(String key) {
-        // read the volatile field once: stop() clears it, and the map must not become null under our feet
-        Map<String, String> marked = this.marked;
-        if (marked == null || lockLost) {
+        return markLocally(key, markingState);
+    }
+
+    /**
+     * Marks against one captured run, even if it finishes and another slot starts while the writer is paused.
+     */
+    // Separate overload so tests can synchronize after capturing the run's marking state, before using it.
+    protected MarkResult markLocally(String key, MarkingState markingState) {
+        if (markingState == null || lockLost) {
             return MarkResult.NO_GC;
         }
+        // keys outside of the slot of this run are not candidates, so there's no need to record them; this is what
+        // bounds the size of the marked map to the size of the slot
+        if (!markingState.slot().contains(key)) {
+            return MarkResult.NOT_CANDIDATE;
+        }
         // a GC is in progress in this JVM: the in-memory map is enough, it's the one stop() consults
+        Map<String, String> marked = markingState.marked();
         long deadline = System.nanoTime() + GC_DELETION_WAIT.toNanos();
         do {
             String previous = marked.putIfAbsent(key, MARK_IN_USE);
@@ -585,6 +614,9 @@ public abstract class AbstractBlobGarbageCollector implements BinaryGarbageColle
      * deleted right now.
      */
     protected MarkResult markRemotely(String key) {
+        // TODO optimization: writers could also publish/read the slot of the remote run (for instance under a
+        // separate run-scoped key, to stay compatible with nodes that only know about the run counter) and skip
+        // marking the keys outside of it; for now all the keys written during a run are marked, which is safe
         fetchRemoteRunCounter();
         String runCounter = this.remoteRunCounter;
         if (runCounter == null) {
@@ -654,6 +686,7 @@ public abstract class AbstractBlobGarbageCollector implements BinaryGarbageColle
      * @return {@code false} if the key was marked as in use instead, and must therefore not be deleted
      */
     protected boolean claimForDeletion(String key) {
+        Map<String, String> marked = markingState.marked();
         if (marked.putIfAbsent(key, MARK_DELETING) != null) {
             return false; // marked in use on this node
         }
@@ -669,7 +702,7 @@ public abstract class AbstractBlobGarbageCollector implements BinaryGarbageColle
      * Publishes the fact that this run is done deleting the key, releasing any blob write waiting on the claim.
      */
     protected void releaseDeletionClaim(String key) {
-        marked.put(key, MARK_DELETED);
+        markingState.marked().put(key, MARK_DELETED);
         getKVStore().put(getMarkKey(runCounter, key), MARK_DELETED, GC_MARK_TTL.toSeconds());
     }
 

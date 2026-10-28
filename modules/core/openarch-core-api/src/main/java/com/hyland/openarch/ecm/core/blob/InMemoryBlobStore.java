@@ -279,9 +279,11 @@ public class InMemoryBlobStore extends AbstractBlobStore {
             for (Iterator<Entry<String, byte[]>> it = map.entrySet().iterator(); it.hasNext();) {
                 Entry<String, byte[]> es = it.next();
                 String key = es.getKey();
+                if (!markingState.slot().contains(key)) {
+                    continue;
+                }
                 byte[] bytes = es.getValue();
-                status.setSizeBinaries(status.getSizeBinaries() + bytes.length);
-                status.setNumBinaries(status.getNumBinaries() + 1);
+                status.add(1, bytes.length);
                 toDelete.add(key);
             }
         }

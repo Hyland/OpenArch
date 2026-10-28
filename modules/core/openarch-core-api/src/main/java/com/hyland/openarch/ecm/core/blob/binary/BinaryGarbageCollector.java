@@ -20,6 +20,10 @@ package com.hyland.openarch.ecm.core.blob.binary;
  * <p>
  * First, inform the GC that it is started by calling {@link #start(boolean)}.
  * <p>
+ * The run may be restricted to a {@link BlobKeySlot slot} of the key space using
+ * {@link #start(boolean, BlobKeySlot)}, in which case only the binaries
+ * whose key belongs to that slot are candidates for deletion, and marks for keys outside of it are ignored.
+ * <p>
  * Then for all binaries to mark, call {@link #mark}.
  * <p>
  * Finally when all binaries have been marked, call{@link #stop} to delete the non-marked binaries.
@@ -43,11 +47,24 @@ public interface BinaryGarbageCollector {
      *
      * @param delete the deletion mode that will be passed to {@link #stop(boolean)}
      */
-    void start(boolean delete);
+    default void start(boolean delete) {
+        start(delete, BlobKeySlot.ALL);
+    }
 
     /**
-     * Returns {@code true} if the blob store is empty after {@link #start(boolean)}, meaning the mark
-     * phase can be skipped. Only meaningful to call just after {@link #start(boolean)}.
+     * Starts the garbage collection process, restricted to a slot of the key space.
+     * <p>
+     * After this, all active binaries must be fed to the {@link #mark} method. Only the binaries whose key belongs to
+     * the slot are candidates for deletion.
+     *
+     * @param delete the deletion mode that will be passed to {@link #stop(boolean)}
+     * @param slot the slot of the key space to garbage collect, {@link BlobKeySlot#ALL} for the whole key space
+     */
+    void start(boolean delete, BlobKeySlot slot);
+
+    /**
+     * Returns {@code true} if the blob store (or slot) is empty after {@link #start(boolean, BlobKeySlot)}, meaning
+     * the mark phase can be skipped. Only meaningful to call just after {@link #start(boolean, BlobKeySlot)}.
      */
     default boolean isToDeleteEmpty() {
         return false;

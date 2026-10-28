@@ -3037,7 +3037,7 @@ public class TestSQLRepositoryAPI {
         assertTrue(gc.isInProgress());
         repository.markReferencedBlobs((key, repositoryName) -> {
             gc.mark(key);
-        });
+        }, null);
         if (duringGC != null) {
             duringGC.run();
         }

@@ -24,9 +24,12 @@ import java.io.IOException;
 import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import com.hyland.openarch.ecm.core.api.RepositoryException;
+import com.hyland.openarch.ecm.core.blob.binary.BlobKeySlot;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -151,6 +154,54 @@ public abstract class PathStrategy {
     public String getKeyForPath(String path) {
         path = path.substring(path.lastIndexOf("/") + 1);
         return safePathInverse(path);
+    }
+
+    /**
+     * Gets the storage path prefixes, relative to the base directory and using {@code /} as separator, that have to be
+     * listed to find all the keys of the given slot. Keys found there must still be filtered with
+     * {@link BlobKeySlot#contains}.
+     *
+     * @param slot the slot
+     * @return the storage path prefixes, without overlap
+     */
+    public List<String> getPathPrefixesForSlot(BlobKeySlot slot) {
+        String keyPrefix = slot.getKeyPrefix();
+        if (keyPrefix == null || keyPrefix.isEmpty()) {
+            // TODO optimization: for the other slot, only list the ranges of paths not starting with a hexadecimal
+            // character (and the short keys), instead of listing everything
+            return List.of("");
+        }
+        String pathPrefix = getPathPrefixForKeyPrefix(keyPrefix);
+        // safePath prepends '%' when any part of the key needs escaping, even if its hex prefix is safe
+        String encodedPathPrefix = getPathPrefixForKeyPrefix('%' + keyPrefix);
+        List<String> prefixes = new ArrayList<>(List.of(pathPrefix, encodedPathPrefix));
+        String shortKeysPathPrefix = getShortKeysPathPrefix();
+        if (shortKeysPathPrefix != null && prefixes.stream().noneMatch(shortKeysPathPrefix::startsWith)) {
+            prefixes.add(shortKeysPathPrefix);
+        }
+        return prefixes;
+    }
+
+    /**
+     * Gets the storage path prefix, relative to the base directory and using {@code /} as separator, under which all
+     * paths whose safe filename starts with the given prefix are stored, except for short keys (see
+     * {@link #getShortKeysPathPrefix}). For escaped keys, the prefix must include the leading {@code %} marker.
+     *
+     * @param keyPrefix the safe filename prefix (for instance hexadecimal digits, optionally preceded by {@code %})
+     * @return the storage path prefix
+     */
+    public String getPathPrefixForKeyPrefix(String keyPrefix) {
+        return keyPrefix;
+    }
+
+    /**
+     * Gets the storage path prefix, relative to the base directory and using {@code /} as separator, under which the
+     * keys too short to follow the regular layout are stored, if any.
+     *
+     * @return the storage path prefix, or {@code null} if short keys follow the regular layout
+     */
+    public String getShortKeysPathPrefix() {
+        return null;
     }
 
     /**

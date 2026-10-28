@@ -15,6 +15,7 @@
  */
 package com.hyland.openarch.ecm.core.storage.dbs;
 
+import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
@@ -259,8 +260,8 @@ public class DBSCachingRepository implements DBSRepository {
     }
 
     @Override
-    public void markReferencedBlobs(BiConsumer<String, String> markerCallback) {
-        repository.markReferencedBlobs(markerCallback);
+    public void markReferencedBlobs(BiConsumer<String, String> markerCallback, Collection<String> keyPrefixes) {
+        repository.markReferencedBlobs(markerCallback, keyPrefixes);
     }
 
     @Override

@@ -27,6 +27,9 @@ import java.nio.file.Path;
  */
 public class PathStrategySubDirs extends PathStrategy {
 
+    /** The directory holding keys too short to be split into subdirectories. */
+    protected static final String SHORT_KEYS_DIR = "000";
+
     protected final int depth;
 
     public PathStrategySubDirs(Path dir, int depth) {
@@ -35,11 +38,30 @@ public class PathStrategySubDirs extends PathStrategy {
     }
 
     @Override
+    public String getPathPrefixForKeyPrefix(String keyPrefix) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < depth; i++) {
+            if (keyPrefix.length() < 2 * i + 2) {
+                // the key prefix ends within this subdirectory name
+                return sb.append(keyPrefix.substring(2 * i)).toString();
+            }
+            sb.append(keyPrefix, 2 * i, 2 * i + 2).append('/');
+        }
+        // the full key follows the subdirectories
+        return sb.append(keyPrefix).toString();
+    }
+
+    @Override
+    public String getShortKeysPathPrefix() {
+        return depth == 0 ? null : SHORT_KEYS_DIR + '/';
+    }
+
+    @Override
     public Path getPathForKey(String key) {
         key = safePath(key);
         if (key.length() < 2 * depth) {
-            // store short keys under a special 000 directory
-            return dir.resolve("000").resolve(key);
+            // store short keys under a special directory
+            return dir.resolve(SHORT_KEYS_DIR).resolve(key);
         }
         Path current = dir;
         for (int i = 0; i < depth; i++) {

@@ -92,7 +92,7 @@ class TestBlobKeysPathsOnModelChange {
     private List<String> getReferencedBlobKeys() {
         Repository repository = repositoryService.getRepository(repositoryName);
         List<String> keys = new ArrayList<>();
-        repository.markReferencedBlobs((key, repoName) -> keys.add(key));
+        repository.markReferencedBlobs((key, repoName) -> keys.add(key), null);
         return keys;
     }
 

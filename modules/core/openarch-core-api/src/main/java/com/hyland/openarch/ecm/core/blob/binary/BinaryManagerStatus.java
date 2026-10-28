@@ -22,6 +22,8 @@ import java.time.Duration;
  */
 public class BinaryManagerStatus {
 
+    private final long startTime = System.nanoTime();
+
     private Duration duration;
 
     private long numBinaries;
@@ -33,14 +35,41 @@ public class BinaryManagerStatus {
     private long sizeBinariesGC;
 
     /**
-     * The GC duration.
+     * Adds to the number and cumulated size of the binaries (the values may be negative).
+     */
+    public void add(long num, long size) {
+        numBinaries += num;
+        sizeBinaries += size;
+    }
+
+    /**
+     * Adds to the number and cumulated size of the garbage collected binaries.
+     */
+    public void addGC(long num, long size) {
+        numBinariesGC += num;
+        sizeBinariesGC += size;
+    }
+
+    /**
+     * Adds the numbers and sizes of another status to this one.
+     */
+    public void add(BinaryManagerStatus status) {
+        add(status.numBinaries, status.sizeBinaries);
+        addGC(status.numBinariesGC, status.sizeBinariesGC);
+    }
+
+    /**
+     * Finishes this status, recording the duration elapsed since its creation.
+     */
+    public void finish() {
+        duration = Duration.ofNanos(System.nanoTime() - startTime);
+    }
+
+    /**
+     * The GC duration, or {@code null} if not {@linkplain #finish() finished}.
      */
     public Duration getDuration() {
         return duration;
-    }
-
-    public void setDuration(Duration duration) {
-        this.duration = duration;
     }
 
     /**
@@ -50,19 +79,11 @@ public class BinaryManagerStatus {
         return numBinaries;
     }
 
-    public void setNumBinaries(long numBinaries) {
-        this.numBinaries = numBinaries;
-    }
-
     /**
      * The cumulated size of the binaries.
      */
     public long getSizeBinaries() {
         return sizeBinaries;
-    }
-
-    public void setSizeBinaries(long sizeBinaries) {
-        this.sizeBinaries = sizeBinaries;
     }
 
     /**
@@ -72,19 +93,11 @@ public class BinaryManagerStatus {
         return numBinariesGC;
     }
 
-    public void setNumBinariesGC(long numBinariesGC) {
-        this.numBinariesGC = numBinariesGC;
-    }
-
     /**
      * The cumulated size of the garbage collected binaries.
      */
     public long getSizeBinariesGC() {
         return sizeBinariesGC;
-    }
-
-    public void setSizeBinariesGC(long sizeBinariesGC) {
-        this.sizeBinariesGC = sizeBinariesGC;
     }
 
     @Override

@@ -20,6 +20,7 @@ import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_LOCK_CREATE
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_LOCK_OWNER;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -155,12 +156,13 @@ public class MemRepository extends DBSRepositoryBase {
     }
 
     @Override
-    public void markReferencedBlobs(BiConsumer<String, String> markerCallback) {
+    public void markReferencedBlobs(BiConsumer<String, String> markerCallback, Collection<String> keyPrefixes) {
         for (State state : states.values()) {
             Object blobKeys = state.get(SYS_BLOB_KEYS);
             if (blobKeys instanceof List list) {
                 for (Object v : list) {
-                    if (v instanceof String key) {
+                    if (v instanceof String key
+                            && (keyPrefixes == null || keyPrefixes.stream().anyMatch(key::startsWith))) {
                         markerCallback.accept(key, repositoryName);
                     }
                 }

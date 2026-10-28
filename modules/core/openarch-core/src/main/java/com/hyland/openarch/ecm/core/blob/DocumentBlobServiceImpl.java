@@ -20,9 +20,9 @@ import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSFILE_BLOB;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -42,6 +42,7 @@ import com.hyland.openarch.ecm.core.api.model.PropertyNotFoundException;
 import com.hyland.openarch.ecm.core.blob.BlobDispatcher.BlobDispatch;
 import com.hyland.openarch.ecm.core.blob.binary.BinaryGarbageCollector;
 import com.hyland.openarch.ecm.core.blob.binary.BinaryManagerStatus;
+import com.hyland.openarch.ecm.core.blob.binary.BlobKeySlot;
 import com.hyland.openarch.ecm.core.model.InternalDocument;
 import com.hyland.openarch.ecm.core.model.InternalDocument.BlobAccessor;
 import com.hyland.openarch.ecm.core.model.InternalSession;
@@ -68,6 +69,14 @@ public class DocumentBlobServiceImpl extends DefaultComponent implements Documen
     public BlobDispatcher blobDispatcher;
 
     protected static final int BINARY_GC_TX_TIMEOUT_SEC = 86_400; // 1 day
+
+    /**
+     * Length of the blob key prefix used to partition the key space for blob GC: 0 for no partitioning, 1 for 16
+     * slots, 2 for 256 slots (plus in each case the slot for keys not starting with a hexadecimal prefix).
+     * <p>
+     * Hardcoded for now, not final so that tests can change it.
+     */
+    public static int GC_SLOT_PREFIX_LENGTH = 1; // NOSONAR
 
     @Override
     public void start() {
@@ -362,6 +371,62 @@ public class DocumentBlobServiceImpl extends DefaultComponent implements Documen
 
     @Override
     public BinaryManagerStatus garbageCollectBinaries(boolean delete) {
+        int prefixLength = GC_SLOT_PREFIX_LENGTH;
+        if (prefixLength == 0) {
+            return garbageCollectBinaries(delete, BlobKeySlot.ALL);
+        }
+        // full cycle over all the slots, a failing slot doesn't prevent the following ones from running
+        BinaryManagerStatus globalStatus = new BinaryManagerStatus();
+        RuntimeException failure = null;
+        for (BlobKeySlot slot : BlobKeySlot.partition(prefixLength)) {
+            try {
+                globalStatus.add(garbageCollectBinaries(delete, slot));
+            } catch (RuntimeException e) {
+                log.error("Blob GC failed for slot {}", slot, e);
+                if (failure == null) {
+                    failure = e;
+                } else {
+                    failure.addSuppressed(e);
+                }
+            }
+        }
+        if (failure != null) {
+            throw failure;
+        }
+        globalStatus.finish();
+        return globalStatus;
+    }
+
+    /**
+     * Gets the prefixes of the blob keys, as stored in the repositories, that may belong to the given slot.
+     * <p>
+     * A stored key is either bare, or prefixed by its blob provider id and a colon ({@code providerId:key}). The
+     * provider id prefix is added when the blob dispatcher is configured with dispatch rules (as is the case for record
+     * management, where the blobs of documents that are records are dispatched to a separate blob provider), because
+     * the provider then depends on the rules and must be recorded with the key; without rules the provider is
+     * implicitly the one named after the repository and keys are stored bare. Both forms may coexist in the same
+     * repository (for instance blobs written before dispatch rules were configured), so the slot prefix is matched both
+     * bare and after each provider id.
+     *
+     * @return the key prefixes, or {@code null} for all keys
+     */
+    private Collection<String> getMarkKeyPrefixes(BlobKeySlot slot) {
+        String keyPrefix = slot.getKeyPrefix();
+        if (keyPrefix == null || keyPrefix.isEmpty()) {
+            // TODO optimization: for the other slot, restrict to the keys (after the provider prefix) not starting
+            // with a hexadecimal digit, instead of marking from all the keys
+            return null;
+        }
+        List<String> keyPrefixes = new ArrayList<>();
+        keyPrefixes.add(keyPrefix);
+        for (String providerId : getBlobDispatcher().getBlobProviderIds()) {
+            keyPrefixes.add(providerId + ':' + keyPrefix);
+        }
+        return keyPrefixes;
+    }
+
+    @Override
+    public BinaryManagerStatus garbageCollectBinaries(boolean delete, BlobKeySlot slot) {
         // do the GC in a long-running transaction to avoid timeouts
         return runInTransaction(() -> {
             List<BinaryGarbageCollector> gcs = getGarbageCollectors();
@@ -373,7 +438,7 @@ public class DocumentBlobServiceImpl extends DefaultComponent implements Documen
                 return new BinaryManagerStatus();
             }
             // start gc
-            long start = System.nanoTime();
+            BinaryManagerStatus globalStatus = new BinaryManagerStatus();
             List<BinaryGarbageCollector> started = new ArrayList<>();
             // GCs for which stop() has already been called (successfully or not); AbstractBlobGarbageCollector.stop()
             // always fully cleans up (including releasing the cluster lock) in its own finally block even if it
@@ -381,7 +446,7 @@ public class DocumentBlobServiceImpl extends DefaultComponent implements Documen
             Set<BinaryGarbageCollector> stopAttempted = new HashSet<>();
             try {
                 for (BinaryGarbageCollector gc : gcs) {
-                    gc.start(delete);
+                    gc.start(delete, slot);
                     started.add(gc);
                 }
                 BiConsumer<String, String> markerCallback = (key, repositoryName) -> {
@@ -395,23 +460,19 @@ public class DocumentBlobServiceImpl extends DefaultComponent implements Documen
                     }
                 };
                 // in all repositories, mark referenced binaries
+                Collection<String> keyPrefixes = getMarkKeyPrefixes(slot);
                 RepositoryService repositoryService = Framework.getService(RepositoryService.class);
                 for (String repositoryName : repositoryService.getRepositoryNames()) {
                     Repository repository = repositoryService.getRepository(repositoryName);
-                    repository.markReferencedBlobs(markerCallback);
+                    repository.markReferencedBlobs(markerCallback, keyPrefixes);
                 }
                 // stop gc
-                BinaryManagerStatus globalStatus = new BinaryManagerStatus();
                 for (BinaryGarbageCollector gc : gcs) {
                     stopAttempted.add(gc);
                     gc.stop(delete);
-                    BinaryManagerStatus status = gc.getStatus();
-                    globalStatus.setNumBinaries(globalStatus.getNumBinaries() + status.getNumBinaries());
-                    globalStatus.setSizeBinaries(globalStatus.getSizeBinaries() + status.getSizeBinaries());
-                    globalStatus.setNumBinariesGC(globalStatus.getNumBinariesGC() + status.getNumBinariesGC());
-                    globalStatus.setSizeBinariesGC(globalStatus.getSizeBinariesGC() + status.getSizeBinariesGC());
+                    globalStatus.add(gc.getStatus());
                 }
-                globalStatus.setDuration(Duration.ofNanos(System.nanoTime() - start));
+                globalStatus.finish();
                 return globalStatus;
             } catch (RuntimeException e) {
                 // don't leave any started-but-not-yet-stopped GC holding its lock forever, whether start(), the

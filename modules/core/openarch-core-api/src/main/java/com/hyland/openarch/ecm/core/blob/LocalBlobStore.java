@@ -244,6 +244,8 @@ public class LocalBlobStore extends AbstractBlobStore {
 
         @Override
         public void computeToDelete() {
+            // TODO optimization: for a hexadecimal slot with a subdirectories path strategy, only walk the matching
+            // subdirectories (plus the one holding short keys) instead of filtering the whole tree
             Path dir = pathStrategy.dir;
             Path recoveryDir = dir.resolve(GC_RECOVERY_DIRECTORY);
             if (!Files.isDirectory(dir)) {
@@ -262,9 +264,11 @@ public class LocalBlobStore extends AbstractBlobStore {
                         // skip temp files: they are in-flight writes, not blobs (their random name isn't a key,
                         // so it would neither resolve for deletion nor should it be deleted from under a writer)
                         if (attrs.isRegularFile() && Files.isWritable(file) && !pathStrategy.isTempFile(file)) {
-                            status.setSizeBinaries(status.getSizeBinaries() + attrs.size());
-                            status.setNumBinaries(status.getNumBinaries() + 1);
-                            toDelete.add(file.getFileName().toString());
+                            String key = pathStrategy.getKeyForPath(file.getFileName().toString());
+                            if (markingState.slot().contains(key)) {
+                                status.add(1, attrs.size());
+                                toDelete.add(key);
+                            }
                         }
                         return FileVisitResult.CONTINUE;
                     }

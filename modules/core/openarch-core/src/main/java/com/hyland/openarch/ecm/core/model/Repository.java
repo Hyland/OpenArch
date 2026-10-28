@@ -16,6 +16,7 @@
 
 package com.hyland.openarch.ecm.core.model;
 
+import java.util.Collection;
 import java.util.function.BiConsumer;
 
 import com.hyland.openarch.ecm.core.schema.FulltextConfiguration;
@@ -33,10 +34,15 @@ public interface Repository {
 
     /**
      * Marks the blobs in use by passing them to the provided callback (taking the blob key and the repository name).
+     * <p>
+     * If key prefixes are provided, only the blob keys starting with one of them are passed to the callback. The keys
+     * are the stored ones, so they may include a blob provider prefix ({@code providerId:}).
      *
+     * @param markerCallback the callback
+     * @param keyPrefixes the blob key prefixes to restrict to, or {@code null} for all blob keys
      * @since 2021.8
      */
-    void markReferencedBlobs(BiConsumer<String, String> markerCallback);
+    void markReferencedBlobs(BiConsumer<String, String> markerCallback, Collection<String> keyPrefixes);
 
     /**
      * Gets the fulltext configuration for this repository using its current content model, or {@code null} if disabled.

@@ -42,6 +42,7 @@ import com.hyland.openarch.ecm.core.api.impl.blob.StringBlob;
 import com.hyland.openarch.ecm.core.blob.BlobStore.OptionalOrUnknown;
 import com.hyland.openarch.ecm.core.blob.binary.BinaryGarbageCollector;
 import com.hyland.openarch.ecm.core.blob.binary.BinaryManagerStatus;
+import com.hyland.openarch.ecm.core.blob.binary.BlobKeySlot;
 import com.hyland.openarch.ecm.core.utils.BlobUtils;
 import com.hyland.openarch.runtime.test.runner.Features;
 import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
@@ -543,6 +544,40 @@ public abstract class TestAbstractBlobStore {
         if (cacheOther != null) {
             assertTrue(Files.exists(cacheOther));
         }
+    }
+
+    @Test
+    public void testGCSlots() throws IOException {
+        assumeFalse(bp.isTransactional(), "GC not tested in transactional blob store");
+
+        String key1 = bs.writeBlob(blobContext(ID1, FOO));
+        String key2 = bs.writeBlob(blobContext(ID2, "barbaz"));
+        BinaryGarbageCollector gc = bs.getBinaryGarbageCollector();
+
+        gc.start(false);
+        gc.stop(false);
+        long total = gc.getStatus().getNumBinaries() + gc.getStatus().getNumBinariesGC();
+        assertTrue(total >= 2, "total: " + total);
+
+        // each blob is found in exactly one slot
+        for (int prefixLength = 1; prefixLength <= 2; prefixLength++) {
+            long sum = 0;
+            for (BlobKeySlot slot : BlobKeySlot.partition(prefixLength)) {
+                gc.start(false, slot);
+                gc.stop(false);
+                sum += gc.getStatus().getNumBinaries() + gc.getStatus().getNumBinariesGC();
+            }
+            assertEquals(total, sum, "prefix length " + prefixLength);
+        }
+
+        // a full cycle keeps the marked blob, the mark being ignored by the runs of the other slots
+        for (BlobKeySlot slot : BlobKeySlot.partition(1)) {
+            gc.start(true, slot);
+            gc.mark(key1);
+            gc.stop(true);
+        }
+        assertBlob(key1, FOO);
+        assertNoBlob(key2);
     }
 
     @Test

@@ -38,6 +38,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.hyland.openarch.ecm.core.api.Blob;
 import com.hyland.openarch.ecm.core.blob.binary.BinaryGarbageCollector;
+import com.hyland.openarch.ecm.core.blob.binary.BlobKeySlot;
 import com.hyland.openarch.ecm.core.blob.binary.BinaryManagerStatus;
 import com.hyland.openarch.ecm.core.utils.BlobUtils;
 
@@ -453,10 +454,10 @@ public class CachingBlobStore extends AbstractBlobStore {
         }
 
         @Override
-        public void start(boolean delete) {
-            delegate.start(delete);
+        public void start(boolean delete, BlobKeySlot slot) {
+            delegate.start(delete, slot);
             try {
-                cacheDelegate.start(delete);
+                cacheDelegate.start(delete, slot);
             } catch (RuntimeException e) {
                 try {
                     delegate.stop(false);

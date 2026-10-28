@@ -25,8 +25,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
+
+import com.hyland.openarch.ecm.core.blob.binary.BlobKeySlot;
 
 public class TestPathStrategies {
 
@@ -116,6 +119,60 @@ public class TestPathStrategies {
         // encoded key
         path = stringify(ps.getPathForKey("bad/key"));
         assertTrue(path.endsWith("/%b/ad/%bad%2fkey"), path);
+    }
+
+    @Test
+    public void testPathPrefixesForSlot() throws IOException {
+        Path dir = Files.createTempDirectory("tmp_");
+        PathStrategy flat = new PathStrategyFlat(dir);
+        assertEquals(List.of(""), flat.getPathPrefixesForSlot(BlobKeySlot.ALL));
+        assertEquals(List.of(""), flat.getPathPrefixesForSlot(BlobKeySlot.other(1)));
+        assertEquals(List.of("a", "%a"), flat.getPathPrefixesForSlot(new BlobKeySlot("a")));
+        assertEquals("abc", flat.getPathPrefixForKeyPrefix("abc"));
+
+        PathStrategy subDirs1 = new PathStrategySubDirs(dir, 1);
+        assertEquals(List.of(""), subDirs1.getPathPrefixesForSlot(BlobKeySlot.ALL));
+        assertEquals(List.of(""), subDirs1.getPathPrefixesForSlot(BlobKeySlot.other(2)));
+        assertEquals(List.of("a", "%a/%a", "000/"), subDirs1.getPathPrefixesForSlot(new BlobKeySlot("a")));
+        assertEquals(List.of("ab/ab", "%a/%ab", "000/"), subDirs1.getPathPrefixesForSlot(new BlobKeySlot("ab")));
+        assertEquals("ab/abc", subDirs1.getPathPrefixForKeyPrefix("abc"));
+        // the short keys directory is already covered
+        assertEquals(List.of("0", "%0/%0"), subDirs1.getPathPrefixesForSlot(new BlobKeySlot("0")));
+        assertEquals(List.of("00/00", "%0/%00", "000/"), subDirs1.getPathPrefixesForSlot(new BlobKeySlot("00")));
+
+        PathStrategy subDirs2 = new PathStrategySubDirs(dir, 2);
+        assertEquals(List.of("a", "%a/", "000/"), subDirs2.getPathPrefixesForSlot(new BlobKeySlot("a")));
+        assertEquals(List.of("ab/", "%a/b", "000/"), subDirs2.getPathPrefixesForSlot(new BlobKeySlot("ab")));
+        assertEquals("ab/c", subDirs2.getPathPrefixForKeyPrefix("abc"));
+
+        // the prefixes match the actual paths
+        String key = "abcdef0123456789"; // pragma: allowlist secret
+        for (PathStrategy ps : List.of(flat, subDirs1, subDirs2)) {
+            String path = dir.relativize(ps.getPathForKey(key)).toString().replace(File.separatorChar, '/');
+            for (int len = 1; len <= BlobKeySlot.MAX_PREFIX_LENGTH; len++) {
+                String pathPrefix = ps.getPathPrefixesForSlot(new BlobKeySlot(key.substring(0, len))).get(0);
+                assertTrue(path.startsWith(pathPrefix), path + " / " + pathPrefix);
+            }
+        }
+    }
+
+    @Test
+    public void testSlotPrefixesCoverEscapedKeys() throws IOException {
+        Path dir = Files.createTempDirectory("tmp_");
+        for (PathStrategy ps : List.of(new PathStrategyFlat(dir), new PathStrategySubDirs(dir, 1),
+                new PathStrategySubDirs(dir, 2))) {
+            for (String key : List.of("bad/key", "ab:c", "a\\b", "ab%", "00/short", "a", "ab", "a\u00e9")) {
+                String path = dir.relativize(ps.getPathForKey(key)).toString().replace(File.separatorChar, '/');
+                for (int length = 1; length <= BlobKeySlot.MAX_PREFIX_LENGTH; length++) {
+                    for (BlobKeySlot slot : BlobKeySlot.partition(length)) {
+                        if (slot.contains(key)) {
+                            long matches = ps.getPathPrefixesForSlot(slot).stream().filter(path::startsWith).count();
+                            assertEquals(1, matches, key + " / " + path + " / " + slot);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     @Test

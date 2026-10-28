@@ -23,6 +23,7 @@ import java.util.Set;
 import com.hyland.openarch.ecm.core.api.Blob;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
 import com.hyland.openarch.ecm.core.blob.binary.BinaryManagerStatus;
+import com.hyland.openarch.ecm.core.blob.binary.BlobKeySlot;
 import com.hyland.openarch.ecm.core.model.InternalDocument;
 
 /**
@@ -129,6 +130,9 @@ public interface DocumentBlobService {
 
     /**
      * Garbage collect the unused binaries.
+     * <p>
+     * If key space partitioning is enabled, a full cycle is done: each slot of the partition is garbage collected in
+     * turn by an independent run.
      *
      * @param delete if {@code false} don't actually collect the garbage binaries (but still return statistics about
      *            them), if {@code true} move them to recovery storage or permanently delete them according to the
@@ -137,6 +141,18 @@ public interface DocumentBlobService {
      * @since 7.4
      */
     BinaryManagerStatus garbageCollectBinaries(boolean delete);
+
+    /**
+     * Garbage collect the unused binaries of a single slot of the key space, in a single run, regardless of the
+     * configured key space partitioning.
+     *
+     * @param delete if {@code false} don't actually collect the garbage binaries (but still return statistics about
+     *            them), if {@code true} move them to recovery storage or permanently delete them according to the
+     *            hardcoded policy
+     * @param slot the slot of the key space to garbage collect, {@link BlobKeySlot#ALL} for the whole key space
+     * @return a status about the number of garbage collected binaries
+     */
+    BinaryManagerStatus garbageCollectBinaries(boolean delete, BlobKeySlot slot);
 
     /**
      * Checks if a garbage collection of the binaries in progress.

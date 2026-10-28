@@ -34,6 +34,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.AfterEach;
@@ -42,6 +45,7 @@ import org.junit.jupiter.api.Test;
 import com.hyland.openarch.runtime.kv.KeyValueStore;
 import com.hyland.openarch.runtime.kv.KeyValueStoreDescriptor;
 import com.hyland.openarch.runtime.kv.MemKeyValueStore;
+import com.hyland.openarch.ecm.core.blob.binary.BlobKeySlot;
 
 /**
  * Tests the cluster-wide coordination of blob garbage collection: two nodes are simulated by two garbage collectors
@@ -96,7 +100,7 @@ public class TestBlobGarbageCollectorCluster {
 
         @Override
         public void computeToDelete() {
-            toDelete.addAll(blobs);
+            blobs.stream().filter(markingState.slot()::contains).forEach(toDelete::add);
         }
 
         @Override
@@ -143,6 +147,55 @@ public class TestBlobGarbageCollectorCluster {
 
     protected Node newNode(String... blobs) {
         return new Node(new LinkedHashSet<>(Arrays.asList(blobs)));
+    }
+
+    @Test
+    public void testWriteRetainsMarkingStateAcrossSlotTransition() throws Exception {
+        CountDownLatch captured = new CountDownLatch(1);
+        CountDownLatch resume = new CountDownLatch(1);
+        Node node = new Node(new LinkedHashSet<>(Set.of("a1"))) {
+            @Override
+            protected MarkResult markLocally(String key, MarkingState markingState) {
+                captured.countDown();
+                try {
+                    if (!resume.await(10, TimeUnit.SECONDS)) {
+                        throw new AssertionError("Timed out waiting for the next slot");
+                    }
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    throw new AssertionError(e);
+                }
+                return super.markLocally(key, markingState);
+            }
+        };
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        List<Future<Boolean>> writes = new ArrayList<>();
+        node.removeUnmarkedBlobHook = () -> {
+            // Deletion has been claimed, but has not removed the blob yet.
+            writes.add(executor.submit(() -> node.mark("a1")));
+            try {
+                assertTrue(captured.await(10, TimeUnit.SECONDS), "Writer did not capture the old run");
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new AssertionError(e);
+            }
+        };
+        try {
+            node.start(true, new BlobKeySlot("a"));
+            node.stop(true);
+            assertTrue(node.blobs.isEmpty());
+            node.start(true, new BlobKeySlot("b"));
+            resume.countDown();
+            assertFalse(writes.getFirst().get(10, TimeUnit.SECONDS), "Deleted blob must be rewritten, not reused");
+            assertTrue(node.markingState.marked().isEmpty(), "Writer must not mark the new run");
+        } finally {
+            resume.countDown();
+            executor.shutdownNow();
+            assertTrue(executor.awaitTermination(10, TimeUnit.SECONDS));
+            if (node.isInProgress()) {
+                node.stop(false);
+            }
+        }
     }
 
     @Test
@@ -373,7 +426,7 @@ public class TestBlobGarbageCollectorCluster {
             @Override
             protected void retainNotMarkedRemotely(Set<String> keys) {
                 super.retainNotMarkedRemotely(keys);
-                marked.put(KEY2, MARK_IN_USE);
+                markingState.marked().put(KEY2, MARK_IN_USE);
             }
         };
 
@@ -530,5 +583,23 @@ public class TestBlobGarbageCollectorCluster {
 
         // nothing was written to the key/value store, blob writes don't pay for it outside a GC
         assertNull(sharedStore.getString(node.getMarkKey("any", KEY1)));
+    }
+
+    @Test
+    public void testSlots() {
+        Node node = newNode("a1", "a2", "b1", "zz");
+        node.start(true, new BlobKeySlot("a"));
+        node.mark("a1");
+        // a key outside of the slot is ignored, and not marked in the key/value store either
+        node.mark("b1");
+        assertNull(sharedStore.getString(node.getMarkKey(node.getRunCounter(), "b1")));
+        node.stop(true);
+        assertEquals(List.of("a2"), node.deleted);
+
+        // the other slot holds the keys that don't start with a hexadecimal digit
+        node.start(true, BlobKeySlot.other(1));
+        node.stop(true);
+        assertEquals(List.of("a2", "zz"), node.deleted);
+        assertEquals(Set.of("a1", "b1"), node.blobs);
     }
 }

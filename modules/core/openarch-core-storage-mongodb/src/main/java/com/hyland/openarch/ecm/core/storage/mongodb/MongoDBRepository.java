@@ -162,6 +162,7 @@ import static com.hyland.openarch.ecm.core.security.SecurityServiceImpl.CONFIG_S
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -1163,8 +1164,26 @@ public class MongoDBRepository extends DBSRepositoryBase implements Configuratio
     }
 
     @Override
-    public void markReferencedBlobs(BiConsumer<String, String> markerCallback) {
-        Bson filter = Filters.exists(SYS_BLOB_KEYS, true);
+    public void markReferencedBlobs(BiConsumer<String, String> markerCallback, Collection<String> keyPrefixes) {
+        Bson filter;
+        if (keyPrefixes == null) {
+            // TODO optimization: for the blob GC other slot (keys not starting with a hexadecimal digit), query only
+            // the non-hexadecimal ranges instead of doing a full scan
+            filter = Filters.exists(SYS_BLOB_KEYS, true);
+        } else {
+            // use range queries on the multikey index, $elemMatch makes both bounds apply to the same array element,
+            // which lets MongoDB combine them into tight index bounds for an efficient index scan (without it, only
+            // one bound could be used on the multikey index, scanning much more of it)
+            // for instance for prefixes "a1" and "s3:a1":
+            // {"$or": [{"sys_blobKeys": {"$elemMatch": {"$gte": "a1", "$lt": "a2"}}},
+            // {"sys_blobKeys": {"$elemMatch": {"$gte": "s3:a1", "$lt": "s3:a2"}}}]}
+            List<Bson> filters = keyPrefixes.stream()
+                                            .map(prefix -> Filters.elemMatch(SYS_BLOB_KEYS,
+                                                    new Document("$gte", prefix).append("$lt",
+                                                            prefixUpperBound(prefix))))
+                                            .toList();
+            filter = filters.size() == 1 ? filters.get(0) : Filters.or(filters);
+        }
         Bson projection = Projections.fields(Projections.excludeId(), Projections.include(SYS_BLOB_KEYS));
         log.trace("MongoDB: QUERY {} KEYS {}", filter, projection);
         // noCursorTimeout(true) is not supported by Amazon DynamoDB, and not needed anyway
@@ -1173,12 +1192,22 @@ public class MongoDBRepository extends DBSRepositoryBase implements Configuratio
             Object blobKeys = doc.get(SYS_BLOB_KEYS);
             if (blobKeys instanceof List list) {
                 for (Object v : list) {
-                    if (v instanceof String key) {
+                    // other array elements of a matching document may not match the prefixes
+                    if (v instanceof String key
+                            && (keyPrefixes == null || keyPrefixes.stream().anyMatch(key::startsWith))) {
                         markerCallback.accept(key, repositoryName);
                     }
                 }
             }
         });
+    }
+
+    /**
+     * Gets the smallest string greater than all the strings starting with the given non-empty prefix.
+     */
+    static String prefixUpperBound(String prefix) {
+        int last = prefix.length() - 1;
+        return prefix.substring(0, last) + (char) (prefix.charAt(last) + 1);
     }
 
 }

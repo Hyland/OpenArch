@@ -155,8 +155,8 @@ class DBSCachingRepositoryTest {
 
         @SuppressWarnings("unchecked")
         BiConsumer<String, String> marker = mock(BiConsumer.class);
-        repo.markReferencedBlobs(marker);
-        verify(backend).markReferencedBlobs(marker);
+        repo.markReferencedBlobs(marker, null);
+        verify(backend).markReferencedBlobs(marker, null);
 
     }
 

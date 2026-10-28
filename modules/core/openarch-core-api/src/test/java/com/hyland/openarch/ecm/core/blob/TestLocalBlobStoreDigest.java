@@ -28,7 +28,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import com.hyland.openarch.ecm.core.blob.binary.BinaryGarbageCollector;
+import com.hyland.openarch.ecm.core.blob.binary.BlobKeySlot;
 import com.hyland.openarch.runtime.test.runner.Deploy;
 
 @Deploy("com.hyland.openarch.ecm.core.api.tests:OSGI-INF/test-blob-provider-local-digest.xml")
@@ -39,6 +42,37 @@ public class TestLocalBlobStoreDigest extends TestAbstractBlobStore {
         assertFalse(bp.isTransactional());
         assertFalse(bp.isRecordMode());
         assertTrue(bs.getKeyStrategy().useDeDuplication());
+    }
+
+    @ParameterizedTest
+    @CsvSource({ "0,0", "0,1", "0,2", "1,0", "1,1", "1,2", "2,0", "2,1", "2,2" })
+    public void testGCEscapedKeys(int depth, int prefixLength) throws IOException {
+        Path dir = ((LocalBlobStore) bs).pathStrategy.dir;
+        PathStrategy strategy = depth == 0 ? new PathStrategyFlat(dir) : new PathStrategySubDirs(dir, depth);
+        bs = new LocalBlobStore("test", "test", KeyStrategyDocId.instance(), strategy);
+        String keptKey = bs.writeBlob(blobContext("bad/key", FOO));
+        String deletedKey = bs.writeBlob(blobContext("bad/unused", BAR));
+        assertEquals("bad/key", keptKey);
+        assertEquals("bad/unused", deletedKey);
+        BinaryGarbageCollector gc = bs.getBinaryGarbageCollector();
+
+        if (prefixLength > 0) {
+            gc.start(false, BlobKeySlot.other(prefixLength));
+            gc.stop(false);
+            assertEquals(0, gc.getStatus().getNumBinaries());
+            assertEquals(0, gc.getStatus().getNumBinariesGC());
+        }
+
+        gc.start(true, new BlobKeySlot("ba".substring(0, prefixLength)));
+        gc.mark(keptKey);
+        gc.stop(true);
+
+        assertEquals(1, gc.getStatus().getNumBinaries());
+        assertEquals(1, gc.getStatus().getNumBinariesGC());
+        assertBlob(keptKey, FOO);
+        assertNoBlob(deletedKey);
+        assertTrue(Files.exists(strategy.getPathForKey(keptKey)));
+        assertFalse(Files.exists(strategy.getPathForKey(deletedKey)));
     }
 
     @Test
