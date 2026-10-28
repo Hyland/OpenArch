@@ -54,6 +54,8 @@ public class TestLocalBlobStoreDigest extends TestAbstractBlobStore {
         String deletedKey = bs.writeBlob(blobContext("bad/unused", BAR));
         assertEquals("bad/key", keptKey);
         assertEquals("bad/unused", deletedKey);
+        Path invalidFile = dir.resolve("%%zz");
+        Files.writeString(invalidFile, "not a blob");
         BinaryGarbageCollector gc = bs.getBinaryGarbageCollector();
 
         if (prefixLength > 0) {
@@ -73,6 +75,47 @@ public class TestLocalBlobStoreDigest extends TestAbstractBlobStore {
         assertNoBlob(deletedKey);
         assertTrue(Files.exists(strategy.getPathForKey(keptKey)));
         assertFalse(Files.exists(strategy.getPathForKey(deletedKey)));
+        assertEquals("not a blob", Files.readString(invalidFile));
+    }
+
+    @ParameterizedTest
+    @CsvSource({ "0,0", "0,1", "0,2", "1,0", "1,1", "1,2", "2,0", "2,1", "2,2" })
+    public void testGCIgnoresInvalidDigests(int depth, int prefixLength) throws IOException {
+        Path dir = ((LocalBlobStore) bs).pathStrategy.dir;
+        PathStrategy strategy = depth == 0 ? new PathStrategyFlat(dir) : new PathStrategySubDirs(dir, depth);
+        bs = new LocalBlobStore("test", "test", bs.getKeyStrategy(), strategy);
+        String key = bs.writeBlob(blobContext(ID1, FOO));
+        List<Path> unrelatedFiles = new ArrayList<>();
+        for (String invalidKey : List.of("notes.txt", key.substring(0, key.length() - 1) + "g", key + "00",
+                key.substring(0, key.length() - 2), key.substring(0, 2) + "not-a-digest")) {
+            Path file = strategy.getPathForKey(invalidKey);
+            Files.createDirectories(file.getParent());
+            Files.writeString(file, "not a blob");
+            unrelatedFiles.add(file);
+        }
+        BinaryGarbageCollector gc = bs.getBinaryGarbageCollector();
+        if (prefixLength > 0) {
+            gc.start(true, BlobKeySlot.other(prefixLength));
+            gc.stop(true);
+            assertEquals(0, gc.getStatus().getNumBinaries());
+            assertEquals(0, gc.getStatus().getNumBinariesGC());
+        }
+        BlobKeySlot slot = new BlobKeySlot(key.substring(0, prefixLength));
+        gc.start(true, slot);
+        gc.mark(key);
+        gc.stop(true);
+        assertEquals(1, gc.getStatus().getNumBinaries());
+        assertEquals(0, gc.getStatus().getNumBinariesGC());
+        assertBlob(key, FOO);
+
+        gc.start(true, slot);
+        gc.stop(true);
+        assertEquals(0, gc.getStatus().getNumBinaries());
+        assertEquals(1, gc.getStatus().getNumBinariesGC());
+        assertNoBlob(key);
+        for (Path file : unrelatedFiles) {
+            assertEquals("not a blob", Files.readString(file));
+        }
     }
 
     @Test

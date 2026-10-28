@@ -38,17 +38,14 @@ import com.hyland.openarch.ecm.core.blob.binary.BinaryGarbageCollector;
  *
  * @since 11.1
  */
-public class LocalBlobStore extends AbstractBlobStore {
+public class LocalBlobStore extends AbstractPathBlobStore {
 
     private static final Logger log = LoggerFactory.getLogger(LocalBlobStore.class);
-
-    protected final PathStrategy pathStrategy;
 
     protected final LocalBlobGarbageCollector gc;
 
     public LocalBlobStore(String blobProviderId, String name, KeyStrategy keyStrategy, PathStrategy pathStrategy) {
-        super(blobProviderId, name, keyStrategy);
-        this.pathStrategy = pathStrategy;
+        super(blobProviderId, name, keyStrategy, pathStrategy);
         gc = new LocalBlobGarbageCollector();
     }
 
@@ -235,7 +232,7 @@ public class LocalBlobStore extends AbstractBlobStore {
         return gc;
     }
 
-    public class LocalBlobGarbageCollector extends AbstractGarbageCollector {
+    public class LocalBlobGarbageCollector extends AbstractPathGarbageCollector {
 
         @Override
         public String getStorageAddress() {
@@ -264,11 +261,7 @@ public class LocalBlobStore extends AbstractBlobStore {
                         // skip temp files: they are in-flight writes, not blobs (their random name isn't a key,
                         // so it would neither resolve for deletion nor should it be deleted from under a writer)
                         if (attrs.isRegularFile() && Files.isWritable(file) && !pathStrategy.isTempFile(file)) {
-                            String key = pathStrategy.getKeyForPath(file.getFileName().toString());
-                            if (markingState.slot().contains(key)) {
-                                status.add(1, attrs.size());
-                                toDelete.add(key);
-                            }
+                            collectCandidate(file.getFileName().toString(), attrs.size());
                         }
                         return FileVisitResult.CONTINUE;
                     }
