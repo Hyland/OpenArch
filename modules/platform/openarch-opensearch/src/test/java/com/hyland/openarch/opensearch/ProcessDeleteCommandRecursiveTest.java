@@ -20,9 +20,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -98,7 +98,7 @@ public class ProcessDeleteCommandRecursiveTest {
         doReturn(INDEX).when(service).getWriteIndexForRepository(REPO);
         doReturn(DOC_PATH).when(service).getPathOfDocFromEs(REPO, DOC_ID);
         doReturn(false).when(service).hasEmbeddingsIndex(REPO);
-        doNothing().when(service).postDeletionGhostDocumentCheck(anyString(), anyString(), anyList());
+        doNothing().when(service).postDeletionGhostDocumentCheck(any(), anyString());
 
         DocumentModel doc = mock(DocumentModel.class);
         when(doc.getId()).thenReturn(DOC_ID);
@@ -218,6 +218,17 @@ public class ProcessDeleteCommandRecursiveTest {
     }
 
     @Test
+    public void mainScroll_runsTheGhostSafetyNetAfterTheDeletion() throws Exception {
+        SearchResponse<DocumentDTO> withHits = searchResponseWithHit(DOC_ID, null);
+        SearchResponse<DocumentDTO> emptyWithScroll = emptyScrollResponse(SCROLL_ID);
+        when(client.search(any())).thenReturn(withHits).thenReturn(emptyWithScroll);
+
+        invokeProcessDeleteCommandRecursive();
+
+        verify(service).postDeletionGhostDocumentCheck(cmd, INDEX);
+    }
+
+    @Test
     public void mainScroll_nullScrollId_clearScrollNotCalled() throws Exception {
         SearchResponse<DocumentDTO> withHits = searchResponseWithHit(DOC_ID, null);
         SearchResponse<DocumentDTO> emptyNullScroll = emptyScrollResponse(null);
@@ -300,7 +311,59 @@ public class ProcessDeleteCommandRecursiveTest {
         verify(client).delete(INDEX, DOC_ID);
         verify(client, never()).bulk(any());
         verify(client, times(1)).clearScroll(SCROLL_ID);
-        verify(service, never()).postDeletionGhostDocumentCheck(anyString(), anyString(), anyList());
+        verify(service, never()).postDeletionGhostDocumentCheck(any(), anyString());
+    }
+
+    // -----------------------------------------------------------------------
+    // postDeletionGhostDocumentCheck — safety net after the recursive delete
+    // -----------------------------------------------------------------------
+
+    @Test
+    public void safetyNet_descendantLeftInTheIndex_isDeleted() {
+        doCallRealMethod().when(service).postDeletionGhostDocumentCheck(any(), anyString());
+        doReturn(false).when(service).isMovedOutOfDeletedDocument(REPO, "ghost-1", DOC_ID);
+        SearchResponse<DocumentDTO> withGhost = searchResponseWithHit("ghost-1", SCROLL_ID);
+        SearchResponse<DocumentDTO> emptyPage = emptyScrollResponse(null);
+        when(client.search(any())).thenReturn(withGhost);
+        when(client.searchScroll(any())).thenReturn(emptyPage);
+
+        service.postDeletionGhostDocumentCheck(cmd, INDEX);
+
+        verify(client).refresh(INDEX);
+        ArgumentCaptor<SearchRequest> search = ArgumentCaptor.forClass(SearchRequest.class);
+        verify(client).search(search.capture());
+        TermQuery term = requireNonNull(requireNonNull(search.getValue().query().constantScore()).filter().term());
+        assertEquals("sys_ancestorIds", term.field());
+        assertEquals(DOC_ID, term.value().stringValue());
+        ArgumentCaptor<BulkRequest> bulk = ArgumentCaptor.forClass(BulkRequest.class);
+        verify(client).bulk(bulk.capture());
+        assertEquals("ghost-1", requireNonNull(bulk.getValue().operations().getFirst().delete()).id());
+    }
+
+    @Test
+    public void safetyNet_descendantMovedOut_isNotDeleted() {
+        doCallRealMethod().when(service).postDeletionGhostDocumentCheck(any(), anyString());
+        doReturn(true).when(service).isMovedOutOfDeletedDocument(REPO, "moved-1", DOC_ID);
+        SearchResponse<DocumentDTO> withMoved = searchResponseWithHit("moved-1", SCROLL_ID);
+        SearchResponse<DocumentDTO> emptyPage = emptyScrollResponse(null);
+        when(client.search(any())).thenReturn(withMoved);
+        when(client.searchScroll(any())).thenReturn(emptyPage);
+
+        service.postDeletionGhostDocumentCheck(cmd, INDEX);
+
+        verify(client, never()).bulk(any());
+    }
+
+    @Test
+    public void safetyNet_nothingLeftInTheIndex_deletesNothing() {
+        doCallRealMethod().when(service).postDeletionGhostDocumentCheck(any(), anyString());
+        SearchResponse<DocumentDTO> emptyWithScroll = emptyScrollResponse(SCROLL_ID);
+        when(client.search(any())).thenReturn(emptyWithScroll);
+
+        service.postDeletionGhostDocumentCheck(cmd, INDEX);
+
+        verify(client, never()).bulk(any());
+        verify(client, times(1)).clearScroll(SCROLL_ID);
     }
 
     // -----------------------------------------------------------------------

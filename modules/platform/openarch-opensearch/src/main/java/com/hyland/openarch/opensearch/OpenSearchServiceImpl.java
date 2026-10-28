@@ -1075,7 +1075,11 @@ public class OpenSearchServiceImpl extends DefaultComponent implements OpenSearc
             getClient().delete(indexName, cmd.getTargetDocumentId());
             // the doc was not indexed yet but its descendants may already be: without this they would stay in the
             // index (ghost documents) because they are normally found through the path of the doc itself
-            deleteDescendantsOfNotIndexedDocument(cmd, indexName);
+            List<String> deletedDescendants = deleteDescendantsByAncestorId(cmd, indexName);
+            if (!deletedDescendants.isEmpty()) {
+                log.info("Deleted {} descendant(s) of the document {} that was not indexed yet",
+                        deletedDescendants.size(), cmd.getTargetDocumentId());
+            }
             return;
         }
 
@@ -1113,30 +1117,29 @@ public class OpenSearchServiceImpl extends DefaultComponent implements OpenSearc
                     cmd.getTargetDocumentId(), docPath, indexName);
         }
 
-        List<String> deletedDocumentIds = scrollAndDelete(cmd, request, keepAlive, null);
+        scrollAndDelete(cmd, request, keepAlive, null);
 
-        postDeletionGhostDocumentCheck(indexName, cmd.getTargetDocumentId(), deletedDocumentIds);
+        postDeletionGhostDocumentCheck(cmd, indexName);
     }
 
     /**
-     * Deletes from the index the descendants (by {@code sys_ancestorIds}) of a document that is not in the index.
+     * Deletes from the index the descendants of the document found through {@code sys_ancestorIds}, which does not
+     * depend on the document having its own entry in the index.
      * <p>
      * Descendants that were moved out of the deleted document are kept (their {@code sys_ancestorIds} in the index
      * can be stale). Descendants that are still in the repository but under the deleted document are waiting for its
      * asynchronous removal, and nothing else will remove them from the index: they are deleted.
+     *
+     * @return the ids of the deleted descendants
      */
-    private void deleteDescendantsOfNotIndexedDocument(IndexingCommand cmd, String indexName) {
+    private List<String> deleteDescendantsByAncestorId(IndexingCommand cmd, String indexName) {
         Query query = termFilterQuery(SYS_ANCESTOR_IDS, cmd.getTargetDocumentId());
         Time keepAlive = Time.of(b -> b.time("1m"));
         SearchRequest request = deletionScrollRequest(indexName, query, keepAlive);
-        // make the descendants indexed a moment ago visible to the search
+        // make the documents indexed or deleted a moment ago visible to the search
         getClient().refresh(indexName);
-        List<String> deletedDocumentIds = scrollAndDelete(cmd, request, keepAlive,
+        return scrollAndDelete(cmd, request, keepAlive,
                 id -> isMovedOutOfDeletedDocument(cmd.getRepositoryName(), id, cmd.getTargetDocumentId()));
-        if (!deletedDocumentIds.isEmpty()) {
-            log.info("Deleted {} descendant(s) of the document {} that was not indexed yet", deletedDocumentIds.size(),
-                    cmd.getTargetDocumentId());
-        }
     }
 
     private Query termFilterQuery(String field, String value) {
@@ -1229,61 +1232,15 @@ public class OpenSearchServiceImpl extends DefaultComponent implements OpenSearc
         }
     }
 
-    void postDeletionGhostDocumentCheck(String indexName, String docId, List<String> deletedDocumentIds) {
-        // Refresh index post bulk delete
-        getClient().refresh(indexName);
-
-        Query postCheckFilter = QueryBuilders.term()
-                .field(SYS_ANCESTOR_IDS)
-                .value(FieldValue.of(docId))
-                .build()
-                .toQuery();
-        Query postCheckQuery = ConstantScoreQuery.of(b -> b.filter(postCheckFilter)).toQuery();
-        SearchRequest postCheckSearchRequest = SearchRequest.of(b -> b.index(indexName)
-                .source(sb -> sb.fetch(false))
-                .size(100)
-                .query(postCheckQuery));
-
-        SearchResponse<DocumentDTO> postCheckSearchResponse = getClient().search(postCheckSearchRequest);
-        var responseHitsList = postCheckSearchResponse.hits().hits();
-        if (!responseHitsList.isEmpty()) {
-            responseHitsList.stream()
-                    .map(Hit::id)
-                    .filter(id -> !deletedDocumentIds.contains(id)) // avoid documents that were just deleted in the bulk request
-                    .forEach(id -> cleanupGhostDocuments(indexName, id));
-        }
-    }
-
-    private void cleanupGhostDocuments(String indexName, String docId) {
-        // This is a safety net to clean up any potential ghost documents that might have been left due to unforeseen issues during the recursive deletion process.
-        // It looks for any documents that have the deleted document id in their sys_ancestorIds and deletes them, as they are considered ghost documents without a valid ancestor.
-        List<String> ancestorIds = getDocumentSysAncestorIds(indexName, docId);
-        if (!ancestorIds.isEmpty() && ancestorIds.contains(docId)) { // confirm it's a ghost document
-            log.warn("Cleaning up ghost document with id: {} in index: {}, since its ancestor document id: {} no longer exists",
-                    docId, indexName, ancestorIds);
-            getClient().delete(indexName, docId);
-        }
-    }
-
-    private List<String> getDocumentSysAncestorIds(String indexName, String docId) {
-        GetRequest request = GetRequest.of(b -> b.index(indexName)
-                .id(docId)
-                .sourceIncludes(List.of(SYS_ANCESTOR_IDS)));
-        GetResponse<DocumentDTO> response = getClient().get(request);
-        if (!response.found() || response.source() == null) {
-            log.debug("Skip sys_ancestorIds fetching: document {} not found in index {}", docId, indexName);
-            return Collections.emptyList();
-        }
-        Object ancestorIdsObj = response.source().getProperties().get(SYS_ANCESTOR_IDS);
-        if (ancestorIdsObj instanceof List<?>) {
-            return ((List<?>) ancestorIdsObj).stream()
-                    .filter(String.class::isInstance)
-                    .map(String.class::cast)
-                    .toList();
-        } else {
-            log.warn("Unexpected type for sys_ancestorIds of document {} in index {}: expected List<String> but got {}",
-                    docId, indexName, ancestorIdsObj != null ? ancestorIdsObj.getClass() : "null");
-            return Collections.emptyList();
+    /**
+     * Safety net: documents still in the index under the deleted one after the recursive delete are ghost documents
+     * (for instance indexed while the delete was running), delete them.
+     */
+    void postDeletionGhostDocumentCheck(IndexingCommand cmd, String indexName) {
+        List<String> ghosts = deleteDescendantsByAncestorId(cmd, indexName);
+        if (!ghosts.isEmpty()) {
+            log.info("Cleaned up {} ghost document(s) left in index {} under the deleted document {}", ghosts.size(),
+                    indexName, cmd.getTargetDocumentId());
         }
     }
 
