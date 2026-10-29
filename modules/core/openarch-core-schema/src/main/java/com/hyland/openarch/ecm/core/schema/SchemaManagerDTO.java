@@ -89,8 +89,16 @@ public class SchemaManagerDTO extends SchemaManagerBase {
 
     private final List<ValidationViolation> violations;
 
+    private final boolean bootstrap;
+
     public SchemaManagerDTO(ContentModelDTO model, List<ValidationViolation> violations, boolean validateOnly) {
+        this(model, violations, validateOnly, false);
+    }
+
+    SchemaManagerDTO(ContentModelDTO model, List<ValidationViolation> violations, boolean validateOnly,
+            boolean bootstrap) {
         this.violations = violations == null ? new ArrayList<>() : violations;
+        this.bootstrap = bootstrap;
         validateManagedCharacteristics(model);
         registerTypes(model.types());
         registerSchemas(model.schemas());
@@ -481,6 +489,16 @@ public class SchemaManagerDTO extends SchemaManagerBase {
         } catch (IllegalArgumentException e) {
             violations.add(new InvalidObjectViolation(path.withValue(dto.toMap()), PRIMARY_TYPES, CONSTRAINTS));
             return Set.of();
+        }
+        if (bootstrap) {
+            constraints.removeIf(constraint -> {
+                if (constraint instanceof ObjectResolverConstraint resolver && resolver.getResolver() == null) {
+                    // Core schemas also run in deployments without the optional resolver's bundle.
+                    log.warn("Ignoring unavailable bootstrap resolver {} at {}", dto.resolver().name(), path.path());
+                    return true;
+                }
+                return false;
+            });
         }
         SchemaValidationUtils.validateConstraints(constraints, path.withValue(dto.toMap()), violations);
         return constraints;

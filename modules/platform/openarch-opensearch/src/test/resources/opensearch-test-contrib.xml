@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <component name="com.hyland.openarch.opensearch.test.contrib">
 
-  <require>com.hyland.openarch.ecm.core.CoreExtensions</require>
+  <require>com.hyland.openarch.ecm.core.schema.bootstrap</require>
 
   <extension point="openSearchIndex" target="com.hyland.openarch.opensearch.OpenSearchService">
     <openSearchIndex name="nuxeo" remove="true" />

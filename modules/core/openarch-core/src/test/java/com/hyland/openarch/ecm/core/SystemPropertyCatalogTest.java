@@ -31,6 +31,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import com.hyland.openarch.ecm.core.api.DocumentConstants;
 import com.hyland.openarch.ecm.core.schema.SchemaManager;
+import com.hyland.openarch.ecm.core.schema.SchemaManagerDTO;
 import com.hyland.openarch.ecm.core.schema.TypeService;
 import com.hyland.openarch.runtime.test.runner.Deploy;
 import com.hyland.openarch.runtime.test.runner.Features;
@@ -75,6 +76,16 @@ public class SystemPropertyCatalogTest {
     public void testCompatibilityTypes() {
         SchemaManager schemaManager = typeService.getDefaultSchemaManager();
         assertNotNull(schemaManager.getType("system#contributorList"));
+    }
+
+    @Test
+    public void testBootstrapModelRoundTrip() {
+        var model = typeService.getDefaultSchemaManager().toContentModel();
+        assertEquals(model, new SchemaManagerDTO(model, null, false).toContentModel());
+        assertEquals("binary", model.types().get("blob").fields().get("key").typeRef());
+        assertTrue(model.schemas().get("system").fields().get("sys_acl").characteristics().noAutoCheckout());
+        assertTrue(model.mixinTypes().get("SysFolderish").noPerDocumentQuery());
+        assertEquals("SysContent", model.primaryTypes().get("SysFile").extend());
     }
 
     @Test

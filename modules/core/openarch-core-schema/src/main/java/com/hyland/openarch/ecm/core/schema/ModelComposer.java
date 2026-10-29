@@ -83,7 +83,7 @@ final class ModelComposer {
         Map<String, Object> map = MAPPER.convertValue(patched, Map.class);
         ContentModelDTO dto = ModelMapCodec.read(map, violations);
         try {
-            return new SchemaManagerDTO(dto, violations, false);
+            return new SchemaManagerDTO(dto, violations, false, true);
         } catch (SchemaValidationException e) {
             throw new RuntimeServiceException("Invalid composed content model from " + sources(contributions), e);
         }

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <component name="com.hyland.openarch.ecm.core.storage.sql.tests.repo.core-types">
 
-  <require>com.hyland.openarch.ecm.core.CoreExtensions</require>
+  <require>com.hyland.openarch.ecm.core.schema.bootstrap</require>
 
   <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="schema">
     <schema name="mydublincore" prefix="mydc" src="schemas/mydublincore.xsd"/>

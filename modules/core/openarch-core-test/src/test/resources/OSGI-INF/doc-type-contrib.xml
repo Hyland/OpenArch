@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <component name="com.hyland.openarch.io.test.doctypes">
 
-  <require>com.hyland.openarch.ecm.core.CoreExtensions</require>
+  <require>com.hyland.openarch.ecm.core.schema.bootstrap</require>
 
   <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="schema">
     <schema name="complexSchema" src="schema/complex-schema.xsd" prefix="cs" />
