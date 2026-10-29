@@ -77,8 +77,8 @@ import io.dropwizard.metrics5.Timer;
 public class EmbeddingsIndexer {
     private static final Logger log = LogManager.getLogger(EmbeddingsIndexer.class);
 
-    private static final String EMBEDDINGS_INDEXING_SCROLL_KEEP_ALIVE = Framework.getProperty(
-            "hxpr.opensearch.embeddingsIndexingScrollKeepAlive", "1m");
+    // resolved on use: a static Framework.getProperty() would be evaluated once at class loading, whenever that happens
+    private static final String EMBEDDINGS_INDEXING_SCROLL_KEEP_ALIVE_PROPERTY = "hxpr.opensearch.embeddingsIndexingScrollKeepAlive";
 
     private final OpenSearchServiceImpl service;
 
@@ -258,7 +258,8 @@ public class EmbeddingsIndexer {
                                        .toQuery();
             query = Query.of(b -> b.bool(bb -> bb.filter(sysIdQuery).filter(typeQ)));
         }
-        Time keepAlive = Time.of(b -> b.time(EMBEDDINGS_INDEXING_SCROLL_KEEP_ALIVE));
+        String keepAliveValue = Framework.getProperty(EMBEDDINGS_INDEXING_SCROLL_KEEP_ALIVE_PROPERTY, "1m");
+        Time keepAlive = Time.of(b -> b.time(keepAliveValue));
         SearchRequest request = SearchRequest.of(b -> b.index(embeddingsIndex)
                                                        .query(query)
                                                        .source(s -> s.fetch(false))
