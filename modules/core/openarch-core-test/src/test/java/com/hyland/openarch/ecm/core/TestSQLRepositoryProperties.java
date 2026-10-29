@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSFILE_BLOB;
@@ -26,6 +27,10 @@ import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_FULLTEXT_BI
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_FULLTEXT_JOB_ID;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_IS_TRASHED;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_TITLE;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.KEY_BLOB_FILENAME;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.KEY_BLOB_KEY;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.KEY_BLOB_LENGTH;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.KEY_BLOB_MIME_TYPE;
 import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
 
 import java.math.BigDecimal;
@@ -62,6 +67,7 @@ import com.hyland.openarch.ecm.core.api.DocumentModelList;
 import com.hyland.openarch.ecm.core.api.DocumentRef;
 import com.hyland.openarch.ecm.core.api.IdRef;
 import com.hyland.openarch.ecm.core.api.PathRef;
+import com.hyland.openarch.ecm.core.api.PropertyException;
 import com.hyland.openarch.ecm.core.api.model.DeltaLong;
 import com.hyland.openarch.ecm.core.api.model.PropertyNotFoundException;
 import com.hyland.openarch.ecm.core.model.Repository;
@@ -642,6 +648,57 @@ public class TestSQLRepositoryProperties {
             exc.add(e);
             throw e;
         }
+    }
+
+    @Test
+    public void testBlobMapsAreRejected() throws Exception {
+        doc = session.createDocumentModel("/", "file", SYS_FILE);
+        doc.create();
+        Map<String, Object> metadata = new HashMap<>(Map.of(
+                KEY_BLOB_FILENAME, "sam-new.png", KEY_BLOB_LENGTH, 1L, KEY_BLOB_MIME_TYPE, "text/plain"));
+        assertThrows(PropertyException.class, () -> doc.setPropertyValue(SYSFILE_BLOB, metadata));
+        assertNull(doc.getPropertyValue(SYSFILE_BLOB));
+
+        doc.setPropertyValue(SYSFILE_BLOB, Blobs.createBlob("original", "text/plain", "UTF-8", "existing.txt"));
+        for (String key : new String[] { null, "", "existing-key" }) {
+            metadata.put(KEY_BLOB_KEY, key);
+            PropertyException e = assertThrows(PropertyException.class,
+                    () -> doc.setPropertyValue(SYSFILE_BLOB, metadata));
+            assertEquals("Expected Blob value for: " + SYSFILE_BLOB + ", got java.util.HashMap instead",
+                    e.getMessage());
+        }
+        metadata.remove(KEY_BLOB_KEY);
+        for (Map<String, Object> value : List.of(metadata, Map.<String, Object>of())) {
+            assertThrows(PropertyException.class, () -> doc.setPropertyValue(SYSFILE_BLOB, value));
+        }
+
+        DocumentRef ref = doc.getRef();
+        session.save();
+        reopenSession();
+        Blob blob = (Blob) session.getDocument(ref).getPropertyValue(SYSFILE_BLOB);
+        assertEquals("existing.txt", blob.getFilename());
+        assertEquals("original", blob.getString());
+    }
+
+    @Test
+    public void testBlobValuesCanBeSetAndCleared() throws Exception {
+        doc = session.createDocumentModel("/", "file", SYS_FILE);
+        doc.create();
+        doc.setPropertyValue(SYSFILE_BLOB, Blobs.createBlob("a", "text/plain", "UTF-8", "sam-new.png"));
+        DocumentRef ref = doc.getRef();
+        session.save();
+        reopenSession();
+        doc = session.getDocument(ref);
+        Blob blob = (Blob) doc.getPropertyValue(SYSFILE_BLOB);
+        assertEquals("sam-new.png", blob.getFilename());
+        assertEquals(1L, blob.getLength());
+        assertEquals("text/plain", blob.getMimeType());
+        assertEquals("a", blob.getString());
+
+        doc.setPropertyValue(SYSFILE_BLOB, null);
+        session.save();
+        reopenSession();
+        assertNull(session.getDocument(ref).getPropertyValue(SYSFILE_BLOB));
     }
 
     // NXP-2468

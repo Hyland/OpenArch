@@ -1865,15 +1865,12 @@ public class DBSDocument implements InternalDocument {
             throws PropertyException {
         ComplexType complexType = (ComplexType) field.getType();
         if (TypeConstants.isBlobType(complexType)) {
-            if (value == null || value instanceof Blob) {
-                setValueBlob(state, (Blob) value, xpath);
-                return;
-            }
-            if (!(value instanceof Map)) {
+            if (value != null && !(value instanceof Blob)) {
                 throw new PropertyException(
                         "Expected Blob value for: " + xpath + ", got " + value.getClass().getName() + " instead");
             }
-            // fall through with Map
+            setValueBlob(state, (Blob) value, xpath);
+            return;
         }
         if (value != null && !(value instanceof Map)) {
             throw new PropertyException(

@@ -1208,6 +1208,36 @@ public abstract class AbstractDocumentAPITest extends AbstractAPITest {
     }
 
     @Test
+    public void testBlobMetadataWithoutKeyIsRejected() throws Exception {
+        String metadata = """
+                {"filename": "sam-new.png", "length": 1, "mimeType": "text/plain"}
+                """;
+        String creationJson = """
+                {"sys_primaryType": "TestDocument", "sys_title": "No blob"}
+                """;
+        var created = checkResponseWithPayload(OK, POST, REPO_ID, creationJson, getRootApiPath());
+        String apiPath = getApiPath(created);
+
+        String[][] properties = {
+                { "sysfile_blob", metadata, "sysfile_blob" },
+                { "tp_fileList", "[" + metadata + "]", "tp_fileList/0" },
+                { "tp_fileComplexList", "[{\"blobItem\":" + metadata + "}]", "tp_fileComplexList/0/blobItem" }
+        };
+        for (String[] property : properties) {
+            String propertyJson = "\"%s\": %s".formatted(property[0], property[1]);
+            String createPayload = "{\"sys_primaryType\": \"TestDocument\", " + propertyJson + "}";
+            var result = checkResponseWithPayload(BAD_REQUEST, POST, REPO_ID, createPayload, getRootApiPath());
+            Pattern error = Pattern.compile("Expected Blob value for: " + property[2] + ", got .* instead");
+            checkErrorResponse(BAD_REQUEST, error, result);
+
+            result = checkResponseWithPayload(BAD_REQUEST, PUT, REPO_ID, "{" + propertyJson + "}", apiPath);
+            checkErrorResponse(BAD_REQUEST, error, result);
+            checkResponse(OK, GET, REPO_ID, apiPath).andExpect(jsonPath(property[0]).doesNotExist());
+        }
+        checkResponse(NO_CONTENT, DELETE, REPO_ID, apiPath);
+    }
+
+    @Test
     public void testUploadBlobsFailure() throws Exception {
         // create upload to be referenced
         // main file
