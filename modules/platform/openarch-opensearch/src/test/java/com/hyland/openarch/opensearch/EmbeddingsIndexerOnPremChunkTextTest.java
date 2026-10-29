@@ -77,6 +77,30 @@ class EmbeddingsIndexerOnPremChunkTextTest {
     }
 
     @Test
+    void skipsWriteWhenOnPremProcessingAlreadyRecorded() {
+        DocumentModel embeddingsDoc = Mockito.mock(DocumentModel.class);
+        DocumentModel parentDoc = Mockito.mock(DocumentModel.class);
+        Blob chunksBlob = Mockito.mock(Blob.class);
+        when(embeddingsDoc.getId()).thenReturn(EMBEDDINGS_DOC_ID);
+        when(embeddingsDoc.getPropertyValue(DocumentConstants.SYSEMB_CHUNKS)).thenReturn(chunksBlob);
+        when(embeddingsDoc.getPropertyValue(DocumentConstants.SYSEMB_ON_PREM_PROCESSING_SUCCESS)).thenReturn(false);
+        when(parentDoc.getId()).thenReturn(PARENT_DOC_ID);
+        when(parentDoc.getPropertyValue(DocumentConstants.CIN_SOURCE_ID)).thenReturn(TENANT);
+        when(parser.parseChunkTexts(chunksBlob, EMBEDDING_TYPE)).thenReturn(new ChunkTexts(Map.of("id-1", "text-1"), 0));
+
+        ProcessingContext ctx = context(embeddingsDoc, parentDoc, DocumentConstants.SYSEMB_RESIDENCY_ON_PREM);
+        OnPremChunkTextWriter writer = Mockito.mock(OnPremChunkTextWriter.class);
+
+        try (MockedStatic<Framework> framework = Mockito.mockStatic(Framework.class)) {
+            framework.when(() -> Framework.getService(OnPremChunkTextWriter.class)).thenReturn(writer);
+            EmbeddingsIndexer.writeOnPremChunkText(parser, REPOSITORY, ctx, SOME_EMBEDDINGS, false);
+        }
+
+        verify(parser, never()).parseChunkTexts(any(), any());
+        verifyNoInteractions(writer);
+    }
+
+    @Test
     void passesInvalidChunkIdCountToWriterForOnPremIngest() {
         DocumentModel embeddingsDoc = Mockito.mock(DocumentModel.class);
         DocumentModel parentDoc = Mockito.mock(DocumentModel.class);

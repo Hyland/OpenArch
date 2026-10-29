@@ -31,8 +31,14 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_CHUNKS;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_ON_PREM_PROCESSING_SUCCESS;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY_CLOUD;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY_ON_PREM;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSFILE_BLOB;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_ID;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_TITLE;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +51,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import com.hyland.openarch.ecm.core.api.Blob;
 import com.hyland.openarch.ecm.core.schema.FulltextConfiguration;
 import com.hyland.openarch.ecm.core.schema.SchemaManager;
 import com.hyland.openarch.ecm.core.security.SecurityPolicyService;
@@ -125,6 +132,86 @@ public class TestDBSTransactionState {
 
         var tasks = state.getFulltextTasks();
         tasks.forEach(task -> assertNotNull(task.getTimestamp()));
+    }
+
+    @Test
+    public void onPremChunksUpdatedClearProcessingSuccessFlag() {
+        DBSDocumentState docState = docStateWithResidency(SYSEMB_RESIDENCY_ON_PREM);
+        State.StateDiff diff = new State.StateDiff();
+        diff.put(SYSEMB_CHUNKS, mock(Blob.class));
+
+        state.clearOnPremProcessingSuccessFlag(docState, diff);
+
+        assertThat(diff.containsKey(SYSEMB_ON_PREM_PROCESSING_SUCCESS)).isTrue();
+        assertThat(diff.get(SYSEMB_ON_PREM_PROCESSING_SUCCESS)).isNull();
+    }
+
+    @Test
+    public void onPremChunksRemovedClearProcessingSuccessFlag() {
+        DBSDocumentState docState = docStateWithResidency(SYSEMB_RESIDENCY_ON_PREM);
+        State.StateDiff diff = new State.StateDiff();
+        diff.put(SYSEMB_CHUNKS, null);
+
+        state.clearOnPremProcessingSuccessFlag(docState, diff);
+
+        assertThat(diff.containsKey(SYSEMB_ON_PREM_PROCESSING_SUCCESS)).isTrue();
+        assertThat(diff.get(SYSEMB_ON_PREM_PROCESSING_SUCCESS)).isNull();
+    }
+
+    @Test
+    public void onPremChunksUpdatedKeepFlagWhenSetInSameSave() {
+        DBSDocumentState docState = docStateWithResidency(SYSEMB_RESIDENCY_ON_PREM);
+        State.StateDiff diff = new State.StateDiff();
+        diff.put(SYSEMB_CHUNKS, null);
+        diff.put(SYSEMB_ON_PREM_PROCESSING_SUCCESS, true);
+
+        state.clearOnPremProcessingSuccessFlag(docState, diff);
+
+        assertThat(diff.containsKey(SYSEMB_ON_PREM_PROCESSING_SUCCESS)).isTrue();
+        assertThat(diff.get(SYSEMB_ON_PREM_PROCESSING_SUCCESS)).isEqualTo(true);
+    }
+
+    @Test
+    public void onPremSaveWithoutChunksChangeKeepsFlag() {
+        DBSDocumentState docState = docStateWithResidency(SYSEMB_RESIDENCY_ON_PREM);
+        State.StateDiff diff = new State.StateDiff();
+        diff.put(SYS_TITLE, "title");
+
+        state.clearOnPremProcessingSuccessFlag(docState, diff);
+
+        assertThat(diff.containsKey(SYSEMB_ON_PREM_PROCESSING_SUCCESS)).isFalse();
+    }
+
+    @Test
+    public void cloudChunksUpdatedKeepFlag() {
+        DBSDocumentState docState = docStateWithResidency(SYSEMB_RESIDENCY_CLOUD);
+        State.StateDiff diff = new State.StateDiff();
+        diff.put(SYSEMB_CHUNKS, mock(Blob.class));
+
+        state.clearOnPremProcessingSuccessFlag(docState, diff);
+
+        assertThat(diff.containsKey(SYSEMB_ON_PREM_PROCESSING_SUCCESS)).isFalse();
+    }
+
+    @Test
+    public void documentWithoutResidencyIsNotAffected() {
+        DBSDocumentState docState = docStateWithResidency(null);
+        State.StateDiff diff = new State.StateDiff();
+        diff.put(SYSEMB_CHUNKS, mock(Blob.class));
+
+        state.clearOnPremProcessingSuccessFlag(docState, diff);
+
+        assertThat(diff.containsKey(SYSEMB_ON_PREM_PROCESSING_SUCCESS)).isFalse();
+    }
+
+    private DBSDocumentState docStateWithResidency(String residency) {
+        State values = new State();
+        if (residency != null) {
+            values.put(SYSEMB_RESIDENCY, residency);
+        }
+        DBSDocumentState docState = mock(DBSDocumentState.class);
+        when(docState.getState()).thenReturn(values);
+        return docState;
     }
 
     @Test

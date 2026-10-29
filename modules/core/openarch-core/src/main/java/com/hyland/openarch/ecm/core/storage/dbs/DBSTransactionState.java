@@ -32,6 +32,10 @@ import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_POS;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PRIMARY_TYPE;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_READ_ACL;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_USER_GENERATION;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_ON_PREM_PROCESSING_SUCCESS;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_CHUNKS;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY_ON_PREM;
 import static com.hyland.openarch.ecm.core.api.event.CoreEventConstants.DIRTY_BLOB_XPATHS;
 import static com.hyland.openarch.ecm.core.api.event.CoreEventConstants.DIRTY_XPATHS;
 import static com.hyland.openarch.ecm.core.api.event.DocumentEventTypes.DOCUMENT_CREATED;
@@ -710,6 +714,7 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
             }
             StateDiff diff = docState.getStateChange();
             if (diff != null) {
+                clearOnPremProcessingSuccessFlag(docState, diff);
                 updatedIds.add(id);
                 diffsById.put(id, diff);
                 originalStatesById.put(id, docState.getOriginalState());
@@ -760,6 +765,18 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
         List<String> dirtyBlobPaths = getDirtyBlobsPath(dirtyPaths);
         if (!dirtyBlobPaths.isEmpty()) {
             contextForDocsWithDirtyBlobs.put(id, Map.of(DIRTY_BLOB_XPATHS, (Serializable) dirtyBlobPaths));
+        }
+    }
+
+    void clearOnPremProcessingSuccessFlag(DBSDocumentState docState, StateDiff diff) {
+        //not checking for null because we want to clear the flag if chunks are removed as well,
+        //on clean up the flag is changed so we can skip this case with flag check
+        boolean chunksUpdated = diff.containsKey(SYSEMB_CHUNKS);
+        boolean flagNotUpdated = !diff.containsKey(SYSEMB_ON_PREM_PROCESSING_SUCCESS);
+        boolean isOnPrem = SYSEMB_RESIDENCY_ON_PREM.equals(docState.getState().get(SYSEMB_RESIDENCY));
+        if (isOnPrem && chunksUpdated && flagNotUpdated) {
+            diff.put(SYSEMB_ON_PREM_PROCESSING_SUCCESS, null);
+            docState.put(SYSEMB_ON_PREM_PROCESSING_SUCCESS, null);
         }
     }
 

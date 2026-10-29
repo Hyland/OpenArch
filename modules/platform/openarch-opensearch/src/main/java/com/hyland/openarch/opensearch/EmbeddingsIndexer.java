@@ -16,6 +16,7 @@
 package com.hyland.openarch.opensearch;
 
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.CIN_SOURCE_ID;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_ON_PREM_PROCESSING_SUCCESS;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_MIXIN_TYPES;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_NAME;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PARENT_ID;
@@ -141,7 +142,8 @@ public class EmbeddingsIndexer {
      */
     static void writeOnPremChunkText(EmbeddingsParser embeddingsParser, String repository, ProcessingContext ctx,
             Collection<EmbeddingModel> newEmbeddings, boolean isReindexing) {
-        if (isReindexing || newEmbeddings.isEmpty() || !SYSEMB_RESIDENCY_ON_PREM.equals(ctx.residency())) {
+        boolean alreadyProcessed = ctx.embeddingsDoc().getPropertyValue(SYSEMB_ON_PREM_PROCESSING_SUCCESS) != null;
+        if (isReindexing || newEmbeddings.isEmpty() || !SYSEMB_RESIDENCY_ON_PREM.equals(ctx.residency()) || alreadyProcessed) {
             return;
         }
         OnPremChunkTextWriter writer = Framework.getService(OnPremChunkTextWriter.class);
