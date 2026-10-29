@@ -30,5 +30,45 @@
         "SysFilish"
       ]
     }
+  },
+  {
+    "op": "add",
+    "path": "/primaryTypes/Note",
+    "value": {
+      "extends": "SysContent",
+      "schemas": [
+        "note",
+        "sysfiles",
+        "mydublincore"
+      ],
+      "mixins": [
+        "SysVersionable"
+      ]
+    }
+  },
+  {
+    "op": "add",
+    "path": "/primaryTypes/MyDocType",
+    "value": {
+      "extends": "SysContent",
+      "schemas": [
+        "myschema",
+        "mydublincore",
+        "testList",
+        "book"
+      ],
+      "mixins": [
+        "SysVersionable"
+      ]
+    }
+  },
+  {
+    "op": "add",
+    "path": "/mixinTypes/Aged",
+    "value": {
+      "schemas": [
+        "age"
+      ]
+    }
   }
 ]

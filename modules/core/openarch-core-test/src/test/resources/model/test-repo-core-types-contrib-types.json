@@ -19,34 +19,11 @@
         "SysVersionable"
       ]
     },
-    "Note": {
-      "extends": "SysContent",
-      "schemas": [
-        "note",
-        "sysfiles",
-        "mydublincore"
-      ],
-      "mixins": [
-        "SysVersionable"
-      ]
-    },
     "FolderWithSearch": {
       "extends": "SysFolder",
       "mixins": [
         "SysFolderish",
         "BrowseViaSearch"
-      ]
-    },
-    "MyDocType": {
-      "extends": "SysContent",
-      "schemas": [
-        "myschema",
-        "mydublincore",
-        "testList",
-        "book"
-      ],
-      "mixins": [
-        "SysVersionable"
       ]
     },
     "MyDocType2": {
@@ -111,11 +88,6 @@
   "mixinTypes": {
     "BrowseViaSearch": {},
     "Fooable": {},
-    "Aged": {
-      "schemas": [
-        "age"
-      ]
-    },
     "WithFile": {
       "schemas": [
         "sysfile"

@@ -5,6 +5,7 @@
 
   <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
     <model src="model/test-repo-core-types-contrib-schemas.json" />
+    <model src="model/test-repo-core-types-contrib-schemas.patch.json" patch="true" />
   </extension>
 
   <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">

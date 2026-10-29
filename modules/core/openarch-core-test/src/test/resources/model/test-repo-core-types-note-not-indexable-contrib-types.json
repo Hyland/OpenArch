@@ -1,17 +1,6 @@
 {
-  "primaryTypes": {
-    "Note": {
-      "extends": "SysContent",
-      "schemas": [
-        "note",
-        "sysfiles"
-      ],
-      "mixins": [
-        "SysVersionable",
-        "Publishable",
-        "Commentable",
-        "SysFullTextIndexable"
-      ]
-    }
+  "mixinTypes": {
+    "Publishable": {},
+    "Commentable": {}
   }
 }

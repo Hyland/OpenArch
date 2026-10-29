@@ -1,0 +1,25 @@
+[
+  {
+    "op": "add",
+    "path": "/primaryTypes/MyDocType2",
+    "value": {
+      "extends": "SysContent",
+      "schemas": [
+        "info"
+      ]
+    }
+  },
+  {
+    "op": "add",
+    "path": "/primaryTypes/GovernableFile",
+    "value": {
+      "extends": "SysContent",
+      "schemas": [
+        "info"
+      ],
+      "mixins": [
+        "SysGovernable"
+      ]
+    }
+  }
+]

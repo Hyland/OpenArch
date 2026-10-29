@@ -1,0 +1,11 @@
+[
+  {
+    "op": "add",
+    "path": "/primaryTypes/Note",
+    "value": {
+      "extends": "SysContent",
+      "schemas": ["note", "sysfiles"],
+      "mixins": ["SysVersionable", "Publishable", "Commentable", "SysFullTextIndexable"]
+    }
+  }
+]

@@ -1,0 +1,95 @@
+[
+  {
+    "op": "add",
+    "path": "/schemas/age",
+    "value": {
+      "fields": {
+        "age_age": {
+          "type": "string"
+        },
+        "age_fullname": {
+          "type": "age#ageperson"
+        },
+        "age_nicknames": {
+          "type": "age#stringArray"
+        },
+        "age_title": {
+          "type": "string"
+        }
+      },
+      "prefix": "age"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/schemas/mydublincore",
+    "value": {
+      "fields": {
+        "mydc_contributors": {
+          "type": "mydublincore#stringList"
+        },
+        "mydc_coverage": {
+          "type": "string"
+        },
+        "mydc_expired": {
+          "type": "date"
+        },
+        "mydc_format": {
+          "type": "string"
+        },
+        "mydc_issued": {
+          "type": "date"
+        },
+        "mydc_language": {
+          "type": "string"
+        },
+        "mydc_nature": {
+          "type": "string"
+        },
+        "mydc_publisher": {
+          "type": "string"
+        },
+        "mydc_rights": {
+          "type": "string"
+        },
+        "mydc_source": {
+          "type": "string"
+        },
+        "mydc_subjects": {
+          "type": "mydublincore#stringList"
+        },
+        "mydc_valid": {
+          "type": "date"
+        }
+      },
+      "prefix": "mydc"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/schemas/note",
+    "value": {
+      "fields": {
+        "note_mime_type": {
+          "type": "string"
+        },
+        "note_note": {
+          "type": "note#clob"
+        }
+      },
+      "prefix": "note"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/schemas/info",
+    "value": {
+      "fields": {
+        "info_info": {
+          "type": "string"
+        }
+      },
+      "prefix": "info"
+    }
+  }
+]

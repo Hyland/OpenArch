@@ -2,9 +2,11 @@
 <component name="com.hyland.openarch.ecm.core.storage.sql.tests.repo.core-types-note-not-indexable">
 
   <require>com.hyland.openarch.ecm.core.schema.bootstrap</require>
+  <require>com.hyland.openarch.ecm.core.storage.sql.tests.repo.core-types</require>
 
   <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
     <model src="model/test-repo-core-types-note-not-indexable-contrib-types.json" />
+    <model src="model/test-repo-core-types-note-not-indexable-contrib-types.patch.json" patch="true" />
   </extension>
 
 </component>

@@ -1,0 +1,56 @@
+[
+  {
+    "op": "add",
+    "path": "/schemas/mydublincore",
+    "value": {
+      "fields": {
+        "mydc_coverage": {
+          "type": "string"
+        },
+        "mydc_decimal": {
+          "type": "decimal"
+        },
+        "mydc_expired": {
+          "type": "date"
+        },
+        "mydc_format": {
+          "type": "string"
+        },
+        "mydc_issued": {
+          "type": "date"
+        },
+        "mydc_language": {
+          "type": "string"
+        },
+        "mydc_nature": {
+          "type": "string"
+        },
+        "mydc_publisher": {
+          "type": "string"
+        },
+        "mydc_rights": {
+          "type": "string"
+        },
+        "mydc_source": {
+          "type": "string"
+        },
+        "mydc_subjects": {
+          "type": "mydublincore#stringList"
+        },
+        "mydc_valid": {
+          "type": "date"
+        }
+      },
+      "prefix": "mydc"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/types/mydublincore#stringList",
+    "value": {
+      "list": {
+        "type": "string"
+      }
+    }
+  }
+]

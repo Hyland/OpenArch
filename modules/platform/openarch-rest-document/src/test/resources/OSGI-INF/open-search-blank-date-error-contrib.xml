@@ -5,6 +5,7 @@
 
   <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
     <model src="model/open-search-blank-date-error-contrib-schemas.json" />
+    <model src="model/test-mydublincore.patch.json" patch="true" />
   </extension>
 
   <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">

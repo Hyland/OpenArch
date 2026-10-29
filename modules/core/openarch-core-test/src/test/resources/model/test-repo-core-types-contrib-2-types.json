@@ -5,21 +5,6 @@
       "schemas": [
         "testschema2"
       ]
-    },
-    "MyDocType2": {
-      "extends": "SysContent",
-      "schemas": [
-        "info"
-      ]
-    },
-    "GovernableFile": {
-      "extends": "SysContent",
-      "schemas": [
-        "info"
-      ],
-      "mixins": [
-        "SysGovernable"
-      ]
     }
   },
   "mixinTypes": {
