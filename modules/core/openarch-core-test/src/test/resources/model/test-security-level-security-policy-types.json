@@ -1,0 +1,20 @@
+{
+  "mixinTypes": {
+    "Clearance": {
+      "schemas": [
+        "clearance"
+      ]
+    },
+    "tooManyBusinessProperties": {
+      "schemas": [
+        "clearance",
+        "sysfile"
+      ]
+    }
+  },
+  "primaryTypes": {
+    "Contract": {
+      "extends": "SysContent"
+    }
+  }
+}

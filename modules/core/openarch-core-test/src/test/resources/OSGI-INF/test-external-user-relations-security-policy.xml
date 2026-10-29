@@ -1,13 +1,9 @@
 <?xml version="1.0"?>
 <component name="com.hyland.openarch.ecm.core.security.extrel.tests">
-  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="schema">
-    <schema name="wdemployee" src="schemas/wdemployee.xsd" />
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/test-external-user-relations-security-policy-schemas.json" />
   </extension>
-  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="doctype">
-    <mixin name="WDEmployee">
-      <schema name="wdemployee" />
-    </mixin>
-    <doctype name="Resume" extends="SysContent">
-    </doctype>
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/test-external-user-relations-security-policy-types.json" />
   </extension>
 </component>

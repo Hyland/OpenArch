@@ -1,0 +1,10 @@
+{
+  "primaryTypes": {
+    "someDoc": {
+      "extends": "noSuchDocumentType"
+    },
+    "someDoc2": {
+      "extends": "someDoc"
+    }
+  }
+}

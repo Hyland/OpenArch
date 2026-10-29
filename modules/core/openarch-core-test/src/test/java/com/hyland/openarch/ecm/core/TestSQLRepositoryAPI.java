@@ -166,7 +166,7 @@ import com.hyland.openarch.ecm.core.repository.RepositoryService;
 import com.hyland.openarch.ecm.core.schema.DocumentTypeImpl;
 import com.hyland.openarch.ecm.core.schema.MixinNames;
 import com.hyland.openarch.ecm.core.schema.SchemaManager;
-import com.hyland.openarch.ecm.core.schema.SchemaManagerImpl;
+import com.hyland.openarch.ecm.core.schema.SchemaManagerBase;
 import com.hyland.openarch.ecm.core.security.RetentionExpiredFinderScheduledJob;
 import com.hyland.openarch.ecm.core.storage.State.StateDiff;
 import com.hyland.openarch.ecm.core.storage.dbs.DBSConnection;
@@ -185,6 +185,7 @@ import com.hyland.openarch.async.tasks.TaskService;
 @ExtendWith(FeaturesExtension.class)
 @Features(CoreFeature.class)
 @RepositoryConfig(cleanup = Granularity.METHOD)
+@Deploy("com.hyland.openarch.ecm.core.test.tests:OSGI-INF/test-repository-value-types.xml")
 @Deploy("com.hyland.openarch.ecm.core.test.tests:OSGI-INF/test-repo-core-types-contrib.xml")
 @Deploy("com.hyland.openarch.ecm.core.test.tests:OSGI-INF/disable-schedulers.xml")
 public class TestSQLRepositoryAPI {
@@ -2768,7 +2769,7 @@ public class TestSQLRepositoryAPI {
         assertNotNull(session.getChild(rootRef, "doc"));
 
         // remove MyDocType from known types
-        var documentTypes = ((SchemaManagerImpl) this.schemaManager).documentTypes;
+        var documentTypes = ((SchemaManagerBase) this.schemaManager).documentTypes;
         DocumentTypeImpl dt = documentTypes.remove("MyDocType");
         try {
             // DBS does not do obsolete type check on hasChildren() due to cost

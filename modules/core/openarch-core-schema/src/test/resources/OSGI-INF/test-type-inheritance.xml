@@ -1,12 +1,8 @@
 <?xml version="1.0"?>
 <component name="com.hyland.openarch.ecm.core.test.type-inheritance">
 
-  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="doctype">
-
-    <doctype name="Parent" extends="SysContent" />
-    <doctype name="Child" extends="Parent" />
-    <doctype name="TopLevel" extends="SysContent" />
-
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/test-type-inheritance-types.json" />
   </extension>
 
 </component>

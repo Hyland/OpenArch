@@ -1,14 +1,12 @@
 <?xml version="1.0"?>
 <component name="com.hyland.openarch.ecm.core.storage.sql.tests.repo.core-types">
 
-  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="schema">
-    <schema name="validationSample" src="schemas/validationSample.xsd" prefix="vs" />
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/test-validation-activation-contrib-schemas.json" />
   </extension>
 
-  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="doctype">
-    <doctype name="ValidatedUserGroup" extends="SysContent">
-      <schema name="validationSample" />
-    </doctype>
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/test-validation-activation-contrib-types.json" />
   </extension>
 
   <extension target="com.hyland.openarch.ecm.core.api.DocumentValidationService" point="activations">

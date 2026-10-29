@@ -1,0 +1,10 @@
+{
+  "mixinTypes": {
+    "NewFacet": {},
+    "NewFacet2": {
+      "schemas": [
+        "newschema2"
+      ]
+    }
+  }
+}

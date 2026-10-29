@@ -1,0 +1,20 @@
+{
+  "schemas": {
+    "mycustomschema": {
+      "fields": {
+        "mcs_string": {
+          "type": "string"
+        }
+      },
+      "prefix": "mcs"
+    },
+    "mycustomschema2": {
+      "fields": {
+        "mcs2_prop": {
+          "type": "string"
+        }
+      },
+      "prefix": "mcs2"
+    }
+  }
+}

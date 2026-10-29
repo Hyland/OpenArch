@@ -1,0 +1,12 @@
+{
+  "primaryTypes": {
+    "TestDocument": {
+      "extends": "SysContent",
+      "schemas": [
+        "mydublincore",
+        "sysfile",
+        "test-properties"
+      ]
+    }
+  }
+}

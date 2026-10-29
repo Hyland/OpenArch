@@ -1,0 +1,71 @@
+{
+  "schemas": {
+    "newschema": {
+      "fields": {
+        "newschema_data": {
+          "type": "newschema#newsml"
+        },
+        "newschema_description": {
+          "type": "string"
+        },
+        "newschema_numericId": {
+          "type": "long"
+        },
+        "newschema_person": {
+          "type": "newschema#personInfo"
+        },
+        "newschema_title": {
+          "type": "newschema#myString"
+        }
+      },
+      "prefix": "newschema"
+    },
+    "newschema2": {
+      "fields": {
+        "newschema2_description": {
+          "type": "string"
+        },
+        "newschema2_title": {
+          "type": "newschema2#myString2"
+        }
+      },
+      "prefix": "newschema2"
+    }
+  },
+  "types": {
+    "newschema#myString": {
+      "constraints": {
+        "nullable": true,
+        "pattern": "[a-z]"
+      },
+      "extends": "string"
+    },
+    "newschema#newsml": {
+      "fields": {
+        "headline": {
+          "type": "string"
+        },
+        "slug": {
+          "type": "string"
+        }
+      }
+    },
+    "newschema#personInfo": {
+      "fields": {
+        "firstname": {
+          "type": "string"
+        },
+        "lastname": {
+          "type": "string"
+        }
+      }
+    },
+    "newschema2#myString2": {
+      "constraints": {
+        "nullable": true,
+        "pattern": "[a-z]"
+      },
+      "extends": "string"
+    }
+  }
+}

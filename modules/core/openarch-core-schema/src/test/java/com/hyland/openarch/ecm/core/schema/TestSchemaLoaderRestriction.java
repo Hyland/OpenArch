@@ -38,7 +38,7 @@ import com.hyland.openarch.ecm.core.schema.types.constraints.LengthConstraint;
 import com.hyland.openarch.ecm.core.schema.types.constraints.NotNullConstraint;
 import com.hyland.openarch.ecm.core.schema.types.constraints.NumericIntervalConstraint;
 import com.hyland.openarch.ecm.core.schema.types.constraints.PatternConstraint;
-import com.hyland.openarch.ecm.core.schema.types.constraints.TypeConstraint;
+import com.hyland.openarch.ecm.core.schema.types.SimpleType;
 import com.hyland.openarch.ecm.core.schema.types.primitives.BinaryType;
 import com.hyland.openarch.ecm.core.schema.types.primitives.BooleanType;
 import com.hyland.openarch.ecm.core.schema.types.primitives.DateType;
@@ -46,6 +46,9 @@ import com.hyland.openarch.ecm.core.schema.types.primitives.DecimalType;
 import com.hyland.openarch.ecm.core.schema.types.primitives.DoubleType;
 import com.hyland.openarch.ecm.core.schema.types.primitives.StringType;
 import com.hyland.openarch.runtime.test.ResourceHelper;
+import tools.jackson.databind.ObjectMapper;
+import java.util.Map;
+import java.util.HashSet;
 
 public class TestSchemaLoaderRestriction {
 
@@ -55,18 +58,21 @@ public class TestSchemaLoaderRestriction {
 
     @BeforeEach
     public void setUp() throws Exception {
-        XSDLoader reader = new XSDLoader(new SchemaManagerImpl());
-        URL url = ResourceHelper.getResource("schema/testrestriction.xsd");
-        schema = reader.loadSchema("testrestriction", "", url);
+        URL url = ResourceHelper.getResource("model/loader/testrestriction.json");
+        try (var stream = url.openStream()) {
+            Map<String, Object> model = new ObjectMapper().readValue(stream, Map.class);
+            schema = new SchemaManagerDTO(model).getSchema("testrestriction");
+        }
     }
 
     @Test
     public void testBinaryRestrictions() {
         Field field = schema.getField("binaryConstraints");
         assertNotNull(field);
-        Set<Constraint> constraints = field.getConstraints();
+        Set<Constraint> constraints = new HashSet<>(field.getConstraints());
+        constraints.addAll(field.getType().getConstraints());
         assertEquals(2, constraints.size());
-        assertTrue(constraints.contains(new TypeConstraint(BinaryType.INSTANCE)));
+        assertEquals(BinaryType.INSTANCE, ((SimpleType) field.getType()).getPrimitiveType());
         assertTrue(constraints.contains(NotNullConstraint.get()));
     }
 
@@ -74,9 +80,10 @@ public class TestSchemaLoaderRestriction {
     public void testBooleanRestrictions() {
         Field field = schema.getField("booleanConstraints");
         assertNotNull(field);
-        Set<Constraint> constraints = field.getConstraints();
+        Set<Constraint> constraints = new HashSet<>(field.getConstraints());
+        constraints.addAll(field.getType().getConstraints());
         assertEquals(2, constraints.size());
-        assertTrue(constraints.contains(new TypeConstraint(BooleanType.INSTANCE)));
+        assertEquals(BooleanType.INSTANCE, ((SimpleType) field.getType()).getPrimitiveType());
         assertTrue(constraints.contains(NotNullConstraint.get()));
     }
 
@@ -84,10 +91,11 @@ public class TestSchemaLoaderRestriction {
     public void testStringRestrictions() {
         Field field = schema.getField("stringConstraints");
         assertNotNull(field);
-        Set<Constraint> constraints = field.getConstraints();
+        Set<Constraint> constraints = new HashSet<>(field.getConstraints());
+        constraints.addAll(field.getType().getConstraints());
         assertEquals(5, constraints.size());
         assertTrue(constraints.contains(NotNullConstraint.get()));
-        assertTrue(constraints.contains(new TypeConstraint(StringType.INSTANCE)));
+        assertEquals(StringType.INSTANCE, ((SimpleType) field.getType()).getPrimitiveType());
         assertTrue(constraints.contains(new PatternConstraint("[^3]*")));
         assertTrue(constraints.contains(new LengthConstraint(2, 4)));
         assertTrue(constraints.contains(new EnumConstraint(Arrays.asList("1", "1234", "22", "333", "4444", "55555"))));
@@ -97,9 +105,10 @@ public class TestSchemaLoaderRestriction {
     public void testDoubleRestrictions() {
         Field field = schema.getField("doubleConstraints");
         assertNotNull(field);
-        Set<Constraint> constraints = field.getConstraints();
+        Set<Constraint> constraints = new HashSet<>(field.getConstraints());
+        constraints.addAll(field.getType().getConstraints());
         assertEquals(5, constraints.size());
-        assertTrue(constraints.contains(new TypeConstraint(DoubleType.INSTANCE)));
+        assertEquals(DoubleType.INSTANCE, ((SimpleType) field.getType()).getPrimitiveType());
         assertTrue(constraints.contains(NotNullConstraint.get()));
         assertTrue(constraints.contains(new PatternConstraint("[^6]*")));
         assertTrue(constraints.contains(new EnumConstraint(Arrays.asList("2014.15", "2015.1555", "2016.15", "2017.15",
@@ -111,9 +120,10 @@ public class TestSchemaLoaderRestriction {
     public void testDecimalRestrictions() {
         Field field = schema.getField("decimalConstraints");
         assertNotNull(field);
-        Set<Constraint> constraints = field.getConstraints();
+        Set<Constraint> constraints = new HashSet<>(field.getConstraints());
+        constraints.addAll(field.getType().getConstraints());
         assertEquals(5, constraints.size());
-        assertTrue(constraints.contains(new TypeConstraint(DecimalType.INSTANCE)));
+        assertEquals(DecimalType.INSTANCE, ((SimpleType) field.getType()).getPrimitiveType());
         assertTrue(constraints.contains(NotNullConstraint.get()));
         assertTrue(constraints.contains(new PatternConstraint("[^6]*")));
         assertTrue(constraints.contains(new EnumConstraint(Arrays.asList("2014.15", "2015.1555", "2016.15", "2017.15",
@@ -125,9 +135,10 @@ public class TestSchemaLoaderRestriction {
     public void testDateRestrictions() {
         Field field = schema.getField("dateConstraints");
         assertNotNull(field);
-        Set<Constraint> constraints = field.getConstraints();
+        Set<Constraint> constraints = new HashSet<>(field.getConstraints());
+        constraints.addAll(field.getType().getConstraints());
         assertEquals(3, constraints.size());
-        assertTrue(constraints.contains(new TypeConstraint(DateType.INSTANCE)));
+        assertEquals(DateType.INSTANCE, ((SimpleType) field.getType()).getPrimitiveType());
         assertTrue(constraints.contains(NotNullConstraint.get()));
         assertTrue(constraints.contains(new DateIntervalConstraint(Instant.parse("2015-01-01T00:00:00Z"), true,
                 Instant.parse("2016-12-31T00:00:00Z"), true)));
@@ -136,7 +147,8 @@ public class TestSchemaLoaderRestriction {
     @Test
     public void testMaxLength() {
         Field field = schema.getField("stringConstraints");
-        Set<Constraint> constraints = field.getConstraints();
+        Set<Constraint> constraints = new HashSet<>(field.getConstraints());
+        constraints.addAll(field.getType().getConstraints());
         assertTrue(constraints.contains(new LengthConstraint(2, 4)));
     }
 

@@ -1,0 +1,10 @@
+{
+  "primaryTypes": {
+    "AdvancedSearch": {
+      "extends": "SysContent",
+      "schemas": [
+        "advanced_search"
+      ]
+    }
+  }
+}

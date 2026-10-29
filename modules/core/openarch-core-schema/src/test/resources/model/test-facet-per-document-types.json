@@ -1,0 +1,7 @@
+{
+  "mixinTypes": {
+    "someFacet": {
+      "noPerDocumentQuery": true
+    }
+  }
+}

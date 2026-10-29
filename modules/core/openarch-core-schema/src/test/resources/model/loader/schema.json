@@ -1,0 +1,52 @@
+{
+  "schemas": {
+    "MySchema": {
+      "fields": {
+        "data": {
+          "type": "MySchema#newsml"
+        },
+        "description": {
+          "type": "string"
+        },
+        "numericId": {
+          "type": "long"
+        },
+        "person": {
+          "type": "MySchema#personInfo"
+        },
+        "title": {
+          "type": "MySchema#myString"
+        }
+      }
+    }
+  },
+  "types": {
+    "MySchema#myString": {
+      "constraints": {
+        "nullable": true,
+        "pattern": "[a-z]"
+      },
+      "extends": "string"
+    },
+    "MySchema#newsml": {
+      "fields": {
+        "headline": {
+          "type": "string"
+        },
+        "slug": {
+          "type": "string"
+        }
+      }
+    },
+    "MySchema#personInfo": {
+      "fields": {
+        "firstname": {
+          "type": "string"
+        },
+        "lastname": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

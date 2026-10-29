@@ -1,0 +1,23 @@
+[
+  {
+    "op": "add",
+    "path": "/primaryTypes/SysFolder",
+    "value": {
+      "extends": "SysContent",
+      "mixins": [
+        "SysFolderish"
+      ]
+    }
+  },
+  {
+    "op": "add",
+    "path": "/primaryTypes/SysFile",
+    "value": {
+      "extends": "SysContent",
+      "schemas": [
+        "sysfile",
+        "sysfiles"
+      ]
+    }
+  }
+]

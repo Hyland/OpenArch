@@ -1,0 +1,246 @@
+{
+  "schemas": {
+    "complexSchema": {
+      "fields": {
+        "cs_currentVersion": {
+          "type": "string"
+        },
+        "cs_initialRelease": {
+          "type": "date"
+        },
+        "cs_modelType": {
+          "type": "complexSchema#modelType"
+        },
+        "cs_origin": {
+          "type": "complexSchema#modelOrigin"
+        },
+        "cs_segmentVariable": {
+          "type": "complexSchema#variable"
+        }
+      },
+      "prefix": "cs"
+    },
+    "documentResolver": {
+      "fields": {
+        "dr_docIdOnlyRef": {
+          "extends": "string",
+          "constraints": {
+            "resolver": {
+              "name": "documentResolver",
+              "validation": true,
+              "store": "idOnly"
+            },
+            "nullable": true
+          }
+        },
+        "dr_docPathOnlyRef": {
+          "extends": "string",
+          "constraints": {
+            "resolver": {
+              "name": "documentResolver",
+              "validation": true,
+              "store": "pathOnly"
+            },
+            "nullable": true
+          }
+        },
+        "dr_docRefType": {
+          "fields": {
+            "docRefRepoAndId": {
+              "extends": "string",
+              "constraints": {
+                "resolver": {
+                  "name": "documentResolver",
+                  "validation": true,
+                  "store": "id"
+                },
+                "nullable": true
+              }
+            },
+            "docRefRepoAndPath": {
+              "extends": "string",
+              "constraints": {
+                "resolver": {
+                  "name": "documentResolver",
+                  "validation": true,
+                  "store": "path"
+                },
+                "nullable": true
+              }
+            }
+          }
+        },
+        "dr_docRepoAndIdRef": {
+          "extends": "string",
+          "constraints": {
+            "resolver": {
+              "name": "documentResolver",
+              "validation": true,
+              "store": "repoAndId"
+            },
+            "nullable": true
+          }
+        },
+        "dr_docRepoAndPathRef": {
+          "extends": "string",
+          "constraints": {
+            "resolver": {
+              "name": "documentResolver",
+              "validation": true,
+              "store": "path"
+            },
+            "nullable": true
+          }
+        },
+        "dr_docRepoAndPathRefList": {
+          "list": {
+            "extends": "string",
+            "constraints": {
+              "resolver": {
+                "name": "documentResolver",
+                "validation": true,
+                "store": "path"
+              },
+              "nullable": true
+            }
+          }
+        },
+        "dr_docRepoAndPathRefSimpleList": {
+          "list": {
+            "extends": "string",
+            "constraints": {
+              "resolver": {
+                "name": "documentResolver",
+                "validation": true,
+                "store": "path"
+              },
+              "nullable": true
+            }
+          }
+        },
+        "dr_propBoolean": {
+          "type": "boolean"
+        },
+        "dr_propDate": {
+          "type": "date"
+        },
+        "dr_propDouble": {
+          "type": "double"
+        },
+        "dr_propInt": {
+          "type": "long"
+        },
+        "dr_propString": {
+          "type": "string"
+        }
+      },
+      "prefix": "dr"
+    },
+    "noPrefix": {
+      "fields": {
+        "noPrefix_X": {
+          "type": "string"
+        },
+        "noPrefix_Y": {
+          "type": "string"
+        },
+        "noPrefix_Z": {
+          "type": "string"
+        }
+      },
+      "prefix": "noPrefix"
+    }
+  },
+  "types": {
+    "complexSchema#dataType": {
+      "constraints": {
+        "nullable": true,
+        "enumeration": [
+          "date",
+          "integer",
+          "real",
+          "string"
+        ]
+      },
+      "extends": "string"
+    },
+    "complexSchema#modelOrigin": {
+      "constraints": {
+        "nullable": true,
+        "enumeration": [
+          "Internal",
+          "ThirdParty",
+          "VendorScore"
+        ]
+      },
+      "extends": "string"
+    },
+    "complexSchema#modelType": {
+      "constraints": {
+        "nullable": true,
+        "enumeration": [
+          "Behavior",
+          "Collection",
+          "Expert",
+          "Insurance",
+          "Originations",
+          "Overdraft"
+        ]
+      },
+      "extends": "string"
+    },
+    "complexSchema#roleType": {
+      "constraints": {
+        "nullable": true,
+        "enumeration": [
+          "ComparisonScore",
+          "Decision",
+          "ModelCharacteristic",
+          "ModelID",
+          "NoRole",
+          "OverrideCode",
+          "SampleWeight",
+          "Score",
+          "ScoreDate",
+          "SegmentID",
+          "Target"
+        ]
+      },
+      "extends": "string"
+    },
+    "complexSchema#variable": {
+      "fields": {
+        "dataType": {
+          "type": "complexSchema#dataType"
+        },
+        "description": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "roles": {
+          "list": {
+            "type": "complexSchema#roleType"
+          }
+        },
+        "target": {
+          "type": "string"
+        },
+        "variableType": {
+          "type": "complexSchema#variableType"
+        }
+      }
+    },
+    "complexSchema#variableType": {
+      "constraints": {
+        "nullable": true,
+        "enumeration": [
+          "rawVariable",
+          "targetVariable"
+        ]
+      },
+      "extends": "string"
+    }
+  }
+}

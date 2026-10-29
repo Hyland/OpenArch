@@ -1,0 +1,47 @@
+{
+  "schemas": {
+    "vocabularyResolver": {
+      "fields": {
+        "vr_vocabulary1Ref": {
+          "extends": "string",
+          "constraints": {
+            "resolver": {
+              "name": "vocabularyResolver",
+              "validation": true,
+              "repository": "test",
+              "vocabulary": "referencedDirectory1"
+            },
+            "nullable": true
+          }
+        },
+        "vr_vocabulary2Ref": {
+          "extends": "string",
+          "constraints": {
+            "resolver": {
+              "name": "vocabularyResolver",
+              "validation": true,
+              "repository": "test",
+              "vocabulary": "referencedDirectory2"
+            },
+            "nullable": true
+          }
+        },
+        "vr_vocabulary3Refs": {
+          "list": {
+            "extends": "string",
+            "constraints": {
+              "resolver": {
+                "name": "vocabularyResolver",
+                "validation": true,
+                "repository": "test",
+                "vocabulary": "referencedDirectory1"
+              },
+              "nullable": true
+            }
+          }
+        }
+      },
+      "prefix": "vr"
+    }
+  }
+}

@@ -1,0 +1,13 @@
+<component name="com.hyland.openarch.ecm.core.test">
+
+	<extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/test-core-model-schemas.json" />
+  </extension>
+
+
+	<extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/test-core-model-types.json" />
+  </extension>
+
+
+</component>

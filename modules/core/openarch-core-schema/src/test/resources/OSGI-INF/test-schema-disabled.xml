@@ -1,36 +1,16 @@
 <?xml version="1.0"?>
 <component name="com.hyland.openarch.ecm.core.test.schema-disabled">
 
-  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="schema">
-    <schema name="common" src="schema/common.xsd" />
-    <schema name="someSchema" src="schema/common.xsd" />
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/test-schema-disabled-schemas.json" />
   </extension>
 
-  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="doctype">
-
-    <!-- define a doctype with that schema -->
-    <doctype name="myDoc">
-      <schema name="common" />
-      <schema name="someSchema" />
-    </doctype>
-
-    <!-- define a facet with that schema -->
-    <mixin name="someFacet">
-      <schema name="common" />
-      <schema name="someSchema" />
-    </mixin>
-
-    <!-- define another doctype with the facet -->
-    <doctype name="myDoc2">
-      <schema name="common" />
-      <mixin name="someFacet" />
-    </doctype>
-
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/test-schema-disabled-types.json" />
   </extension>
 
-  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="schema">
-    <!-- now disable the schema -->
-    <schema name="someSchema" enabled="false" />
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/test-schema-disabled.patch.json" patch="true" />
   </extension>
 
 </component>

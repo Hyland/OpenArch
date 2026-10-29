@@ -1,0 +1,12 @@
+{
+  "schemas": {
+    "clearance": {
+      "fields": {
+        "clearance_level": {
+          "type": "long"
+        }
+      },
+      "prefix": "clearance"
+    }
+  }
+}

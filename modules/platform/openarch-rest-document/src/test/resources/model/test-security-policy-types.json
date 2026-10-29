@@ -1,0 +1,29 @@
+{
+  "mixinTypes": {
+    "Clearance": {
+      "schemas": [
+        "clearance"
+      ]
+    },
+    "Clearance1": {
+      "schemas": [
+        "clearance1"
+      ]
+    },
+    "Clearance2": {
+      "schemas": [
+        "clearance2"
+      ]
+    },
+    "Clearance3": {
+      "schemas": [
+        "clearance3"
+      ]
+    },
+    "Clearance4": {
+      "schemas": [
+        "clearance4"
+      ]
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "mixinTypes": {
+    "Owned": {
+      "schemas": [
+        "owned"
+      ]
+    }
+  },
+  "primaryTypes": {
+    "OwnedFile": {
+      "extends": "SysFile",
+      "mixins": [
+        "Owned"
+      ]
+    }
+  }
+}

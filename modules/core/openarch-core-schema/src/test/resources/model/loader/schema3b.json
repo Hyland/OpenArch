@@ -1,0 +1,12 @@
+{
+  "schemas": {
+    "s2": {
+      "fields": {
+        "pref_validator": {
+          "type": "long"
+        }
+      },
+      "prefix": "pref"
+    }
+  }
+}

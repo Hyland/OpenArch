@@ -1,0 +1,36 @@
+{
+  "schemas": {
+    "schema1": {
+      "fields": {
+        "schema1_level": {
+          "type": "long"
+        }
+      },
+      "prefix": "schema1"
+    },
+    "schema2": {
+      "fields": {
+        "schema2_level": {
+          "type": "long"
+        }
+      },
+      "prefix": "schema2"
+    },
+    "schema3": {
+      "fields": {
+        "schema3_level": {
+          "type": "long"
+        }
+      },
+      "prefix": "schema3"
+    },
+    "schema4": {
+      "fields": {
+        "schema4_level": {
+          "type": "long"
+        }
+      },
+      "prefix": "schema4"
+    }
+  }
+}

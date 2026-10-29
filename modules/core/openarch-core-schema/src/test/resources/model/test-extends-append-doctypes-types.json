@@ -1,0 +1,24 @@
+{
+  "mixinTypes": {
+    "specdoc": {},
+    "specdoc2": {},
+    "specdoc3": {},
+    "specdoc4": {}
+  },
+  "primaryTypes": {
+    "SpecialDocument": {
+      "extends": "SysContent",
+      "mixins": [
+        "specdoc"
+      ]
+    },
+    "MyMergeableFolder": {
+      "mixins": [
+        "specdoc2"
+      ],
+      "subtypes": [
+        "myDoc2"
+      ]
+    }
+  }
+}

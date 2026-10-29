@@ -1,13 +1,11 @@
 <component name="com.hyland.openarch.rest.facet.test">
 
-    <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="schema">
-        <schema name="customschema" src="schema/customschema.xsd" />
-    </extension>
+    <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/test-custom-facet-contrib-schemas.json" />
+  </extension>
 
-    <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="doctype">
-        <mixin name="CustomFacet">
-            <schema name="customschema" />
-        </mixin>
-    </extension>
+    <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/test-custom-facet-contrib-types.json" />
+  </extension>
 
 </component>

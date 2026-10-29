@@ -1,0 +1,10 @@
+{
+  "primaryTypes": {
+    "Restriction": {
+      "extends": "SysContent",
+      "schemas": [
+        "restriction"
+      ]
+    }
+  }
+}

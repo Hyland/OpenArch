@@ -3,15 +3,12 @@
 
   <require>com.hyland.openarch.ecm.core.schema.bootstrap</require>
 
-  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="schema">
-    <schema name="any" prefix="any" src="schemas/any.xsd"/>
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/test-anytype-contrib-schemas.json" />
   </extension>
 
-  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="doctype">
-
-    <doctype name="MyAny" extends="SysFile">
-      <schema name="any" />
-    </doctype>
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/test-anytype-contrib-types.json" />
   </extension>
 
 </component>

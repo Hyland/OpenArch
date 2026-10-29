@@ -1,0 +1,46 @@
+[
+  {
+    "op": "add",
+    "path": "/primaryTypes/myDoc/mixins/-",
+    "value": "NewFacet"
+  },
+  {
+    "op": "add",
+    "path": "/primaryTypes/myDoc2/schemas/-",
+    "value": "newschema"
+  },
+  {
+    "op": "add",
+    "path": "/primaryTypes/myDoc2/mixins/-",
+    "value": "NewFacet2"
+  },
+  {
+    "op": "add",
+    "path": "/primaryTypes/myFolder/subtypes/-",
+    "value": "myDoc4"
+  },
+  {
+    "op": "add",
+    "path": "/primaryTypes/myFolder2/subtypes/-",
+    "value": "myDoc"
+  },
+  {
+    "op": "add",
+    "path": "/primaryTypes/myFolder2/subtypes/-",
+    "value": "myDoc2"
+  },
+  {
+    "op": "add",
+    "path": "/primaryTypes/myFolder2/subtypes/-",
+    "value": "myDoc3"
+  },
+  {
+    "op": "replace",
+    "path": "/primaryTypes/mySpecialFolder",
+    "value": {
+      "subtypes": [
+        "myDoc"
+      ]
+    }
+  }
+]

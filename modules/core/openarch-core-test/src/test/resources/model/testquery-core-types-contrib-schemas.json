@@ -1,0 +1,271 @@
+{
+  "schemas": {
+    "mydublincore": {
+      "fields": {
+        "mydc_contributors": {
+          "type": "mydublincore#stringList"
+        },
+        "mydc_coverage": {
+          "type": "string"
+        },
+        "mydc_expired": {
+          "type": "date"
+        },
+        "mydc_format": {
+          "type": "string"
+        },
+        "mydc_issued": {
+          "type": "date"
+        },
+        "mydc_language": {
+          "type": "string"
+        },
+        "mydc_nature": {
+          "type": "string"
+        },
+        "mydc_publisher": {
+          "type": "string"
+        },
+        "mydc_rights": {
+          "type": "string"
+        },
+        "mydc_source": {
+          "type": "string"
+        },
+        "mydc_subjects": {
+          "type": "mydublincore#stringList"
+        },
+        "mydc_valid": {
+          "type": "date"
+        }
+      },
+      "prefix": "mydc"
+    },
+    "note": {
+      "fields": {
+        "note_mime_type": {
+          "type": "string"
+        },
+        "note_note": {
+          "type": "note#clob"
+        }
+      },
+      "prefix": "note"
+    },
+    "testquery-schema": {
+      "fields": {
+        "my2_attachments": {
+          "type": "testquery-schema#attachments"
+        },
+        "my2_boolean": {
+          "type": "boolean"
+        },
+        "my2_complex": {
+          "type": "testquery-schema#complex"
+        },
+        "my2_content": {
+          "type": "blob"
+        },
+        "my2_date": {
+          "type": "date"
+        },
+        "my2_decimal": {
+          "type": "decimal"
+        },
+        "my2_double": {
+          "type": "double"
+        },
+        "my2_integer": {
+          "type": "long"
+        },
+        "my2_long": {
+          "type": "long"
+        },
+        "my2_name": {
+          "type": "testquery-schema#libName"
+        },
+        "my2_participants": {
+          "type": "testquery-schema#theList"
+        },
+        "my2_string": {
+          "type": "string"
+        },
+        "my2_strings": {
+          "type": "testquery-schema#list"
+        },
+        "my2_testDefault": {
+          "extends": "string",
+          "default": "the default value"
+        }
+      },
+      "prefix": "my2"
+    },
+    "testschema": {
+      "fields": {
+        "tst_bignote": {
+          "type": "string"
+        },
+        "tst_bignotes": {
+          "type": "testschema#stringArray"
+        },
+        "tst_count": {
+          "type": "long"
+        },
+        "tst_couple": {
+          "type": "testschema#duo"
+        },
+        "tst_created": {
+          "type": "date"
+        },
+        "tst_friends": {
+          "type": "testschema#personList"
+        },
+        "tst_owner": {
+          "type": "testschema#person"
+        },
+        "tst_rate": {
+          "type": "double"
+        },
+        "tst_subjects": {
+          "type": "testschema#stringArray"
+        },
+        "tst_tags": {
+          "type": "testschema#stringArray"
+        },
+        "tst_title": {
+          "type": "string"
+        }
+      },
+      "prefix": "tst"
+    },
+    "testschema3": {
+      "fields": {
+        "testschema3_animal": {
+          "type": "testschema3#animal"
+        },
+        "testschema3_whatever": {
+          "type": "any"
+        }
+      },
+      "prefix": "testschema3"
+    },
+    "age": {
+      "fields": {
+        "age_age": {
+          "type": "string"
+        },
+        "age_fullname": {
+          "type": "age#ageperson"
+        },
+        "age_nicknames": {
+          "type": "age#stringArray"
+        },
+        "age_title": {
+          "type": "string"
+        }
+      },
+      "prefix": "age"
+    },
+    "tag": {
+      "fields": {
+        "tag_label": {
+          "type": "string"
+        }
+      },
+      "prefix": "tag"
+    },
+    "info": {
+      "fields": {
+        "info_info": {
+          "type": "string"
+        }
+      },
+      "prefix": "info"
+    }
+  },
+  "types": {
+    "testquery-schema#MyString": {
+      "constraints": {
+        "nullable": true,
+        "pattern": "[a-z]"
+      },
+      "extends": "string"
+    },
+    "testquery-schema#attachments": {
+      "list": {
+        "type": "blob"
+      }
+    },
+    "testquery-schema#complex": {
+      "fields": {
+        "string": {
+          "type": "string"
+        },
+        "testDefault": {
+          "extends": "string",
+          "default": "the default value"
+        }
+      }
+    },
+    "testquery-schema#libName": {
+      "fields": {
+        "FirstName": {
+          "type": "testquery-schema#MyString"
+        },
+        "LastName": {
+          "type": "string"
+        }
+      }
+    },
+    "testquery-schema#list": {
+      "list": {
+        "type": "string"
+      }
+    },
+    "testquery-schema#theList": {
+      "list": {
+        "type": "string"
+      }
+    },
+    "testschema#duo": {
+      "fields": {
+        "first": {
+          "type": "testschema#person"
+        },
+        "second": {
+          "type": "testschema#person"
+        }
+      }
+    },
+    "testschema#person": {
+      "fields": {
+        "firstname": {
+          "type": "string"
+        },
+        "lastname": {
+          "type": "string"
+        }
+      }
+    },
+    "testschema#personList": {
+      "list": {
+        "type": "testschema#person"
+      }
+    },
+    "testschema#stringArray": {
+      "list": {
+        "type": "string"
+      }
+    },
+    "testschema3#animal": {
+      "fields": {
+        "name": {
+          "type": "string"
+        },
+        "race": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

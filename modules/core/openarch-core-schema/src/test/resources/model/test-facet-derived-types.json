@@ -1,0 +1,10 @@
+{
+  "primaryTypes": {
+    "Child": {
+      "extends": "Parent",
+      "mixins": [
+        "child"
+      ]
+    }
+  }
+}

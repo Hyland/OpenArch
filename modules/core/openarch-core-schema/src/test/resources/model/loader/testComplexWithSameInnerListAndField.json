@@ -1,0 +1,41 @@
+{
+  "schemas": {
+    "extension": {
+      "fields": {
+        "prefix_complexWithInteger": {
+          "type": "extension#t_complexWithInteger"
+        },
+        "prefix_complexWithString": {
+          "type": "extension#t_complexWithString"
+        }
+      },
+      "prefix": "prefix"
+    }
+  },
+  "types": {
+    "extension#t_complexWithInteger": {
+      "fields": {
+        "list": {
+          "list": {
+            "type": "long"
+          }
+        },
+        "value": {
+          "type": "long"
+        }
+      }
+    },
+    "extension#t_complexWithString": {
+      "fields": {
+        "list": {
+          "list": {
+            "type": "string"
+          }
+        },
+        "value": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

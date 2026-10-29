@@ -1,0 +1,10 @@
+{
+  "primaryTypes": {
+    "DocDefaultValue": {
+      "extends": "SysContent",
+      "schemas": [
+        "defaultvalue"
+      ]
+    }
+  }
+}

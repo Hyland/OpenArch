@@ -1,0 +1,10 @@
+{
+  "primaryTypes": {
+    "GovernableFile": {
+      "extends": "SysContent",
+      "mixins": [
+        "SysGovernable"
+      ]
+    }
+  }
+}

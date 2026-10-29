@@ -1,0 +1,11 @@
+{
+  "primaryTypes": {
+    "NewType": {
+      "extends": "SysFile",
+      "schemas": [
+        "mydublincore",
+        "open-search-blank-date-error-contrib"
+      ]
+    }
+  }
+}

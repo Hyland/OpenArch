@@ -1,0 +1,75 @@
+{
+  "schemas": {
+    "mydublincore": {
+      "fields": {
+        "mydc_coverage": {
+          "type": "string"
+        },
+        "mydc_expired": {
+          "type": "date"
+        },
+        "mydc_format": {
+          "type": "string"
+        },
+        "mydc_issued": {
+          "type": "date"
+        },
+        "mydc_language": {
+          "type": "string"
+        },
+        "mydc_nature": {
+          "type": "string"
+        },
+        "mydc_publisher": {
+          "type": "string"
+        },
+        "mydc_rights": {
+          "type": "string"
+        },
+        "mydc_source": {
+          "type": "string"
+        },
+        "mydc_subjects": {
+          "type": "mydublincore#stringList"
+        },
+        "mydc_valid": {
+          "type": "date"
+        }
+      },
+      "prefix": "mydc"
+    },
+    "note": {
+      "fields": {
+        "note_mime_type": {
+          "type": "string"
+        },
+        "note_note": {
+          "type": "note#clob"
+        }
+      },
+      "prefix": "note"
+    },
+    "any": {
+      "fields": {
+        "any_obj": {
+          "type": "any"
+        }
+      },
+      "prefix": "any"
+    }
+  },
+  "types": {
+    "mydublincore#stringList": {
+      "list": {
+        "type": "string"
+      }
+    },
+    "note#clob": {
+      "constraints": {
+        "maxLength": 999999999,
+        "nullable": true
+      },
+      "extends": "string"
+    }
+  }
+}

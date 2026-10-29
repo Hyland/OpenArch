@@ -1,0 +1,31 @@
+{
+  "types": {
+    "mydublincore#stringList": {
+      "list": {
+        "type": "string"
+      }
+    },
+    "note#clob": {
+      "constraints": {
+        "maxLength": 999999999,
+        "nullable": true
+      },
+      "extends": "string"
+    },
+    "age#ageperson": {
+      "fields": {
+        "firstname": {
+          "type": "string"
+        },
+        "lastname": {
+          "type": "string"
+        }
+      }
+    },
+    "age#stringArray": {
+      "list": {
+        "type": "string"
+      }
+    }
+  }
+}

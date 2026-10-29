@@ -1,0 +1,13 @@
+{
+  "primaryTypes": {
+    "Child": {
+      "extends": "Parent"
+    },
+    "Parent": {
+      "extends": "SysContent"
+    },
+    "TopLevel": {
+      "extends": "SysContent"
+    }
+  }
+}

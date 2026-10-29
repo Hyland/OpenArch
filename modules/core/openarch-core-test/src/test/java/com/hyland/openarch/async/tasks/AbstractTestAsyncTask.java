@@ -26,6 +26,7 @@ import com.hyland.openarch.runtime.test.runner.Features;
 import com.hyland.openarch.runtime.test.runner.TransactionalFeature;
 
 @Features({ CoreFeature.class, AsyncTasksFeature.class })
+@Deploy("com.hyland.openarch.ecm.core.test.tests:OSGI-INF/test-repository-value-types.xml")
 @Deploy("com.hyland.openarch.ecm.core.test.tests:OSGI-INF/test-repo-core-types-contrib.xml")
 @RepositoryConfig(init = DocumentSetRepositoryInit.class)
 public class AbstractTestAsyncTask extends RuntimeSpringBootTest {

@@ -1,0 +1,41 @@
+{
+  "primaryTypes": {
+    "NoBlobDocument": {
+      "extends": "SysContent",
+      "schemas": [
+        "noblob"
+      ]
+    },
+    "SimpleBlobDocument": {
+      "extends": "SysContent",
+      "schemas": [
+        "simpleblob"
+      ]
+    },
+    "WithoutPrefixDocument": {
+      "extends": "SysContent",
+      "schemas": [
+        "wihtoutpref"
+      ]
+    },
+    "BlobInListDocument": {
+      "extends": "SysContent",
+      "schemas": [
+        "blobinlist"
+      ]
+    },
+    "BlobWithTwoSchemasContainingBlob": {
+      "extends": "SysContent",
+      "schemas": [
+        "simpleblob",
+        "simpleblob2"
+      ]
+    },
+    "BlobWithOneSchemaContainingTwoBlobs": {
+      "extends": "SysContent",
+      "schemas": [
+        "simpleblob3"
+      ]
+    }
+  }
+}

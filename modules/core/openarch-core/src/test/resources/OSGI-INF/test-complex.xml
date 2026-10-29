@@ -1,14 +1,12 @@
 <?xml version="1.0"?>
 <component name="com.hyland.openarch.ecm.core.storage.dbs.test.complex">
 
-  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="schema">
-    <schema name="complexschema2" src="schemas/complexschema2.xsd"  prefix="cmp" />
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/test-complex-schemas.json" />
   </extension>
 
-  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="doctype">
-    <doctype name="MyDoc" extends="SysContent">
-      <schema name="complexschema2" />
-    </doctype>
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/test-complex-types.json" />
   </extension>
 
 </component>

@@ -1,0 +1,70 @@
+{
+  "mixinTypes": {
+    "viewable": {},
+    "myfacet": {
+      "schemas": [
+        "schema2"
+      ]
+    },
+    "fakeFacet1": {
+      "schemas": [
+        "facetSchema1"
+      ]
+    },
+    "writable": {}
+  },
+  "primaryTypes": {
+    "myDoc": {
+      "extends": "SysContent",
+      "schemas": [
+        "schema2"
+      ],
+      "mixins": [
+        "viewable",
+        "writable"
+      ]
+    },
+    "myDoc2": {
+      "extends": "SysContent",
+      "schemas": [
+        "schema1"
+      ],
+      "mixins": [
+        "myfacet"
+      ]
+    },
+    "myDoc3": {
+      "extends": "myDoc2"
+    },
+    "myDoc4": {
+      "extends": "SysContent",
+      "schemas": [
+        "schema3"
+      ]
+    },
+    "myFolder": {
+      "extends": "SysContent",
+      "subtypes": [
+        "myDoc",
+        "myDoc2",
+        "myDoc3"
+      ]
+    },
+    "myFolder2": {
+      "extends": "myFolder",
+      "subtypes": [
+        "myDoc4"
+      ]
+    },
+    "mySpecialFolder": {
+      "extends": "SysContent",
+      "subtypes": [
+        "myDoc",
+        "myDoc2",
+        "myDoc3",
+        "myDoc4",
+        "myFolder"
+      ]
+    }
+  }
+}

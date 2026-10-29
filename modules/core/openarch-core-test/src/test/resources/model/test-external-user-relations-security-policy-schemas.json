@@ -1,0 +1,12 @@
+{
+  "schemas": {
+    "wdemployee": {
+      "fields": {
+        "wdemployee_empId": {
+          "type": "string"
+        }
+      },
+      "prefix": "wdemployee"
+    }
+  }
+}

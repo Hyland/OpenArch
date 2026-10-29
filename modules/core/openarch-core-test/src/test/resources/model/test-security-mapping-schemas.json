@@ -1,0 +1,41 @@
+{
+  "schemas": {
+    "secupolicy": {
+      "fields": {
+        "sp_securityLevel": {
+          "extends": "long",
+          "default": "3"
+        }
+      },
+      "prefix": "sp"
+    },
+    "mapping": {
+      "fields": {
+        "mp_comments": {
+          "type": "mapping#comments"
+        }
+      },
+      "prefix": "mp"
+    }
+  },
+  "types": {
+    "mapping#comment": {
+      "fields": {
+        "author": {
+          "type": "string"
+        },
+        "creationDate": {
+          "type": "date"
+        },
+        "text": {
+          "type": "string"
+        }
+      }
+    },
+    "mapping#comments": {
+      "list": {
+        "type": "mapping#comment"
+      }
+    }
+  }
+}

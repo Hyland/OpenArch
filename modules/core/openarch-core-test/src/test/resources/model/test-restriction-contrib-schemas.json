@@ -1,0 +1,21 @@
+{
+  "schemas": {
+    "restriction": {
+      "fields": {
+        "restr_shortstring": {
+          "type": "restriction#shortString"
+        }
+      },
+      "prefix": "restr"
+    }
+  },
+  "types": {
+    "restriction#shortString": {
+      "constraints": {
+        "maxLength": 50,
+        "nullable": true
+      },
+      "extends": "string"
+    }
+  }
+}

@@ -1,0 +1,15 @@
+[
+  {
+    "op": "add",
+    "path": "/primaryTypes/SysFolder",
+    "value": {
+      "extends": "SysContent",
+      "schemas": [
+        "secupolicy"
+      ],
+      "mixins": [
+        "SysFolderish"
+      ]
+    }
+  }
+]

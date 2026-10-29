@@ -1,0 +1,12 @@
+{
+  "schemas": {
+    "any": {
+      "fields": {
+        "any_obj": {
+          "type": "any"
+        }
+      },
+      "prefix": "any"
+    }
+  }
+}

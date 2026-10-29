@@ -76,6 +76,7 @@ import jakarta.inject.Inject;
 @ExtendWith(FeaturesExtension.class)
 @Features(CoreFeature.class)
 @RepositoryConfig(cleanup = Granularity.METHOD)
+@Deploy("com.hyland.openarch.ecm.core.test.tests:OSGI-INF/test-repository-value-types.xml")
 @Deploy("com.hyland.openarch.ecm.core.test.tests:OSGI-INF/test-repo-core-types-contrib.xml")
 public class TestSQLRepositoryVersioning {
 

@@ -1,0 +1,5 @@
+<component name="com.hyland.openarch.ecm.core.test.repository.value.types">
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/test-repository-value-types.json" />
+  </extension>
+</component>

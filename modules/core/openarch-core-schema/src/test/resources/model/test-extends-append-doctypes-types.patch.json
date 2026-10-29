@@ -1,0 +1,27 @@
+[
+  {
+    "op": "add",
+    "path": "/primaryTypes/MyMergeableFolder/extends",
+    "value": "SpecialDocument"
+  },
+  {
+    "op": "add",
+    "path": "/primaryTypes/MyMergeableFolder/mixins/-",
+    "value": "specdoc3"
+  },
+  {
+    "op": "add",
+    "path": "/primaryTypes/MyMergeableFolder/subtypes/-",
+    "value": "myDoc3"
+  },
+  {
+    "op": "add",
+    "path": "/primaryTypes/MyMergeableFolder/mixins/-",
+    "value": "specdoc4"
+  },
+  {
+    "op": "add",
+    "path": "/primaryTypes/MyMergeableFolder/subtypes/-",
+    "value": "myDoc4"
+  }
+]

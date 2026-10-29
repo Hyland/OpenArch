@@ -1,0 +1,127 @@
+{
+  "schemas": {
+    "advanced_search": {
+      "fields": {
+        "search_coverage": {
+          "type": "advanced_search#stringList"
+        },
+        "search_coverage_agg": {
+          "type": "advanced_search#stringList"
+        },
+        "search_created_agg": {
+          "type": "advanced_search#stringList"
+        },
+        "search_created_max": {
+          "type": "date"
+        },
+        "search_created_min": {
+          "type": "date"
+        },
+        "search_currentLifeCycleState": {
+          "type": "string"
+        },
+        "search_currentLifeCycleStates": {
+          "type": "advanced_search#stringList"
+        },
+        "search_description": {
+          "type": "string"
+        },
+        "search_expired_max": {
+          "type": "date"
+        },
+        "search_expired_min": {
+          "type": "date"
+        },
+        "search_format": {
+          "type": "string"
+        },
+        "search_fulltext_all": {
+          "type": "string"
+        },
+        "search_fulltext_none": {
+          "type": "string"
+        },
+        "search_fulltext_one_of": {
+          "type": "string"
+        },
+        "search_fulltext_phrase": {
+          "type": "string"
+        },
+        "search_integerlist": {
+          "type": "advanced_search#intList"
+        },
+        "search_isCheckedInVersion": {
+          "extends": "boolean",
+          "default": "false"
+        },
+        "search_isPresent": {
+          "type": "boolean"
+        },
+        "search_issued_max": {
+          "type": "date"
+        },
+        "search_issued_min": {
+          "type": "date"
+        },
+        "search_language": {
+          "type": "string"
+        },
+        "search_modified_max": {
+          "type": "date"
+        },
+        "search_modified_min": {
+          "type": "date"
+        },
+        "search_nature": {
+          "type": "advanced_search#stringList"
+        },
+        "search_rights": {
+          "type": "string"
+        },
+        "search_searchpath": {
+          "type": "advanced_search#stringList"
+        },
+        "search_sortAscending": {
+          "type": "boolean"
+        },
+        "search_sortColumn": {
+          "type": "string"
+        },
+        "search_source": {
+          "type": "string"
+        },
+        "search_source_agg": {
+          "type": "advanced_search#stringList"
+        },
+        "search_subjects": {
+          "type": "advanced_search#stringList"
+        },
+        "search_subjects_agg": {
+          "type": "advanced_search#stringList"
+        },
+        "search_title": {
+          "type": "string"
+        },
+        "search_valid_max": {
+          "type": "date"
+        },
+        "search_valid_min": {
+          "type": "date"
+        }
+      },
+      "prefix": "search"
+    }
+  },
+  "types": {
+    "advanced_search#intList": {
+      "list": {
+        "type": "long"
+      }
+    },
+    "advanced_search#stringList": {
+      "list": {
+        "type": "string"
+      }
+    }
+  }
+}

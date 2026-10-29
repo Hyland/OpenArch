@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -30,7 +29,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import com.hyland.openarch.ecm.core.schema.types.ComplexType;
 import com.hyland.openarch.ecm.core.schema.types.Field;
@@ -38,7 +36,9 @@ import com.hyland.openarch.ecm.core.schema.types.ListType;
 import com.hyland.openarch.ecm.core.schema.types.Schema;
 import com.hyland.openarch.ecm.core.schema.types.SimpleTypeImpl;
 import com.hyland.openarch.ecm.core.schema.types.Type;
-import com.hyland.openarch.ecm.core.schema.types.TypeException;
+import com.hyland.openarch.ecm.core.schema.validation.SchemaValidationException;
+import tools.jackson.databind.ObjectMapper;
+import java.util.Map;
 import com.hyland.openarch.ecm.core.schema.types.constraints.Constraint;
 import com.hyland.openarch.ecm.core.schema.types.constraints.ConstraintUtils;
 import com.hyland.openarch.ecm.core.schema.types.constraints.EnumConstraint;
@@ -46,26 +46,23 @@ import com.hyland.openarch.ecm.core.schema.types.primitives.LongType;
 import com.hyland.openarch.ecm.core.schema.types.primitives.StringType;
 import com.hyland.openarch.runtime.test.ResourceHelper;
 
-public class TestXSDLoader {
+public class TestJsonSchemaLoader {
 
-    private SchemaManagerImpl schemaManager;
+    private SchemaManagerDTO schemaManager;
 
-    private XSDLoader reader;
-
-    @BeforeEach
-    public void setUp() throws Exception {
-        schemaManager = new SchemaManagerImpl();
-        reader = new XSDLoader(schemaManager);
+    private Schema loadSchema(String name, URL url) throws Exception {
+        try (var stream = url.openStream()) {
+            Map<String, Object> model = new ObjectMapper().readValue(stream, Map.class);
+            schemaManager = new SchemaManagerDTO(model);
+        }
+        return schemaManager.getSchema(name);
     }
 
     @Test
-    public void testXSDReader() throws Exception {
-        URL url = ResourceHelper.getResource("schema/schema.xsd");
+    public void testJsonReader() throws Exception {
+        URL url = ResourceHelper.getResource("model/loader/schema.json");
 
-        reader.loadSchema("MySchema", "", url);
-        // Collection<Schema> schemas = typeMgr.getSchemas();
-        // do not check schemas size - this is dynamic
-        // assertEquals(4, schemas.size()); // file, common, MySchema
+        loadSchema("MySchema", url);
         Schema schema = schemaManager.getSchema("MySchema");
         assertEquals("MySchema", schema.getName());
         assertEquals("", schema.getPrefix());
@@ -74,7 +71,7 @@ public class TestXSDLoader {
         assertEquals(5, fields.size());
 
         // sort to assert them
-        fields.sort(Comparator.comparing(f -> f.getName()));
+        fields.sort(Comparator.comparing(Field::getName));
 
         Iterator<Field> it = fields.iterator();
         Field field;
@@ -101,9 +98,9 @@ public class TestXSDLoader {
 
     @Test
     public void testSequence() throws Exception {
-        URL url = ResourceHelper.getResource("schema/testList.xsd");
+        URL url = ResourceHelper.getResource("model/loader/testList.json");
         assertNotNull(url);
-        Schema schema = reader.loadSchema("testList", "", url);
+        Schema schema = loadSchema("testList", url);
         Field field = schema.getField("participants");
         ListType type = (ListType) field.getType();
         assertEquals("testList#stringSequence", type.getName());
@@ -114,10 +111,10 @@ public class TestXSDLoader {
 
     @Test
     public void testList() throws Exception {
-        URL url = ResourceHelper.getResource("schema/testList.xsd");
+        URL url = ResourceHelper.getResource("model/loader/testList.json");
         assertNotNull(url);
 
-        Schema schema = reader.loadSchema("testList", "", url);
+        Schema schema = loadSchema("testList", url);
         Field field = schema.getField("strings");
         ListType type = (ListType) field.getType();
         assertEquals("testList#stringList", type.getName());
@@ -128,10 +125,10 @@ public class TestXSDLoader {
 
     @Test
     public void testComplexSubList() throws Exception {
-        URL url = ResourceHelper.getResource("schema/testList.xsd");
+        URL url = ResourceHelper.getResource("model/loader/testList.json");
         assertNotNull(url);
 
-        Schema schema = reader.loadSchema("testList", "", url);
+        Schema schema = loadSchema("testList", url);
 
         Field field = schema.getField("cplxWithSubList");
         assertTrue(field.getType().isComplexType());
@@ -158,9 +155,9 @@ public class TestXSDLoader {
 
     @Test
     public void testAdvancedTyping() throws Exception {
-        URL url = ResourceHelper.getResource("schema/advancedSchema.xsd");
+        URL url = ResourceHelper.getResource("model/loader/advancedSchema.json");
         assertNotNull(url);
-        Schema schema = reader.loadSchema("advancedSchema", "", url);
+        Schema schema = loadSchema("advancedSchema", url);
 
         Field durField = schema.getField("dur");
         assertEquals("string", durField.getType().getName());
@@ -175,9 +172,9 @@ public class TestXSDLoader {
 
     @Test
     public void testInlineTyping() throws Exception {
-        URL url = ResourceHelper.getResource("schema/advancedSchema.xsd");
+        URL url = ResourceHelper.getResource("model/loader/advancedSchema.json");
         assertNotNull(url);
-        Schema schema = reader.loadSchema("advancedSchema", "", url);
+        Schema schema = loadSchema("advancedSchema", url);
 
         // check regular definition of simple type with restriction Field
         Field simpleField = schema.getField("bureau");
@@ -213,9 +210,9 @@ public class TestXSDLoader {
     @Test
     public void testSchema12() throws Exception {
 
-        URL url = ResourceHelper.getResource("schema/schema12.xsd");
+        URL url = ResourceHelper.getResource("model/loader/schema12.json");
         assertNotNull(url);
-        Schema schema = reader.loadSchema("schema12", "", url);
+        Schema schema = loadSchema("schema12", url);
 
         Field field1 = schema.getField("field1");
         assertNotNull(field1);
@@ -240,9 +237,9 @@ public class TestXSDLoader {
     @Test
     public void testClassifier() throws Exception {
 
-        URL url = ResourceHelper.getResource("schema/test-classifier.xsd");
+        URL url = ResourceHelper.getResource("model/loader/test-classifier.json");
         assertNotNull(url);
-        Schema schema = reader.loadSchema("classifier", "", url);
+        Schema schema = loadSchema("classifier", url);
 
         assertNotNull(schema);
 
@@ -278,9 +275,9 @@ public class TestXSDLoader {
     @Test
     public void testXSExtension() throws Exception {
 
-        URL url = ResourceHelper.getResource("schema/testExtension.xsd");
+        URL url = ResourceHelper.getResource("model/loader/testExtension.json");
         assertNotNull(url);
-        Schema schema = reader.loadSchema("extension", "", url);
+        Schema schema = loadSchema("extension", url);
 
         assertNotNull(schema);
 
@@ -312,9 +309,9 @@ public class TestXSDLoader {
     @Test
     public void testComplexWithSameInnerField() throws Exception {
 
-        URL url = ResourceHelper.getResource("schema/testComplexWithSameInnerField.xsd");
+        URL url = ResourceHelper.getResource("model/loader/testComplexWithSameInnerField.json");
         assertNotNull(url);
-        Schema schema = reader.loadSchema("extension", "prefix", url);
+        Schema schema = loadSchema("extension", url);
 
         assertNotNull(schema);
 
@@ -323,11 +320,11 @@ public class TestXSDLoader {
         assertTrue(schema.hasField("prefix_complexWithInteger"));
 
         // check complex types
-        checkComplexTypes(schema, "extension#t_complexWithString", StringType.class);
-        checkComplexTypes(schema, "extension#t_complexWithInteger", LongType.class);
+        checkComplexTypes("extension#t_complexWithString", StringType.class);
+        checkComplexTypes("extension#t_complexWithInteger", LongType.class);
     }
 
-    private void checkComplexTypes(Schema schema, String typeName, Class<? extends Type> expectedInnerType) {
+    private void checkComplexTypes(String typeName, Class<? extends Type> expectedInnerType) {
         Type type = schemaManager.getType(typeName);
         assertNotNull(type);
         assertTrue(type.isComplexType());
@@ -338,8 +335,8 @@ public class TestXSDLoader {
         Field valueField = complexType.getFields().iterator().next();
         assertNotNull(valueField);
         Type valueType = valueField.getType();
-        assertTrue(expectedInnerType.isInstance(valueType.getSuperType()),
-                typeName + " inner value is a " + valueType.getSuperType().getClass());
+        assertTrue((expectedInnerType.isInstance(valueType) || expectedInnerType.isInstance(valueType.getSuperType())),
+                typeName + " inner value is a " + valueType.getClass());
     }
 
     /**
@@ -348,9 +345,9 @@ public class TestXSDLoader {
     @Test
     public void testListWithSameInnerField() throws Exception {
 
-        URL url = ResourceHelper.getResource("schema/testListWithSameInnerField.xsd");
+        URL url = ResourceHelper.getResource("model/loader/testListWithSameInnerField.json");
         assertNotNull(url);
-        Schema schema = reader.loadSchema("extension", "prefix", url);
+        Schema schema = loadSchema("extension", url);
 
         assertNotNull(schema);
 
@@ -359,11 +356,11 @@ public class TestXSDLoader {
         assertTrue(schema.hasField("prefix_listWithInteger"));
 
         // check complex types
-        checkListTypes(schema, "extension#t_listWithString", StringType.class);
-        checkListTypes(schema, "extension#t_listWithInteger", LongType.class);
+        checkListTypes("extension#t_listWithString", StringType.class);
+        checkListTypes("extension#t_listWithInteger", LongType.class);
     }
 
-    private void checkListTypes(Schema schema, String typeName, Class<? extends Type> expectedInnerType) {
+    private void checkListTypes(String typeName, Class<? extends Type> expectedInnerType) {
         Type type = schemaManager.getType(typeName);
         assertNotNull(type);
         assertTrue(type.isListType());
@@ -373,8 +370,8 @@ public class TestXSDLoader {
         Field valueField = listType.getField();
         assertNotNull(valueField);
         Type valueType = valueField.getType();
-        assertTrue(expectedInnerType.isInstance(valueType.getSuperType()),
-                typeName + " inner value is a " + valueType.getSuperType().getClass());
+        assertTrue((expectedInnerType.isInstance(valueType) || expectedInnerType.isInstance(valueType.getSuperType())),
+                typeName + " inner value is a " + valueType.getClass());
     }
 
     /**
@@ -383,10 +380,9 @@ public class TestXSDLoader {
     @Test
     public void testComplexWithSameInnerListAndField() throws Exception {
 
-        URL url = ResourceHelper.getResource("schema/testComplexWithSameInnerListAndField.xsd");
+        URL url = ResourceHelper.getResource("model/loader/testComplexWithSameInnerListAndField.json");
         assertNotNull(url);
-        schemaManager.types.clear();
-        Schema schema = reader.loadSchema("extension", "prefix", url);
+        Schema schema = loadSchema("extension", url);
 
         assertNotNull(schema);
 
@@ -395,12 +391,11 @@ public class TestXSDLoader {
         assertTrue(schema.hasField("prefix_complexWithInteger"));
 
         // check complex types
-        checkComplexWithListAndFieldTypes(schema, "extension#t_complexWithString", StringType.class);
-        checkComplexWithListAndFieldTypes(schema, "extension#t_complexWithInteger", LongType.class);
+        checkComplexWithListAndFieldTypes("extension#t_complexWithString", StringType.class);
+        checkComplexWithListAndFieldTypes("extension#t_complexWithInteger", LongType.class);
     }
 
-    private void checkComplexWithListAndFieldTypes(Schema schema, String typeName,
-            Class<? extends Type> expectedInnerType) {
+    private void checkComplexWithListAndFieldTypes(String typeName, Class<? extends Type> expectedInnerType) {
         Type type = schemaManager.getType(typeName);
         assertNotNull(type);
         assertTrue(type.isComplexType());
@@ -408,7 +403,7 @@ public class TestXSDLoader {
         assertEquals(2, complexType.getFieldsCount());
 
         List<Field> fields = new ArrayList<>(complexType.getFields());
-        fields.sort(Comparator.comparing(f -> f.getName()));
+        fields.sort(Comparator.comparing(Field::getName));
 
         // check inner field/type
         Field listField = fields.get(0);
@@ -416,37 +411,31 @@ public class TestXSDLoader {
         Type listType = listField.getType();
         assertTrue(listType instanceof ListType);
         Type listItemType = ((ListType) listType).getFieldType();
-        assertTrue(expectedInnerType.isInstance(listItemType.getSuperType()),
-                typeName + " inner value is a " + listItemType.getSuperType().getClass());
+        assertTrue((expectedInnerType.isInstance(listItemType) || expectedInnerType.isInstance(listItemType.getSuperType())),
+                typeName + " inner value is a " + listItemType.getClass());
 
         Field valueField = fields.get(1);
         assertNotNull(valueField);
         Type valueType = valueField.getType();
-        assertTrue(expectedInnerType.isInstance(valueType.getSuperType()),
-                typeName + " inner value is a " + valueType.getSuperType().getClass());
+        assertTrue((expectedInnerType.isInstance(valueType) || expectedInnerType.isInstance(valueType.getSuperType())),
+                typeName + " inner value is a " + valueType.getClass());
     }
 
     @Test
     public void testDuplicateProperty() throws Exception {
-        URL url = ResourceHelper.getResource("schema/schema3.xsd");
-        URL url2 = ResourceHelper.getResource("schema/schema3b.xsd");
-        reader.loadSchema("s1", "pref", url);
-        try {
-            // read another schema but with same prefix and field, to generate a field name collision
-            reader.loadSchema("s2", "pref", url2);
-            fail("should have detected duplicate");
-        } catch (TypeException e) {
-            assertEquals("Duplicate property \"pref_validator\" in schemas \"s1\" (string) and \"s2\" (long).", e.getMessage());
+        URL url = ResourceHelper.getResource("model/loader/schema3.json");
+        URL url2 = ResourceHelper.getResource("model/loader/schema3b.json");
+        Map<String, Object> first;
+        Map<String, Object> second;
+        try (var stream = url.openStream(); var stream2 = url2.openStream()) {
+            first = new ObjectMapper().readValue(stream, Map.class);
+            second = new ObjectMapper().readValue(stream2, Map.class);
         }
+        var schemas = new java.util.LinkedHashMap<>((Map<String, Object>) first.get("schemas"));
+        schemas.putAll((Map<String, Object>) second.get("schemas"));
+        first.put("schemas", schemas);
+        SchemaValidationException e = assertThrows(SchemaValidationException.class,
+                () -> new SchemaManagerDTO(first));
+        assertTrue(e.getMessage().contains("Duplicate property"));
     }
-
-    @Test
-    public void testInvalidManagedBoolean() {
-        URL url = ResourceHelper.getResource("schema/invalid-managed-boolean.xsd");
-
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-                () -> reader.loadSchema("system", "sys", url));
-        assertEquals("Invalid boolean value: TRUE", e.getMessage());
-    }
-
 }

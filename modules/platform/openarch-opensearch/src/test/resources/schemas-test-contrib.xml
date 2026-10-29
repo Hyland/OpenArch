@@ -3,16 +3,12 @@
 
   <require>com.hyland.openarch.ecm.core.schema.bootstrap</require>
 
-  <extension point="schema" target="com.hyland.openarch.ecm.core.schema.TypeService">
-    <schema name="advanced_search" prefix="search" src="schemas/test_advanced_search.xsd" />
+  <extension point="model" target="com.hyland.openarch.ecm.core.schema.TypeService">
+    <model src="model/schemas-test-contrib-schemas.json" />
   </extension>
 
-  <extension point="doctype" target="com.hyland.openarch.ecm.core.schema.TypeService">
-
-    <doctype name="AdvancedSearch" extends="SysContent">
-      <schema name="advanced_search" />
-    </doctype>
-
+  <extension point="model" target="com.hyland.openarch.ecm.core.schema.TypeService">
+    <model src="model/schemas-test-contrib-types.json" />
   </extension>
 
 </component>

@@ -1,0 +1,10 @@
+{
+  "primaryTypes": {
+    "MyFile": {
+      "extends": "SysFile",
+      "mixins": [
+        "SysVersionable"
+      ]
+    }
+  }
+}

@@ -113,6 +113,10 @@ final class ModelComposer {
             ObjectNode target = (ObjectNode) model.get(section.getKey());
             section.getValue().properties().forEach(entry -> {
                 if (target.has(entry.getKey())) {
+                    if ("types".equals(section.getKey()) && target.get(entry.getKey()).equals(entry.getValue())) {
+                        // Shared value types (notably blob) may be imported by independent schema fragments.
+                        return;
+                    }
                     throw invalid(source, "duplicate definition at /" + section.getKey() + "/" + entry.getKey()
                             + "; use a patch to change an existing definition");
                 }

@@ -1,13 +1,7 @@
 <?xml version="1.0"?>
 <component name="com.hyland.openarch.ecm.core.storage.dbs.test.dbsdocument">
 
-    <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="doctype">
-        <doctype name="SysFolder" extends="SysContent">
-            <mixin name="SysFolderish"/>
-        </doctype>
-        <doctype name="SysFile" extends="SysContent">
-            <schema name="sysfile"/>
-            <schema name="sysfiles"/>
-        </doctype>
-    </extension>
+    <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/test-dbsdocument-types.patch.json" patch="true" />
+  </extension>
 </component>

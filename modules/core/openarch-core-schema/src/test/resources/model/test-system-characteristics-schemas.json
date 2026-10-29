@@ -1,0 +1,112 @@
+{
+  "schemas": {
+    "system": {
+      "fields": {
+        "sys_acl": {
+          "extends": "string",
+          "managed": {
+            "noAutoCheckout": true,
+            "notOutput": [
+              "INDEX"
+            ],
+            "readPermission": "ManageSecurity",
+            "writePermission": "ManageSecurity"
+          }
+        },
+        "sys_ancestorIds": {
+          "type": "string"
+        },
+        "sys_effectiveAcl": {
+          "extends": "string",
+          "managed": {
+            "readPermission": "ManageSecurity"
+          }
+        },
+        "sys_isFolderish": {
+          "extends": "boolean",
+          "managed": {
+            "falseAsNull": [
+              "STORE"
+            ]
+          }
+        },
+        "sys_isTrashed": {
+          "extends": "boolean",
+          "managed": {
+            "falseAsNull": [
+              "STORE",
+              "REST",
+              "INDEX"
+            ]
+          }
+        },
+        "sys_racl": {
+          "extends": "string",
+          "managed": {
+            "readPermission": "ManageSecurity"
+          }
+        },
+        "sys_secpol": {
+          "extends": "string",
+          "managed": {
+            "readPermission": "ManageSecurity"
+          }
+        },
+        "sys_title": {
+          "type": "string"
+        }
+      },
+      "prefix": "sys"
+    },
+    "sysgovernable": {
+      "fields": {
+        "sysgov_hasLegalHold": {
+          "extends": "boolean",
+          "managed": {
+            "noAutoCheckout": true,
+            "falseAsNull": [
+              "STORE",
+              "INDEX"
+            ],
+            "writePermission": "ManageRetention"
+          }
+        },
+        "sysgov_isRecord": {
+          "extends": "boolean",
+          "managed": {
+            "noAutoCheckout": true,
+            "falseAsNull": [
+              "STORE",
+              "INDEX"
+            ],
+            "writePermission": "ManageRetention"
+          }
+        }
+      },
+      "prefix": "sysgov"
+    },
+    "sysversionable": {
+      "fields": {
+        "sysver_isCheckedIn": {
+          "extends": "boolean",
+          "managed": {
+            "falseAsNull": [
+              "STORE",
+              "INDEX"
+            ]
+          }
+        },
+        "sysver_isVersion": {
+          "extends": "boolean",
+          "managed": {
+            "falseAsNull": [
+              "STORE",
+              "INDEX"
+            ]
+          }
+        }
+      },
+      "prefix": "sysver"
+    }
+  }
+}

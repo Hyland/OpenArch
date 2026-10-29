@@ -1,0 +1,31 @@
+{
+  "primaryTypes": {
+    "File2": {
+      "extends": "SysFile",
+      "schemas": [
+        "testschema2"
+      ]
+    },
+    "MyDocType2": {
+      "extends": "SysContent",
+      "schemas": [
+        "info"
+      ]
+    },
+    "GovernableFile": {
+      "extends": "SysContent",
+      "schemas": [
+        "info"
+      ],
+      "mixins": [
+        "SysGovernable"
+      ]
+    }
+  },
+  "mixinTypes": {
+    "NotPerDocFacet": {},
+    "NotPerDocFacet2": {
+      "noPerDocumentQuery": true
+    }
+  }
+}

@@ -1,14 +1,12 @@
 <?xml version="1.0"?>
 <component name="com.hyland.openarch.ecm.platform.usermanager.tests.resolver">
 
-  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="schema">
-    <schema name="documentReferencer" src="schemas/documentResolver.xsd" prefix="dr" />
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/test-document-resolver-contrib-schemas.json" />
   </extension>
 
-  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="doctype">
-    <doctype name="TestResolver" extends="SysContent">
-      <schema name="documentReferencer" />
-    </doctype>
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/test-document-resolver-contrib-types.json" />
   </extension>
 
 </component>

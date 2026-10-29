@@ -1,0 +1,27 @@
+{
+  "schemas": {
+    "extension": {
+      "fields": {
+        "prefix_listWithInteger": {
+          "type": "extension#t_listWithInteger"
+        },
+        "prefix_listWithString": {
+          "type": "extension#t_listWithString"
+        }
+      },
+      "prefix": "prefix"
+    }
+  },
+  "types": {
+    "extension#t_listWithInteger": {
+      "list": {
+        "type": "long"
+      }
+    },
+    "extension#t_listWithString": {
+      "list": {
+        "type": "string"
+      }
+    }
+  }
+}

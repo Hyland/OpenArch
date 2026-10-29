@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<component name="com.hyland.openarch.ecm.core.CoreExtensions.security">
+
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/test-security-mapping-schemas.json" />
+  </extension>
+
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/test-security-mapping-types.json" />
+    <model src="model/test-security-mapping-types.patch.json" patch="true" />
+  </extension>
+
+</component>

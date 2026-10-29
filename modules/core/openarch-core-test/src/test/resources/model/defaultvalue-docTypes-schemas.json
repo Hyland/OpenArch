@@ -1,0 +1,30 @@
+{
+  "schemas": {
+    "defaultvalue": {
+      "fields": {
+        "dv_multiWithDefault": {
+          "extends": "defaultvalue#stringList",
+          "default": "value1 value2"
+        },
+        "dv_multiWithoutDefault": {
+          "type": "defaultvalue#stringList"
+        },
+        "dv_simpleWithDefault": {
+          "extends": "string",
+          "default": "value"
+        },
+        "dv_simpleWithoutDefault": {
+          "type": "string"
+        }
+      },
+      "prefix": "dv"
+    }
+  },
+  "types": {
+    "defaultvalue#stringList": {
+      "list": {
+        "type": "string"
+      }
+    }
+  }
+}

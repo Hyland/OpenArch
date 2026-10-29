@@ -1,0 +1,43 @@
+{
+  "schemas": {
+    "advancedSchema": {
+      "fields": {
+        "any": {
+          "type": "any"
+        },
+        "bureau": {
+          "type": "advancedSchema#BureauType"
+        },
+        "dur": {
+          "type": "string"
+        },
+        "ext": {
+          "type": "advancedSchema#UserObject"
+        },
+        "inlineBureau": {
+          "extends": "string",
+          "constraints": {
+            "nullable": true,
+            "enumeration": [
+              "EFU"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "types": {
+    "advancedSchema#BureauType": {
+      "constraints": {
+        "nullable": true,
+        "enumeration": [
+          "EFU"
+        ]
+      },
+      "extends": "string"
+    },
+    "advancedSchema#UserObject": {
+      "fields": {}
+    }
+  }
+}

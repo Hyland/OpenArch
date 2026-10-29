@@ -1,0 +1,120 @@
+{
+  "schemas": {
+    "classifier": {
+      "fields": {
+        "classifierType": {
+          "type": "classifier#classifierType"
+        },
+        "continuousBins": {
+          "list": {
+            "type": "classifier#continuousBin"
+          }
+        },
+        "integerBins": {
+          "list": {
+            "type": "classifier#integerBin"
+          }
+        },
+        "otherLabel": {
+          "type": "string"
+        },
+        "stringBins": {
+          "list": {
+            "type": "classifier#stringBin"
+          }
+        }
+      }
+    }
+  },
+  "types": {
+    "classifier#classifierType": {
+      "constraints": {
+        "nullable": true,
+        "enumeration": [
+          "Continuous",
+          "Integer",
+          "String"
+        ]
+      },
+      "extends": "string"
+    },
+    "classifier#continuousBin": {
+      "fields": {
+        "baseline": {
+          "type": "double"
+        },
+        "binType": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "role": {
+          "type": "classifier#role"
+        },
+        "upperBound": {
+          "type": "double"
+        }
+      }
+    },
+    "classifier#integerBin": {
+      "fields": {
+        "baseline": {
+          "type": "double"
+        },
+        "binType": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "matchingValues": {
+          "type": "classifier#integerValues"
+        },
+        "role": {
+          "type": "classifier#role"
+        }
+      }
+    },
+    "classifier#integerValues": {
+      "list": {
+        "type": "long"
+      }
+    },
+    "classifier#role": {
+      "constraints": {
+        "nullable": true,
+        "enumeration": [
+          "HighTarget",
+          "LowTarget",
+          "Other"
+        ]
+      },
+      "extends": "string"
+    },
+    "classifier#stringBin": {
+      "fields": {
+        "baseline": {
+          "type": "double"
+        },
+        "binType": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "matchingValues": {
+          "type": "classifier#stringValues"
+        },
+        "role": {
+          "type": "classifier#role"
+        }
+      }
+    },
+    "classifier#stringValues": {
+      "list": {
+        "type": "string"
+      }
+    }
+  }
+}

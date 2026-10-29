@@ -1,0 +1,14 @@
+{
+  "primaryTypes": {
+    "myDoc": {
+      "extends": "document",
+      "schemas": [
+        "schema2"
+      ],
+      "mixins": [
+        "viewable",
+        "writable"
+      ]
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "mixinTypes": {
+    "parent1": {},
+    "parent2": {},
+    "child": {}
+  },
+  "primaryTypes": {
+    "Parent": {
+      "extends": "SysContent",
+      "mixins": [
+        "parent1",
+        "parent2"
+      ]
+    }
+  }
+}

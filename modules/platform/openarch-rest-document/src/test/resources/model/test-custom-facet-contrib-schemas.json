@@ -1,0 +1,12 @@
+{
+  "schemas": {
+    "customschema": {
+      "fields": {
+        "customschema_string": {
+          "type": "string"
+        }
+      },
+      "prefix": "customschema"
+    }
+  }
+}

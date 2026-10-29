@@ -1,0 +1,33 @@
+{
+  "schemas": {
+    "constraints": {
+      "fields": {
+        "cs_coverage": {
+          "extends": "string",
+          "constraints": {
+            "resolver": {
+              "name": "vocabularyResolver",
+              "validation": true,
+              "repository": "test",
+              "vocabulary": "coverage"
+            },
+            "nullable": true
+          }
+        },
+        "cs_nature": {
+          "extends": "string",
+          "constraints": {
+            "resolver": {
+              "name": "vocabularyResolver",
+              "validation": true,
+              "repository": "test",
+              "vocabulary": "nature"
+            },
+            "nullable": true
+          }
+        }
+      },
+      "prefix": "cs"
+    }
+  }
+}

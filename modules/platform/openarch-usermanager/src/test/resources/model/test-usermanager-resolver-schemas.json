@@ -1,0 +1,41 @@
+{
+  "schemas": {
+    "userManagerResolver": {
+      "fields": {
+        "umr_group": {
+          "extends": "string",
+          "constraints": {
+            "resolver": {
+              "name": "userManagerResolver",
+              "validation": true,
+              "type": "group"
+            },
+            "nullable": true
+          }
+        },
+        "umr_user": {
+          "extends": "string",
+          "constraints": {
+            "resolver": {
+              "name": "userManagerResolver",
+              "validation": true,
+              "type": "user"
+            },
+            "nullable": true
+          }
+        },
+        "umr_userOrGroup": {
+          "extends": "string",
+          "constraints": {
+            "resolver": {
+              "name": "userManagerResolver",
+              "validation": true
+            },
+            "nullable": true
+          }
+        }
+      },
+      "prefix": "umr"
+    }
+  }
+}

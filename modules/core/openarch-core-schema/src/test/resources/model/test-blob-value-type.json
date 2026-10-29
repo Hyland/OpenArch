@@ -1,0 +1,20 @@
+{
+  "types": {
+    "blob": {
+      "fields": {
+        "encoding": {
+          "type": "string"
+        },
+        "filename": {
+          "type": "string"
+        },
+        "key": {
+          "type": "binary"
+        },
+        "mimeType": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

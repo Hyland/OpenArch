@@ -1,38 +1,9 @@
 <?xml version="1.0"?>
 <component name="com.hyland.openarch.ecm.core.security.tests">
-  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="schema">
-    <!-- the tests don't take into account the actual schema content, they can all reference the same xsd -->
-    <schema name="schema1" src="schemas/security-policy-schema.xsd" />
-    <schema name="schema2" src="schemas/security-policy-schema.xsd" />
-    <schema name="schema3" src="schemas/security-policy-schema.xsd" />
-    <schema name="schema4" src="schemas/security-policy-schema.xsd" />
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/test-security-policy-service-schemas.json" />
   </extension>
-  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="doctype">
-    <mixin name="Mixin1">
-      <schema name="schema1" />
-    </mixin>
-    <mixin name="Mixin2">
-      <schema name="schema2" />
-    </mixin>
-    <mixin name="Mixin3">
-      <schema name="schema3" />
-    </mixin>
-    <mixin name="Mixin4">
-      <schema name="schema4" />
-    </mixin>
-    <mixin name="tooManyBusinessProperties">
-      <schema name="schema1" />
-      <schema name="sysfile" />
-    </mixin>
-    <doctype name="ContentA" extends="SysContent">
-    </doctype>
-    <doctype name="ContentB" extends="SysContent">
-    </doctype>
-    <doctype name="ContentC" extends="SysContent">
-    </doctype>
-    <doctype name="ContentD" extends="SysContent">
-    </doctype>
-    <doctype name="ContentE" extends="SysContent">
-    </doctype>
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/test-security-policy-service-types.json" />
   </extension>
 </component>

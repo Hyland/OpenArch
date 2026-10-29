@@ -17,43 +17,13 @@
     </openSearchIndex>
   </extension>
 
-  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="schema">
-    <schema name="mydublincore" prefix="mydc" src="schemas/mydublincore.xsd"/>
-    <schema name="note" src="schemas/note.xsd"/>
-    <schema name="any" prefix="any" src="schemas/any.xsd"/>
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/opensearch-test-contrib-schemas.json" />
   </extension>
 
-  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="doctype">
-
-    <!-- add mydublincore to standard doctypes -->
-    <doctype name="SysFolder" extends="SysContent">
-      <schema name="mydublincore"/>
-      <mixin name="SysFolderish"/>
-      <subtypes>
-        <type>SysFolder</type>
-        <type>SysOrderedFolder</type>
-        <type>SysFile</type>
-      </subtypes>
-    </doctype>
-    <doctype name="SysFile" extends="SysContent">
-      <schema name="mydublincore"/>
-      <schema name="sysfiles"/>
-      <mixin name="SysFilish"/>
-    </doctype>
-
-    <doctype name="Note" extends="SysContent">
-      <schema name="note"/>
-      <schema name="sysfiles"/>
-      <schema name="mydublincore"/>
-      <mixin name="SysVersionable"/>
-    </doctype>
-
-    <doctype name="MyFile" extends="SysFile">
-      <schema name="any" />
-      <mixin name="SysVersionable"/>
-      <mixin name="SysGovernable" />
-    </doctype>
-
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/opensearch-test-contrib-types.json" />
+    <model src="model/opensearch-test-contrib-types.patch.json" patch="true" />
   </extension>
 
 </component>

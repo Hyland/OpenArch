@@ -1,0 +1,4 @@
+[
+  { "op": "remove", "path": "/mixinTypes/someFacet" },
+  { "op": "remove", "path": "/primaryTypes/myDoc/mixins" }
+]

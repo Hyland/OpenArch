@@ -1,0 +1,28 @@
+{
+  "schemas": {
+    "schema12": {
+      "fields": {
+        "field1": {
+          "type": "schema12#sampleType"
+        },
+        "self": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "types": {
+    "schema12#sampleType": {
+      "fields": {
+        "label": {
+          "type": "string"
+        },
+        "roles": {
+          "list": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

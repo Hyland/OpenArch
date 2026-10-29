@@ -5,14 +5,12 @@
     <resolver type="colorResolver" class="com.hyland.openarch.ecm.core.schema.types.resolver.TestingColorResolver" />
   </extension>
 
-  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="schema">
-    <schema name="resolverSample" src="schemas/resolverSample.xsd" prefix="res" />
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/test-resolver-service-contrib-schemas.json" />
   </extension>
 
-  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="doctype">
-    <doctype name="TestResolver" extends="SysContent">
-      <schema name="resolverSample" />
-    </doctype>
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/test-resolver-service-contrib-types.json" />
   </extension>
 
   <extension target="com.hyland.openarch.ecm.core.api.DocumentValidationService" point="activations">

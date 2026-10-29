@@ -1,0 +1,25 @@
+{
+  "primaryTypes": {
+    "Note": {
+      "extends": "SysContent",
+      "schemas": [
+        "note",
+        "sysfiles",
+        "mydublincore"
+      ],
+      "mixins": [
+        "SysVersionable"
+      ]
+    },
+    "MyFile": {
+      "extends": "SysFile",
+      "schemas": [
+        "any"
+      ],
+      "mixins": [
+        "SysVersionable",
+        "SysGovernable"
+      ]
+    }
+  }
+}

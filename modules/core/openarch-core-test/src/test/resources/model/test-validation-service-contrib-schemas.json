@@ -1,0 +1,131 @@
+{
+  "schemas": {
+    "validationSample": {
+      "fields": {
+        "vs_anotherSimpleList": {
+          "list": {
+            "type": "string"
+          },
+          "constraints": {
+            "nullable": false
+          }
+        },
+        "vs_dummyComplex1": {
+          "type": "validationSample#t_dummyComplex1"
+        },
+        "vs_dummyComplex2": {
+          "type": "validationSample#t_dummyComplex2"
+        },
+        "vs_groupCode": {
+          "extends": "long",
+          "constraints": {
+            "nullable": false,
+            "minExclusive": 0
+          }
+        },
+        "vs_manager": {
+          "type": "validationSample#user"
+        },
+        "vs_required_complexType": {
+          "fields": {
+            "a_string": {
+              "type": "string"
+            }
+          },
+          "constraints": {
+            "nullable": false
+          }
+        },
+        "vs_required_simpleType": {
+          "extends": "string",
+          "constraints": {
+            "nullable": false
+          },
+          "default": "imdefault"
+        },
+        "vs_roles": {
+          "list": {
+            "extends": "string",
+            "constraints": {
+              "nullable": false,
+              "pattern": "[a-zA-Z0-9]+"
+            }
+          }
+        },
+        "vs_simpleList": {
+          "list": {
+            "extends": "string",
+            "constraints": {
+              "nullable": true,
+              "pattern": "[0-9]*"
+            }
+          }
+        },
+        "vs_simpleStringList": {
+          "list": {
+            "type": "string"
+          },
+          "constraints": {
+            "nullable": false
+          }
+        },
+        "vs_users": {
+          "list": {
+            "type": "validationSample#user"
+          }
+        }
+      },
+      "prefix": "vs"
+    }
+  },
+  "types": {
+    "validationSample#t_dummyComplex1": {
+      "fields": {
+        "value": {
+          "extends": "string",
+          "constraints": {
+            "resolver": {
+              "name": "dummyResolver",
+              "validation": true,
+              "fetchIt": "true"
+            },
+            "nullable": true
+          }
+        }
+      }
+    },
+    "validationSample#t_dummyComplex2": {
+      "fields": {
+        "value": {
+          "extends": "string",
+          "constraints": {
+            "resolver": {
+              "name": "dummyResolver",
+              "validation": true,
+              "fetchIt": "false"
+            },
+            "nullable": true
+          }
+        }
+      }
+    },
+    "validationSample#user": {
+      "fields": {
+        "firstname": {
+          "extends": "string",
+          "constraints": {
+            "nullable": false,
+            "pattern": ".*\\S.*"
+          }
+        },
+        "lastname": {
+          "extends": "string",
+          "constraints": {
+            "nullable": false,
+            "pattern": "[A-Z][a-z '-]+"
+          }
+        }
+      }
+    }
+  }
+}

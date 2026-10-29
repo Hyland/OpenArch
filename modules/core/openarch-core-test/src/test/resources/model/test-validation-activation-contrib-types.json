@@ -1,0 +1,10 @@
+{
+  "primaryTypes": {
+    "ValidatedUserGroup": {
+      "extends": "SysContent",
+      "schemas": [
+        "validationSample"
+      ]
+    }
+  }
+}

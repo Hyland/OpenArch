@@ -57,16 +57,12 @@ public class TestSchemaManagerDTO {
                     }
                 """;
         Map<String, Object> map = MAPPER.readValue(modelJson, Map.class);
-        try {
-            new SchemaManagerDTO(map, null, false);
-            // fail("should have detected duplicate");
-            // for now an error is logged
-        } catch (SchemaValidationException e) {
-            ValidationReport report = e.getReport();
-            assertEquals(1, report.numberOfViolations());
-            String msg = report.asList().get(0).getMessage(Locale.ENGLISH);
-            assertEquals("Duplicate property \"pref_validator\" in schemas \"s1\" (string) and \"s2\" (long).", msg);
-        }
+        SchemaValidationException e = assertThrows(SchemaValidationException.class,
+                () -> new SchemaManagerDTO(map, null, false));
+        ValidationReport report = e.getReport();
+        assertEquals(1, report.numberOfViolations());
+        String msg = report.asList().get(0).getMessage(Locale.ENGLISH);
+        assertEquals("Duplicate property \"pref_validator\" in schemas \"s1\" (string) and \"s2\" (long).", msg);
     }
 
     @Test

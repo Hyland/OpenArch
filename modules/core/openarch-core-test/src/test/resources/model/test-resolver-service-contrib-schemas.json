@@ -1,0 +1,124 @@
+{
+  "schemas": {
+    "resolverSample": {
+      "fields": {
+        "res_colorComplexList": {
+          "list": {
+            "fields": {
+              "color1": {
+                "extends": "string",
+                "constraints": {
+                  "resolver": {
+                    "name": "colorResolver",
+                    "validation": true,
+                    "mode": "PRIMARY"
+                  },
+                  "nullable": true
+                }
+              },
+              "color2": {
+                "extends": "string",
+                "constraints": {
+                  "resolver": {
+                    "name": "colorResolver",
+                    "validation": true,
+                    "mode": "SECONDARY"
+                  },
+                  "nullable": true
+                }
+              }
+            }
+          }
+        },
+        "res_colorList": {
+          "list": {
+            "extends": "string",
+            "constraints": {
+              "resolver": {
+                "name": "colorResolver",
+                "validation": true,
+                "mode": "PRIMARY"
+              },
+              "nullable": true
+            }
+          }
+        },
+        "res_isNotReference1": {
+          "type": "string"
+        },
+        "res_isNotReference2": {
+          "type": "string"
+        },
+        "res_isNotReference3": {
+          "type": "string"
+        },
+        "res_isReference1": {
+          "extends": "string",
+          "constraints": {
+            "resolver": {
+              "name": "colorResolver",
+              "validation": true,
+              "mode": "PRIMARY"
+            },
+            "nullable": true
+          }
+        },
+        "res_isReference2": {
+          "extends": "string",
+          "constraints": {
+            "resolver": {
+              "name": "colorResolver",
+              "validation": true,
+              "mode": "PRIMARY"
+            },
+            "nullable": true
+          }
+        },
+        "res_isReference3": {
+          "extends": "string",
+          "constraints": {
+            "resolver": {
+              "name": "colorResolver",
+              "validation": true,
+              "mode": "PRIMARY"
+            },
+            "nullable": true
+          }
+        },
+        "res_isReferenceButParamMissingFailed1": {
+          "extends": "string",
+          "constraints": {
+            "resolver": {
+              "name": "colorResolver",
+              "validation": true
+            },
+            "nullable": true
+          }
+        },
+        "res_isReferenceButWrongParamFailed1": {
+          "extends": "string",
+          "constraints": {
+            "resolver": {
+              "name": "colorResolver",
+              "validation": true,
+              "mode": "BRIGHT"
+            },
+            "nullable": true
+          }
+        },
+        "res_primaryColor": {
+          "extends": "string",
+          "constraints": {
+            "resolver": {
+              "name": "colorResolver",
+              "validation": true,
+              "mode": "PRIMARY"
+            },
+            "nullable": true
+          }
+        }
+      },
+      "prefix": "res"
+    }
+  }
+}

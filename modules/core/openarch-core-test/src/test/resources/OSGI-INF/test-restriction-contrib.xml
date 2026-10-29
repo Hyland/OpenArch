@@ -1,17 +1,12 @@
 <?xml version="1.0"?>
 <component name="com.hyland.openarch.ecm.core.storage.sql.tests.repo.restriction">
 
-  <extension target="com.hyland.openarch.ecm.core.schema.TypeService"
-    point="schema">
-    <schema name="restriction" src="schemas/testrestriction.xsd"
-      prefix="restr" />
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/test-restriction-contrib-schemas.json" />
   </extension>
 
-  <extension target="com.hyland.openarch.ecm.core.schema.TypeService"
-    point="doctype">
-    <doctype name="Restriction" extends="SysContent">
-      <schema name="restriction" />
-    </doctype>
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/test-restriction-contrib-types.json" />
   </extension>
 
 </component>

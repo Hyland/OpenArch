@@ -1,0 +1,31 @@
+{
+  "schemas": {
+    "extension": {
+      "fields": {
+        "prefix_complexWithInteger": {
+          "type": "extension#t_complexWithInteger"
+        },
+        "prefix_complexWithString": {
+          "type": "extension#t_complexWithString"
+        }
+      },
+      "prefix": "prefix"
+    }
+  },
+  "types": {
+    "extension#t_complexWithInteger": {
+      "fields": {
+        "value": {
+          "type": "long"
+        }
+      }
+    },
+    "extension#t_complexWithString": {
+      "fields": {
+        "value": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,167 @@
+{
+  "schemas": {
+    "testrestriction": {
+      "fields": {
+        "binaryConstraints": {
+          "extends": "binary",
+          "constraints": {
+            "nullable": false
+          }
+        },
+        "booleanConstraints": {
+          "extends": "boolean",
+          "constraints": {
+            "nullable": false
+          }
+        },
+        "dateConstraints": {
+          "extends": "date",
+          "constraints": {
+            "nullable": false,
+            "minInclusive": "2015-01-01T00:00:00Z",
+            "maxInclusive": "2016-12-31T00:00:00Z"
+          }
+        },
+        "decimalConstraints": {
+          "extends": "decimal",
+          "constraints": {
+            "nullable": false,
+            "minInclusive": 2015.001,
+            "maxInclusive": 2017.999,
+            "pattern": "[^6]*",
+            "enumeration": [
+              "2014.15",
+              "2015.1555",
+              "2016.15",
+              "2017.15",
+              "2017.15555",
+              "2017.155555",
+              "2018.15"
+            ]
+          }
+        },
+        "doubleConstraints": {
+          "extends": "double",
+          "constraints": {
+            "nullable": false,
+            "minInclusive": 2015.001,
+            "maxInclusive": 2017.999,
+            "pattern": "[^6]*",
+            "enumeration": [
+              "2014.15",
+              "2015.1555",
+              "2016.15",
+              "2017.15",
+              "2017.15555",
+              "2017.155555",
+              "2018.15"
+            ]
+          }
+        },
+        "elementCanBeNull1": {
+          "type": "string"
+        },
+        "elementCanBeNull2": {
+          "type": "string"
+        },
+        "elementCanBeNull3": {
+          "type": "string"
+        },
+        "elementCanBeNull4": {
+          "type": "string"
+        },
+        "elementCannotBeNull1": {
+          "extends": "string",
+          "constraints": {
+            "nullable": false
+          }
+        },
+        "elementCannotBeNull2": {
+          "extends": "string",
+          "constraints": {
+            "nullable": false
+          }
+        },
+        "elementShouldNotBeNullButCanBeNull1": {
+          "type": "string"
+        },
+        "elementShouldNotBeNullButCanBeNull2": {
+          "type": "string"
+        },
+        "elementShouldNotBeNullButCanBeNull3": {
+          "type": "string"
+        },
+        "firstname": {
+          "extends": "string",
+          "constraints": {
+            "nullable": false,
+            "pattern": ".*\\S+.*"
+          }
+        },
+        "listOfLists": {
+          "type": "testrestriction#vlistOfListsType"
+        },
+        "nomEmptyStringContainingAtLeastOneA": {
+          "extends": "string",
+          "constraints": {
+            "nullable": true,
+            "pattern": ".*A+.*"
+          }
+        },
+        "simpleListWithConstraints": {
+          "type": "testrestriction#vstringList"
+        },
+        "stringConstraints": {
+          "extends": "string",
+          "constraints": {
+            "minLength": 2,
+            "maxLength": 4,
+            "nullable": false,
+            "pattern": "[^3]*",
+            "enumeration": [
+              "1",
+              "1234",
+              "22",
+              "333",
+              "4444",
+              "55555"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "types": {
+    "testrestriction#externalConstraints": {
+      "constraints": {
+        "nullable": true,
+        "pattern": ".*[^\\s]+.*"
+      },
+      "extends": "string"
+    },
+    "testrestriction#vlistOfListsItemType": {
+      "fields": {
+        "stringItem": {
+          "type": "string"
+        },
+        "stringListItem": {
+          "type": "testrestriction#vstringList"
+        }
+      }
+    },
+    "testrestriction#vlistOfListsType": {
+      "list": {
+        "type": "testrestriction#vlistOfListsItemType"
+      }
+    },
+    "testrestriction#vstringList": {
+      "list": {
+        "extends": "string",
+        "constraints": {
+          "nullable": true,
+          "pattern": "[A-Z][a-z '-]+"
+        }
+      }
+    }
+  }
+}

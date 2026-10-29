@@ -361,6 +361,7 @@ public class TestTypes {
     }
 
     @Test
+    @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/test-blob-value-type.xml")
     @Deploy("com.hyland.openarch.ecm.core.schema:OSGI-INF/test-advanced-schema.xml")
     public void testFieldFromXpath() throws Exception {
         Field field = schemaManager.getField("tp_foo");

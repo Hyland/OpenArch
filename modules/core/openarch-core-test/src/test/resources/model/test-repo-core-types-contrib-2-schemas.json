@@ -1,0 +1,62 @@
+{
+  "schemas": {
+    "testschema2": {
+      "fields": {
+        "tst2_bignotes": {
+          "type": "testschema2#stringArray"
+        },
+        "tst2_counts": {
+          "type": "testschema2#intList"
+        },
+        "tst2_dates": {
+          "type": "testschema2#dateList"
+        },
+        "tst2_notifs": {
+          "type": "testschema2#notifications"
+        },
+        "tst2_subjects": {
+          "type": "testschema2#stringArray"
+        },
+        "tst2_title": {
+          "type": "string"
+        }
+      },
+      "prefix": "tst2"
+    }
+  },
+  "types": {
+    "testschema2#dateList": {
+      "list": {
+        "type": "date"
+      }
+    },
+    "testschema2#intList": {
+      "list": {
+        "type": "long"
+      }
+    },
+    "testschema2#notification": {
+      "fields": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "name": {
+          "type": "string"
+        },
+        "subscribers": {
+          "type": "testschema2#stringArray"
+        }
+      }
+    },
+    "testschema2#notifications": {
+      "list": {
+        "type": "testschema2#notification"
+      }
+    },
+    "testschema2#stringArray": {
+      "list": {
+        "type": "string"
+      }
+    }
+  }
+}

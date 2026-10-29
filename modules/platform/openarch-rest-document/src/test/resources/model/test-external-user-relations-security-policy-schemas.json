@@ -1,0 +1,12 @@
+{
+  "schemas": {
+    "owned": {
+      "fields": {
+        "own_ownerId": {
+          "type": "string"
+        }
+      },
+      "prefix": "own"
+    }
+  }
+}

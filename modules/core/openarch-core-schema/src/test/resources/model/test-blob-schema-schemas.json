@@ -1,0 +1,12 @@
+{
+  "schemas": {
+    "file": {
+      "fields": {
+        "fl_blob": {
+          "type": "blob"
+        }
+      },
+      "prefix": "fl"
+    }
+  }
+}

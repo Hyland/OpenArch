@@ -1,0 +1,181 @@
+{
+  "schemas": {
+    "dublincore": {
+      "fields": {
+        "dc_contributors": {
+          "type": "dublincore#contributorList"
+        },
+        "dc_coverage": {
+          "type": "string"
+        },
+        "dc_created": {
+          "type": "date"
+        },
+        "dc_creator": {
+          "type": "string"
+        },
+        "dc_description": {
+          "type": "string"
+        },
+        "dc_expired": {
+          "type": "date"
+        },
+        "dc_format": {
+          "type": "string"
+        },
+        "dc_issued": {
+          "type": "date"
+        },
+        "dc_language": {
+          "type": "string"
+        },
+        "dc_modified": {
+          "type": "date"
+        },
+        "dc_rights": {
+          "type": "string"
+        },
+        "dc_source": {
+          "type": "string"
+        },
+        "dc_subjects": {
+          "type": "dublincore#subjectList"
+        },
+        "dc_title": {
+          "type": "string"
+        },
+        "dc_valid": {
+          "type": "date"
+        }
+      },
+      "prefix": "dc"
+    },
+    "testProperties": {
+      "fields": {
+        "tp_complex": {
+          "type": "testProperties#complexType"
+        },
+        "tp_complexChain": {
+          "type": "testProperties#complexChain"
+        },
+        "tp_complexList": {
+          "type": "testProperties#complexListType"
+        },
+        "tp_dateArray": {
+          "type": "testProperties#dateArrayType"
+        },
+        "tp_fileComplexList": {
+          "type": "testProperties#fileComplexListType"
+        },
+        "tp_fileList": {
+          "type": "testProperties#fileListType"
+        },
+        "tp_intArray": {
+          "type": "testProperties#intArrayType"
+        },
+        "tp_listOfLists": {
+          "type": "testProperties#listOfListsType"
+        },
+        "tp_stringArray": {
+          "type": "testProperties#stringArrayType"
+        }
+      },
+      "prefix": "tp"
+    }
+  },
+  "types": {
+    "dublincore#contributorList": {
+      "list": {
+        "type": "string"
+      }
+    },
+    "dublincore#subjectList": {
+      "list": {
+        "type": "string"
+      }
+    },
+    "testProperties#complexChain": {
+      "fields": {
+        "complexItem": {
+          "type": "testProperties#complexType"
+        },
+        "stringItem": {
+          "type": "string"
+        }
+      }
+    },
+    "testProperties#complexListType": {
+      "list": {
+        "type": "testProperties#complexType"
+      }
+    },
+    "testProperties#complexType": {
+      "fields": {
+        "dateItem": {
+          "type": "date"
+        },
+        "intItem": {
+          "type": "long"
+        },
+        "stringItem": {
+          "type": "string"
+        }
+      }
+    },
+    "testProperties#dateArrayType": {
+      "list": {
+        "type": "date"
+      }
+    },
+    "testProperties#fileComplexListType": {
+      "list": {
+        "type": "testProperties#fileComplexType"
+      }
+    },
+    "testProperties#fileComplexType": {
+      "fields": {
+        "blobItem": {
+          "type": "blob"
+        },
+        "filenameItem": {
+          "type": "string"
+        }
+      }
+    },
+    "testProperties#fileListType": {
+      "list": {
+        "type": "blob"
+      }
+    },
+    "testProperties#intArrayType": {
+      "list": {
+        "type": "long"
+      }
+    },
+    "testProperties#listOfListsItemType": {
+      "fields": {
+        "stringItem": {
+          "type": "string"
+        },
+        "stringListItem": {
+          "type": "testProperties#stringList"
+        }
+      }
+    },
+    "testProperties#listOfListsType": {
+      "list": {
+        "type": "testProperties#listOfListsItemType"
+      }
+    },
+    "testProperties#stringArrayType": {
+      "list": {
+        "type": "string"
+      }
+    },
+    "testProperties#stringList": {
+      "list": {
+        "type": "string"
+      }
+    }
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "schemas": {
+    "documentReferencer": {
+      "fields": {
+        "dr_docIdOnlyRef": {
+          "extends": "string",
+          "constraints": {
+            "resolver": {
+              "name": "documentResolver",
+              "validation": true,
+              "store": "idOnly"
+            },
+            "nullable": true
+          }
+        },
+        "dr_docPathOnlyRef": {
+          "extends": "string",
+          "constraints": {
+            "resolver": {
+              "name": "documentResolver",
+              "validation": true,
+              "store": "pathOnly"
+            },
+            "nullable": true
+          }
+        },
+        "dr_docRepoAndIdRef": {
+          "extends": "string",
+          "constraints": {
+            "resolver": {
+              "name": "documentResolver",
+              "validation": true,
+              "store": "id"
+            },
+            "nullable": true
+          }
+        },
+        "dr_docRepoAndPathRef": {
+          "extends": "string",
+          "constraints": {
+            "resolver": {
+              "name": "documentResolver",
+              "validation": true,
+              "store": "path"
+            },
+            "nullable": true
+          }
+        }
+      },
+      "prefix": "dr"
+    }
+  }
+}

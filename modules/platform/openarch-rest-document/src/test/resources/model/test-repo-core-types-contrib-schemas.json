@@ -1,0 +1,170 @@
+{
+  "schemas": {
+    "mydublincore": {
+      "fields": {
+        "mydc_coverage": {
+          "type": "string"
+        },
+        "mydc_decimal": {
+          "type": "decimal"
+        },
+        "mydc_expired": {
+          "type": "date"
+        },
+        "mydc_format": {
+          "type": "string"
+        },
+        "mydc_issued": {
+          "type": "date"
+        },
+        "mydc_language": {
+          "type": "string"
+        },
+        "mydc_nature": {
+          "type": "string"
+        },
+        "mydc_publisher": {
+          "type": "string"
+        },
+        "mydc_rights": {
+          "type": "string"
+        },
+        "mydc_source": {
+          "type": "string"
+        },
+        "mydc_subjects": {
+          "type": "mydublincore#stringList"
+        },
+        "mydc_valid": {
+          "type": "date"
+        }
+      },
+      "prefix": "mydc"
+    },
+    "test-properties": {
+      "fields": {
+        "tp_complex": {
+          "type": "test-properties#complexType"
+        },
+        "tp_complexChain": {
+          "type": "test-properties#complexChain"
+        },
+        "tp_complexList": {
+          "type": "test-properties#complexListType"
+        },
+        "tp_dateArray": {
+          "type": "test-properties#dateArrayType"
+        },
+        "tp_decimal": {
+          "type": "decimal"
+        },
+        "tp_fileComplexList": {
+          "type": "test-properties#fileComplexListType"
+        },
+        "tp_fileList": {
+          "type": "test-properties#fileListType"
+        },
+        "tp_intArray": {
+          "type": "test-properties#intArrayType"
+        },
+        "tp_listOfLists": {
+          "type": "test-properties#listOfListsType"
+        },
+        "tp_stringArray": {
+          "type": "test-properties#stringArrayType"
+        }
+      },
+      "prefix": "tp"
+    }
+  },
+  "types": {
+    "mydublincore#stringList": {
+      "list": {
+        "type": "string"
+      }
+    },
+    "test-properties#complexChain": {
+      "fields": {
+        "chainStringItem": {
+          "type": "string"
+        },
+        "complexItem": {
+          "type": "test-properties#complexType"
+        }
+      }
+    },
+    "test-properties#complexListType": {
+      "list": {
+        "type": "test-properties#complexType"
+      }
+    },
+    "test-properties#complexType": {
+      "fields": {
+        "dateItem": {
+          "type": "date"
+        },
+        "intItem": {
+          "type": "long"
+        },
+        "stringItem": {
+          "type": "string"
+        }
+      }
+    },
+    "test-properties#dateArrayType": {
+      "list": {
+        "type": "date"
+      }
+    },
+    "test-properties#fileComplexListType": {
+      "list": {
+        "type": "test-properties#fileComplexType"
+      }
+    },
+    "test-properties#fileComplexType": {
+      "fields": {
+        "blobItem": {
+          "type": "blob"
+        },
+        "filenameItem": {
+          "type": "string"
+        }
+      }
+    },
+    "test-properties#fileListType": {
+      "list": {
+        "type": "blob"
+      }
+    },
+    "test-properties#intArrayType": {
+      "list": {
+        "type": "long"
+      }
+    },
+    "test-properties#listOfListsItemType": {
+      "fields": {
+        "stringItem": {
+          "type": "string"
+        },
+        "stringListItem": {
+          "type": "test-properties#stringList"
+        }
+      }
+    },
+    "test-properties#listOfListsType": {
+      "list": {
+        "type": "test-properties#listOfListsItemType"
+      }
+    },
+    "test-properties#stringArrayType": {
+      "list": {
+        "type": "string"
+      }
+    },
+    "test-properties#stringList": {
+      "list": {
+        "type": "string"
+      }
+    }
+  }
+}

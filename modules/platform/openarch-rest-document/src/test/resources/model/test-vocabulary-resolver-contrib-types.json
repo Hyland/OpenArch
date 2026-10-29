@@ -1,0 +1,10 @@
+{
+  "primaryTypes": {
+    "DirectoryReferencer": {
+      "extends": "SysContent",
+      "schemas": [
+        "vocabularyResolver"
+      ]
+    }
+  }
+}

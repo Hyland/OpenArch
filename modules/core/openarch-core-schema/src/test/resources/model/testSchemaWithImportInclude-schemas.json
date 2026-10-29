@@ -1,0 +1,46 @@
+{
+  "schemas": {
+    "schemaWithIncludeAndImport": {
+      "fields": {
+        "sii_field1": {
+          "type": "string"
+        },
+        "sii_field2": {
+          "type": "date"
+        },
+        "sii_field3": {
+          "type": "schemaWithIncludeAndImport#typeA"
+        },
+        "sii_field4": {
+          "type": "schemaWithIncludeAndImport#typeB"
+        }
+      },
+      "prefix": "sii"
+    }
+  },
+  "types": {
+    "schemaWithIncludeAndImport#typeA": {
+      "fields": {
+        "field1": {
+          "type": "string"
+        },
+        "field2": {
+          "type": "string"
+        },
+        "field3": {
+          "type": "string"
+        }
+      }
+    },
+    "schemaWithIncludeAndImport#typeB": {
+      "fields": {
+        "fieldA": {
+          "type": "string"
+        },
+        "fieldB": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

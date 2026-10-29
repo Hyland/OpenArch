@@ -1,0 +1,10 @@
+{
+  "primaryTypes": {
+    "FileDoc": {
+      "extends": "SysContent",
+      "schemas": [
+        "file"
+      ]
+    }
+  }
+}

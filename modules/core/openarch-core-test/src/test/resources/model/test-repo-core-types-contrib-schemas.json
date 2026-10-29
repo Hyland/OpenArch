@@ -1,0 +1,422 @@
+{
+  "schemas": {
+    "mydublincore": {
+      "fields": {
+        "mydc_contributors": {
+          "type": "mydublincore#stringList"
+        },
+        "mydc_coverage": {
+          "type": "string"
+        },
+        "mydc_expired": {
+          "type": "date"
+        },
+        "mydc_format": {
+          "type": "string"
+        },
+        "mydc_issued": {
+          "type": "date"
+        },
+        "mydc_language": {
+          "type": "string"
+        },
+        "mydc_nature": {
+          "type": "string"
+        },
+        "mydc_publisher": {
+          "type": "string"
+        },
+        "mydc_rights": {
+          "type": "string"
+        },
+        "mydc_source": {
+          "type": "string"
+        },
+        "mydc_subjects": {
+          "type": "mydublincore#stringList"
+        },
+        "mydc_valid": {
+          "type": "date"
+        }
+      },
+      "prefix": "mydc"
+    },
+    "note": {
+      "fields": {
+        "note_mime_type": {
+          "type": "string"
+        },
+        "note_note": {
+          "type": "note#clob"
+        }
+      },
+      "prefix": "note"
+    },
+    "myschema": {
+      "fields": {
+        "my_boolean": {
+          "type": "boolean"
+        },
+        "my_content": {
+          "type": "blob"
+        },
+        "my_date": {
+          "type": "date"
+        },
+        "my_decimal": {
+          "type": "decimal"
+        },
+        "my_double": {
+          "type": "double"
+        },
+        "my_integer": {
+          "type": "long"
+        },
+        "my_long": {
+          "type": "long"
+        },
+        "my_name": {
+          "type": "myschema#mylibName"
+        },
+        "my_string": {
+          "type": "string"
+        },
+        "my_testDefault": {
+          "extends": "string",
+          "default": "the default value"
+        },
+        "my_testDefaultLong": {
+          "extends": "long",
+          "default": "0"
+        }
+      },
+      "prefix": "my"
+    },
+    "book": {
+      "fields": {
+        "book_author": {
+          "type": "book#mylibPerson"
+        },
+        "book_price": {
+          "type": "long"
+        },
+        "book_title": {
+          "type": "string"
+        }
+      },
+      "prefix": "book"
+    },
+    "testList": {
+      "fields": {
+        "testList_attachments": {
+          "type": "testList#attachments"
+        },
+        "testList_complexlist": {
+          "type": "testList#complexlist"
+        },
+        "testList_participants": {
+          "type": "testList#theList"
+        },
+        "testList_simplelist": {
+          "type": "testList#simplelist"
+        },
+        "testList_strings": {
+          "type": "testList#list"
+        }
+      },
+      "prefix": "testList"
+    },
+    "complexschema": {
+      "fields": {
+        "cmpf_attachedFile": {
+          "type": "complexschema#fileext"
+        }
+      },
+      "prefix": "cmpf"
+    },
+    "test-properties": {
+      "fields": {
+        "tp_complex": {
+          "type": "test-properties#complexType"
+        },
+        "tp_complexChain": {
+          "type": "test-properties#complexChain"
+        },
+        "tp_complexList": {
+          "type": "test-properties#complexListType"
+        },
+        "tp_dateArray": {
+          "type": "test-properties#dateArrayType"
+        },
+        "tp_doubleArray": {
+          "type": "test-properties#doubleArrayType"
+        },
+        "tp_fileComplexList": {
+          "type": "test-properties#fileComplexListType"
+        },
+        "tp_fileList": {
+          "type": "test-properties#fileListType"
+        },
+        "tp_intArray": {
+          "type": "test-properties#intArrayType"
+        },
+        "tp_removedPropertyFallback": {
+          "type": "string"
+        },
+        "tp_stringArray": {
+          "type": "test-properties#stringArrayType"
+        }
+      },
+      "prefix": "tp"
+    },
+    "age": {
+      "fields": {
+        "age_age": {
+          "type": "string"
+        },
+        "age_fullname": {
+          "type": "age#ageperson"
+        },
+        "age_nicknames": {
+          "type": "age#stringArray"
+        },
+        "age_title": {
+          "type": "string"
+        }
+      },
+      "prefix": "age"
+    },
+    "info": {
+      "fields": {
+        "info_info": {
+          "type": "string"
+        }
+      },
+      "prefix": "info"
+    },
+    "complex": {
+      "fields": {
+        "cpx_complex": {
+          "type": "complex#complex"
+        },
+        "cpx_complex2": {
+          "type": "complex#complex"
+        }
+      },
+      "prefix": "cpx"
+    },
+    "complexList": {
+      "fields": {
+        "cpxl_complexList": {
+          "type": "complexList#complexList"
+        }
+      },
+      "prefix": "cpxl"
+    }
+  },
+  "types": {
+    "myschema#MyString": {
+      "constraints": {
+        "nullable": true,
+        "pattern": "[a-z]"
+      },
+      "extends": "string"
+    },
+    "myschema#mylibName": {
+      "fields": {
+        "FirstName": {
+          "type": "myschema#MyString"
+        },
+        "LastName": {
+          "type": "string"
+        }
+      }
+    },
+    "book#MyString": {
+      "constraints": {
+        "nullable": true,
+        "pattern": "[a-z]"
+      },
+      "extends": "string"
+    },
+    "book#mylibName": {
+      "fields": {
+        "FirstName": {
+          "type": "book#MyString"
+        },
+        "LastName": {
+          "type": "string"
+        }
+      }
+    },
+    "book#mylibPerson": {
+      "fields": {
+        "pAge": {
+          "type": "long"
+        },
+        "pJob": {
+          "type": "string"
+        },
+        "pName": {
+          "type": "book#mylibName"
+        }
+      }
+    },
+    "testList#attachments": {
+      "list": {
+        "type": "blob"
+      }
+    },
+    "testList#complexlist": {
+      "list": {
+        "type": "testList#listElem"
+      }
+    },
+    "testList#list": {
+      "list": {
+        "type": "string"
+      }
+    },
+    "testList#listElem": {
+      "fields": {
+        "array": {
+          "type": "testList#list"
+        }
+      }
+    },
+    "testList#simplelist": {
+      "list": {
+        "type": "string"
+      }
+    },
+    "testList#theList": {
+      "list": {
+        "type": "string"
+      }
+    },
+    "complexschema#fileext": {
+      "fields": {
+        "name": {
+          "type": "string"
+        },
+        "vignettes": {
+          "type": "complexschema#vignettes"
+        }
+      }
+    },
+    "complexschema#vignette": {
+      "fields": {
+        "content": {
+          "type": "blob"
+        },
+        "height": {
+          "type": "long"
+        },
+        "label": {
+          "type": "string"
+        },
+        "width": {
+          "type": "long"
+        }
+      }
+    },
+    "complexschema#vignettes": {
+      "list": {
+        "type": "complexschema#vignette"
+      }
+    },
+    "test-properties#complexChain": {
+      "fields": {
+        "complex": {
+          "type": "test-properties#complexType"
+        },
+        "string": {
+          "type": "string"
+        }
+      }
+    },
+    "test-properties#complexListType": {
+      "list": {
+        "type": "test-properties#complexType"
+      }
+    },
+    "test-properties#complexType": {
+      "fields": {
+        "date": {
+          "type": "date"
+        },
+        "int": {
+          "type": "long"
+        },
+        "string": {
+          "type": "string"
+        }
+      }
+    },
+    "test-properties#dateArrayType": {
+      "list": {
+        "type": "date"
+      }
+    },
+    "test-properties#doubleArrayType": {
+      "list": {
+        "type": "double"
+      }
+    },
+    "test-properties#fileComplexListType": {
+      "list": {
+        "type": "test-properties#fileComplexType"
+      }
+    },
+    "test-properties#fileComplexType": {
+      "fields": {
+        "blob": {
+          "type": "blob"
+        },
+        "filename": {
+          "type": "string"
+        }
+      }
+    },
+    "test-properties#fileListType": {
+      "list": {
+        "type": "blob"
+      }
+    },
+    "test-properties#intArrayType": {
+      "list": {
+        "type": "long"
+      }
+    },
+    "test-properties#stringArrayType": {
+      "list": {
+        "type": "string"
+      }
+    },
+    "complex#complex": {
+      "fields": {
+        "bar": {
+          "type": "string"
+        },
+        "foo": {
+          "type": "string"
+        }
+      }
+    },
+    "complexList#complex": {
+      "fields": {
+        "bar": {
+          "type": "string"
+        },
+        "foo": {
+          "type": "string"
+        }
+      }
+    },
+    "complexList#complexList": {
+      "list": {
+        "type": "complexList#complex"
+      }
+    }
+  }
+}

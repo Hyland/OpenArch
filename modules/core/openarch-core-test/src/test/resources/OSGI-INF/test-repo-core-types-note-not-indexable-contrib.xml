@@ -3,15 +3,8 @@
 
   <require>com.hyland.openarch.ecm.core.schema.bootstrap</require>
 
-  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="doctype">
-    <doctype name="Note" extends="SysContent">
-      <schema name="note"/>
-      <schema name="sysfiles"/>
-      <mixin name="SysVersionable"/>
-      <mixin name="Publishable"/>
-      <mixin name="Commentable"/>
-      <mixin name="SysFullTextIndexable"/>
-    </doctype>
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/test-repo-core-types-note-not-indexable-contrib-types.json" />
   </extension>
 
 </component>

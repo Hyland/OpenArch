@@ -1,0 +1,176 @@
+{
+  "schemas": {
+    "test": {
+      "fields": {
+        "book_authors": {
+          "type": "test#authors"
+        },
+        "book_creationDate": {
+          "type": "date"
+        },
+        "book_file": {
+          "type": "test#file"
+        },
+        "book_keywords": {
+          "type": "test#keywords"
+        },
+        "book_price": {
+          "extends": "long",
+          "default": "111"
+        },
+        "book_references": {
+          "type": "test#references"
+        },
+        "book_title": {
+          "type": "string"
+        }
+      },
+      "prefix": "book"
+    },
+    "noblob": {
+      "fields": {
+        "nb_string": {
+          "type": "string"
+        }
+      },
+      "prefix": "nb"
+    },
+    "simpleblob": {
+      "fields": {
+        "simpleblob_blob": {
+          "type": "blob"
+        },
+        "simpleblob_blobname": {
+          "type": "string"
+        }
+      },
+      "prefix": "simpleblob"
+    },
+    "simpleblob2": {
+      "fields": {
+        "simpleblob2_blob": {
+          "type": "blob"
+        },
+        "simpleblob2_blobname": {
+          "type": "string"
+        }
+      },
+      "prefix": "simpleblob2"
+    },
+    "simpleblob3": {
+      "fields": {
+        "simpleblob3_blob": {
+          "type": "blob"
+        },
+        "simpleblob3_blob2": {
+          "type": "blob"
+        },
+        "simpleblob3_blobname": {
+          "type": "string"
+        }
+      },
+      "prefix": "simpleblob3"
+    },
+    "wihtoutpref": {
+      "fields": {
+        "wihtoutpref_blob": {
+          "type": "blob"
+        },
+        "wihtoutpref_blobname": {
+          "type": "string"
+        }
+      },
+      "prefix": "wihtoutpref"
+    },
+    "blobinlist": {
+      "fields": {
+        "bil_blobs": {
+          "type": "blobinlist#blobs"
+        }
+      },
+      "prefix": "bil"
+    }
+  },
+  "types": {
+    "blob": {
+      "fields": {
+        "encoding": {
+          "type": "string"
+        },
+        "key": {
+          "type": "binary"
+        },
+        "mimeType": {
+          "type": "string"
+        }
+      }
+    },
+    "test#author": {
+      "fields": {
+        "age": {
+          "type": "long"
+        },
+        "name": {
+          "type": "test#name"
+        }
+      }
+    },
+    "test#authors": {
+      "list": {
+        "type": "test#author"
+      }
+    },
+    "test#file": {
+      "fields": {
+        "blob": {
+          "type": "blob"
+        },
+        "fileName": {
+          "type": "test#fileName"
+        }
+      }
+    },
+    "test#fileName": {
+      "fields": {
+        "extension": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "test#keywords": {
+      "list": {
+        "type": "string"
+      }
+    },
+    "test#name": {
+      "fields": {
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        }
+      }
+    },
+    "test#references": {
+      "list": {
+        "type": "string"
+      }
+    },
+    "blobinlist#blobitem": {
+      "fields": {
+        "blob": {
+          "type": "blob"
+        }
+      }
+    },
+    "blobinlist#blobs": {
+      "list": {
+        "type": "blobinlist#blobitem"
+      }
+    }
+  }
+}

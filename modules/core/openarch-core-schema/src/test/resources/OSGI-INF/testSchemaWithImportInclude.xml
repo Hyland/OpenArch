@@ -1,7 +1,7 @@
 <component name="com.hyland.openarch.ecm.core.test.import">
 
-  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="schema">
-    <schema name="schemaWithIncludeAndImport" src="schema/schemaWithIncludeAndImport.xsd" prefix="sii"/>
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/testSchemaWithImportInclude-schemas.json" />
   </extension>
 
 </component>

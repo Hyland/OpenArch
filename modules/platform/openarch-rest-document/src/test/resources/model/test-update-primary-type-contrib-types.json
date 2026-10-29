@@ -1,0 +1,27 @@
+{
+  "primaryTypes": {
+    "File2": {
+      "extends": "SysContent",
+      "schemas": [
+        "mycustomschema"
+      ],
+      "mixins": [
+        "File2Facet"
+      ]
+    },
+    "GovernableFile": {
+      "extends": "SysContent",
+      "mixins": [
+        "SysFilish",
+        "SysGovernable"
+      ]
+    }
+  },
+  "mixinTypes": {
+    "File2Facet": {
+      "schemas": [
+        "mycustomschema2"
+      ]
+    }
+  }
+}

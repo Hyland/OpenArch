@@ -1,0 +1,10 @@
+{
+  "primaryTypes": {
+    "MyFolder": {
+      "extends": "SysContent",
+      "mixins": [
+        "SysFolderish"
+      ]
+    }
+  }
+}

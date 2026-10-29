@@ -1,0 +1,43 @@
+[
+  {
+    "op": "add",
+    "path": "/schemas/sysgovernable",
+    "value": {
+      "fields": {
+        "sysgov_hasLegalHold": {
+          "extends": "boolean",
+          "managed": {
+            "noAutoCheckout": true,
+            "falseAsNull": [
+              "STORE",
+              "INDEX"
+            ],
+            "writePermission": "ManageRetention",
+            "versionWritePermission": "STANDARD"
+          }
+        },
+        "sysgov_isRecord": {
+          "extends": "boolean",
+          "managed": {
+            "noAutoCheckout": true,
+            "falseAsNull": [
+              "STORE",
+              "INDEX"
+            ],
+            "writePermission": "ManageRetention",
+            "versionWritePermission": "STANDARD"
+          }
+        },
+        "sysgov_retainUntil": {
+          "extends": "date",
+          "managed": {
+            "noAutoCheckout": true,
+            "writePermission": "ManageRetention",
+            "versionWritePermission": "STANDARD"
+          }
+        }
+      },
+      "prefix": "sysgov"
+    }
+  }
+]

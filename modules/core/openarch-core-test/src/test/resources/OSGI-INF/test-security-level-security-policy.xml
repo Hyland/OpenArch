@@ -1,17 +1,9 @@
 <?xml version="1.0"?>
 <component name="com.hyland.openarch.ecm.core.security.tests">
-  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="schema">
-    <schema name="clearance" src="schemas/clearance.xsd" />
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/test-security-level-security-policy-schemas.json" />
   </extension>
-  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="doctype">
-    <mixin name="Clearance">
-      <schema name="clearance" />
-    </mixin>
-    <mixin name="tooManyBusinessProperties">
-      <schema name="clearance" />
-      <schema name="sysfile" />
-    </mixin>
-    <doctype name="Contract" extends="SysContent">
-    </doctype>
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/test-security-level-security-policy-types.json" />
   </extension>
 </component>

@@ -3,39 +3,14 @@
 
   <require>com.hyland.openarch.ecm.core.schema.bootstrap</require>
 
-  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="schema">
-    <schema name="mydublincore" prefix="mydc" src="schema/mydublincore.xsd"/>
-    <schema name="sysgovernable" prefix="sysgov" src="schema/governable.xsd"/>
-    <schema name="test-properties" src="schema/test-properties.xsd" prefix="tp" />
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/test-repo-core-types-contrib-schemas.json" />
+    <model src="model/test-repo-core-types-contrib-schemas.patch.json" patch="true" />
   </extension>
 
-  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="doctype">
-
-    <mixin name="SysGovernable">  <!-- used by system -->
-      <schema name="sysgovernable"/>
-    </mixin>
-
-    <!-- add mydublincore to standard doctypes -->
-    <doctype name="SysFolder" extends="SysContent">
-      <schema name="mydublincore"/>
-      <mixin name="SysFolderish"/>
-      <subtypes>
-        <type>SysFolder</type>
-        <type>SysOrderedFolder</type>
-        <type>SysFile</type>
-      </subtypes>
-    </doctype>
-    <doctype name="SysFile" extends="SysContent">
-      <schema name="mydublincore"/>
-      <schema name="sysfiles"/>
-      <mixin name="SysFilish"/>
-    </doctype>
-
-    <doctype name="TestDocument" extends="SysContent">
-      <schema name="mydublincore"/>
-      <schema name="sysfile" />
-      <schema name="test-properties" />
-    </doctype>
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/test-repo-core-types-contrib-types.json" />
+    <model src="model/test-repo-core-types-contrib-types.patch.json" patch="true" />
   </extension>
 
 </component>

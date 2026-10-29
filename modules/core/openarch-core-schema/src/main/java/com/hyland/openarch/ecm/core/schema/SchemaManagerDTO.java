@@ -37,7 +37,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -324,12 +323,7 @@ public class SchemaManagerDTO extends SchemaManagerBase {
 
     private void registerSchema(String name, SchemaDTO dto) {
         Schema schema = newSchema(name, dto);
-        List<ValidationViolation> schemaViolations = new ArrayList<>(); // temporary diagnostic code
-        registerSchema(schema, schemaViolations);
-        if (!schemaViolations.isEmpty()) {
-            // for now just log an error, to diagnose pre-existing issues
-            schemaViolations.forEach(violation -> log.error(violation.getMessage(Locale.ENGLISH)));
-        }
+        registerSchema(schema, violations);
     }
 
     private SchemaImpl newSchema(String name, SchemaDTO dto) {

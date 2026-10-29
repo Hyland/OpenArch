@@ -1,0 +1,22 @@
+{
+  "primaryTypes": {
+    "MyFile": {
+      "extends": "SysFile",
+      "schemas": [
+        "any"
+      ],
+      "mixins": [
+        "SysVersionable"
+      ]
+    },
+    "MyGovernableFile": {
+      "extends": "SysFile",
+      "schemas": [
+        "any"
+      ],
+      "mixins": [
+        "SysGovernable"
+      ]
+    }
+  }
+}

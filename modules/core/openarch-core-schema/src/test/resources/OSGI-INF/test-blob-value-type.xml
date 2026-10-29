@@ -1,0 +1,5 @@
+<component name="com.hyland.openarch.ecm.core.test.blob.value.type">
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/test-blob-value-type.json" />
+  </extension>
+</component>

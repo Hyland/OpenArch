@@ -1,0 +1,34 @@
+[
+  {
+    "op": "add",
+    "path": "/primaryTypes/SysFolder",
+    "value": {
+      "extends": "SysContent",
+      "schemas": [
+        "mydublincore"
+      ],
+      "mixins": [
+        "SysFolderish"
+      ],
+      "subtypes": [
+        "SysFolder",
+        "SysOrderedFolder",
+        "SysFile"
+      ]
+    }
+  },
+  {
+    "op": "add",
+    "path": "/primaryTypes/SysFile",
+    "value": {
+      "extends": "SysContent",
+      "schemas": [
+        "mydublincore",
+        "sysfiles"
+      ],
+      "mixins": [
+        "SysFilish"
+      ]
+    }
+  }
+]

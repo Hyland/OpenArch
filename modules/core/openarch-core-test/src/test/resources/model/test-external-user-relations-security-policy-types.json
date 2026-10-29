@@ -1,0 +1,14 @@
+{
+  "mixinTypes": {
+    "WDEmployee": {
+      "schemas": [
+        "wdemployee"
+      ]
+    }
+  },
+  "primaryTypes": {
+    "Resume": {
+      "extends": "SysContent"
+    }
+  }
+}

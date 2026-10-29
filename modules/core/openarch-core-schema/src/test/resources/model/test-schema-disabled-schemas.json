@@ -1,0 +1,20 @@
+{
+  "schemas": {
+    "common": {
+      "fields": {
+        "common_icon": {
+          "type": "string"
+        }
+      },
+      "prefix": "common"
+    },
+    "someSchema": {
+      "fields": {
+        "someSchema_icon": {
+          "type": "string"
+        }
+      },
+      "prefix": "someSchema"
+    }
+  }
+}

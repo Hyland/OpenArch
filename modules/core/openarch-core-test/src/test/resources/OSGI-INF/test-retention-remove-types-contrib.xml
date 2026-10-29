@@ -1,8 +1,6 @@
 <?xml version="1.0"?>
 <component name="com.hyland.openarch.ecm.core.security.tests">
-  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="doctype">
-    <doctype name="GovernableFile" extends="SysFile">
-      <mixin name="SysGovernable"/>
-    </doctype>
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/test-retention-remove-types-contrib-types.json" />
   </extension>
 </component>

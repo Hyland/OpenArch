@@ -1,8 +1,7 @@
 <component name="com.hyland.openarch.ecm.core.test.advanced.schema">
 
-  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="schema">
-    <schema name="dublincore" prefix="dc" src="schema/dublincore.xsd" />
-    <schema name="testProperties" prefix="tp" src="schema/test-properties.xsd" />
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/test-advanced-schema-schemas.json" />
   </extension>
 
 </component>

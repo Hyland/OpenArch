@@ -1,0 +1,10 @@
+{
+  "primaryTypes": {
+    "TestResolver": {
+      "extends": "SysContent",
+      "schemas": [
+        "resolverSample"
+      ]
+    }
+  }
+}

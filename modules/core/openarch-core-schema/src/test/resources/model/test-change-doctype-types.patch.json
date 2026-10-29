@@ -1,0 +1,13 @@
+[
+  {
+    "op": "replace",
+    "path": "/primaryTypes/myDoc2",
+    "value": {
+      "extends": "SysContent",
+      "schemas": [
+        "schema1",
+        "common"
+      ]
+    }
+  }
+]

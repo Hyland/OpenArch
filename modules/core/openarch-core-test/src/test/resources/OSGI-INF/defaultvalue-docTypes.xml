@@ -2,14 +2,12 @@
 <component name="com.hyland.openarch.core.tests.types.defaultvalue">
   <!-- used by com.hyland.openarch.ecm.core.TestSQLRepositoryDefaultValues -->
 
-  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="schema">
-    <schema name="defaultvalue" prefix="dv" src="schema/defaultvalues.xsd" />
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/defaultvalue-docTypes-schemas.json" />
   </extension>
 
-  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="doctype">
-    <doctype name="DocDefaultValue" extends="SysContent">
-      <schema name="defaultvalue" />
-    </doctype>
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/defaultvalue-docTypes-types.json" />
   </extension>
 
 </component>

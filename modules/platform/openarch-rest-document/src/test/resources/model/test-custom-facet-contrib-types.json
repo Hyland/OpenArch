@@ -1,0 +1,9 @@
+{
+  "mixinTypes": {
+    "CustomFacet": {
+      "schemas": [
+        "customschema"
+      ]
+    }
+  }
+}

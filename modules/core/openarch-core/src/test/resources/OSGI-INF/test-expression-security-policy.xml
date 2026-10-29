@@ -1,14 +1,12 @@
 <?xml version="1.0"?>
 <component name="com.hyland.openarch.ecm.core.security.policy.expression.tests">
 
-  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="schema">
-    <schema name="clearance" src="schemas/clearance.xsd" />
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/test-expression-security-policy-schemas.json" />
   </extension>
 
-  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="doctype">
-    <mixin name="Clearance">
-      <schema name="clearance" />
-    </mixin>
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/test-expression-security-policy-types.json" />
   </extension>
 
 </component>

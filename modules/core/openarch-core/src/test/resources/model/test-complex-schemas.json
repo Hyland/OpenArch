@@ -1,0 +1,52 @@
+{
+  "schemas": {
+    "complexschema2": {
+      "fields": {
+        "cmp_addresses": {
+          "type": "complexschema2#addresses"
+        },
+        "cmp_friends": {
+          "type": "complexschema2#friends"
+        }
+      },
+      "prefix": "cmp"
+    }
+  },
+  "types": {
+    "complexschema2#address": {
+      "fields": {
+        "city": {
+          "type": "string"
+        },
+        "number": {
+          "type": "long"
+        },
+        "street": {
+          "type": "string"
+        }
+      }
+    },
+    "complexschema2#addresses": {
+      "list": {
+        "type": "complexschema2#address"
+      }
+    },
+    "complexschema2#friend": {
+      "fields": {
+        "address": {
+          "list": {
+            "type": "complexschema2#address"
+          }
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "complexschema2#friends": {
+      "list": {
+        "type": "complexschema2#friend"
+      }
+    }
+  }
+}

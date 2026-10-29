@@ -1,14 +1,12 @@
 <?xml version="1.0"?>
 <component name="com.hyland.openarch.ecm.platform.usermanager.tests.resolver">
 
-  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="schema">
-    <schema name="userManagerResolver" src="schemas/userManagerResolver.xsd" prefix="umr" />
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/test-usermanager-resolver-schemas.json" />
   </extension>
 
-  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="doctype">
-    <doctype name="TestResolver" extends="SysContent">
-      <schema name="userManagerResolver" />
-    </doctype>
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/test-usermanager-resolver-types.json" />
   </extension>
 
 </component>

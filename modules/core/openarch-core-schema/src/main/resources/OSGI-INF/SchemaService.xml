@@ -18,7 +18,7 @@
     <documentation>
       Contribute content-model JSON resources in the REST model format.
       A fragment may contain any of schemas, types, mixinTypes and primaryTypes.
-      Definitions are merged by name; duplicates are errors.
+      Definitions are merged by name; duplicates are errors, except identical shared value types.
       All fragments are collected before model resources with patch="true"
       are applied as RFC 6902 JSON patches in contribution order.
       Use component requirements to order patches that depend on each other.

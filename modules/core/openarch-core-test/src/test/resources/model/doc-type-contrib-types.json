@@ -1,0 +1,48 @@
+{
+  "primaryTypes": {
+    "CSDoc": {
+      "extends": "SysFile",
+      "schemas": [
+        "complexSchema"
+      ]
+    },
+    "RefDoc": {
+      "schemas": [
+        "system",
+        "documentResolver",
+        "noPrefix"
+      ],
+      "mixins": [
+        "SysFolderish"
+      ]
+    },
+    "DummyDoc": {
+      "mixins": [
+        "SysFolderish"
+      ]
+    },
+    "MyFolderRoot": {
+      "subtypes": [
+        "MyFolder",
+        "MyFolder2"
+      ]
+    },
+    "MyFolder": {
+      "extends": "SysContent",
+      "mixins": [
+        "SysFolderish"
+      ],
+      "subtypes": [
+        "File",
+        "CSDoc",
+        "RefDoc"
+      ]
+    },
+    "MyFolder2": {
+      "extends": "MyFolder",
+      "subtypes": [
+        "DummyDoc"
+      ]
+    }
+  }
+}

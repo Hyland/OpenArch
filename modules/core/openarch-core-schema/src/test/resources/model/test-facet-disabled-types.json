@@ -1,0 +1,16 @@
+{
+  "mixinTypes": {
+    "someFacet": {
+      "schemas": [
+        "common"
+      ]
+    }
+  },
+  "primaryTypes": {
+    "myDoc": {
+      "mixins": [
+        "someFacet"
+      ]
+    }
+  }
+}

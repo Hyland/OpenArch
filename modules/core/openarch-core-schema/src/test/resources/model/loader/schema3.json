@@ -1,0 +1,12 @@
+{
+  "schemas": {
+    "s1": {
+      "fields": {
+        "pref_validator": {
+          "type": "string"
+        }
+      },
+      "prefix": "pref"
+    }
+  }
+}

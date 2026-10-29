@@ -1,0 +1,5 @@
+[
+  { "op": "remove", "path": "/schemas/someSchema" },
+  { "op": "remove", "path": "/primaryTypes/myDoc/schemas/1" },
+  { "op": "remove", "path": "/mixinTypes/someFacet/schemas/1" }
+]

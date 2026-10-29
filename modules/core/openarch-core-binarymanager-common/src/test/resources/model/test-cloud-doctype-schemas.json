@@ -1,0 +1,20 @@
+{
+  "schemas": {
+    "cloud-test": {
+      "fields": {
+        "cloud-test_blob": {
+          "type": "blob"
+        }
+      },
+      "prefix": "cloud-test"
+    },
+    "cloud-other": {
+      "fields": {
+        "cloud-other_blob": {
+          "type": "blob"
+        }
+      },
+      "prefix": "cloud-other"
+    }
+  }
+}

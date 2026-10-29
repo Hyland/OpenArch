@@ -105,6 +105,7 @@ import com.hyland.openarch.runtime.transaction.TransactionHelper;
 @ExtendWith(FeaturesExtension.class)
 @Features({ CoreFeature.class, LogCaptureFeature.class })
 @RepositoryConfig(cleanup = Granularity.METHOD)
+@Deploy("com.hyland.openarch.ecm.core.test.tests:OSGI-INF/test-repository-value-types.xml")
 @Deploy("com.hyland.openarch.ecm.core.test.tests:OSGI-INF/testquery-core-types-contrib.xml")
 @Deploy("com.hyland.openarch.ecm.core.test.tests:OSGI-INF/test-repo-core-types-contrib-2.xml")
 public class TestSQLRepositoryQuery {

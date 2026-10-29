@@ -1,0 +1,10 @@
+{
+  "primaryTypes": {
+    "someDocInLoop": {
+      "extends": "someDocInLoop2"
+    },
+    "someDocInLoop2": {
+      "extends": "someDocInLoop"
+    }
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "schemas": {
+    "extension": {
+      "fields": {
+        "employee": {
+          "type": "extension#fullpersoninfo"
+        },
+        "simpleemployee": {
+          "type": "extension#personinfo"
+        }
+      }
+    }
+  },
+  "types": {
+    "extension#animalinfo": {
+      "fields": {
+        "race": {
+          "type": "string"
+        }
+      }
+    },
+    "extension#fullpersoninfo": {
+      "fields": {
+        "address": {
+          "type": "string"
+        },
+        "city": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        },
+        "firstname": {
+          "type": "string"
+        },
+        "lastname": {
+          "type": "string"
+        },
+        "race": {
+          "type": "string"
+        }
+      }
+    },
+    "extension#personinfo": {
+      "fields": {
+        "firstname": {
+          "type": "string"
+        },
+        "lastname": {
+          "type": "string"
+        },
+        "race": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

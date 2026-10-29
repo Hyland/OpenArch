@@ -1,0 +1,47 @@
+{
+  "mixinTypes": {
+    "Mixin1": {
+      "schemas": [
+        "schema1"
+      ]
+    },
+    "Mixin2": {
+      "schemas": [
+        "schema2"
+      ]
+    },
+    "Mixin3": {
+      "schemas": [
+        "schema3"
+      ]
+    },
+    "Mixin4": {
+      "schemas": [
+        "schema4"
+      ]
+    },
+    "tooManyBusinessProperties": {
+      "schemas": [
+        "schema1",
+        "sysfile"
+      ]
+    }
+  },
+  "primaryTypes": {
+    "ContentA": {
+      "extends": "SysContent"
+    },
+    "ContentB": {
+      "extends": "SysContent"
+    },
+    "ContentC": {
+      "extends": "SysContent"
+    },
+    "ContentD": {
+      "extends": "SysContent"
+    },
+    "ContentE": {
+      "extends": "SysContent"
+    }
+  }
+}

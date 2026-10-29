@@ -1,0 +1,10 @@
+{
+  "primaryTypes": {
+    "MyAny": {
+      "extends": "SysFile",
+      "schemas": [
+        "any"
+      ]
+    }
+  }
+}

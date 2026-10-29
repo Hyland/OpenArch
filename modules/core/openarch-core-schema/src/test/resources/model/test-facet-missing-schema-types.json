@@ -1,0 +1,10 @@
+{
+  "mixinTypes": {
+    "someFacet": {
+      "schemas": [
+        "noSuchSchema",
+        "common"
+      ]
+    }
+  }
+}

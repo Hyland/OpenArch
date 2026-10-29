@@ -20,6 +20,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static com.hyland.openarch.ecm.core.schema.types.FieldCharacteristics.Representation.INDEX;
 import static com.hyland.openarch.ecm.core.schema.types.FieldCharacteristics.Representation.REST;
@@ -43,6 +45,9 @@ import com.hyland.openarch.runtime.test.runner.Deploy;
 import com.hyland.openarch.runtime.test.runner.Features;
 import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
 import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
+import com.hyland.openarch.common.xmap.Context;
+import com.hyland.openarch.common.xmap.Resource;
+import com.hyland.openarch.runtime.RuntimeServiceException;
 
 @ExtendWith(FeaturesExtension.class)
 @Features(RuntimeFeature.class)
@@ -67,9 +72,20 @@ public class TestSchemaManager {
     }
 
     @Test
+    @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/test-blob-value-type.xml")
     @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/test-blob-schema.xml")
     public void testBlobKeysPaths() {
         assertEquals(List.of(List.of("fl_blob", "key")), schemaManager.getBlobKeysPaths());
+    }
+
+    @Test
+    @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/test-blob-value-type.xml")
+    @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/test-blob-schema.xml")
+    @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/test-schema-manager.xml")
+    public void testSchemasReferenceSharedBlobType() {
+        assertSame(schemaManager.getType("blob"), schemaManager.getField("fl_blob").getType());
+        assertSame(schemaManager.getType("blob"), schemaManager.getField("facetSchema1_anyContent").getType());
+        assertEquals(4, ((ComplexType) schemaManager.getType("blob")).getFieldsCount());
     }
 
     @Test
@@ -267,7 +283,8 @@ public class TestSchemaManager {
     }
 
     @Test
-    @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/CoreTestExtensions.xml")
+    @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/test-blob-value-type.xml")
+    @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/test-schema-manager.xml")
     @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/test-change-doctype.xml")
     public void testMerge() throws Exception {
 
@@ -277,28 +294,26 @@ public class TestSchemaManager {
     }
 
     @Test
-    @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/test-supertype-loop.xml")
     public void testSupertypeLoop() {
-        DocumentType t = schemaManager.getDocumentType("someDocInLoop");
-        DocumentType t2 = schemaManager.getDocumentType("someDocInLoop2");
-        assertEquals("someDocInLoop2", t.getSuperType().getName());
-        assertNull(t2.getSuperType());
+        assertInvalidModel("model/test-supertype-loop-types.json");
     }
 
     @Test
-    @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/test-missing-supertype.xml")
     public void testMissingSupertype() {
-        DocumentType t = schemaManager.getDocumentType("someDoc");
-        DocumentType t2 = schemaManager.getDocumentType("someDoc2");
-        assertNull(t.getSuperType());
-        assertEquals("someDoc", t2.getSuperType().getName());
+        assertInvalidModel("model/test-missing-supertype-types.json");
     }
 
     @Test
-    @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/test-facet-missing-schema.xml")
     public void testFacetMissingSchema() {
-        CompositeType f = schemaManager.getMixin("someFacet");
-        assertEquals(Set.of("common"), f.getSchemaNames());
+        assertInvalidModel("model/test-facet-missing-schema-types.json");
+    }
+
+    private void assertInvalidModel(String resource) {
+        ModelDescriptor descriptor = new ModelDescriptor();
+        descriptor.src = resource;
+        descriptor.resource = new Resource(new Context(), resource);
+        assertThrows(RuntimeServiceException.class,
+                () -> ModelComposer.compose(schemaManager.toContentModel(), List.of(descriptor)));
     }
 
     @Test
@@ -336,7 +351,8 @@ public class TestSchemaManager {
     }
 
     @Test
-    @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/CoreTestExtensions.xml")
+    @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/test-blob-value-type.xml")
+    @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/test-schema-manager.xml")
     @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/test-merge-doctype.xml")
     public void testMergeDocumentType() throws Exception {
 
@@ -375,7 +391,8 @@ public class TestSchemaManager {
     }
 
     @Test
-    @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/CoreTestExtensions.xml")
+    @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/test-blob-value-type.xml")
+    @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/test-schema-manager.xml")
     public void testGetFacet() {
         CompositeType component = schemaManager.getMixin("fakeFacet1");
         assertNotNull(component, String.format("Facet %s should exist", "fakeFacet1"));

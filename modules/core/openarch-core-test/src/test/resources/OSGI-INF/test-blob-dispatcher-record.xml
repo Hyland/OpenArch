@@ -14,9 +14,7 @@
       <property name="default">test</property>
     </blobdispatcher>
   </extension>
-  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="doctype">
-    <doctype name="GovernableFile" extends="SysFile">
-      <mixin name="SysGovernable"/>
-    </doctype>
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/test-blob-dispatcher-record-types.json" />
   </extension>
 </component>

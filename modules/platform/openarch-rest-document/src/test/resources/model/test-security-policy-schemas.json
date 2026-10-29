@@ -1,0 +1,44 @@
+{
+  "schemas": {
+    "clearance": {
+      "fields": {
+        "clr_level": {
+          "type": "long"
+        }
+      },
+      "prefix": "clr"
+    },
+    "clearance1": {
+      "fields": {
+        "clr1_level": {
+          "type": "long"
+        }
+      },
+      "prefix": "clr1"
+    },
+    "clearance2": {
+      "fields": {
+        "clr2_level": {
+          "type": "long"
+        }
+      },
+      "prefix": "clr2"
+    },
+    "clearance3": {
+      "fields": {
+        "clr3_level": {
+          "type": "long"
+        }
+      },
+      "prefix": "clr3"
+    },
+    "clearance4": {
+      "fields": {
+        "clr4_level": {
+          "type": "long"
+        }
+      },
+      "prefix": "clr4"
+    }
+  }
+}

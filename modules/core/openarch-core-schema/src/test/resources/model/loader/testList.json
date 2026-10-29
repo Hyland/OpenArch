@@ -1,0 +1,75 @@
+{
+  "schemas": {
+    "testList": {
+      "fields": {
+        "attachments": {
+          "type": "testList#attachments"
+        },
+        "cplxWithSubList": {
+          "type": "testList#complexWithSubList"
+        },
+        "participants": {
+          "extends": "testList#stringSequence",
+          "default": "titi toto tata"
+        },
+        "strings": {
+          "extends": "testList#stringList",
+          "default": "titi toto tata"
+        }
+      }
+    }
+  },
+  "types": {
+    "blob": {
+      "fields": {
+        "encoding": {
+          "type": "string"
+        },
+        "filename": {
+          "type": "string"
+        },
+        "key": {
+          "type": "binary"
+        },
+        "mimeType": {
+          "type": "string"
+        }
+      }
+    },
+    "testList#attachments": {
+      "list": {
+        "type": "blob"
+      }
+    },
+    "testList#complexWithSubList": {
+      "fields": {
+        "fieldA": {
+          "type": "string"
+        },
+        "fieldB": {
+          "type": "string"
+        },
+        "items": {
+          "list": {
+            "type": "string"
+          }
+        },
+        "moreitems": {
+          "list": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "testList#stringList": {
+      "list": {
+        "type": "string"
+      }
+    },
+    "testList#stringSequence": {
+      "list": {
+        "type": "string"
+      }
+    }
+  }
+}

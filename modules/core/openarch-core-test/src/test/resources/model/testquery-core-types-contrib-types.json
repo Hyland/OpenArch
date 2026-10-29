@@ -1,0 +1,51 @@
+{
+  "primaryTypes": {
+    "Note": {
+      "extends": "SysContent",
+      "schemas": [
+        "note",
+        "testquery-schema",
+        "sysfiles",
+        "mydublincore"
+      ],
+      "mixins": [
+        "SysVersionable"
+      ]
+    },
+    "MyDocType": {
+      "extends": "SysContent",
+      "schemas": [
+        "mydublincore",
+        "testquery-schema"
+      ],
+      "mixins": [
+        "SysFilish",
+        "SysVersionable"
+      ]
+    },
+    "TestDoc": {
+      "extends": "SysContent",
+      "schemas": [
+        "testschema",
+        "testschema3"
+      ]
+    },
+    "Tag": {
+      "extends": "SysContent",
+      "schemas": [
+        "tag",
+        "mydublincore"
+      ]
+    },
+    "Tagging": {
+      "extends": "SysRelation"
+    }
+  },
+  "mixinTypes": {
+    "Aged": {
+      "schemas": [
+        "age"
+      ]
+    }
+  }
+}

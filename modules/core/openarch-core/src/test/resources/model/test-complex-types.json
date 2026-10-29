@@ -1,0 +1,10 @@
+{
+  "primaryTypes": {
+    "MyDoc": {
+      "extends": "SysContent",
+      "schemas": [
+        "complexschema2"
+      ]
+    }
+  }
+}

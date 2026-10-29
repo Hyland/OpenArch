@@ -2,14 +2,11 @@
 
 <component name="com.hyland.openarch.rest.document.test.DocType">
 
-  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="schema">
-    <schema name="constraints" src="schema/constraintschema.xsd" prefix="cs"/>
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/test-doc-constraints-contrib-schemas.json" />
   </extension>
 
-  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="doctype">
-    <doctype name="DocWithConstraints" extends="SysContent">
-      <schema name="mydublincore" />
-      <schema name="constraints" />
-    </doctype>
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/test-doc-constraints-contrib-types.json" />
   </extension>
 </component>

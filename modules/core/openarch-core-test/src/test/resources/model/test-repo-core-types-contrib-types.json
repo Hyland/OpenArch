@@ -1,0 +1,135 @@
+{
+  "primaryTypes": {
+    "GovernableFile": {
+      "extends": "SysFile",
+      "mixins": [
+        "SysGovernable"
+      ]
+    },
+    "VersionableAndGovernableFile": {
+      "extends": "SysFile",
+      "mixins": [
+        "SysGovernable",
+        "SysVersionable"
+      ]
+    },
+    "MyFile": {
+      "extends": "SysFile",
+      "mixins": [
+        "SysVersionable"
+      ]
+    },
+    "Note": {
+      "extends": "SysContent",
+      "schemas": [
+        "note",
+        "sysfiles",
+        "mydublincore"
+      ],
+      "mixins": [
+        "SysVersionable"
+      ]
+    },
+    "FolderWithSearch": {
+      "extends": "SysFolder",
+      "mixins": [
+        "SysFolderish",
+        "BrowseViaSearch"
+      ]
+    },
+    "MyDocType": {
+      "extends": "SysContent",
+      "schemas": [
+        "myschema",
+        "mydublincore",
+        "testList",
+        "book"
+      ],
+      "mixins": [
+        "SysVersionable"
+      ]
+    },
+    "MyDocType2": {
+      "extends": "SysContent",
+      "schemas": [
+        "complex",
+        "complexList"
+      ]
+    },
+    "Book": {
+      "extends": "SysFolder",
+      "schemas": [
+        "book"
+      ],
+      "mixins": [
+        "SysVersionable"
+      ]
+    },
+    "ComplexDoc": {
+      "extends": "SysContent",
+      "schemas": [
+        "mydublincore",
+        "complex",
+        "complexschema"
+      ],
+      "mixins": [
+        "SysVersionable"
+      ]
+    },
+    "TestDocument": {
+      "extends": "SysContent",
+      "schemas": [
+        "test-properties"
+      ]
+    },
+    "TestDocument2": {
+      "extends": "SysContent",
+      "schemas": [
+        "mydublincore",
+        "test-properties"
+      ]
+    },
+    "DocWithAge": {
+      "extends": "SysContent",
+      "schemas": [
+        "mydublincore"
+      ],
+      "mixins": [
+        "Aged"
+      ]
+    },
+    "SpecialFolder": {
+      "extends": "SysFolder",
+      "mixins": [
+        "SysVersionedWithParent"
+      ],
+      "subtypes": [
+        "SysFolder"
+      ]
+    }
+  },
+  "mixinTypes": {
+    "BrowseViaSearch": {},
+    "Fooable": {},
+    "Aged": {
+      "schemas": [
+        "age"
+      ]
+    },
+    "WithFile": {
+      "schemas": [
+        "sysfile"
+      ]
+    },
+    "WithFile2": {
+      "schemas": [
+        "sysfile"
+      ]
+    },
+    "WithFiles": {
+      "schemas": [
+        "sysfiles"
+      ]
+    }
+  }
+}

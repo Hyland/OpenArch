@@ -1,0 +1,10 @@
+{
+  "primaryTypes": {
+    "MappingDoc": {
+      "extends": "SysContent",
+      "schemas": [
+        "mapping"
+      ]
+    }
+  }
+}

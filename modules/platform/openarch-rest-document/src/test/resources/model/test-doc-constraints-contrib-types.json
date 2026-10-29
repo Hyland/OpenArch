@@ -1,0 +1,11 @@
+{
+  "primaryTypes": {
+    "DocWithConstraints": {
+      "extends": "SysContent",
+      "schemas": [
+        "mydublincore",
+        "constraints"
+      ]
+    }
+  }
+}
