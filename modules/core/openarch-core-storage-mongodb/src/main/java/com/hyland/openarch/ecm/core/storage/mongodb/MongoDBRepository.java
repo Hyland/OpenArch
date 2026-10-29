@@ -708,8 +708,8 @@ public class MongoDBRepository extends DBSRepositoryBase implements Configuratio
      * composite types and the {@code CinRemote} / {@code CinContext} mixins) into an existing repository whose stored
      * content model predates them.
      * <p>
-     * New repositories get this model natively from {@code CoreExtensions.xml} + the {@code cinremote.xsd} /
-     * {@code cincontext.xsd} schemas; this migration only backfills repositories provisioned before the model shipped
+     * New repositories get this model natively from the core bootstrap JSON model;
+     * this migration only backfills repositories provisioned before the model shipped
      * in the product. It is idempotent: every entry is added with {@code putIfAbsent} / {@code computeIfAbsent}, so an
      * already-seeded model is left untouched and reports no change.
      *

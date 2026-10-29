@@ -30,7 +30,7 @@ import com.hyland.openarch.ecm.core.schema.dto.ModelMapCodec;
 import org.apache.commons.lang3.StringUtils;
 import com.hyland.openarch.ecm.core.schema.SchemaManager;
 import com.hyland.openarch.ecm.core.schema.TypeConstants;
-import com.hyland.openarch.ecm.core.schema.XSDTypes;
+import com.hyland.openarch.ecm.core.schema.BuiltinTypes;
 import com.hyland.openarch.ecm.core.schema.dto.ConstraintsDTO;
 import com.hyland.openarch.ecm.core.schema.dto.ContentModelDTO;
 import com.hyland.openarch.ecm.core.schema.dto.FieldDTO;
@@ -184,7 +184,7 @@ public class ModelValidator {
      */
     private boolean checkValidFieldTypeForFullTextIndexed(String typeName, SchemaManager schemaManager) {
         // Check builtin types first
-        Type type = XSDTypes.getBuiltinType(typeName);
+        Type type = BuiltinTypes.getBuiltinType(typeName);
         if (type == null) {
             // type from the schema manager
             type = schemaManager.getType(typeName);

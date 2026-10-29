@@ -95,7 +95,6 @@
     <guava.version>33.7.2-jre</guava.version>
     <expiringmap.version>0.5.11</expiringmap.version>
     <bouncycastle.version>1.86.2</bouncycastle.version>
-    <xsom.version>20140925</xsom.version>
     <swagger.version>2.2.55</swagger.version>
     <antlr4.version>4.13.2</antlr4.version>
     <jericho-html.version>3.4</jericho-html.version>
@@ -1085,11 +1084,6 @@
         <groupId>net.jodah</groupId>
         <artifactId>expiringmap</artifactId>
         <version>${expiringmap.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.sun.xsom</groupId>
-        <artifactId>xsom</artifactId>
-        <version>${xsom.version}</version>
       </dependency>
       <dependency>
         <groupId>org.springdoc</groupId>

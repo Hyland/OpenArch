@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<xs:schema targetNamespace="http://www.hyland.com/openarch/ecm/schemas/vocab/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           xmlns:nxs="http://www.hyland.com/openarch/ecm/schemas/vocab/"
-           xmlns:ref="http://www.hyland.com/openarch/ecm/schemas/core/external-references/">
-
-  <xs:element name="id" type="xs:string" />
-  <xs:element name="key" type="xs:string" />
-  <xs:element name="label" type="xs:string" />
-</xs:schema>

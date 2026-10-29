@@ -36,7 +36,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * This is the single in-memory representation of a content model. It has exactly two
  * serializations, and no other shape should be introduced:
  * <ul>
- * <li>the REST shape, produced by Jackson from the annotations on these records;</li>
+ * <li>the REST shape, also used by bootstrap and test model fragments, produced by Jackson from these records;</li>
  * <li>the persisted shape, produced by {@link ModelMapCodec}.</li>
  * </ul>
  * {@link SchemaManagerDTO} reads it into the {@link SchemaManager} object graph;

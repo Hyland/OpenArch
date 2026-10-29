@@ -182,7 +182,7 @@ public class SchemaManagerDTO extends SchemaManagerBase {
     // may return null if not found
     private Type getRegisteredType(String name) {
         // builtin types
-        Type type = XSDTypes.getBuiltinType(name);
+        Type type = BuiltinTypes.getBuiltinType(name);
         if (type != null) {
             return type;
         }

@@ -29,24 +29,29 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.flipkart.zjsonpatch.Jackson3JsonPatch;
 import com.flipkart.zjsonpatch.CompatibilityFlags;
+import com.flipkart.zjsonpatch.Jackson3JsonPatch;
 import com.flipkart.zjsonpatch.JsonPatchApplicationException;
 import com.hyland.openarch.ecm.core.schema.dto.ContentModelDTO;
 import com.hyland.openarch.ecm.core.schema.dto.ModelMapCodec;
+import com.hyland.openarch.ecm.core.schema.dto.PrimaryTypeDTO;
 import com.hyland.openarch.ecm.core.schema.validation.SchemaValidationException;
 import com.hyland.openarch.ecm.core.schema.validation.violations.ValidationViolation;
 import com.hyland.openarch.runtime.RuntimeServiceException;
 
-import tools.jackson.databind.JsonNode;
 import tools.jackson.core.JacksonException;
+import tools.jackson.core.StreamReadFeature;
+import tools.jackson.core.json.JsonFactory;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.node.ObjectNode;
 
 /** Composes definitions before resolving references, then replays patches in contribution order. */
 final class ModelComposer {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final ObjectMapper MAPPER = JsonMapper.builder(
+            JsonFactory.builder().enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION).build()).build();
 
     private static final Set<String> SECTIONS = Set.of(SCHEMAS, TYPES, MIXIN_TYPES, PRIMARY_TYPES);
 
@@ -59,6 +64,11 @@ final class ModelComposer {
             if (!contribution.patch) {
                 merge(model, read(contribution), contribution.src);
             }
+        }
+        ObjectNode primaryTypes = (ObjectNode) model.get(PRIMARY_TYPES);
+        if (!primaryTypes.has(TypeConstants.SYS_CONTENT)) {
+            primaryTypes.set(TypeConstants.SYS_CONTENT,
+                    MAPPER.valueToTree(new PrimaryTypeDTO(null, null, null, null, null)));
         }
         JsonNode patched = model;
         for (ModelDescriptor contribution : contributions) {
@@ -82,6 +92,9 @@ final class ModelComposer {
         List<ValidationViolation> violations = new ArrayList<>();
         Map<String, Object> map = MAPPER.convertValue(patched, Map.class);
         ContentModelDTO dto = ModelMapCodec.read(map, violations);
+        if (!dto.primaryTypes().containsKey(TypeConstants.SYS_CONTENT)) {
+            throw invalid(sources(contributions), "the composed model must retain SysContent");
+        }
         try {
             return new SchemaManagerDTO(dto, violations, false, true);
         } catch (SchemaValidationException e) {
@@ -113,10 +126,6 @@ final class ModelComposer {
             ObjectNode target = (ObjectNode) model.get(section.getKey());
             section.getValue().properties().forEach(entry -> {
                 if (target.has(entry.getKey())) {
-                    if ("types".equals(section.getKey()) && target.get(entry.getKey()).equals(entry.getValue())) {
-                        // Shared value types (notably blob) may be imported by independent schema fragments.
-                        return;
-                    }
                     throw invalid(source, "duplicate definition at /" + section.getKey() + "/" + entry.getKey()
                             + "; use a patch to change an existing definition");
                 }

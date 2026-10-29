@@ -28,7 +28,9 @@ import static com.hyland.openarch.ecm.core.schema.types.FieldCharacteristics.Rep
 import static com.hyland.openarch.ecm.core.schema.types.FieldCharacteristics.Representation.STORE;
 import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_CONTENT;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import jakarta.inject.Inject;
@@ -48,6 +50,11 @@ import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
 import com.hyland.openarch.common.xmap.Context;
 import com.hyland.openarch.common.xmap.Resource;
 import com.hyland.openarch.runtime.RuntimeServiceException;
+import com.hyland.openarch.ecm.core.schema.dto.ContentModelDTO;
+import com.hyland.openarch.ecm.core.schema.dto.ModelMapCodec;
+import com.hyland.openarch.ecm.core.schema.validation.SchemaValidationException;
+
+import tools.jackson.databind.ObjectMapper;
 
 @ExtendWith(FeaturesExtension.class)
 @Features(RuntimeFeature.class)
@@ -169,6 +176,18 @@ public class TestSchemaManager {
         Schema[] schemas = schemaManager.getSchemas();
         assertNotNull(schemas);
         assertEquals(0, schemas.length);
+    }
+
+    @Test
+    public void testUnavailableResolverIsOptionalOnlyDuringBootstrap() {
+        Map<String, Object> map = new ObjectMapper().readValue("""
+                {"schemas":{"custom":{"fields":{"custom_value":{"type":"string",
+                 "constraints":{"resolver":{"name":"absentResolver"}}}}}}}
+                """, Map.class);
+        ContentModelDTO dto = ModelMapCodec.read(map);
+        SchemaManager bootstrap = new SchemaManagerDTO(dto, new ArrayList<>(), false, true);
+        assertTrue(bootstrap.getField("custom_value").getConstraints().isEmpty());
+        assertThrows(SchemaValidationException.class, () -> new SchemaManagerDTO(dto, null, false));
     }
 
     @Test

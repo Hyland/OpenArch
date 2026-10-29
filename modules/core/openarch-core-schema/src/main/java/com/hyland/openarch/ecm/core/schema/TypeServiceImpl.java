@@ -51,11 +51,6 @@ public class TypeServiceImpl extends DefaultComponent
     /** @since 11.5 */
     public static final String COMPONENT_NAME = "com.hyland.openarch.ecm.core.schema.TypeService";
 
-    /** @since 11.5 */
-    public static final String XP_DOCTYPE = "doctype";
-
-    protected static final String XP_SCHEMA = "schema";
-
     public static final String XP_MODEL = "model";
 
     public static final String CONFIG_TYPES = "types";
@@ -72,14 +67,8 @@ public class TypeServiceImpl extends DefaultComponent
 
     @Override
     public void start() {
-        SchemaRegistry schemaReg = getExtensionPointRegistry(XP_SCHEMA);
-        DocTypeRegistry docTypeReg = getExtensionPointRegistry(XP_DOCTYPE);
-        defaultSchemaManager = new SchemaManagerImpl(schemaReg, docTypeReg);
         ModelRegistry modelReg = getExtensionPointRegistry(XP_MODEL);
-        List<ModelDescriptor> models = modelReg.getModels();
-        if (!models.isEmpty()) {
-            defaultSchemaManager = ModelComposer.compose(defaultSchemaManager.toContentModel(), models);
-        }
+        defaultSchemaManager = ModelComposer.compose(ContentModelDTO.empty(), modelReg.getModels());
         ConfigurationService configService = Framework.getService(ConfigurationService.class);
         if (configService != null) {
             configService.registerConfigurable(this);
