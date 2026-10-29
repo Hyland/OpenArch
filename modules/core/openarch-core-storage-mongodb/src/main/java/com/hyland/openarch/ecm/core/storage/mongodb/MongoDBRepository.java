@@ -30,6 +30,7 @@ import static com.hyland.openarch.ecm.core.api.DocumentConstants.SCHEMA_SYSEMB;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SCHEMA_SYSGRAPH;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SCHEMA_SYSRESIDENCY;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_CHUNKS;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_CHUNKS_VERSION;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_EMBEDDINGS;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_ON_PREM_PROCESSING_SUCCESS;
@@ -960,11 +961,12 @@ public class MongoDBRepository extends DBSRepositoryBase implements Configuratio
         Map<String, Object> embSchemaMap = (Map<String, Object>) schemas.get(SCHEMA_SYSEMB);
         Map<String, Object> embFields = (Map<String, Object>) embSchemaMap.get(FIELDS);
         if (!embFields.containsKey(SYSEMB_CHUNKS) || !embFields.containsKey(SYSEMB_RESIDENCY)
-                || !embFields.containsKey(SYSEMB_ON_PREM_PROCESSING_SUCCESS)) {
+                || !embFields.containsKey(SYSEMB_ON_PREM_PROCESSING_SUCCESS) || !embFields.containsKey(SYSEMB_CHUNKS_VERSION)) {
             Map<String, Object> newFields = new HashMap<>(embFields);
             newFields.putIfAbsent(SYSEMB_CHUNKS, BLOB_TYPE);
             newFields.putIfAbsent(SYSEMB_RESIDENCY, StringType.ID);
             newFields.putIfAbsent(SYSEMB_ON_PREM_PROCESSING_SUCCESS, BooleanType.ID);
+            newFields.putIfAbsent(SYSEMB_CHUNKS_VERSION, LongType.ID);
             Map<String, Object> newSchema = new HashMap<>(embSchemaMap);
             newSchema.put(FIELDS, newFields);
             schemas.put(SCHEMA_SYSEMB, newSchema);

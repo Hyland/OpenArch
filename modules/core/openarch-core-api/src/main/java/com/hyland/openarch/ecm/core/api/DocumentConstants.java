@@ -266,6 +266,7 @@ public class DocumentConstants {
     public static final String SYSEMB_RESIDENCY_ON_PREM = "onPrem";
     public static final String SYSEMB_RESIDENCY_CLOUD = "cloud";
     public static final String SYSEMB_ON_PREM_PROCESSING_SUCCESS = "sysemb_onPremProcessingSuccess";
+    public static final String SYSEMB_CHUNKS_VERSION = "sysemb_chunksVersion";
 
     // SysResidency (where a document's content is stored)
     public static final String SCHEMA_SYSRESIDENCY = "sysresidency";

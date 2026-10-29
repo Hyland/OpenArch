@@ -590,6 +590,9 @@
         },
         "sysemb_residency": {
           "type": "string"
+        },
+        "sysemb_chunksVersion": {
+          "type": "long"
         }
       }
     },

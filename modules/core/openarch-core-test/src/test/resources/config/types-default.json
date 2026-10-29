@@ -101,6 +101,9 @@
         },
         "sysemb_onPremProcessingSuccess": {
           "type": "boolean"
+        },
+        "sysemb_chunksVersion": {
+          "type": "long"
         }
       },
       "prefix": "sysemb"
