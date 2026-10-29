@@ -21,8 +21,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -33,7 +31,6 @@ import com.hyland.openarch.ecm.core.api.Blob;
 import com.hyland.openarch.ecm.core.api.DocumentConstants;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
 import com.hyland.openarch.ecm.core.api.OnPremChunkTextWriter;
-import com.hyland.openarch.ecm.core.model.EmbeddingModel;
 import com.hyland.openarch.opensearch.EmbeddingsIndexer.ProcessingContext;
 import com.hyland.openarch.ecm.core.api.ChunkTexts;
 import com.hyland.openarch.opensearch.io.EmbeddingsParser;
@@ -48,9 +45,6 @@ class EmbeddingsIndexerOnPremChunkTextTest {
     private static final String TENANT = "tenant-1";
 
     private final EmbeddingsParser parser = Mockito.mock(EmbeddingsParser.class);
-
-    // The method only inspects isEmpty(), never dereferences elements.
-    private static final Collection<EmbeddingModel> SOME_EMBEDDINGS = Collections.singletonList(null);
 
     @Test
     void writesChunkTextForOnPremIngest() {
@@ -69,7 +63,7 @@ class EmbeddingsIndexerOnPremChunkTextTest {
 
         try (MockedStatic<Framework> framework = Mockito.mockStatic(Framework.class)) {
             framework.when(() -> Framework.getService(OnPremChunkTextWriter.class)).thenReturn(writer);
-            EmbeddingsIndexer.writeOnPremChunkText(parser, REPOSITORY, ctx, SOME_EMBEDDINGS, false);
+            EmbeddingsIndexer.writeOnPremChunkText(parser, REPOSITORY, ctx, false);
         }
 
         verify(writer).writeChunkText(REPOSITORY, TENANT, EMBEDDINGS_DOC_ID, PARENT_DOC_ID, EMBEDDING_TYPE,
@@ -93,7 +87,7 @@ class EmbeddingsIndexerOnPremChunkTextTest {
 
         try (MockedStatic<Framework> framework = Mockito.mockStatic(Framework.class)) {
             framework.when(() -> Framework.getService(OnPremChunkTextWriter.class)).thenReturn(writer);
-            EmbeddingsIndexer.writeOnPremChunkText(parser, REPOSITORY, ctx, SOME_EMBEDDINGS, false);
+            EmbeddingsIndexer.writeOnPremChunkText(parser, REPOSITORY, ctx, false);
         }
 
         verify(parser, never()).parseChunkTexts(any(), any());
@@ -117,7 +111,7 @@ class EmbeddingsIndexerOnPremChunkTextTest {
 
         try (MockedStatic<Framework> framework = Mockito.mockStatic(Framework.class)) {
             framework.when(() -> Framework.getService(OnPremChunkTextWriter.class)).thenReturn(writer);
-            EmbeddingsIndexer.writeOnPremChunkText(parser, REPOSITORY, ctx, SOME_EMBEDDINGS, false);
+            EmbeddingsIndexer.writeOnPremChunkText(parser, REPOSITORY, ctx, false);
         }
 
         // The writer decides what to do with invalid rows; the indexer must hand it the count, not hide it.
@@ -132,21 +126,7 @@ class EmbeddingsIndexerOnPremChunkTextTest {
                 DocumentConstants.SYSEMB_RESIDENCY_ON_PREM);
 
         try (MockedStatic<Framework> framework = Mockito.mockStatic(Framework.class)) {
-            EmbeddingsIndexer.writeOnPremChunkText(parser, REPOSITORY, ctx, SOME_EMBEDDINGS, true);
-            framework.verifyNoInteractions();
-        }
-
-        verifyNoInteractions(writer);
-    }
-
-    @Test
-    void skipsWhenNoEmbeddings() {
-        OnPremChunkTextWriter writer = Mockito.mock(OnPremChunkTextWriter.class);
-        ProcessingContext ctx = context(Mockito.mock(DocumentModel.class), Mockito.mock(DocumentModel.class),
-                DocumentConstants.SYSEMB_RESIDENCY_ON_PREM);
-
-        try (MockedStatic<Framework> framework = Mockito.mockStatic(Framework.class)) {
-            EmbeddingsIndexer.writeOnPremChunkText(parser, REPOSITORY, ctx, Collections.emptyList(), false);
+            EmbeddingsIndexer.writeOnPremChunkText(parser, REPOSITORY, ctx, true);
             framework.verifyNoInteractions();
         }
 
@@ -160,7 +140,7 @@ class EmbeddingsIndexerOnPremChunkTextTest {
                 DocumentConstants.SYSEMB_RESIDENCY_CLOUD);
 
         try (MockedStatic<Framework> framework = Mockito.mockStatic(Framework.class)) {
-            EmbeddingsIndexer.writeOnPremChunkText(parser, REPOSITORY, ctx, SOME_EMBEDDINGS, false);
+            EmbeddingsIndexer.writeOnPremChunkText(parser, REPOSITORY, ctx, false);
             framework.verifyNoInteractions();
         }
 
@@ -176,7 +156,7 @@ class EmbeddingsIndexerOnPremChunkTextTest {
 
         try (MockedStatic<Framework> framework = Mockito.mockStatic(Framework.class)) {
             framework.when(() -> Framework.getService(OnPremChunkTextWriter.class)).thenReturn(null);
-            EmbeddingsIndexer.writeOnPremChunkText(parser, REPOSITORY, ctx, SOME_EMBEDDINGS, false);
+            EmbeddingsIndexer.writeOnPremChunkText(parser, REPOSITORY, ctx, false);
         }
 
         verify(parser, never()).parseChunkTexts(any(), any());
@@ -193,7 +173,7 @@ class EmbeddingsIndexerOnPremChunkTextTest {
 
         try (MockedStatic<Framework> framework = Mockito.mockStatic(Framework.class)) {
             framework.when(() -> Framework.getService(OnPremChunkTextWriter.class)).thenReturn(writer);
-            EmbeddingsIndexer.writeOnPremChunkText(parser, REPOSITORY, ctx, SOME_EMBEDDINGS, false);
+            EmbeddingsIndexer.writeOnPremChunkText(parser, REPOSITORY, ctx, false);
         }
 
         verify(parser, never()).parseChunkTexts(any(), any());
@@ -215,7 +195,7 @@ class EmbeddingsIndexerOnPremChunkTextTest {
 
         try (MockedStatic<Framework> framework = Mockito.mockStatic(Framework.class)) {
             framework.when(() -> Framework.getService(OnPremChunkTextWriter.class)).thenReturn(writer);
-            EmbeddingsIndexer.writeOnPremChunkText(parser, REPOSITORY, ctx, SOME_EMBEDDINGS, false);
+            EmbeddingsIndexer.writeOnPremChunkText(parser, REPOSITORY, ctx, false);
         }
 
         verify(writer).writeChunkText(REPOSITORY, TENANT, EMBEDDINGS_DOC_ID, PARENT_DOC_ID, EMBEDDING_TYPE,
@@ -237,7 +217,7 @@ class EmbeddingsIndexerOnPremChunkTextTest {
 
         try (MockedStatic<Framework> framework = Mockito.mockStatic(Framework.class)) {
             framework.when(() -> Framework.getService(OnPremChunkTextWriter.class)).thenReturn(writer);
-            EmbeddingsIndexer.writeOnPremChunkText(parser, REPOSITORY, ctx, SOME_EMBEDDINGS, false);
+            EmbeddingsIndexer.writeOnPremChunkText(parser, REPOSITORY, ctx, false);
         }
 
         verify(writer, never()).writeChunkText(any(), any(), any(), any(), any(), any());

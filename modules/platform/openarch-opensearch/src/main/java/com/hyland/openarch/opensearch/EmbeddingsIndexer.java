@@ -111,22 +111,23 @@ public class EmbeddingsIndexer {
             Collection<EmbeddingModel> newEmbeddings = parse(cmd, ctx);
             log.debug("Parsed {} embeddings for command {} (type={}, parentId={}, existingIds={})", newEmbeddings.size(), cmd.getId(), ctx.embeddingsType(), ctx.parentDoc().getId(), ctx.existingIds().size());
             if (newEmbeddings.isEmpty() && ctx.existingIds().isEmpty()) {
-                log.debug("No embeddings to index or delete for command {} (parentId={}), skipping", cmd.getId(), ctx.parentDoc().getId());
-                return;
+                log.debug("No embeddings to index or delete for command {} (parentId={}), skipping index", cmd.getId(), ctx.parentDoc().getId());
+            } else {
+                if (newEmbeddings.isEmpty()) {
+                    log.warn("No valid embeddings parsed for command {} (parentId={}). Deleting {} existing embeddings.", cmd.getId(),
+                            ctx.parentDoc().getId(), ctx.existingIds().size());
+                }
+                Set<String> idsToDelete = computeIdsToDelete(ctx, newEmbeddings);
+
+                log.debug("Embeddings differential for command {} -> deletes={}, upserts={}", cmd.getId(), idsToDelete.size(), newEmbeddings.size());
+
+                // Build and execute with byte-size based batching - writes to embeddings index
+                executeWithBatching(cmd.getRepositoryName(), ctx.parentDoc(), ctx.residency(), newEmbeddings, idsToDelete, isReindexing, maxBulkSize);
             }
-            if (newEmbeddings.isEmpty()) {
-                log.warn("No valid embeddings parsed for command {} (parentId={}). Deleting {} existing embeddings.", cmd.getId(),
-                        ctx.parentDoc().getId(), ctx.existingIds().size());
-            }
-            Set<String> idsToDelete = computeIdsToDelete(ctx, newEmbeddings);
 
-            log.debug("Embeddings differential for command {} -> deletes={}, upserts={}", cmd.getId(), idsToDelete.size(), newEmbeddings.size());
-
-            // Build and execute with byte-size based batching - writes to embeddings index
-            executeWithBatching(cmd.getRepositoryName(), ctx.parentDoc(), ctx.residency(), newEmbeddings, idsToDelete, isReindexing, maxBulkSize);
-
-            // onPrem chunk text is kept out of the cloud index and instead written to the EV Store.
-            writeOnPremChunkText(embeddingsParser, cmd.getRepositoryName(), ctx, newEmbeddings, isReindexing);
+            // onPrem chunk text is kept out of the cloud index and instead written to the EV Store. This runs even when
+            // no vectors remain, so an empty replacement still purges the prior scope in EV Store.
+            writeOnPremChunkText(embeddingsParser, cmd.getRepositoryName(), ctx, isReindexing);
         }
     }
 
@@ -141,9 +142,9 @@ public class EmbeddingsIndexer {
      * Package-private and static so the branching can be unit-tested without a running repository.
      */
     static void writeOnPremChunkText(EmbeddingsParser embeddingsParser, String repository, ProcessingContext ctx,
-            Collection<EmbeddingModel> newEmbeddings, boolean isReindexing) {
+            boolean isReindexing) {
         boolean alreadyProcessed = ctx.embeddingsDoc().getPropertyValue(SYSEMB_ON_PREM_PROCESSING_SUCCESS) != null;
-        if (isReindexing || newEmbeddings.isEmpty() || !SYSEMB_RESIDENCY_ON_PREM.equals(ctx.residency()) || alreadyProcessed) {
+        if (isReindexing || !SYSEMB_RESIDENCY_ON_PREM.equals(ctx.residency()) || alreadyProcessed) {
             return;
         }
         OnPremChunkTextWriter writer = Framework.getService(OnPremChunkTextWriter.class);
