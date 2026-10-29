@@ -1080,6 +1080,11 @@
     "SysHasEmbeddings": {}
   },
   "primaryTypes": {
+    "SysContent": {
+      "schemas": [
+        "system"
+      ]
+    },
     "SysFolder": {
       "extends": "SysContent",
       "mixins": [

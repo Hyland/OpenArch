@@ -155,6 +155,7 @@ import static com.hyland.openarch.ecm.core.schema.SchemaManagerConstants.MIXIN_T
 import static com.hyland.openarch.ecm.core.schema.SchemaManagerConstants.PREFIX;
 import static com.hyland.openarch.ecm.core.schema.SchemaManagerConstants.PRIMARY_TYPES;
 import static com.hyland.openarch.ecm.core.schema.SchemaManagerConstants.SCHEMAS;
+import static com.hyland.openarch.ecm.core.schema.SchemaManagerConstants.SYSTEM_SCHEMA;
 import static com.hyland.openarch.ecm.core.schema.SchemaManagerConstants.TYPES;
 import static com.hyland.openarch.ecm.core.schema.TypeServiceImpl.CONFIG_TYPES;
 import static com.hyland.openarch.ecm.core.security.RetentionSecurityPolicy.RETENTION_ENGINE_NAME;
@@ -668,6 +669,18 @@ public class MongoDBRepository extends DBSRepositoryBase implements Configuratio
          needsMigration = migrateMetadataTypes(config);
          needsMigration |= migrateRenditionSchema(schemas);
          needsMigration |= MongoDBPrimaryTypeParentMigrator.migrate(primaryTypes);
+
+        // Older models relied on SchemaManagerDTO attaching this schema implicitly.
+        Map<String, Object> sysContent = (Map<String, Object>) primaryTypes.get(SYS_CONTENT);
+        if (sysContent != null) {
+            List<String> rootSchemas = (List<String>) sysContent.get(SCHEMAS);
+            if (rootSchemas == null || !rootSchemas.contains(SYSTEM_SCHEMA)) {
+                List<String> explicitSchemas = new ArrayList<>(rootSchemas == null ? List.of() : rootSchemas);
+                explicitSchemas.add(SYSTEM_SCHEMA);
+                sysContent.put(SCHEMAS, explicitSchemas);
+                needsMigration = true;
+            }
+        }
 
         // Knowledge Graph stringList type
         if (types.putIfAbsent(SYSGRAPH_STRING_LIST_TYPE, Map.of(LIST, StringType.ID)) == null) {

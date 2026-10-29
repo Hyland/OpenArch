@@ -102,7 +102,7 @@ public class TestTypeServiceImpl {
     @Test
     public void testSystemSchemaIsInheritedFromSysContent() {
         SchemaDTO system = new SchemaDTO(null, Map.of("sys_id", FieldDTO.ofType("string")), false, "sys");
-        PrimaryTypeDTO sysContent = new PrimaryTypeDTO(null, null, null, null, null);
+        PrimaryTypeDTO sysContent = new PrimaryTypeDTO(null, null, List.of("system"), null, null);
         PrimaryTypeDTO custom = new PrimaryTypeDTO(null, "SysContent", null, null, null);
         PrimaryTypeDTO sysRelation = new PrimaryTypeDTO(null, "SysContent", null, null, null);
         SchemaManager manager = new SchemaManagerDTO(

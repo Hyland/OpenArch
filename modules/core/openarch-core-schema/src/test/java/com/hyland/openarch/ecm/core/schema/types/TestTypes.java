@@ -56,6 +56,7 @@ import com.hyland.openarch.runtime.test.runner.RuntimeFeature;
 @ExtendWith(FeaturesExtension.class)
 @Features(RuntimeFeature.class)
 @Deploy("com.hyland.openarch.ecm.core.schema")
+@Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/test-root-type.xml")
 public class TestTypes {
 
     @Inject

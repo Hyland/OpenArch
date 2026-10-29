@@ -59,6 +59,7 @@ import tools.jackson.databind.ObjectMapper;
 @ExtendWith(FeaturesExtension.class)
 @Features(RuntimeFeature.class)
 @Deploy("com.hyland.openarch.ecm.core.schema")
+@Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/test-root-type.xml")
 public class TestSchemaManager {
 
     @Inject

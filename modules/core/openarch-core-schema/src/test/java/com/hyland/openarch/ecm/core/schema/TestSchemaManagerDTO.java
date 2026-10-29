@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -193,6 +194,18 @@ public class TestSchemaManagerDTO {
 
         assertEquals("SysContent", manager.getDocumentType("Custom").getSuperType().getName());
         assertEquals("SysContent", manager.toContentModel().primaryTypes().get("Custom").extend());
+    }
+
+    @Test
+    public void testSysContentCannotDeclareAParent() {
+        for (String parent : List.of("Custom", "SysContent", "Missing")) {
+            Map<String, Object> model = Map.of("primaryTypes",
+                    Map.of("SysContent", Map.of("extends", parent), "Custom", Map.of()));
+            SchemaValidationException e = assertThrows(SchemaValidationException.class,
+                    () -> new SchemaManagerDTO(model));
+            assertEquals(1, e.getReport().numberOfViolations());
+            assertEquals("primaryTypes/SysContent/extends", e.getReport().asList().getFirst().getPath());
+        }
     }
 
     /**

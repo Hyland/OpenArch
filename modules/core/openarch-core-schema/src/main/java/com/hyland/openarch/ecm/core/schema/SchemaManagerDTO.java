@@ -27,7 +27,6 @@ import static com.hyland.openarch.ecm.core.schema.SchemaManagerConstants.MIXINS;
 import static com.hyland.openarch.ecm.core.schema.SchemaManagerConstants.PRIMARY_TYPES;
 import static com.hyland.openarch.ecm.core.schema.SchemaManagerConstants.SCHEMAS;
 import static com.hyland.openarch.ecm.core.schema.SchemaManagerConstants.SYSTEM_SCHEMAS;
-import static com.hyland.openarch.ecm.core.schema.SchemaManagerConstants.SYSTEM_SCHEMA;
 import static com.hyland.openarch.ecm.core.schema.SchemaManagerConstants.SUPERTYPES;
 import static com.hyland.openarch.ecm.core.schema.SchemaManagerConstants.TYPES;
 import static com.hyland.openarch.ecm.core.schema.TypeConstants.PREFIX_SEPARATOR;
@@ -415,6 +414,9 @@ public class SchemaManagerDTO extends SchemaManagerBase {
     private DocumentTypeImpl newDocumentType(String name, PrimaryTypeDTO dto) {
         DTOPath path = DTOPath.root(PRIMARY_TYPES, null).child(name, null);
         DocumentType superType = null;
+        if (SYS_CONTENT.equals(name) && dto.extend() != null) {
+            violations.add(new InvalidObjectViolation(path.child(EXTENDS, dto.extend())));
+        }
         if (!name.equals(SYS_CONTENT)) {
             String parentName = dto.extend() == null ? SYS_CONTENT : dto.extend();
             superType = getRegisteredDocumentType(parentName);
@@ -434,9 +436,6 @@ public class SchemaManagerDTO extends SchemaManagerBase {
 
     private List<Schema> getNewDocumentTypeSchemas(PrimaryTypeDTO dto, DTOPath path, DocumentType superType) {
         Set<String> schemaNames = new HashSet<>(dto.schemas() == null ? List.of() : dto.schemas());
-        if (superType == null && SYS_CONTENT.equals(path.key()) && schemas.containsKey(SYSTEM_SCHEMA)) {
-            schemaNames.add(SYSTEM_SCHEMA);
-        }
         // add parent schemas
         if (superType != null) {
             schemaNames.addAll(superType.getSchemaNames());

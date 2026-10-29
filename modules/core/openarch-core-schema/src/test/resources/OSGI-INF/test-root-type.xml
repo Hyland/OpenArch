@@ -1,0 +1,5 @@
+<component name="com.hyland.openarch.ecm.core.test.root.type">
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/test-root-type.json" />
+  </extension>
+</component>

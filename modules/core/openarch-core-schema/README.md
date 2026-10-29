@@ -71,8 +71,11 @@ and `~` as `~0`.
 There is no implicit recursive merge, XML `append`, or `enabled="false"` behavior. Remove
 references as well as definitions when deleting schemas or mixins. Missing references,
 malformed resources, conflicting definitions and failed patch operations fail bootstrap.
-The minimal schema-only runtime still supplies `SysContent` when no fragment defines it;
-patches must retain it. Core deployments attach the system schema through this root type.
+The core bootstrap model explicitly defines `SysContent` with the `system` schema.
+As in the public API, primary types without `extends` default to extending `SysContent`;
+`SysContent` itself is the root type; specifying `extends` on it is an error. Schemas are never attached
+implicitly. Every composed bootstrap model, including schema-only test models, must explicitly
+contribute `SysContent`; patches cannot remove it.
 
 Managed field characteristics are supported in the JSON `managed` object and remain
 reserved for core system schemas. As with the former XSD bootstrap, an optional resolver

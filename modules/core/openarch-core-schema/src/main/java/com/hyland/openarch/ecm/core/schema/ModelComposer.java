@@ -34,7 +34,6 @@ import com.flipkart.zjsonpatch.Jackson3JsonPatch;
 import com.flipkart.zjsonpatch.JsonPatchApplicationException;
 import com.hyland.openarch.ecm.core.schema.dto.ContentModelDTO;
 import com.hyland.openarch.ecm.core.schema.dto.ModelMapCodec;
-import com.hyland.openarch.ecm.core.schema.dto.PrimaryTypeDTO;
 import com.hyland.openarch.ecm.core.schema.validation.SchemaValidationException;
 import com.hyland.openarch.ecm.core.schema.validation.violations.ValidationViolation;
 import com.hyland.openarch.runtime.RuntimeServiceException;
@@ -64,11 +63,6 @@ final class ModelComposer {
             if (!contribution.patch) {
                 merge(model, read(contribution), contribution.src);
             }
-        }
-        ObjectNode primaryTypes = (ObjectNode) model.get(PRIMARY_TYPES);
-        if (!primaryTypes.has(TypeConstants.SYS_CONTENT)) {
-            primaryTypes.set(TypeConstants.SYS_CONTENT,
-                    MAPPER.valueToTree(new PrimaryTypeDTO(null, null, null, null, null)));
         }
         JsonNode patched = model;
         for (ModelDescriptor contribution : contributions) {

@@ -25,6 +25,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -33,6 +34,7 @@ import com.hyland.openarch.common.xmap.Context;
 import com.hyland.openarch.common.xmap.Resource;
 import com.hyland.openarch.common.xmap.XMap;
 import com.hyland.openarch.ecm.core.schema.dto.ContentModelDTO;
+import com.hyland.openarch.ecm.core.schema.dto.PrimaryTypeDTO;
 import com.hyland.openarch.runtime.RuntimeServiceException;
 
 class TestModelComposer {
@@ -41,7 +43,8 @@ class TestModelComposer {
     Path directory;
 
     private static ContentModelDTO base() {
-        return ContentModelDTO.empty();
+        return new ContentModelDTO(null, null, null,
+                Map.of("SysContent", new PrimaryTypeDTO(null, null, null, null, null)));
     }
 
     private ModelDescriptor resource(String name, String content, boolean patch) throws Exception {
@@ -64,16 +67,61 @@ class TestModelComposer {
 
     @Test
     void testMinimalBootstrapAndExplicitRoot() throws Exception {
-        SchemaManager minimal = ModelComposer.compose(base(), List.of());
-        assertEquals(1, minimal.getDocumentTypes().length);
-        assertNotNull(minimal.getDocumentType("SysContent"));
+        RuntimeServiceException e = assertThrows(RuntimeServiceException.class,
+                () -> ModelComposer.compose(ContentModelDTO.empty(), List.of()));
+        assertTrue(e.getMessage().contains("the composed model must retain SysContent"));
         ModelDescriptor root = resource("root.json", """
                 {"mixinTypes":{"RootMarker":{}},
                  "primaryTypes":{"SysContent":{"mixins":["RootMarker"]},"Child":{}}}
                 """, false);
-        SchemaManager manager = ModelComposer.compose(base(), List.of(root));
+        SchemaManager manager = ModelComposer.compose(ContentModelDTO.empty(), List.of(root));
         assertTrue(manager.getDocumentType("SysContent").hasMixin("RootMarker"));
         assertEquals("SysContent", manager.getDocumentType("Child").getSuperType().getName());
+    }
+
+    @Test
+    void testSysContentSchemasAndRemovalAreExplicit() throws Exception {
+        ModelDescriptor root = resource("root.json", """
+                {"schemas":{"system":{"fields":{"sys_value":{"type":"string"}}}},
+                 "primaryTypes":{"SysContent":{}}}
+                """, false);
+        SchemaManager manager = ModelComposer.compose(ContentModelDTO.empty(), List.of(root));
+        assertNull(manager.getDocumentType("SysContent").getSuperType());
+        assertTrue(manager.getDocumentType("SysContent").getSchemaNames().isEmpty());
+        ModelDescriptor remove = resource("remove.patch.json", """
+                [{"op":"remove","path":"/primaryTypes/SysContent"}]
+                """, true);
+        assertThrows(RuntimeServiceException.class,
+                () -> ModelComposer.compose(ContentModelDTO.empty(), List.of(root, remove)));
+    }
+
+    @Test
+    void testSysContentCannotDeclareAParent() throws Exception {
+        ModelDescriptor root = resource("root.json", """
+                {"primaryTypes":{"SysContent":{"extends":"Other"},"Other":{}}}
+                """, false);
+        RuntimeServiceException e = assertThrows(RuntimeServiceException.class,
+                () -> ModelComposer.compose(ContentModelDTO.empty(), List.of(root)));
+        assertTrue(e.getCause().getMessage().contains("primaryTypes/SysContent/extends"));
+    }
+
+    @Test
+    void testImplicitParentMustBeContributed() throws Exception {
+        ModelDescriptor child = resource("child.json", """
+                {"primaryTypes":{"Child":{}}}
+                """, false);
+        assertThrows(RuntimeServiceException.class,
+                () -> ModelComposer.compose(ContentModelDTO.empty(), List.of(child)));
+        ModelDescriptor root = resource("root.json", """
+                {"primaryTypes":{"SysContent":{}}}
+                """, false);
+        SchemaManager manager = ModelComposer.compose(ContentModelDTO.empty(), List.of(child, root));
+        assertEquals("SysContent", manager.getDocumentType("Child").getSuperType().getName());
+        ModelDescriptor remove = resource("remove.patch.json", """
+                [{"op":"remove","path":"/primaryTypes/SysContent"}]
+                """, true);
+        assertThrows(RuntimeServiceException.class,
+                () -> ModelComposer.compose(ContentModelDTO.empty(), List.of(child, root, remove)));
     }
 
     @Test
@@ -199,8 +247,6 @@ class TestModelComposer {
                 [{"op":"add","value":{}}]
                 """, """
                 [{"op":"remove","path":"/mixinTypes/Missing"}]
-                """, """
-                [{"op":"remove","path":"/primaryTypes/SysContent"}]
                 """, """
                 [{"op":"replace","path":"","value":[]}]
                 """, """
