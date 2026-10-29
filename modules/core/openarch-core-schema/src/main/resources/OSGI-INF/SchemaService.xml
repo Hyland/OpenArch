@@ -14,6 +14,21 @@
 
   <implementation class="com.hyland.openarch.ecm.core.schema.TypeServiceImpl" />
 
+  <extension-point name="model">
+    <documentation>
+      Contribute content-model JSON resources in the REST model format.
+      A fragment may contain any of schemas, types, mixinTypes and primaryTypes.
+      Definitions are merged by name; duplicates are errors.
+      All fragments are collected before model resources with patch="true"
+      are applied as RFC 6902 JSON patches in contribution order.
+      Use component requirements to order patches that depend on each other.
+      For example: &lt;model src="model/custom.json" /&gt;
+      or &lt;model src="model/custom.patch.json" patch="true" /&gt;.
+    </documentation>
+    <object class="com.hyland.openarch.ecm.core.schema.ModelDescriptor" />
+    <registry class="com.hyland.openarch.ecm.core.schema.ModelRegistry" />
+  </extension-point>
+
   <extension-point name="doctype">
 
     <documentation>

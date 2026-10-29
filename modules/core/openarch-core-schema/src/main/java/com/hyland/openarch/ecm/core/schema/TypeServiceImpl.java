@@ -56,6 +56,8 @@ public class TypeServiceImpl extends DefaultComponent
 
     protected static final String XP_SCHEMA = "schema";
 
+    public static final String XP_MODEL = "model";
+
     public static final String CONFIG_TYPES = "types";
 
     // the default (bootstrap) schema manager
@@ -73,6 +75,11 @@ public class TypeServiceImpl extends DefaultComponent
         SchemaRegistry schemaReg = getExtensionPointRegistry(XP_SCHEMA);
         DocTypeRegistry docTypeReg = getExtensionPointRegistry(XP_DOCTYPE);
         defaultSchemaManager = new SchemaManagerImpl(schemaReg, docTypeReg);
+        ModelRegistry modelReg = getExtensionPointRegistry(XP_MODEL);
+        List<ModelDescriptor> models = modelReg.getModels();
+        if (!models.isEmpty()) {
+            defaultSchemaManager = ModelComposer.compose(defaultSchemaManager.toContentModel(), models);
+        }
         ConfigurationService configService = Framework.getService(ConfigurationService.class);
         if (configService != null) {
             configService.registerConfigurable(this);

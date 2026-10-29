@@ -1,0 +1,14 @@
+{
+  "schemas": {
+    "composed": {
+      "fields": {
+        "composed_value": { "type": "string" }
+      }
+    }
+  },
+  "primaryTypes": {
+    "Composed": {
+      "schemas": ["composed"]
+    }
+  }
+}

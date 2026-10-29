@@ -60,6 +60,13 @@ public class TestSchemaManager {
     }
 
     @Test
+    @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/test-model-composition.xml")
+    public void testJsonComposition() {
+        assertTrue(schemaManager.getDocumentType("Composed").hasSchema("composed"));
+        assertEquals("long", schemaManager.getField("composed_extra").getType().getName());
+    }
+
+    @Test
     @Deploy("com.hyland.openarch.ecm.core.schema.tests:OSGI-INF/test-blob-schema.xml")
     public void testBlobKeysPaths() {
         assertEquals(List.of(List.of("fl_blob", "key")), schemaManager.getBlobKeysPaths());
@@ -137,6 +144,7 @@ public class TestSchemaManager {
 
     @Test
     public void testTrivialTypeManager() {
+        assertNull(schemaManager.getDocumentType("Composed"));
         DocumentType[] documentTypes = schemaManager.getDocumentTypes();
         assertNotNull(documentTypes);
         assertEquals(1, documentTypes.length);

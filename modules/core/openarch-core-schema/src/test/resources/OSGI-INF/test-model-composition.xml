@@ -1,0 +1,6 @@
+<component name="com.hyland.openarch.ecm.core.schema.test-model-composition">
+  <extension target="com.hyland.openarch.ecm.core.schema.TypeService" point="model">
+    <model src="model/composition.patch.json" patch="true" />
+    <model src="model/composition.json" />
+  </extension>
+</component>

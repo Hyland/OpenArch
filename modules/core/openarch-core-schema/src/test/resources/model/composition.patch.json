@@ -1,0 +1,7 @@
+[
+  {
+    "op": "add",
+    "path": "/schemas/composed/fields/composed_extra",
+    "value": { "type": "long" }
+  }
+]
