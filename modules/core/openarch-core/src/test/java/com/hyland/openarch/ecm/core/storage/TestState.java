@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -132,6 +133,30 @@ public class TestState {
         State s2 = new State(true);
         s2.put("a", "1");
         assertEquals(s1.hashCode(), s2.hashCode());
+    }
+
+    @Test
+    public void testStateDiffGetDiffReturnsCopyArrayRepresentation() {
+        State.StateDiff diff = new State.StateDiff();
+        diff.put("a", "1");
+        diff.put("b", "2");
+        diff.getDiff().put("c", "3");
+        assertEquals(Map.of("a", "1", "b", "2"), diff.getDiff());
+    }
+
+    @Test
+    public void testStateDiffGetDiffReturnsCopyMapRepresentation() {
+        State.StateDiff diff = new State.StateDiff();
+        // more keys than ARRAY_MAX, so the diff uses an internal map
+        for (int i = 0; i < 6; i++) {
+            diff.put("k" + i, "v" + i);
+        }
+        Map<String, Object> copy = diff.getDiff();
+        copy.put("extra", "x");
+        copy.remove("k0");
+        assertEquals(6, diff.getDiff().size());
+        assertEquals("v0", diff.getDiff().get("k0"));
+        assertFalse(diff.getDiff().containsKey("extra"));
     }
 
 }

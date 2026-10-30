@@ -315,6 +315,9 @@ public class MongoDBConnection extends DBSConnectionBase {
     @Override
     public void updateState(String id, StateDiff diff, ConditionalUpdates conditionalUpdates) {
         ConditionsAndUpdates conditionsAndUpdates = converter.diffToBson(diff);
+        // the user predicate guards the first write only: later writes of a split update run after the first one
+        // changed the document, so the predicate (e.g. a version check) would not match anymore
+        boolean first = true;
         for (Document update : conditionsAndUpdates.updates) {
             // filter on doc id we want to update
             Document filter = new Document();
@@ -333,7 +336,7 @@ public class MongoDBConnection extends DBSConnectionBase {
                     converter.addToFilter(filter, doc);
                 }
                 // filter on conditional update predicate
-                Predicate conditionPredicate = conditionalUpdates.getConditionPredicate();
+                Predicate conditionPredicate = first ? conditionalUpdates.getConditionPredicate() : null;
                 if (conditionPredicate != null) {
                     converter.addToFilter(filter, predicateToDocument(conditionPredicate));
                 }
@@ -346,10 +349,12 @@ public class MongoDBConnection extends DBSConnectionBase {
             } else {
                 log.trace("MongoDB: UPDATE {}: IF {} THEN {}", id, filter, update);
             }
+            boolean firstWrite = first;
+            first = false;
             try {
                 UpdateResult w = updateMany(filter, update);
                 if (w.getModifiedCount() != 1) {
-                    if (conditionalUpdates != null && conditionalUpdates.getConditionPredicate() != null) {
+                    if (firstWrite && conditionalUpdates != null && conditionalUpdates.getConditionPredicate() != null) {
                         // if there's a conditional update requested, assume that the update failure is due to that
                         // (in theory not always true but a good heuristic)
                         log.trace("MongoDB:    -> CONDITION FAILED: {}", id);

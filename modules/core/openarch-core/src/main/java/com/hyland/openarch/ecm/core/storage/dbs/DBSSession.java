@@ -1447,12 +1447,30 @@ public class DBSSession implements InternalSession {
     }
 
     public void setUpdateCondition(String id, UpdateCondition condition, RepositoryPrincipal principal) {
+        setUpdateCondition(id, condition, principal, false);
+    }
+
+    /**
+     * Adds a condition, combined with AND to any condition already set for this document.
+     */
+    public void addUpdateCondition(String id, UpdateCondition condition, RepositoryPrincipal principal) {
+        setUpdateCondition(id, condition, principal, true);
+    }
+
+    protected void setUpdateCondition(String id, UpdateCondition condition, RepositoryPrincipal principal,
+            boolean combine) {
         Operand operand = switch (condition.syntax()) {
             case HXQL -> parseHxqlCondition(condition.condition());
             case EXPR -> parseExprCondition(condition.condition(), principal);
         };
         switch (operand) {
-            case Predicate predicate -> transaction.setUpdateConditionPredicate(id, predicate);
+            case Predicate predicate -> {
+                if (combine) {
+                    transaction.andUpdateConditionPredicate(id, predicate);
+                } else {
+                    transaction.setUpdateConditionPredicate(id, predicate);
+                }
+            }
             // an EXPR condition may be short-circuited by the evaluator into a constant
             case BooleanLiteral(var value) -> {
                 if (!value) {
@@ -1460,7 +1478,9 @@ public class DBSSession implements InternalSession {
                     throw new ConditionFailedException(id);
                 }
                 // the condition is always true, so clear any condition previously set for this document
-                transaction.setUpdateConditionPredicate(id, null);
+                if (!combine) {
+                    transaction.setUpdateConditionPredicate(id, null);
+                }
             }
             case null, default -> throw new QueryParseException(
                     "Condition is not a predicate: " + condition.condition());

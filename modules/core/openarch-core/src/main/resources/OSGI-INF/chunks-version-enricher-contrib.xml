@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<component name="com.hyland.openarch.ecm.core.EmbeddingsVersionEnricher">
+
+  <extension target="com.hyland.openarch.ecm.core.DocumentEnrichmentService" point="enrichers">
+    <enricher id="embeddingsVersion" class="com.hyland.openarch.ecm.core.EmbeddingsVersionEnricher" />
+  </extension>
+
+</component>

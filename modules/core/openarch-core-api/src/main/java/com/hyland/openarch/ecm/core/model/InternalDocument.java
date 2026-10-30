@@ -444,6 +444,13 @@ public interface InternalDocument {
     void setUpdateCondition(UpdateCondition condition, RepositoryPrincipal principal);
 
     /**
+     * Adds a condition to the one already set (if any) with {@link #setUpdateCondition}, both must then be met.
+     *
+     * @param condition the additional condition
+     */
+    void addUpdateCondition(UpdateCondition condition, RepositoryPrincipal principal);
+
+    /**
      * Gets the mixins available on this document (from the type and the instance mixins).
      *
      * @return the mixins

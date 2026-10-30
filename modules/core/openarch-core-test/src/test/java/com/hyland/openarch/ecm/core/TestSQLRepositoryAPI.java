@@ -25,6 +25,7 @@ import static org.apache.http.HttpStatus.SC_BAD_REQUEST;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
@@ -61,6 +62,9 @@ import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_PRIMARY_TYP
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_SECURITY_POLICIES;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_TITLE;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_USER_GENERATION;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_CHUNKS;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_CHUNKS_VERSION;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_EMBEDDINGS;
 import static com.hyland.openarch.ecm.core.api.event.CoreEventConstants.DIRTY_BLOB_XPATHS;
 import static com.hyland.openarch.ecm.core.api.event.CoreEventConstants.DIRTY_XPATHS;
 import static com.hyland.openarch.ecm.core.api.event.CoreEventConstants.RETAIN_UNTIL;
@@ -83,6 +87,7 @@ import static com.hyland.openarch.ecm.core.api.security.SecurityConstants.READ_W
 import static com.hyland.openarch.ecm.core.schema.MixinNames.SYS_VERSIONABLE;
 import static com.hyland.openarch.ecm.core.schema.MixinNames.SYS_GOVERNABLE;
 import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_EMBEDDINGS;
 import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FOLDER;
 import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_ORDERED_FOLDER;
 
@@ -104,6 +109,7 @@ import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -3908,6 +3914,131 @@ public class TestSQLRepositoryAPI {
             // ok
             TransactionHelper.setTransactionRollbackOnly();
         }
+    }
+
+    /**
+     * Two concurrent chunks updates start from the same chunks version: the one saving second must be rejected by the
+     * version guard added by {@code EmbeddingsVersionEnricher}.
+     * <p>
+     * The rejection makes the transaction of the stale writer roll back. Without native database transactions this
+     * rollback goes through the undo log, which restores the state the stale writer originally read, so the change of
+     * the other writer is reverted as well: both updates end up discarded and the version is back to its initial value.
+     */
+    @Test
+    public void testEmbeddingsChunksConcurrentUpdateRejectsStaleWriterAndRollsBackBoth() throws Exception {
+        DocumentModel parent = session.createDocumentModel("/", "parent", SYS_FILE);
+        parent.addMixin(MixinNames.SYS_HAS_EMBEDDINGS);
+        parent.create();
+        DocumentModel embeddings = session.createDocumentModel(parent.getPathAsString(), "emb", SYS_EMBEDDINGS);
+        embeddings.setPropertyValue(SYSEMB_EMBEDDINGS, Blobs.createBlob("embeddings"));
+        embeddings.setPropertyValue(SYSEMB_CHUNKS, Blobs.createBlob("chunks-initial"));
+        embeddings.create();
+        session.save();
+        nextTransaction();
+        DocumentRef embeddingsRef = embeddings.getRef();
+
+        CyclicBarrier bothLoaded = new CyclicBarrier(2);
+        CountDownLatch firstCommitted = new CountDownLatch(1);
+        MutableObject<RuntimeException> firstThreadException = new MutableObject<>();
+        MutableObject<RuntimeException> secondThreadException = new MutableObject<>();
+        Thread first = new Thread(() -> {
+            try {
+                TransactionHelper.runInTransaction(() -> {
+                    CoreSession session2 = CoreInstance.getCoreSession(coreFeature.getRepositoryName());
+                    DocumentModel doc2 = session2.getDocument(embeddingsRef);
+                    doc2.setPropertyValue(SYSEMB_CHUNKS, Blobs.createBlob("chunks-main"));
+                    try {
+                        bothLoaded.await(5, TimeUnit.SECONDS);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        throw new RuntimeException(e);
+                    } catch (BrokenBarrierException | TimeoutException e) {
+                        throw new RuntimeException(e);
+                    }
+                    session2.save();
+                });
+            } catch (RuntimeException e) {
+                firstThreadException.setValue(e);
+            } finally {
+                firstCommitted.countDown();
+            }
+        });
+
+        Thread second = new Thread(() -> {
+            try {
+                TransactionHelper.runInTransaction(() -> {
+                    CoreSession session2 = CoreInstance.getCoreSession(coreFeature.getRepositoryName());
+                    DocumentModel doc2 = session2.getDocument(embeddingsRef);
+                    doc2.setPropertyValue(SYSEMB_CHUNKS, Blobs.createBlob("chunks-thread"));
+                    try {
+                        bothLoaded.await(5, TimeUnit.SECONDS);
+                        assertTrue(firstCommitted.await(5, TimeUnit.SECONDS));
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        throw new RuntimeException(e);
+                    } catch (BrokenBarrierException | TimeoutException e) {
+                        throw new RuntimeException(e);
+                    }
+                    session2.save();
+                });
+            } catch (RuntimeException e) {
+                secondThreadException.setValue(e);
+            }
+        });
+
+        first.start();
+        second.start();
+        first.join();
+        second.join();
+
+        assertNull(firstThreadException.get(),
+                () -> "first writer should succeed but failed with: " + firstThreadException.get());
+        RuntimeException exception = secondThreadException.get();
+        assertNotNull(exception, "second stale writer should fail");
+        assertInstanceOf(ConditionFailedException.class, exception, () -> "unexpected exception: " + exception);
+
+        // the undo log rollback of the stale writer also reverts the update of the first writer
+        nextTransaction();
+        DocumentModel reloaded = session.getDocument(embeddingsRef);
+        assertEquals(1L, reloaded.getPropertyValue(SYSEMB_CHUNKS_VERSION));
+        Blob chunks = (Blob) reloaded.getPropertyValue(SYSEMB_CHUNKS);
+        assertEquals("chunks-initial", chunks.getString());
+    }
+
+    @Test
+    public void testEmbeddingsChunksUpdateKeepsCallerCondition() throws Exception {
+        DocumentModel parent = session.createDocumentModel("/", "parent", SYS_FILE);
+        parent.addMixin(MixinNames.SYS_HAS_EMBEDDINGS);
+        parent.create();
+        DocumentModel embeddings = session.createDocumentModel(parent.getPathAsString(), "emb", SYS_EMBEDDINGS);
+        embeddings.setPropertyValue(SYSEMB_EMBEDDINGS, Blobs.createBlob("embeddings"));
+        embeddings.setPropertyValue(SYSEMB_CHUNKS, Blobs.createBlob("chunks-initial"));
+        embeddings.create();
+        session.save();
+        DocumentRef embeddingsRef = embeddings.getRef();
+        nextTransaction();
+
+        // the version check must not discard a condition set by the caller
+        DocumentModel doc = session.getDocument(embeddingsRef);
+        doc.setUpdateCondition(UpdateCondition.hxql("sys_title = 'does-not-match'"));
+        doc.setPropertyValue(SYSEMB_CHUNKS, Blobs.createBlob("chunks-updated"));
+        assertThrows(ConditionFailedException.class, () -> session.save());
+        TransactionHelper.setTransactionRollbackOnly();
+
+        nextTransaction();
+        DocumentModel reloaded = session.getDocument(embeddingsRef);
+        assertEquals(1L, reloaded.getPropertyValue(SYSEMB_CHUNKS_VERSION));
+        assertEquals("chunks-initial", ((Blob) reloaded.getPropertyValue(SYSEMB_CHUNKS)).getString());
+
+        // a matching caller condition is combined with the version check and the update succeeds
+        reloaded.setUpdateCondition(UpdateCondition.hxql("sys_ugen = " + reloaded.getUserGeneration()));
+        reloaded.setPropertyValue(SYSEMB_CHUNKS, Blobs.createBlob("chunks-updated"));
+        session.save();
+
+        nextTransaction();
+        reloaded = session.getDocument(embeddingsRef);
+        assertEquals(2L, reloaded.getPropertyValue(SYSEMB_CHUNKS_VERSION));
+        assertEquals("chunks-updated", ((Blob) reloaded.getPropertyValue(SYSEMB_CHUNKS)).getString());
     }
 
     protected static class SavingJob implements Runnable {

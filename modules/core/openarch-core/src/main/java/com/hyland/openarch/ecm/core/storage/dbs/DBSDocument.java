@@ -1109,6 +1109,12 @@ public class DBSDocument implements InternalDocument {
     }
 
     @Override
+    public void addUpdateCondition(UpdateCondition condition, RepositoryPrincipal principal)
+            throws QueryParseException {
+        session.addUpdateCondition(getId(), condition, principal);
+    }
+
+    @Override
     public Set<String> getEffectiveMixins() {
         Set<String> mixins = new HashSet<>(getType().getMixins());
         mixins.addAll(getMixins());

@@ -16,6 +16,7 @@
 package com.hyland.openarch.ecm.core.api;
 
 import java.time.Instant;
+import java.util.Map;
 
 import com.hyland.openarch.ecm.core.model.InternalDocument;
 
@@ -35,10 +36,13 @@ public class DocumentEnrichmentContext {
 
     private final InternalDocument document;
 
-    public DocumentEnrichmentContext(RepositoryPrincipal principal, Instant timestamp, InternalDocument document) {
+    private final Map<String, Object> updatedFields;
+
+    public DocumentEnrichmentContext(RepositoryPrincipal principal, Instant timestamp, InternalDocument document, Map<String, Object> updatedFields) {
         this.principal = principal;
         this.timestamp = timestamp;
         this.document = document;
+        this.updatedFields = updatedFields;
     }
 
     /** @return the principal performing the create/update, may be {@code null} */
@@ -49,6 +53,11 @@ public class DocumentEnrichmentContext {
     /** @return the operation timestamp, shared across all documents of a single save */
     public Instant getTimestamp() {
         return timestamp;
+    }
+
+    /** @return the map of updated fields and their new values */
+    public Map<String, Object> getUpdatedFields() {
+        return updatedFields;
     }
 
     /** @return the in-flight document being created or updated; mutations are persisted in the current transaction */

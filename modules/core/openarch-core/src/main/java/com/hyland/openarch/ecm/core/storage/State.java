@@ -95,6 +95,21 @@ public class State {
             // and we want to store nulls explicitly
             putEvenIfNull(key, value);
         }
+
+        /**
+         * @return a copy of the diff, safe to modify without affecting this {@link StateDiff}
+         */
+        public Map<String, Object> getDiff() {
+            if (map != null) {
+                return new HashMap<>(map);
+            } else {
+                Map<String, Object> result = new HashMap<>(keys.size());
+                for (int i = 0; i < keys.size(); i++) {
+                    result.put(keys.get(i), values.get(i));
+                }
+                return result;
+            }
+        }
     }
 
     /**

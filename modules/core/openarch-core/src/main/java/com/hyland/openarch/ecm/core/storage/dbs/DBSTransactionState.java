@@ -86,6 +86,7 @@ import com.hyland.openarch.ecm.core.event.raiser.DocumentEventRaiser;
 import com.hyland.openarch.ecm.core.event.raiser.DocumentEventRaiserContext;
 import com.hyland.openarch.ecm.core.event.raiser.DocumentEventRaiserService;
 import com.hyland.openarch.ecm.core.event.raiser.DocumentEventSenderService;
+import com.hyland.openarch.ecm.core.query.sql.model.Operator;
 import com.hyland.openarch.ecm.core.query.sql.model.OrderByClause;
 import com.hyland.openarch.ecm.core.query.sql.model.Predicate;
 import com.hyland.openarch.ecm.core.schema.DocumentType;
@@ -640,6 +641,13 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
     }
 
     /**
+     * Adds a condition predicate for this document, combined with AND to any predicate already set.
+     */
+    public void andUpdateConditionPredicate(String id, Predicate predicate) {
+        updateConditionPredicates.merge(id, predicate, (existing, added) -> new Predicate(existing, Operator.AND, added));
+    }
+
+    /**
      * Checks if there is anything to save.
      *
      * @return a String describing an unsaved document, or {@code null} if there is nothing to save
@@ -967,7 +975,8 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
     private void enrichOnUpdate(DBSDocumentState docState, RepositoryPrincipal principal, Instant now) {
         DocumentEnrichmentService service = Framework.getService(DocumentEnrichmentService.class);
         if (service != null) {
-            var context = new DocumentEnrichmentContext(principal, now, session.getDocument(docState, false, true));
+            var context = new DocumentEnrichmentContext(principal, now, session.getDocument(docState, false, true),
+                    docState.getStateChange().getDiff());
             service.enrichOnUpdate(context);
         }
     }
