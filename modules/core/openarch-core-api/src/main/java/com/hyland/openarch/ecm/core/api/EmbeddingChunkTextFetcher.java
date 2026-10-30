@@ -31,11 +31,14 @@ public interface EmbeddingChunkTextFetcher {
     /**
      * Resolves chunk text for embedding ids belonging to a single source. The
      * {@code sourceId} is the {@code cin_sourceId} of the parent document and
-     * scopes the lookup to one external system integration. Implementations must
-     * return a non-null map; ids without a retrievable body are absent from the
-     * map, which callers treat as omitted rather than as errors. Implementations
-     * may throw unchecked exceptions for unrecoverable failures (network, auth,
-     * protocol violations); the caller propagates such failures.
+     * scopes the lookup to one external system integration. It is required: a
+     * null or blank {@code sourceId} throws {@link IllegalArgumentException},
+     * because an onPrem EV Store scope cannot be addressed without it.
+     * Implementations must return a non-null map; ids without a retrievable body
+     * are absent from the map, which callers treat as omitted rather than as
+     * errors. Implementations may throw unchecked exceptions for unrecoverable
+     * failures (network, auth, protocol violations); the caller propagates such
+     * failures.
      */
     Map<String, String> fetchTexts(String sourceId, Collection<String> embeddingIds);
 }

@@ -137,7 +137,9 @@ public class EmbeddingsIndexer {
      * must not re-drive the EV Store, and cloud documents carry their text in the index so nothing is written for them.
      * The write is skipped silently when no {@link OnPremChunkTextWriter} is registered (a cloud-only deployment) or the
      * child holds no chunks blob. A parsed-but-empty chunks parquet is still forwarded so EV Store can purge the prior
-     * scope during replacement. Residency is read from the child rather than re-evaluated.
+     * scope during replacement. Residency is read from the child rather than re-evaluated. When the child is onPrem but
+     * its parent carries no {@code cin_sourceId}, the EV Store scope cannot be addressed, so this throws
+     * {@link IllegalStateException} rather than silently dropping the write.
      * <p>
      * Package-private and static so the branching can be unit-tested without a running repository.
      */
@@ -161,9 +163,9 @@ public class EmbeddingsIndexer {
         ChunkTexts chunks = embeddingsParser.parseChunkTexts(chunksBlob, ctx.embeddingsType());
         String systemIntegrationId = StringUtils.trimToNull((String) ctx.parentDoc().getPropertyValue(CIN_SOURCE_ID));
         if (systemIntegrationId == null) {
-            log.error("Cannot write onPrem chunk text to the EV Store: parent {} of SysEmbeddings {} has no {}",
-                    ctx.parentDoc().getId(), ctx.embeddingsDoc().getId(), CIN_SOURCE_ID);
-            return;
+            throw new IllegalStateException(String.format(
+                    "Cannot write onPrem chunk text to the EV Store: parent %s of SysEmbeddings %s has no %s",
+                    ctx.parentDoc().getId(), ctx.embeddingsDoc().getId(), CIN_SOURCE_ID));
         }
         writer.writeChunkText(repository, systemIntegrationId, ctx.embeddingsDoc().getId(),
                 ctx.parentDoc().getId(), ctx.embeddingsType(), chunks);

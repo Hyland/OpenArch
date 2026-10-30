@@ -16,6 +16,7 @@
 package com.hyland.openarch.opensearch;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -203,7 +204,7 @@ class EmbeddingsIndexerOnPremChunkTextTest {
     }
 
     @Test
-    void skipsWhenSystemIntegrationIdMissing() {
+    void throwsWhenSystemIntegrationIdMissing() {
         DocumentModel embeddingsDoc = Mockito.mock(DocumentModel.class);
         DocumentModel parentDoc = Mockito.mock(DocumentModel.class);
         Blob chunksBlob = Mockito.mock(Blob.class);
@@ -217,7 +218,8 @@ class EmbeddingsIndexerOnPremChunkTextTest {
 
         try (MockedStatic<Framework> framework = Mockito.mockStatic(Framework.class)) {
             framework.when(() -> Framework.getService(OnPremChunkTextWriter.class)).thenReturn(writer);
-            EmbeddingsIndexer.writeOnPremChunkText(parser, REPOSITORY, ctx, false);
+            assertThrows(IllegalStateException.class,
+                    () -> EmbeddingsIndexer.writeOnPremChunkText(parser, REPOSITORY, ctx, false));
         }
 
         verify(writer, never()).writeChunkText(any(), any(), any(), any(), any(), any());
