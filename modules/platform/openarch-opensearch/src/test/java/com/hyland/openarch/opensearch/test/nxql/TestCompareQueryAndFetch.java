@@ -157,6 +157,53 @@ public class TestCompareQueryAndFetch {
     }
 
     @Test
+    public void testSortStringsIsCaseInsensitiveAndMissingLast() throws Exception {
+        createSortDocument("apple", "b", List.of("x", "Y"));
+        createSortDocument("Zebra", "A", List.of("Z"));
+        createSortDocument("banana", null, null);
+        createSortDocument("Cherry", "", List.of("a"));
+        session.save();
+        TransactionHelper.commitOrRollbackTransaction();
+        assertTrue(Framework.getService(TaskService.class).awaitCompletion(Duration.ofSeconds(20L)));
+        oss.refresh();
+        TransactionHelper.startTransaction();
+
+        String select = "select sys_title from MyFile where mydc_nature = 'sorted' order by ";
+        assertEquals(List.of("apple", "banana", "Cherry", "Zebra"), queryTitles(select + "sys_title"));
+        assertEquals(List.of("Zebra", "Cherry", "banana", "apple"), queryTitles(select + "sys_title desc"));
+        // empty values are values, a document without one goes last in both directions
+        assertEquals(List.of("Cherry", "Zebra", "apple", "banana"), queryTitles(select + "mydc_rights"));
+        assertEquals(List.of("apple", "Zebra", "Cherry", "banana"), queryTitles(select + "mydc_rights desc"));
+        // a list sorts on its lowest value when ascending and its highest when descending
+        assertEquals(List.of("Cherry", "apple", "Zebra", "banana"), queryTitles(select + "mydc_subjects"));
+        assertEquals(List.of("Zebra", "apple", "Cherry", "banana"), queryTitles(select + "mydc_subjects desc"));
+    }
+
+    private void createSortDocument(String title, String rights, List<String> subjects) {
+        DocumentModel doc = session.createDocumentModel("/", "sort" + title, MY_FILE);
+        doc.setPropertyValue(SYS_TITLE, title);
+        doc.setPropertyValue("mydc_nature", "sorted");
+        if (rights != null) {
+            doc.setPropertyValue("mydc_rights", rights);
+        }
+        if (subjects != null) {
+            doc.setPropertyValue("mydc_subjects", new ArrayList<>(subjects));
+        }
+        doc.create();
+    }
+
+    private List<String> queryTitles(String hxql) {
+        OpenSearchResult result = oss.queryAndAggregate(new OpenSearchQueryBuilder(session).hxql(hxql).limit(20));
+        List<String> titles = new ArrayList<>();
+        try (IterableQueryResult rows = result.getRows()) {
+            for (Map<String, Object> row : rows) {
+                titles.add((String) row.get(SYS_TITLE));
+            }
+        }
+        return titles;
+    }
+
+    @Test
     public void testIteratorWithLimit() throws Exception {
         int LIMIT = 5;
         OpenSearchResult openSearchRes = oss.queryAndAggregate(

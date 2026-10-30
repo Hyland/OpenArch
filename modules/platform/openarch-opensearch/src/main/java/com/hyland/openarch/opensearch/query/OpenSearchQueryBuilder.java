@@ -44,13 +44,20 @@ import com.hyland.openarch.ecm.core.api.DocumentModel;
 import com.hyland.openarch.ecm.core.query.nxql.SortInfo;
 import com.hyland.openarch.ecm.core.query.sql.model.Statement;
 import com.hyland.openarch.ecm.core.schema.SchemaManager;
+import com.hyland.openarch.ecm.core.schema.types.Field;
+import com.hyland.openarch.ecm.core.schema.types.ListType;
+import com.hyland.openarch.ecm.core.schema.types.SimpleType;
 import com.hyland.openarch.ecm.core.schema.types.Type;
+import com.hyland.openarch.ecm.core.schema.types.primitives.StringType;
 import com.hyland.openarch.opensearch.OpenSearchConstants;
 import com.hyland.openarch.opensearch.api.OpenSearchResult;
 import com.hyland.openarch.opensearch.fetcher.Fetcher;
 import com.hyland.openarch.opensearch.fetcher.VcsFetcher;
 import com.hyland.openarch.opensearch.io.DocumentDTO;
 import org.opensearch.client.opensearch._types.FieldValue;
+import org.opensearch.client.json.JsonData;
+import org.opensearch.client.opensearch._types.Script;
+import org.opensearch.client.opensearch._types.ScriptSortType;
 import org.opensearch.client.opensearch._types.SortOptions;
 import org.opensearch.client.opensearch._types.SortOrder;
 import org.opensearch.client.opensearch._types.mapping.FieldType;
@@ -72,6 +79,21 @@ public class OpenSearchQueryBuilder {
     private static final Logger log = LogManager.getLogger(OpenSearchQueryBuilder.class);
 
     private static final int DEFAULT_LIMIT = 10;
+
+    // Sorts on the lowercased value, without indexing another field. A multivalued field uses its lowest value when
+    // ascending and its highest when descending, like a field sort, and the field may be absent from the mapping.
+    // A script sort has no "missing" option, so the key itself puts documents without a value last: "1" + value when
+    // there is one, otherwise "2" when ascending or "0" when descending. Keys are computed per search, never stored.
+    private static final String CASE_INSENSITIVE_SORT_SCRIPT = "if (!doc.containsKey(params.field)"
+            + " || doc[params.field].size() == 0) { return params.missing; }"
+            + " String best = null;"
+            + " for (def value : doc[params.field]) {"
+            + "   String lower = value.toLowerCase(Locale.ROOT);"
+            + "   if (best == null || (params.asc ? lower.compareTo(best) < 0 : lower.compareTo(best) > 0)) {"
+            + "     best = lower;"
+            + "   }"
+            + " }"
+            + " return '1' + best;";
 
     private final CoreSession session;
 
@@ -369,24 +391,59 @@ public class OpenSearchQueryBuilder {
         for (SortInfo sortInfo : sortInfos) {
             String name = sortInfo.sortColumn();
             SortOrder order = sortInfo.sortAscending() ? SortOrder.Asc : SortOrder.Desc;
-            FieldType fieldType = guessFieldType(name);
-            SortOptions sortOptions = SortOptions.of(
-                    s -> s.field(f -> f.field(name).order(order).unmappedType(fieldType)));
+            SortOptions sortOptions;
+            if (isStringField(name)) {
+                sortOptions = caseInsensitiveSort(name, order);
+            } else {
+                FieldType fieldType = guessFieldType(name);
+                sortOptions = SortOptions.of(s -> s.field(f -> f.field(name).order(order).unmappedType(fieldType)));
+            }
             ret.add(sortOptions);
         }
         return ret;
     }
 
+    /**
+     * Sorts on the lowercased value, because strings are indexed with their case and would otherwise sort in ASCII
+     * order. Documents without a value go last in both directions, see {@link #CASE_INSENSITIVE_SORT_SCRIPT}.
+     */
+    private SortOptions caseInsensitiveSort(String field, SortOrder order) {
+        String missing = order == SortOrder.Asc ? "2" : "0";
+        Map<String, JsonData> params = Map.of("field", JsonData.of(field), "missing", JsonData.of(missing), "asc",
+                JsonData.of(order == SortOrder.Asc));
+        Script script = Script.of(s -> s.inline(i -> i.source(CASE_INSENSITIVE_SORT_SCRIPT).params(params)));
+        return SortOptions.of(s -> s.script(sc -> sc.type(ScriptSortType.String).order(order).script(script)));
+    }
+
+    /** Whether the property is a string, a list of them or a type derived from one; the schema uses slashes. */
+    private boolean isStringField(String field) {
+        Field schemaField = schemaManager.getField(field.replace('.', '/'));
+        if (schemaField == null) {
+            return false;
+        }
+        Type type = schemaField.getType();
+        if (type instanceof ListType listType) {
+            type = listType.getFieldType();
+        }
+        return type instanceof SimpleType simpleType && simpleType.getPrimitiveType() instanceof StringType;
+    }
+
+    private String schemaFieldType(String field) {
+        try {
+            return schemaManager.getField(field).getType().getName();
+        } catch (NullPointerException e) {
+            // probably an internal field without schema
+            return null;
+        }
+    }
+
     protected FieldType guessFieldType(String field) {
-        String fieldType;
         if (OPENSEARCH_SCORE_FIELD.equals(field)) {
             // this special field should not have an unmappedType
             return null;
         }
-        try {
-            fieldType = schemaManager.getField(field).getType().getName();
-        } catch (NullPointerException e) {
-            // probably an internal field without schema
+        String fieldType = schemaFieldType(field);
+        if (fieldType == null) {
             fieldType = "keyword";
         }
         switch (fieldType) {

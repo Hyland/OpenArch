@@ -39,11 +39,20 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import com.hyland.openarch.ecm.core.api.CoreSession;
+import com.hyland.openarch.ecm.core.query.nxql.SortInfo;
 import com.hyland.openarch.ecm.core.schema.SchemaManager;
+import com.hyland.openarch.ecm.core.schema.types.Field;
+import com.hyland.openarch.ecm.core.schema.types.ListType;
+import com.hyland.openarch.ecm.core.schema.types.SimpleType;
+import com.hyland.openarch.ecm.core.schema.types.Type;
+import com.hyland.openarch.ecm.core.schema.types.primitives.DateType;
 import com.hyland.openarch.ecm.core.schema.types.primitives.StringType;
 import org.opensearch.client.json.jackson3.JacksonJsonProvider;
 import org.opensearch.client.json.jackson3.JacksonJsonpMapper;
+import org.opensearch.client.json.JsonpSerializable;
 import org.opensearch.client.opensearch._types.FieldValue;
+import org.opensearch.client.opensearch._types.SortOptions;
+import org.opensearch.client.opensearch._types.SortOrder;
 import org.opensearch.client.opensearch._types.query_dsl.Query;
 import org.opensearch.client.opensearch._types.query_dsl.QueryBuilders;
 import org.opensearch.client.opensearch._types.query_dsl.QueryVariant;
@@ -302,6 +311,80 @@ public class OpenSearchQueryBuilderTest {
         assertTrue(query.isHybrid(), "Expected hybrid OpenSearch query");
     }
 
+    @Test
+    public void testSortByStringFieldIsCaseInsensitive() {
+        mockFieldType("title", StringType.INSTANCE);
+        builder.addSort(new SortInfo("title", true));
+        builder.addSort(new SortInfo("title", false));
+
+        List<SortOptions> sorts = builder.getSortBuilders();
+
+        String asc = serialiseQuery(sorts.get(0));
+        assertTrue(asc.contains("\"_script\""), asc);
+        assertTrue(asc.contains("\"order\":\"asc\""), asc);
+        assertTrue(asc.contains("\"field\":\"title\""), asc);
+        assertTrue(asc.contains("\"asc\":true"), asc);
+        assertTrue(asc.contains("\"missing\":\"2\""), asc);
+        String desc = serialiseQuery(sorts.get(1));
+        assertTrue(desc.contains("\"order\":\"desc\""), desc);
+        assertTrue(desc.contains("\"asc\":false"), desc);
+        assertTrue(desc.contains("\"missing\":\"0\""), desc);
+    }
+
+    @Test
+    public void testSortByStringDerivedFieldIsCaseInsensitive() {
+        SimpleType clob = mock(SimpleType.class);
+        when(clob.getPrimitiveType()).thenReturn(StringType.INSTANCE);
+        mockFieldType("note", clob);
+        builder.addSort(new SortInfo("note", true));
+
+        String sort = serialiseQuery(builder.getSortBuilders().getFirst());
+
+        assertTrue(sort.contains("\"_script\""), sort);
+    }
+
+    @Test
+    public void testSortByStringListFieldIsCaseInsensitive() {
+        ListType list = mock(ListType.class);
+        when(list.getFieldType()).thenReturn(StringType.INSTANCE);
+        mockFieldType("subjects", list);
+        builder.addSort(new SortInfo("subjects", false));
+
+        String sort = serialiseQuery(builder.getSortBuilders().get(0));
+
+        assertTrue(sort.contains("\"_script\""), sort);
+    }
+
+    @Test
+    public void testSortByComplexSubFieldIsCaseInsensitive() {
+        mockFieldType("sysfile_blob/filename", StringType.INSTANCE);
+        builder.addSort(new SortInfo("sysfile_blob.filename", true));
+
+        String sort = serialiseQuery(builder.getSortBuilders().getFirst());
+
+        assertTrue(sort.contains("\"field\":\"sysfile_blob.filename\""), sort);
+        assertTrue(sort.contains("\"_script\""), sort);
+    }
+
+    @Test
+    public void testSortByNonStringFieldUsesFieldSort() {
+        mockFieldType("created", DateType.INSTANCE);
+        builder.addSort(new SortInfo("created", false));
+        builder.addSort(new SortInfo("sys_unknown", true));
+
+        List<SortOptions> sorts = builder.getSortBuilders();
+
+        assertEquals("created", sorts.get(0).field().field());
+        assertEquals(SortOrder.Desc, sorts.get(0).field().order());
+        assertEquals("sys_unknown", sorts.get(1).field().field());
+    }
+
+    private void mockFieldType(String name, Type type) {
+        Field field = mock(Field.class);
+        when(field.getType()).thenReturn(type);
+        when(schemaManager.getField(name)).thenReturn(field);
+    }
+
     private Query prepareBuilderToReturnOSQuery(String nxql) {
         ObjectBuilder esQueryBuilder = mock(ObjectBuilder.class);
         when(hxqlQueryConverter.toESQueryBuilder(HXQLQueryConverter.parse(nxql), session)).thenReturn(esQueryBuilder);
@@ -312,7 +395,7 @@ public class OpenSearchQueryBuilderTest {
         return osQuery;
     }
 
-    private String serialiseQuery(Query query) {
+    private String serialiseQuery(JsonpSerializable query) {
         JacksonJsonpMapper jacksonJsonpMapper = new JacksonJsonpMapper(OBJECT_MAPPER);
         StringWriter writer = new StringWriter();
         JsonGenerator generator = JacksonJsonProvider.provider().createGenerator(writer);
