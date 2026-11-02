@@ -238,7 +238,7 @@ public class ConfigurationServiceImpl extends DefaultComponent implements Config
         }
     }
 
-    // returns true if config exists
+    // Returns true if config exists, even if it cannot be applied locally. Only absence permits bootstrap persistence.
     protected <T> boolean readConfigurationAndSetLocally(String repositoryName, Configurable<T> configurable) {
         String configName = configurable.getConfigurableConfigName();
         // The read and what it feeds are the same critical section a write sets its state under. This is the path a
@@ -258,7 +258,6 @@ public class ConfigurationServiceImpl extends DefaultComponent implements Config
                 // service keeps the configuration it holds, and the problem is reported for the stored one to be fixed
                 log.error("Cannot read the stored configuration: {} for repo: {}, keeping the current one", configName,
                         repositoryName, e);
-                return false;
             }
             return true;
         }

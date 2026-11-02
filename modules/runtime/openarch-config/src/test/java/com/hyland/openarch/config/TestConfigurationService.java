@@ -471,6 +471,82 @@ public class TestConfigurationService {
     }
 
     @Test
+    public void testPersistedConfigurationIsNotOverwrittenWhenLoadingFails() {
+        for (boolean engineFirst : List.of(false, true)) {
+            ConfigurationServiceImpl service = new ConfigurationServiceImpl();
+            List<String> events = new ArrayList<>();
+            HookedConfigurable configurable = new HookedConfigurable(events, null);
+            IO engine = new IO();
+            Map<String, Object> stored = Map.of(SETTINGS, List.of("invalid"), "custom", "preserved");
+            engine.data.put(CONFIG_DUMMY, stored);
+            engine.onWrite = () -> events.add("write");
+
+            if (engineFirst) {
+                service.registerConfigurationServiceIO(DUMMY_REPO, engine);
+                service.registerConfigurable(configurable);
+            } else {
+                service.registerConfigurable(configurable);
+                service.registerConfigurationServiceIO(DUMMY_REPO, engine);
+            }
+
+            assertEquals(stored, engine.data.get(CONFIG_DUMMY));
+            assertEquals("", configurable.getLocalState(DUMMY_REPO));
+            assertTrue(events.isEmpty());
+        }
+    }
+
+    @Test
+    public void testPersistedConfigurationIsNotRewrittenWhenLoadingSucceeds() {
+        ConfigurationServiceImpl service = new ConfigurationServiceImpl();
+        List<String> events = new ArrayList<>();
+        HookedConfigurable configurable = new HookedConfigurable(events, null);
+        IO engine = new IO();
+        Map<String, Object> stored = Map.of(SETTINGS, "persisted", "custom", "preserved");
+        engine.data.put(CONFIG_DUMMY, stored);
+        engine.onWrite = () -> events.add("write");
+
+        service.registerConfigurable(configurable);
+        service.registerConfigurationServiceIO(DUMMY_REPO, engine);
+
+        assertEquals(stored, engine.data.get(CONFIG_DUMMY));
+        assertEquals("persisted", configurable.getLocalState(DUMMY_REPO));
+        assertEquals(List.of("set"), events);
+    }
+
+    @Test
+    public void testEmptyPersistedConfigurationIsNotOverwritten() {
+        ConfigurationServiceImpl service = new ConfigurationServiceImpl();
+        List<String> events = new ArrayList<>();
+        HookedConfigurable configurable = new HookedConfigurable(events, null);
+        IO engine = new IO();
+        engine.data.put(CONFIG_DUMMY, Map.of());
+        engine.onWrite = () -> events.add("write");
+
+        service.registerConfigurable(configurable);
+        service.registerConfigurationServiceIO(DUMMY_REPO, engine);
+
+        assertEquals(Map.of(), engine.data.get(CONFIG_DUMMY));
+        assertEquals(List.of("set"), events);
+    }
+
+    @Test
+    public void testBootstrapIsPersistedWhenConfigurationIsAbsent() {
+        ConfigurationServiceImpl service = new ConfigurationServiceImpl();
+        List<String> events = new ArrayList<>();
+        HookedConfigurable configurable = new HookedConfigurable(events, null);
+        configurable.setLocalState(DUMMY_REPO, "bootstrap");
+        events.clear();
+        IO engine = new IO();
+        engine.onWrite = () -> events.add("write");
+
+        service.registerConfigurable(configurable);
+        service.registerConfigurationServiceIO(DUMMY_REPO, engine);
+
+        assertEquals(Map.of(SETTINGS, "bootstrap"), engine.data.get(CONFIG_DUMMY));
+        assertEquals(List.of("write"), events);
+    }
+
+    @Test
     public void testInitFromPersistedConfigWhenStarting() {
         // stop service as we'll need to restart it later
         ((DummyServiceImpl) dummyService).stop();

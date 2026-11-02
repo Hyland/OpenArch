@@ -83,7 +83,7 @@ public class AlreadyExistsViolation extends AbstractValidationViolation {
     }
 
     public AlreadyExistsViolation(String messageKey, String... parameters) {
-        super(messageKey, parameters);
+        super(null, null, messageKey, ValidationViolation.Type.WARNING);
         this.messageParameters = Arrays.asList(parameters);
     }
 

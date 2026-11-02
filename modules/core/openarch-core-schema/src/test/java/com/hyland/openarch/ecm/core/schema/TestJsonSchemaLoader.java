@@ -434,8 +434,13 @@ public class TestJsonSchemaLoader {
         var schemas = new java.util.LinkedHashMap<>((Map<String, Object>) first.get("schemas"));
         schemas.putAll((Map<String, Object>) second.get("schemas"));
         first.put("schemas", schemas);
+        SchemaManagerDTO manager = new SchemaManagerDTO(first);
+        assertEquals("string", manager.getSchema("s1").getField("pref_validator").getType().getName());
+        assertEquals("long", manager.getSchema("s2").getField("pref_validator").getType().getName());
         SchemaValidationException e = assertThrows(SchemaValidationException.class,
-                () -> new SchemaManagerDTO(first));
+                () -> new SchemaManagerDTO(first, null, true));
+        assertEquals(1, e.getReport().numberOfViolations());
+        assertFalse(e.getReport().hasError());
         assertTrue(e.getMessage().contains("Duplicate property"));
     }
 }

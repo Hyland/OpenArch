@@ -16,9 +16,11 @@
 package com.hyland.openarch.ecm.core.schema;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -27,6 +29,7 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 import com.hyland.openarch.ecm.core.schema.validation.SchemaValidationException;
 import com.hyland.openarch.ecm.core.schema.validation.ValidationReport;
+import com.hyland.openarch.ecm.core.schema.validation.violations.ValidationViolation;
 
 import tools.jackson.databind.ObjectMapper;
 
@@ -58,10 +61,19 @@ public class TestSchemaManagerDTO {
                     }
                 """;
         Map<String, Object> map = MAPPER.readValue(modelJson, Map.class);
+        List<ValidationViolation> violations = new ArrayList<>();
+        SchemaManagerDTO manager = new SchemaManagerDTO(map, violations, false);
+        assertEquals(2, manager.getSchemas().length);
+        assertEquals("string", manager.getSchema("s1").getField("pref_validator").getType().getName());
+        assertEquals("long", manager.getSchema("s2").getField("pref_validator").getType().getName());
+        assertEquals(1, violations.size());
+        assertEquals(ValidationViolation.Type.WARNING, violations.getFirst().getType());
+
         SchemaValidationException e = assertThrows(SchemaValidationException.class,
-                () -> new SchemaManagerDTO(map, null, false));
+                () -> new SchemaManagerDTO(map, null, true));
         ValidationReport report = e.getReport();
         assertEquals(1, report.numberOfViolations());
+        assertFalse(report.hasError());
         String msg = report.asList().get(0).getMessage(Locale.ENGLISH);
         assertEquals("Duplicate property \"pref_validator\" in schemas \"s1\" (string) and \"s2\" (long).", msg);
     }
