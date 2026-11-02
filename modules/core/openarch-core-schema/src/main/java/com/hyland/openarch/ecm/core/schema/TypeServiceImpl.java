@@ -173,7 +173,7 @@ public class TypeServiceImpl extends DefaultComponent
      * the time it gets here, and the rebuilt one is validated again on construction.
      */
     private SchemaManager withCoreSystemDefinitions(SchemaManager schemaManager) {
-        return new SchemaManagerDTO(withCoreSystemDefinitions(schemaManager.toContentModel()), List.of(), false);
+        return new SchemaManagerDTO(withCoreSystemDefinitions(schemaManager.toContentModel()), new ArrayList<>(), false);
     }
 
     /**

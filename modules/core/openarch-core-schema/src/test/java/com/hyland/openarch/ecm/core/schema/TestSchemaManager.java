@@ -51,7 +51,9 @@ import com.hyland.openarch.common.xmap.Context;
 import com.hyland.openarch.common.xmap.Resource;
 import com.hyland.openarch.runtime.RuntimeServiceException;
 import com.hyland.openarch.ecm.core.schema.dto.ContentModelDTO;
+import com.hyland.openarch.ecm.core.schema.dto.FieldDTO;
 import com.hyland.openarch.ecm.core.schema.dto.ModelMapCodec;
+import com.hyland.openarch.ecm.core.schema.dto.SchemaDTO;
 import com.hyland.openarch.ecm.core.schema.validation.SchemaValidationException;
 
 import tools.jackson.databind.ObjectMapper;
@@ -70,6 +72,23 @@ public class TestSchemaManager {
     @BeforeEach
     public void setUp() {
         schemaManager = typeService.getDefaultSchemaManager();
+    }
+
+    @Test
+    @Deploy("com.hyland.openarch.config")
+    public void testSetSchemaManagerWithDuplicateFieldWarning() {
+        SchemaDTO schema = new SchemaDTO(null, Map.of("duplicate", FieldDTO.ofType("string")), false, null);
+        ContentModelDTO model = new ContentModelDTO(Map.of("first", schema, "second", schema), null, null, null);
+        SchemaManager manager = new SchemaManagerDTO(model, new ArrayList<>(), false);
+
+        typeService.setSchemaManager("unversioned", manager);
+        typeService.setSchemaManager("versioned", manager, 0L);
+
+        for (String repository : List.of("unversioned", "versioned")) {
+            SchemaManager stored = typeService.getSchemaManager(repository);
+            assertNotNull(stored.getSchema("first").getField("duplicate"));
+            assertNotNull(stored.getSchema("second").getField("duplicate"));
+        }
     }
 
     @Test

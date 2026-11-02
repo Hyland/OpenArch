@@ -88,16 +88,10 @@ public class RepositoryExceptionController {
             exception = cause;
         }
         String causeMessage = cause.toString();
-        if (status == HttpStatus.INTERNAL_SERVER_ERROR.value()) {
+        if (status == HttpStatus.INTERNAL_SERVER_ERROR.value() || status == HttpStatus.NOT_IMPLEMENTED.value()) {
             log.error(causeMessage, cause);
-        } else if (status == HttpStatus.SERVICE_UNAVAILABLE.value()) {
-            // A dependency being away is not this server's defect, so it is not an ERROR -- but it is an
-            // operational event, and at debug it would be invisible exactly when someone is looking for it.
-            log.warn(causeMessage, cause);
-        } else if (Framework.isInitialized() && Framework.isDevModeSet()) {
-            log.warn(causeMessage, cause);
         } else {
-            log.debug(causeMessage, cause);
+            log.warn(causeMessage, cause);
         }
         String userId = SpringSecurityHelper.getPrincipalId();
         UserManager userManager = getUserManager();
