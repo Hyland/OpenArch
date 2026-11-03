@@ -45,12 +45,13 @@ public interface OnPremChunkTextWriter {
      * @param documentId          the parent document id (for diagnostics and logging)
      * @param embeddingType       the embedding type carried by the child (for diagnostics and logging)
      * @param chunkTexts          the chunk texts to write; an empty map means "replace with no chunk values"
+     * @param embeddingsVersion   the version of the embeddings
      * @throws IllegalArgumentException if {@code systemIntegrationId} is null or blank; an onPrem EV Store scope
      *                                  cannot be addressed without it
      *
      */
     void writeChunkText(String repository, String systemIntegrationId, String contentId, String documentId,
-            String embeddingType, ChunkTexts chunkTexts);
+            String embeddingType, ChunkTexts chunkTexts, Long embeddingsVersion);
 
     /**
      * Enqueues a full scope purge for a single {@code onPrem} {@code SysEmbeddings} child.

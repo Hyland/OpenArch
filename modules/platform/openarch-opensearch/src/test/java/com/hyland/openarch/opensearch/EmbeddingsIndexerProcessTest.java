@@ -58,6 +58,7 @@ class EmbeddingsIndexerProcessTest {
     private static final String PARENT_DOC_ID = "parent-1";
     private static final String EMBEDDING_TYPE = "type-a";
     private static final String TENANT = "tenant-1";
+    private static final Long EMBEDDINGS_VERSION = 5L;
 
     @Test
     void forwardsEmptyChunkTextWithoutBulkWhenNoEmbeddingsAndNoExistingIds() {
@@ -72,6 +73,7 @@ class EmbeddingsIndexerProcessTest {
         when(embeddingsDoc.getParentRef()).thenReturn(parentRef);
         when(embeddingsDoc.getPropertyValue(DocumentConstants.SYSEMB_RESIDENCY)).thenReturn(DocumentConstants.SYSEMB_RESIDENCY_ON_PREM);
         when(embeddingsDoc.getPropertyValue(DocumentConstants.SYSEMB_CHUNKS)).thenReturn(Mockito.mock(Blob.class));
+        when(embeddingsDoc.getPropertyValue(DocumentConstants.SYSEMB_CHUNKS_VERSION)).thenReturn(EMBEDDINGS_VERSION);
         when(parentDoc.getId()).thenReturn(PARENT_DOC_ID);
         when(parentDoc.getPropertyValue(DocumentConstants.CIN_SOURCE_ID)).thenReturn(TENANT);
         IndexingCommand cmd = new IndexingCommand(embeddingsDoc, IndexingCommand.Type.INSERT, false, false);
@@ -88,7 +90,8 @@ class EmbeddingsIndexerProcessTest {
             indexer.process(cmd, false, Integer.MAX_VALUE);
         }
 
-        verify(writer).writeChunkText(REPOSITORY, TENANT, EMBEDDINGS_DOC_ID, PARENT_DOC_ID, EMBEDDING_TYPE, ChunkTexts.EMPTY);
+        verify(writer).writeChunkText(REPOSITORY, TENANT, EMBEDDINGS_DOC_ID, PARENT_DOC_ID, EMBEDDING_TYPE,
+                ChunkTexts.EMPTY, EMBEDDINGS_VERSION);
         verify(client, never()).bulk(any(BulkRequest.class));
     }
 }

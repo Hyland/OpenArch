@@ -160,6 +160,11 @@ public class EmbeddingsIndexer {
             log.debug("onPrem SysEmbeddings {} has no chunks blob; nothing to write to the EV Store", ctx.embeddingsDoc().getId());
             return;
         }
+        Long embeddingsVersion = (Long) ctx.embeddingsDoc().getPropertyValue(DocumentConstants.SYSEMB_CHUNKS_VERSION);
+        if (embeddingsVersion == null) {
+            log.warn("onPrem SysEmbeddings {} has no chunks version; defaulting to 0 for EV Store write", ctx.embeddingsDoc().getId());
+            embeddingsVersion = 0L;
+        }
         ChunkTexts chunks = embeddingsParser.parseChunkTexts(chunksBlob, ctx.embeddingsType());
         String systemIntegrationId = StringUtils.trimToNull((String) ctx.parentDoc().getPropertyValue(CIN_SOURCE_ID));
         if (systemIntegrationId == null) {
@@ -168,7 +173,7 @@ public class EmbeddingsIndexer {
                     ctx.parentDoc().getId(), ctx.embeddingsDoc().getId(), CIN_SOURCE_ID));
         }
         writer.writeChunkText(repository, systemIntegrationId, ctx.embeddingsDoc().getId(),
-                ctx.parentDoc().getId(), ctx.embeddingsType(), chunks);
+                ctx.parentDoc().getId(), ctx.embeddingsType(), chunks, embeddingsVersion);
     }
 
     /**
