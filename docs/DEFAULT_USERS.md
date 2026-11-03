@@ -32,9 +32,62 @@ OpenArch comes with a set of default users configured in `openarch-users.yml`. T
 - Cannot manage system-level security or retention policies
 - Limited to operations allowed by document-level permissions
 
+## Using a Custom Users File
+
+Instead of editing the bundled `openarch-users.yml` and rebuilding, you can point OpenArch to your own users file. The location is set with the `openarch.users.file` property. It accepts any Spring resource location and defaults to `classpath:openarch-users.yml` (the file bundled in the application JAR). The file must use the same format as the bundled `openarch-users.yml`.
+
+### Via Configuration
+
+Set the property in an `application.properties` or `application.yml` file in the directory you start OpenArch from (or in its `config/` subdirectory):
+
+```properties
+openarch.users.file=file:/etc/openarch/openarch-users.yml
+```
+
+```yaml
+openarch:
+  users:
+    file: file:/etc/openarch/openarch-users.yml
+```
+
+Or pass it as a JVM argument:
+
+```bash
+java -Dopenarch.users.file=file:/etc/openarch/openarch-users.yml -jar target/openarch-app-*.jar
+```
+
+**Note:** The location needs a `file:` prefix for a file on the file system, or a `classpath:` prefix for a file inside the application JAR. Without a prefix, the file is not found and OpenArch fails to start.
+
+### Via Docker Property
+
+Mount your users file into the container and set the `OPENARCH_USERS_FILE` environment variable to its path inside the container. Start the backing services first with `docker compose -f server/openarch-app/docker-compose.yml up -d`, then run:
+
+```bash
+docker run --rm -p 8080:8080 \
+  -v $(pwd)/openarch-users.yml:/openarch-users.yml \
+  -v openarch_data:/deployments/nxserver/data \
+  -e OPENARCH_USERS_FILE=file:/openarch-users.yml \
+  -e NUXEO_DATA_DIR=/deployments/nxserver/data \
+  --network="host" \
+  ghcr.io/hyland/openarch-app-jvm:latest
+```
+
+If you start OpenArch with `docker-compose`, add the volume and environment variable to the `openarch-app` service instead:
+
+```yaml
+services:
+  openarch-app:
+    volumes:
+      - ./openarch-users.yml:/openarch-users.yml
+    environment:
+      OPENARCH_USERS_FILE: file:/openarch-users.yml
+```
+
+Restart OpenArch to apply the change. This approach does not require rebuilding the application or the Docker image.
+
 ## Changing the Admin Username and Password
 
-To customize the admin user credentials:
+To customize the admin user credentials, edit the bundled users file as described below, or use a [custom users file](#using-a-custom-users-file) to avoid a rebuild:
 
 1. **Locate the users file:**
    ```
