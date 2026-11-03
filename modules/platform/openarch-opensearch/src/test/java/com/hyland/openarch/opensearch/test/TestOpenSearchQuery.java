@@ -20,6 +20,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.awaitility.Awaitility.await;
+import static org.awaitility.pollinterval.IterativePollInterval.iterative;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_EMBEDDINGS;
 import static com.hyland.openarch.ecm.core.model.EmbeddingModel.VECTOR_SIZE;
 import static com.hyland.openarch.ecm.core.schema.MixinNames.SYS_HAS_EMBEDDINGS;
@@ -27,17 +29,22 @@ import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
 import static com.hyland.openarch.opensearch.OpenSearchServiceImpl.SAMPLE_AGGREGATION_NAME;
 import static com.hyland.openarch.opensearch.OpenSearchServiceImpl.TERMS_AGGREGATION_NAME;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.awaitility.core.ThrowingRunnable;
 import com.hyland.openarch.ecm.core.SysEmbeddingsPolicies;
 import com.hyland.openarch.ecm.core.api.Blob;
 import com.hyland.openarch.ecm.core.api.Blobs;
@@ -82,6 +89,15 @@ public class TestOpenSearchQuery {
     public static final String SEARCH_CREATED_MIN_FIELD_PATH = "search_created_min";
 
     public static final String TEST_EMBEDDING_TYPE = "TEST_EMBEDDING_TYPE";
+
+    // RepositoryOpenSearchFeature.await() can report "done" before deferred embeddings indexing is
+    // actually searchable under CI load, so the real end-state is polled instead of trusting that signal.
+    private static final Duration POLL_BUDGET = Duration.ofSeconds(60);
+
+    private static final Function<Duration, Duration> BACKOFF = d -> {
+        Duration next = d.multipliedBy(2);
+        return next.compareTo(Duration.ofSeconds(5)) > 0 ? Duration.ofSeconds(5) : next;
+    };
 
     @Inject
     protected CoreSession session;
@@ -192,14 +208,37 @@ public class TestOpenSearchQuery {
 
         session.save();
         txFeature.nextTransaction();
+        // nextTransaction() only WARN-logs a waiter timeout rather than failing, so indexing may still be
+        // incomplete here under load. Wait again explicitly and fail loudly if it hasn't caught up.
+        assertTrue(RepositoryOpenSearchFeature.await(Duration.ofSeconds(30)),
+                "Embeddings indexing did not complete in time");
 
         // Run a knn query for the embedding. 0.11 is close to 0.1, so we expect "embedding_id_0.1" to be returned.
         List<Double> targetVector = makeVectorFilledWith(0.11);
-        OpenSearchResult result = oss.queryAndAggregate(
-                new OpenSearchQueryBuilder(session).embeddingQuery(TEST_EMBEDDING_TYPE, targetVector, null, "SELECT * FROM SysContent"));
-        HitsMetadata<DocumentDTO> hits = result.getOpenSearchResponse().hits();
-        assertEquals(5, hits.total().value());
+        HitsMetadata<DocumentDTO> hits = awaitQuery(() -> oss.queryAndAggregate(new OpenSearchQueryBuilder(session)
+                .embeddingQuery(TEST_EMBEDDING_TYPE, targetVector, null, "SELECT * FROM SysContent"))
+                                                              .getOpenSearchResponse()
+                                                              .hits(), 5);
         assertEquals(embeddingIdPrefix + "1", hits.hits().get(0).id(), "Unexpected closest embedding returned");
+    }
+
+    private HitsMetadata<DocumentDTO> awaitQuery(Supplier<HitsMetadata<DocumentDTO>> query, long expected) {
+        AtomicReference<HitsMetadata<DocumentDTO>> ref = new AtomicReference<>();
+        awaitAssert(() -> {
+            oss.refresh();
+            HitsMetadata<DocumentDTO> h = query.get();
+            ref.set(h);
+            assertEquals(expected, h.total().value());
+        });
+        return ref.get();
+    }
+
+    /** Retries {@code assertion} with exponential backoff until it stops throwing. */
+    private static void awaitAssert(ThrowingRunnable assertion) {
+        await().atMost(POLL_BUDGET)
+               .pollInSameThread()
+               .pollInterval(iterative(BACKOFF, Duration.ofMillis(100)))
+               .untilAsserted(assertion);
     }
 
     private List<Double> makeVectorFilledWith(double d) {

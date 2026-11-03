@@ -21,6 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.awaitility.Awaitility.await;
+import static org.awaitility.pollinterval.IterativePollInterval.iterative;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_CHUNKS;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_EMBEDDINGS;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSEMB_RESIDENCY;
@@ -41,6 +43,9 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import com.hyland.openarch.ecm.core.model.EmbeddingModel;
@@ -51,6 +56,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.awaitility.core.ThrowingRunnable;
 import com.hyland.openarch.ecm.core.SysEmbeddingsPolicies;
 import com.hyland.openarch.ecm.core.api.Blob;
 import com.hyland.openarch.ecm.core.api.CoreInstance;
@@ -122,6 +128,24 @@ class TestEmbeddingsIndexing {
     static final String PARENT_CHILD_PREFIX = PARENT_PATH + "/";
 
     private static final int EMBEDDINGS_PER_BLOB = 50;
+
+    // Upstream wait primitives can report done before indexing is actually searchable under CI load;
+    // poll the real end-state instead of trusting that signal.
+    private static final Duration POLL_BUDGET = Duration.ofSeconds(60);
+
+    private static final Function<Duration, Duration> BACKOFF = d -> {
+        Duration next = d.multipliedBy(2);
+        return next.compareTo(Duration.ofSeconds(5)) > 0 ? Duration.ofSeconds(5) : next;
+    };
+
+    // A zero delta matches before work is even dispatched, so polling alone can't tell "nothing happened"
+    // from "not yet". Recheck after this window.
+    private static final Duration ZERO_DELTA_SETTLE_WINDOW = Duration.ofSeconds(3);
+
+    // Short timeout for post-deletion cleanup checks (e.g. scroll contexts), kept well below the deletion
+    // scroll's own 1-minute keep-alive (see OpenSearchServiceImpl#deletionScrollRequest) so a leak fails
+    // loudly instead of being masked by natural expiry under the longer POLL_BUDGET.
+    private static final Duration CLEANUP_TIMEOUT = Duration.ofSeconds(10);
 
     // MIME type constants for embeddings parsers
     private static final String MIME_TYPE_TEXT_PLAIN = "text/plain";
@@ -285,7 +309,7 @@ class TestEmbeddingsIndexing {
 
         assertEmbeddingsCount(parent, 0);
         assertHasEmbeddingsDocCount(0);
-        assertEquals(0, oss.getClient().getOpenScrollContexts());
+        awaitAssert(CLEANUP_TIMEOUT, () -> assertEquals(0, oss.getClient().getOpenScrollContexts()));
     }
 
     @Test
@@ -393,10 +417,15 @@ class TestEmbeddingsIndexing {
         assertHasEmbeddingsDocCount(1);
         assertEmbeddingsDocCount(parent, EMB_CHILD_COUNT);
         assertEmbeddingsCount(parent, EMB_CHILD_COUNT);
+        awaitSearch(() -> searchParentDocById(sibling.getId()), 1);
 
         // when the sibling (non-embeddings) document is deleted
         session.removeDocument(sibling.getRef());
         saveAndWaitForIndexing();
+
+        // wait for the deletion to actually land - the checks below are unchanged by this deletion, so
+        // they'd match immediately even if the deletion itself hadn't finished yet
+        awaitSearch(() -> searchParentDocById(sibling.getId()), 0);
 
         // then embeddings are unaffected
         assertHasEmbeddingsDocCount(1);
@@ -528,8 +557,9 @@ class TestEmbeddingsIndexing {
 
         // Verify initial denormalized metadata in embeddings index
         String parentId = parent.getId();
-        SearchResponse<DocumentDTO> initialResponse = searchEmbeddingsForParentInEmbeddingsIndex(parent);
-        assertEquals(EMBEDDINGS_PER_BLOB, initialResponse.hits().total().value(),
+        DocumentModel initialParent = parent;
+        SearchResponse<DocumentDTO> initialResponse = awaitSearch(
+                () -> searchEmbeddingsForParentInEmbeddingsIndex(initialParent), EMBEDDINGS_PER_BLOB,
                 "Embeddings index should contain embeddings");
         initialResponse.hits().hits().forEach(hit -> {
             var props = hit.source().getProperties();
@@ -552,8 +582,9 @@ class TestEmbeddingsIndexing {
         saveAndAssertForEmbeddingsIndexCommands(1);
 
         // then the embeddings index should contain the UPDATED denormalized metadata
-        SearchResponse<DocumentDTO> updatedResponse = searchEmbeddingsForParentInEmbeddingsIndex(parent);
-        assertEquals(EMBEDDINGS_PER_BLOB, updatedResponse.hits().total().value(),
+        DocumentModel updatedParent = parent;
+        SearchResponse<DocumentDTO> updatedResponse = awaitSearch(
+                () -> searchEmbeddingsForParentInEmbeddingsIndex(updatedParent), EMBEDDINGS_PER_BLOB,
                 "Embeddings count should remain the same after parent update");
 
         updatedResponse.hits().hits().forEach(hit -> {
@@ -620,8 +651,8 @@ class TestEmbeddingsIndexing {
 
         saveAndAssertForEmbeddingsIndexCommands(1);
 
-        SearchResponse<DocumentDTO> response = searchEmbeddingsForParentByTypeInEmbeddingsIndex(parent, embType);
-        assertEquals(count, response.hits().total().value());
+        SearchResponse<DocumentDTO> response = awaitSearch(
+                () -> searchEmbeddingsForParentByTypeInEmbeddingsIndex(parent, embType), count);
         List<String> texts = response.hits()
                                      .hits()
                                      .stream()
@@ -656,8 +687,8 @@ class TestEmbeddingsIndexing {
 
         saveAndAssertForEmbeddingsIndexCommands(1);
 
-        SearchResponse<DocumentDTO> response = searchEmbeddingsForParentByTypeInEmbeddingsIndex(parent, embType);
-        assertEquals(count, response.hits().total().value());
+        SearchResponse<DocumentDTO> response = awaitSearch(
+                () -> searchEmbeddingsForParentByTypeInEmbeddingsIndex(parent, embType), count);
         // ParquetBlobGenerator writes text = "<type> - <rawId>" for INITIAL rows.
         response.hits().hits().forEach(hit -> {
             String text = (String) hit.source().getProperties().get(EMBEDDING_PROPERTY_TEXT);
@@ -693,8 +724,8 @@ class TestEmbeddingsIndexing {
 
         saveAndAssertForEmbeddingsIndexCommands(1);
 
-        SearchResponse<DocumentDTO> response = searchEmbeddingsForParentByTypeInEmbeddingsIndex(parent, embType);
-        assertEquals(count, response.hits().total().value(),
+        SearchResponse<DocumentDTO> response = awaitSearch(
+                () -> searchEmbeddingsForParentByTypeInEmbeddingsIndex(parent, embType), count,
                 "Missing text column must not cause the parser to drop every embedding");
         List<String> texts = response.hits()
                                      .hits()
@@ -736,8 +767,8 @@ class TestEmbeddingsIndexing {
 
         saveAndAssertForEmbeddingsIndexCommands(1);
 
-        SearchResponse<DocumentDTO> response = searchEmbeddingsForParentByTypeInEmbeddingsIndex(parent, embType);
-        assertEquals(count, response.hits().total().value());
+        SearchResponse<DocumentDTO> response = awaitSearch(
+                () -> searchEmbeddingsForParentByTypeInEmbeddingsIndex(parent, embType), count);
         long withText = response.hits()
                                 .hits()
                                 .stream()
@@ -767,8 +798,8 @@ class TestEmbeddingsIndexing {
 
         saveAndAssertForEmbeddingsIndexCommands(1);
 
-        SearchResponse<DocumentDTO> response = searchEmbeddingsForParentByTypeInEmbeddingsIndex(parent, embType);
-        assertEquals(count, response.hits().total().value(),
+        SearchResponse<DocumentDTO> response = awaitSearch(
+                () -> searchEmbeddingsForParentByTypeInEmbeddingsIndex(parent, embType), count,
                 "onPrem doc must still land in the index for vector search");
         response.hits().hits().forEach(hit -> {
             Map<String, Object> src = hit.source().getProperties();
@@ -808,8 +839,8 @@ class TestEmbeddingsIndexing {
 
         saveAndAssertForEmbeddingsIndexCommands(1);
 
-        SearchResponse<DocumentDTO> response = searchEmbeddingsForParentByTypeInEmbeddingsIndex(parent, embType);
-        assertEquals(count, response.hits().total().value());
+        SearchResponse<DocumentDTO> response = awaitSearch(
+                () -> searchEmbeddingsForParentByTypeInEmbeddingsIndex(parent, embType), count);
         response.hits().hits().forEach(hit -> assertNull(
                 hit.source().getProperties().get(EMBEDDING_PROPERTY_TEXT),
                 "onPrem _source must not carry chunk text even when a chunks blob is present"));
@@ -836,8 +867,8 @@ class TestEmbeddingsIndexing {
 
         saveAndAssertForEmbeddingsIndexCommands(1);
 
-        SearchResponse<DocumentDTO> response = searchEmbeddingsForParentByTypeInEmbeddingsIndex(parent, embType);
-        assertEquals(count, response.hits().total().value());
+        SearchResponse<DocumentDTO> response = awaitSearch(
+                () -> searchEmbeddingsForParentByTypeInEmbeddingsIndex(parent, embType), count);
         response.hits().hits().forEach(hit -> assertNotNull(
                 hit.source().getProperties().get(EMBEDDING_PROPERTY_TEXT),
                 "cloud _source must still carry sysembed_text"));
@@ -873,7 +904,7 @@ class TestEmbeddingsIndexing {
             // Verify all 30 embeddings are indexed
             assertHasEmbeddingsDocCount(1);
             assertEmbeddingsDocCount(parent, 1);
-            assertEquals(30, searchEmbeddingsForParentInEmbeddingsIndex(parent).hits().total().value(),
+            awaitSearch(() -> searchEmbeddingsForParentInEmbeddingsIndex(parent), 30,
                     "Expected 30 embeddings to be indexed");
 
             // Verify batching occurred by checking log messages
@@ -958,8 +989,11 @@ class TestEmbeddingsIndexing {
     void saveAndWaitForIndexing() throws InterruptedException, TimeoutException, ExecutionException {
         session.save();
         TransactionHelper.commitOrRollbackTransaction();
-        asyncTasksService.awaitCompletion(Duration.ofSeconds(20));
-        oss.prepareWaitForIndexing().get(20, TimeUnit.SECONDS);
+        // Fail fast here instead of letting a swallowed timeout surface as confusing assertion failures later.
+        assertTrue(asyncTasksService.awaitCompletion(Duration.ofSeconds(20)),
+                "Async task queue did not drain within 20s");
+        assertTrue(oss.prepareWaitForIndexing().get(20, TimeUnit.SECONDS),
+                "OpenSearch indexing did not complete within 20s");
         oss.refresh();
         startTx();
     }
@@ -969,9 +1003,47 @@ class TestEmbeddingsIndexing {
         Timer timer = getEmbeddingsIndexTimer();
         long before = timer.getCount();
         saveAndWaitForIndexing();
-        long after = timer.getCount();
-        assertEquals(expectedEmbeddingsDelta, after - before,
-                "Unexpected embeddings indexing timer count delta (before=" + before + ", after=" + after + ")");
+        awaitAssert(() -> assertEquals(expectedEmbeddingsDelta, timer.getCount() - before,
+                "Unexpected embeddings indexing timer count delta (before=" + before + ", after="
+                        + timer.getCount() + ")"));
+        if (expectedEmbeddingsDelta == 0) {
+            Thread.sleep(ZERO_DELTA_SETTLE_WINDOW.toMillis()); // NOSONAR bounded settle wait; no reliable completion signal exists
+            assertEquals(0, timer.getCount() - before,
+                    "Unexpected embeddings indexing work appeared after the initial zero-delta check");
+        }
+    }
+
+    /** Retries {@code assertion} with exponential backoff until it stops throwing. */
+    private static void awaitAssert(ThrowingRunnable assertion) {
+        awaitAssert(POLL_BUDGET, assertion);
+    }
+
+    /** Retries {@code assertion} with exponential backoff, up to {@code budget}, until it stops throwing. */
+    private static void awaitAssert(Duration budget, ThrowingRunnable assertion) {
+        await().atMost(budget)
+               .pollInterval(iterative(BACKOFF, Duration.ofMillis(100)))
+               .untilAsserted(assertion);
+    }
+
+    /** Polls {@code query}, refreshing OpenSearch before each retry, until its hit count matches {@code expected}. */
+    private SearchResponse<DocumentDTO> awaitSearch(Supplier<SearchResponse<DocumentDTO>> query, long expected) {
+        return awaitSearch(query, expected, null);
+    }
+
+    private SearchResponse<DocumentDTO> awaitSearch(Supplier<SearchResponse<DocumentDTO>> query, long expected,
+            String message) {
+        AtomicReference<SearchResponse<DocumentDTO>> ref = new AtomicReference<>();
+        awaitAssert(() -> {
+            oss.refresh();
+            SearchResponse<DocumentDTO> response = query.get();
+            ref.set(response);
+            if (message == null) {
+                assertEquals(expected, response.hits().total().value());
+            } else {
+                assertEquals(expected, response.hits().total().value(), message);
+            }
+        });
+        return ref.get();
     }
 
     void deleteParent() {
@@ -1118,8 +1190,8 @@ class TestEmbeddingsIndexing {
 
     void assertBlobRefPresence(DocumentModel parent, String embeddingsType, boolean expectedBlobRefPresent,
             String expectedBlobRefPrefix) {
-        SearchResponse<DocumentDTO> response = searchEmbeddingsForParentByTypeInEmbeddingsIndex(parent, embeddingsType);
-        assertEquals(EMBEDDINGS_PER_BLOB, response.hits().total().value());
+        SearchResponse<DocumentDTO> response = awaitSearch(
+                () -> searchEmbeddingsForParentByTypeInEmbeddingsIndex(parent, embeddingsType), EMBEDDINGS_PER_BLOB);
         response.hits().hits().forEach(hit -> {
             DocumentDTO dto = hit.source();
             assertNotNull(dto, "Embedding source should not be null");
@@ -1168,7 +1240,7 @@ class TestEmbeddingsIndexing {
     }
 
     void assertHasEmbeddingsDocCount(int expected) {
-        assertEquals(expected, searchHasEmbeddingsDocs().hits().total().value());
+        awaitSearch(this::searchHasEmbeddingsDocs, expected);
     }
 
     /**
@@ -1178,16 +1250,14 @@ class TestEmbeddingsIndexing {
      * @param expected the expected number of embeddings children
      */
     void assertEmbeddingsDocCount(DocumentModel parent, int expected) {
-        assertEquals(expected, searchEmbeddingsDoc(parent).hits().total().value());
+        awaitSearch(() -> searchEmbeddingsDoc(parent), expected);
     }
 
     void assertEmbeddingsCount(DocumentModel parent, int expected) {
         // Count all embeddings per test child embeddings doc in embeddings index
         long expectedCount = expected * EMBEDDINGS_PER_BLOB;
-        long embeddingsIndexCount = searchEmbeddingsForParentInEmbeddingsIndex(parent).hits().total().value();
-
-        assertEquals(expectedCount, embeddingsIndexCount,
-                    "Embeddings index should contain " + expectedCount + " embeddings");
+        awaitSearch(() -> searchEmbeddingsForParentInEmbeddingsIndex(parent), expectedCount,
+                "Embeddings index should contain " + expectedCount + " embeddings");
     }
 
     void assertEmbeddingsBlobFilename(int childIndex, String expected) {
@@ -1217,14 +1287,17 @@ class TestEmbeddingsIndexing {
     }
 
     void assertParentPathInIndex(String parentId, String expectedPath) {
-        SearchResponse<DocumentDTO> resp = searchParentDocById(parentId);
-        assertEquals(1, resp.hits().hits().size());
-        DocumentDTO dto = resp.hits().hits().get(0).source();
-        assertNotNull(dto, "Parent document source missing");
-        Map<String, Object> properties = dto.getProperties();
-        assertNotNull(properties, "Parent document properties missing");
-        Object path = properties.get(DocumentConstants.SYS_PATH);
-        assertEquals(expectedPath, path, "Parent path not updated in index");
+        awaitAssert(() -> {
+            oss.refresh();
+            SearchResponse<DocumentDTO> resp = searchParentDocById(parentId);
+            assertEquals(1, resp.hits().hits().size());
+            DocumentDTO dto = resp.hits().hits().get(0).source();
+            assertNotNull(dto, "Parent document source missing");
+            Map<String, Object> properties = dto.getProperties();
+            assertNotNull(properties, "Parent document properties missing");
+            Object path = properties.get(DocumentConstants.SYS_PATH);
+            assertEquals(expectedPath, path, "Parent path not updated in index");
+        });
     }
 
     /**
@@ -1263,8 +1336,8 @@ class TestEmbeddingsIndexing {
         String expectedId = parent.getId();
 
         // then all embeddings should contain denormalized parent metadata
-        SearchResponse<DocumentDTO> response = searchEmbeddingsForParentInEmbeddingsIndex(parent);
-        assertEquals(EMBEDDINGS_PER_BLOB, response.hits().total().value(),
+        SearchResponse<DocumentDTO> response = awaitSearch(
+                () -> searchEmbeddingsForParentInEmbeddingsIndex(parent), EMBEDDINGS_PER_BLOB,
                 "Embeddings index should contain " + EMBEDDINGS_PER_BLOB + " embeddings");
 
         // Verify each embedding contains denormalized parent document metadata

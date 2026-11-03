@@ -19,6 +19,7 @@ package com.hyland.openarch.opensearch.test;
 import java.lang.reflect.Method;
 import java.time.Duration;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -60,9 +61,13 @@ public class RepositoryOpenSearchFeature implements RunnerFeature {
             return true;
         }
 
+        Future<Boolean> future = oss.prepareWaitForIndexing();
         try {
-            oss.prepareWaitForIndexing().get(duration.toMillis(), TimeUnit.MILLISECONDS);
+            future.get(duration.toMillis(), TimeUnit.MILLISECONDS);
         } catch (ExecutionException | TimeoutException cause) {
+            // On timeout the underlying task keeps retrying indefinitely on a non-daemon thread until the
+            // queue drains; cancel it rather than leaking a background waiter past this failed wait.
+            future.cancel(true);
             return false;
         }
 
