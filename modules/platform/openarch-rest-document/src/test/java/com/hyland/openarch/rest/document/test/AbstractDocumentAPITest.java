@@ -866,6 +866,31 @@ public abstract class AbstractDocumentAPITest extends AbstractAPITest {
     }
 
     @Test
+    public void testUploadBlobUsesRequestedFilename() throws Exception {
+        Upload upload = handler.newUpload();
+        upload.addBlob(Blobs.createBlob("test content", TEXT_PLAIN, UTF_8, "original.txt"));
+
+        String creationJson = """
+                {
+                  "sys_primaryType": "SysFile",
+                  "sys_title": "renamed.txt",
+                  "sysfile_blob": {
+                    "uploadId": "%s",
+                    "filename": "renamed.txt",
+                    "mimeType": "text/plain"
+                  }
+                }
+                """.formatted(upload.getId());
+
+        var result = checkResponseWithPayload(OK, POST, REPO_ID, creationJson, getRootApiPath())
+                .andExpect(jsonPath("sysfile_blob.filename").value("renamed.txt"));
+        String docId = getJsonPath(result, SYS_ID);
+        Blob blob = (Blob) coreSession.getDocument(new IdRef(docId)).getPropertyValue(SYSFILE_BLOB);
+        assertEquals("renamed.txt", blob.getFilename());
+        assertEquals("test content", blob.getString());
+    }
+
+    @Test
     public void testPatch() throws Exception {
         String apiPath = String.format("%s/%s", PATH, ROOT_ID);
         String creationJson = """
