@@ -125,6 +125,7 @@ public class UpdateACEStatusTaskProcessor implements TaskProcessor<RepositoryTas
             // Update the status of the indexing task
             status.setState(COMPLETED);
             asyncTasksService.setStatus(status);
+            ok = true;
         } catch (Exception e) {
             throw new RepositoryException(e);
         } finally {

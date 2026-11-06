@@ -18,9 +18,11 @@ package com.hyland.openarch.ecm.core.async.tasks;
 import static com.hyland.openarch.async.tasks.TaskStatus.State.COMPLETED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -36,10 +38,12 @@ import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
 import com.hyland.openarch.ecm.core.api.DocumentRef;
 import com.hyland.openarch.ecm.core.api.IterableQueryResult;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.ecm.core.api.security.ACL;
 import com.hyland.openarch.ecm.core.query.sql.model.Statement;
 import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.api.login.LoginContext;
+import com.hyland.openarch.runtime.transaction.TransactionHelper;
 
 import com.hyland.openarch.async.tasks.TaskService;
 import com.hyland.openarch.async.tasks.TaskStatus;
@@ -113,12 +117,17 @@ class UpdateACEStatusTaskProcessorTest {
         when(doc.getLocalACL()).thenReturn(acl);
 
         try (MockedStatic<Framework> framework = mockStatic(Framework.class);
-                MockedStatic<CoreInstance> coreInstance = mockStatic(CoreInstance.class)) {
+                MockedStatic<CoreInstance> coreInstance = mockStatic(CoreInstance.class);
+                MockedStatic<TransactionHelper> transactionHelper = mockStatic(TransactionHelper.class)) {
             framework.when(() -> Framework.getService(TaskService.class)).thenReturn(taskService);
             framework.when(() -> Framework.loginUserOrSystem("user")).thenReturn(mock(LoginContext.class));
             coreInstance.when(() -> CoreInstance.getCoreSession("repo")).thenReturn(session);
+            transactionHelper.when(TransactionHelper::isTransactionActiveOrMarkedRollback).thenReturn(true);
 
             processor.process(task);
+
+            transactionHelper.verify(TransactionHelper::setTransactionRollbackOnly, never());
+            transactionHelper.verify(TransactionHelper::commitOrRollbackTransaction);
         }
 
         verify(doc).setACL(acl, true);
@@ -126,6 +135,35 @@ class UpdateACEStatusTaskProcessorTest {
         verify(status).addProcessed(1L);
         verify(status).setState(COMPLETED);
         verify(result).close();
+    }
+
+    @Test
+    void processRollsBackWhenUpdatingAcesFails() {
+        RepositoryTask task = mock(RepositoryTask.class);
+        when(task.getProperties()).thenReturn(Map.of());
+        when(task.getTaskId()).thenReturn("tid");
+        when(task.getUsername()).thenReturn("user");
+        when(task.getRepository()).thenReturn("repo");
+
+        TaskService taskService = mock(TaskService.class);
+        when(taskService.getStatus("tid")).thenReturn(mock(TaskStatus.class));
+
+        CoreSession session = mock(CoreSession.class);
+        when(session.queryAndFetch(any(Statement.class))).thenThrow(new IllegalStateException("query failed"));
+
+        try (MockedStatic<Framework> framework = mockStatic(Framework.class);
+                MockedStatic<CoreInstance> coreInstance = mockStatic(CoreInstance.class);
+                MockedStatic<TransactionHelper> transactionHelper = mockStatic(TransactionHelper.class)) {
+            framework.when(() -> Framework.getService(TaskService.class)).thenReturn(taskService);
+            framework.when(() -> Framework.loginUserOrSystem("user")).thenReturn(mock(LoginContext.class));
+            coreInstance.when(() -> CoreInstance.getCoreSession("repo")).thenReturn(session);
+            transactionHelper.when(TransactionHelper::isTransactionActiveOrMarkedRollback).thenReturn(true);
+
+            assertThrows(RepositoryException.class, () -> processor.process(task));
+
+            transactionHelper.verify(TransactionHelper::setTransactionRollbackOnly);
+            transactionHelper.verify(TransactionHelper::commitOrRollbackTransaction);
+        }
     }
 
     @Test
