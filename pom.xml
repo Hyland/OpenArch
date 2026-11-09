@@ -128,7 +128,7 @@
     <!-- Test dependencies -->
     <mockito-inline.version>5.2.0</mockito-inline.version>
     <mockito-core.version>5.24.0</mockito-core.version>
-    <rest-assured.version>6.2.0</rest-assured.version>
+    <rest-assured.version>6.3.0</rest-assured.version>
 
     <openarch.skip.enforcer>false</openarch.skip.enforcer>
     <openarch.skip.enforcer.convergence>false</openarch.skip.enforcer.convergence>
