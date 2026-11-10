@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.transaction.xa.XAException;
+
 import com.flipkart.zjsonpatch.JsonPatchApplicationException;
 import com.hyland.openarch.ecm.core.api.RepositoryException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -241,6 +243,9 @@ public class RepositoryExceptionController {
 
     @ExceptionHandler(value = TransactionRuntimeException.class)
     public ResponseEntity<RepositoryErrorResponse> handleTransactionRuntimeException(TransactionRuntimeException cause) {
+        if (hasTransientXaFailure(cause)) {
+            return createRepositoryErrorResponseResponseEntity(SC_SERVICE_UNAVAILABLE, cause.getMessage(), cause);
+        }
         return createRepositoryErrorResponseResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR.value(), cause.getMessage(),
                 cause);
     }
@@ -288,6 +293,8 @@ public class RepositoryExceptionController {
             return e.getStatusCode().value();
         } else if (t instanceof WebApplicationException e) {
             return e.getResponse().getStatus();
+        } else if (t instanceof XAException e && e.errorCode == XAException.XA_RBTRANSIENT) {
+            return SC_SERVICE_UNAVAILABLE;
         } else if (t instanceof SecurityException) {
             return HttpStatus.FORBIDDEN.value();
         } else if (t instanceof IllegalArgumentException || t instanceof JacksonException) {
@@ -301,6 +308,16 @@ public class RepositoryExceptionController {
             return HttpStatus.INTERNAL_SERVER_ERROR.value();
         }
         return getStatusCode(cause);
+    }
+
+    private static boolean hasTransientXaFailure(Throwable cause) {
+        for (Throwable current = cause; current != null; current = current.getCause()) {
+            if (current instanceof XAException xaException
+                    && xaException.errorCode == XAException.XA_RBTRANSIENT) {
+                return true;
+            }
+        }
+        return false;
     }
 
     protected UserManager getUserManager() {

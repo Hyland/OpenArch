@@ -41,6 +41,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import javax.transaction.xa.XAException;
+
 import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.junit.jupiter.api.Test;
 import com.hyland.openarch.common.RetryAfterHint;
@@ -124,6 +126,12 @@ class RepositoryExceptionControllerTest extends RuntimeSpringBootTest {
         @GetMapping("/transactionTimeout")
         public void transaction() {
             throw new TransactionRuntimeException("timeout");
+        }
+
+        @GetMapping("/transientTransaction")
+        public void transientTransaction() {
+            XAException failure = new XAException(XAException.XA_RBTRANSIENT);
+            throw new TransactionRuntimeException("transaction failed transiently", failure);
         }
 
         @GetMapping("/jsonParse")
@@ -294,6 +302,12 @@ class RepositoryExceptionControllerTest extends RuntimeSpringBootTest {
     @Test
     public void testTransactionTimeoutException() throws Exception {
         doTestException("/exception/transactionTimeout", 500, "timeout");
+    }
+
+    @Test
+    public void testTransientTransactionFailureIsServiceUnavailable() throws Exception {
+        doTestExceptionAndHeaders("/exception/transientTransaction", SC_SERVICE_UNAVAILABLE,
+                "transaction failed transiently", Map.of(RETRY_AFTER, "2"));
     }
 
     @Test

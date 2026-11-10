@@ -20,14 +20,24 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static com.hyland.openarch.runtime.mongodb.MongoDBConnectionService.MONGODB_TRANSIENT_TRANSACTION_ERROR_LABEL;
+import static com.hyland.openarch.runtime.mongodb.MongoDBConnectionService.MONGODB_WRITE_CONFLICT;
+import static jakarta.servlet.http.HttpServletResponse.SC_CONFLICT;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_DESCRIPTION;
+import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_TITLE;
 import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
+
+import java.util.concurrent.atomic.AtomicReference;
 
 import jakarta.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import com.hyland.openarch.ecm.core.api.CoreInstance;
+import com.hyland.openarch.ecm.core.api.ConcurrentUpdateException;
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
 import com.hyland.openarch.ecm.core.api.DocumentRef;
@@ -43,6 +53,7 @@ import com.hyland.openarch.runtime.test.runner.Features;
 import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
 import com.hyland.openarch.runtime.transaction.TransactionHelper;
 
+import com.mongodb.MongoException;
 import com.mongodb.client.ClientSession;
 
 /**
@@ -98,6 +109,64 @@ public class TestMongoDBTransactions {
         TransactionHelper.setTransactionRollbackOnly();
         TransactionHelper.commitOrRollbackTransaction();
         TransactionHelper.startTransaction();
+    }
+
+    @Test
+    public void testConcurrentUpdatesToDifferentFieldsConflict() throws Exception {
+        DocumentModel doc = session.createDocumentModel("/", "concurrent-fields", SYS_FILE);
+        doc.setPropertyValue(SYS_TITLE, "initial title");
+        doc.setPropertyValue(SYS_DESCRIPTION, "initial description");
+        doc.create();
+        session.save();
+        DocumentRef ref = doc.getRef();
+        TransactionHelper.commitOrRollbackTransaction();
+        TransactionHelper.startTransaction();
+
+        // This read pins the transaction snapshot before the other transaction updates the document.
+        DocumentModel stale = session.getDocument(ref);
+        String repositoryName = session.getRepositoryName();
+        AtomicReference<Throwable> workerFailure = new AtomicReference<>();
+        Thread writer = new Thread(() -> {
+            try {
+                TransactionHelper.runInTransaction(() -> {
+                    CoreSession otherSession = CoreInstance.getCoreSessionSystem(repositoryName);
+                    DocumentModel fresh = otherSession.getDocument(ref);
+                    fresh.setPropertyValue(SYS_DESCRIPTION, "updated description");
+                    otherSession.save();
+                });
+            } catch (Throwable t) {
+                workerFailure.set(t);
+            }
+        });
+        writer.start();
+        writer.join();
+        assertNull(workerFailure.get());
+
+        RuntimeException failure;
+        try {
+            stale.setPropertyValue(SYS_TITLE, "updated title");
+            failure = assertThrows(RuntimeException.class, () -> saveAndCommit(session));
+        } finally {
+            if (TransactionHelper.isTransactionActiveOrMarkedRollback()) {
+                TransactionHelper.setTransactionRollbackOnly();
+                TransactionHelper.commitOrRollbackTransaction();
+            }
+            TransactionHelper.startTransaction();
+        }
+
+        assertTrue(failure instanceof ConcurrentUpdateException,
+                () -> "Expected a repository conflict response, got " + failure);
+        assertEquals(SC_CONFLICT, ((ConcurrentUpdateException) failure).getStatusCode());
+        assertTrue(hasWriteConflict(failure),
+                () -> "Expected MongoDB WriteConflict/TransientTransactionError, got " + failure);
+        DocumentModel persisted = session.getDocument(ref);
+        assertEquals("initial title", persisted.getPropertyValue(SYS_TITLE));
+        assertEquals("updated description", persisted.getPropertyValue(SYS_DESCRIPTION));
+    }
+
+    private void saveAndCommit(CoreSession coreSession) {
+        coreSession.save();
+        TransactionHelper.commitOrRollbackTransaction();
     }
 
     @Test
@@ -169,5 +238,16 @@ public class TestMongoDBTransactions {
     /** Returns the MongoDB session of the current transaction, or {@code null} if there is none. */
     protected ClientSession getCurrentSession() {
         return ((MongoDBComponent) mongoService).getCurrentSession();
+    }
+
+    private static boolean hasWriteConflict(Throwable failure) {
+        for (Throwable cause = failure; cause != null; cause = cause.getCause()) {
+            if (cause instanceof MongoException mongoException
+                    && (mongoException.getCode() == MONGODB_WRITE_CONFLICT
+                            || mongoException.hasErrorLabel(MONGODB_TRANSIENT_TRANSACTION_ERROR_LABEL))) {
+                return true;
+            }
+        }
+        return false;
     }
 }

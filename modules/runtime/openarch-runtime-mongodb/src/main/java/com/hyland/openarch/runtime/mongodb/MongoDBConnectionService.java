@@ -29,6 +29,10 @@ import com.mongodb.client.MongoDatabase;
  */
 public interface MongoDBConnectionService {
 
+    public static final String MONGODB_TRANSIENT_TRANSACTION_ERROR_LABEL = "TransientTransactionError";
+
+    public static final int MONGODB_WRITE_CONFLICT = 112;
+
     /**
      * Gets the MongoDB client.
      */

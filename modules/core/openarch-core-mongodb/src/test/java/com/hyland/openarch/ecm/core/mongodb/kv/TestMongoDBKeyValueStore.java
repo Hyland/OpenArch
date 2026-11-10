@@ -15,6 +15,10 @@
  */
 package com.hyland.openarch.ecm.core.mongodb.kv;
 
+import static com.hyland.openarch.runtime.mongodb.MongoDBConnectionService.MONGODB_TRANSIENT_TRANSACTION_ERROR_LABEL;
+import static com.hyland.openarch.runtime.mongodb.MongoDBConnectionService.MONGODB_WRITE_CONFLICT;
+import static jakarta.servlet.http.HttpServletResponse.SC_CONFLICT;
+import static jakarta.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -45,6 +49,9 @@ import com.hyland.openarch.runtime.transaction.TransactionRuntimeException;
 
 import jakarta.transaction.Synchronization;
 
+import com.hyland.openarch.ecm.core.api.ConcurrentUpdateException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
+import com.mongodb.MongoException;
 import com.mongodb.client.ClientSession;
 
 @Features(MongoDBFeature.class)
@@ -136,6 +143,29 @@ public class TestMongoDBKeyValueStore extends AbstractKeyValueStoreTest {
         // the session is committed and cleaned up when the enclosing transaction completes
         assertNull(getCurrentSession());
         runInMongoTransaction(true, () -> assertEquals("bar", transactionalStore.getString("foo")));
+    }
+
+    @Test
+    public void testWriteFailureTranslation() {
+        MongoDBKeyValueStore provider = (MongoDBKeyValueStore) store;
+        MongoException writeConflict = new MongoException(MONGODB_WRITE_CONFLICT, "write conflict");
+        RuntimeException translatedConflict = provider.translateMongoException(writeConflict);
+        assertTrue(translatedConflict instanceof ConcurrentUpdateException);
+        ConcurrentUpdateException conflict = (ConcurrentUpdateException) translatedConflict;
+        assertEquals(SC_CONFLICT, conflict.getStatusCode());
+        assertSame(writeConflict, conflict.getCause());
+
+        MongoException transientFailure = new MongoException("transient failure") {
+            @Override
+            public boolean hasErrorLabel(String labelName) {
+                return MONGODB_TRANSIENT_TRANSACTION_ERROR_LABEL.equals(labelName);
+            }
+        };
+        RuntimeException translatedTransient = provider.translateMongoException(transientFailure);
+        assertTrue(translatedTransient instanceof RepositoryException);
+        RepositoryException unavailable = (RepositoryException) translatedTransient;
+        assertEquals(SC_SERVICE_UNAVAILABLE, unavailable.getStatusCode());
+        assertSame(transientFailure, unavailable.getCause());
     }
 
     @Test

@@ -15,6 +15,9 @@
  */
 package com.hyland.openarch.ecm.core.storage.mongodb;
 
+import static com.hyland.openarch.runtime.mongodb.MongoDBConnectionService.MONGODB_TRANSIENT_TRANSACTION_ERROR_LABEL;
+import static com.hyland.openarch.runtime.mongodb.MongoDBConnectionService.MONGODB_WRITE_CONFLICT;
+import static jakarta.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
 import static com.mongodb.ErrorCategory.DUPLICATE_KEY;
 import static com.mongodb.ErrorCategory.fromErrorCode;
 import static java.lang.Boolean.TRUE;
@@ -828,35 +831,62 @@ public class MongoDBConnection extends DBSConnectionBase {
     }
 
     protected void insertOne(Document document) {
-        if (transactionStarted) {
-            coll.insertOne(clientSession, document);
-        } else {
-            coll.insertOne(document);
+        try {
+            if (transactionStarted) {
+                coll.insertOne(clientSession, document);
+            } else {
+                coll.insertOne(document);
+            }
+        } catch (MongoException e) {
+            throw translateMongoException(e);
         }
     }
 
     protected void insertMany(List<Document> documents) {
-        if (transactionStarted) {
-            coll.insertMany(clientSession, documents);
-        } else {
-            coll.insertMany(documents);
+        try {
+            if (transactionStarted) {
+                coll.insertMany(clientSession, documents);
+            } else {
+                coll.insertMany(documents);
+            }
+        } catch (MongoException e) {
+            throw translateMongoException(e);
         }
     }
 
     protected UpdateResult updateMany(Bson filter, Bson update) {
-        if (transactionStarted) {
-            return coll.updateMany(clientSession, filter, update);
-        } else {
-            return coll.updateMany(filter, update);
+        try {
+            if (transactionStarted) {
+                return coll.updateMany(clientSession, filter, update);
+            } else {
+                return coll.updateMany(filter, update);
+            }
+        } catch (MongoException e) {
+            throw translateMongoException(e);
         }
     }
 
     protected DeleteResult deleteMany(Bson filter) {
-        if (transactionStarted) {
-            return coll.deleteMany(clientSession, filter);
-        } else {
-            return coll.deleteMany(filter);
+        try {
+            if (transactionStarted) {
+                return coll.deleteMany(clientSession, filter);
+            } else {
+                return coll.deleteMany(filter);
+            }
+        } catch (MongoException e) {
+            throw translateMongoException(e);
         }
+    }
+
+    protected RuntimeException translateMongoException(MongoException e) {
+        if (e.getCode() == MONGODB_WRITE_CONFLICT) {
+            return new ConcurrentUpdateException("MongoDB write conflict", e);
+        }
+        if (e.hasErrorLabel(MONGODB_TRANSIENT_TRANSACTION_ERROR_LABEL)) {
+            return new RepositoryException("MongoDB transaction failed with a transient error", e,
+                    SC_SERVICE_UNAVAILABLE);
+        }
+        return e;
     }
 
     protected FindIterable<Document> find(Bson filter) {

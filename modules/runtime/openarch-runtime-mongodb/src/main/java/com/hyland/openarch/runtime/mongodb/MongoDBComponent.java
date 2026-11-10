@@ -187,7 +187,9 @@ public class MongoDBComponent extends DefaultComponent implements MongoDBConnect
                 session.commitTransaction();
             } catch (MongoException e) {
                 log.error("Failed to commit MongoDB transaction", e);
-                throw newXAException(XAException.XAER_RMERR, e);
+                int errorCode = e.getCode() == MONGODB_WRITE_CONFLICT || e.hasErrorLabel(MONGODB_TRANSIENT_TRANSACTION_ERROR_LABEL)
+                        ? XAException.XA_RBTRANSIENT : XAException.XAER_RMERR;
+                throw newXAException(errorCode, e);
             }
         }
 

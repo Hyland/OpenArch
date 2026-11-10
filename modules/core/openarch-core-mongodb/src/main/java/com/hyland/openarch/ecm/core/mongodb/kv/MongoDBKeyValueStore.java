@@ -15,11 +15,14 @@
  */
 package com.hyland.openarch.ecm.core.mongodb.kv;
 
+import static com.hyland.openarch.runtime.mongodb.MongoDBConnectionService.MONGODB_TRANSIENT_TRANSACTION_ERROR_LABEL;
+import static com.hyland.openarch.runtime.mongodb.MongoDBConnectionService.MONGODB_WRITE_CONFLICT;
 import static com.mongodb.client.model.Projections.include;
 import static com.mongodb.client.model.Updates.inc;
 import static com.mongodb.client.model.Updates.set;
 import static com.mongodb.client.model.Updates.unset;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static jakarta.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
 
 import java.nio.charset.CharacterCodingException;
 import java.util.Collection;
@@ -32,6 +35,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import com.hyland.openarch.ecm.core.api.ConcurrentUpdateException;
 import com.hyland.openarch.ecm.core.api.RepositoryException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -46,7 +50,7 @@ import com.hyland.openarch.runtime.mongodb.MongoDBConnectionService;
 
 import com.mongodb.ErrorCategory;
 import com.mongodb.MongoCommandException;
-import com.mongodb.MongoWriteException;
+import com.mongodb.MongoException;
 import com.mongodb.client.ClientSession;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
@@ -457,9 +461,9 @@ public class MongoDBKeyValueStore extends AbstractKeyValueStoreProvider {
             try {
                 coll.insertOne(doc);
                 set = true;
-            } catch (MongoWriteException e) {
+            } catch (MongoException e) {
                 if (ErrorCategory.fromErrorCode(e.getCode()) != ErrorCategory.DUPLICATE_KEY) {
-                    throw e;
+                    throw translateMongoException(e);
                 }
                 set = false;
             }
@@ -470,7 +474,12 @@ public class MongoDBKeyValueStore extends AbstractKeyValueStoreProvider {
         } else if (value == null) {
             // delete if previous value exists
             filter = Filters.and(filter, Filters.eq(VALUE_KEY, expected));
-            DeleteResult res = coll.deleteOne(filter);
+            DeleteResult res;
+            try {
+                res = coll.deleteOne(filter);
+            } catch (MongoException e) {
+                throw translateMongoException(e);
+            }
             boolean set = res.getDeletedCount() == 1;
             log.trace("MongoDB: TEST {} = {} ? {}", () -> sanitized(key), () -> sanitized(expected),
                     () -> set ? "DEL" : "FAILED");
@@ -480,7 +489,12 @@ public class MongoDBKeyValueStore extends AbstractKeyValueStoreProvider {
             filter = Filters.and(filter, Filters.eq(VALUE_KEY, expected));
             Document doc = new Document(VALUE_KEY, value);
             addTTL(doc, ttl);
-            UpdateResult res = coll.replaceOne(filter, doc);
+            UpdateResult res;
+            try {
+                res = coll.replaceOne(filter, doc);
+            } catch (MongoException e) {
+                throw translateMongoException(e);
+            }
             boolean set = res.getModifiedCount() == 1;
             log.trace("MongoDB: TEST {} = {} ? {}", () -> sanitized(key), () -> sanitized(expected),
                     () -> set ? "SET " + sanitized(value) : "FAILED");
@@ -498,6 +512,10 @@ public class MongoDBKeyValueStore extends AbstractKeyValueStoreProvider {
             result = coll.findOneAndUpdate(filter, update,
                     new FindOneAndUpdateOptions().upsert(true).returnDocument(ReturnDocument.AFTER));
         } catch (MongoCommandException e) {
+            RuntimeException translated = translateMongoException(e);
+            if (translated != e) {
+                throw translated;
+            }
             // Cannot apply $inc to a value of non-numeric type; code: 16837
             // - MongoDB: "Cannot apply $inc"
             // - DocumentDB: "Cannot update value"
@@ -508,6 +526,8 @@ public class MongoDBKeyValueStore extends AbstractKeyValueStoreProvider {
             // try to interpret the value as the string representation of an integer
             // (this keeps the underlying format as a String though)
             return addAndGetGeneric(key, delta);
+        } catch (MongoException e) {
+            throw translateMongoException(e);
         }
         if (result == null) {
             throw new RepositoryException("Unexpected null result, upsert failed for key: " + key);
@@ -546,39 +566,66 @@ public class MongoDBKeyValueStore extends AbstractKeyValueStoreProvider {
         }
     }
 
+    protected RuntimeException translateMongoException(MongoException e) {
+        if (e.getCode() == MONGODB_WRITE_CONFLICT) {
+            return new ConcurrentUpdateException("MongoDB write conflict", e);
+        }
+        if (e.hasErrorLabel(MONGODB_TRANSIENT_TRANSACTION_ERROR_LABEL)) {
+            return new RepositoryException("MongoDB transaction failed with a transient error", e,
+                    SC_SERVICE_UNAVAILABLE);
+        }
+        return e;
+    }
+
     protected DeleteResult deleteOne(Bson filter) {
         ClientSession session = getSession();
-        if (session != null) {
-            return coll.deleteOne(session, filter);
-        } else {
-            return coll.deleteOne(filter);
+        try {
+            if (session != null) {
+                return coll.deleteOne(session, filter);
+            } else {
+                return coll.deleteOne(filter);
+            }
+        } catch (MongoException e) {
+            throw translateMongoException(e);
         }
     }
 
     protected DeleteResult deleteMany(Bson filter) {
         ClientSession session = getSession();
-        if (session != null) {
-            return coll.deleteMany(session, filter);
-        } else {
-            return coll.deleteMany(filter);
+        try {
+            if (session != null) {
+                return coll.deleteMany(session, filter);
+            } else {
+                return coll.deleteMany(filter);
+            }
+        } catch (MongoException e) {
+            throw translateMongoException(e);
         }
     }
 
     protected UpdateResult updateOne(Bson filter, Bson update) {
         ClientSession session = getSession();
-        if (session != null) {
-            return coll.updateOne(session, filter, update);
-        } else {
-            return coll.updateOne(filter, update);
+        try {
+            if (session != null) {
+                return coll.updateOne(session, filter, update);
+            } else {
+                return coll.updateOne(filter, update);
+            }
+        } catch (MongoException e) {
+            throw translateMongoException(e);
         }
     }
 
     protected void replaceOne(Bson filter, Document replacement, ReplaceOptions options) {
         ClientSession session = getSession();
-        if (session != null) {
-            coll.replaceOne(session, filter, replacement, options);
-        } else {
-            coll.replaceOne(filter, replacement, options);
+        try {
+            if (session != null) {
+                coll.replaceOne(session, filter, replacement, options);
+            } else {
+                coll.replaceOne(filter, replacement, options);
+            }
+        } catch (MongoException e) {
+            throw translateMongoException(e);
         }
     }
 

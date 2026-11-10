@@ -15,8 +15,11 @@
  */
 package com.hyland.openarch.ecm.core.storage.mongodb;
 
+import static com.hyland.openarch.runtime.mongodb.MongoDBConnectionService.MONGODB_TRANSIENT_TRANSACTION_ERROR_LABEL;
+import static jakarta.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -44,6 +47,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.MockedStatic;
 
 import com.hyland.openarch.ecm.core.api.ConcurrentUpdateException;
+import com.hyland.openarch.ecm.core.api.RepositoryException;
 import com.hyland.openarch.ecm.core.query.sql.model.IntegerLiteral;
 import com.hyland.openarch.ecm.core.query.sql.model.Operator;
 import com.hyland.openarch.ecm.core.query.sql.model.Predicate;
@@ -57,6 +61,7 @@ import com.hyland.openarch.ecm.core.storage.dbs.DBSTransactionState.ConditionalU
 import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.mongodb.MongoDBConnectionService;
 
+import com.mongodb.MongoException;
 import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.CountOptions;
@@ -169,6 +174,21 @@ public class TestMongoDBConnection {
             connection.close();
             verifyNoInteractions(session);
         }
+    }
+
+    @Test
+    public void testTransientTransactionFailureIsServiceUnavailable() {
+        MongoException failure = new MongoException("transient failure") {
+            @Override
+            public boolean hasErrorLabel(String labelName) {
+                return MONGODB_TRANSIENT_TRANSACTION_ERROR_LABEL.equals(labelName);
+            }
+        };
+
+        RepositoryException translated = assertInstanceOf(RepositoryException.class,
+                connection.translateMongoException(failure));
+        assertEquals(SC_SERVICE_UNAVAILABLE, translated.getStatusCode());
+        assertSame(failure, translated.getCause());
     }
 
     @Test

@@ -28,6 +28,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import static com.hyland.openarch.runtime.mongodb.MongoDBConnectionService.MONGODB_TRANSIENT_TRANSACTION_ERROR_LABEL;
+
 import java.util.stream.Stream;
 
 import javax.transaction.xa.XAException;
@@ -131,6 +133,32 @@ public class MongoDBComponentTest {
             verify(session).abortTransaction();
             verify(session).close();
             assertThat(component.getCurrentSession()).isNull();
+        }
+    }
+
+    @Test
+    public void testTransientCommitFailureUsesTransientXaCode() {
+        MongoException failure = new MongoException("write conflict") {
+            @Override
+            public boolean hasErrorLabel(String labelName) {
+                return MONGODB_TRANSIENT_TRANSACTION_ERROR_LABEL.equals(labelName);
+            }
+        };
+        ClientSession session = mock(ClientSession.class);
+        when(session.hasActiveTransaction()).thenReturn(true);
+        doThrow(failure).when(session).commitTransaction();
+        MongoDBComponent component = newComponent(session);
+        try (MockedStatic<TransactionHelper> transactionHelper = mockTransaction()) {
+            component.getOrCreateSession();
+
+            XAResource xaResource = captureXAResource(transactionHelper);
+            Xid xid = mock(Xid.class);
+            assertThatThrownBy(() -> xaResource.commit(xid, true)).isInstanceOf(XAException.class)
+                    .hasFieldOrPropertyWithValue("errorCode", XAException.XA_RBTRANSIENT)
+                    .hasRootCause(failure);
+            captureSynchronization(transactionHelper).afterCompletion(Status.STATUS_ROLLEDBACK);
+            verify(session).abortTransaction();
+            verify(session).close();
         }
     }
 
