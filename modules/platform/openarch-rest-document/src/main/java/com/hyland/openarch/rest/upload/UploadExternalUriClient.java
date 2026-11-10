@@ -63,6 +63,8 @@ public class UploadExternalUriClient {
 
     /**
      * Downloads a resource. The caller must close the returned response after consuming its entity.
+     *
+     * @throws RepositoryException with status 400 if the URI is invalid or the download fails
      */
     public CloseableHttpResponse downloadResourceFromURI(UriWithHeaders uriWithHeaders) {
         URI uri = uriWithHeaders.uri();
@@ -88,7 +90,8 @@ public class UploadExternalUriClient {
             }
             return response;
         } catch (IOException e) {
-            throw new RepositoryException("IOException occurred during stream download of URI: %s.  %s".formatted(uri, e.getMessage()));
+            throw new RepositoryException("IOException occurred during stream download of URI: %s.  %s".formatted(uri, e.getMessage()),
+                    e, BAD_REQUEST.getStatusCode());
         }
     }
 

@@ -16,13 +16,13 @@
 package com.hyland.openarch.rest.upload.test;
 
 import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
-import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -360,7 +360,8 @@ public class UploadExternalUriClientTest {
     @WithFrameworkProperty(name = UploadExternalUriClient.UPLOAD_URI_ALLOWED_HEADER_LIST_PROPERTY, value = "Authorization")
     void shouldThrowRepositoryExceptionWhenExecuteThrowsInterruptedIOException() throws Exception {
         CloseableHttpClient httpClient = Mockito.mock(CloseableHttpClient.class);
-        when(httpClient.execute(any(HttpGet.class))).thenThrow(new InterruptedIOException());
+        InterruptedIOException cause = new InterruptedIOException("Read timed out");
+        when(httpClient.execute(any(HttpGet.class))).thenThrow(cause);
 
         UploadExternalUriClient client = new UploadExternalUriClient(httpClient);
 
@@ -372,7 +373,10 @@ public class UploadExternalUriClientTest {
 
         RepositoryException exception = assertThrows(RepositoryException.class,
                 () -> client.downloadResourceFromURI(uriWithHeaders));
-        assertEquals(INTERNAL_SERVER_ERROR.getStatusCode(), exception.getStatusCode());
+        assertEquals(BAD_REQUEST.getStatusCode(), exception.getStatusCode());
+        assertSame(cause, exception.getCause());
+        assertEquals("IOException occurred during stream download of URI: %s.  Read timed out".formatted(uriWithHeaders.uri()),
+                exception.getMessage());
     }
 
     @Test
@@ -380,7 +384,8 @@ public class UploadExternalUriClientTest {
     @WithFrameworkProperty(name = UploadExternalUriClient.UPLOAD_URI_ALLOWED_HEADER_LIST_PROPERTY, value = "Authorization")
     void shouldThrowRepositoryExceptionWhenSendThrowsIOException() throws Exception {
         CloseableHttpClient httpClient = Mockito.mock(CloseableHttpClient.class);
-        when(httpClient.execute(any(HttpGet.class))).thenThrow(new IOException());
+        IOException cause = new IOException("Connection reset");
+        when(httpClient.execute(any(HttpGet.class))).thenThrow(cause);
 
         UploadExternalUriClient client = new UploadExternalUriClient(httpClient);
 
@@ -392,7 +397,10 @@ public class UploadExternalUriClientTest {
 
         RepositoryException exception = assertThrows(RepositoryException.class,
                 () -> client.downloadResourceFromURI(uriWithHeaders));
-        assertEquals(INTERNAL_SERVER_ERROR.getStatusCode(), exception.getStatusCode());
+        assertEquals(BAD_REQUEST.getStatusCode(), exception.getStatusCode());
+        assertSame(cause, exception.getCause());
+        assertEquals("IOException occurred during stream download of URI: %s.  Connection reset".formatted(uriWithHeaders.uri()),
+                exception.getMessage());
     }
 
     @Test
