@@ -15,8 +15,10 @@
  */
 package com.hyland.openarch.ecm.core;
 
+import static org.apache.http.HttpStatus.SC_BAD_REQUEST;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.spy;
@@ -26,6 +28,7 @@ import static org.mockito.Mockito.when;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYSFILE_BLOB;
 import static com.hyland.openarch.ecm.core.api.DocumentConstants.SYS_TITLE;
 import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_ROOT;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -52,8 +55,8 @@ import com.hyland.openarch.ecm.core.api.Blob;
 import com.hyland.openarch.ecm.core.api.Blobs;
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.Lock;
-import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.PropertyException;
+import com.hyland.openarch.ecm.core.api.RepositoryPrincipal;
 import com.hyland.openarch.ecm.core.api.SystemPrincipal;
 import com.hyland.openarch.ecm.core.api.model.PropertyNotFoundException;
 import com.hyland.openarch.ecm.core.model.InternalDocument;
@@ -122,6 +125,16 @@ public class TestDocument {
         DBSDocument doc = DBSDocument.newUnCreatedDocument(parent, name, typeName, session);
         doc.create();
         return doc;
+    }
+
+    @Test
+    public void testCannotCreateSysRootDocument() {
+        InternalDocument root = session.getRootDocument();
+        DBSDocument doc = DBSDocument.newUnCreatedDocument(root, "sysRoot", SYS_ROOT, session);
+
+        PropertyException e = assertThrows(PropertyException.class, doc::create);
+        assertEquals("Cannot create a document with primary type " + SYS_ROOT, e.getMessage());
+        assertEquals(SC_BAD_REQUEST, e.getStatusCode());
     }
 
     @Test

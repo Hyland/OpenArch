@@ -41,9 +41,11 @@ import static com.hyland.openarch.ecm.core.api.event.CoreEventConstants.DIRTY_XP
 import static com.hyland.openarch.ecm.core.api.event.DocumentEventTypes.DOCUMENT_CREATED;
 import static com.hyland.openarch.ecm.core.api.security.SecurityConstants.SYSTEM_USERNAME;
 import static com.hyland.openarch.ecm.core.schema.TypeConstants.KEY_BLOB_KEY;
+import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_ROOT;
 import static com.hyland.openarch.ecm.core.storage.dbs.DBSDocument.INITIAL_GENERATION;
 import static com.hyland.openarch.ecm.core.storage.dbs.DBSDocument.INITIAL_USER_GENERATION;
 
+import com.hyland.openarch.ecm.core.api.PropertyException;
 import com.hyland.openarch.ecm.core.api.RepositoryException;
 import jakarta.transaction.Status;
 import jakarta.transaction.Synchronization;
@@ -394,18 +396,16 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
             id = connection.generateNewId();
             docState.put(SYS_ID, id);
         }
-        if (transientStates.containsKey(id)) {
-            throw new ConcurrentUpdateException(id);
-        }
-        transientStates.put(id, docState);
-        transientCreated.add(id);
 
         // properties managed by system
 
         // sys_primaryType
         String primaryType = docState.getPrimaryType();
         if (primaryType == null) {
-            throw new RepositoryException("Missing " + SYS_PRIMARY_TYPE);
+            throw new PropertyException("Missing " + SYS_PRIMARY_TYPE);
+        }
+        if (SYS_ROOT.equals(primaryType)) {
+            throw new PropertyException("Cannot create a document with primary type " + SYS_ROOT);
         }
 
         // sys_name
@@ -415,6 +415,12 @@ public class DBSTransactionState implements LockManager, AutoCloseable, Synchron
         }
         name = session.normalize(name);
         docState.put(SYS_NAME, name);
+
+        if (transientStates.containsKey(id)) {
+            throw new ConcurrentUpdateException(id);
+        }
+        transientStates.put(id, docState);
+        transientCreated.add(id);
 
         // sys_ancestorIds
         String parentId = docState.getParentId();
