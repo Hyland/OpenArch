@@ -33,6 +33,7 @@ import com.hyland.openarch.runtime.api.Framework;
 import com.hyland.openarch.runtime.mockito.RuntimeInjector;
 import com.hyland.openarch.runtime.springboot.OpenArchApplication;
 import com.hyland.openarch.runtime.springboot.auth.RepositoryLoginFilter;
+import com.hyland.openarch.runtime.springboot.framework.ApplicationContextHelper;
 import com.hyland.openarch.runtime.springboot.junit.security.BearerTokenProvider;
 import com.hyland.openarch.runtime.springboot.transaction.TransactionFilter;
 import com.hyland.openarch.runtime.test.runner.Deploy;
@@ -132,6 +133,7 @@ public abstract class RuntimeSpringBootTest {
         Injector injector = Guice.createInjector(Stage.DEVELOPMENT,
                 aBinder -> aBinder.bind(FeaturesLoader.class).toInstance(loader));
 
+        ApplicationContextHelper.setApplicationContext(applicationContext);
         loader.apply("initialize", FORWARD, feature -> feature.initialize(loader));
         loader.apply("start", FORWARD, RunnerFeature::start);
         loader.apply("beforeRun", FORWARD, RunnerFeature::beforeRun);

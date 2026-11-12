@@ -120,6 +120,7 @@ public class OpenArchApplication {
                     sysprops.setProperty(prop.getKey(), val);
                 }
             }
+            ApplicationContextHelper.setApplicationContext(applicationContext);
             SpringBootFrameworkLoader.start(getClass().getClassLoader(), home, new ArrayList<>(bundles.values()),
                     nxHostEnv);
 
