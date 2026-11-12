@@ -73,6 +73,18 @@ public class IndexingTaskTest {
     }
 
     @Test
+    public void deleteGhostCommandIsKeptThroughSerialization() {
+        IndexingTask task = new IndexingTask("test", List.of(IndexingCommand.deleteGhost("test", "foo")));
+        var json = TaskServiceImpl.MAPPER.writeValueAsString(task);
+        var cmd = TaskServiceImpl.MAPPER.readValue(json, IndexingTask.class).getCommands().getFirst();
+        assertThat(cmd.getType()).isEqualTo(IndexingCommand.Type.DELETE);
+        assertThat(cmd.getRepositoryName()).isEqualTo("test");
+        assertThat(cmd.getTargetDocumentId()).isEqualTo("foo");
+        assertThat(cmd.isRecurse()).isFalse();
+        assertThat(cmd.isGhost()).isTrue();
+    }
+
+    @Test
     public void testIndexingTaskWithTypeInsertCommandReturnsNullTimeStamp() throws Exception {
         DocumentModel doc = mock(DocumentModel.class);
         when(doc.getId()).thenReturn("foo");

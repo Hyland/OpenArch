@@ -23,6 +23,7 @@ import static com.hyland.openarch.ecm.core.schema.TypeConstants.SYS_FILE;
 
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -32,6 +33,7 @@ import com.hyland.openarch.ecm.core.api.Blob;
 import com.hyland.openarch.ecm.core.api.Blobs;
 import com.hyland.openarch.ecm.core.api.CoreSession;
 import com.hyland.openarch.ecm.core.api.DocumentModel;
+import com.hyland.openarch.ecm.core.api.DocumentModelList;
 import com.hyland.openarch.ecm.core.blob.BlobProvider;
 import com.hyland.openarch.ecm.core.blob.BlobService;
 import com.hyland.openarch.ecm.core.blob.BlobStoreBlobProvider;
@@ -40,6 +42,7 @@ import com.hyland.openarch.opensearch.api.OpenSearchService;
 import com.hyland.openarch.opensearch.commands.IndexingCommand;
 import com.hyland.openarch.opensearch.commands.IndexingCommand.Type;
 import com.hyland.openarch.opensearch.io.DocumentDTO;
+import com.hyland.openarch.opensearch.query.OpenSearchQueryBuilder;
 import com.hyland.openarch.runtime.test.runner.Deploy;
 import com.hyland.openarch.runtime.test.runner.Features;
 import com.hyland.openarch.runtime.test.runner.FeaturesExtension;
@@ -48,6 +51,7 @@ import org.opensearch.client.opensearch._types.FieldValue;
 import org.opensearch.client.opensearch._types.SearchType;
 import org.opensearch.client.opensearch._types.query_dsl.Query;
 import org.opensearch.client.opensearch._types.query_dsl.QueryBuilders;
+import org.opensearch.client.opensearch.core.IndexRequest;
 import org.opensearch.client.opensearch.core.SearchRequest;
 import org.opensearch.client.opensearch.core.SearchResponse;
 
@@ -219,6 +223,64 @@ public class TestCommandReindexing {
         request = request.toBuilder().query(query).build();
         searchResponse = oss.getClient().search(request);
         assertEquals(1, searchResponse.hits().total().value());
+    }
+
+    @Test
+    public void shouldDeleteGhostOnlyWhenDocDoesNotExist() throws Exception {
+        DocumentModel doc = createIndexedDoc();
+        String orphanId = indexOrphanCopy(doc);
+        assertEquals(2, countIndexedDocs());
+
+        // the doc exists in the database, it is kept in the index
+        oss.indexNonRecursive(IndexingCommand.deleteGhost(doc.getRepositoryName(), doc.getId()), false);
+        oss.refresh();
+        assertEquals(2, countIndexedDocs());
+
+        // the orphan does not exist in the database, it is deleted from the index
+        oss.indexNonRecursive(IndexingCommand.deleteGhost(doc.getRepositoryName(), orphanId), false);
+        oss.refresh();
+        assertEquals(1, countIndexedDocs());
+    }
+
+    @Test
+    public void shouldDeleteDocsMissingFromDatabaseWhenQueried() throws Exception {
+        DocumentModel doc = createIndexedDoc();
+        indexOrphanCopy(doc);
+        assertEquals(2, countIndexedDocs());
+
+        startTransaction();
+        DocumentModelList docs = oss.query(new OpenSearchQueryBuilder(session).hxql("SELECT * FROM SysContent"));
+        assertEquals(1, docs.size());
+        TransactionHelper.commitOrRollbackTransaction();
+        waitForCompletion();
+        assertEquals(1, countIndexedDocs());
+    }
+
+    private DocumentModel createIndexedDoc() throws Exception {
+        startTransaction();
+        DocumentModel doc = session.createDocumentModel("/", "testDoc", SYS_FILE);
+        doc.create();
+        session.save();
+        oss.indexNonRecursive(new IndexingCommand(doc, Type.INSERT, true, false), false);
+        TransactionHelper.commitOrRollbackTransaction();
+        waitForCompletion();
+        startTransaction();
+        return doc;
+    }
+
+    /**
+     * Indexes a copy of the doc under a random id, so that it only exists in the index.
+     */
+    private String indexOrphanCopy(DocumentModel doc) {
+        String orphanId = UUID.randomUUID().toString();
+        oss.getClient().index(IndexRequest.of(b -> b.index(IDX_NAME).id(orphanId).document(new DocumentDTO(doc))));
+        oss.refresh();
+        return orphanId;
+    }
+
+    private long countIndexedDocs() throws Exception {
+        SearchRequest request = new SearchRequest.Builder().index(IDX_NAME).build();
+        return oss.getClient().search(request).hits().total().value();
     }
 
 }

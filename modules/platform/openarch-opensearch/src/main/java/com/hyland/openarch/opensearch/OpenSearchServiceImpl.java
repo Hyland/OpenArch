@@ -177,6 +177,8 @@ public class OpenSearchServiceImpl extends DefaultComponent implements OpenSearc
 
     private static final String OPENSEARCH_RUNTIME_INDEXING_FAILURE_MONITOR_TAG = "OpenSearchService indexing task failed. Runtime Indexing";
 
+    private static final String GHOST_DELETE_TAG = "Ghost delete:";
+
     public static final String PROPERTY_REINDEXING_COMMAND = "hxpr.commands.reindexingCommand";
 
     private static final String DOCUMENT_DEFAULT_VERSION = "0-0";
@@ -1036,6 +1038,14 @@ public class OpenSearchServiceImpl extends DefaultComponent implements OpenSearc
     }
 
     private void processDeleteCommand(IndexingCommand cmd) {
+        if (cmd.isGhost()) {
+            CoreSession session = CoreInstance.getCoreSessionSystem(cmd.getRepositoryName());
+            if (session.exists(new IdRef(cmd.getTargetDocumentId()))) {
+                log.info(GHOST_DELETE_TAG + " skipped, doc exists in the database: {}", cmd);
+                return;
+            }
+            log.info(GHOST_DELETE_TAG + " deleting, doc does not exist in the database: {}", cmd);
+        }
         if (cmd.isRecurse()) {
             processDeleteCommandRecursive(cmd);
         } else {
@@ -1493,8 +1503,33 @@ public class OpenSearchServiceImpl extends DefaultComponent implements OpenSearc
             ret = fetcher.fetchDocuments();
             logMinDurationFetch(stopWatch.stop(), totalSize);
         }
+        if (ret.size() != response.hits().hits().size()) {
+            scheduleDeleteGhosts(response, ret);
+        }
         ret.setTotalSize(totalSize);
         return ret;
+    }
+
+    /**
+     * Schedules the deletion of the hits that were not fetched from the database. Each deletion is only applied if
+     * the doc still does not exist when processed.
+     */
+    private void scheduleDeleteGhosts(SearchResponse<DocumentDTO> response, DocumentModelList docs) {
+        Set<String> fetched = new HashSet<>();
+        docs.forEach(doc -> fetched.add(doc.getRepositoryName() + doc.getId()));
+        Map<String, List<IndexingCommand>> commands = new HashMap<>();
+        for (Hit<DocumentDTO> hit : response.hits().hits()) {
+            String repositoryName = repoNames.get(hit.index());
+            if (repositoryName != null && !fetched.contains(repositoryName + hit.id())) {
+                commands.computeIfAbsent(repositoryName, _ -> new ArrayList<>())
+                        .add(IndexingCommand.deleteGhost(repositoryName, hit.id()));
+            }
+        }
+        try {
+            scheduleIndexingAsyncWorker(commands);
+        } catch (RuntimeException e) {
+            log.warn(GHOST_DELETE_TAG + " failed to schedule: {}", commands, e);
+        }
     }
 
     private void logMinDurationFetch(long duration, long totalSize) {

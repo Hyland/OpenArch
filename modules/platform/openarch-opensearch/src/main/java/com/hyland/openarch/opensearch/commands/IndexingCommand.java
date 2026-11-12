@@ -70,10 +70,29 @@ public class IndexingCommand implements Serializable {
 
     protected long order;
 
+    protected boolean ghost;
+
     protected static AtomicLong seq = new AtomicLong(0);
 
     @JsonCreator
     protected IndexingCommand() {
+    }
+
+    /**
+     * Create a non-recursive delete command for a suspected ghost, a document found in the index but not in the
+     * database. It is only applied if the document still does not exist in the database when processed.
+     *
+     * @param repositoryName the repository name
+     * @param docId the target document id
+     */
+    public static IndexingCommand deleteGhost(String repositoryName, String docId) {
+        IndexingCommand cmd = new IndexingCommand();
+        cmd.id = PREFIX + seq.incrementAndGet();
+        cmd.type = Type.DELETE;
+        cmd.repositoryName = repositoryName;
+        cmd.targetDocumentId = docId;
+        cmd.ghost = true;
+        return cmd;
     }
 
     /**
@@ -154,6 +173,10 @@ public class IndexingCommand implements Serializable {
         return type;
     }
 
+    public boolean isGhost() {
+        return ghost;
+    }
+
     public String toJSON() throws IOException {
         StringWriter out = new StringWriter();
         JsonGenerator jsonGen = MAPPER.createGenerator(out);
@@ -173,6 +196,7 @@ public class IndexingCommand implements Serializable {
         jsonGen.writeBooleanProperty("recurse", recurse);
         jsonGen.writeBooleanProperty("sync", sync);
         jsonGen.writeNumberProperty("order", getOrder());
+        jsonGen.writeBooleanProperty("ghost", ghost);
         jsonGen.writeEndObject();
     }
 
@@ -211,6 +235,8 @@ public class IndexingCommand implements Serializable {
                 cmd.recurse = value.booleanValue();
             } else if ("sync".equals(key)) {
                 cmd.sync = value.booleanValue();
+            } else if ("ghost".equals(key)) {
+                cmd.ghost = value.booleanValue();
             }
         }
         if (cmd.targetDocumentId == null) {
