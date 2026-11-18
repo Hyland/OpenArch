@@ -181,7 +181,7 @@ OpenArch will run as a component in your AI platform stack.
 To help you understand how you will integrate it with your existing solutions, we built a [fully functional OpenArch demo](https://github.com/aborroy/content-lake-app-deployment#content-lake-app-deployment) indexing content from Alfresco and Nuxeo repositories that you can freely take inspiration from.
 
 ## Giving Feedback and Getting Support
-Discussions, questions and feedback are most welcome. Feel free to connect with us through the [discussions section](https://github.com/Hyland/OpenArch/discussions). Bug reports and feature requests should be reported through the [issues section](https://github.com/Hyland/OpenArch/issues).
+Discussions, questions and feedback are most welcome. Feel free to connect with us through the [discussions section](https://github.com/Hyland/OpenArch/discussions) or the [Hyland OpenArch group](https://community.hyland.com/group/26-hyland-openarch) on Hyland Community. Bug reports and feature requests should be reported through the [issues section](https://github.com/Hyland/OpenArch/issues).
 
 ## Contributing
 Contributions are always welcome. Learn [how to contribute](https://github.com/Hyland/OpenArch/blob/main/CONTRIBUTING.md) here.
